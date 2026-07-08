@@ -101,7 +101,26 @@
       "PanelContext": "kernel/panels/context.py",
       "RenderedPanel": "kernel/panels/render.py",
       "PanelSession": "kernel/panels/engine.py",
-      "LocaleContext": "kernel/interaction/locale.py"
+      "LocaleContext": "kernel/interaction/locale.py",
+      "ManagedTaskSpec": "spec/scheduler.py",
+      "MisfirePolicy": "spec/scheduler.py",
+      "QuietHours": "spec/scheduler.py",
+      "ConditionTrigger": "spec/scheduler.py",
+      "DueTimer": "kernel/db/scheduler.py",
+      "DueQueueLane": "kernel/scheduler/due_queue.py",
+      "MisfireDecision": "kernel/scheduler/misfire.py",
+      "LoadDisposition": "kernel/versioning/resolve.py",
+      "Draft": "spec/draft.py",
+      "DraftOperation": "spec/draft.py",
+      "DraftStatus": "spec/draft.py",
+      "OwnerScope": "spec/draft.py",
+      "Producer": "spec/draft.py",
+      "OpKindBinding": "kernel/draft/registry.py",
+      "OpKindRegistry": "kernel/draft/registry.py",
+      "DraftPreview": "kernel/draft/preview.py",
+      "DraftApplyResult": "kernel/draft/apply.py",
+      "DraftPipeline": "kernel/draft/pipeline.py",
+      "ExpiryJanitorLane": "kernel/draft/janitor.py"
     },
     "roots": [
       "sb"
