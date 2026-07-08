@@ -1,11 +1,51 @@
 {
   "compiler_version": "1.0.0",
   "field_roles": {
+    "BindingSpec.bind_weight": "O",
+    "BindingSpec.capability_required": "S",
+    "BindingSpec.group": "A",
+    "BindingSpec.hint": "S",
+    "BindingSpec.kind": "S",
+    "BindingSpec.legacy_settings_key_aliases": "S",
+    "BindingSpec.multiplicity": "S",
+    "BindingSpec.name": "S",
+    "BindingSpec.required": "S",
+    "BindingSpec.resource_link": "S",
     "ColumnSpec.key": "S",
     "ColumnSpec.label": "S",
+    "CommandSpec.aliases": "S",
+    "CommandSpec.audience_tier": "S",
+    "CommandSpec.capability": "S",
+    "CommandSpec.capability_required": "S",
+    "CommandSpec.cooldown": "S",
     "CommandSpec.cost_posture": "S",
+    "CommandSpec.defer_mode": "S",
+    "CommandSpec.enabled_when": "S",
+    "CommandSpec.help_section_order": "A",
+    "CommandSpec.kind": "S",
+    "CommandSpec.name": "S",
     "CommandSpec.quota_ref": "S",
+    "CommandSpec.reply_visibility": "S",
+    "CommandSpec.route": "S",
     "CommandSpec.slash_common": "S",
+    "CommandSpec.summary": "S",
+    "CommandSpec.usage": "S",
+    "CommandSpec.usage_weight": "O",
+    "CompoundOpSpec.audit_verb": "S",
+    "CompoundOpSpec.authority_ref": "S",
+    "CompoundOpSpec.confirmation": "S",
+    "CompoundOpSpec.dedup_key": "S",
+    "CompoundOpSpec.domain": "S",
+    "CompoundOpSpec.emits": "S",
+    "CompoundOpSpec.empty_result": "S",
+    "CompoundOpSpec.idempotency": "S",
+    "CompoundOpSpec.idempotency_justification": "S",
+    "CompoundOpSpec.lane": "S",
+    "CompoundOpSpec.legs": "S",
+    "CompoundOpSpec.op_key": "S",
+    "CompoundOpSpec.reversibility": "O",
+    "CompoundOpSpec.session_transition": "S",
+    "CompoundOpSpec.single_flight_scope": "S",
     "ConditionTrigger.condition": "S",
     "ConditionTrigger.poll_interval_s": "S",
     "ConfirmationSpec.challenge": "S",
@@ -13,6 +53,9 @@
     "ConfirmationSpec.reversibility": "S",
     "ConfirmationSpec.snapshot_before": "S",
     "ConfirmationSpec.timeout_s": "S",
+    "CooldownSpec.per_s": "S",
+    "CooldownSpec.rate": "S",
+    "CooldownSpec.scope": "S",
     "CredentialSpec.blast": "S",
     "CredentialSpec.cadence_days": "S",
     "CredentialSpec.config_ref": "S",
@@ -21,12 +64,21 @@
     "CredentialSpec.rotation": "S",
     "CredentialSpec.store": "S",
     "Cron.expr": "S",
+    "DedupKeySpec.source": "S",
+    "DomainPanelSpec.capability_required": "S",
+    "DomainPanelSpec.description": "S",
+    "DomainPanelSpec.name": "S",
     "EmbedFrameSpec.alt_text": "S",
     "EmbedFrameSpec.field_budget_chars": "S",
     "EmbedFrameSpec.footer_mode": "S",
     "EmbedFrameSpec.max_fields": "S",
     "EmbedFrameSpec.style_token": "S",
     "EmbedFrameSpec.thumbnail_ref": "S",
+    "EmptyResultSpec.predicate": "S",
+    "EmptyResultSpec.user_message": "S",
+    "EventEmitSpec.delivery": "S",
+    "EventEmitSpec.event": "S",
+    "EventEmitSpec.payload_builder": "S",
     "EventSpec.audited": "S",
     "EventSpec.delivery": "S",
     "EventSpec.expected_subscribers": "S",
@@ -58,6 +110,15 @@
     "InvariantSpec.stores": "S",
     "InvariantSpec.tolerance": "S",
     "LayoutSpec.pages": "A",
+    "LegAuditSpec.audit_target_kind": "S",
+    "LegAuditSpec.verb": "S",
+    "LegSpec.audit": "S",
+    "LegSpec.compensator": "S",
+    "LegSpec.handler": "S",
+    "LegSpec.kind": "S",
+    "LegSpec.leg_id": "S",
+    "LegSpec.optional": "S",
+    "LegSpec.reversibility": "S",
     "ListBlock.list_spec": "S",
     "ListBlock.provider": "S",
     "ListSpec.default_sort": "A",
@@ -139,10 +200,23 @@
     "PanelSpec.timeout_s": "S",
     "PanelSpec.title": "S",
     "PanelSpec.usage_weight": "O",
+    "ProvisioningHint.priority": "S",
+    "ProvisioningHint.suggested_category": "S",
+    "ProvisioningHint.suggested_name": "S",
+    "ProvisioningHint.suggested_permissions": "S",
     "QuietHours.end_hour": "S",
     "QuietHours.policy": "S",
     "QuietHours.start_hour": "S",
     "QuietHours.tz": "S",
+    "ResourceRequirement.audit_intent": "S",
+    "ResourceRequirement.binding_name": "S",
+    "ResourceRequirement.description": "S",
+    "ResourceRequirement.intent": "S",
+    "ResourceRequirement.kind": "S",
+    "ResourceRequirement.offer_on_enable": "S",
+    "ResourceRequirement.provisioning": "S",
+    "ResourceRequirement.shareable": "S",
+    "ResourceRequirement.teardown_policy": "S",
     "ResultCardSpec.frame": "S",
     "SelectorSpec.audience_tier": "S",
     "SelectorSpec.capability_required": "S",
@@ -158,6 +232,34 @@
     "SelectorSpec.selector_id": "S",
     "SelectorSpec.slash_common": "S",
     "SelectorSpec.usage_weight": "O",
+    "SettingGroupSpec.description": "S",
+    "SettingGroupSpec.group_id": "S",
+    "SettingGroupSpec.label": "S",
+    "SettingSpec.activation": "S",
+    "SettingSpec.advanced": "A",
+    "SettingSpec.allowed_values": "S",
+    "SettingSpec.bound_binding": "S",
+    "SettingSpec.bounds": "S",
+    "SettingSpec.capability_required": "S",
+    "SettingSpec.co_edit_group": "O",
+    "SettingSpec.default": "S",
+    "SettingSpec.depends_on": "O",
+    "SettingSpec.edit_weight": "O",
+    "SettingSpec.external_side_effects": "S",
+    "SettingSpec.group": "A",
+    "SettingSpec.hint": "S",
+    "SettingSpec.input_hint": "S",
+    "SettingSpec.keyed_secret": "S",
+    "SettingSpec.legacy_keys": "S",
+    "SettingSpec.name": "S",
+    "SettingSpec.panel_order": "A",
+    "SettingSpec.preset_kind": "S",
+    "SettingSpec.presets": "S",
+    "SettingSpec.scope_default": "S",
+    "SettingSpec.settings_key": "S",
+    "SettingSpec.storage": "S",
+    "SettingSpec.validator": "S",
+    "SettingSpec.value_type": "S",
     "StoreSpec.active_rows_ref": "S",
     "StoreSpec.bears_value": "S",
     "StoreSpec.cache_scope": "S",
@@ -197,16 +299,277 @@
     "TableSpec.sort_options": "S",
     "TextBlock.text": "S"
   },
-  "manifest_count": 0,
+  "manifest_count": 1,
   "projections": {
-    "events": {},
-    "namespace": {
-      "command": []
+    "events": {
+      "settings.changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "settings"
+      }
     },
-    "refs": {},
-    "stores": {}
+    "namespace": {
+      "command": [
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "surface": "prefix",
+          "value": "settings"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "surface": "slash",
+          "value": "settings"
+        }
+      ],
+      "event": [
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.changed"
+        }
+      ],
+      "panel": [
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.hub"
+        }
+      ],
+      "subsystem_key": [
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings"
+        }
+      ],
+      "table": [
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "subsystem_bindings"
+        }
+      ]
+    },
+    "refs": {
+      "engine:settings.store": {
+        "module": "sb.kernel.db.settings"
+      },
+      "panel:settings.hub": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.hub_index": {
+        "module": "sb.domain.settings.panels"
+      },
+      "workflow:settings.changed_payload": {
+        "module": "sb.domain.settings.ops"
+      },
+      "workflow:settings.erase_binding": {
+        "module": "sb.domain.settings.ops"
+      },
+      "workflow:settings.erase_scalar": {
+        "module": "sb.domain.settings.ops"
+      },
+      "workflow:settings.write_binding": {
+        "module": "sb.domain.settings.ops"
+      },
+      "workflow:settings.write_scalar": {
+        "module": "sb.domain.settings.ops"
+      }
+    },
+    "stores": {
+      "settings": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "settings",
+        "sole_writer": {
+          "$ref": "engine:settings.store"
+        },
+        "subsystem": "settings"
+      },
+      "subsystem_bindings": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "subsystem_bindings",
+        "sole_writer": {
+          "$ref": "engine:settings.store"
+        },
+        "subsystem": "settings"
+      }
+    }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:64a5eaae511d6c9081129bcfff8d7ca54d99527af0218c3c915b48d517a7de66",
-  "subsystems": {}
+  "stable_hash": "sha256:b316c4216a5e44ff838c9d4f131b7f89e1fed03d0a9dacfb28a7f0a12923dbf8",
+  "subsystems": {
+    "settings": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "settings",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "settings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:settings.hub"
+          },
+          "slash_common": true,
+          "summary": "Open the settings hub (per-subsystem configuration).",
+          "usage": "/settings",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "settings.changed",
+          "observability_only": false,
+          "owner_subsystem": "settings",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "key",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "subsystem",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
+      "key": "settings",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Per-subsystem configuration. Every value resolves per-guild explicit → global explicit → default."
+            },
+            {
+              "provider": {
+                "$ref": "provider:settings.hub_index"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "settings.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "Settings",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "settings",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "help",
+            "setup"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:settings.store"
+          },
+          "table": "settings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "rename",
+          "invariant_tag": "subsystem_bindings",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "help",
+            "setup"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:settings.store"
+          },
+          "table": "subsystem_bindings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1
+    }
+  }
 }

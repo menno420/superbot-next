@@ -1,5 +1,5 @@
 {
- "assignments": {
+ "entries": {
   "settings:settings:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the settings-grouping sim re-runs post-telemetry)"
@@ -7,5 +7,6 @@
    "value": 0
   }
  },
- "schema_version": 1
+ "schema_version": 1,
+ "subsystem": "settings"
 }

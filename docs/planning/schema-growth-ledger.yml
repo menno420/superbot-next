@@ -803,3 +803,295 @@ entries:
     consumers: [tools/check_intent_survival.py, sb/spec/governance.py]
     rejected_alternative: "CommandSpec-only tag (selector-rooted entry points invisible)"
     minted: 2026-07-08
+
+  # --- band 1 (settings/diag/help): CommandSpec + the §2.5 settings facets
+  # (D-0025). Consumers name the kernel/domain/tools readers now live;
+  # per-band manifests re-cite their slices as they port (S5-note pattern).
+  CommandSpec.name:
+    consumers: [sb/manifest/settings.py, tools/manifest_compile.py]
+    rejected_alternative: "hand-built per-cog command tables in domain code"
+    minted: 2026-07-08
+  CommandSpec.kind:
+    consumers: [sb/manifest/settings.py, tools/manifest_compile.py]
+    rejected_alternative: "separate prefix/slash spec types (optional-field soup)"
+    minted: 2026-07-08
+  CommandSpec.route:
+    consumers: [sb/manifest/settings.py, tools/manifest_compile.py]
+    rejected_alternative: "tier-3 hand-coded command callbacks"
+    minted: 2026-07-08
+  CommandSpec.aliases:
+    consumers: [sb/manifest/settings.py, tools/manifest_compile.py]
+    rejected_alternative: "runtime alias tables outside the namespace"
+    minted: 2026-07-08
+  CommandSpec.summary:
+    consumers: [sb/manifest/settings.py, sb/domain/settings/ai_tasks.py]
+    rejected_alternative: "hand-written help pages (drift class)"
+    minted: 2026-07-08
+  CommandSpec.usage:
+    consumers: [sb/manifest/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "hand-written usage strings in cog docstrings"
+    minted: 2026-07-08
+  CommandSpec.capability_required:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/resolve.py]
+    rejected_alternative: "per-handler permission checks (the no-path-skips-the-check hole)"
+    minted: 2026-07-08
+  CommandSpec.audience_tier:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/resolve.py]
+    rejected_alternative: "in-handler visibility_rules calls"
+    minted: 2026-07-08
+  CommandSpec.capability:
+    consumers: [tools/check_intent_survival.py, tools/check_slash_cap.py]
+    rejected_alternative: "name-prefix heuristics for capability grouping"
+    minted: 2026-07-08
+  CommandSpec.enabled_when:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/predicates.py]
+    rejected_alternative: "in-handler enabled checks (T2-9 dispatch-admission hole)"
+    minted: 2026-07-08
+  CommandSpec.reply_visibility:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/result.py]
+    rejected_alternative: "per-callsite ephemeral= booleans"
+    minted: 2026-07-08
+  CommandSpec.defer_mode:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/resolve.py]
+    rejected_alternative: "per-handler interaction.response.defer calls"
+    minted: 2026-07-08
+  CommandSpec.cooldown:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/cooldown.py]
+    rejected_alternative: "decorator-based @commands.cooldown (undeclared anti-abuse)"
+    minted: 2026-07-08
+  CommandSpec.help_section_order:
+    consumers: [sb/kernel/panels/projections.py, sim/space.py]
+    rejected_alternative: "hand-ordered help embeds"
+    minted: 2026-07-08
+  CommandSpec.usage_weight:
+    consumers: [sim/space.py, sim/usage.snapshot.json]
+    rejected_alternative: "hand-tuned ordering constants"
+    minted: 2026-07-08
+  CooldownSpec.rate:
+    consumers: [sb/spec/commands.py, sb/kernel/interaction/cooldown.py]
+    rejected_alternative: "magic-number decorator args"
+    minted: 2026-07-08
+  CooldownSpec.per_s:
+    consumers: [sb/spec/commands.py, sb/kernel/interaction/cooldown.py]
+    rejected_alternative: "magic-number decorator args"
+    minted: 2026-07-08
+  CooldownSpec.scope:
+    consumers: [sb/spec/commands.py, sb/kernel/interaction/cooldown.py]
+    rejected_alternative: "per-handler bucket-type constants"
+    minted: 2026-07-08
+  SettingSpec.name:
+    consumers: [sb/kernel/settings/__init__.py, sb/domain/settings/service.py]
+    rejected_alternative: "raw KV key literals at callsites (the 40-bypass class)"
+    minted: 2026-07-08
+  SettingSpec.value_type:
+    consumers: [sb/domain/settings/service.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "per-callsite int()/bool() coercion"
+    minted: 2026-07-08
+  SettingSpec.default:
+    consumers: [sb/kernel/settings/__init__.py, sb/domain/settings/service.py]
+    rejected_alternative: "inline callsite defaults (the orphan-key gap)"
+    minted: 2026-07-08
+  SettingSpec.settings_key:
+    consumers: [sb/kernel/settings/__init__.py, sb/domain/settings/keys.py]
+    rejected_alternative: "hand-maintained key-constant modules outside the manifest"
+    minted: 2026-07-08
+  SettingSpec.capability_required:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/resolve.py]
+    rejected_alternative: "per-panel permission checks"
+    minted: 2026-07-08
+  SettingSpec.hint:
+    consumers: [sb/kernel/panels/projections.py, sb/manifest/settings.py]
+    rejected_alternative: "hand-written wizard copy tables"
+    minted: 2026-07-08
+  SettingSpec.validator:
+    consumers: [sb/domain/settings/service.py, sb/spec/settings.py]
+    rejected_alternative: "tier-3 validator callables serialized by qualname"
+    minted: 2026-07-08
+  SettingSpec.allowed_values:
+    consumers: [sb/domain/settings/service.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "free-form modal for enum-shaped scalars"
+    minted: 2026-07-08
+  SettingSpec.input_hint:
+    consumers: [sb/kernel/panels/projections.py, sb/manifest/settings.py]
+    rejected_alternative: "widget dispatch by value_type only (loses channel/role selects)"
+    minted: 2026-07-08
+  SettingSpec.presets:
+    consumers: [sb/kernel/panels/projections.py, sb/domain/settings/service.py]
+    rejected_alternative: "hard-coded preset button rows per panel"
+    minted: 2026-07-08
+  SettingSpec.activation:
+    consumers: [sb/kernel/settings/__init__.py, sb/spec/settings.py]
+    rejected_alternative: "blanket default-ON/OFF constant (the §4.4 trilemma)"
+    minted: 2026-07-08
+  SettingSpec.external_side_effects:
+    consumers: [sb/spec/settings.py, tools/check_cost_posture.py]
+    rejected_alternative: "trusting per-feature opt-in docs (forgettable privacy gate)"
+    minted: 2026-07-08
+  SettingSpec.storage:
+    consumers: [sb/domain/settings/ai_readers.py, sb/kernel/db/settings.py]
+    rejected_alternative: "a parallel typed-policy projection service (the outgrew-itself case)"
+    minted: 2026-07-08
+  SettingSpec.scope_default:
+    consumers: [sb/kernel/settings/__init__.py, sb/kernel/db/settings.py]
+    rejected_alternative: "implicit guild-only scope (loses global rows)"
+    minted: 2026-07-08
+  SettingSpec.legacy_keys:
+    consumers: [sb/domain/settings/keys.py, tools/importer (CUT-2 alias map)]
+    rejected_alternative: "hand-written importer scripts' private key knowledge"
+    minted: 2026-07-08
+  SettingSpec.keyed_secret:
+    consumers: [sb/kernel/settings/__init__.py, sb/spec/settings.py]
+    rejected_alternative: "env reads inside feature code (config-accessor seam breach)"
+    minted: 2026-07-08
+  SettingSpec.bound_binding:
+    consumers: [sb/kernel/settings/__init__.py, sb/spec/settings.py]
+    rejected_alternative: "feature-local binding existence checks"
+    minted: 2026-07-08
+  SettingSpec.preset_kind:
+    consumers: [sb/kernel/panels/projections.py, sb/spec/settings.py]
+    rejected_alternative: "preset-only editors for text settings (Q-0215 violation)"
+    minted: 2026-07-08
+  SettingSpec.bounds:
+    consumers: [sb/domain/settings/service.py, sb/spec/settings.py]
+    rejected_alternative: "trivial tier-3 validator refs for common ranges (G-5)"
+    minted: 2026-07-08
+  SettingSpec.group:
+    consumers: [sim/space.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "hand-grouped settings panels"
+    minted: 2026-07-08
+  SettingSpec.advanced:
+    consumers: [sim/space.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "hand-curated advanced pages"
+    minted: 2026-07-08
+  SettingSpec.panel_order:
+    consumers: [sim/space.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "declaration-order rendering"
+    minted: 2026-07-08
+  SettingSpec.edit_weight:
+    consumers: [sim/space.py, sim/oracles/settings_grouping.py]
+    rejected_alternative: "hand-tuned grouping weights"
+    minted: 2026-07-08
+  SettingSpec.co_edit_group:
+    consumers: [sim/oracles/settings_grouping.py, sim/space.py]
+    rejected_alternative: "hard-coded pair lists"
+    minted: 2026-07-08
+  SettingSpec.depends_on:
+    consumers: [sim/oracles/settings_grouping.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "implicit ordering conventions"
+    minted: 2026-07-08
+  SettingGroupSpec.group_id:
+    consumers: [sim/oracles/settings_grouping.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "sim-minted group copy (S/A split violation)"
+    minted: 2026-07-08
+  SettingGroupSpec.label:
+    consumers: [sb/kernel/panels/projections.py, sim/oracles/settings_grouping.py]
+    rejected_alternative: "sim-minted group copy (S/A split violation)"
+    minted: 2026-07-08
+  SettingGroupSpec.description:
+    consumers: [sb/kernel/panels/projections.py, sim/oracles/settings_grouping.py]
+    rejected_alternative: "sim-minted group copy (S/A split violation)"
+    minted: 2026-07-08
+  BindingSpec.name:
+    consumers: [sb/kernel/db/settings.py, sb/domain/settings/ops.py]
+    rejected_alternative: "raw pointer-key KV writes"
+    minted: 2026-07-08
+  BindingSpec.kind:
+    consumers: [sb/kernel/db/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "untyped pointer values (channel-vs-role confusion class)"
+    minted: 2026-07-08
+  BindingSpec.required:
+    consumers: [sb/domain/settings/service.py, sb/kernel/settings/__init__.py]
+    rejected_alternative: "per-feature completeness checks"
+    minted: 2026-07-08
+  BindingSpec.hint:
+    consumers: [sb/kernel/panels/projections.py, sb/manifest/settings.py]
+    rejected_alternative: "hand-written wizard copy"
+    minted: 2026-07-08
+  BindingSpec.capability_required:
+    consumers: [sb/manifest/settings.py, sb/kernel/interaction/resolve.py]
+    rejected_alternative: "per-panel permission checks"
+    minted: 2026-07-08
+  BindingSpec.legacy_settings_key_aliases:
+    consumers: [tools/importer (CUT-2 alias map), sb/domain/settings/keys.py]
+    rejected_alternative: "hand-written migration scripts (decision 3)"
+    minted: 2026-07-08
+  BindingSpec.resource_link:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "loose back-pointer naming convention"
+    minted: 2026-07-08
+  BindingSpec.multiplicity:
+    consumers: [sb/kernel/db/settings.py, sb/spec/settings.py]
+    rejected_alternative: "JSON-list pointer values in scalar keys"
+    minted: 2026-07-08
+  BindingSpec.group:
+    consumers: [sim/space.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "hand-grouped binding panels"
+    minted: 2026-07-08
+  BindingSpec.bind_weight:
+    consumers: [sim/space.py, sim/oracles/settings_grouping.py]
+    rejected_alternative: "hand-tuned weights"
+    minted: 2026-07-08
+  ProvisioningHint.priority:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "severity constants in diagnostics code"
+    minted: 2026-07-08
+  ProvisioningHint.suggested_name:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "hard-coded channel names in provisioning code"
+    minted: 2026-07-08
+  ProvisioningHint.suggested_category:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "hard-coded category names"
+    minted: 2026-07-08
+  ProvisioningHint.suggested_permissions:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "inline permission-overwrite dicts"
+    minted: 2026-07-08
+  ResourceRequirement.kind:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "untyped provisioning requests"
+    minted: 2026-07-08
+  ResourceRequirement.intent:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "free-form finding strings"
+    minted: 2026-07-08
+  ResourceRequirement.provisioning:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "imperative provisioning code per feature"
+    minted: 2026-07-08
+  ResourceRequirement.binding_name:
+    consumers: [sb/spec/settings.py, sb/kernel/db/settings.py]
+    rejected_alternative: "loose name conventions between requirement and binding"
+    minted: 2026-07-08
+  ResourceRequirement.description:
+    consumers: [sb/kernel/panels/projections.py, sb/spec/settings.py]
+    rejected_alternative: "hand-written wizard copy"
+    minted: 2026-07-08
+  ResourceRequirement.offer_on_enable:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "silent auto-create on enable (forbidden by preserve rule)"
+    minted: 2026-07-08
+  ResourceRequirement.teardown_policy:
+    consumers: [sb/spec/settings.py, sb/kernel/privacy/erasure.py]
+    rejected_alternative: "ad-hoc teardown decisions at disable time"
+    minted: 2026-07-08
+  ResourceRequirement.shareable:
+    consumers: [sb/spec/settings.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "implicit shared-channel assumptions"
+    minted: 2026-07-08
+  ResourceRequirement.audit_intent:
+    consumers: [sb/spec/settings.py, sb/kernel/workflow/audit.py]
+    rejected_alternative: "unlabeled provisioning audit rows (mig-030 regression)"
+    minted: 2026-07-08
+  DomainPanelSpec.name:
+    consumers: [sb/kernel/panels/projections.py, sb/spec/settings.py]
+    rejected_alternative: "curated DOMAIN_CONFIG_SUBSYSTEMS hardcoded list"
+    minted: 2026-07-08
+  DomainPanelSpec.description:
+    consumers: [sb/kernel/panels/projections.py, sb/spec/settings.py]
+    rejected_alternative: "curated hardcoded list"
+    minted: 2026-07-08
+  DomainPanelSpec.capability_required:
+    consumers: [sb/kernel/panels/projections.py, sb/spec/settings.py]
+    rejected_alternative: "curated hardcoded list"
+    minted: 2026-07-08

@@ -78,7 +78,7 @@
       "MutationPreview": "kernel/workflow/result.py",
       "StepResult": "kernel/workflow/result.py",
       "SettingDeclaration": "kernel/settings/__init__.py",
-      "Activation": "kernel/settings/__init__.py",
+      "Activation": "spec/settings.py",
       "ResolveRequest": "kernel/interaction/request.py",
       "ActorRef": "kernel/interaction/request.py",
       "TargetRef": "kernel/interaction/request.py",
@@ -163,7 +163,18 @@
       "NLMessage": "kernel/ai/nl_engine.py",
       "NLOutcome": "kernel/ai/nl_engine.py",
       "EvalSuiteSpec": "kernel/ai/evals.py",
-      "EvalCase": "kernel/ai/evals.py"
+      "EvalCase": "kernel/ai/evals.py",
+      "CommandSpec": "spec/commands.py",
+      "CommandKind": "spec/commands.py",
+      "CooldownSpec": "spec/commands.py",
+      "SettingSpec": "spec/settings.py",
+      "BindingSpec": "spec/settings.py",
+      "BindingKind": "spec/settings.py",
+      "ResourceRequirement": "spec/settings.py",
+      "ProvisioningHint": "spec/settings.py",
+      "SettingGroupSpec": "spec/settings.py",
+      "DomainPanelSpec": "spec/settings.py",
+      "SettingResolution": "domain/settings/service.py"
     },
     "roots": [
       "sb"

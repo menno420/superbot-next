@@ -17,6 +17,9 @@
 | `tests/unit/<area>/` | the unit suite (top-level package per leaf dir — never name one after a stdlib module) | with every code PR |
 | `migrations/` | the fresh `NNNN_*.sql` chain + `checksums.json` (regenerate same-PR) | a store/table lands |
 | `.github/workflows/` | ci.yml (green fleet) · golden-parity.yml (BORN-RED, isolated) · backup-db/restore-verify | a new named gate/reliability job |
+| `sb/domain/<key>/` | port-band subsystem implementations (service/ops/panels behind the audited seams) | a port band lands a subsystem (band 1 opened it: settings) |
+| `manifest/layout/` | the sim-apply [A]-overlay locks (`<subsystem>.lock.json`, SimRef/Exempt provenance) | sim.apply writes a reviewed arrangement pin |
+| `tools/grammar_fit/` | the V-2 cumulative UNITS ledger (`measure.py` -> RESULTS.md; band rows append-only) | each band appends its classification rows |
 
 ## Documentation roots
 

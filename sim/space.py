@@ -69,7 +69,15 @@ def stable_hash(data: Any) -> str:
 def a_tagged_fields() -> set[str]:
     """`SpecType.field` names role-tagged [A], from the grammar's own role
     registry (§2.10.1: 'the classification is the grammar's')."""
-    import sb.spec.panels  # noqa: F401 - registrations run at import
+    # Import EVERY sb.spec module (the manifest compiler's P0 pattern) so
+    # band-added [A] fields join automatically — the D-0020 promise
+    # ("band-1 arrangement fields join when role-registered") made real.
+    import importlib
+    import pkgutil
+
+    import sb.spec as spec_pkg
+    for info in sorted(pkgutil.iter_modules(spec_pkg.__path__), key=lambda i: i.name):
+        importlib.import_module(f"sb.spec.{info.name}")
     from sb.spec.roles import snapshot_field_roles
 
     return {k for k, v in snapshot_field_roles().items() if v == "A"}

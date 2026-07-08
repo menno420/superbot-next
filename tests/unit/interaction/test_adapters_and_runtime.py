@@ -210,6 +210,12 @@ def test_build_runtime_arms_leg_b_and_installs_the_index():
     )
     from sb.app.build_runtime import build_runtime
 
+    # Isolate from real-manifest imports: another suite may have compiled
+    # sb.manifest (registering e.g. settings.changed into KNOWN_EVENTS);
+    # this test's fake snapshot is economy-only (band-1 note, D-0025).
+    from sb.spec.events import clear_event_registry
+    clear_event_registry()
+
     snapshot = _snapshot()
     runtime = build_runtime(snapshot)
     assert runtime.command_paths() == snapshot_command_paths(snapshot) == {"balance"}

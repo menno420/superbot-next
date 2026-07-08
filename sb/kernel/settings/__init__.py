@@ -32,9 +32,12 @@ registers each SettingSpec into this registry (one declaration path, §4.1).
 
 from __future__ import annotations
 
-import enum
 from dataclasses import dataclass
 from typing import Awaitable, Callable
+
+# Band 1 re-homed Activation to the spec leaf (sb/spec/settings.py — the
+# Gate-0 facet home); re-exported here so pre-band-1 imports keep working.
+from sb.spec.settings import Activation
 
 __all__ = [
     "Activation",
@@ -44,20 +47,12 @@ __all__ = [
     "install_secret_presence",
     "install_settings_reader",
     "iter_declarations",
+    "register_manifest_settings",
     "register_setting",
     "resolve",
 ]
 
 UNSET = object()   # the store's "no explicit row" sentinel
-
-
-class Activation(enum.Enum):
-    """Design-spec §4.4 — the unset-terminus policy for bool settings."""
-
-    ON_BY_DEFAULT = "on_by_default"
-    ON_WHEN_BOUND = "on_when_bound"
-    ON_WHEN_KEYED = "on_when_keyed"
-    OFF_UNTIL_OPT_IN = "off_until_opt_in"
 
 
 @dataclass(frozen=True)
@@ -144,6 +139,7 @@ def install_secret_presence(cfg: object) -> None:
 def clear_for_tests() -> None:
     global _reader, _binding_probe, _present_secrets
     _declarations.clear()
+    _persisted_keys.clear()
     _reader = _empty_reader
     _binding_probe = _no_binding
     _present_secrets = frozenset()
@@ -173,3 +169,45 @@ async def resolve(guild_id: int, subsystem: str, name: str) -> object:
         return decl.keyed_secret in _present_secrets
     # ON_WHEN_BOUND — dynamic per read against the binding cache.
     return await _binding_probe(guild_id, decl.bound_binding or "")
+
+
+# --- the band-1 manifest bridge (design-spec §4.1: ONE declaration path) ---------
+
+_persisted_keys: dict[str, str] = {}   # "{subsystem}.{name}" -> persisted KV key
+
+
+def persisted_key(subsystem: str, name: str) -> str:
+    """The canonical persisted key string for a declared setting (compat
+    item 5: the shipped `settings_key` vocabulary stays the row key)."""
+    return _persisted_keys.get(f"{subsystem}.{name}", f"{subsystem}.{name}")
+
+
+def register_manifest_settings(manifest: object) -> tuple[SettingDeclaration, ...]:
+    """Register every SettingSpec facet of one SubsystemManifest into THE
+    declaration registry (band 1; runs the §4.4/§2.5 fences first).
+
+    Returns the minted declarations. BindingSpec/ResourceRequirement facet
+    entries are validated but not declared here (the binding lane owns them).
+    """
+    from sb.spec.settings import SettingSpec, validate_settings_facets
+
+    problems = validate_settings_facets(manifest)
+    if problems:
+        raise ValueError("settings facet fences: " + "; ".join(problems))
+    minted: list[SettingDeclaration] = []
+    subsystem = str(getattr(manifest, "key"))
+    for spec in getattr(manifest, "settings", ()) or ():
+        if not isinstance(spec, SettingSpec):
+            continue
+        decl = SettingDeclaration(
+            subsystem=subsystem,
+            name=spec.name,
+            default=spec.default,
+            activation=spec.activation,
+            keyed_secret=spec.keyed_secret or None,
+            bound_binding=spec.bound_binding or None,
+        )
+        register_setting(decl)
+        _persisted_keys[decl.key] = spec.key
+        minted.append(decl)
+    return tuple(minted)
