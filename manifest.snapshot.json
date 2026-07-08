@@ -1,6 +1,39 @@
 {
   "compiler_version": "1.0.0",
-  "field_roles": {},
+  "field_roles": {
+    "EventSpec.audited": "S",
+    "EventSpec.delivery": "S",
+    "EventSpec.expected_subscribers": "S",
+    "EventSpec.name": "S",
+    "EventSpec.observability_only": "S",
+    "EventSpec.owner_subsystem": "S",
+    "EventSpec.payload_schema": "S",
+    "EventSpec.redaction_ref": "S",
+    "FieldSpec.name": "S",
+    "FieldSpec.required": "S",
+    "FieldSpec.type": "S",
+    "StoreSpec.active_rows_ref": "S",
+    "StoreSpec.bears_value": "S",
+    "StoreSpec.checkpoint_class": "S",
+    "StoreSpec.compensation_ref": "S",
+    "StoreSpec.invariant_tag": "S",
+    "StoreSpec.payload_version": "S",
+    "StoreSpec.reader_domains": "S",
+    "StoreSpec.retention": "S",
+    "StoreSpec.retire_ref": "S",
+    "StoreSpec.sole_writer": "S",
+    "StoreSpec.table": "S",
+    "StoreSpec.upcast_ref": "S",
+    "StoreSpec.version_policy": "S",
+    "SubsystemManifest.capabilities": "S",
+    "SubsystemManifest.commands": "S",
+    "SubsystemManifest.events": "S",
+    "SubsystemManifest.key": "S",
+    "SubsystemManifest.panels": "S",
+    "SubsystemManifest.settings": "S",
+    "SubsystemManifest.stores": "S",
+    "SubsystemManifest.version": "S"
+  },
   "manifest_count": 0,
   "projections": {
     "events": {},
@@ -11,6 +44,6 @@
     "stores": {}
   },
   "schema_version": 1,
-  "stable_hash": "sha256:081c1410663970ab8a78673c5de6948fd324155fe9a93885a2a208c42c046d55",
+  "stable_hash": "sha256:2172f6629efa9caeb40d316876e42760da94bb0f6c5818387748bf0142a8e6fd",
   "subsystems": {}
 }

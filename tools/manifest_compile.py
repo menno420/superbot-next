@@ -196,6 +196,49 @@ def _get(obj: object, field: str, default: object = None) -> object:
     return getattr(obj, field, default)
 
 
+def _handler_accepts_reserved_keys(sub_ref: object) -> bool:
+    """delivery_declared rule 3 (spec 08 §3.1/§6.3): an AT_LEAST_ONCE event's
+    expected subscriber must be able to receive the reserved `_outbox_*`
+    delivery kwargs — `**kwargs` or an explicit `_outbox_dedup_key` param.
+    An unregistered/unresolvable ref is skipped here (P2 owns unresolved-ref
+    verdicts); only a RESOLVABLE handler with a closed signature reds."""
+    import inspect
+
+    from sb.spec.refs import is_registered, resolve
+    try:
+        if not is_registered(sub_ref):
+            return True
+        fn = resolve(sub_ref)
+        sig = inspect.signature(fn)
+    except Exception:  # noqa: BLE001 — best-effort arm
+        return True
+    for param in sig.parameters.values():
+        if param.kind is inspect.Parameter.VAR_KEYWORD:
+            return True
+        if param.name == "_outbox_dedup_key":
+            return True
+    return False
+
+
+# --- P0: grammar import ------------------------------------------------------------
+
+def _import_spec_grammar(violations: list[Violation]) -> None:
+    """Import every sb.spec module BEFORE projecting, so each grammar type's
+    `register_field_roles` side effects are visible to the snapshot's
+    `field_roles` section regardless of which facets the loaded manifests
+    happen to touch (P5 registration is at type-definition site; the snapshot
+    must be import-order independent). Mirrors check_schema_growth."""
+    import sb.spec as spec_pkg
+
+    for info in sorted(pkgutil.iter_modules(spec_pkg.__path__), key=lambda i: i.name):
+        module_name = f"sb.spec.{info.name}"
+        try:
+            importlib.import_module(module_name)
+        except Exception as exc:  # noqa: BLE001 — a broken grammar leaf is a compile verdict
+            violations.append(Violation("load", COMPILE_ERROR, None, module_name,
+                                        f"spec grammar import raised: {exc!r}"))
+
+
 # --- P1: load --------------------------------------------------------------------
 
 def _p1_load(manifest_pkg: str, injected: list | None,
@@ -329,9 +372,11 @@ def _project(manifests: list) -> dict:
             if not name:
                 continue
             _ns("event", str(name), key, source)
+            delivery = _get(event, "delivery", None)
             events_proj[str(name)] = {
                 "owner_subsystem": key,
                 "observability_only": bool(_get(event, "observability_only", False)),
+                "delivery": getattr(delivery, "value", delivery) or "best_effort",
             }
 
         for cap in _get(m, "capabilities", ()) or ():
@@ -502,6 +547,30 @@ def _p6_semantic(manifests: list, violations: list[Violation]) -> None:
                     flag(key, locus,
                          "audit_completeness: mutating spec must route through a WorkflowRef")
 
+            # -- delivery_declared (spec 08 §3.1 — additive fence, K4) -----------
+            # Duck-typed on the `delivery` field (the compiler reads NAMED
+            # declared fields, never class names — spec 01 facet-growth rule).
+            delivery = _get(spec, "delivery", None)
+            if delivery is not None:
+                delivery_token = getattr(delivery, "value", delivery)
+                if _get(spec, "observability_only", False) and \
+                        delivery_token == "at_least_once":
+                    flag(key, locus,
+                         "delivery_declared: observability_only event cannot be "
+                         "AT_LEAST_ONCE (telemetry is never guaranteed-delivered)")
+                if delivery_token == "at_least_once":
+                    if not (_get(m, "stores", ()) or ()):
+                        flag(key, locus,
+                             "delivery_declared: AT_LEAST_ONCE event whose "
+                             "owner_subsystem writes no store the relay can reach")
+                    for sub_ref in _get(spec, "expected_subscribers", ()) or ():
+                        if not _handler_accepts_reserved_keys(sub_ref):
+                            flag(key, locus,
+                                 "delivery_declared: effectful subscriber "
+                                 f"{getattr(sub_ref, 'name', sub_ref)!r} cannot receive "
+                                 "the reserved _outbox_* delivery keys "
+                                 "(declare **kwargs or an explicit _outbox_dedup_key)")
+
             if name == "PanelActionSpec" and effect == "mutating":
                 mirrors = _get(spec, "mirrors", None)
                 if _get(spec, "cooldown", None) is None:
@@ -615,6 +684,10 @@ def compile_manifests(
     manifests: list | None = None,             # library/test injection (bypasses package walk)
 ) -> CompileResult:
     violations: list[Violation] = []
+
+    _import_spec_grammar(violations)                          # P0: role registration side effects
+    if violations:
+        return CompileResult(False, None, None, tuple(violations))
 
     loaded = _p1_load(manifest_pkg, manifests, violations)   # P1
     if violations:

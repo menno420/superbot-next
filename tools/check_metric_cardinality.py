@@ -18,9 +18,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sb.spec.observability import METRICS, MetricKind, MetricSpec  # noqa: E402
+from sb.kernel.outbox.metrics import OUTBOX_METRICS  # noqa: E402
+
+ALL_METRICS: tuple[MetricSpec, ...] = METRICS + OUTBOX_METRICS
 
 
-def check(specs: tuple[MetricSpec, ...] = METRICS) -> list[str]:
+def check(specs: tuple[MetricSpec, ...] = ALL_METRICS) -> list[str]:
     violations: list[str] = []
     seen: set[str] = set()
     for spec in specs:
@@ -56,7 +59,7 @@ def main() -> int:
     if violations:
         print(f"check_metric_cardinality: {len(violations)} violation(s)", file=sys.stderr)
         return 1
-    print(f"check_metric_cardinality: clean ({len(METRICS)} families)")
+    print(f"check_metric_cardinality: clean ({len(ALL_METRICS)} families)")
     return 0
 
 

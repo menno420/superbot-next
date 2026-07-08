@@ -28,4 +28,105 @@ baseline:
 #     consumers: [sb/manifest/economy.py, sb/manifest/inventory.py]  # >=2 REQUIRED
 #     rejected_alternative: "tier-3 handler in domain/economy/ui/"
 #     minted: 2026-07-DD
-entries: {}
+# S5 (K4) note: EventSpec/FieldSpec (spec 08 s3.1) and the version-extended
+# StoreSpec (spec 09 s3.2) are KERNEL-consumed grammar - consumers below name
+# the kernel/tools modules that read each field until the port bands mint the
+# first sb/manifest/ declarations (each field is then re-cited from its
+# manifests).
+entries:
+  EventSpec.name:
+    consumers: [sb/kernel/outbox/enqueue.py, tools/manifest_compile.py]
+    rejected_alternative: "bare event-name strings in the events facet (no schema, no fence input)"
+    minted: 2026-07-08
+  EventSpec.payload_schema:
+    consumers: [sb/kernel/outbox/enqueue.py, sb/spec/events.py]
+    rejected_alternative: "unchecked **kwargs (the shipped bus splat with no declared superset)"
+    minted: 2026-07-08
+  EventSpec.owner_subsystem:
+    consumers: [sb/kernel/outbox/enqueue.py, tools/manifest_compile.py]
+    rejected_alternative: "deriving ownership from the emitting module path at runtime"
+    minted: 2026-07-08
+  EventSpec.expected_subscribers:
+    consumers: [tools/manifest_compile.py, sb/kernel/outbox/relay.py]
+    rejected_alternative: "runtime-discovered subscriber list (no compile-time reserved-key fence)"
+    minted: 2026-07-08
+  EventSpec.observability_only:
+    consumers: [tools/manifest_compile.py, sb/kernel/outbox/enqueue.py]
+    rejected_alternative: "a naming convention (*.observed) instead of a declared field"
+    minted: 2026-07-08
+  EventSpec.audited:
+    consumers: [sb/spec/events.py, sb/kernel/outbox/enqueue.py]
+    rejected_alternative: "an AuditEventSpec subclass (dropped by spec 08 s3.1 - no consumer, no enforcement)"
+    minted: 2026-07-08
+  EventSpec.redaction_ref:
+    consumers: [sb/spec/events.py, tools/manifest_compile.py]
+    rejected_alternative: "per-subscriber ad-hoc scrubbing (the shipped WebhookReporter-only pattern)"
+    minted: 2026-07-08
+  EventSpec.delivery:
+    consumers: [sb/kernel/outbox/enqueue.py, sb/kernel/outbox/relay.py, tools/manifest_compile.py]
+    rejected_alternative: "everything at-least-once / everything best-effort (spec 08 fork A options i/ii)"
+    minted: 2026-07-08
+  FieldSpec.name:
+    consumers: [sb/kernel/outbox/enqueue.py, sb/spec/events.py]
+    rejected_alternative: "dict-shaped payload schemas (unroleable, untyped)"
+    minted: 2026-07-08
+  FieldSpec.type:
+    consumers: [sb/kernel/outbox/enqueue.py, sb/spec/events.py]
+    rejected_alternative: "runtime type sniffing at the codec boundary"
+    minted: 2026-07-08
+  FieldSpec.required:
+    consumers: [sb/kernel/outbox/enqueue.py, sb/spec/events.py]
+    rejected_alternative: "treating every payload key as optional (loses the enqueue presence check)"
+    minted: 2026-07-08
+  StoreSpec.table:
+    consumers: [sb/kernel/outbox/store.py, tools/manifest_compile.py]
+    rejected_alternative: "inferring table names from module paths"
+    minted: 2026-07-08
+  StoreSpec.sole_writer:
+    consumers: [sb/kernel/outbox/store.py, tools/manifest_compile.py]
+    rejected_alternative: "an unenforced comment-level ownership convention"
+    minted: 2026-07-08
+  StoreSpec.retention:
+    consumers: [sb/kernel/outbox/store.py, sb/kernel/outbox/relay.py]
+    rejected_alternative: "hardcoded prune intervals inside each sweep loop"
+    minted: 2026-07-08
+  StoreSpec.checkpoint_class:
+    consumers: [sb/kernel/outbox/store.py, tools/manifest_compile.py]
+    rejected_alternative: "the string literal ledger (spec 08 seam-correction: the enum, not the string)"
+    minted: 2026-07-08
+  StoreSpec.invariant_tag:
+    consumers: [sb/kernel/outbox/store.py, tools/manifest_compile.py]
+    rejected_alternative: "per-table hand-written AST fences with no declared tag"
+    minted: 2026-07-08
+  StoreSpec.reader_domains:
+    consumers: [sb/kernel/outbox/store.py, tools/manifest_compile.py]
+    rejected_alternative: "implicit read access (no declared projection set)"
+    minted: 2026-07-08
+  StoreSpec.payload_version:
+    consumers: [sb/kernel/outbox/store.py, sb/spec/versioning.py]
+    rejected_alternative: "version embedded inside each payload blob with per-cog parsing"
+    minted: 2026-07-08
+  StoreSpec.bears_value:
+    consumers: [sb/kernel/outbox/store.py, sb/spec/versioning.py]
+    rejected_alternative: "inferring value-bearing-ness from invariant_tag prefixes"
+    minted: 2026-07-08
+  StoreSpec.version_policy:
+    consumers: [sb/kernel/outbox/store.py, sb/spec/versioning.py]
+    rejected_alternative: "per-cog drop-vs-refund branches (the RPS-forfeit shape, spec 09 s3.4)"
+    minted: 2026-07-08
+  StoreSpec.active_rows_ref:
+    consumers: [sb/spec/versioning.py, sb/kernel/outbox/store.py]
+    rejected_alternative: "generic per-store column-name guesses (row.version/row.state/row.id)"
+    minted: 2026-07-08
+  StoreSpec.retire_ref:
+    consumers: [sb/spec/versioning.py, sb/kernel/outbox/store.py]
+    rejected_alternative: "kernel-side raw DELETE against a domain table (breaks sole-writer)"
+    minted: 2026-07-08
+  StoreSpec.upcast_ref:
+    consumers: [sb/spec/versioning.py, sb/kernel/outbox/store.py]
+    rejected_alternative: "in-place payload mutation at load with no declared rung chain"
+    minted: 2026-07-08
+  StoreSpec.compensation_ref:
+    consumers: [sb/spec/versioning.py, sb/kernel/outbox/store.py]
+    rejected_alternative: "refund logic inline in recovery branches (the #1693 stopgap shape)"
+    minted: 2026-07-08
