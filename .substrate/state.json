@@ -1,0 +1,42 @@
+{
+  "graduation": {
+    "criteria": {
+      "blocking_questions": 0,
+      "critical_slots_filled_pct": 0.8
+    },
+    "soft_target_sessions": 50
+  },
+  "graduation_proposed": false,
+  "last_compaction_session": 0,
+  "mode": "guided",
+  "mode_history": [],
+  "open_questions": [],
+  "project_id": "0f00ecc87d58",
+  "promotion_rights": "propose",
+  "quiet_sessions": 0,
+  "reflection_buffer": {
+    "active_count": 0,
+    "last_mined": null
+  },
+  "review_log": [],
+  "session_count": 0,
+  "slot_values": {
+    "doc_roots": {
+      "question_id": "Q-007",
+      "source": "derived",
+      "value": "docs"
+    },
+    "project_name": {
+      "question_id": "Q-002",
+      "source": "derived",
+      "value": "superbot-next"
+    }
+  },
+  "slots": {
+    "doc_roots": "provisional",
+    "project_name": "provisional"
+  },
+  "stage": "integration",
+  "stance": "analysis",
+  "version": 1
+}

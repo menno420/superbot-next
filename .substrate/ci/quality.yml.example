@@ -1,0 +1,21 @@
+# Example GitHub-Actions-style quality gate for a substrate-kit host.
+# Copy into .github/workflows/, uncomment, and adjust the interpreter
+# and bootstrap path to match your repo.
+#
+# `bootstrap.py check --strict` runs every kit checker in one pass:
+# docs hygiene (badges / links / reachability), session-log markers,
+# namespace shadowing, seam authority, orientation budget, and the
+# decision ledger.
+#
+# name: substrate-quality
+# on:
+#   pull_request:
+#   push:
+#     branches: [main]
+# jobs:
+#   substrate-check:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: substrate checks
+#         run: python3 bootstrap.py check --strict
