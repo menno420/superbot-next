@@ -110,9 +110,10 @@ async def run_boot_gate(
                     f"snapshot != built runtime (missing={missing}, extra={extra})"))
 
     remote = None
-    # Leg C arms at K8: lifts command_tree_sync._remote_paths + SyncOutcome
-    # verbatim; direction is always snapshot->Discord, non-fatal (REMOTE_LAG).
-    _ = (bot, sync_enabled)
+    if bot is not None:                                           # leg C (armed at K8/S9)
+        # snapshot->Discord, NON-FATAL (REMOTE_LAG): sync_remote never raises.
+        from sb.app.tree_sync import sync_remote
+        remote = await sync_remote(bot, committed, enabled=sync_enabled)
 
     return ParityReport(
         recompile_ok=recompile_ok,

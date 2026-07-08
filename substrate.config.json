@@ -78,7 +78,18 @@
       "MutationPreview": "kernel/workflow/result.py",
       "StepResult": "kernel/workflow/result.py",
       "SettingDeclaration": "kernel/settings/__init__.py",
-      "Activation": "kernel/settings/__init__.py"
+      "Activation": "kernel/settings/__init__.py",
+      "ResolveRequest": "kernel/interaction/request.py",
+      "ActorRef": "kernel/interaction/request.py",
+      "TargetRef": "kernel/interaction/request.py",
+      "SurfaceResponder": "kernel/interaction/request.py",
+      "NLProvenance": "kernel/interaction/request.py",
+      "Result": "kernel/interaction/result.py",
+      "ErrorEnvelope": "kernel/interaction/errors.py",
+      "ValidatorError": "kernel/interaction/errors.py",
+      "EventBus": "kernel/events_bus.py",
+      "RuntimeIndex": "app/build_runtime.py",
+      "SyncOutcome": "app/tree_sync.py"
     },
     "roots": [
       "sb"
