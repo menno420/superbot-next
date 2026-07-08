@@ -5,5 +5,6 @@
   "0004_due_queue.sql": "sha256:ae5cd7a1ff942e73f883b219c86fa101160114bf61a99f8fe6d9a066d65c4864",
   "0005_drafts.sql": "sha256:fa778cb00647106f43b58add50a735091d4821489aa02b48ed1311e1dc1c0d71",
   "0006_invariants.sql": "sha256:5493a576229487ffdb3df7d8e19b558b04aca2c80944509320eedecc967e55ed",
-  "0007_credential_rotation.sql": "sha256:29aecc35f168904c07bc78f1d131eb29f4e489241d70358f01f26ceca5cbf3d5"
+  "0007_credential_rotation.sql": "sha256:29aecc35f168904c07bc78f1d131eb29f4e489241d70358f01f26ceca5cbf3d5",
+  "0008_ai_decision_audit.sql": "sha256:5ff33a491d9353b2f2c7e4b2b07bb2708e900a9731806067f0d43d84df8be0df"
 }

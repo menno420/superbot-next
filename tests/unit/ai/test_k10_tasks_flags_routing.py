@@ -51,7 +51,7 @@ class TestTaskRegistry:
 
 class TestFlags:
     def test_fail_closed_without_install(self):
-        flags.reset_for_tests()
+        flags.reset_flags_for_tests()
         assert flags.ai_enabled() is False
         assert flags.task_enabled("general.nl_answer") is False
         assert flags.ai_tools_enabled() is False

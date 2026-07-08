@@ -148,7 +148,15 @@
       "AITaskSpec": "kernel/ai/tasks.py",
       "AIToolSpec": "kernel/ai/contracts.py",
       "DeterministicProvider": "kernel/ai/providers/deterministic.py",
-      "ProviderUnavailableError": "kernel/ai/providers/base.py"
+      "ProviderUnavailableError": "kernel/ai/providers/base.py",
+      "PolicyDecision": "kernel/ai/policy.py",
+      "PolicyBundle": "kernel/ai/policy.py",
+      "RoutedTask": "kernel/ai/router.py",
+      "InstructionStack": "kernel/ai/instructions.py",
+      "FeatureFactRequest": "kernel/ai/feature_facts.py",
+      "OrchestrationProfile": "kernel/ai/orchestration.py",
+      "RegisteredTool": "kernel/ai/tools_catalogue.py",
+      "ConversationTurn": "kernel/ai/conversation.py"
     },
     "roots": [
       "sb"
