@@ -141,7 +141,14 @@
       "RollbackClass": "spec/versioning.py",
       "ForwardMapKind": "spec/versioning.py",
       "IntentPosture": "spec/config.py",
-      "DegradedCapability": "kernel/config/__init__.py"
+      "DegradedCapability": "kernel/config/__init__.py",
+      "AIGateway": "kernel/ai/gateway.py",
+      "AIRequest": "kernel/ai/contracts.py",
+      "AIResponse": "kernel/ai/contracts.py",
+      "AITaskSpec": "kernel/ai/tasks.py",
+      "AIToolSpec": "kernel/ai/contracts.py",
+      "DeterministicProvider": "kernel/ai/providers/deterministic.py",
+      "ProviderUnavailableError": "kernel/ai/providers/base.py"
     },
     "roots": [
       "sb"
