@@ -15,3 +15,5 @@ prometheus-client>=0.21,<1     # K0 metrics registry (sb/kernel/observability/me
 discord.py>=2.4,<3             # K8 surface adapters (sb/adapters/discord/)
 croniter>=6.0,<7               # K9 Cron trigger slots (sb/kernel/scheduler/misfire.py)
 PyYAML>=6.0,<7                 # tools checkers (check_amendments, check_schema_growth)
+anthropic>=0.40,<1             # K10 provider adapter (sb/kernel/ai/providers/anthropic_provider.py)
+openai>=1.40,<2                # K10 provider adapter (sb/kernel/ai/providers/openai_provider.py)

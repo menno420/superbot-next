@@ -150,6 +150,19 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
     ConfigSpec("AI_DEFAULT_PROVIDER", ConfigType.STR, default="deterministic",
                owner_subsystem="ai"),
     ConfigSpec("AI_FALLBACK_PROVIDER", ConfigType.STR, default="", owner_subsystem="ai"),
+    # Harvested from shipped disbot/core/runtime/ai/feature_flags.py (missed
+    # by the S1 sweep — source wins, Q-0120; declared at K10 when the flags
+    # module re-homed onto the Config seam).
+    ConfigSpec("AI_TOOLS_ENABLED", ConfigType.BOOL, default=False, posture=_DOR,
+               owner_subsystem="ai"),
+    ConfigSpec("AI_SERVER_MEMBER_LOOKUP_ENABLED", ConfigType.BOOL, default=False,
+               posture=_DOR, owner_subsystem="ai"),
+    # K10 CSV folds of the shipped dynamic env-name patterns (RC-10: one
+    # frozen typed attribute per env var — D-0022):
+    # AI_TASK_<NAME>_ENABLED kill switches -> AI_TASKS_DISABLED (task ids);
+    # AI_ROUTING_<TASK> -> AI_TASK_ROUTING ("task=provider:model" entries).
+    ConfigSpec("AI_TASKS_DISABLED", ConfigType.CSV, default=(), owner_subsystem="ai"),
+    ConfigSpec("AI_TASK_ROUTING", ConfigType.CSV, default=(), owner_subsystem="ai"),
     SecretSpec("ANTHROPIC_API_KEY", ConfigType.SECRET, default=None, posture=_DOR,
                owner_subsystem="ai", activation_link="ai.on_when_keyed"),
     SecretSpec("OPENAI_API_KEY", ConfigType.SECRET, default=None, posture=_DOR,
