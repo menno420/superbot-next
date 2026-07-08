@@ -1,0 +1,4 @@
+{
+  "_comment": "Hand-ratified qualified command names force-kept on the slash surface — removed from the demotion candidate pool before the spec 03 §3.5 sort. EMPTY BY DEFAULT: the harvested corpus fits under 100 top-level (47), so the demotion is dormant; pins are the reviewable override if a future corpus overflows.",
+  "pins": []
+}
