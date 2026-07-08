@@ -1,0 +1,143 @@
+# parity/parity.yml — the golden-parity gate manifest (design-spec §6 gate 5)
+# + the A-16 parity-depth section (carried in this schema FROM BIRTH, per the
+# canonical plan §11b A-16: "parity.yml … does not exist yet — adding its depth
+# section now costs nothing").
+#
+# Semantics (design-spec §6 gate 5, verbatim contract):
+#   - every subsystem is listed as `pending | ported`;
+#   - `ported` subsystems run their goldens against a real Postgres service
+#     container in CI and MUST be green — any regression is a hard failure;
+#   - `pending` subsystems are expected-red and *reported*, not failing;
+#   - flipping `pending -> ported` is the port PR's deliberate LAST commit,
+#     and green is a one-way door (a `ported` row never flips back);
+#   - this file doubles as the owner's live port-progress dashboard.
+#
+# A-16 depth floor (enforced by tools/check_parity_depth.py inside the
+# golden-parity gate — no 7th gate):
+#   1. floor at the flip — a `ported` subsystem needs 100% declared-surface
+#      touch coverage (every manifest-declared event / store table / setting
+#      key exercised by >=1 golden) OR a per-surface `exempt` row below, whose
+#      reason MUST begin with a reason class from `depth.reason_classes`
+#      (never a bare "flaky");
+#   2. count-ratchet after the flip — covered-surface counts never decrease
+#      (`depth.ratchet` is the committed floor; regenerate it upward in the
+#      same PR that adds coverage);
+#   3. kernel/governance-owned surfaces get their own coverage home — the
+#      `kernel` section below — so they don't silently escape every band's
+#      floor;
+#   4. the design-spec §10.1 per-flip coverage NOTE (uncovered *flows*) stays
+#      the judgment layer; this floor is a floor, not the definition of depth.
+#
+# Provenance: the golden corpus was imported VERBATIM (byte-identical) from
+# the frozen reference repo. A golden changes only via an explicit, reviewed
+# PR with the diff explained (parity/README.md integrity rule).
+
+schema_version: 1
+
+source:
+  repo: menno420/superbot
+  sha: 7f7628e12f3b89c5c2a1fbdcfb039787df269e20
+  goldens: 465
+  # sha256 of the sorted per-file `sha256sum` manifest over parity/ at import
+  # time (482 files: 465 goldens + _sweep_skips.json + 16 harness/docs files).
+  tree_manifest_sha256: 2783d0032f90465fc378e77096284655babb3c8c6da449c30092791eaca14dcf
+  imported: "2026-07-08"
+
+# Every parity/goldens/<dir> has exactly one row here (checker-enforced both
+# directions). `_unmapped` holds the mechanical sweep cases not yet attributed
+# to a subsystem directory; port bands re-home cases as they flip.
+subsystems:
+  _unmapped: pending
+  admin: pending
+  ai: pending
+  automod: pending
+  blackjack: pending
+  btd6: pending
+  casino: pending
+  chain: pending
+  channel: pending
+  cleanup: pending
+  community: pending
+  community_spotlight: pending
+  counters: pending
+  counting: pending
+  creature: pending
+  diagnostic: pending
+  economy: pending
+  farm: pending
+  fishing: pending
+  four_twenty: pending
+  games: pending
+  general: pending
+  help: pending
+  hermes: pending
+  image_moderation: pending
+  inventory: pending
+  karma: pending
+  leaderboard: pending
+  logging: pending
+  mining: pending
+  moderation: pending
+  project_moon: pending
+  projectmoon: pending
+  proof_channel: pending
+  quicksetup: pending
+  role: pending
+  rps_tournament: pending
+  security: pending
+  server_management: pending
+  servermanagement: pending
+  settings: pending
+  setup: pending
+  ticket: pending
+  treasury: pending
+  utility: pending
+  ux_lab: pending
+  uxlab: pending
+  welcome: pending
+  xp: pending
+
+# A-16 clause 3: kernel/governance-owned surfaces (owned by no port band's
+# manifest) get their own coverage home. Status flips when K-band goldens
+# land; the surface list is data here so the checker stays DB-free.
+kernel:
+  status: pending
+  events:
+    - audit.action_recorded
+    - command.dispatched
+  tables:
+    - idempotency_keys
+    - event_outbox
+    - audit_log
+    - sb_due_queue
+    - sb_drafts
+    - sb_quarantine
+    - sb_invariant_sweep_log
+    - sb_credential_rotation
+
+depth:
+  # Closed reason-class vocabulary for exemptions (COVERAGE.md-style; the
+  # _sweep_skips honesty pattern). Growing this list is a reviewed schema
+  # change, never an inline invention.
+  reason_classes:
+    - time-driven            # tasks-loop / view-timeout behavior, out of capture scope
+    - env-keyed-integration  # AI providers / YouTube / webhooks absent by design
+    - settle-budget-race     # provider-health / dataset-scale compute races the settle budget
+    - dataset-scale          # golden would embed a pinned bulk dataset
+    - extension-management   # mutates the process's cog set mid-run
+    - ops-not-behavior       # instance lock / health server / memory sampler class
+    - covered-elsewhere      # covered by a named sibling oracle (cite it)
+    - kernel-owned           # surface owned by the kernel coverage home above
+
+  # exemptions:
+  #   <subsystem>:
+  #     - surface: "event:xp.level_up" | "table:xp" | "setting:xp.enabled"
+  #       reason: "<reason-class>: <specifics>"
+  exemptions: {}
+
+  # ratchet:
+  #   <subsystem>: {events: N, tables: N, settings: N}
+  # Committed covered-surface floors — counts never decrease. A `ported`
+  # subsystem MUST have a row; regenerate with
+  #   python3 tools/check_parity_depth.py --write-ratchet
+  ratchet: {}
