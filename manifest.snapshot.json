@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 6,
+  "manifest_count": 15,
   "projections": {
     "events": {
       "moderation.action_taken": {
@@ -328,6 +328,294 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "adminmenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "admin"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "slash",
+          "value": "admin"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "serverstats"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "coglist"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "slashes"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "loglevel"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "surface": "prefix",
+          "value": "restart"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "surface": "prefix",
+          "value": "automod"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "channelmenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "set"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "evt"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "create"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "bulkdelete"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "del"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "list"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "clone"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "move"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "lock"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "unlock"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "channelinfo"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "rename"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "slowmode"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "topic"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "permissions"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "surface": "prefix",
+          "value": "bulkcreate"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "cleanup"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "wordmenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "cleanuphistory"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "word"
+        },
+        {
+          "kind": "command",
+          "parent_group": "word",
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "add"
+        },
+        {
+          "kind": "command",
+          "parent_group": "word",
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "remove"
+        },
+        {
+          "kind": "command",
+          "parent_group": "word",
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "surface": "prefix",
+          "value": "list"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "surface": "prefix",
+          "value": "counters"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "surface": "slash",
+          "value": "counters"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "surface": "prefix",
+          "value": "counterpreset"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "surface": "prefix",
@@ -356,6 +644,14 @@
           "subsystem": "help",
           "surface": "slash",
           "value": "help"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "surface": "prefix",
+          "value": "imagemod"
         },
         {
           "kind": "command",
@@ -512,6 +808,30 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "surface": "prefix",
+          "value": "security"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "surface": "prefix",
+          "value": "servermanagement"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "surface": "slash",
+          "value": "server-management"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "surface": "prefix",
@@ -540,6 +860,14 @@
           "subsystem": "setup",
           "surface": "slash",
           "value": "setup"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "surface": "prefix",
+          "value": "welcome"
         }
       ],
       "event": [
@@ -556,6 +884,31 @@
       ],
       "panel": [
         {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin.hub"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod.hub"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.hub"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.hub"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters.hub"
+        },
+        {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diagnostic.hub"
@@ -564,6 +917,11 @@
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.home"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation.hub"
         },
         {
           "source": "sb/manifest/logging.py",
@@ -576,6 +934,16 @@
           "value": "moderation.hub"
         },
         {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security.hub"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "server_management.hub"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.hub"
@@ -584,9 +952,154 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.hub"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome.hub"
         }
       ],
       "setting_key": [
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_spam_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_invites_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_caps_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_mentions_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_cross_channel_spam_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_duplicate_enabled"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_spam_count"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_spam_window_seconds"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_caps_percent"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_mentions_count"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_cross_channel_spam_count"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_duplicate_count"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_exempt_roles"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod_exempt_channels"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup_spam_window_seconds"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters_enabled"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters_total_template"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters_humans_template"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters_bots_template"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_enabled"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_sexual_enabled"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_violence_enabled"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_harassment_enabled"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_hate_enabled"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_threshold_percent"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_exempt_roles"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation_exempt_channels"
+        },
         {
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
@@ -706,9 +1219,129 @@
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation_public_log_actions"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_enabled"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_raid_enabled"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_raid_join_count"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_raid_window_seconds"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_raid_slowmode_seconds"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_raid_lockdown_seconds"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_age_enabled"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_age_min_days"
+        },
+        {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security_age_action"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_enabled"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_join_enabled"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_leave_enabled"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_join_message"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_leave_message"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_dm_enabled"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_dm_message"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_card_enabled"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_min_account_age_days"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome_delete_after_seconds"
         }
       ],
       "subsystem_key": [
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin"
+        },
+        {
+          "source": "sb/manifest/automod.py",
+          "subsystem": "automod",
+          "value": "automod"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters"
+        },
         {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
@@ -718,6 +1351,11 @@
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help"
+        },
+        {
+          "source": "sb/manifest/image_moderation.py",
+          "subsystem": "image_moderation",
+          "value": "image_moderation"
         },
         {
           "source": "sb/manifest/logging.py",
@@ -730,6 +1368,16 @@
           "value": "moderation"
         },
         {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "server_management"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -738,9 +1386,19 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup"
+        },
+        {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome"
         }
       ],
       "table": [
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "prohibited_words"
+        },
         {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
@@ -764,11 +1422,41 @@
       ]
     },
     "refs": {
+      "engine:cleanup.store": {
+        "module": "sb.domain.cleanup.store"
+      },
       "engine:moderation.store": {
         "module": "sb.domain.moderation.store"
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
+      },
+      "handler:admin.loglevel": {
+        "module": "sb.domain.admin.handlers"
+      },
+      "handler:admin.restart": {
+        "module": "sb.domain.admin.handlers"
+      },
+      "handler:admin.serverstats_view": {
+        "module": "sb.domain.admin.handlers"
+      },
+      "handler:admin.slash_inventory": {
+        "module": "sb.domain.admin.handlers"
+      },
+      "handler:admin.subsystems_view": {
+        "module": "sb.domain.admin.handlers"
+      },
+      "handler:channel.ops_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.history_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.word_list": {
+        "module": "sb.domain.cleanup.ops"
+      },
+      "handler:counters.preset_pending": {
+        "module": "sb.domain.operator_spine"
       },
       "handler:logging.create_channels": {
         "module": "sb.domain.server_logging.handlers"
@@ -797,11 +1485,29 @@
       "handler:moderation.warnings_view": {
         "module": "sb.domain.moderation.service"
       },
+      "panel:admin.hub": {
+        "module": "sb.domain.operator_spine"
+      },
+      "panel:automod.hub": {
+        "module": "sb.domain.operator_spine"
+      },
+      "panel:channel.hub": {
+        "module": "sb.domain.operator_spine"
+      },
+      "panel:cleanup.hub": {
+        "module": "sb.domain.operator_spine"
+      },
+      "panel:counters.hub": {
+        "module": "sb.domain.operator_spine"
+      },
       "panel:diagnostic.hub": {
         "module": "sb.domain.diagnostic.panels"
       },
       "panel:help.home": {
         "module": "sb.domain.help.service"
+      },
+      "panel:image_moderation.hub": {
+        "module": "sb.domain.operator_spine"
       },
       "panel:logging.hub": {
         "module": "sb.domain.server_logging.panels"
@@ -809,14 +1515,41 @@
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
       },
+      "panel:security.hub": {
+        "module": "sb.domain.operator_spine"
+      },
+      "panel:server_management.hub": {
+        "module": "sb.domain.operator_spine"
+      },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
       },
+      "panel:welcome.hub": {
+        "module": "sb.domain.operator_spine"
+      },
+      "provider:admin.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
+      "provider:automod.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
+      "provider:channel.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
+      "provider:cleanup.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
+      "provider:counters.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
       "provider:diagnostic.status_index": {
         "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:image_moderation.hub_settings": {
+        "module": "sb.domain.operator_spine"
       },
       "provider:logging.hub_status": {
         "module": "sb.domain.server_logging.panels"
@@ -827,11 +1560,32 @@
       "provider:sb.panels.help_index": {
         "module": "sb.kernel.panels.projections"
       },
+      "provider:security.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
+      "provider:server_management.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
       "provider:settings.hub_index": {
         "module": "sb.domain.settings.panels"
       },
       "provider:setup.sections_index": {
         "module": "sb.domain.setup.panels"
+      },
+      "provider:welcome.hub_settings": {
+        "module": "sb.domain.operator_spine"
+      },
+      "workflow:cleanup.word_add": {
+        "module": "sb.domain.cleanup.ops"
+      },
+      "workflow:cleanup.word_add_op": {
+        "module": "sb.domain.cleanup.ops"
+      },
+      "workflow:cleanup.word_remove": {
+        "module": "sb.domain.cleanup.ops"
+      },
+      "workflow:cleanup.word_remove_op": {
+        "module": "sb.domain.cleanup.ops"
       },
       "workflow:moderation.action_payload": {
         "module": "sb.domain.moderation.ops"
@@ -924,6 +1678,14 @@
         },
         "subsystem": "moderation"
       },
+      "prohibited_words": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "prohibited_words",
+        "sole_writer": {
+          "$ref": "engine:cleanup.store"
+        },
+        "subsystem": "cleanup"
+      },
       "settings": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "settings",
@@ -951,8 +1713,1728 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:729ae0b548f295cdbac3d51680f8f76622849a2de34712ba76992596c1fb13c2",
+  "stable_hash": "sha256:ccc959b370cd6ac316a0db58db2ed2c40eec4861227e4be95681d1a6a9607088",
   "subsystems": {
+    "admin": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "adminmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:admin.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the admin menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "admin",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:admin.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the admin menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "serverstats",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:admin.serverstats_view"
+          },
+          "slash_common": false,
+          "summary": "Guild census stats.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "cogs",
+            "listcogs",
+            "cogslist"
+          ],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "coglist",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:admin.subsystems_view"
+          },
+          "slash_common": false,
+          "summary": "List loaded subsystems (the manifest registry).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "slashlist"
+          ],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "slashes",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:admin.slash_inventory"
+          },
+          "slash_common": false,
+          "summary": "List the declared slash surface.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "loglevel",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:admin.loglevel"
+          },
+          "slash_common": false,
+          "summary": "Show or set the sb log level.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "admin",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "restart",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:admin.restart"
+          },
+          "slash_common": false,
+          "summary": "Request a drain + restart (K5 lifecycle).",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "admin",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Operator surfaces over the kernel truth sources (manifest registry, lifecycle, log levels)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:admin.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "admin.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "admin",
+          "timeout_s": 180,
+          "title": "Admin",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "automod": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "automod",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "automod",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:automod.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the automod menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "automod",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Spam / invite / caps / mention / duplicate filtering — decisions are pure engine rules."
+            },
+            {
+              "provider": {
+                "$ref": "provider:automod.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "automod.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "automod",
+          "timeout_s": 180,
+          "title": "Automod",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master automod switch.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Enable the spam rule.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "spam_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_spam_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Enable the invites rule.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "invites_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_invites_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Enable the caps rule.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "caps_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_caps_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Enable the mentions rule.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "mentions_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_mentions_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Enable the cross channel spam rule.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "cross_channel_spam_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_cross_channel_spam_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Enable the duplicate rule.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "duplicate_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_duplicate_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            2,
+            50
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 5,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Messages inside the window that count as spam.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "spam_count",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_spam_count",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            300
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 7,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Spam sliding-window length.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "spam_window_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_spam_window_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            10,
+            100
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 70,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Uppercase percentage threshold.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "caps_percent",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_caps_percent",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            2,
+            50
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 4,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Mentions per message threshold.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "mentions_count",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_mentions_count",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            2,
+            20
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 4,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Distinct channels inside the window.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "cross_channel_spam_count",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_cross_channel_spam_count",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            2,
+            20
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 3,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Identical messages inside the window.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "duplicate_count",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_duplicate_count",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of exempt role ids.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "exempt_roles",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_exempt_roles",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of exempt channel ids.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "exempt_channels",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "automod_exempt_channels",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        }
+      ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "channel": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "channelmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:channel.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the channel menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "set",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `set` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "evt",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `evt` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "create",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `create` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bulkdelete",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `bulkdelete` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "del",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `del` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "list",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `list` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "clone",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `clone` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "move",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `move` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "lock",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `lock` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "unlock",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `unlock` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "channelinfo",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `channelinfo` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rename",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `rename` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "slow"
+          ],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "slowmode",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `slowmode` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "settopic"
+          ],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "topic",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `topic` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "permissions",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `permissions` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bulkcreate",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:channel.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Channel op `bulkcreate` (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "channel",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Channel operations (create/clone/lock/slowmode/…) — the ops port arms with the discord adapter slice."
+            },
+            {
+              "provider": {
+                "$ref": "provider:channel.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "channel.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "Channels",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "cleanup": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cleanup",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:cleanup.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the cleanup menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "wordmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:cleanup.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the word-filter menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cleanuphistory",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:cleanup.history_pending"
+          },
+          "slash_common": false,
+          "summary": "Sweep recent channel history.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "word",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:cleanup.word_list"
+          },
+          "slash_common": false,
+          "summary": "List the prohibited words.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "word",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "add",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:cleanup.word_add_op"
+          },
+          "slash_common": false,
+          "summary": "Add a prohibited word.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "word",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "remove",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:cleanup.word_remove_op"
+          },
+          "slash_common": false,
+          "summary": "Remove a prohibited word.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "cleanup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "word",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "list",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:cleanup.word_list"
+          },
+          "slash_common": false,
+          "summary": "List the prohibited words.",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "cleanup",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Prohibited-word filter + message-hygiene sweeps."
+            },
+            {
+              "provider": {
+                "$ref": "provider:cleanup.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "Cleanup",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            3600
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 15,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Repeated-message window for cleanup sweeps.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "spam_window_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "cleanup_spam_window_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "prohibited_words",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "automod",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:cleanup.store"
+          },
+          "table": "prohibited_words",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "counters": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "counters",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "counters",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:counters.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the counters menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "counters",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "counterpreset",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counters.preset_pending"
+          },
+          "slash_common": false,
+          "summary": "Apply a counter preset (port-armed later).",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "counters",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Live member-count channels (total · humans · bots)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:counters.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "counters.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "counters",
+          "timeout_s": 180,
+          "title": "Server counters",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master counters switch.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "counters_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "👥 Members: {count}",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Total-members channel name template ({count}).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "total_template",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "counters_total_template",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "🧑 Humans: {count}",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Humans channel name template ({count}).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "humans_template",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "counters_humans_template",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "🤖 Bots: {count}",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Bots channel name template ({count}).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "bots_template",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "counters_bots_template",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Total-members counter channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "counters_total_channel"
+          ],
+          "multiplicity": 1,
+          "name": "total_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Humans counter channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "counters_humans_channel"
+          ],
+          "multiplicity": 1,
+          "name": "humans_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Bots counter channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "counters_bots_channel"
+          ],
+          "multiplicity": 1,
+          "name": "bots_channel",
+          "required": false,
+          "resource_link": ""
+        }
+      ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
     "diagnostic": {
       "capabilities": [],
       "commands": [
@@ -1113,6 +3595,308 @@
         }
       ],
       "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "image_moderation": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "image_moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "imagemod",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:image_moderation.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the image-moderation menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "image_moderation",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Provider-scored image screening (sexual/violence/harassment/hate)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:image_moderation.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "image_moderation.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "image_moderation",
+          "timeout_s": 180,
+          "title": "Image moderation",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": true,
+          "group": "",
+          "hint": "Master switch — images leave the guild for scoring.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Screen the sexual category.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "sexual_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_sexual_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Screen the violence category.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "violence_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_violence_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Screen the harassment category.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "harassment_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_harassment_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Screen the hate category.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "hate_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_hate_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            100
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 80,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Score threshold to act.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "threshold_percent",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_threshold_percent",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of exempt role ids.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "exempt_roles",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_exempt_roles",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of exempt channel ids.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "exempt_channels",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "image_moderation_exempt_channels",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        }
+      ],
       "stores": [],
       "version": 1,
       "wizard_sections": []
@@ -2515,6 +5299,487 @@
       "version": 1,
       "wizard_sections": []
     },
+    "security": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "security",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "security",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:security.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the security menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "security",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Raid detection + account-age screening on member join."
+            },
+            {
+              "provider": {
+                "$ref": "provider:security.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "security.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "security",
+          "timeout_s": 180,
+          "title": "Security",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master security switch.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Raid-join detection.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "raid_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_raid_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            2,
+            100
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 10,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Joins inside the window that count as a raid.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "raid_join_count",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_raid_join_count",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            5,
+            3600
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 60,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Raid sliding-window length.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "raid_window_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_raid_window_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            21600
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 10,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Slowmode applied during a raid (0 = none).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "raid_slowmode_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_raid_slowmode_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            30,
+            86400
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 300,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "How long a raid lockdown holds.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "raid_lockdown_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_raid_lockdown_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Screen accounts younger than the minimum age.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "age_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_age_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            365
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 7,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Minimum account age in days.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "age_min_days",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_age_min_days",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            "alert",
+            "kick",
+            "ban"
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "alert",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Action for under-age accounts.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "age_action",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "security_age_action",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Channel slowmoded during a raid.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "security_raid_slowmode_channel"
+          ],
+          "multiplicity": 1,
+          "name": "raid_slowmode_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Security alert channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "security_alert_channel"
+          ],
+          "multiplicity": 1,
+          "name": "alert_channel",
+          "required": false,
+          "resource_link": ""
+        }
+      ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "server_management": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "servermenu",
+            "guildmenu"
+          ],
+          "audience_tier": "",
+          "capability": "server_management",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "servermanagement",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:server_management.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the server-management menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "server_management",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "name": "server-management",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:server_management.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the server-management menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "server_management",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Guild configuration overview — per-subsystem hubs hang off this menu."
+            },
+            {
+              "provider": {
+                "$ref": "provider:server_management.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "server_management.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "server_management",
+          "timeout_s": 180,
+          "title": "Server management",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
     "settings": {
       "capabilities": [],
       "commands": [
@@ -2872,6 +6137,393 @@
           "style": "secondary"
         }
       ]
+    },
+    "welcome": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "welcome",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "welcome",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:welcome.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the welcome menu.",
+          "usage": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "welcome",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Member greetings, farewells, and the optional entry role (the A-14 join gate anchor)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:welcome.hub_settings"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "welcome.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "welcome",
+          "timeout_s": 180,
+          "title": "Welcome",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master welcome switch.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "on_by_default",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": true,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Post a greeting on member join.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "join_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_join_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Post a farewell on member leave.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "leave_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_leave_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "👋 Welcome {user} to **{server}**! You're member #{count}.",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Greeting template ({user}/{server}/{count}).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "join_message",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_join_message",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "👋 **{user}** has left {server}. We're now {count} members.",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Farewell template ({user}/{server}/{count}).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "leave_message",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_leave_message",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": true,
+          "group": "",
+          "hint": "DM new members a welcome message.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "dm_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_dm_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "DM template (empty = built-in copy).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "dm_message",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_dm_message",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Render the welcome card image.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "card_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_card_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            365
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "A-14 screening input: minimum account age.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "min_account_age_days",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_min_account_age_days",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            86400
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Auto-delete the greeting after N seconds (0 = keep).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "delete_after_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "welcome_delete_after_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Greeting/farewell channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "welcome_channel"
+          ],
+          "multiplicity": 1,
+          "name": "channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Role granted on join — the A-14 deny-until-role gate's role source.",
+          "kind": "role",
+          "legacy_settings_key_aliases": [
+            "welcome_entry_role"
+          ],
+          "multiplicity": 1,
+          "name": "entry_role",
+          "required": false,
+          "resource_link": ""
+        }
+      ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
     }
   }
 }
