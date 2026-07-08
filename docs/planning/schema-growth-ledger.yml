@@ -563,3 +563,90 @@ entries:
     consumers: [sb/kernel/panels/render.py, sb/kernel/panels/projections.py]
     rejected_alternative: "raw description string concatenation in per-panel view classes"
     minted: 2026-07-08
+
+  # --- S10 (K9): the durability-extended ManagedTaskSpec (spec 09 s3.1,
+  # T2-6) + the A-13 QuietHours + R-17 ConditionTrigger riders.
+  ConditionTrigger.condition:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "per-cog condition-poll loops (channel_inactive etc. had no frozen carrier — R-17)"
+    minted: 2026-07-08
+  ConditionTrigger.poll_interval_s:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "per-cog condition-poll loops (channel_inactive etc. had no frozen carrier — R-17)"
+    minted: 2026-07-08
+  Cron.expr:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "hand-rolled next-run-at arithmetic per feature"
+    minted: 2026-07-08
+  EventTrigger.event:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/events_bus.py]
+    rejected_alternative: "ad-hoc bus listeners spawning their own tasks"
+    minted: 2026-07-08
+  Interval.seconds:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "in-memory asyncio.sleep loops (lost every deploy)"
+    minted: 2026-07-08
+  ManagedTaskSpec.catch_up:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.durability:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/db/scheduler.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.error_policy:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/db/scheduler.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.grace_s:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.handler:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/workflow/compile.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.max_catchup:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.metrics_labels:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/observability/metrics.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.misfire_policy:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.name:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/db/scheduler.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.quiet_hours:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.scope:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/db/scheduler.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  ManagedTaskSpec.trigger:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/misfire.py]
+    rejected_alternative: "a bespoke poll loop per feature (the shipped automation_scheduler shape)"
+    minted: 2026-07-08
+  QuietHours.end_hour:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "per-feature delivery-window if-chains (the one live scheduler behavior with no carrier — A-13)"
+    minted: 2026-07-08
+  QuietHours.policy:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "per-feature delivery-window if-chains (the one live scheduler behavior with no carrier — A-13)"
+    minted: 2026-07-08
+  QuietHours.start_hour:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "per-feature delivery-window if-chains (the one live scheduler behavior with no carrier — A-13)"
+    minted: 2026-07-08
+  QuietHours.tz:
+    consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
+    rejected_alternative: "per-feature delivery-window if-chains (the one live scheduler behavior with no carrier — A-13)"
+    minted: 2026-07-08
