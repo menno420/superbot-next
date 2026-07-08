@@ -54,7 +54,20 @@
       "NamespaceKind": "namespace/kinds.py",
       "ReservationIndex": "namespace/index.py",
       "SecretSpec": "spec/config.py",
-      "SubsystemManifest": "spec/manifest.py"
+      "SubsystemManifest": "spec/manifest.py",
+      "Lane": "spec/authority.py",
+      "DenialReason": "spec/outcomes.py",
+      "ErrorClass": "spec/outcomes.py",
+      "ReplyVisibility": "spec/outcomes.py",
+      "DeferMode": "spec/outcomes.py",
+      "AuthorityDecision": "kernel/authority/decision.py",
+      "AuthorityRequest": "kernel/authority/decision.py",
+      "ChannelAccessDecision": "kernel/authority/decision.py",
+      "CapabilityDecision": "kernel/authority/decision.py",
+      "TransparencyAudit": "kernel/authority/decision.py",
+      "TransparencySink": "kernel/authority/transparency.py",
+      "AccessMode": "kernel/authority/channel_access.py",
+      "CommandAccessSnapshot": "kernel/authority/channel_access.py"
     },
     "roots": [
       "sb"

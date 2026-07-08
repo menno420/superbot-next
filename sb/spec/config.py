@@ -117,7 +117,7 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
     ConfigSpec("LOG_LEVEL", ConfigType.STR, default="INFO", owner_subsystem="ops"),
     # Harvested from shipped disbot/healthserver.py:64,70 (missed by the S1
     # sweep — source wins, Q-0120; declared at S6 when the K5 health adapter
-    # ported and check_config_usage banned its raw os.environ reads).
+    # ported and check_config_usage banned its raw environment reads).
     ConfigSpec("HEALTH_PORT", ConfigType.INT, default=8080, min=1,
                owner_subsystem="ops"),
     ConfigSpec("HEALTH_HOST", ConfigType.STR, default="::",

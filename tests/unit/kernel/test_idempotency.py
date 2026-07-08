@@ -44,7 +44,10 @@ def test_key_validation() -> None:
 
 
 def test_outcome_vocab_frozen() -> None:
-    assert OUTCOMES == ("SUCCESS", "PARTIAL", "BLOCKED", "DECLINED", "DISCORD_FAILED")
+    # Re-homed at S7 to sb.spec.outcomes (RC-6): shipped lowercase values verbatim.
+    from sb.spec import outcomes
+    assert OUTCOMES is outcomes.OUTCOMES
+    assert OUTCOMES == ("success", "partial", "blocked", "declined", "discord_failed")
 
 
 class _Conn:
@@ -88,10 +91,10 @@ def test_once_then_conflict_then_outcome_readback() -> None:
         assert await once(key, conn=conn) is True          # first sighting
         assert await once(key, conn=conn) is False         # replay no-ops
         assert await read_outcome(key, conn=conn) is None  # mid-flight: not recorded yet
-        await record_outcome(key, "SUCCESS", result_ref="audit-1", conn=conn)
+        await record_outcome(key, "success", result_ref="audit-1", conn=conn)
         prior = await read_outcome(key, conn=conn)
         assert isinstance(prior, PriorOutcome)
-        assert prior.outcome == "SUCCESS"
+        assert prior.outcome == "success"
         assert prior.result_ref == "audit-1"
 
     asyncio.run(scenario())
