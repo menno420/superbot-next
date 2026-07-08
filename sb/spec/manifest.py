@@ -29,10 +29,11 @@ class SubsystemManifest:
     stores: tuple = ()              # [S] StoreSpec facet (K3 derives the schema from these)
     events: tuple = ()              # [S] EventSpec facet (K4 derives KNOWN_EVENTS)
     capabilities: tuple = ()        # [S] capability strings ({sub}.{res}.{action}, K1-reserved)
+    data_invariants: tuple = ()     # [S] InvariantSpec facet (S12 — spec 11 §2.1, sibling to stores)
 
 
 register_field_roles(
     "SubsystemManifest",
     key="S", version="S", commands="S", panels="S", settings="S",
-    stores="S", events="S", capabilities="S",
+    stores="S", events="S", capabilities="S", data_invariants="S",
 )
