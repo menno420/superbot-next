@@ -150,6 +150,12 @@ class SettingSpec:
         object.__setattr__(self, "value_type", _canonical_value_type(self.value_type))
 
     @property
+    def off_until_opt_in(self) -> bool:
+        """Duck-read bridge for the compiler's P6 external_cost fence (its
+        pre-band-1 dialect); the §4.4 truth lives in `activation`."""
+        return self.activation is Activation.OFF_UNTIL_OPT_IN
+
+    @property
     def key(self) -> str:
         """The canonical persisted key (check_parity_depth / the namespace
         `setting_key` kind read this): the shipped `settings_key` string

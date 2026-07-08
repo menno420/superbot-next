@@ -45,6 +45,28 @@ UNITS: tuple[Unit, ...] = (
          "registered read-model provider (hub index) — thin, justified"),
     Unit(1, "settings", "engine", "settings.store", 1, 3,
          "sole-writer EngineRef marker for the two tables — physical authority, by design"),
+    # --- band 2 slice 1 (moderation + logging), appended 2026-07-08 -------
+    Unit(2, "moderation", "command", "modmenu/moderation/warn/timeout/kick/ban/unban/clearwarnings/warnings/modlogs", 10, 1,
+         "CommandSpec verbatim; group field minted for K1 parent_group"),
+    Unit(2, "moderation", "op", "warn/timeout/kick/ban/unban/clearwarnings", 6, 1,
+         "CompoundOpSpec DB+EFFECT legs fit; reversibility rollup honest"),
+    Unit(2, "moderation", "store", "mod_logs/warnings", 2, 2,
+         "StoreSpec NAME_STABLE + MEMBER_ID erasure refs"),
+    Unit(2, "moderation", "event", "moderation.action_taken", 1, 2,
+         "EventSpec BEST_EFFORT; payload schema declared"),
+    Unit(2, "moderation", "panel", "moderation.hub", 1, 2,
+         "read-view hub over provider block"),
+    Unit(2, "moderation", "port", "GuildModerationActions", 1, 3,
+         "domain-minted Discord state-mutation port (RC-21 sibling)"),
+    Unit(2, "logging", "command", "logging (+7 group subcommands)", 8, 1,
+         "CommandSpec.group carries the shipped prefix group"),
+    Unit(2, "logging", "setting", "12 scalar keys + 6 channel bindings", 18, 1,
+         "SettingSpec/BindingSpec slices verbatim from keys.py"),
+    Unit(2, "logging", "handler", "status/enable/disable/set/routes/test/create", 7, 2,
+         "thin HandlerRef routes over the settings K7 ops"),
+    Unit(2, "logging", "engine", "moderation fan-out subscriber", 1, 2,
+         "bus-subscribed router through the RC-21 emitter"),
+
 )
 
 

@@ -21,6 +21,7 @@
     "CommandSpec.cost_posture": "S",
     "CommandSpec.defer_mode": "S",
     "CommandSpec.enabled_when": "S",
+    "CommandSpec.group": "S",
     "CommandSpec.help_section_order": "A",
     "CommandSpec.kind": "S",
     "CommandSpec.name": "S",
@@ -308,9 +309,14 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 4,
+  "manifest_count": 6,
   "projections": {
     "events": {
+      "moderation.action_taken": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "moderation"
+      },
       "settings.changed": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -354,6 +360,158 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "logging"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "status"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "enable"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "disable"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "set"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "create"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "routes"
+        },
+        {
+          "kind": "command",
+          "parent_group": "logging",
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "surface": "prefix",
+          "value": "test"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "modmenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "moderation"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "slash",
+          "value": "moderation"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "warn"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "timeout"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "kick"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "ban"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "unban"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "clearwarnings"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "warnings"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "surface": "prefix",
+          "value": "modlogs"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "surface": "prefix",
@@ -386,6 +544,11 @@
       ],
       "event": [
         {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation.action_taken"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.changed"
@@ -403,6 +566,16 @@
           "value": "help.home"
         },
         {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging.hub"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation.hub"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.hub"
@@ -411,6 +584,128 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.hub"
+        }
+      ],
+      "setting_key": [
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_auto_create_channels"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_event_routing"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_ignored_channels"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_ignored_users"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_messages_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_members_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_roles_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_moderation_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_channels_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_server_enabled"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging_voice_enabled"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "warn_threshold"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "warn_timeout_minutes"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_warn_escalation_action"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_dm_on_action"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_dm_actions"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_dm_template"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_require_reason"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_ban_delete_message_days"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_max_timeout_minutes"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_post_action_cleanup"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_post_action_cleanup_limit"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation_public_log_actions"
         }
       ],
       "subsystem_key": [
@@ -425,6 +720,16 @@
           "value": "help"
         },
         {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -436,6 +741,16 @@
         }
       ],
       "table": [
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "mod_logs"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "warnings"
+        },
         {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
@@ -449,14 +764,50 @@
       ]
     },
     "refs": {
+      "engine:moderation.store": {
+        "module": "sb.domain.moderation.store"
+      },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
+      },
+      "handler:logging.create_channels": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.disable": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.enable": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.routes_view": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.set_channel": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.status_view": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.test_send": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:moderation.modlogs_view": {
+        "module": "sb.domain.moderation.service"
+      },
+      "handler:moderation.warnings_view": {
+        "module": "sb.domain.moderation.service"
       },
       "panel:diagnostic.hub": {
         "module": "sb.domain.diagnostic.panels"
       },
       "panel:help.home": {
         "module": "sb.domain.help.service"
+      },
+      "panel:logging.hub": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "panel:moderation.hub": {
+        "module": "sb.domain.moderation.panels"
       },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
@@ -467,6 +818,12 @@
       "provider:diagnostic.status_index": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "provider:logging.hub_status": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "provider:moderation.hub_policy": {
+        "module": "sb.domain.moderation.panels"
+      },
       "provider:sb.panels.help_index": {
         "module": "sb.kernel.panels.projections"
       },
@@ -475,6 +832,72 @@
       },
       "provider:setup.sections_index": {
         "module": "sb.domain.setup.panels"
+      },
+      "workflow:moderation.action_payload": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.apply_ban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.apply_kick": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.apply_timeout": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.apply_unban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.apply_warn_effects": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.ban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.clear_subject_warnings": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.clearwarnings": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.compensate_ban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.compensate_unban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.kick": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.record_ban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.record_clearwarnings": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.record_kick": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.record_timeout": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.record_unban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.record_warn": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.timeout": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.tombstone_subject": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.unban": {
+        "module": "sb.domain.moderation.ops"
+      },
+      "workflow:moderation.warn": {
+        "module": "sb.domain.moderation.ops"
       },
       "workflow:settings.changed_payload": {
         "module": "sb.domain.settings.ops"
@@ -493,6 +916,14 @@
       }
     },
     "stores": {
+      "mod_logs": {
+        "checkpoint_class": "ledger",
+        "invariant_tag": "mod_logs",
+        "sole_writer": {
+          "$ref": "engine:moderation.store"
+        },
+        "subsystem": "moderation"
+      },
       "settings": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "settings",
@@ -508,11 +939,19 @@
           "$ref": "engine:settings.store"
         },
         "subsystem": "settings"
+      },
+      "warnings": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "warnings",
+        "sole_writer": {
+          "$ref": "engine:moderation.store"
+        },
+        "subsystem": "moderation"
       }
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:64a26a9bec7c62dc4c25a3c7faec23fc47ed09b4bc401eef6d0fc003271f05d5",
+  "stable_hash": "sha256:729ae0b548f295cdbac3d51680f8f76622849a2de34712ba76992596c1fb13c2",
   "subsystems": {
     "diagnostic": {
       "capabilities": [],
@@ -526,6 +965,7 @@
           "cost_posture": "free",
           "defer_mode": null,
           "enabled_when": "",
+          "group": "",
           "help_section_order": 0,
           "kind": "both",
           "name": "diagnostics",
@@ -607,6 +1047,7 @@
           "cost_posture": "free",
           "defer_mode": null,
           "enabled_when": "",
+          "group": "",
           "help_section_order": 0,
           "kind": "both",
           "name": "help",
@@ -676,6 +1117,1404 @@
       "version": 1,
       "wizard_sections": []
     },
+    "logging": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "logging",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:logging.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the server-logging menu.",
+          "usage": "!logging",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "status",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.status_view"
+          },
+          "slash_common": false,
+          "summary": "Show the logging config + counters.",
+          "usage": "!logging status",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "enable",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.enable"
+          },
+          "slash_common": false,
+          "summary": "Enable server logging.",
+          "usage": "!logging enable",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "disable",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.disable"
+          },
+          "slash_common": false,
+          "summary": "Disable server logging.",
+          "usage": "!logging disable",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "set",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.set_channel"
+          },
+          "slash_common": false,
+          "summary": "Bind a log slot to a channel.",
+          "usage": "!logging set",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "create",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.create_channels"
+          },
+          "slash_common": false,
+          "summary": "Provision missing log channels.",
+          "usage": "!logging create",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "routes",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.routes_view"
+          },
+          "slash_common": false,
+          "summary": "Show per-category routing.",
+          "usage": "!logging routes",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "logging",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "logging",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "test",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:logging.test_send"
+          },
+          "slash_common": false,
+          "summary": "Send a test log line.",
+          "usage": "!logging test",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "logging",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Operator log routing: `!logging status` / `enable` / `set <slot> #channel` / `routes` / `test`."
+            },
+            {
+              "provider": {
+                "$ref": "provider:logging.hub_status"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "logging.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "logging",
+          "timeout_s": 180,
+          "title": "Server logging",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master switch for server logging.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": true,
+          "group": "",
+          "hint": "Provision missing log channels automatically.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "auto_create_channels",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_auto_create_channels",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            "combined",
+            "per_category"
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "combined",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "One combined events channel, or one per category.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "event_routing",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_event_routing",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of channel ids never logged.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "ignored_channels",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_ignored_channels",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of user ids never logged.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "ignored_users",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_ignored_users",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the messages event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "messages_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_messages_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the members event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "members_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_members_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the roles event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "roles_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_roles_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the moderation event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "moderation_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_moderation_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the channels event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "channels_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_channels_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the server event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "server_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_server_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Log the voice event family.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "voice_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "logging_voice_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Moderation log channel (default name bot-mod-log).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "logging_mod_channel"
+          ],
+          "multiplicity": 1,
+          "name": "mod",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Cleanup log channel (falls back to mod).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "logging_cleanup_channel"
+          ],
+          "multiplicity": 1,
+          "name": "cleanup",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Combined event-log channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "events",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Per-category: message events.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "messages",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Per-category: member events.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "members",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Per-category: role events.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "roles",
+          "required": false,
+          "resource_link": ""
+        }
+      ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "moderation": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "modmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:moderation.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the moderation menu.",
+          "usage": "!modmenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "moderation",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:moderation.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the moderation menu.",
+          "usage": "/moderation",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "warn",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:moderation.warn"
+          },
+          "slash_common": false,
+          "summary": "Warn a member (escalates at the threshold).",
+          "usage": "!warn @member [reason]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "timeout",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:moderation.timeout"
+          },
+          "slash_common": false,
+          "summary": "Timeout a member.",
+          "usage": "!timeout @member [reason]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "kick",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:moderation.kick"
+          },
+          "slash_common": false,
+          "summary": "Kick a member.",
+          "usage": "!kick @member [reason]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ban",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:moderation.ban"
+          },
+          "slash_common": false,
+          "summary": "Ban a member.",
+          "usage": "!ban @member [reason]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "unban",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:moderation.unban"
+          },
+          "slash_common": false,
+          "summary": "Unban a user id.",
+          "usage": "!unban <user_id> [reason]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "clearwarnings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:moderation.clearwarnings"
+          },
+          "slash_common": false,
+          "summary": "Clear a member's warnings.",
+          "usage": "!clearwarnings @member",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "warnings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:moderation.warnings_view"
+          },
+          "slash_common": false,
+          "summary": "Show a member's warning count.",
+          "usage": "!warnings @member",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "moderation",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "modlogs",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:moderation.modlogs_view"
+          },
+          "slash_common": false,
+          "summary": "Show a member's moderation history.",
+          "usage": "!modlogs @member",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "moderation.action_taken",
+          "observability_only": false,
+          "owner_subsystem": "moderation",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "action",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "target_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "actor_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "reason",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
+      "key": "moderation",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Warn / timeout / kick / ban lanes run through the audited seam; policy below resolves per-guild → global → shipped defaults."
+            },
+            {
+              "provider": {
+                "$ref": "provider:moderation.hub_policy"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "moderation.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "moderation",
+          "timeout_s": 180,
+          "title": "Moderation",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            50
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 3,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Warnings before the escalation action runs.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "warn_threshold",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "warn_threshold",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            40320
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 10,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Timeout length applied by the warn escalation.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "warn_timeout_minutes",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "warn_timeout_minutes",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            "timeout",
+            "kick",
+            "ban",
+            "none"
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "timeout",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Action at the warn threshold.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "warn_escalation_action",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_warn_escalation_action",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": true,
+          "group": "",
+          "hint": "DM the member when actioned.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "dm_on_action",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_dm_on_action",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "warn,timeout,kick,ban",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma list of actions that DM the member.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "dm_actions",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_dm_actions",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Custom DM template ({action}/{reason}/{guild}).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "dm_template",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_dm_template",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Refuse warn/kick/ban without a reason.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "require_reason",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_require_reason",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            7
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Days of messages swept on ban.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "ban_delete_message_days",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_ban_delete_message_days",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            40320
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 40320,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Ceiling for any timeout duration.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "max_timeout_minutes",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_max_timeout_minutes",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            "none",
+            "kick",
+            "ban",
+            "both"
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "none",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Sweep the actioned member's recent messages.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "post_action_cleanup",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_post_action_cleanup",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            1,
+            500
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 100,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Max messages scanned by the post-action sweep.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "post_action_cleanup_limit",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_post_action_cleanup_limit",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            "none",
+            "bans",
+            "removals",
+            "all"
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "none",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Which actions post to the public log channel.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "public_log_actions",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderation_public_log_actions",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Public moderation-log channel.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "moderation_public_log_channel"
+          ],
+          "multiplicity": 1,
+          "name": "public_log",
+          "required": false,
+          "resource_link": ""
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "ledger",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:moderation.tombstone_subject"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mod_logs",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "logging"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:moderation.store"
+          },
+          "table": "mod_logs",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:moderation.clear_subject_warnings"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "warnings",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:moderation.store"
+          },
+          "table": "warnings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
     "settings": {
       "capabilities": [],
       "commands": [
@@ -688,6 +2527,7 @@
           "cost_posture": "free",
           "defer_mode": null,
           "enabled_when": "",
+          "group": "",
           "help_section_order": 0,
           "kind": "both",
           "name": "settings",
@@ -851,6 +2691,7 @@
           "cost_posture": "free",
           "defer_mode": null,
           "enabled_when": "",
+          "group": "",
           "help_section_order": 0,
           "kind": "both",
           "name": "setup",
