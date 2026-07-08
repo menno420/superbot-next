@@ -101,3 +101,25 @@ graduation.)
   is owner/ops execution fired by the lead-time alert.
 - **Maintainer answer:** (pending)
 - **Routing result:** (pending)
+
+### Q: verified_live human-lane posture — debt-list vs hard-block + signer delegation? (V-5, owner-gated)
+
+- **Question:** (a) A-18(3) flags that the owner MAY want unsigned
+  human-tier rows to HARD-BLOCK CUT-3 instead of the built debt-list model
+  (Q-0244 confirmed the debt list: nothing in the human lane blocks CUT-3;
+  unsigned rows publish as a named coverage-debt list in the CUT-2/CUT-3
+  reaction window). Ratify or override. (b) The A-18 delegation ambiguity
+  stands unresolved: Q-0222 says "owner sign-off", Q-0234 says "a human" —
+  may a delegated alt-account operator sign a `verified_live` row (the
+  schema's `signer` field takes any string today; no allowlist is
+  enforced)?
+- **Why agents need this:** (a) decides whether `check_verified_live` grows
+  a CUT-3-blocking leg; (b) decides whether the signer field gets an
+  enforced allowlist before the first live sign-offs at CUT-1.
+- **Options / safe default:** built = the Q-0244 ruling as ruled (debt-list,
+  `tools/check_verified_live.py --debt-list` is the publication; human rows
+  never red). Signer unrestricted until ruled — every VERIFIED row already
+  demands signer + timestamp + build SHA + evidence, so a later allowlist
+  is retroactively auditable.
+- **Maintainer answer:** (pending)
+- **Routing result:** (pending)
