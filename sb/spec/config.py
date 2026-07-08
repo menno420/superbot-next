@@ -8,10 +8,12 @@ All fields are [S] (config declarations are semantic — hand-authored meaning).
 
 Harvest provenance: the "harvested" entries below are every distinct env var
 read by shipped superbot source (verified against `disbot/` at superbot main
-7f7628e1, 2026-07-08 — 36 distinct names; the spec's "39" counted getenv CALL
-SITES at spec time, source wins per Q-0120). The 8 NEW operational fields are
-declared by spec 05 §3.1 verbatim. A-21 (`EXTRA_OWNER_USER_IDS`) is in the
-harvested set and lands at K0 per the canonical plan.
+7f7628e1, 2026-07-08 — 36 distinct names at S1 + HEALTH_PORT/HEALTH_HOST
+added at S6 when the health adapter ported = 38; the spec's "39" counted
+getenv CALL SITES at spec time, source wins per Q-0120). The 8 NEW
+operational fields are declared by spec 05 §3.1 verbatim. A-21
+(`EXTRA_OWNER_USER_IDS`) is in the harvested set and lands at K0 per the
+canonical plan.
 
 This module is a stdlib-only leaf: no imports outside the stdlib, no env
 reads (reading/coercing env is `sb.kernel.config.preflight`'s job).
@@ -94,7 +96,7 @@ class IntentSpec:
 
 # ---------------------------------------------------------------------------
 # The canonical registry — the ONE place every env var is declared.
-# 36 harvested (verbatim env names) + 8 new operational fields = 44 total.
+# 38 harvested (verbatim env names) + 8 new operational fields = 46 total.
 # ---------------------------------------------------------------------------
 
 _FF = ConfigPosture.FAIL_FAST
@@ -102,7 +104,7 @@ _DEG = ConfigPosture.DEGRADE
 _DOR = ConfigPosture.DORMANT
 
 CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
-    # ---- harvested (36) — verbatim env names from shipped disbot/ source ----
+    # ---- harvested (38) — verbatim env names from shipped disbot/ source ----
     SecretSpec("DISCORD_BOT_TOKEN_PRODUCTION", ConfigType.SECRET, required=True, posture=_FF),
     ConfigSpec("DATABASE_URL", ConfigType.DSN, required=True, posture=_FF, redact=True),
     ConfigSpec("BOT_PREFIX", ConfigType.STR, default="!"),
@@ -113,6 +115,13 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
     SecretSpec("DISCORD_WEBHOOK_URL", ConfigType.SECRET, default=None, posture=_DOR,
                owner_subsystem="ops"),  # webhook URL embeds a token -> secret-typed
     ConfigSpec("LOG_LEVEL", ConfigType.STR, default="INFO", owner_subsystem="ops"),
+    # Harvested from shipped disbot/healthserver.py:64,70 (missed by the S1
+    # sweep — source wins, Q-0120; declared at S6 when the K5 health adapter
+    # ported and check_config_usage banned its raw os.environ reads).
+    ConfigSpec("HEALTH_PORT", ConfigType.INT, default=8080, min=1,
+               owner_subsystem="ops"),
+    ConfigSpec("HEALTH_HOST", ConfigType.STR, default="::",
+               owner_subsystem="ops"),  # IPv6 dual-stack; set 0.0.0.0 if no IPv6
     ConfigSpec("AUTO_SYNC_COMMANDS", ConfigType.BOOL, default=True, owner_subsystem="ops"),
     ConfigSpec("STRICT_DISABLED", ConfigType.BOOL, default=False, owner_subsystem="ops"),
     ConfigSpec("IDENTITY_CONTRACT_STRICT", ConfigType.BOOL, default=True, owner_subsystem="ops"),
