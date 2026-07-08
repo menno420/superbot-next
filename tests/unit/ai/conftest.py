@@ -26,7 +26,7 @@ def make_config(**overrides: str):
 @pytest.fixture(autouse=True)
 def _reset_ai_state():
     yield
-    flags.reset_for_tests()
+    flags.reset_flags_for_tests()
     routing.clear_overrides()
     tasks.clear_tasks_for_tests()
     reset_default_gateway()

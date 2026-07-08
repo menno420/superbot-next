@@ -36,7 +36,7 @@ __all__ = [
     "default_provider",
     "fallback_provider",
     "install_ai_config",
-    "reset_for_tests",
+    "reset_flags_for_tests",
     "server_member_lookup_enabled",
     "task_enabled",
     "task_routing_entries",
@@ -51,7 +51,7 @@ def install_ai_config(cfg: Config) -> None:
     _cfg = cfg
 
 
-def reset_for_tests() -> None:
+def reset_flags_for_tests() -> None:
     global _cfg
     _cfg = None
 

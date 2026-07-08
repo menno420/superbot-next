@@ -91,7 +91,7 @@ class FakeAnthropicClient:
 
 class TestAnthropicAdapter:
     def test_unavailable_without_key(self):
-        flags.reset_for_tests()
+        flags.reset_flags_for_tests()
         with pytest.raises(ProviderUnavailableError):
             run(AnthropicProvider().execute(_request(), model="claude-haiku-4-5"))
 
@@ -203,7 +203,7 @@ class FakeOpenAIClient:
 
 class TestOpenAIAdapter:
     def test_unavailable_without_key(self):
-        flags.reset_for_tests()
+        flags.reset_flags_for_tests()
         with pytest.raises(ProviderUnavailableError):
             run(OpenAIProvider().execute(_request(), model="gpt-4o-mini"))
 

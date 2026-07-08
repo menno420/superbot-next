@@ -114,6 +114,7 @@ kernel:
     - sb_quarantine
     - sb_invariant_sweep_log
     - sb_credential_rotation
+    - ai_decision_audit
 
 depth:
   # Closed reason-class vocabulary for exemptions (COVERAGE.md-style; the
