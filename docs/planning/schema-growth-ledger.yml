@@ -1133,3 +1133,7 @@ entries:
     consumers: [sb/manifest/setup.py, sb/domain/setup/panels.py]
     rejected_alternative: "per-view ButtonStyle constants"
     minted: 2026-07-08
+  CommandSpec.group:
+    consumers: [tools/manifest_compile.py, sb/manifest/server_logging.py, sb/adapters/parity/boot.py]
+    rejected_alternative: "space-embedded qualified names in CommandSpec.name (breaks K1 per-token reservation and the parent_group scope key)"
+    minted: 2026-07-08

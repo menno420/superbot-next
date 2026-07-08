@@ -162,7 +162,11 @@ class Harness:
 
         install_target_index(self._lookup)
         for manifest in manifests:
-            register_manifest_settings(manifest)
+            try:
+                register_manifest_settings(manifest)
+            except ValueError as exc:
+                if "already declared" not in str(exc):
+                    raise         # second start in one process re-registers
         if self.db_ready:
             from sb.domain.settings.service import (
                 install_platform_state_store,
@@ -211,8 +215,9 @@ class Harness:
                 name = str(getattr(cmd, "name", "") or "")
                 if not name:
                     continue
+                qualified = str(getattr(cmd, "qualified_name", "") or name)
                 kind = str(getattr(cmd, "kind", "both") or "both")
-                keys = [name] + [str(a) for a in (getattr(cmd, "aliases", ()) or ())]
+                keys = [qualified] + [str(a) for a in (getattr(cmd, "aliases", ()) or ())]
                 for key in keys:
                     if kind in ("slash", "both"):
                         self._index[(key, Surface.SLASH)] = TargetRef(key=key, spec=cmd)

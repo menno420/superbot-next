@@ -78,6 +78,8 @@ class CommandSpec:
 
     name: str                                   # [S] reserved per-kind in namespace `command`
     kind: CommandKind                           # [S]
+    group: str = ""                             # [S] parent group PATH (K1 parent_group; the
+    #     compiler's P-namespace duck-read — "logging" makes this `logging <name>`)
     route: object = None                        # [S] PanelRef | WorkflowRef | HandlerRef | None
     #     (commands open panels by default; command-only = escape-hatch class)
     aliases: tuple[str, ...] = ()               # [S] each reserved individually
@@ -98,6 +100,12 @@ class CommandSpec:
     usage_weight: float = 1.0                   # [O] Phase-1 harvest seed; telemetry-updated
 
     @property
+    def qualified_name(self) -> str:
+        """The dispatch key: `<group> <name>` (RuntimeIndex/adapters read
+        the same shape from the snapshot's parent_group)."""
+        return f"{self.group.replace('.', ' ')} {self.name}" if self.group else self.name
+
+    @property
     def authority_ref(self) -> str:
         """Duck-read by K6/K8 (frozen Group 1 field 1) — capability beats
         tier; empty => the ADMIN-floor CAPABILITY lane (shipped invariant)."""
@@ -110,7 +118,7 @@ register_field_roles(
 )
 register_field_roles(
     "CommandSpec",
-    name="S", kind="S", route="S", aliases="S", summary="S", usage="S",
+    name="S", kind="S", group="S", route="S", aliases="S", summary="S", usage="S",
     capability_required="S", audience_tier="S", capability="S",
     enabled_when="S", reply_visibility="S", defer_mode="S", cooldown="S",
     help_section_order="A", usage_weight="O",
