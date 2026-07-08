@@ -23,6 +23,10 @@ import sys
 from pathlib import Path
 
 BANNED_SYMBOLS = {"ActionSpec"}
+# Per-module PROTOCOL hooks (the manifest-module contract, D-0025): every
+# sb/manifest/<key>.py may define the same hook name by design — like the
+# MANIFEST assignment, it is an interface, not a shadowing accident.
+MODULE_HOOKS = {"ENSURE_REFS"}
 LEXICON = {
     "PanelActionSpec", "AutomationActionSpec", "SettingSpec", "BindingSpec",
     "SubsystemManifest", "WorkflowResult", "CapabilityDecision", "AIGateway",
@@ -82,7 +86,8 @@ def check(root: Path) -> list[str]:
                 else:
                     grammar_seen[name] = locus
             # Rule 2: cross-module public-name collision within one package.
-            if not name.startswith("_") and path.name != "__init__.py":
+            if (not name.startswith("_") and path.name != "__init__.py"
+                    and name not in MODULE_HOOKS):
                 package = path.parent.relative_to(root).as_posix()
                 key = (package, name)
                 if key in package_names:

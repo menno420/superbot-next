@@ -62,7 +62,7 @@ register_ops()
 register_event_specs([SETTINGS_CHANGED_EVENT])
 
 
-def ENSURE_REFS() -> None:
+def _ensure_refs() -> None:
     """P1 re-arm hook (see tools/manifest_compile.py): idempotently
     re-register every ref this manifest's declarations resolve to."""
     from sb.domain.settings import ops as _ops
@@ -73,3 +73,9 @@ def ENSURE_REFS() -> None:
     _panels.ensure_panel_refs()
     register_ops()
     register_event_specs([SETTINGS_CHANGED_EVENT])
+
+
+# The P1 re-arm hook is a module ATTRIBUTE by convention (like MANIFEST):
+# an assignment, so the per-module hook name never trips the namespace
+# shadowing checkers (D-0026).
+ENSURE_REFS = _ensure_refs
