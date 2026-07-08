@@ -19,10 +19,10 @@ Canonical usage (the atomic pattern, spec 05 §3.7):
             return prior                            # reproduce / no-op
     # commit — guard row + effect + outcome all land together, or none do
 
-Outcome vocabulary: the frozen §2.7 constants, built on the shipped lifecycle
-vocab (`disbot/core/runtime/lifecycle/contracts.py:48-52` analogue). The K6
-`sb/spec/outcomes.py` leaf (S7) finalizes the grammar; this tuple is the
-same frozen token set, exposed early because `record_outcome` must validate.
+Outcome vocabulary: the frozen §2.7 constants, RE-HOMED at S7 to the K6
+`sb/spec/outcomes.py` leaf (RC-6) — `OUTCOMES` here is a re-export of that
+single source (the shipped lowercase values, `contracts.py:48-52` verbatim);
+`record_outcome` validates against it.
 """
 
 from __future__ import annotations
@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from sb.kernel.db import pool
+from sb.spec.outcomes import OUTCOMES
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
@@ -44,12 +45,6 @@ __all__ = [
     "read_outcome",
     "record_outcome",
 ]
-
-# The frozen §2.7 outcome vocab (SUCCESS/PARTIAL/BLOCKED/DECLINED/DISCORD_FAILED).
-OUTCOMES: tuple[str, ...] = (
-    "SUCCESS", "PARTIAL", "BLOCKED", "DECLINED", "DISCORD_FAILED",
-)
-
 
 @dataclass(frozen=True)
 class IdempotencyKey:
