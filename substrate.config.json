@@ -132,7 +132,12 @@
       "InvariantSpec": "spec/invariants.py",
       "Violation": "spec/invariants.py",
       "InvariantSweepLane": "kernel/invariants/sweep.py",
-      "SweepRun": "kernel/db/invariants.py"
+      "SweepRun": "kernel/db/invariants.py",
+      "CredentialSpec": "spec/credentials.py",
+      "RevocationRef": "spec/credentials.py",
+      "BlastTier": "spec/credentials.py",
+      "RotationPosture": "spec/credentials.py",
+      "RotationProvider": "kernel/credentials/rotation.py"
     },
     "roots": [
       "sb"

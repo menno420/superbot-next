@@ -1,0 +1,85 @@
+# ci.yml — the committed-checker fleet + unit tests + the S13 supply-chain
+# gates (frozen L0 spec 12 §2.C / Q-D18).
+#
+# OWNER STEP (flagged, not self-applied): designating these jobs as REQUIRED
+# status checks is a repo-Settings action (build-brief §8.1). This file only
+# authors the jobs.
+#
+# The unit suite runs WITHOUT the runtime deps installed — the kernel's
+# guarded-import discipline is itself under test (asyncpg/aiohttp/discord/
+# croniter absent => fakes + skip-if-absent paths). The lockfile/audit jobs
+# exercise the pinned set separately.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test tooling (no runtime deps — guarded-import discipline)
+        run: pip install pytest pyyaml
+      - name: Unit tests
+        run: python3 -m pytest tests/ -q
+
+  checkers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pyyaml
+      - name: Manifest compile (recompile-parity verify)
+        run: python3 tools/manifest_compile.py
+      - name: Committed checker fleet
+        run: |
+          set -e
+          for checker in \
+            check_amendments check_config_usage check_cost_posture \
+            check_credential_lifecycle check_data_lifecycle check_egress \
+            check_escape_hatches check_lockfile_fresh check_metric_cardinality \
+            check_migrations check_namespace check_no_skip check_schema_growth \
+            check_symbol_shadowing; do
+            echo "::group::${checker}"
+            python3 "tools/${checker}.py"
+            echo "::endgroup::"
+          done
+      - name: Kit check --strict
+        run: python3 bootstrap.py check --strict
+
+  lockfile-fresh:
+    # spec 12 §2.C: regenerating the lock from requirements.txt yields no
+    # diff and every entry is hash-pinned (the full --regen leg; the static
+    # leg already ran in the checkers job).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pip-tools
+      - run: python3 tools/check_lockfile_fresh.py --regen
+
+  pip-audit:
+    # spec 12 §2.C: scan the RESOLVED lock against the advisory DB (S-3).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pip-audit
+      - name: Audit the resolved lock
+        run: pip-audit -r requirements.lock --require-hashes --disable-pip

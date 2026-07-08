@@ -748,3 +748,33 @@ entries:
     consumers: [sb/kernel/invariants/sweep.py, sb/spec/invariants.py]
     rejected_alternative: "global single-pass scans (a later band with a throughput budget)"
     minted: 2026-07-08
+  # S13 (spec 12 §2.A): the CredentialSpec sibling leaf — kernel/tools
+  # consumers until CUT-1 wires the provider dispatch.
+  CredentialSpec.name:
+    consumers: [tools/check_credential_lifecycle.py, sb/kernel/credentials/rotation.py]
+    rejected_alternative: "keying rotation state on the env-var name (out-of-band creds have none)"
+    minted: 2026-07-08
+  CredentialSpec.store:
+    consumers: [tools/check_credential_lifecycle.py, sb/kernel/credentials/cadence.py]
+    rejected_alternative: "a SecretSpec boolean 'external' flag (mutates the frozen spec-05 leaf)"
+    minted: 2026-07-08
+  CredentialSpec.config_ref:
+    consumers: [tools/check_credential_lifecycle.py, sb/kernel/credentials/rotation.py]
+    rejected_alternative: "name-equality convention between registry and CONFIG_FIELDS (unenforceable)"
+    minted: 2026-07-08
+  CredentialSpec.rotation:
+    consumers: [sb/kernel/credentials/cadence.py, tools/check_credential_lifecycle.py]
+    rejected_alternative: "free-text rotation notes in the runbook (no machine cadence join)"
+    minted: 2026-07-08
+  CredentialSpec.cadence_days:
+    consumers: [sb/kernel/credentials/cadence.py, tools/check_rotation_due.py]
+    rejected_alternative: "one global rotation interval (roots and leaves need different horizons)"
+    minted: 2026-07-08
+  CredentialSpec.revocation_ref:
+    consumers: [tools/check_credential_lifecycle.py, sb/kernel/credentials/cadence.py]
+    rejected_alternative: "free-string kill-path ('n/a' passes the gate — defeats rule 1)"
+    minted: 2026-07-08
+  CredentialSpec.blast:
+    consumers: [tools/check_credential_lifecycle.py, docs/operations/credential-lifecycle.md]
+    rejected_alternative: "unordered severity labels (the runbook triage needs a total order)"
+    minted: 2026-07-08

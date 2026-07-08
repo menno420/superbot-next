@@ -12,6 +12,13 @@
     "ConfirmationSpec.reversibility": "S",
     "ConfirmationSpec.snapshot_before": "S",
     "ConfirmationSpec.timeout_s": "S",
+    "CredentialSpec.blast": "S",
+    "CredentialSpec.cadence_days": "S",
+    "CredentialSpec.config_ref": "S",
+    "CredentialSpec.name": "S",
+    "CredentialSpec.revocation_ref": "S",
+    "CredentialSpec.rotation": "S",
+    "CredentialSpec.store": "S",
     "Cron.expr": "S",
     "EmbedFrameSpec.alt_text": "S",
     "EmbedFrameSpec.field_budget_chars": "S",
@@ -195,6 +202,6 @@
     "stores": {}
   },
   "schema_version": 1,
-  "stable_hash": "sha256:8c90b10e6e6bb42dcfb4caab705e5f4a3927812e94c7082f43ade843a4d58a26",
+  "stable_hash": "sha256:65e6a1c6521a16bb5c36d16525cbea3376e2809e277bd2cca3a328dc7f29199b",
   "subsystems": {}
 }

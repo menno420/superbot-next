@@ -1,0 +1,17 @@
+# requirements.txt — the HUMAN-EDITED runtime-dependency input (S13, frozen
+# L0 spec 12 §2.C). This file states constraints; the deployable set is the
+# hash-pinned resolved output `requirements.lock` (pip-compile
+# --generate-hashes). The container installs:
+#     pip install --require-hashes -r requirements.lock
+# Adopt-freely (Q-0105) stands: adopt a dep here, regenerate the lock in the
+# SAME PR (`pip-compile --generate-hashes -o requirements.lock
+# requirements.txt`) — the lock diff IS the reviewable artifact.
+# CI: tools/check_lockfile_fresh.py + the pip-audit job (.github/workflows/ci.yml).
+# Ceiling hygiene (CL-6): every entry carries a <next-major ceiling.
+
+asyncpg>=0.30.0,<0.31          # K3 DB seam (sb/kernel/db/pool.py)
+aiohttp>=3.11,<4               # K5 health adapter (sb/adapters/http/health.py)
+prometheus-client>=0.21,<1     # K0 metrics registry (sb/kernel/observability/metrics.py)
+discord.py>=2.4,<3             # K8 surface adapters (sb/adapters/discord/)
+croniter>=6.0,<7               # K9 Cron trigger slots (sb/kernel/scheduler/misfire.py)
+PyYAML>=6.0,<7                 # tools checkers (check_amendments, check_schema_growth)
