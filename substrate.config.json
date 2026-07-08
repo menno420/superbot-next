@@ -139,7 +139,9 @@
       "RotationPosture": "spec/credentials.py",
       "RotationProvider": "kernel/credentials/rotation.py",
       "RollbackClass": "spec/versioning.py",
-      "ForwardMapKind": "spec/versioning.py"
+      "ForwardMapKind": "spec/versioning.py",
+      "IntentPosture": "spec/config.py",
+      "DegradedCapability": "kernel/config/__init__.py"
     },
     "roots": [
       "sb"

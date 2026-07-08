@@ -5,6 +5,7 @@
     "ColumnSpec.label": "S",
     "CommandSpec.cost_posture": "S",
     "CommandSpec.quota_ref": "S",
+    "CommandSpec.slash_common": "S",
     "ConditionTrigger.condition": "S",
     "ConditionTrigger.poll_interval_s": "S",
     "ConfirmationSpec.challenge": "S",
@@ -116,6 +117,7 @@
     "PanelActionSpec.modal": "S",
     "PanelActionSpec.result_card": "S",
     "PanelActionSpec.result_render": "S",
+    "PanelActionSpec.slash_common": "S",
     "PanelActionSpec.style": "S",
     "PanelActionSpec.usage_weight": "O",
     "PanelActionSpec.visible_when": "S",
@@ -154,6 +156,7 @@
     "SelectorSpec.page_size": "S",
     "SelectorSpec.placeholder": "S",
     "SelectorSpec.selector_id": "S",
+    "SelectorSpec.slash_common": "S",
     "SelectorSpec.usage_weight": "O",
     "StoreSpec.active_rows_ref": "S",
     "StoreSpec.bears_value": "S",
@@ -204,6 +207,6 @@
     "stores": {}
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d1a4d0b2e9f91c028dd6233e64eee7736813f99617a4481a7838be15c10907fd",
+  "stable_hash": "sha256:64a5eaae511d6c9081129bcfff8d7ca54d99527af0218c3c915b48d517a7de66",
   "subsystems": {}
 }

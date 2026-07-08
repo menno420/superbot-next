@@ -208,6 +208,8 @@ class SelectorSpec:
     capability_required: str = ""               # [S] two-lane authority (§2.2)
     audience_tier: str = ""                     # [S]
     custom_id_override: str = ""                # [S] legacy verbatim pin (compat=True)
+    slash_common: bool = False                  # [S] S15/D-5: the frozen Q-0237(e) essential tag
+    #     (interaction-delivered by construction — its PRESENCE is the survivable signal)
     usage_weight: float = 1.0                   # [O]
 
     @property
@@ -297,6 +299,7 @@ class PanelActionSpec:
     visible_when: str = ""                      # [S] PredicateRef string form
     custom_id_override: str = ""                # [S] legacy verbatim pin; may NOT start with a scheme token
     destructive: bool = False                   # [O]+safety: never row 0 (hard layout constraint)
+    slash_common: bool = False                  # [S] S15/D-5: the frozen Q-0237(e) essential tag
     usage_weight: float = 1.0                   # [O]
     co_use_group: str = ""                      # [O]
     flow_stage: int = 0                         # [O]
@@ -388,7 +391,7 @@ register_field_roles(
     selector_id="S", kind="S", on_select="S", options_source="S",
     placeholder="S", min_values="S", max_values="S", page_size="S",
     empty_state="S", capability_required="S", audience_tier="S",
-    custom_id_override="S", usage_weight="O",
+    custom_id_override="S", slash_common="S", usage_weight="O",
 )
 register_field_roles(
     "ModalFieldSpec",
@@ -402,7 +405,7 @@ register_field_roles(
     action_id="S", label="S", emoji="S", style="S", capability_required="S",
     audience_tier="S", defer_mode="S", handler="S", modal="S", confirm="S",
     result_render="S", result_card="S", audit="S", visible_when="S",
-    custom_id_override="S", destructive="O", usage_weight="O",
+    custom_id_override="S", slash_common="S", destructive="O", usage_weight="O",
     co_use_group="O", flow_stage="O",
 )
 register_field_roles(

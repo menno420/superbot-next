@@ -789,3 +789,17 @@ entries:
     consumers: [sb/spec/versioning.py, tools/check_rollback_disposition.py]
     rejected_alternative: "a hand-set rollback_class enum field (every store a fresh manual guess, fights the Q3 posture)"
     minted: 2026-07-08
+  # S15 (spec 14 §2.A): the D-5 slash-common (essential) tag on the three
+  # entry-point spec types (the authority_ref placement pattern).
+  CommandSpec.slash_common:
+    consumers: [tools/check_intent_survival.py, sb/spec/governance.py]
+    rejected_alternative: "an out-of-band essential-capability list (drifts from the manifest; unwalkable)"
+    minted: 2026-07-08
+  PanelActionSpec.slash_common:
+    consumers: [tools/check_intent_survival.py, sb/spec/governance.py]
+    rejected_alternative: "CommandSpec-only tag (a panel-only essential capability would be invisible to the invariant)"
+    minted: 2026-07-08
+  SelectorSpec.slash_common:
+    consumers: [tools/check_intent_survival.py, sb/spec/governance.py]
+    rejected_alternative: "CommandSpec-only tag (selector-rooted entry points invisible)"
+    minted: 2026-07-08

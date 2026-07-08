@@ -77,3 +77,27 @@ graduation.)
   [operations/rollback-playbook.md](operations/rollback-playbook.md).
 - **Maintainer answer:** (pending)
 - **Routing result:** (pending)
+
+### Q: platform-governance owner legs PG-1 / PG-3 / PG-4 / PG-5? (S15, owner-gated)
+
+- **Question:** (PG-1) growth posture — slash-first survivability with
+  verification pursued IN PARALLEL as a milestone (recommended, built) vs
+  verification as a hard growth gate? (PG-3) the CUT-2 census + PRESERVED
+  carry-verify + admin-notice as a BINDING cutover gate (built as
+  design-decided, flagged — a rename silently opening a locked-down moderation
+  command is privilege-escalation-at-migration)? (PG-4) un-preserved override
+  disposition — admin-notice + exact re-apply overlay (recommended) vs a
+  per-guild admin-OAuth2 PUT-replay integration? (PG-5) deployment identity —
+  REUSE the same Discord application id at cutover (recommended: un-renamed
+  commands keep their ids ⇒ overrides survive with zero action) vs a new
+  application (every override lost, none auto-restorable)?
+- **Why agents need this:** PG-5 pivots the whole census scope; PG-1 shapes the
+  band ordering toward slash twins for the Q-0237(e) slash-common set.
+- **Options / safe default:** frozen L0 spec 14 §4 (superbot oracle). Built:
+  IntentPosture DEGRADE (PG-2 RULED — canonical-plan F-2 + Q-0246/A-22, not
+  re-opened), the ~75/90 latched guild-cap alert, `check_intent_survival` +
+  `check_slash_cap`, `tools/permission_census.py` (partition + carry-verify;
+  live GET wiring = CUT-2 ops). The verification-application milestone itself
+  is owner/ops execution fired by the lead-time alert.
+- **Maintainer answer:** (pending)
+- **Routing result:** (pending)

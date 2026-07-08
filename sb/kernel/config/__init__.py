@@ -25,13 +25,16 @@ from sb.spec.config import (
     ConfigSpec,
     ConfigType,
     DataPlane,
+    IntentPosture,
 )
 
 __all__ = [
     "Config",
     "ConfigError",
+    "DegradedCapability",
     "StartupError",
     "assert_intents",
+    "intent_degradations",
     "load_config",
     "parse_bool",
     "parse_dsn",
@@ -202,20 +205,42 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     return Config(**values)
 
 
-def assert_intents(cfg: Config, *, _accrue: list[ConfigError] | None = None) -> None:
-    """Gateway-intent preflight (L-17, spec 05 §3.2).
+@dataclasses.dataclass(frozen=True)
+class DegradedCapability:
+    """S15 (spec 14 §2.B) — one boot marker per DEGRADE-posture privileged
+    intent whose Discord approval is absent: the composition root reads
+    these BEFORE gateway serve and does NOT register the intent's capability
+    classes (not-registering removes the empty-content footgun at the
+    source); /lifecycle diag surfaces the live set."""
 
-    For each required IntentSpec: when privileged, its approval_env BOOL field
-    must be truthy (parse_bool grammar) in non-`test` data planes — a prod bot
-    must not silently rely on an unapproved privileged intent. In the `test`
-    plane the check is advisory (non-fatal). Raises StartupError unless an
-    accumulator is supplied (preflight aggregates).
+    intent: str
+    degrades: tuple[str, ...]
+
+
+def assert_intents(cfg: Config, *, _accrue: list[ConfigError] | None = None) -> None:
+    """Gateway-intent preflight (L-17, spec 05 §3.2; S15 spec-14 §2.B
+    correction — "must not SILENTLY rely" became "must EXPLICITLY degrade").
+
+    1. The mirror invariant `required == (posture is REQUIRED)` holds for
+       every INTENT_CONTRACT entry — disagreement is a config-COMPILE error.
+    2. A REQUIRED-posture privileged intent lacking approval in a non-test
+       plane still fail-closes (reserved; none today).
+    3. A DEGRADE-posture privileged intent lacking approval is NOT an error —
+       `intent_degradations(cfg)` yields its DegradedCapability marker.
     """
     errors: list[ConfigError] = []
     plane = cfg.data_plane
     for intent in INTENT_CONTRACT:
-        if not (intent.required and intent.privileged and intent.approval_env):
+        if intent.required != (intent.posture is IntentPosture.REQUIRED):
+            errors.append(ConfigError(
+                intent.approval_env or intent.name,
+                f"IntentSpec {intent.name!r}: required={intent.required} disagrees "
+                f"with posture={intent.posture.value} (the mirror invariant)"))
             continue
+        if not (intent.privileged and intent.approval_env):
+            continue
+        if intent.posture is not IntentPosture.REQUIRED:
+            continue  # DEGRADE: denial is a boot MARKER, never a refusal
         approved = bool(getattr(cfg, intent.approval_env))
         if not approved and plane is not DataPlane.TEST:
             errors.append(ConfigError(
@@ -227,6 +252,21 @@ def assert_intents(cfg: Config, *, _accrue: list[ConfigError] | None = None) -> 
         _accrue.extend(errors)
     elif errors:
         raise StartupError(errors)
+
+
+def intent_degradations(cfg: Config) -> tuple[DegradedCapability, ...]:
+    """The DEGRADE markers for this boot: every DEGRADE-posture privileged
+    intent whose approval_env is falsy. Empty = full surface."""
+    out: list[DegradedCapability] = []
+    for intent in INTENT_CONTRACT:
+        if not (intent.privileged and intent.approval_env):
+            continue
+        if intent.posture is not IntentPosture.DEGRADE:
+            continue
+        if not bool(getattr(cfg, intent.approval_env)):
+            out.append(DegradedCapability(intent=intent.name,
+                                          degrades=intent.degrades))
+    return tuple(out)
 
 
 def preflight(env: Mapping[str, str] | None = None) -> Config:

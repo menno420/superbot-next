@@ -106,6 +106,12 @@ METRICS: tuple[MetricSpec, ...] = (
             (_COG, _COMMAND, _lbl("result", "success", "error", "denied")), owner="ops"),
     _metric("session_active_count", _G,
             "Current number of non-expired runtime sessions in the DB", owner="ops"),
+    # S15 (spec 14 §2.C): the growth-cap lead-time signal — the gauge is the
+    # passive half; sb/kernel/platform_governance.evaluate_guild_cap is the
+    # latched ~75/90 evaluator that makes it FIRE.
+    _metric("guild_count", _G,
+            "Current number of guilds the bot is a member of "
+            "(the unverified-bot ~100-cap lead-time signal)", owner="ops"),
     _metric("panel_refresh_total", _C,
             "Total panel edits triggered by the live update scheduler.",
             (_SUBSYSTEM, _lbl("result", "ok", "skipped", "channel_missing",
