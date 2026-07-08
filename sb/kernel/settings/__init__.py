@@ -43,6 +43,7 @@ __all__ = [
     "install_binding_probe",
     "install_secret_presence",
     "install_settings_reader",
+    "iter_declarations",
     "register_setting",
     "resolve",
 ]
@@ -106,6 +107,15 @@ def register_setting(decl: SettingDeclaration) -> None:
     if decl.activation is Activation.ON_WHEN_BOUND and not decl.bound_binding:
         raise ValueError(f"{decl.key!r}: ON_WHEN_BOUND requires bound_binding")
     _declarations[decl.key] = decl
+
+
+def iter_declarations(subsystem: str | None = None) -> tuple[SettingDeclaration, ...]:
+    """Read-only declaration inventory (the S9b generated-settings-panel
+    projection + diagnostics read this; never a write path)."""
+    decls = _declarations.values()
+    if subsystem is not None:
+        decls = (d for d in decls if d.subsystem == subsystem)
+    return tuple(sorted(decls, key=lambda d: d.key))
 
 
 def install_settings_reader(reader: SettingsReader) -> None:

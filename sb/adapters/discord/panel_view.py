@@ -1,0 +1,134 @@
+"""The discord materialization of the kernel panel runtime (K8/S9b).
+
+`PanelRuntimeView` is the ONE view class for every grammar-expressible
+panel (design-spec §2.3): it is built FROM a kernel `RenderedPanel`, never
+hand-assembled per panel. Interaction flow stays kernel-owned — every
+component click re-enters through the component adapter → `resolve()`;
+this view only enforces the invoker lock pre-dispatch and the
+timeout-disable doctrine.
+
+Import-guarded: the module imports cleanly without the discord package
+(`PanelRuntimeView`/`build_embed`/`build_view` require it at CALL time).
+"""
+
+from __future__ import annotations
+
+import logging
+
+from sb.kernel.panels.engine import may_interact, session_for
+from sb.kernel.panels.render import RenderedPanel
+
+logger = logging.getLogger("sb.adapters.discord.panel_view")
+
+try:  # pragma: no cover — discord is absent in CI containers by design
+    import discord
+    from discord import ui as discord_ui
+except ImportError:  # noqa: SIM105
+    discord = None          # type: ignore[assignment]
+    discord_ui = None       # type: ignore[assignment]
+
+__all__ = ["DiscordPanelPresenter", "build_embed", "build_view"]
+
+_STYLE_MAP = {
+    "primary": "primary", "secondary": "secondary", "success": "success",
+    "danger": "danger", "link": "link",
+}
+
+
+def build_embed(rendered: RenderedPanel):
+    """RenderedEmbed → discord.Embed (budgets already enforced kernel-side)."""
+    if discord is None:
+        raise RuntimeError("discord is not installed")
+    e = rendered.embed
+    embed = discord.Embed(title=e.title or None, description=e.description or None)
+    for name, value in e.fields:
+        embed.add_field(name=name, value=value, inline=False)
+    if e.footer:
+        embed.set_footer(text=e.footer)
+    if e.thumbnail_ref:
+        embed.set_thumbnail(url=e.thumbnail_ref)
+    return embed
+
+
+def build_view(rendered: RenderedPanel):
+    """RenderedPanel → the ONE PanelRuntimeView."""
+    if discord_ui is None:
+        raise RuntimeError("discord is not installed")
+
+    class PanelRuntimeView(discord_ui.View):
+        """Invoker-lock + timeout-disable over kernel-rendered components.
+        Every child click dispatches through the registered component
+        adapter (custom_id → router → resolve()) — no callbacks here."""
+
+        def __init__(self) -> None:
+            super().__init__(timeout=rendered.timeout_s)
+            self.panel_id = rendered.panel_id
+            self.message = None     # set by the presenter after send
+            for comp in rendered.components:
+                if comp.kind == "selector":
+                    item = discord_ui.Select(
+                        custom_id=comp.custom_id, placeholder=comp.placeholder or None,
+                        min_values=comp.min_values, max_values=comp.max_values,
+                        options=[discord.SelectOption(label=o, value=o)
+                                 for o in comp.options] or
+                                [discord.SelectOption(label="—", value="")],
+                        row=comp.row)
+                else:
+                    item = discord_ui.Button(
+                        custom_id=comp.custom_id, label=comp.label or None,
+                        emoji=comp.emoji or None, disabled=comp.disabled,
+                        style=getattr(discord.ButtonStyle, _STYLE_MAP.get(
+                            comp.style, "secondary")),
+                        row=comp.row)
+                self.add_item(item)
+
+        async def interaction_check(self, interaction) -> bool:
+            key = str(getattr(getattr(interaction, "message", None), "id", ""))
+            session = session_for(key)
+            user_id = getattr(getattr(interaction, "user", None), "id", None)
+            if not may_interact(session, user_id):
+                try:
+                    await interaction.response.send_message(
+                        "This panel belongs to someone else — open your own.",
+                        ephemeral=True)
+                except Exception:  # noqa: BLE001
+                    logger.debug("invoker-lock notice failed", exc_info=True)
+                return False
+            return True
+
+        async def on_timeout(self) -> None:
+            for child in self.children:
+                child.disabled = True
+            if self.message is not None:
+                try:
+                    await self.message.edit(view=self)
+                except Exception:  # noqa: BLE001 — timeout-disable is best-effort
+                    logger.debug("timeout-disable edit failed", exc_info=True)
+
+    return PanelRuntimeView()
+
+
+class DiscordPanelPresenter:
+    """The engine's presenter port, discord-side: send (or edit, for
+    page-turns/nav on component surfaces) the rendered panel; returns the
+    message id as the engine's opaque session key."""
+
+    async def __call__(self, rendered: RenderedPanel, req) -> object:
+        embed = build_embed(rendered)
+        view = build_view(rendered)
+        origin = req.origin
+        interaction_response = getattr(origin, "response", None)
+        ephemeral = rendered.audience == "invoker"
+        message = None
+        if interaction_response is not None and not interaction_response.is_done():
+            await interaction_response.send_message(
+                embed=embed, view=view, ephemeral=ephemeral)
+            message = await origin.original_response()
+        elif hasattr(origin, "edit_original_response"):
+            message = await origin.edit_original_response(embed=embed, view=view)
+        elif hasattr(origin, "channel") and rendered.anchor_policy == "channel_anchor":
+            message = await origin.channel.send(embed=embed, view=view)
+        elif hasattr(origin, "reply"):
+            message = await origin.reply(embed=embed, view=view)
+        view.message = message
+        return getattr(message, "id", None)

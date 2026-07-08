@@ -86,7 +86,10 @@ class LeaderboardSpec:
 register_field_roles("CommandSpec", name="S", surface="S", group="S", route="S",
                      cooldown="S", effect="S", help_order="A")
 register_field_roles("ConfirmationSpec", typed_challenge="S")
-register_field_roles("PanelActionSpec", action_id="S", handler="S", destructive="S",
+# destructive="O": aligned with the REAL sb.spec.panels grammar (S9b) — a
+# differing re-registration is an error; the rest of this record remains the
+# stand-in for facet fields not yet cut (reversibility/effect/mirrors).
+register_field_roles("PanelActionSpec", action_id="S", handler="S", destructive="O",
                      confirm="S", reversibility="S", effect="S", cooldown="S",
                      mirrors="S", visible_when="S")
 register_field_roles("ComponentSpec", action_id="S", selector_id="S")
