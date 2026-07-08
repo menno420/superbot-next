@@ -26,6 +26,11 @@
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
 
+(No unanswered blocks — see Answered below. All six S11/S13/S14/S15/V-5/K10 blocks
+were resolved 2026-07-08 by the owner via the directing session's question panel.)
+
+## Answered
+
 ### Q: adopt rubric-v2 classes 11/12/13? (S11, owner-gated)
 
 - **Question:** adopt the three security/abuse rubric classes + the 13>12>11
@@ -34,8 +39,10 @@ graduation.)
 - **Options / safe default:** see
   [planning/rubric-v2-classes-11-12-13.md](planning/rubric-v2-classes-11-12-13.md)
   (recommendation: adopt as-shaped; the checkable mechanics are live either way).
-- **Maintainer answer:** (pending)
-- **Routing result:** (pending)
+- **Maintainer answer:** Adopt as-shaped (recommended option).
+- **Routing result:** Ratified as built. `docs/planning/rubric-v2-classes-11-12-13.md`
+  status can be flipped from proposal to adopted; no code change required (mechanics
+  already live). Record as a decisions.md entry citing this Q-block.
 
 ### Q: credential-lifecycle owner legs CL-1 / CL-2 / CL-3 / CL-5b? (S13, owner-gated)
 
@@ -54,8 +61,20 @@ graduation.)
   exercised (no revocation dispatch is wired until CUT-1); CL-5b unresolved
   (presence-gated env SecretSpec stands). Runbook:
   [operations/credential-lifecycle.md](operations/credential-lifecycle.md).
-- **Maintainer answer:** (pending)
-- **Routing result:** (pending)
+- **Maintainer answer:** CL-1: keep full arm (as built). CL-2: **narrow the
+  Q-0213 brake** — credential revocation only (the closed `RevocationRef` set)
+  is agent-runnable during a compromise response; resource deletion stays
+  ask-first, unchanged. CL-3: accept lockfile-with-adopt-freely as built. CL-5b:
+  still open — owner has not picked plain-env vs sealed-secret vs OIDC for
+  `SB_PROD_ATTEST` custody; carry forward, not blocking (no rotation dispatch
+  exists until CUT-1 regardless).
+- **Routing result:** CL-2 narrowing wires into `sb/kernel/credentials/rotation.py`'s
+  RotationProvider dispatch when CUT-1 lands (currently un-installed = loud
+  FAILED+finding by design, so nothing executes today) — the agent-runnable
+  exception should be encoded there, scoped strictly to `RevocationRef` kinds,
+  never to store/resource deletion. Record CL-1/CL-3 as ratified-as-built,
+  CL-2 as a scoped policy amendment, in decisions.md. CL-5b stays open in this
+  router (re-append a fresh Q-block if still unresolved near CUT-1).
 
 ### Q: backup/DR owner legs Q1 / Q2(i) / Q3? (S14, owner-gated)
 
@@ -75,8 +94,17 @@ graduation.)
   is repo-Settings), Q3(B) mechanics live with ZERO reverse-importable stores
   until the port bands declare invertible value stores. Playbook:
   [operations/rollback-playbook.md](operations/rollback-playbook.md).
-- **Maintainer answer:** (pending)
-- **Routing result:** (pending)
+- **Maintainer answer:** Q1: **(A) the 24h `pg_dump` floor** — accept the
+  built default, no extra build/infra spend. Q2(i): **hard CUT-3 gate** —
+  the weekly verified-restore proof must be green or CUT-3 does not proceed.
+  Q3: posture B stands as built; the value of N is still carried to
+  Stage-3 (owner has not set it — canonical plan's Q-D15 N=7d is the
+  standing default until superseded here).
+- **Routing result:** Q2(i) needs `restore-verify.yml`'s conclusion wired as
+  a required check specifically gating the CUT-3 step (canonical plan step
+  17) — record in decisions.md and re-flag at the CUT-3 planning stage since
+  the workflow exists today but nothing consumes its result as a gate yet.
+  Q1/Q3 need no code change (already built to the chosen option).
 
 ### Q: platform-governance owner legs PG-1 / PG-3 / PG-4 / PG-5? (S15, owner-gated)
 
@@ -85,12 +113,12 @@ graduation.)
   verification as a hard growth gate? (PG-3) the CUT-2 census + PRESERVED
   carry-verify + admin-notice as a BINDING cutover gate (built as
   design-decided, flagged — a rename silently opening a locked-down moderation
-  command is privilege-escalation-at-migration)? (PG-4) un-preserved override
-  disposition — admin-notice + exact re-apply overlay (recommended) vs a
-  per-guild admin-OAuth2 PUT-replay integration? (PG-5) deployment identity —
-  REUSE the same Discord application id at cutover (recommended: un-renamed
-  commands keep their ids ⇒ overrides survive with zero action) vs a new
-  application (every override lost, none auto-restorable)?
+  command at migration)? (PG-4) un-preserved override disposition — admin-notice
+  + exact re-apply overlay (recommended) vs a per-guild admin-OAuth2 PUT-replay
+  integration? (PG-5) deployment identity — REUSE the same Discord application
+  id at cutover (recommended: un-renamed commands keep their ids ⇒ overrides
+  survive with zero action) vs a new application (every override lost, none
+  auto-restorable)?
 - **Why agents need this:** PG-5 pivots the whole census scope; PG-1 shapes the
   band ordering toward slash twins for the Q-0237(e) slash-common set.
 - **Options / safe default:** frozen L0 spec 14 §4 (superbot oracle). Built:
@@ -99,8 +127,15 @@ graduation.)
   `check_slash_cap`, `tools/permission_census.py` (partition + carry-verify;
   live GET wiring = CUT-2 ops). The verification-application milestone itself
   is owner/ops execution fired by the lead-time alert.
-- **Maintainer answer:** (pending)
-- **Routing result:** (pending)
+- **Maintainer answer:** PG-1: slash-first + parallel verification (as
+  built). PG-3: **binding cutover gate** (as built-as-decided — confirmed,
+  not re-opened). PG-4: admin-notice + re-apply overlay (as built — no
+  OAuth2 PUT-replay build). PG-5: **reuse the same Discord application id**
+  at cutover (as recommended/built).
+- **Routing result:** All four ratified as built — no code change required.
+  Record as decisions.md entries; PG-5 in particular should be called out at
+  the CUT-2/CUT-3 planning stage as a confirmed, non-negotiable constraint on
+  the deployment plan (do not stand up a new application id at cutover).
 
 ### Q: verified_live human-lane posture — debt-list vs hard-block + signer delegation? (V-5, owner-gated)
 
@@ -121,8 +156,17 @@ graduation.)
   never red). Signer unrestricted until ruled — every VERIFIED row already
   demands signer + timestamp + build SHA + evidence, so a later allowlist
   is retroactively auditable.
-- **Maintainer answer:** (pending)
-- **Routing result:** (pending)
+- **Maintainer answer:** (a) Already resolved by Q-0244 (superbot) — debt-list
+  stands, not re-opened. (b) **Allow a delegated signer** — a trusted
+  alt-account operator may sign `verified_live` rows, not owner-only; the
+  existing signer+timestamp+build-SHA+evidence fields keep it auditable.
+- **Routing result:** (a) NOTE FOR THE COORDINATOR: this block should not
+  have re-asked (a) as open — Q-0244 already ruled it in superbot's router
+  before this repo existed. Flag this as a router-hygiene gap: cross-check
+  superbot's `docs/owner/maintainer-question-router.md` for already-ruled
+  Q-numbers before minting a new "pending" block on the same question. (b)
+  No enforced allowlist needed yet; record the delegated-signer ruling in
+  decisions.md so it's available when the first allowlist is built (pre-CUT-1).
 
 ### Q: K10 AI kernel owner items — API keys, model ratification, pricing/budget session, test guild + CUT-1 (owner-gated)
 
@@ -147,5 +191,26 @@ graduation.)
 - **Options / safe default:** built = dormant-until-keyed + shipped model
   tables + budget-only cost bounds. Everything runs deterministic-provider
   in CI regardless (A-17 socket-deny).
-- **Maintainer answer:** (pending)
-- **Routing result:** (pending)
+- **Maintainer answer:** (a) Still open — owner has not yet supplied
+  `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` or flipped `AI_ENABLED`; not
+  blocking (platform stays dormant/deterministic until then). (b) **Override
+  the shipped defaults**: bias routing much more heavily toward
+  `claude-haiku-4-5` — the owner finds `claude-sonnet-4-6` too slow for most
+  tasks, so `sonnet` should be reserved for the minority of tasks that
+  genuinely need deeper reasoning rather than being the "considered" default.
+  On the OpenAI side, `gpt-4o-mini` is flagged as not very reliable — a newer
+  GPT model should be considered for specific tasks, but the owner has not
+  named a replacement model yet. (c) Tool-call budget caps are enough for
+  now — no dollar spend ledger before band 7 (accept the built default).
+  (d) Still open — owner has not named the test guild or handed off a
+  test-bot token.
+- **Routing result:** (b) needs a concrete `AI_TASK_ROUTING` amendment:
+  default `realtime` AND `considered` tiers to `anthropic:claude-haiku-4-5`
+  unless a specific task is known to need deeper reasoning (keep those
+  pinned to `claude-sonnet-4-6` explicitly, don't default to it); leave
+  `openai:gpt-4o-mini` in place until the owner names the newer GPT model to
+  switch to, then override per-task via the CSV with no code change. Record
+  this routing policy in decisions.md against this Q-block. (a)/(d) stay
+  open in this router — they are the two live owner-action items (API keys
+  + AI_ENABLED flip; test-guild name + token), not decisions; re-flag at the
+  CUT-1 planning stage.
