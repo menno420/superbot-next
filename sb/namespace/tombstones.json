@@ -1,0 +1,13 @@
+{
+  "_comment": "Append-only (frozen L0 spec 03 §3.7). Tombstone = retired/renamed name (may carry renamed_to, one deprecation window). Ban = permanent deny, no successor (common-word trigger blocklist lands at Stage-2, stored kind=command origin=ban). The bare ActionSpec STRING ban lives here; the class ActionSpec SYMBOL ban lives in tools/check_symbol_shadowing.py (the two-mechanism boundary, design-spec §3.5 — neither subsumes the other).",
+  "tombstones": [],
+  "bans": [
+    {
+      "kind": "custom_id",
+      "value": "ActionSpec",
+      "origin": "ban",
+      "reason": "decision 1 — bare symbol reserved",
+      "provenance": "design-spec §3.3"
+    }
+  ]
+}

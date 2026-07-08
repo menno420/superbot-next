@@ -1,0 +1,31 @@
+{
+  "_comment": "The frozen compat core (frozen L0 spec 03 §3.1/§5). Generated-once, hand-ratified. SEED STATE: carries the reserved-prefix owner map (net-new vs shipped is_reserved_capability, spec 03 §3.2) and the three reserved capability prefixes as legacy entries with owners. The full Stage-2 harvest (43 subsystem keys, verbatim legacy custom_ids, settings-key vocab, capability strings, actor types, event names) is produced by tools/compute_corpus.py at Stage-2 (spec 03 §11) and appended here for hand-ratification.",
+  "reserved_prefix_owners": {
+    "_internal": "core",
+    "system": "system",
+    "governance": "governance"
+  },
+  "reservations": [
+    {
+      "kind": "subsystem_key",
+      "value": "core",
+      "owner": "core",
+      "compat": true,
+      "source": "legacy_reservations.json (reserved-prefix owner, spec 03 §3.2)"
+    },
+    {
+      "kind": "subsystem_key",
+      "value": "system",
+      "owner": "system",
+      "compat": true,
+      "source": "legacy_reservations.json (reserved-prefix owner, spec 03 §3.2)"
+    },
+    {
+      "kind": "subsystem_key",
+      "value": "governance",
+      "owner": "governance",
+      "compat": true,
+      "source": "legacy_reservations.json (reserved-prefix owner, spec 03 §3.2)"
+    }
+  ]
+}
