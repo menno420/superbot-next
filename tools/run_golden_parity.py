@@ -17,12 +17,14 @@ Two legs, two jobs in .github/workflows/golden-parity.yml:
             `pending -> ported`. Red here is the expected state, not a build
             break; regressions in ported subsystems are what --gate catches.
 
-Replay binding: the imported parity/harness drives the OLD bot (`disbot/`)
-in-process and therefore cannot boot in this repo. The NEW bot's replay
-adapter (fake-HTTP responder over sb/'s real pipeline, bound to the same
-case model) is port-band work; until it exists every replay attempt reports
-`no bot-under-test binding` and the corpus is red. A `ported` flip without
-the adapter is impossible — the gate refuses it loudly.
+Replay binding: the NEW bot's replay adapter (`sb/adapters/parity/` — a
+fake-HTTP/gateway transport over sb/'s real interaction pipeline, bound to
+the imported case model + Normalizer) satisfies the old harness's
+`Harness.start()` contract. Cases come from `parity.cases.CURATED_CASES`
+plus golden-document reconstruction (`sb.adapters.parity.cases`) — the old
+bot is never imported here. Replay needs Postgres (DATABASE_URL — the CI
+service container); without it every replay attempt reports the binding
+failure and the corpus is red.
 """
 
 from __future__ import annotations
@@ -53,26 +55,56 @@ def _golden_counts() -> dict[str, int]:
 
 
 def _replay_binding() -> tuple[object, str] | tuple[None, str]:
-    """Try to bind a bot-under-test replay harness.
+    """Try to bind the NEW bot's replay harness (boot + close probe).
 
-    Returns (harness_module, "") on success or (None, reason). The imported
-    harness boots the OLD bot (`disbot/`, absent here by design) and its
-    module import is lazy about that — so the probe must actually attempt
-    ``Harness.start()``; the new bot's replay adapter satisfies the same
-    start() contract when a port band builds it.
+    Returns (boot_module, "") on success or (None, reason). The probe
+    actually attempts ``Harness.start()`` — an import alone would
+    false-green (the pre-adapter lesson); a missing/unreachable Postgres is
+    the expected local failure mode (CI provides the service container).
     """
     import asyncio
 
     try:
-        from parity.harness import boot  # noqa: PLC0415 - deliberate late bind
+        from sb.adapters.parity import boot  # noqa: PLC0415 - deliberate late bind
     except Exception as exc:  # noqa: BLE001 - report, never crash the driver
         return None, f"no bot-under-test binding ({type(exc).__name__}: {exc})"
+
+    async def _probe() -> None:
+        harness = await boot.Harness.start()
+        await harness.close()
+
     try:
-        harness = asyncio.run(boot.Harness.start())
-    except Exception as exc:  # noqa: BLE001 - the expected pre-adapter state
+        asyncio.run(_probe())
+    except Exception as exc:  # noqa: BLE001 - env failure (no DB), not a golden
         return None, f"no bot-under-test binding ({type(exc).__name__}: {exc})"
-    asyncio.run(harness.close())
     return boot, ""
+
+
+async def _replay_corpus(only_subsystems: set[str] | None,
+                         *, verbose_failures: int = 8):
+    """Boot once, replay the (filtered) corpus, close. Returns
+    (results, missing) where results is {case_id: (subsystem, ok, problems)}
+    and missing counts goldens whose cases could not be reconstructed."""
+    from sb.adapters.parity import boot as sb_boot
+    from sb.adapters.parity.cases import load_replay_cases
+    from sb.adapters.parity.runner import golden_path, replay_case
+
+    cases = load_replay_cases(GOLDENS_ROOT)
+    harness = await sb_boot.Harness.start()
+    results: dict[str, tuple[str, bool, list[str]]] = {}
+    try:
+        for case in cases:
+            subsystem = golden_path(GOLDENS_ROOT, case).parent.name
+            if only_subsystems is not None and subsystem not in only_subsystems:
+                continue
+            try:
+                ok, problems = await replay_case(harness, case, GOLDENS_ROOT)
+            except Exception as exc:  # noqa: BLE001 - a crash is a red, not a halt
+                ok, problems = False, [f"replay crashed: {type(exc).__name__}: {exc}"]
+            results[case.id] = (subsystem, ok, problems)
+    finally:
+        await harness.close()
+    return results
 
 
 def run_gate() -> int:
@@ -98,50 +130,23 @@ def run_gate() -> int:
               f"but no replay is possible: {reason}")
         return 1
 
-    # Replay each ported subsystem's goldens; any diff is a hard failure.
-    # (Executed for real once the new-bot adapter exists; the harness's
-    # replay engine is parity/harness/runner.py.)
     import asyncio
 
-    async def _replay_ported() -> int:
-        from parity.harness.runner import replay_case  # noqa: PLC0415
-        from parity.cases import CURATED_CASES  # noqa: PLC0415
-        from parity.cases.sweep import build_sweep_cases  # noqa: PLC0415
-
-        harness = await binding.Harness.start()
-        try:
-            cases = list(CURATED_CASES)
-            sweep_cases, _ = build_sweep_cases(harness.bot)
-            known = {c.id for c in cases}
-            cases.extend(c for c in sweep_cases if c.id not in known)
-            failures = 0
-            for case in cases:
-                subsystem = golden_subsystem(case)
-                if subsystem not in ported:
-                    continue
-                match, problems = await replay_case(harness, case, GOLDENS_ROOT)
-                if not match:
-                    failures += 1
-                    print(f"  RED {case.id} ({subsystem}): {len(problems)} diff(s)")
-                    for p in problems[:8]:
-                        print(f"      {p}")
-            return failures
-        finally:
-            await harness.close()
-
-    failures = asyncio.run(_replay_ported())
+    results = asyncio.run(_replay_corpus(set(ported)))
+    failures = 0
+    for case_id, (subsystem, ok, problems) in sorted(results.items()):
+        if ok:
+            continue
+        failures += 1
+        print(f"  RED {case_id} ({subsystem}): {len(problems)} diff(s)")
+        for p in problems[:8]:
+            print(f"      {p}")
     if failures:
         print(f"gate: RED — {failures} regression(s) in ported subsystems")
         return 1
-    print("gate: GREEN — all ported subsystems replay clean")
+    print(f"gate: GREEN — all {len(results)} golden(s) across "
+          f"{len(ported)} ported subsystem(s) replay clean")
     return 0
-
-
-def golden_subsystem(case: object) -> str:
-    """Mirror of parity/harness/runner.py golden_path's directory choice."""
-    from parity.harness.runner import golden_path  # noqa: PLC0415
-
-    return golden_path(GOLDENS_ROOT, case).parent.name
 
 
 def run_report() -> int:
@@ -152,27 +157,45 @@ def run_report() -> int:
     ported = sorted(s for s, st in subsystems.items() if st == "ported")
 
     binding, reason = _replay_binding()
+    print("=" * 72)
+    print("golden-parity REPORT — RED BY DESIGN until full parity "
+          "(red-until-parity, design-spec §6 gate 5)")
+    print("=" * 72)
+    print(f"corpus: {total} goldens across {len(counts)} subsystem dirs")
     if binding is None:
-        print("=" * 72)
-        print("golden-parity REPORT — RED BY DESIGN (red-until-parity, "
-              "design-spec §6 gate 5)")
-        print("=" * 72)
-        print(f"corpus: {total} goldens across {len(counts)} subsystem dirs")
         print(f"replayable: 0/{total} — {reason}")
         print(f"ported: {len(ported)}/{len(subsystems)} subsystems")
         print()
-        print("This leg is EXPECTED to stay red until port bands build the "
-              "new-bot replay adapter and flip subsystems pending -> ported. "
-              "A red here is the honest parity dashboard, not a build break; "
-              "the required-check semantics live in the `gate` job.")
+        print("No replay binding in this environment (Postgres service "
+              "required). In CI this leg replays the FULL corpus through "
+              "the new-bot adapter; red is the honest parity dashboard, "
+              "not a build break — the required-check semantics live in "
+              "the `gate` job.")
         return 1
 
-    # Full-corpus replay (post-adapter): report per-subsystem green ratios,
-    # red while anything diffs.
-    print("full-corpus replay not yet implemented beyond the gate leg — "
-          "extend run_gate()'s replay to all subsystems when the adapter "
-          "lands (labeled follow-up in parity/parity.yml provenance).")
-    return 1
+    import asyncio
+
+    results = asyncio.run(_replay_corpus(None, verbose_failures=0))
+    per_sub: dict[str, list[bool]] = {}
+    for _case_id, (subsystem, ok, _problems) in results.items():
+        per_sub.setdefault(subsystem, []).append(ok)
+    green_total = sum(1 for _s, ok, _p in results.values() if ok)
+    print(f"replayable: {len(results)}/{total} (goldens with a "
+          f"reconstructable case + live binding)")
+    print(f"green: {green_total}/{len(results)} replayed cases match their golden")
+    print(f"ported: {len(ported)}/{len(subsystems)} subsystems")
+    print()
+    for subsystem in sorted(per_sub):
+        oks = per_sub[subsystem]
+        state = subsystems.get(subsystem, "?")
+        print(f"  {subsystem:24s} {sum(oks):4d}/{len(oks):<4d} green [{state}]")
+    if green_total < total:
+        print()
+        print(f"report: RED — {total - green_total} golden(s) not yet at "
+              "parity (EXPECTED until the last subsystem flips ported).")
+        return 1
+    print("report: GREEN — full-corpus parity.")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
