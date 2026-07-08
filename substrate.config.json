@@ -38,7 +38,10 @@
     "reserved": {
       "Config": "kernel/config/__init__.py",
       "ConfigSpec": "spec/config.py",
+      "DBUnavailable": "kernel/db/pool.py",
+      "IdempotencyKey": "kernel/db/idempotency.py",
       "MetricSpec": "spec/observability.py",
+      "MigrationDrift": "kernel/db/migrations.py",
       "NamespaceKind": "namespace/kinds.py",
       "ReservationIndex": "namespace/index.py",
       "SecretSpec": "spec/config.py",
