@@ -102,6 +102,16 @@ def build_registry(specs: Iterable[MetricSpec] = METRICS) -> MetricRegistry:
     return registry
 
 
+def active_registry() -> MetricRegistry | None:
+    """The registry the last build_registry() produced, or None before boot.
+
+    Emitters below the composition root (e.g. the K3 DB seam's
+    db_query_seconds observation) read handles through this instead of
+    holding a registry reference; observability never blocks the seam.
+    """
+    return _ACTIVE
+
+
 def render() -> tuple[bytes, str]:
     """(body, content_type) for the /metrics adapter (spec 05 §3.8).
 
