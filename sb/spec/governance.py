@@ -48,7 +48,11 @@ SLASH_CAP_MAX_DEPTH = 3   # "1 nest": command -> group -> subcommand
 
 
 def _surface_of(cmd: object) -> str:
+    # band 1: the minted CommandSpec facet carries `kind` (§2.2 vocabulary
+    # prefix|slash|both) — read it when the older duck field is absent.
     raw = getattr(cmd, "surface", None)
+    if raw is None:
+        raw = getattr(cmd, "kind", None)
     value = getattr(raw, "value", raw)
     return str(value).lower() if value is not None else ""
 
@@ -75,7 +79,9 @@ def check_manifest_survival(manifest: object) -> list[str]:
     essential: dict[str, str] = {}   # capability -> the tagging spec's name
     for cmd in commands:
         cap = _capability_of(cmd)
-        if _surface_of(cmd) == "slash":
+        if _surface_of(cmd) in ("slash", "both"):
+            # `both` registers a slash surface too (G-6 kind partition), so
+            # it is interaction-delivered and survives an intent denial.
             survivable.add(cap)
         if getattr(cmd, "slash_common", False):
             essential.setdefault(cap, str(getattr(cmd, "name", cap)))

@@ -56,12 +56,15 @@ def _economy(**overrides):
 
 # --- P1 / refs ------------------------------------------------------------------
 
-def test_empty_manifest_package_compiles_green_and_deterministic():
+def test_real_manifest_package_compiles_green_and_deterministic():
+    # Band 1 ended the empty-package era: sb/manifest now carries real
+    # subsystem declarations (settings first).
     a = compile_manifests()
     b = compile_manifests()
     assert a.ok and b.ok
     assert a.stable_hash == b.stable_hash
-    assert a.snapshot["manifest_count"] == 0
+    assert a.snapshot["manifest_count"] >= 1
+    assert "settings" in a.snapshot["subsystems"]
 
 
 def test_duplicate_subsystem_key_is_p1_compile_error():

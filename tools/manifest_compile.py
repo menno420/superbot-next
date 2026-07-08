@@ -267,6 +267,19 @@ def _p1_load(manifest_pkg: str, injected: list | None,
                 manifests.append(declared)
             for extra in getattr(module, "MANIFESTS", ()):
                 manifests.append(extra)
+            # Band-1 (D-0025): optional re-arm hook. Ref/handler decorators
+            # run at first import only; the test seam clear_ref_table()
+            # empties the table without evicting module caches, so a module
+            # may expose ENSURE_REFS() to idempotently re-register its refs
+            # before P2 resolves them.
+            hook = getattr(module, "ENSURE_REFS", None)
+            if callable(hook):
+                try:
+                    hook()
+                except Exception as exc:  # noqa: BLE001 - a P1 verdict, not a crash
+                    violations.append(Violation(
+                        "load", COMPILE_ERROR, info.name, module_name,
+                        f"ENSURE_REFS raised: {exc!r}"))
     seen: dict[str, str] = {}
     for m in manifests:
         key = _get(m, "key")
