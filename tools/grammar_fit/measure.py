@@ -67,6 +67,20 @@ UNITS: tuple[Unit, ...] = (
     Unit(2, "logging", "engine", "moderation fan-out subscriber", 1, 2,
          "bus-subscribed router through the RC-21 emitter"),
 
+    # --- band 2 slice 2 (the operator-spine eight), appended 2026-07-08 ---
+    Unit(2, "operator-eight", "command", "shipped surfaces declared verbatim (admin 7, channel 17, cleanup 7, +1 each x5)", 36, 1,
+         "CommandSpec + group/aliases carry every shipped name"),
+    Unit(2, "operator-eight", "setting", "automod 15 / security 9+2 / welcome 10+2 / counters 4+3 / image_mod 8 / cleanup 1", 54, 1,
+         "SettingSpec/BindingSpec slices verbatim; activations declared"),
+    Unit(2, "operator-eight", "panel", "9 generated hub read-views", 9, 2,
+         "one shared projection factory over the declaration registry"),
+    Unit(2, "operator-eight", "engine", "automod rules / raid window / age gate / templates x2", 5, 1,
+         "pure decision cores, injectable clock"),
+    Unit(2, "operator-eight", "op", "cleanup word add/remove", 2, 1,
+         "NATURAL_KEY DB lanes"),
+    Unit(2, "operator-eight", "handler", "admin kernel-truth reads + pending terminals", 9, 2,
+         "manifest-registry/lifecycle re-homes; declared-not-armed refusals"),
+
 )
 
 
