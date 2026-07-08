@@ -288,6 +288,7 @@
     "SubsystemManifest.settings": "S",
     "SubsystemManifest.stores": "S",
     "SubsystemManifest.version": "S",
+    "SubsystemManifest.wizard_sections": "S",
     "TableBlock.provider": "S",
     "TableBlock.table": "S",
     "TableSpec.columns": "S",
@@ -297,9 +298,17 @@
     "TableSpec.max_pages": "S",
     "TableSpec.page_size": "S",
     "TableSpec.sort_options": "S",
-    "TextBlock.text": "S"
+    "TextBlock.text": "S",
+    "WizardSectionSpec.emoji": "S",
+    "WizardSectionSpec.label": "S",
+    "WizardSectionSpec.op_kinds": "S",
+    "WizardSectionSpec.order": "A",
+    "WizardSectionSpec.route": "S",
+    "WizardSectionSpec.slug": "S",
+    "WizardSectionSpec.step": "S",
+    "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 3,
+  "manifest_count": 4,
   "projections": {
     "events": {
       "settings.changed": {
@@ -357,6 +366,22 @@
           "subsystem": "settings",
           "surface": "slash",
           "value": "settings"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "prefix",
+          "value": "setup"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup"
         }
       ],
       "event": [
@@ -381,6 +406,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.hub"
         }
       ],
       "subsystem_key": [
@@ -398,6 +428,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup"
         }
       ],
       "table": [
@@ -426,6 +461,9 @@
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:setup.hub": {
+        "module": "sb.domain.setup.panels"
+      },
       "provider:diagnostic.status_index": {
         "module": "sb.domain.diagnostic.panels"
       },
@@ -434,6 +472,9 @@
       },
       "provider:settings.hub_index": {
         "module": "sb.domain.settings.panels"
+      },
+      "provider:setup.sections_index": {
+        "module": "sb.domain.setup.panels"
       },
       "workflow:settings.changed_payload": {
         "module": "sb.domain.settings.ops"
@@ -471,7 +512,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:baf857e9ce3ab59bea0f5466f8ecf74e40174ae96219f34e6077ef7dd701edec",
+  "stable_hash": "sha256:64a26a9bec7c62dc4c25a3c7faec23fc47ed09b4bc401eef6d0fc003271f05d5",
   "subsystems": {
     "diagnostic": {
       "capabilities": [],
@@ -551,7 +592,8 @@
       ],
       "settings": [],
       "stores": [],
-      "version": 1
+      "version": 1,
+      "wizard_sections": []
     },
     "help": {
       "capabilities": [],
@@ -631,7 +673,8 @@
       ],
       "settings": [],
       "stores": [],
-      "version": 1
+      "version": 1,
+      "wizard_sections": []
     },
     "settings": {
       "capabilities": [],
@@ -793,7 +836,201 @@
           "version_policy": "reject_and_preserve"
         }
       ],
-      "version": 1
+      "version": 1,
+      "wizard_sections": []
+    },
+    "setup": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "setup",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:setup.hub"
+          },
+          "slash_common": true,
+          "summary": "Guided server setup: presets, channels, roles, moderation, review.",
+          "usage": "/setup",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "setup",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "The setup wizard's sections, ordered by the registry (A-9). Interactive flows arm per-section as they port."
+            },
+            {
+              "provider": {
+                "$ref": "provider:setup.sections_index"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "setup.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "Server setup",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": [
+        {
+          "emoji": "🎛",
+          "label": "Load preset",
+          "op_kinds": [],
+          "order": 25,
+          "route": null,
+          "slug": "preset_select",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "📡",
+          "label": "Channels & log routing",
+          "op_kinds": [
+            "bind_channel",
+            "clear_binding"
+          ],
+          "order": 40,
+          "route": null,
+          "slug": "channels",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "📜",
+          "label": "Logging presets",
+          "op_kinds": [],
+          "order": 45,
+          "route": null,
+          "slug": "logging_presets",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "🎖️",
+          "label": "Auto roles (time & XP)",
+          "op_kinds": [
+            "set_role_threshold"
+          ],
+          "order": 55,
+          "route": null,
+          "slug": "roles",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "🧩",
+          "label": "Role templates",
+          "op_kinds": [
+            "create_managed_role"
+          ],
+          "order": 56,
+          "route": null,
+          "slug": "role_templates",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "🧹",
+          "label": "Cleanup inheritance",
+          "op_kinds": [
+            "set_cleanup_policy"
+          ],
+          "order": 60,
+          "route": null,
+          "slug": "cleanup",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "🛡️",
+          "label": "Moderation",
+          "op_kinds": [],
+          "order": 65,
+          "route": null,
+          "slug": "moderation",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "🧭",
+          "label": "Cog routing",
+          "op_kinds": [
+            "set_cog_routing"
+          ],
+          "order": 70,
+          "route": null,
+          "slug": "cog_routing",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "🎫",
+          "label": "Support Tickets",
+          "op_kinds": [],
+          "order": 72,
+          "route": null,
+          "slug": "ticket",
+          "step": "",
+          "style": "secondary"
+        },
+        {
+          "emoji": "",
+          "label": "Final review",
+          "op_kinds": [],
+          "order": 90,
+          "route": null,
+          "slug": "final_review",
+          "step": "",
+          "style": "secondary"
+        }
+      ]
     }
   }
 }
