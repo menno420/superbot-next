@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **96.13%** tier-1/2 over 181 units (spike line: 85.26% / 95 units).
+Cumulative fit: **94.31%** tier-1/2 over 211 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -28,7 +28,17 @@ Cumulative fit: **96.13%** tier-1/2 over 181 units (spike line: 85.26% / 95 unit
 | 2 | operator-eight | engine | automod rules / raid window / age gate / templates x2 | 5 | 1 | pure decision cores, injectable clock |
 | 2 | operator-eight | op | cleanup word add/remove | 2 | 1 | NATURAL_KEY DB lanes |
 | 2 | operator-eight | handler | admin kernel-truth reads + pending terminals | 9 | 2 | manifest-registry/lifecycle re-homes; declared-not-armed refusals |
+| 3 | economy | command | economymenu/economy/daily/work/shop/balance/pay/setlogchannel/joblist | 9 | 1 | CommandSpec verbatim (aliases bal/wallet/transfer/jobs; G-4 cooldowns as data) |
+| 3 | economy | op | daily/work/pay/buy | 4 | 1 | CompoundOpSpec NATURAL_KEY lanes; balance+ledger one txn (CRIT-9/INV-F) |
+| 3 | economy | store | economy_balances/economy_audit_log/economy/job_progress/inventory | 5 | 2 | StoreSpec data (RENAME aggregate + NAME_STABLE ledger; MEMBER_ID erasure refs) |
+| 3 | economy | event | economy.balance_changed | 1 | 2 | EventSpec BEST_EFFORT verbatim; pay emits two payload builders |
+| 3 | economy | invariant | economy.balance_ledger_reconciliation | 1 | 2 | InvariantSpec RECONCILIATION QUARANTINE_ONLY (Q-D13) — declared data |
+| 3 | economy | panel | economy.hub | 1 | 2 | read-view hub over provider block |
+| 3 | economy | data | JOBS/SHOP_ITEMS/DAILY_TIERS/ITEM_CATALOGUE | 4 | 2 | pure data tables verbatim; the coupled item namespace + fence |
+| 3 | economy | port | install_level_reader/install_xp_awarder | 2 | 3 | the band-4 XP boundary — honest waiting ports, never fabricated levels |
+| 3 | economy | engine | reverse importers x2 + log fan-out | 3 | 3 | S14 ledger/aggregate importer bodies + bus->RC-21 emitter subscriber |
 
 Per band:
 - band 1: 45.45% (5/11)
 - band 2: 99.41% (169/170)
+- band 3: 83.33% (25/30)

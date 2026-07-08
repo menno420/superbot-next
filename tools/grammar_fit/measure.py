@@ -81,6 +81,25 @@ UNITS: tuple[Unit, ...] = (
     Unit(2, "operator-eight", "handler", "admin kernel-truth reads + pending terminals", 9, 2,
          "manifest-registry/lifecycle re-homes; declared-not-armed refusals"),
 
+    # --- band 3 slice 1 (economy core), appended 2026-07-08 ---------------
+    Unit(3, "economy", "command", "economymenu/economy/daily/work/shop/balance/pay/setlogchannel/joblist", 9, 1,
+         "CommandSpec verbatim (aliases bal/wallet/transfer/jobs; G-4 cooldowns as data)"),
+    Unit(3, "economy", "op", "daily/work/pay/buy", 4, 1,
+         "CompoundOpSpec NATURAL_KEY lanes; balance+ledger one txn (CRIT-9/INV-F)"),
+    Unit(3, "economy", "store", "economy_balances/economy_audit_log/economy/job_progress/inventory", 5, 2,
+         "StoreSpec data (RENAME aggregate + NAME_STABLE ledger; MEMBER_ID erasure refs)"),
+    Unit(3, "economy", "event", "economy.balance_changed", 1, 2,
+         "EventSpec BEST_EFFORT verbatim; pay emits two payload builders"),
+    Unit(3, "economy", "invariant", "economy.balance_ledger_reconciliation", 1, 2,
+         "InvariantSpec RECONCILIATION QUARANTINE_ONLY (Q-D13) — declared data"),
+    Unit(3, "economy", "panel", "economy.hub", 1, 2,
+         "read-view hub over provider block"),
+    Unit(3, "economy", "data", "JOBS/SHOP_ITEMS/DAILY_TIERS/ITEM_CATALOGUE", 4, 2,
+         "pure data tables verbatim; the coupled item namespace + fence"),
+    Unit(3, "economy", "port", "install_level_reader/install_xp_awarder", 2, 3,
+         "the band-4 XP boundary — honest waiting ports, never fabricated levels"),
+    Unit(3, "economy", "engine", "reverse importers x2 + log fan-out", 3, 3,
+         "S14 ledger/aggregate importer bodies + bus->RC-21 emitter subscriber"),
 )
 
 

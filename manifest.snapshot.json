@@ -309,9 +309,14 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 15,
+  "manifest_count": 16,
   "projections": {
     "events": {
+      "economy.balance_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "economy"
+      },
       "moderation.action_taken": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -632,6 +637,78 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "economymenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "slash",
+          "value": "economy"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "daily"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "work"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "shop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "balance"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "pay"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "setlogchannel"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "surface": "prefix",
+          "value": "joblist"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "surface": "prefix",
@@ -872,6 +949,11 @@
       ],
       "event": [
         {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.balance_changed"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.action_taken"
@@ -912,6 +994,11 @@
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diagnostic.hub"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.hub"
         },
         {
           "source": "sb/manifest/help.py",
@@ -1348,6 +1435,11 @@
           "value": "diagnostic"
         },
         {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy"
+        },
+        {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help"
@@ -1400,6 +1492,31 @@
           "value": "prohibited_words"
         },
         {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy_balances"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy_audit_log"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "job_progress"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "inventory"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "mod_logs"
@@ -1424,6 +1541,9 @@
     "refs": {
       "engine:cleanup.store": {
         "module": "sb.domain.cleanup.store"
+      },
+      "engine:economy.store": {
+        "module": "sb.domain.economy.store"
       },
       "engine:moderation.store": {
         "module": "sb.domain.moderation.store"
@@ -1457,6 +1577,21 @@
       },
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:economy.balance_view": {
+        "module": "sb.domain.economy.handlers"
+      },
+      "handler:economy.joblist_view": {
+        "module": "sb.domain.economy.handlers"
+      },
+      "handler:economy.setlogchannel": {
+        "module": "sb.domain.economy.handlers"
+      },
+      "handler:economy.shop_view": {
+        "module": "sb.domain.economy.handlers"
+      },
+      "handler:economy.work_view": {
+        "module": "sb.domain.economy.handlers"
       },
       "handler:logging.create_channels": {
         "module": "sb.domain.server_logging.handlers"
@@ -1503,6 +1638,9 @@
       "panel:diagnostic.hub": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "panel:economy.hub": {
+        "module": "sb.domain.economy.panels"
+      },
       "panel:help.home": {
         "module": "sb.domain.help.service"
       },
@@ -1548,6 +1686,15 @@
       "provider:diagnostic.status_index": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "provider:economy.baseline_balance_ledger": {
+        "module": "sb.domain.economy.invariants"
+      },
+      "provider:economy.check_balance_ledger": {
+        "module": "sb.domain.economy.invariants"
+      },
+      "provider:economy.hub_overview": {
+        "module": "sb.domain.economy.panels"
+      },
       "provider:image_moderation.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
@@ -1586,6 +1733,57 @@
       },
       "workflow:cleanup.word_remove_op": {
         "module": "sb.domain.cleanup.ops"
+      },
+      "workflow:economy.award_work_xp": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.balance_payload": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.buy": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.daily": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.erase_subject_balances": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.erase_subject_inventory": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.erase_subject_jobs": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.erase_subject_track": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.pay": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.pay_payload_from": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.pay_payload_to": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.record_buy": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.record_daily": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.record_pay": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.record_work": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.tombstone_subject_audit": {
+        "module": "sb.domain.economy.ops"
+      },
+      "workflow:economy.work": {
+        "module": "sb.domain.economy.ops"
       },
       "workflow:moderation.action_payload": {
         "module": "sb.domain.moderation.ops"
@@ -1670,6 +1868,46 @@
       }
     },
     "stores": {
+      "economy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "economy",
+        "sole_writer": {
+          "$ref": "engine:economy.store"
+        },
+        "subsystem": "economy"
+      },
+      "economy_audit_log": {
+        "checkpoint_class": "ledger",
+        "invariant_tag": "economy_audit_log",
+        "sole_writer": {
+          "$ref": "engine:economy.store"
+        },
+        "subsystem": "economy"
+      },
+      "economy_balances": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "economy_balances",
+        "sole_writer": {
+          "$ref": "engine:economy.store"
+        },
+        "subsystem": "economy"
+      },
+      "inventory": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "inventory",
+        "sole_writer": {
+          "$ref": "engine:economy.store"
+        },
+        "subsystem": "economy"
+      },
+      "job_progress": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "job_progress",
+        "sole_writer": {
+          "$ref": "engine:economy.store"
+        },
+        "subsystem": "economy"
+      },
       "mod_logs": {
         "checkpoint_class": "ledger",
         "invariant_tag": "mod_logs",
@@ -1713,7 +1951,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:ccc959b370cd6ac316a0db58db2ed2c40eec4861227e4be95681d1a6a9607088",
+  "stable_hash": "sha256:3bc14b5158c9e991ec5144471a0609313d74f470c8f88e182e582729004f15a8",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -3514,6 +3752,529 @@
       ],
       "settings": [],
       "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "economy": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 10,
+            "rate": 3,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "economymenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:economy.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the interactive economy control panel.",
+          "usage": "!economymenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "name": "economy",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:economy.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the Economy hub (daily, work, shop, balance).",
+          "usage": "/economy",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 5,
+            "rate": 2,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "daily",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:economy.daily"
+          },
+          "slash_common": false,
+          "summary": "Claim your daily reward. Higher streaks unlock better odds!",
+          "usage": "!daily",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 5,
+            "rate": 2,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "work",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:economy.work_view"
+          },
+          "slash_common": false,
+          "summary": "Work a job and earn coins + XP (1 h cooldown).",
+          "usage": "!work [job]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "shop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:economy.shop_view"
+          },
+          "slash_common": false,
+          "summary": "Browse and buy items from the shop.",
+          "usage": "!shop",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "bal",
+            "wallet"
+          ],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "balance",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:economy.balance_view"
+          },
+          "slash_common": false,
+          "summary": "Show your (or another user's) current coin balance.",
+          "usage": "!balance [@user]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "transfer"
+          ],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 10,
+            "rate": 3,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "pay",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:economy.pay"
+          },
+          "slash_common": false,
+          "summary": "Send coins to another member.",
+          "usage": "!pay @user <amount>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "setlogchannel",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:economy.setlogchannel"
+          },
+          "slash_common": false,
+          "summary": "Set the economy log channel.",
+          "usage": "!setlogchannel #channel",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "jobs"
+          ],
+          "audience_tier": "user",
+          "capability": "economy",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "joblist",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:economy.joblist_view"
+          },
+          "slash_common": false,
+          "summary": "Show all jobs, requirements, and your mastery.",
+          "usage": "!joblist",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [
+        {
+          "baseline_ref": {
+            "$ref": "provider:economy.baseline_balance_ledger"
+          },
+          "bears_value": true,
+          "cadence": "daily",
+          "check_ref": {
+            "$ref": "provider:economy.check_balance_ledger"
+          },
+          "default_enforce": false,
+          "ground_truth_store": null,
+          "invariant_id": "economy.balance_ledger_reconciliation",
+          "kind": "reconciliation",
+          "max_actions_per_run": 100,
+          "owner_subsystem": "economy",
+          "read_batch_size": 500,
+          "repair_ref": null,
+          "scope": "guild",
+          "severity": "quarantine_only",
+          "stores": [
+            "economy_balances",
+            "economy_audit_log"
+          ],
+          "tolerance": 0
+        }
+      ],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "economy.balance_changed",
+          "observability_only": false,
+          "owner_subsystem": "economy",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "user_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "delta",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "new_balance",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "reason",
+              "required": true,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
+      "key": "economy",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Daily rewards, jobs, the item shop, and transfers — every coin movement rides the audited seam and the economy_audit_log money trail."
+            },
+            {
+              "provider": {
+                "$ref": "provider:economy.hub_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "economy.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "economy",
+          "timeout_s": 180,
+          "title": "Economy",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Live feed of daily rewards, work earnings, transfers, and shop purchases.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [
+            "economy_log_channel"
+          ],
+          "multiplicity": 1,
+          "name": "log_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "audit_intent": "economy_log_channel",
+          "binding_name": "log_channel",
+          "description": "Operator-facing audit channel for economy mutations. Recommended for any guild that runs the economy actively.",
+          "intent": "log_channel",
+          "kind": "channel",
+          "offer_on_enable": true,
+          "provisioning": {
+            "priority": "recommended",
+            "suggested_category": "Staff",
+            "suggested_name": "economy-log",
+            "suggested_permissions": []
+          },
+          "shareable": true,
+          "teardown_policy": "keep"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": true,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:economy.erase_subject_balances"
+          },
+          "forward_map_kind": "rename",
+          "invariant_tag": "economy_balances",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "xp"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:economy.store"
+          },
+          "table": "economy_balances",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": true,
+          "cache_scope": null,
+          "checkpoint_class": "ledger",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:economy.tombstone_subject_audit"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "economy_audit_log",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "treasury"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:economy.store"
+          },
+          "table": "economy_audit_log",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:economy.erase_subject_track"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "economy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:economy.store"
+          },
+          "table": "economy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:economy.erase_subject_jobs"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "job_progress",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:economy.store"
+          },
+          "table": "job_progress",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:economy.erase_subject_inventory"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "inventory",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:economy.store"
+          },
+          "table": "inventory",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },
