@@ -1,6 +1,6 @@
 # Rubric v2 — classes 11 / 12 / 13 (PROPOSAL — owner-gated, not self-applied)
 
-> **Status:** `proposal` (S11, 2026-07-08). The review rubric is an owner-directed system
+> **Status:** `plan` — a PROPOSAL awaiting owner adoption (S11, 2026-07-08). The review rubric is an owner-directed system
 > (Q-0233 froze the ten classes): these three classes + the precedence rule are **proposed
 > for adoption** (spec 10 T-1), never self-applied. Source of the full drop-in text:
 > `superbot:docs/analysis/rebuild-discovery/foundations/design/strand-3-cross-cutting-concerns/10-security-abuse-rubric.md` §2.A.
