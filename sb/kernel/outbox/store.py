@@ -18,8 +18,14 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Mapping
 
 from sb.kernel.db import pool
-from sb.spec.refs import EngineRef
-from sb.spec.versioning import CheckpointClass, StoreSpec, VersionPolicy
+from sb.spec.refs import EngineRef, WorkflowRef
+from sb.spec.versioning import (
+    CheckpointClass,
+    DataClass,
+    StoreSpec,
+    VersionPolicy,
+    register_store,
+)
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
@@ -66,7 +72,7 @@ class OutboxRow:
 #: (DROP would strand a still-PENDING row on a schema bump — "no lost events");
 #: a schema-drifted PENDING row is re-emitted as-stored (payload_schema is
 #: additive-only).
-OUTBOX_STORE = StoreSpec(
+OUTBOX_STORE = register_store(StoreSpec(
     table="event_outbox",
     sole_writer=EngineRef("sb.kernel.outbox"),
     retention="delivered:7d;dead:90d",           # enforced by OutboxReaperLane._prune
@@ -76,7 +82,12 @@ OUTBOX_STORE = StoreSpec(
     payload_version=1,
     bears_value=False,
     version_policy=VersionPolicy.REJECT_AND_PRESERVE,
-)
+    # S11 class 12: event payloads carry actor/user ids (pseudonymous). The
+    # erasure body (payload scrub, delivery envelope kept) lands with the
+    # outbox band; the ref is DECLARED now so the erasure walk is complete.
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("kernel.outbox.scrub_subject"),
+))
 
 # Retention windows parsed from OUTBOX_STORE.retention.
 DELIVERED_TTL = timedelta(days=7)

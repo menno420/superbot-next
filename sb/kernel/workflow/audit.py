@@ -26,8 +26,8 @@ from typing import TYPE_CHECKING
 
 from sb.kernel.db import pool
 from sb.kernel.outbox.enqueue import enqueue_audit_action
-from sb.spec.refs import EngineRef
-from sb.spec.versioning import CheckpointClass, StoreSpec
+from sb.spec.refs import EngineRef, WorkflowRef
+from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
@@ -37,7 +37,7 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 
 __all__ = ["AUDIT_LOG_STORE", "emit_central_audit"]
 
-AUDIT_LOG_STORE = StoreSpec(
+AUDIT_LOG_STORE = register_store(StoreSpec(
     table="audit_log",
     sole_writer=EngineRef("kernel.workflow"),
     retention="permanent",  # operator forensic spine; pruning = owner-gated retention
@@ -46,7 +46,13 @@ AUDIT_LOG_STORE = StoreSpec(
     reader_domains=("server_logging", "diagnostics"),
     payload_version=1,
     bears_value=False,
-)
+    # S11 class 12: rows key on actor ids (pseudonymous). Erasure = TOMBSTONE
+    # (scrub PII columns in place, KEEP the forensic/value skeleton — a hard
+    # delete would break the invariant fence + the ledger reverse-import).
+    # The body lands with the workflow band; the ref is DECLARED now.
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("kernel.audit.tombstone_subject"),
+))
 
 
 def _to_text(value: object) -> str | None:
