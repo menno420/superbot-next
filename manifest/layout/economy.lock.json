@@ -1,0 +1,66 @@
+{
+ "entries": {
+  "economy:balance:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:daily:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:economy:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:economymenu:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:joblist:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:log_channel:BindingSpec.group": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": ""
+  },
+  "economy:pay:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:setlogchannel:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:shop:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "economy:work:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  }
+ },
+ "schema_version": 1,
+ "subsystem": "economy"
+}
