@@ -150,3 +150,416 @@ entries:
     consumers: [sb/kernel/workflow/audit.py, sb/kernel/workflow/result.py]
     rejected_alternative: "always-snapshot (audit payload bloat on high-volume reversible ops)"
     minted: 2026-07-08
+
+  # --- S9b (K8 panel/presentation runtime): the design-spec 2.3/2.4/2.6 panel
+  # grammar + the L-24 riders (alt_text; ModalSpec = amendment G-10, in-spec).
+  # KERNEL-consumed until the port bands mint sb/manifest/ declarations; the
+  # [O] weight fields' third consumer is the layer-V sim (step 11).
+  ColumnSpec.key:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "stringly header tuples parsed by each renderer"
+    minted: 2026-07-08
+  ColumnSpec.label:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "stringly header tuples parsed by each renderer"
+    minted: 2026-07-08
+  EmbedFrameSpec.alt_text:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "per-callsite clamp_embed/ad-hoc embed builders (the shipped ~50-site shape)"
+    minted: 2026-07-08
+  EmbedFrameSpec.field_budget_chars:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "per-callsite clamp_embed/ad-hoc embed builders (the shipped ~50-site shape)"
+    minted: 2026-07-08
+  EmbedFrameSpec.footer_mode:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "per-callsite clamp_embed/ad-hoc embed builders (the shipped ~50-site shape)"
+    minted: 2026-07-08
+  EmbedFrameSpec.max_fields:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "per-callsite clamp_embed/ad-hoc embed builders (the shipped ~50-site shape)"
+    minted: 2026-07-08
+  EmbedFrameSpec.style_token:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "per-callsite clamp_embed/ad-hoc embed builders (the shipped ~50-site shape)"
+    minted: 2026-07-08
+  EmbedFrameSpec.thumbnail_ref:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "per-callsite clamp_embed/ad-hoc embed builders (the shipped ~50-site shape)"
+    minted: 2026-07-08
+  FieldsBlock.provider:
+    consumers: [sb/kernel/panels/render.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "inline queries inside view classes (no read-model seam)"
+    minted: 2026-07-08
+  LayoutSpec.pages:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "row/position/page on each action/selector — the sim would mutate N structures"
+    minted: 2026-07-08
+  ListBlock.list_spec:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "per-panel list rendering code"
+    minted: 2026-07-08
+  ListBlock.provider:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "per-panel list rendering code"
+    minted: 2026-07-08
+  ListSpec.default_sort:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ListSpec.empty_state:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ListSpec.filter_options:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ListSpec.item_render_ref:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ListSpec.max_pages:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ListSpec.page_size:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ListSpec.sort_options:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke list view class per surface"
+    minted: 2026-07-08
+  ModalFieldSpec.default:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.field_id:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/adapters/modal.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.label:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.max_length:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.min_length:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.placeholder:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.required:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalFieldSpec.style:
+    consumers: [sb/kernel/panels/compile.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "hand-coded discord.ui.TextInput per modal (no declared form body)"
+    minted: 2026-07-08
+  ModalSpec.fields:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/adapters/modal.py]
+    rejected_alternative: "the open_modal(modal_ref: HandlerRef) escape hatch (spec 02 §3.2 L217)"
+    minted: 2026-07-08
+  ModalSpec.modal_id:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/adapters/modal.py]
+    rejected_alternative: "the open_modal(modal_ref: HandlerRef) escape hatch (spec 02 §3.2 L217)"
+    minted: 2026-07-08
+  ModalSpec.on_submit:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/adapters/modal.py]
+    rejected_alternative: "the open_modal(modal_ref: HandlerRef) escape hatch (spec 02 §3.2 L217)"
+    minted: 2026-07-08
+  ModalSpec.title:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/adapters/modal.py]
+    rejected_alternative: "the open_modal(modal_ref: HandlerRef) escape hatch (spec 02 §3.2 L217)"
+    minted: 2026-07-08
+  NavRouteSpec.emoji:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-captured extra nav buttons (restart-lossy)"
+    minted: 2026-07-08
+  NavRouteSpec.label:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-captured extra nav buttons (restart-lossy)"
+    minted: 2026-07-08
+  NavRouteSpec.route:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-captured extra nav buttons (restart-lossy)"
+    minted: 2026-07-08
+  NavigationSpec.extra_routes:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-backed BackTarget/chain_back stacks (cannot survive restarts)"
+    minted: 2026-07-08
+  NavigationSpec.home_hub:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-backed BackTarget/chain_back stacks (cannot survive restarts)"
+    minted: 2026-07-08
+  NavigationSpec.parent:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-backed BackTarget/chain_back stacks (cannot survive restarts)"
+    minted: 2026-07-08
+  NavigationSpec.show_help:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-backed BackTarget/chain_back stacks (cannot survive restarts)"
+    minted: 2026-07-08
+  NavigationSpec.show_home:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-backed BackTarget/chain_back stacks (cannot survive restarts)"
+    minted: 2026-07-08
+  NavigationSpec.show_rules:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "closure-backed BackTarget/chain_back stacks (cannot survive restarts)"
+    minted: 2026-07-08
+  PageSpec.rows:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "row/position fields scattered on child specs (arrangement leakage)"
+    minted: 2026-07-08
+  PanelActionSpec.action_id:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.audience_tier:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.audit:
+    consumers: [tools/manifest_compile.py, sb/kernel/panels/compile.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.capability_required:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.co_use_group:
+    consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.confirm:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/compile.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.custom_id_override:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/registry.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.defer_mode:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/compile.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.destructive:
+    consumers: [sb/kernel/panels/compile.py, tools/manifest_compile.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.emoji:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.flow_stage:
+    consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.handler:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/compile.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.label:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.modal:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/resolve.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.result_card:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.result_render:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.style:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.usage_weight:
+    consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelActionSpec.visible_when:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
+    minted: 2026-07-08
+  PanelSpec.actions:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.anchor_policy:
+    consumers: [sb/kernel/panels/render.py, sb/adapters/discord/panel_view.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.audience:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/engine.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.body:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.co_open_group:
+    consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.frame:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.justification:
+    consumers: [sb/kernel/panels/compile.py, tools/manifest_compile.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.layout:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.legacy_view:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/engine.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.navigation:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.panel_id:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.renderer_override:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/engine.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.selectors:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.session_lifecycle:
+    consumers: [sb/kernel/panels/compile.py, tools/manifest_compile.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.subsystem:
+    consumers: [sb/kernel/panels/render.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.timeout_s:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/engine.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.title:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  PanelSpec.usage_weight:
+    consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
+    rejected_alternative: "a per-panel view class (the shipped panel_manager/persistent_views shape)"
+    minted: 2026-07-08
+  ResultCardSpec.frame:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "per-handler ad-hoc result embeds"
+    minted: 2026-07-08
+  SelectorSpec.audience_tier:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.capability_required:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.custom_id_override:
+    consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/registry.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.empty_state:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.kind:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.max_values:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.min_values:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.on_select:
+    consumers: [sb/kernel/interaction/resolve.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.options_source:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.page_size:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.placeholder:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.selector_id:
+    consumers: [sb/kernel/panels/registry.py, sb/kernel/panels/render.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  SelectorSpec.usage_weight:
+    consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
+    rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
+    minted: 2026-07-08
+  TableBlock.provider:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "per-panel table rendering code"
+    minted: 2026-07-08
+  TableBlock.table:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "per-panel table rendering code"
+    minted: 2026-07-08
+  TableSpec.columns:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TableSpec.default_sort:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TableSpec.empty_state:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TableSpec.filter_options:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TableSpec.max_pages:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TableSpec.page_size:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TableSpec.sort_options:
+    consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
+    rejected_alternative: "a bespoke browser view module per list surface (the shipped views/selectors/ fleet)"
+    minted: 2026-07-08
+  TextBlock.text:
+    consumers: [sb/kernel/panels/render.py, sb/kernel/panels/projections.py]
+    rejected_alternative: "raw description string concatenation in per-panel view classes"
+    minted: 2026-07-08

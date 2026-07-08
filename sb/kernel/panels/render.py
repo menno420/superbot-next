@@ -1,0 +1,310 @@
+"""The pure render model (K8/S9b): ``PanelSpec + PanelContext → RenderedPanel``.
+
+Kernel-side and discord-free — the discord adapter materializes a
+``RenderedPanel`` into ``discord.Embed`` + ``discord.ui.View``
+(sb/adapters/discord/panel_view.py). Everything Discord-shaped is enforced
+HERE, once: embed budgets (EmbedFrameSpec + the hard platform limits),
+component custom_ids from the static table mint, ``visible_when`` gating,
+copy through the L-24 ``CopyResolver``, and the engine-injected nav row +
+page-turn controls (outside the layout search space, §2.4).
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass, field
+
+from sb.kernel.interaction.locale import active_copy_resolver
+from sb.kernel.interaction.predicates import EvalContext, evaluate
+from sb.kernel.panels.context import PanelContext
+from sb.kernel.panels.registry import (
+    NAV_BACK_ID_PREFIX,
+    NAV_HELP_ID,
+    NAV_HUB_ID_PREFIX,
+    NAV_PAGE_ID_PREFIX,
+    NAV_ROW,
+    resolve_home_hub,
+)
+from sb.spec.panels import (
+    ActionStyle,
+    EmbedFrameSpec,
+    FieldsBlock,
+    ListBlock,
+    PanelSpec,
+    TableBlock,
+    TextBlock,
+)
+from sb.spec.refs import RefUnresolved, resolve as resolve_ref
+
+logger = logging.getLogger("sb.kernel.panels.render")
+
+__all__ = [
+    "RenderedComponent",
+    "RenderedEmbed",
+    "RenderedPanel",
+    "install_hub_resolver",
+    "render_panel",
+    "reset_render_ports_for_tests",
+]
+
+# Discord hard limits — engine-enforced (clamping is never a callsite courtesy).
+TITLE_LIMIT = 256
+DESCRIPTION_LIMIT = 4096
+FIELD_NAME_LIMIT = 256
+FIELD_VALUE_LIMIT = 1024
+EMBED_TOTAL_LIMIT = 6000
+MAX_EMBED_FIELDS = 25
+
+
+@dataclass(frozen=True)
+class RenderedComponent:
+    kind: str                    # "button" | "selector"
+    custom_id: str
+    label: str
+    row: int
+    style: str = ActionStyle.SECONDARY.value
+    emoji: str = ""
+    disabled: bool = False
+    placeholder: str = ""        # selectors
+    min_values: int = 1
+    max_values: int = 1
+    options: tuple[str, ...] = ()   # static selector options ("" source = provider-fed)
+
+
+@dataclass(frozen=True)
+class RenderedEmbed:
+    title: str
+    description: str
+    fields: tuple[tuple[str, str], ...] = ()
+    footer: str = ""
+    thumbnail_ref: str = ""
+    alt_text: str = ""           # L-24 rider 1 — carried to the adapter's discord.File
+    style_token: str = ""
+
+
+@dataclass(frozen=True)
+class RenderedPanel:
+    panel_id: str
+    embed: RenderedEmbed
+    components: tuple[RenderedComponent, ...] = ()
+    page: int = 0
+    page_count: int = 1
+    invoker_lock: int | None = None    # audience=invoker ⇒ the invoker's user_id
+    timeout_s: int | None = 180
+    audience: str = "invoker"
+    anchor_policy: str = "reply"
+
+
+# FOLLOW_PARENT resolution port: subsystem -> its CURRENT parent_hub key (the
+# manifest lookup at render/click time). Installed by the composition root
+# once hubs exist; None until then.
+HubResolver = "callable[[str], str | None]"
+_hub_resolver = None
+
+
+def install_hub_resolver(resolver) -> None:
+    global _hub_resolver
+    _hub_resolver = resolver
+
+
+def reset_render_ports_for_tests() -> None:
+    global _hub_resolver
+    _hub_resolver = None
+
+
+def _clamp(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    return text[: max(limit - 1, 0)] + "…"
+
+
+async def _provider_rows(ref, ctx: PanelContext):
+    """Resolve + call a ProviderRef; a broken provider degrades to None
+    (the block renders its empty_state), never a crashed panel."""
+    if ref is None:
+        return None
+    try:
+        provider = resolve_ref(ref)
+        return await provider(ctx)
+    except RefUnresolved:
+        logger.warning("panel provider %r unresolved", getattr(ref, "name", ref))
+        return None
+    except Exception:  # noqa: BLE001 — a data provider never takes the panel down
+        logger.warning("panel provider %r failed", getattr(ref, "name", ref), exc_info=True)
+        return None
+
+
+async def _render_body(spec: PanelSpec, ctx: PanelContext, resolver):
+    """→ (description, fields) from the typed content blocks."""
+    loc = ctx.locale
+    desc_parts: list[str] = []
+    fields: list[tuple[str, str]] = []
+    budget = min(spec.frame.field_budget_chars, FIELD_VALUE_LIMIT)
+    max_fields = min(spec.frame.max_fields, MAX_EMBED_FIELDS)
+
+    def add_field(name: str, value: str) -> None:
+        if len(fields) < max_fields:
+            fields.append((_clamp(name, FIELD_NAME_LIMIT), _clamp(value or "​", budget)))
+
+    for block in spec.body:
+        if isinstance(block, TextBlock):
+            desc_parts.append(resolver.resolve(block.text, locale=loc))
+        elif isinstance(block, FieldsBlock):
+            rows = await _provider_rows(block.provider, ctx)
+            for name, value in (rows or ()):
+                add_field(resolver.resolve(str(name), locale=loc), str(value))
+        elif isinstance(block, TableBlock):
+            rows = await _provider_rows(block.provider, ctx)
+            t = block.table
+            if not rows:
+                desc_parts.append(resolver.resolve(t.empty_state, locale=loc))
+            else:
+                header = " | ".join(resolver.resolve(c.label, locale=loc) for c in t.columns)
+                lines = [header]
+                for row in list(rows)[: t.page_size]:
+                    lines.append(" | ".join(str(row.get(c.key, "")) for c in t.columns))
+                desc_parts.append(_clamp("\n".join(lines), budget))
+        elif isinstance(block, ListBlock):
+            items = await _provider_rows(block.provider, ctx)
+            ls = block.list_spec
+            if not items:
+                desc_parts.append(resolver.resolve(ls.empty_state, locale=loc))
+            else:
+                rendered_items = []
+                item_renderer = None
+                if ls.item_render_ref is not None:
+                    try:
+                        item_renderer = resolve_ref(ls.item_render_ref)
+                    except RefUnresolved:
+                        item_renderer = None
+                for item in list(items)[: ls.page_size]:
+                    rendered_items.append(
+                        str(item_renderer(item)) if item_renderer else f"• {item}")
+                desc_parts.append(_clamp("\n".join(rendered_items), budget))
+    return "\n\n".join(p for p in desc_parts if p), tuple(fields)
+
+
+def _footer(spec: PanelSpec) -> str:
+    mode = spec.frame.footer_mode.value
+    if mode == "subsystem":
+        return spec.subsystem
+    if mode == "provenance":
+        return f"{spec.subsystem} · {spec.panel_id}"
+    return ""
+
+
+def _clamp_embed(frame: EmbedFrameSpec, title: str, description: str,
+                 fields: tuple[tuple[str, str], ...], footer: str) -> RenderedEmbed:
+    title = _clamp(title, TITLE_LIMIT)
+    description = _clamp(description, DESCRIPTION_LIMIT)
+    # total-budget pass (6000): shed description first, then trailing fields.
+    def total(f):
+        return len(title) + len(description) + len(footer) + sum(
+            len(n) + len(v) for n, v in f)
+    fields = list(fields)
+    if total(fields) > EMBED_TOTAL_LIMIT:
+        overshoot = total(fields) - EMBED_TOTAL_LIMIT
+        keep = max(len(description) - overshoot, 0)
+        description = _clamp(description, keep) if keep else ""
+    while fields and total(fields) > EMBED_TOTAL_LIMIT:
+        fields.pop()
+    return RenderedEmbed(
+        title=title, description=description, fields=tuple(fields), footer=footer,
+        thumbnail_ref=frame.thumbnail_ref, alt_text=frame.alt_text,
+        style_token=frame.style_token)
+
+
+async def _visible(component_spec, ctx: PanelContext) -> bool:
+    pred = getattr(component_spec, "visible_when", "") or ""
+    if not pred:
+        return True
+    return await evaluate(pred, EvalContext(
+        guild_id=ctx.guild_id or 0, channel_id=ctx.channel_id, actor=ctx.actor))
+
+
+async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
+                       subsystem_hub: str | None = None) -> RenderedPanel:
+    """The render entry. ``subsystem_hub`` overrides the installed hub
+    resolver (tests / pre-resolved callers)."""
+    resolver = active_copy_resolver()
+    loc = ctx.locale
+
+    description, fields = await _render_body(spec, ctx, resolver)
+    embed = _clamp_embed(
+        spec.frame, resolver.resolve(spec.title, locale=loc), description, fields,
+        resolver.resolve(_footer(spec), locale=loc))
+
+    # components for the requested page (layout order is deterministic).
+    pages = spec.layout.pages
+    page_count = max(len(pages), 1)
+    page = min(max(page, 0), page_count - 1)
+    by_id = {a.action_id: a for a in spec.actions}
+    by_id.update({s.selector_id: s for s in spec.selectors})
+    components: list[RenderedComponent] = []
+    rows = pages[page].rows if pages else ()
+    for row_idx, row in enumerate(rows):
+        for comp_id in row:
+            cspec = by_id[comp_id]
+            if not await _visible(cspec, ctx):
+                continue
+            custom_id = getattr(cspec, "custom_id_override", "") or f"{spec.panel_id}.{comp_id}"
+            if hasattr(cspec, "selector_id"):
+                options = cspec.options_source if isinstance(cspec.options_source, tuple) else ()
+                components.append(RenderedComponent(
+                    kind="selector", custom_id=custom_id,
+                    label=resolver.resolve(cspec.placeholder, locale=loc), row=row_idx,
+                    placeholder=resolver.resolve(cspec.placeholder, locale=loc),
+                    min_values=cspec.min_values, max_values=cspec.max_values,
+                    options=tuple(str(o) for o in options)))
+            else:
+                components.append(RenderedComponent(
+                    kind="button", custom_id=custom_id,
+                    label=resolver.resolve(cspec.label, locale=loc), row=row_idx,
+                    style=cspec.style.value, emoji=cspec.emoji))
+
+    # engine-injected page-turn controls (outside the searchable space).
+    if page_count > 1:
+        if page > 0:
+            components.append(RenderedComponent(
+                kind="button", custom_id=f"{NAV_PAGE_ID_PREFIX}{spec.panel_id}:{page - 1}",
+                label="◀", row=NAV_ROW, style=ActionStyle.SECONDARY.value))
+        if page < page_count - 1:
+            components.append(RenderedComponent(
+                kind="button", custom_id=f"{NAV_PAGE_ID_PREFIX}{spec.panel_id}:{page + 1}",
+                label="▶", row=NAV_ROW, style=ActionStyle.SECONDARY.value))
+
+    # engine-injected nav row (row 4, the shipped shape; never for self-hub help).
+    nav = spec.navigation
+    if nav.show_help and spec.subsystem != "help":
+        components.append(RenderedComponent(
+            kind="button", custom_id=NAV_HELP_ID,
+            label=resolver.resolve("📚 Help", locale=loc), row=NAV_ROW,
+            style=ActionStyle.SECONDARY.value))
+    if nav.show_home:
+        hub = resolve_home_hub(
+            spec, subsystem_hub if subsystem_hub is not None
+            else (_hub_resolver(spec.subsystem) if _hub_resolver else None))
+        if hub:
+            components.append(RenderedComponent(
+                kind="button", custom_id=f"{NAV_HUB_ID_PREFIX}{hub}",
+                label=resolver.resolve("↩ Home", locale=loc), row=NAV_ROW,
+                style=ActionStyle.SECONDARY.value))
+    if nav.parent is not None:
+        components.append(RenderedComponent(
+            kind="button", custom_id=f"{NAV_BACK_ID_PREFIX}{nav.parent.name}",
+            label=resolver.resolve("↩ Back", locale=loc), row=NAV_ROW,
+            style=ActionStyle.SECONDARY.value))
+    for extra in nav.extra_routes:
+        components.append(RenderedComponent(
+            kind="button", custom_id=f"{NAV_BACK_ID_PREFIX}{extra.route.name}",
+            label=resolver.resolve(extra.label, locale=loc), row=NAV_ROW,
+            style=ActionStyle.SECONDARY.value, emoji=extra.emoji))
+
+    invoker_lock = None
+    if spec.audience.value == "invoker":
+        invoker_lock = ctx.actor.user_id
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=tuple(components),
+        page=page, page_count=page_count, invoker_lock=invoker_lock,
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)

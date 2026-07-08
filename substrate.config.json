@@ -89,7 +89,19 @@
       "ValidatorError": "kernel/interaction/errors.py",
       "EventBus": "kernel/events_bus.py",
       "RuntimeIndex": "app/build_runtime.py",
-      "SyncOutcome": "app/tree_sync.py"
+      "SyncOutcome": "app/tree_sync.py",
+      "PanelSpec": "spec/panels.py",
+      "PanelActionSpec": "spec/panels.py",
+      "SelectorSpec": "spec/panels.py",
+      "NavigationSpec": "spec/panels.py",
+      "LayoutSpec": "spec/panels.py",
+      "EmbedFrameSpec": "spec/panels.py",
+      "ModalSpec": "spec/panels.py",
+      "ModalFieldSpec": "spec/panels.py",
+      "PanelContext": "kernel/panels/context.py",
+      "RenderedPanel": "kernel/panels/render.py",
+      "PanelSession": "kernel/panels/engine.py",
+      "LocaleContext": "kernel/interaction/locale.py"
     },
     "roots": [
       "sb"
