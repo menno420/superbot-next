@@ -207,7 +207,8 @@
       ],
       "forbidden": "os\\.getenv|os\\.environ",
       "allowed": [
-        "sb/kernel/config/**"
+        "sb/kernel/config/**",
+        "sb/adapters/parity/boot.py"
       ],
       "message": "read cfg.<ENV_VAR> via the typed Config accessor; env reads live only in sb/kernel/config (spec 05 s3.2)"
     }

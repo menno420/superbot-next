@@ -14,7 +14,16 @@ import ast
 import sys
 from pathlib import Path
 
-ALLOWED_PREFIXES = ("sb/kernel/config/",)
+ALLOWED_PREFIXES = (
+    "sb/kernel/config/",
+    # The parity replay harness's composition root (sb/adapters/parity/boot.py)
+    # SEEDS the placeholder-env convention the old-bot harness owns
+    # (parity/harness/boot.py: token placeholder + persona owner id) before
+    # calling preflight(); it reads no config around the typed accessor.
+    # Explicit, ledgered widening (D-0028) — mirrored in substrate.config.json's
+    # config-accessor seam allowlist.
+    "sb/adapters/parity/boot.py",
+)
 
 
 def _env_reads(tree: ast.AST) -> list[tuple[int, str]]:
