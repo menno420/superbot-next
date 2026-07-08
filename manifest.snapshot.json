@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 16,
+  "manifest_count": 18,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -733,6 +733,14 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "surface": "prefix",
+          "value": "inventory"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "surface": "prefix",
@@ -941,6 +949,30 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "surface": "prefix",
+          "value": "treasury"
+        },
+        {
+          "kind": "command",
+          "parent_group": "treasury",
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "surface": "prefix",
+          "value": "contribute"
+        },
+        {
+          "kind": "command",
+          "parent_group": "treasury",
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "surface": "prefix",
+          "value": "grant"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/welcome.py",
           "subsystem": "welcome",
           "surface": "prefix",
@@ -1011,6 +1043,11 @@
           "value": "image_moderation.hub"
         },
         {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.hub"
+        },
+        {
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "value": "logging.hub"
@@ -1039,6 +1076,11 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.hub"
+        },
+        {
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "value": "treasury.hub"
         },
         {
           "source": "sb/manifest/welcome.py",
@@ -1450,6 +1492,11 @@
           "value": "image_moderation"
         },
         {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory"
+        },
+        {
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "value": "logging"
@@ -1478,6 +1525,11 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup"
+        },
+        {
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "value": "treasury"
         },
         {
           "source": "sb/manifest/welcome.py",
@@ -1535,6 +1587,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "subsystem_bindings"
+        },
+        {
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "value": "guild_treasury"
         }
       ]
     },
@@ -1550,6 +1607,9 @@
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
+      },
+      "engine:treasury.store": {
+        "module": "sb.domain.treasury.store"
       },
       "handler:admin.loglevel": {
         "module": "sb.domain.admin.handlers"
@@ -1592,6 +1652,9 @@
       },
       "handler:economy.work_view": {
         "module": "sb.domain.economy.handlers"
+      },
+      "handler:inventory.view": {
+        "module": "sb.domain.inventory.handlers"
       },
       "handler:logging.create_channels": {
         "module": "sb.domain.server_logging.handlers"
@@ -1647,6 +1710,9 @@
       "panel:image_moderation.hub": {
         "module": "sb.domain.operator_spine"
       },
+      "panel:inventory.hub": {
+        "module": "sb.domain.inventory.panels"
+      },
       "panel:logging.hub": {
         "module": "sb.domain.server_logging.panels"
       },
@@ -1664,6 +1730,9 @@
       },
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:treasury.hub": {
+        "module": "sb.domain.treasury.panels"
       },
       "panel:welcome.hub": {
         "module": "sb.domain.operator_spine"
@@ -1698,6 +1767,9 @@
       "provider:image_moderation.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
+      "provider:inventory.hub_overview": {
+        "module": "sb.domain.inventory.panels"
+      },
       "provider:logging.hub_status": {
         "module": "sb.domain.server_logging.panels"
       },
@@ -1718,6 +1790,15 @@
       },
       "provider:setup.sections_index": {
         "module": "sb.domain.setup.panels"
+      },
+      "provider:treasury.baseline_pool_ledger": {
+        "module": "sb.domain.treasury.invariants"
+      },
+      "provider:treasury.check_pool_ledger": {
+        "module": "sb.domain.treasury.invariants"
+      },
+      "provider:treasury.hub_overview": {
+        "module": "sb.domain.treasury.panels"
       },
       "provider:welcome.hub_settings": {
         "module": "sb.domain.operator_spine"
@@ -1865,6 +1946,21 @@
       },
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
+      },
+      "workflow:treasury.balance_payload": {
+        "module": "sb.domain.treasury.ops"
+      },
+      "workflow:treasury.contribute": {
+        "module": "sb.domain.treasury.ops"
+      },
+      "workflow:treasury.disburse": {
+        "module": "sb.domain.treasury.ops"
+      },
+      "workflow:treasury.record_contribute": {
+        "module": "sb.domain.treasury.ops"
+      },
+      "workflow:treasury.record_disburse": {
+        "module": "sb.domain.treasury.ops"
       }
     },
     "stores": {
@@ -1891,6 +1987,14 @@
           "$ref": "engine:economy.store"
         },
         "subsystem": "economy"
+      },
+      "guild_treasury": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "guild_treasury",
+        "sole_writer": {
+          "$ref": "engine:treasury.store"
+        },
+        "subsystem": "treasury"
       },
       "inventory": {
         "checkpoint_class": "aggregate",
@@ -1951,7 +2055,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:3bc14b5158c9e991ec5144471a0609313d74f470c8f88e182e582729004f15a8",
+  "stable_hash": "sha256:42549ecc670523e5a7ad9c3fe24b0a17e4c8262ec34b9b95922ab21e13daa127",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -4662,6 +4766,90 @@
       "version": 1,
       "wizard_sections": []
     },
+    "inventory": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "inv"
+          ],
+          "audience_tier": "user",
+          "capability": "inventory",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "inventory",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:inventory.view"
+          },
+          "slash_common": false,
+          "summary": "Show your (or another user's) unified inventory hub.",
+          "usage": "!inventory [@user]",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "inventory",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "The unified item browser — one catalogue across economy, mining, fishing, and collectibles. `!inventory [@user]` shows owned items grouped by category, rarest-first."
+            },
+            {
+              "provider": {
+                "$ref": "provider:inventory.hub_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "Inventory",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
     "logging": {
       "capabilities": [],
       "commands": [
@@ -6898,6 +7086,196 @@
           "style": "secondary"
         }
       ]
+    },
+    "treasury": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "bank",
+            "pool"
+          ],
+          "audience_tier": "user",
+          "capability": "treasury",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "treasury",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:treasury.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the server treasury — view the pool and contribute coins.",
+          "usage": "!treasury",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "donate",
+            "deposit"
+          ],
+          "audience_tier": "user",
+          "capability": "treasury",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "treasury",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "contribute",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:treasury.contribute"
+          },
+          "slash_common": false,
+          "summary": "Donate your own coins into the server treasury.",
+          "usage": "!treasury contribute <amount>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "disburse",
+            "payout"
+          ],
+          "audience_tier": "staff",
+          "capability": "treasury",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "treasury",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "grant",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "workflow:treasury.disburse"
+          },
+          "slash_common": false,
+          "summary": "Disburse coins from the treasury to a member (managers only).",
+          "usage": "!treasury grant @member <amount>",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [
+        {
+          "baseline_ref": {
+            "$ref": "provider:treasury.baseline_pool_ledger"
+          },
+          "bears_value": true,
+          "cadence": "daily",
+          "check_ref": {
+            "$ref": "provider:treasury.check_pool_ledger"
+          },
+          "default_enforce": false,
+          "ground_truth_store": null,
+          "invariant_id": "treasury.pool_ledger_reconciliation",
+          "kind": "reconciliation",
+          "max_actions_per_run": 100,
+          "owner_subsystem": "treasury",
+          "read_batch_size": 500,
+          "repair_ref": null,
+          "scope": "guild",
+          "severity": "quarantine_only",
+          "stores": [
+            "guild_treasury",
+            "economy_audit_log"
+          ],
+          "tolerance": 0
+        }
+      ],
+      "events": [],
+      "key": "treasury",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "The server-owned coin pool — the collective layer between the economy and governance. Every movement rides the audited seam and the economy ledger's treasury:* money trail."
+            },
+            {
+              "provider": {
+                "$ref": "provider:treasury.hub_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "treasury.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "treasury",
+          "timeout_s": 180,
+          "title": "Server Treasury",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": true,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "guild_treasury",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "economy"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:treasury.store"
+          },
+          "table": "guild_treasury",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
     },
     "welcome": {
       "capabilities": [],

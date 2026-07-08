@@ -100,6 +100,26 @@ UNITS: tuple[Unit, ...] = (
          "the band-4 XP boundary — honest waiting ports, never fabricated levels"),
     Unit(3, "economy", "engine", "reverse importers x2 + log fan-out", 3, 3,
          "S14 ledger/aggregate importer bodies + bus->RC-21 emitter subscriber"),
+
+    # --- band 3 slice 2 (treasury + inventory), appended 2026-07-08 -------
+    Unit(3, "treasury", "command", "treasury/contribute/grant (aliases bank/pool/donate/deposit/disburse/payout)", 3, 1,
+         "CommandSpec.group carries the shipped prefix group; staff tier = shipped manage_guild"),
+    Unit(3, "treasury", "op", "contribute/disburse", 2, 1,
+         "CompoundOpSpec NATURAL_KEY; pool leg + economy ledger row one txn (RS02/Q-0071)"),
+    Unit(3, "treasury", "store", "guild_treasury", 1, 2,
+         "StoreSpec NAME_STABLE AGGREGATE bears_value; S14 aggregate reverse importer"),
+    Unit(3, "treasury", "invariant", "treasury.pool_ledger_reconciliation", 1, 2,
+         "InvariantSpec RECONCILIATION QUARANTINE_ONLY over pool x treasury:* ledger rows"),
+    Unit(3, "treasury", "panel", "treasury.hub", 1, 2,
+         "read-view hub over provider block"),
+    Unit(3, "inventory", "command", "inventory (inv)", 1, 1,
+         "CommandSpec verbatim; projection-first unified browser"),
+    Unit(3, "inventory", "panel", "inventory.hub", 1, 2,
+         "read-view hub over the coupled item catalogue"),
+    Unit(3, "inventory", "engine", "grouping/rarity/sort pure helpers", 3, 2,
+         "shipped display algebra verbatim as pure functions"),
+    Unit(3, "inventory", "port", "install_extra_inventory_source", 1, 3,
+         "the band-6 mining/fishing merge seam — honest waiting port"),
 )
 
 

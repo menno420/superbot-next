@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **94.31%** tier-1/2 over 211 units (spike line: 85.26% / 95 units).
+Cumulative fit: **94.22%** tier-1/2 over 225 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -37,8 +37,17 @@ Cumulative fit: **94.31%** tier-1/2 over 211 units (spike line: 85.26% / 95 unit
 | 3 | economy | data | JOBS/SHOP_ITEMS/DAILY_TIERS/ITEM_CATALOGUE | 4 | 2 | pure data tables verbatim; the coupled item namespace + fence |
 | 3 | economy | port | install_level_reader/install_xp_awarder | 2 | 3 | the band-4 XP boundary — honest waiting ports, never fabricated levels |
 | 3 | economy | engine | reverse importers x2 + log fan-out | 3 | 3 | S14 ledger/aggregate importer bodies + bus->RC-21 emitter subscriber |
+| 3 | treasury | command | treasury/contribute/grant (aliases bank/pool/donate/deposit/disburse/payout) | 3 | 1 | CommandSpec.group carries the shipped prefix group; staff tier = shipped manage_guild |
+| 3 | treasury | op | contribute/disburse | 2 | 1 | CompoundOpSpec NATURAL_KEY; pool leg + economy ledger row one txn (RS02/Q-0071) |
+| 3 | treasury | store | guild_treasury | 1 | 2 | StoreSpec NAME_STABLE AGGREGATE bears_value; S14 aggregate reverse importer |
+| 3 | treasury | invariant | treasury.pool_ledger_reconciliation | 1 | 2 | InvariantSpec RECONCILIATION QUARANTINE_ONLY over pool x treasury:* ledger rows |
+| 3 | treasury | panel | treasury.hub | 1 | 2 | read-view hub over provider block |
+| 3 | inventory | command | inventory (inv) | 1 | 1 | CommandSpec verbatim; projection-first unified browser |
+| 3 | inventory | panel | inventory.hub | 1 | 2 | read-view hub over the coupled item catalogue |
+| 3 | inventory | engine | grouping/rarity/sort pure helpers | 3 | 2 | shipped display algebra verbatim as pure functions |
+| 3 | inventory | port | install_extra_inventory_source | 1 | 3 | the band-6 mining/fishing merge seam — honest waiting port |
 
 Per band:
 - band 1: 45.45% (5/11)
 - band 2: 99.41% (169/170)
-- band 3: 83.33% (25/30)
+- band 3: 86.36% (38/44)
