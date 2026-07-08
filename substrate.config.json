@@ -67,7 +67,18 @@
       "TransparencyAudit": "kernel/authority/decision.py",
       "TransparencySink": "kernel/authority/transparency.py",
       "AccessMode": "kernel/authority/channel_access.py",
-      "CommandAccessSnapshot": "kernel/authority/channel_access.py"
+      "CommandAccessSnapshot": "kernel/authority/channel_access.py",
+      "ConfirmationSpec": "spec/confirmation.py",
+      "CompoundOpSpec": "kernel/workflow/spec.py",
+      "LegSpec": "kernel/workflow/spec.py",
+      "IdempotencyPosture": "kernel/workflow/spec.py",
+      "WorkflowRegistry": "kernel/workflow/registry.py",
+      "WorkflowContext": "kernel/workflow/context.py",
+      "WorkflowResult": "kernel/workflow/result.py",
+      "MutationPreview": "kernel/workflow/result.py",
+      "StepResult": "kernel/workflow/result.py",
+      "SettingDeclaration": "kernel/settings/__init__.py",
+      "Activation": "kernel/settings/__init__.py"
     },
     "roots": [
       "sb"
