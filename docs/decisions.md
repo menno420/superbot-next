@@ -24,3 +24,10 @@
 - verdict: superbot-next adopted dist/bootstrap.py from menno420/substrate-kit main @ 3d303a0f2ab9da1dd6e008479cc8778d6419e637 (blob 7d2b85c740b952aa8c52d013fdcfa182f395b509); superbot-next is a kit consumer, never a copy of superbot (Q-0247).
 - why: Canonical plan section 5 step 7b: superbot-next adopts FROM the extracted kit repo so both superbot and superbot-next later pin the same versioned dist; recording the exact source SHA makes the adoption reproducible and auditable.
 - provenance: menno420/substrate-kit@3d303a0f2ab9da1dd6e008479cc8778d6419e637 dist/bootstrap.py; rebuild-kickoff-steps-6-8-brief-2026-07-07 (Q-0247)
+
+## [D-0003] Reserve sb/ as the rebuild code root; S1 lands K0 config+observability
+- status: decided
+- date: 2026-07-08
+- verdict: Code root sb/ (sb/spec, sb/kernel, sb/namespace, sb/adapters, sb/app, sb/manifest) is reserved per the frozen L0 layer map; S1 (K0) lands sb/spec/config.py (44 CONFIG_FIELDS: 36 harvested verbatim from shipped disbot/ at 7f7628e1 + 8 new operational fields from spec 05 s3.1), sb/spec/observability.py (46 metric families verbatim from disbot/services/metrics.py), sb/kernel/config (preflight/parse_bool/parse_dsn, RC-10 one-attribute-per-field Config), sb/kernel/observability/metrics.py (render()), sb/kernel/db/data_plane.py (4th rail, pure-stdlib so it lands at K0 with preflight; S4 adds pool/migrations/idempotency), checkers check_config_usage + check_metric_cardinality.
+- why: Spec 05 s3.2 requires preflight() to run assert_data_plane + assert_intents, so the data-plane rail must exist at K0 even though its file home is sb/kernel/db (S4 band); spec counts (39 env vars / 47 fields) were call-site counts at spec time - current shipped source wins per Q-0120, yielding 36 harvested + 8 new = 44.
+- provenance: frozen L0 spec 05 (ops-kernel rails) s2/s3.1-3.5/s11; phase-b-l0-build-order S1 row; canonical plan A-21 (EXTRA_OWNER_USER_IDS at K0)

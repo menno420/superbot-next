@@ -35,8 +35,15 @@
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
   "namespace": {
-    "reserved": {},
-    "roots": []
+    "reserved": {
+      "Config": "kernel/config/__init__.py",
+      "ConfigSpec": "spec/config.py",
+      "MetricSpec": "spec/observability.py",
+      "SecretSpec": "spec/config.py"
+    },
+    "roots": [
+      "sb"
+    ]
   },
   "orientation": {
     "boot_docs": [],
@@ -56,7 +63,19 @@
     "reviewer": null
   },
   "scopes": {},
-  "seams": [],
+  "seams": [
+    {
+      "name": "config-accessor",
+      "paths": [
+        "sb/**/*.py"
+      ],
+      "forbidden": "os\\.getenv|os\\.environ",
+      "allowed": [
+        "sb/kernel/config/**"
+      ],
+      "message": "read cfg.<ENV_VAR> via the typed Config accessor; env reads live only in sb/kernel/config (spec 05 s3.2)"
+    }
+  ],
   "session_markers": [
     {
       "label": "Status badge",
