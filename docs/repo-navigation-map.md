@@ -9,7 +9,13 @@
 
 | Path | What lives there | New code goes here when… |
 |---|---|---|
-| (one row per top-level area) | | |
+| `sb/` | the bot: spec leaves, kernel bands, adapters, app composition (see `sb/__init__.py` layer map) | it boots with or is imported by the bot |
+| `parity/` | layer-V V-1: the imported golden corpus + harness + `parity.yml` (gate dashboard) | never by hand — goldens change only via reviewed PR w/ explained diff |
+| `sim/` | layer-V V-3: the arrangement-sim runner, oracles, overlays, records, sidecar; the per-band grammar-fit procedure is [planning/grammar-spike-classification-procedure.md](planning/grammar-spike-classification-procedure.md) | a port band registers a search space / scoring oracle |
+| `tools/` | checkers (CI gates), manifest compiler, importer, gate drivers | a new committed gate or ops CLI lands |
+| `tests/unit/<area>/` | the unit suite (top-level package per leaf dir — never name one after a stdlib module) | with every code PR |
+| `migrations/` | the fresh `NNNN_*.sql` chain + `checksums.json` (regenerate same-PR) | a store/table lands |
+| `.github/workflows/` | ci.yml (green fleet) · golden-parity.yml (BORN-RED, isolated) · backup-db/restore-verify | a new named gate/reliability job |
 
 ## Documentation roots
 
