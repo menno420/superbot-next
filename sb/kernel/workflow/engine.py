@@ -99,14 +99,17 @@ def install_bus(bus: object) -> None:
 
 
 def _classify_exception(exc: BaseException) -> tuple[str, DenialReason, str]:
-    """Pre-K8 mirror of spec 02 §3.3's frozen rows (transient/bug only — the
-    argument/authority rows cannot arise from a DB leg). S9 re-points this to
-    `from_exception(exc, surface=Surface.MAINTENANCE, target=None)`."""
-    if isinstance(exc, (ConnectionError, asyncio.TimeoutError, TimeoutError)):
-        return (DISCORD_FAILED, DenialReason.DISPATCH_ERROR,
-                "Discord/the service is busy — try again shortly.")
-    return (BLOCKED, DenialReason.DISPATCH_ERROR,
-            "Something went wrong on our end — it's been logged.")
+    """The K7 leg-exception path (spec 07 §3.3 step 4b, RC-19): classify
+    through spec 02's `from_exception(exc, surface=Surface.MAINTENANCE,
+    target=None)` — K7 is the surface-agnostic composition layer, so it
+    classifies under the ONE background surface with no target (PIN-4).
+    Function-level import: kernel/interaction imports kernel/workflow at
+    module level (the resolver dispatches run()), so this edge stays lazy."""
+    from sb.kernel.interaction.errors import from_exception
+    from sb.kernel.interaction.request import Surface
+
+    envelope = from_exception(exc, surface=Surface.MAINTENANCE, target=None)
+    return envelope.outcome, envelope.reason, envelope.user_message
 
 
 def _blocked(spec: CompoundOpSpec, ctx: WorkflowContext, *, outcome: str,
