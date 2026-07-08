@@ -299,7 +299,7 @@
     "TableSpec.sort_options": "S",
     "TextBlock.text": "S"
   },
-  "manifest_count": 1,
+  "manifest_count": 3,
   "projections": {
     "events": {
       "settings.changed": {
@@ -310,6 +310,38 @@
     },
     "namespace": {
       "command": [
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "diagnostics"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "slash",
+          "value": "diagnostics"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "surface": "prefix",
+          "value": "help"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "surface": "slash",
+          "value": "help"
+        },
         {
           "kind": "command",
           "parent_group": null,
@@ -336,12 +368,32 @@
       ],
       "panel": [
         {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic.hub"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.home"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.hub"
         }
       ],
       "subsystem_key": [
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help"
+        },
         {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
@@ -365,8 +417,20 @@
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
       },
+      "panel:diagnostic.hub": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "panel:help.home": {
+        "module": "sb.domain.help.service"
+      },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
+      },
+      "provider:diagnostic.status_index": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:sb.panels.help_index": {
+        "module": "sb.kernel.panels.projections"
       },
       "provider:settings.hub_index": {
         "module": "sb.domain.settings.panels"
@@ -407,8 +471,168 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b316c4216a5e44ff838c9d4f131b7f89e1fed03d0a9dacfb28a7f0a12923dbf8",
+  "stable_hash": "sha256:baf857e9ce3ab59bea0f5466f8ecf74e40174ae96219f34e6077ef7dd701edec",
   "subsystems": {
+    "diagnostic": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "diagnostics",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:diagnostic.hub"
+          },
+          "slash_common": true,
+          "summary": "Platform status: lifecycle, findings, declarations, AI health.",
+          "usage": "/diagnostics",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "diagnostic",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Platform status from the kernel truth sources (lifecycle, findings ring, declaration registry, AI collector)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:diagnostic.status_index"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "provenance",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "diagnostic.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "diagnostic",
+          "timeout_s": 180,
+          "title": "Diagnostics",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1
+    },
+    "help": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "help",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "help",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:help.home"
+          },
+          "slash_common": true,
+          "summary": "Everything the bot can do, generated from its manifests.",
+          "usage": "/help",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "help",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Everything the bot can do, from its own manifests."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_index"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.home",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "Help",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1
+    },
     "settings": {
       "capabilities": [],
       "commands": [
