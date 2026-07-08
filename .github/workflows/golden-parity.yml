@@ -1,0 +1,93 @@
+# golden-parity.yml — design-spec §6 gate 5, the acceptance oracle. Its OWN
+# workflow, deliberately NOT folded into ci.yml: this workflow is BORN RED BY
+# DESIGN (the `report` job is red-until-parity from repo birth), and the
+# red-by-design state stays isolated from the green checker fleet.
+#
+# Two jobs:
+#   gate    — the required-check semantics: check_parity_depth (A-16, inside
+#             this named gate) + `ported` subsystems must replay green;
+#             `pending` subsystems are expected-red and REPORTED, not failing.
+#             GREEN today (zero ported). 👤 OWNER: designate THIS job as the
+#             required status check (repo Settings — build-brief §8.1); the
+#             report job must NOT be required or every merge blocks.
+#   report  — the full-corpus red-until-parity honesty leg: 0/465 replayable
+#             until the new-bot replay adapter exists. RED here is the
+#             expected state (the owner's parity dashboard), not a build
+#             break.
+#
+# The Postgres service container is the §6 gate-5 requirement ("the parity/
+# harness against a real Postgres service container in CI") — provisioned
+# now so replay works the day the adapter lands; the service block mirrors
+# restore-verify.yml (the copy-paste precedent).
+#
+# Corpus provenance: imported byte-identical from menno420/superbot
+# @ 7f7628e12f3b89c5c2a1fbdcfb039787df269e20 (465 goldens; see
+# parity/parity.yml `source` + the integrity rule in parity/README.md).
+
+name: golden-parity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: parity
+          POSTGRES_PASSWORD: parity
+          POSTGRES_DB: parity_replay
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U parity"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: "postgresql://parity:parity@localhost:5432/parity_replay"
+      SB_DATA_PLANE: "test"
+      SB_TEST_DB_HOSTS: "localhost"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install runtime deps from the hash-pinned lock (S13)
+        run: pip install --require-hashes -r requirements.lock
+      - name: check_parity_depth (A-16 depth floor, inside this named gate)
+        run: python3 tools/check_parity_depth.py
+      - name: Gate — ported subsystems must replay green
+        run: python3 tools/run_golden_parity.py --gate
+
+  report:
+    # BORN RED BY DESIGN — red-until-parity (never mark this job required).
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: parity
+          POSTGRES_PASSWORD: parity
+          POSTGRES_DB: parity_replay
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U parity"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: "postgresql://parity:parity@localhost:5432/parity_replay"
+      SB_DATA_PLANE: "test"
+      SB_TEST_DB_HOSTS: "localhost"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install runtime deps from the hash-pinned lock (S13)
+        run: pip install --require-hashes -r requirements.lock
+      - name: Red-until-parity full-corpus report (EXPECTED RED)
+        run: python3 tools/run_golden_parity.py --report
