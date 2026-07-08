@@ -1,0 +1,10 @@
+{
+ "header": {
+  "provenance": "seeded",
+  "capture_window": null,
+  "session_definition": "same actor, same guild, within a 10-minute interaction session (design-spec §2.10.4)",
+  "note": "SEEDED-EMPTY at birth: the sim never runs on invented data. The Phase-0.5 telemetry sidecar capture on the live bot (owner-scheduled, build-brief §8.6) replaces this file with measured per-node counts + the pairwise co-occurrence matrix; until then every objective runs on a neutral prior with confidence=low and arrangement changes stay Exempt."
+ },
+ "counts": {},
+ "pairs": {}
+}
