@@ -1095,3 +1095,41 @@ entries:
     consumers: [sb/kernel/panels/projections.py, sb/spec/settings.py]
     rejected_alternative: "curated hardcoded list"
     minted: 2026-07-08
+
+  # --- band 1 (setup skeleton): G-19 WizardSectionSpec frozen (A-9(2); D-0027)
+  SubsystemManifest.wizard_sections:
+    consumers: [sb/manifest/setup.py, tools/manifest_compile.py]
+    rejected_alternative: "a side-registry outside the manifest (the pre-A-9 side-clause problem)"
+    minted: 2026-07-08
+  WizardSectionSpec.slug:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/sections.py]
+    rejected_alternative: "string keys scattered across hub button custom_ids"
+    minted: 2026-07-08
+  WizardSectionSpec.label:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/panels.py]
+    rejected_alternative: "hand-built hub button rows"
+    minted: 2026-07-08
+  WizardSectionSpec.route:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/panels.py]
+    rejected_alternative: "the shipped run-callback closure (non-declarative, restart-fragile)"
+    minted: 2026-07-08
+  WizardSectionSpec.emoji:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/panels.py]
+    rejected_alternative: "hard-coded emoji in view code"
+    minted: 2026-07-08
+  WizardSectionSpec.order:
+    consumers: [sb/domain/setup/sections.py, sb/domain/setup/panels.py]
+    rejected_alternative: "import-order-dependent hub layout"
+    minted: 2026-07-08
+  WizardSectionSpec.step:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/sections.py]
+    rejected_alternative: "ad-hoc session step strings"
+    minted: 2026-07-08
+  WizardSectionSpec.op_kinds:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/sections.py]
+    rejected_alternative: "setup_progress guessing draft-row ownership"
+    minted: 2026-07-08
+  WizardSectionSpec.style:
+    consumers: [sb/manifest/setup.py, sb/domain/setup/panels.py]
+    rejected_alternative: "per-view ButtonStyle constants"
+    minted: 2026-07-08

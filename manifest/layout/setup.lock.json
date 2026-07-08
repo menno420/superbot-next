@@ -1,23 +1,5 @@
 {
- "assignments": {
-  "diagnostic:diagnostics:CommandSpec.help_section_order": {
-   "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
-   },
-   "value": 0
-  },
-  "help:help:CommandSpec.help_section_order": {
-   "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
-   },
-   "value": 0
-  },
-  "settings:settings:CommandSpec.help_section_order": {
-   "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the settings-grouping sim re-runs post-telemetry)"
-   },
-   "value": 0
-  },
+ "entries": {
   "setup:channels:WizardSectionSpec.order": {
    "provenance": {
     "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
@@ -97,5 +79,6 @@
    "value": 72
   }
  },
- "schema_version": 1
+ "schema_version": 1,
+ "subsystem": "setup"
 }
