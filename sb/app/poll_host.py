@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import Callable
 
 from sb.kernel.draft.janitor import ExpiryJanitorLane
+from sb.kernel.invariants.sweep import InvariantSweepLane
 from sb.kernel.observability.findings import record_operator_finding
 from sb.kernel.outbox.relay import OutboxReaperLane, OutboxRelayLane
 from sb.kernel.outbox.store import STORE, OutboxStore
@@ -53,4 +54,5 @@ def build_poll_supervisor(
     if with_durability_lanes:
         supervisor.register_lane(DueQueueLane(instance_id=instance_id, clock=clock))
         supervisor.register_lane(ExpiryJanitorLane())
+        supervisor.register_lane(InvariantSweepLane(clock=clock))
     return supervisor

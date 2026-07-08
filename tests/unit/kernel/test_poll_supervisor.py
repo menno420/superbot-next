@@ -123,7 +123,7 @@ def test_build_poll_supervisor_registers_outbox_lanes() -> None:
 
     sup = build_poll_supervisor(bus=_Bus(), lifecycle=_FakeLifecycle())
     assert sup.lane_names == ("outbox:relay", "outbox:reaper",
-                              "due_queue", "draft_janitor")
+                              "due_queue", "draft_janitor", "invariant_sweep")
     bare = build_poll_supervisor(bus=_Bus(), lifecycle=_FakeLifecycle(),
                                  with_durability_lanes=False)
     assert bare.lane_names == ("outbox:relay", "outbox:reaper")

@@ -677,3 +677,74 @@ entries:
     consumers: [tools/check_data_lifecycle.py, sb/kernel/privacy/erasure.py]
     rejected_alternative: "unscoped shared caches (the B#34 cross-guild image-bleed shape)"
     minted: 2026-07-08
+
+  # --- S12: the InvariantSpec facet (spec 11 s2.1) + the data_invariants
+  # manifest slot. KERNEL-consumed until the port bands declare facets.
+  SubsystemManifest.data_invariants:
+    consumers: [sb/kernel/invariants/compile.py, tools/manifest_compile.py]
+    rejected_alternative: "an InvariantSpec field on StoreSpec (a reconciliation spans TWO stores)"
+    minted: 2026-07-08
+  InvariantSpec.invariant_id:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/db/invariants.py]
+    rejected_alternative: "overloading StoreSpec.invariant_tag (that is the sole-writer AST fence — a different axis)"
+    minted: 2026-07-08
+  InvariantSpec.kind:
+    consumers: [sb/kernel/invariants/compile.py, sb/kernel/invariants/sweep.py]
+    rejected_alternative: "free-form check functions with no coverage taxonomy"
+    minted: 2026-07-08
+  InvariantSpec.owner_subsystem:
+    consumers: [sb/kernel/invariants/sweep.py, tools/manifest_compile.py]
+    rejected_alternative: "deriving ownership from the check_ref module path"
+    minted: 2026-07-08
+  InvariantSpec.stores:
+    consumers: [sb/kernel/invariants/compile.py, sb/kernel/invariants/sweep.py]
+    rejected_alternative: "single-store invariants only (reconciliation spans aggregate+ledger)"
+    minted: 2026-07-08
+  InvariantSpec.check_ref:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/invariants/compile.py]
+    rejected_alternative: "kernel-side SQL against domain tables (breaks the db boundary)"
+    minted: 2026-07-08
+  InvariantSpec.severity:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/invariants/compile.py]
+    rejected_alternative: "one auto-repair posture for all invariants (the T-6 amplifier)"
+    minted: 2026-07-08
+  InvariantSpec.repair_ref:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/invariants/compile.py]
+    rejected_alternative: "raw-SQL repair branches in the sweep (the #1693 stopgap shape)"
+    minted: 2026-07-08
+  InvariantSpec.bears_value:
+    consumers: [sb/kernel/invariants/compile.py, sb/kernel/invariants/sweep.py]
+    rejected_alternative: "inferring value-bearing-ness from the table name"
+    minted: 2026-07-08
+  InvariantSpec.baseline_ref:
+    consumers: [sb/kernel/invariants/compile.py, sb/kernel/invariants/sweep.py]
+    rejected_alternative: "bare aggregate==ledger equality (floods quarantine on pre-ledger history)"
+    minted: 2026-07-08
+  InvariantSpec.tolerance:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/invariants/compile.py]
+    rejected_alternative: "exact-only reconciliation (rounding noise flags forever)"
+    minted: 2026-07-08
+  InvariantSpec.ground_truth_store:
+    consumers: [sb/kernel/invariants/compile.py, sb/kernel/invariants/sweep.py]
+    rejected_alternative: "a guessed repair direction on money (the Q3 near-irreversible call)"
+    minted: 2026-07-08
+  InvariantSpec.default_enforce:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/settings/__init__.py]
+    rejected_alternative: "a manifest-only enforce constant (a flip would need a redeploy)"
+    minted: 2026-07-08
+  InvariantSpec.cadence:
+    consumers: [sb/kernel/invariants/sweep.py, sb/spec/invariants.py]
+    rejected_alternative: "one fixed cadence for all invariants"
+    minted: 2026-07-08
+  InvariantSpec.max_actions_per_run:
+    consumers: [sb/kernel/invariants/sweep.py, sb/kernel/db/invariants.py]
+    rejected_alternative: "unbounded sweeps (a buggy check triggers a mass auto-mutation — T-6)"
+    minted: 2026-07-08
+  InvariantSpec.read_batch_size:
+    consumers: [sb/kernel/invariants/sweep.py, sb/spec/invariants.py]
+    rejected_alternative: "whole-table reads per tick"
+    minted: 2026-07-08
+  InvariantSpec.scope:
+    consumers: [sb/kernel/invariants/sweep.py, sb/spec/invariants.py]
+    rejected_alternative: "global single-pass scans (a later band with a throughput budget)"
+    minted: 2026-07-08
