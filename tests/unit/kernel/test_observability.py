@@ -30,7 +30,7 @@ def test_metrics_registry_is_declared_clean():
 def test_metrics_family_count_and_uniqueness():
     names = [m.name for m in METRICS]
     assert len(names) == len(set(names))
-    assert len(names) == 46  # verbatim from shipped disbot/services/metrics.py
+    assert len(names) == 47  # 46 harvested verbatim + guild_count (S15, spec 14 §2.C)
 
 
 def test_build_registry_and_render():

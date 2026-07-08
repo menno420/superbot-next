@@ -83,15 +83,30 @@ class SecretSpec(ConfigSpec):
         object.__setattr__(self, "redact", True)
 
 
+class IntentPosture(str, Enum):
+    """S15 (frozen L0 spec 14 §2.B) — mirrors ConfigPosture. The
+    AUTHORITATIVE action-on-denial signal; F-3/PG-2 adjudicated DEGRADE
+    (canonical-plan F-2 ruling + Q-0246/A-22 product tier)."""
+
+    REQUIRED = "required"  # denial ⇒ FAILED_STARTUP (reserved; none today)
+    DEGRADE = "degrade"    # denial ⇒ boot with this intent's capability class disabled + notice
+
+
 @dataclass(frozen=True)
 class IntentSpec:
-    """Gateway-intent contract (T2-22 / L-17)."""
+    """Gateway-intent contract (T2-22 / L-17; S15 spec-14 §2.B seam
+    correction: `posture` is authoritative, the frozen `required` bool is a
+    shape-compat MIRROR — `required == (posture is REQUIRED)` is enforced by
+    `assert_intents` as a config-compile invariant, never a silent
+    ambiguity)."""
 
     name: str                      # [S] "message_content" | "members" | "presences" | ...
     privileged: bool               # [S] True for message_content/members/presences
-    required: bool                 # [S] the bot cannot function without it
+    required: bool                 # [S] MIRROR of posture (kept for the 05 §3.1 shape)
     approval_env: str | None = None  # [S] the BOOL ConfigSpec env asserting Discord approval
     #     (parsed via parse_bool — a "truthy" grammar, not presence)
+    posture: IntentPosture = IntentPosture.DEGRADE  # [S] the action-on-denial signal
+    degrades: tuple[str, ...] = ()   # [S] capability classes disabled on denial
 
 
 # ---------------------------------------------------------------------------
@@ -203,10 +218,19 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
 
 
 INTENT_CONTRACT: tuple[IntentSpec, ...] = (
-    IntentSpec("message_content", privileged=True, required=True,
-               approval_env="SB_INTENT_MSGCONTENT_OK"),
-    IntentSpec("members", privileged=True, required=True,
-               approval_env="SB_INTENT_MEMBERS_OK"),
+    # S15 seam correction (spec 14 §2.B / PG-2 ruled DEGRADE): required
+    # True→False — refuse-to-boot on a routine message_content denial darked
+    # the WHOLE bot when every slash command still serves; the fail-closed
+    # rule's real goal (no SILENT reliance) is met by the EXPLICIT degrade.
+    IntentSpec("message_content", privileged=True, required=False,
+               approval_env="SB_INTENT_MSGCONTENT_OK",
+               posture=IntentPosture.DEGRADE,
+               degrades=("prefix", "fuzzy", "triggers", "nl_message",
+                         "passive_onmessage")),
+    IntentSpec("members", privileged=True, required=False,
+               approval_env="SB_INTENT_MEMBERS_OK",
+               posture=IntentPosture.DEGRADE,
+               degrades=("member_join", "member_leave", "member_cache")),
 )  # the two hardcoded privileged intents in shipped source (bot1.py:77-78)
 
 

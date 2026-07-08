@@ -151,7 +151,12 @@ def test_prod_plane_requires_attest_and_worker_identity():
 
 # --- intent preflight (L-17) ---------------------------------------------------
 
-def test_prod_plane_requires_intent_approval():
+def test_prod_plane_intent_denial_degrades_not_refuses():
+    """S15 seam correction (frozen L0 spec 14 §2.B / PG-2 ruled DEGRADE):
+    an unapproved DEGRADE-posture privileged intent no longer refuses boot —
+    it yields explicit DegradedCapability markers instead (the pre-S15
+    fail-closed assertion was spec 05's `required=True` behavior)."""
+    from sb.kernel.config import intent_degradations
     env = {
         "DISCORD_BOT_TOKEN_PRODUCTION": "t",
         "DATABASE_URL": "postgres://u:p@db.prod.internal:5432/sb",
@@ -159,10 +164,31 @@ def test_prod_plane_requires_intent_approval():
         "SB_PROD_ATTEST": "opaque",
         "RAILWAY_SERVICE_NAME": "worker",
     }
-    with pytest.raises(StartupError) as exc_info:
-        preflight(env)
-    fields = {e.env_var for e in exc_info.value.errors}
-    assert {"SB_INTENT_MSGCONTENT_OK", "SB_INTENT_MEMBERS_OK"} <= fields
+    cfg = preflight(env)  # boots — slash-only survivability
+    markers = intent_degradations(cfg)
+    assert {m.intent for m in markers} == {"message_content", "members"}
+    by_intent = {m.intent: m.degrades for m in markers}
+    assert "prefix" in by_intent["message_content"]
+    assert "member_join" in by_intent["members"]
+
+
+def test_intent_mirror_invariant_is_compile_checked():
+    """required must equal (posture is REQUIRED) — disagreement is a
+    ConfigError, never a silent ambiguity (spec 14 §2.B precedence)."""
+    import sb.kernel.config as kc
+    from sb.spec.config import IntentPosture, IntentSpec
+    bad = (IntentSpec("message_content", privileged=True, required=True,
+                      approval_env="SB_INTENT_MSGCONTENT_OK",
+                      posture=IntentPosture.DEGRADE),)
+    cfg = preflight(MINIMAL_TEST_ENV)
+    orig = kc.INTENT_CONTRACT
+    kc.INTENT_CONTRACT = bad
+    try:
+        with pytest.raises(StartupError) as exc_info:
+            assert_intents(cfg)
+        assert any("mirror invariant" in e.reason for e in exc_info.value.errors)
+    finally:
+        kc.INTENT_CONTRACT = orig
 
 
 def test_test_plane_intents_advisory_only():
