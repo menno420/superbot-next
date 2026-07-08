@@ -52,7 +52,8 @@ jobs:
             check_escape_hatches check_intent_survival check_lockfile_fresh \
             check_metric_cardinality check_migrations check_namespace \
             check_no_skip check_rollback_disposition check_schema_growth \
-            check_sim_gate check_slash_cap check_symbol_shadowing; do
+            check_sim_gate check_slash_cap check_symbol_shadowing \
+            check_verified_live; do
             echo "::group::${checker}"
             python3 "tools/${checker}.py"
             echo "::endgroup::"

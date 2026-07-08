@@ -1,0 +1,73 @@
+# verification/verified_live.yml — the V-5 sign-off registry DATA
+# (schema + tier/evidence rules: verification/verified_live.py; the gate:
+# tools/check_verified_live.py).
+#
+# TIERED per A-18 (`tier` on every record) with the Q-0244 ruling encoded:
+#   - slash/component surfaces verify via prefix-twin live pass + in-process
+#     pipeline-true replay — no separate human click-through;
+#   - NOTHING in the human lane blocks CUT-3: unsigned human-tier rows are
+#     published as the named coverage-debt list in the CUT-2/CUT-3 reaction
+#     window (`tools/check_verified_live.py --debt-list`), never dropped.
+#
+# `subsystems:` is the owner-readable dashboard (the parity.yml roster + the
+# kernel coverage home) — EVERY SUBSYSTEM STARTS UNVERIFIED; a subsystem
+# flips `verified` only when it has >=1 record and zero unverified
+# AUTOMATED-tier records (human-tier debt never blocks the flip).
+# `records:` holds the per-surface §3.3 rows, minted at the port bands
+# (band workers add rows with their manifests; CUT-1 arms the live lanes).
+
+schema_version: 1
+
+subsystems:
+  _unmapped: unverified
+  admin: unverified
+  ai: unverified
+  automod: unverified
+  blackjack: unverified
+  btd6: unverified
+  casino: unverified
+  chain: unverified
+  channel: unverified
+  cleanup: unverified
+  community: unverified
+  community_spotlight: unverified
+  counters: unverified
+  counting: unverified
+  creature: unverified
+  diagnostic: unverified
+  economy: unverified
+  farm: unverified
+  fishing: unverified
+  four_twenty: unverified
+  games: unverified
+  general: unverified
+  help: unverified
+  hermes: unverified
+  image_moderation: unverified
+  inventory: unverified
+  karma: unverified
+  leaderboard: unverified
+  logging: unverified
+  mining: unverified
+  moderation: unverified
+  project_moon: unverified
+  projectmoon: unverified
+  proof_channel: unverified
+  quicksetup: unverified
+  role: unverified
+  rps_tournament: unverified
+  security: unverified
+  server_management: unverified
+  servermanagement: unverified
+  settings: unverified
+  setup: unverified
+  ticket: unverified
+  treasury: unverified
+  utility: unverified
+  ux_lab: unverified
+  uxlab: unverified
+  welcome: unverified
+  xp: unverified
+  kernel: unverified
+
+records: []

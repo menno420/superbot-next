@@ -12,6 +12,7 @@
 | `sb/` | the bot: spec leaves, kernel bands, adapters, app composition (see `sb/__init__.py` layer map) | it boots with or is imported by the bot |
 | `parity/` | layer-V V-1: the imported golden corpus + harness + `parity.yml` (gate dashboard) | never by hand — goldens change only via reviewed PR w/ explained diff |
 | `sim/` | layer-V V-3: the arrangement-sim runner, oracles, overlays, records, sidecar; the per-band grammar-fit procedure is [planning/grammar-spike-classification-procedure.md](planning/grammar-spike-classification-procedure.md) | a port band registers a search space / scoring oracle |
+| `verification/` | layer-V V-5: the `verified_live` sign-off schema + registry (tiered per A-18; Q-0244 evidence rules; the CUT-2/CUT-3 debt list) | a port band mints its per-surface sign-off rows |
 | `tools/` | checkers (CI gates), manifest compiler, importer, gate drivers | a new committed gate or ops CLI lands |
 | `tests/unit/<area>/` | the unit suite (top-level package per leaf dir — never name one after a stdlib module) | with every code PR |
 | `migrations/` | the fresh `NNNN_*.sql` chain + `checksums.json` (regenerate same-PR) | a store/table lands |
