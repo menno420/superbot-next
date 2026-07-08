@@ -1,0 +1,5 @@
+{
+  "_comment": "A-19 escape-hatch ratchet baseline (canonical plan §11). Pinned per-subsystem tier-3 COUNTS + repo total (counts, not share — share is gameable by denominator stuffing). Any rise fails CI unless the same PR updates this baseline WITH a ledger entry (what grew, why, the rejected tier-2 alternative). Reductions tighten one-way (run check_escape_hatches --tighten). At CUT-3 this baseline stamps as the permanent year-two ceiling. This file joins the CODEOWNERS owner-review set (flagged for owner).",
+  "per_subsystem": {},
+  "total": 0
+}

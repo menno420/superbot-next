@@ -41,7 +41,8 @@
       "MetricSpec": "spec/observability.py",
       "NamespaceKind": "namespace/kinds.py",
       "ReservationIndex": "namespace/index.py",
-      "SecretSpec": "spec/config.py"
+      "SecretSpec": "spec/config.py",
+      "SubsystemManifest": "spec/manifest.py"
     },
     "roots": [
       "sb"

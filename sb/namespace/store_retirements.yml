@@ -1,0 +1,15 @@
+# sb/namespace/store_retirements.yml — append-only, OWNER-SIGNED (spec 01 §3.6).
+#
+# A StoreSpec present in the baseline snapshot and absent from the current
+# compile is a STORE_DROP (CI-red "needs owner sign-off") unless a matching
+# entry exists here. `disposition` is REQUIRED on every signed retirement —
+# there is NO default disposition (spec 01 §8 fork 8, surfaced owner call):
+#   export | reverse-migrate | declared-loss
+#
+# Entry shape:
+#   - table: <table_name>
+#     retired_by: "Q-0NNN"          # the owner decision authorizing it
+#     disposition: reverse-migrate  # REQUIRED
+#     date: 2026-07-DD
+#     note: "..."
+retirements: []

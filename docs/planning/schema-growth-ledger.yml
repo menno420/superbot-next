@@ -1,0 +1,31 @@
+# schema-growth-ledger.yml — the A-2 schema-growth ledger (canonical plan §11).
+#
+# Q-0219 second-consumer rule, mechanically enforced: every field added to the
+# manifest grammar's declaration schema mints a same-PR entry here — the field,
+# the >=2 consuming manifest paths, and the rejected tier-3 alternative.
+# tools/check_schema_growth.py diffs the grammar's registered field set
+# (sb.spec.roles.snapshot_field_roles) against this ledger: a registered field
+# with no entry, or an entry with <2 consumers, fails the build
+# (enforce-don't-exhort, Q-0132).
+#
+# `baseline` lists the K2-seed fields (frozen at design-spec §2.1 BEFORE the
+# A-2 rule armed) — exempt from the second-consumer requirement. Every field
+# registered AFTER the seed goes in `entries`.
+version: 1
+
+baseline:
+  - SubsystemManifest.key
+  - SubsystemManifest.version
+  - SubsystemManifest.commands
+  - SubsystemManifest.panels
+  - SubsystemManifest.settings
+  - SubsystemManifest.stores
+  - SubsystemManifest.events
+  - SubsystemManifest.capabilities
+
+# Post-seed additions. Entry shape:
+#   TypeName.field:
+#     consumers: [sb/manifest/economy.py, sb/manifest/inventory.py]  # >=2 REQUIRED
+#     rejected_alternative: "tier-3 handler in domain/economy/ui/"
+#     minted: 2026-07-DD
+entries: {}
