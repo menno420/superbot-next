@@ -162,10 +162,12 @@
     "StoreSpec.compensation_ref": "S",
     "StoreSpec.data_class": "S",
     "StoreSpec.erasure_ref": "S",
+    "StoreSpec.forward_map_kind": "S",
     "StoreSpec.invariant_tag": "S",
     "StoreSpec.is_cache": "S",
     "StoreSpec.payload_version": "S",
     "StoreSpec.reader_domains": "S",
+    "StoreSpec.replay_intent": "O",
     "StoreSpec.retention": "S",
     "StoreSpec.retire_ref": "S",
     "StoreSpec.sole_writer": "S",
@@ -202,6 +204,6 @@
     "stores": {}
   },
   "schema_version": 1,
-  "stable_hash": "sha256:65e6a1c6521a16bb5c36d16525cbea3376e2809e277bd2cca3a328dc7f29199b",
+  "stable_hash": "sha256:d1a4d0b2e9f91c028dd6233e64eee7736813f99617a4481a7838be15c10907fd",
   "subsystems": {}
 }

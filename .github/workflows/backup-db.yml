@@ -1,0 +1,159 @@
+# Postgres backup — daily pg_dump uploaded as a GitHub Actions artifact.
+# PORTED at S14 from menno420/superbot per frozen L0 spec 13 §2.1 (the
+# five-item de-repo-bind):
+#   1. repo-identity guard DROPPED — replaced by the vars.BACKUP_ENABLED
+#      input guard (the old `if: github.repository == ...` was a fork-safety
+#      relic that made the backup silently not-follow the repo, T-1).
+#   2. DATABASE_PUBLIC_URL is a NEW-REPO Actions secret — its re-creation is
+#      a named cutover-runbook step (docs/operations/rollback-playbook.md;
+#      OWNER one-time step, flagged).
+#   3. The monthly tier's retention-days: 400 is SILENTLY CLAMPED to 90
+#      unless the repo's Settings → Actions → General → "Artifact and log
+#      retention" max is raised to >=400 (OWNER one-time step, flagged);
+#      restore-verify.yml ASSERTS the clamp did not happen.
+#   4. Graduated out of "UNVERIFIED": restore-verify.yml is the continuous
+#      restore proof (weekly restore + verify-boot + dry-run sweep).
+#   5. The >=10 CREATE TABLE floor proves the dump is NON-EMPTY, NOT that it
+#      is RESTORABLE — restorability is restore-verify.yml's job.
+#
+# Daily + monthly tiers, failure-issue, and PGDG client install kept
+# verbatim from the shipped workflow (they are correct).
+#
+# Owner setup (one-time, new repo):
+#   1. Railway → Postgres → Connect → public "Database URL" → GitHub repo
+#      secret DATABASE_PUBLIC_URL.
+#   2. Repo Settings → Actions → General → Artifact and log retention: 400.
+#   3. Repo Settings → Actions variables → BACKUP_ENABLED = true.
+
+name: Postgres backup (daily)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # daily 02:00 UTC (90-day artifact)
+    - cron: '0 3 1 * *'  # monthly, 1st 03:00 UTC — long-retention tier (400-day artifact);
+                         # Railway-native volume backups are plan-gated, so this workflow
+                         # is the ONLY backup layer — the monthly tier protects against
+                         # the 90-day artifact horizon.
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual backup (optional)'
+        required: false
+
+permissions:
+  contents: read
+  issues: write  # for the failure-notification issue
+
+concurrency:
+  group: postgres-backup
+  cancel-in-progress: false  # never cancel an in-progress backup
+
+jobs:
+  backup:
+    name: pg_dump → artifact (90 days / monthly 400)
+    runs-on: ubuntu-latest
+    # De-repo-bound (§2.1 item 1): an explicit repo VARIABLE arms the backup;
+    # a fork (or the repo pre-secret-setup) simply does not set it.
+    if: vars.BACKUP_ENABLED == 'true'
+
+    steps:
+      - name: Verify secret is configured
+        env:
+          DATABASE_PUBLIC_URL: ${{ secrets.DATABASE_PUBLIC_URL }}
+        run: |
+          if [ -z "$DATABASE_PUBLIC_URL" ]; then
+            echo "::error::DATABASE_PUBLIC_URL secret is not set."
+            echo "Setup: Railway → Postgres → Connect → public URL → GitHub secret."
+            echo "See docs/operations/rollback-playbook.md § Backup port."
+            exit 1
+          fi
+          echo "Secret configured."
+
+      - name: Install postgresql-client (PGDG — must be >= the Railway server major)
+        # A newer client dumps older servers fine; the runner's default v16
+        # client refuses a newer Railway server major.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client
+
+      - name: Dump and compress
+        id: dump
+        env:
+          DATABASE_PUBLIC_URL: ${{ secrets.DATABASE_PUBLIC_URL }}
+        run: |
+          TIMESTAMP=$(date -u '+%Y%m%dT%H%M%SZ')
+          FILENAME="superbot-backup-${TIMESTAMP}.sql.gz"
+          PG_BIN="$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)"
+          echo "Using pg_dump: ${PG_BIN}/pg_dump"
+          "${PG_BIN}/pg_dump" --no-owner --no-acl "$DATABASE_PUBLIC_URL" | gzip > "$FILENAME"
+          SIZE=$(du -sh "$FILENAME" | cut -f1)
+          echo "file=$FILENAME" >> "$GITHUB_OUTPUT"
+          echo "Backup created: $FILENAME ($SIZE)"
+          {
+            echo "### Postgres backup"
+            echo "- **File:** \`$FILENAME\`"
+            echo "- **Size:** $SIZE (compressed)"
+            echo "- **Retention:** 90 days daily / 400 days monthly (artifact)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify dump is NON-EMPTY (liveness floor — NOT a restorability proof)
+        # §2.1 item 5: this floor only proves pg_dump did not silently emit a
+        # near-empty file (it can exit 0 on permission error / wrong URL /
+        # truncation). RESTORABILITY is proven continuously by
+        # restore-verify.yml (weekly restore + verify-boot + dry-run sweep).
+        env:
+          BACKUP_FILE: ${{ steps.dump.outputs.file }}
+        run: |
+          TABLE_COUNT=$(zcat "$BACKUP_FILE" | grep -c '^CREATE TABLE' || true)
+          echo "CREATE TABLE statements in dump: $TABLE_COUNT"
+          if [ "${TABLE_COUNT:-0}" -lt 10 ]; then
+            echo "::error::Dump liveness check failed — only ${TABLE_COUNT:-0} CREATE TABLE statements (expected >=10). Refusing to upload a near-empty dump as a backup."
+            exit 1
+          fi
+          echo "Dump non-empty (>=10 tables). Restorability: see restore-verify.yml."
+          echo "- **Tables:** $TABLE_COUNT (CREATE TABLE statements)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          # The monthly tier uploads under a distinct name; 400 days is
+          # GitHub's max artifact retention BUT is silently clamped to the
+          # repo's own retention max (default 90) — the owner raises that
+          # setting (§2.1 item 3); restore-verify.yml asserts no clamp.
+          name: postgres-backup-${{ github.event.schedule == '0 3 1 * *' && 'monthly-' || '' }}${{ github.run_id }}
+          path: ${{ steps.dump.outputs.file }}
+          retention-days: ${{ github.event.schedule == '0 3 1 * *' && 400 || 90 }}
+          if-no-files-found: error
+
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const today = new Date().toISOString().slice(0, 10);
+            const runUrl = [
+              context.serverUrl,
+              context.repo.owner,
+              context.repo.repo,
+              'actions/runs',
+              context.runId,
+            ].join('/');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Postgres backup failed (${today})`,
+              body: [
+                'The scheduled Postgres backup workflow failed.',
+                '',
+                `**Run:** ${runUrl}`,
+                '',
+                '**Likely causes:**',
+                '- `DATABASE_PUBLIC_URL` secret not set, or expired/rotated',
+                '- pg_dump server/client version mismatch (Railway Postgres major bump)',
+                '- Transient network issue between GitHub Actions and Railway',
+                '',
+                'See `docs/operations/rollback-playbook.md` for setup + restore.',
+              ].join('\n'),
+            });

@@ -22,6 +22,7 @@ from sb.spec.refs import EngineRef, WorkflowRef
 from sb.spec.versioning import (
     CheckpointClass,
     DataClass,
+    ForwardMapKind,
     StoreSpec,
     VersionPolicy,
     register_store,
@@ -78,6 +79,7 @@ OUTBOX_STORE = register_store(StoreSpec(
     retention="delivered:7d;dead:90d",           # enforced by OutboxReaperLane._prune
     checkpoint_class=CheckpointClass.LEDGER,
     invariant_tag="INV-OUTBOX-SOLE-WRITER",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=("operator_dashboard",),
     payload_version=1,
     bears_value=False,

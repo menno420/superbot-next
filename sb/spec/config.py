@@ -96,7 +96,8 @@ class IntentSpec:
 
 # ---------------------------------------------------------------------------
 # The canonical registry — the ONE place every env var is declared.
-# 38 harvested (verbatim env names) + 8 new operational fields = 46 total.
+# 38 harvested (verbatim env names) + 9 new operational fields = 47 total
+# (8 spec-05 fields + S14's SB_VERIFY_BOOT, spec 13 §8-5 additive growth).
 # ---------------------------------------------------------------------------
 
 _FF = ConfigPosture.FAIL_FAST
@@ -191,6 +192,13 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
                owner_subsystem="ops"),  # §3.2 — approval_env for message_content
     ConfigSpec("SB_INTENT_MEMBERS_OK", ConfigType.BOOL, default=False,
                owner_subsystem="ops"),  # §3.2 — approval_env for members
+
+    # ---- S14 additive operational field (spec 13 §2.2 / §8-5; the
+    #      registry COUNT grows, the grammar shape is unchanged) ----
+    ConfigSpec("SB_VERIFY_BOOT", ConfigType.BOOL, default=False,
+               owner_subsystem="ops"),  # side-effect-free verify-boot profile: no
+    #     gateway/token, PollSupervisor + outbox relay NOT started; preflight
+    #     REQUIRES SB_DATA_PLANE=test when True (restore-verify.yml, T-7 fix)
 )
 
 

@@ -34,7 +34,7 @@ from typing import TYPE_CHECKING
 from sb.kernel.db import pool
 from sb.spec.outcomes import OUTCOMES
 from sb.spec.refs import EngineRef, WorkflowRef
-from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
+from sb.spec.versioning import CheckpointClass, DataClass, ForwardMapKind, StoreSpec, register_store
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
@@ -49,6 +49,7 @@ IDEMPOTENCY_STORE = register_store(StoreSpec(
     retention="90d",
     checkpoint_class=CheckpointClass.AGGREGATE,
     invariant_tag="idempotency_guard",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=(),
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("kernel.idempotency.prune_subject"),

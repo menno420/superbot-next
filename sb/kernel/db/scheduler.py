@@ -18,7 +18,7 @@ from typing import Any, Mapping
 
 from sb.kernel.db.pool import execute, fetchall, fetchone
 from sb.spec.refs import EngineRef, WorkflowRef
-from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
+from sb.spec.versioning import CheckpointClass, DataClass, ForwardMapKind, StoreSpec, register_store
 
 __all__ = [
     "DUE_QUEUE_STORE",
@@ -48,6 +48,7 @@ DUE_QUEUE_STORE = register_store(StoreSpec(
     # so this store does NOT route through run_recovery (AGGREGATE, no reader).
     checkpoint_class=CheckpointClass.AGGREGATE,
     invariant_tag="due_queue",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=("operator_dashboard",),
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("kernel.scheduler.erase_subject_timers"),

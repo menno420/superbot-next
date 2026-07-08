@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING
 from sb.kernel.db import pool
 from sb.kernel.outbox.enqueue import enqueue_audit_action
 from sb.spec.refs import EngineRef, WorkflowRef
-from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
+from sb.spec.versioning import CheckpointClass, DataClass, ForwardMapKind, StoreSpec, register_store
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
@@ -43,6 +43,7 @@ AUDIT_LOG_STORE = register_store(StoreSpec(
     retention="permanent",  # operator forensic spine; pruning = owner-gated retention
     checkpoint_class=CheckpointClass.LEDGER,  # append-only forensic ledger
     invariant_tag="audit_spine",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=("server_logging", "diagnostics"),
     payload_version=1,
     bears_value=False,

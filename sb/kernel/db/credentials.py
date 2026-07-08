@@ -10,7 +10,7 @@ from datetime import datetime
 
 from sb.kernel.db.pool import execute, fetchall, fetchone
 from sb.spec.refs import EngineRef
-from sb.spec.versioning import CheckpointClass, StoreSpec, register_store
+from sb.spec.versioning import CheckpointClass, ForwardMapKind, StoreSpec, register_store
 
 __all__ = [
     "CREDENTIAL_ROTATION_STORE",
@@ -28,6 +28,7 @@ CREDENTIAL_ROTATION_STORE = register_store(StoreSpec(
     retention="permanent",           # the credential-incident audit trail
     checkpoint_class=CheckpointClass.LEDGER,
     invariant_tag="credential_rotation",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=("operator_dashboard",),
 ))
 

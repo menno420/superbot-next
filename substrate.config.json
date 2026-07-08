@@ -137,7 +137,9 @@
       "RevocationRef": "spec/credentials.py",
       "BlastTier": "spec/credentials.py",
       "RotationPosture": "spec/credentials.py",
-      "RotationProvider": "kernel/credentials/rotation.py"
+      "RotationProvider": "kernel/credentials/rotation.py",
+      "RollbackClass": "spec/versioning.py",
+      "ForwardMapKind": "spec/versioning.py"
     },
     "roots": [
       "sb"
