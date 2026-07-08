@@ -3,6 +3,8 @@
   "field_roles": {
     "ColumnSpec.key": "S",
     "ColumnSpec.label": "S",
+    "CommandSpec.cost_posture": "S",
+    "CommandSpec.quota_ref": "S",
     "ConditionTrigger.condition": "S",
     "ConditionTrigger.poll_interval_s": "S",
     "ConfirmationSpec.challenge": "S",
@@ -132,9 +134,13 @@
     "SelectorSpec.usage_weight": "O",
     "StoreSpec.active_rows_ref": "S",
     "StoreSpec.bears_value": "S",
+    "StoreSpec.cache_scope": "S",
     "StoreSpec.checkpoint_class": "S",
     "StoreSpec.compensation_ref": "S",
+    "StoreSpec.data_class": "S",
+    "StoreSpec.erasure_ref": "S",
     "StoreSpec.invariant_tag": "S",
+    "StoreSpec.is_cache": "S",
     "StoreSpec.payload_version": "S",
     "StoreSpec.reader_domains": "S",
     "StoreSpec.retention": "S",
@@ -172,6 +178,6 @@
     "stores": {}
   },
   "schema_version": 1,
-  "stable_hash": "sha256:6cf880e8f8a711da05320ca34aea20a2e287624d82885e1d48f59307d4a14e3e",
+  "stable_hash": "sha256:add9ca8dba4e7b5e2ef83dd96d80bfdbd5ce69581e49977102fd634ed9f485c0",
   "subsystems": {}
 }

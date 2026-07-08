@@ -25,3 +25,14 @@
 
 (Unanswered Q-blocks live here until the maintainer decides; a blocking one gates
 graduation.)
+
+### Q: adopt rubric-v2 classes 11/12/13? (S11, owner-gated)
+
+- **Question:** adopt the three security/abuse rubric classes + the 13>12>11
+  precedence, per the S11 proposal?
+- **Why agents need this:** the review lens for every Stage-2 walk.
+- **Options / safe default:** see
+  [planning/rubric-v2-classes-11-12-13.md](planning/rubric-v2-classes-11-12-13.md)
+  (recommendation: adopt as-shaped; the checkable mechanics are live either way).
+- **Maintainer answer:** (pending)
+- **Routing result:** (pending)

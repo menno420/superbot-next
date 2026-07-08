@@ -650,3 +650,30 @@ entries:
     consumers: [sb/kernel/scheduler/due_queue.py, sb/kernel/scheduler/user_automation.py]
     rejected_alternative: "per-feature delivery-window if-chains (the one live scheduler behavior with no carrier — A-13)"
     minted: 2026-07-08
+
+  # --- S11: class-11 cost grammar (spec 10 s2.A) + class-12 lifecycle fields
+  # (StoreSpec is additive-not-closed, spec 10 s8.2).
+  CommandSpec.cost_posture:
+    consumers: [tools/check_cost_posture.py, sb/spec/cost.py]
+    rejected_alternative: "a MediaGenerationSpec home (appears in no frozen leaf inventory — spec 10 s8.4)"
+    minted: 2026-07-08
+  CommandSpec.quota_ref:
+    consumers: [tools/check_cost_posture.py, sb/spec/cost.py]
+    rejected_alternative: "an unnamed global budget constant (the L-16 'counter that does not exist' shape)"
+    minted: 2026-07-08
+  StoreSpec.data_class:
+    consumers: [tools/check_data_lifecycle.py, sb/kernel/privacy/erasure.py]
+    rejected_alternative: "a hand-kept member-data store list (drifts; the walk must be machine-complete)"
+    minted: 2026-07-08
+  StoreSpec.erasure_ref:
+    consumers: [tools/check_data_lifecycle.py, sb/kernel/privacy/erasure.py]
+    rejected_alternative: "per-cog erasure branches (the same L-1 delegation class the version policy retired)"
+    minted: 2026-07-08
+  StoreSpec.is_cache:
+    consumers: [tools/check_data_lifecycle.py, sb/kernel/privacy/erasure.py]
+    rejected_alternative: "inferring cache-ness from the table name (unverifiable)"
+    minted: 2026-07-08
+  StoreSpec.cache_scope:
+    consumers: [tools/check_data_lifecycle.py, sb/kernel/privacy/erasure.py]
+    rejected_alternative: "unscoped shared caches (the B#34 cross-guild image-bleed shape)"
+    minted: 2026-07-08

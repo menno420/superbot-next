@@ -120,7 +120,15 @@
       "DraftPreview": "kernel/draft/preview.py",
       "DraftApplyResult": "kernel/draft/apply.py",
       "DraftPipeline": "kernel/draft/pipeline.py",
-      "ExpiryJanitorLane": "kernel/draft/janitor.py"
+      "ExpiryJanitorLane": "kernel/draft/janitor.py",
+      "CostPosture": "spec/cost.py",
+      "DataClass": "spec/versioning.py",
+      "CacheScope": "spec/versioning.py",
+      "TrustLevel": "kernel/interaction/egress.py",
+      "OutboundContent": "kernel/interaction/egress.py",
+      "ChannelEmitter": "kernel/interaction/egress.py",
+      "ErasureResult": "kernel/privacy/erasure.py",
+      "ErasureTrigger": "kernel/privacy/erasure.py"
     },
     "roots": [
       "sb"

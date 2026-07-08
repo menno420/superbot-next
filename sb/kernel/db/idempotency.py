@@ -33,9 +33,26 @@ from typing import TYPE_CHECKING
 
 from sb.kernel.db import pool
 from sb.spec.outcomes import OUTCOMES
+from sb.spec.refs import EngineRef, WorkflowRef
+from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
+
+# S11 class 12: dedup tokens carry message/interaction ids (the R-3 axis) —
+# a pseudonymous MEMBER_ID store. Retention: message-dedup families PRUNE
+# (money/audit families' durable trail is the audit spine, not this table);
+# the pruning body + erasure body land with the ops band; refs DECLARED now.
+IDEMPOTENCY_STORE = register_store(StoreSpec(
+    table="idempotency_keys",
+    sole_writer=EngineRef("sb.kernel.db.idempotency"),
+    retention="90d",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="idempotency_guard",
+    reader_domains=(),
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("kernel.idempotency.prune_subject"),
+))
 
 __all__ = [
     "OUTCOMES",

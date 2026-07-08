@@ -18,6 +18,8 @@ from datetime import datetime
 from typing import Any, Mapping
 
 from sb.kernel.db.pool import execute, fetchall, fetchone
+from sb.spec.refs import EngineRef, WorkflowRef
+from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
 from sb.spec.draft import (
     Draft,
     DraftOperation,
@@ -41,6 +43,21 @@ __all__ = [
 
 _OPEN_STATUSES = (DraftStatus.OPEN.value, DraftStatus.PREVIEWED.value,
                   DraftStatus.APPLYING.value)
+
+# S11 class 12: drafts key owner_actor_id + staged payloads may carry member
+# data — a MEMBER_ID store. Erasure = discard the subject's drafts; body
+# lands with the draft-surface band, ref DECLARED now. SELF-MANAGED expiry
+# (the janitor lane), so AGGREGATE / no recovery reader.
+DRAFTS_STORE = register_store(StoreSpec(
+    table="sb_drafts",
+    sole_writer=EngineRef("sb.kernel.db.draft"),
+    retention="expires_at",   # per-draft TTL; janitor writes EXPIRED
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="draft_staging",
+    reader_domains=(),
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("kernel.draft.discard_subject_drafts"),
+))
 
 
 def _row_to_draft(row: Mapping[str, Any],

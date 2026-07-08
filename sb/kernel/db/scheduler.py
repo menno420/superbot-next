@@ -17,8 +17,11 @@ from datetime import datetime
 from typing import Any, Mapping
 
 from sb.kernel.db.pool import execute, fetchall, fetchone
+from sb.spec.refs import EngineRef, WorkflowRef
+from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
 
 __all__ = [
+    "DUE_QUEUE_STORE",
     "DueTimer",
     "MAX_FIRE_ATTEMPTS",
     "arm",
@@ -33,6 +36,22 @@ __all__ = [
 ]
 
 MAX_FIRE_ATTEMPTS = 12   # transient re-claim cap for one fire_epoch → DEAD (mirrors the outbox)
+
+# S11 class 12: user-automation timers carry the creator's actor snapshot in
+# payload_json (_creator_actor) — a MEMBER_ID store. Erasure = cancel + scrub
+# the subject's timers; body lands with the automation band, ref DECLARED now.
+DUE_QUEUE_STORE = register_store(StoreSpec(
+    table="sb_due_queue",
+    sole_writer=EngineRef("sb.kernel.db.scheduler"),
+    retention="live",   # rows delete on one-shot success / cancel; no idle history
+    # SELF-MANAGED like the outbox: boot-reconcile owns cross-deploy resume,
+    # so this store does NOT route through run_recovery (AGGREGATE, no reader).
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="due_queue",
+    reader_domains=("operator_dashboard",),
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("kernel.scheduler.erase_subject_timers"),
+))
 
 
 @dataclass(frozen=True)
