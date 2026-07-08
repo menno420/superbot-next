@@ -26,6 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 # import the kernel store owners so their register_store calls run.
+import sb.kernel.db.credentials  # noqa: E402,F401
 import sb.kernel.db.draft  # noqa: E402,F401
 import sb.kernel.db.idempotency  # noqa: E402,F401
 import sb.kernel.db.scheduler  # noqa: E402,F401

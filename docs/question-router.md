@@ -36,3 +36,23 @@ graduation.)
   (recommendation: adopt as-shaped; the checkable mechanics are live either way).
 - **Maintainer answer:** (pending)
 - **Routing result:** (pending)
+
+### Q: credential-lifecycle owner legs CL-1 / CL-2 / CL-3 / CL-5b? (S13, owner-gated)
+
+- **Question:** (CL-1) keep the credential-lifecycle recovery arm (registry +
+  tiered cadence + revocation kill-path + runbook)? (CL-2) narrow the Q-0213
+  `*Delete` brake so credential REVOCATION (the closed `RevocationRef` set) is
+  agent-runnable recovery while resource deletion stays ask-first? (CL-3)
+  lockfile + `check_lockfile_fresh` + `pip-audit` composing WITH the Q-0105
+  adopt-freely grant (lock diff = deferred review)? (CL-5b) `SB_PROD_ATTEST`
+  durable custody SOURCE (plain env vs sealed secret vs OIDC — SF-d, carried
+  forward)?
+- **Why agents need this:** CL-2 gates whether compromise-recovery waits on the
+  owner at the worst moment; CL-3 touches a binding owner decision (Q-0105).
+- **Options / safe default:** frozen L0 spec 12 §4 (superbot oracle) — built
+  defaults: CL-1(a) full arm, CL-3(a) lockfile-with-adopt-freely; CL-2 is NOT
+  exercised (no revocation dispatch is wired until CUT-1); CL-5b unresolved
+  (presence-gated env SecretSpec stands). Runbook:
+  [operations/credential-lifecycle.md](operations/credential-lifecycle.md).
+- **Maintainer answer:** (pending)
+- **Routing result:** (pending)
