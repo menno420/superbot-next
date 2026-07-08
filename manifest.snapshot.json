@@ -1,0 +1,16 @@
+{
+  "compiler_version": "1.0.0",
+  "field_roles": {},
+  "manifest_count": 0,
+  "projections": {
+    "events": {},
+    "namespace": {
+      "command": []
+    },
+    "refs": {},
+    "stores": {}
+  },
+  "schema_version": 1,
+  "stable_hash": "sha256:081c1410663970ab8a78673c5de6948fd324155fe9a93885a2a208c42c046d55",
+  "subsystems": {}
+}
