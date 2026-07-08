@@ -1,3 +1,4 @@
 {
-  "0001_idempotency_keys.sql": "sha256:d6404f39963a04d73f2255629fecf0d43ad39faf76408907a73b01c338aef8c1"
+  "0001_idempotency_keys.sql": "sha256:d6404f39963a04d73f2255629fecf0d43ad39faf76408907a73b01c338aef8c1",
+  "0002_event_outbox.sql": "sha256:b2e064ba0ef3c4bba067d8c09cbb38baa839bc874be0b5d1163ade4a29c1d48e"
 }
