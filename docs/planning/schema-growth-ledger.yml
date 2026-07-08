@@ -130,3 +130,23 @@ entries:
     consumers: [sb/spec/versioning.py, sb/kernel/outbox/store.py]
     rejected_alternative: "refund logic inline in recovery branches (the #1693 stopgap shape)"
     minted: 2026-07-08
+  ConfirmationSpec.reversibility:
+    consumers: [sb/kernel/workflow/compile.py, tools/manifest_compile.py]
+    rejected_alternative: "deriving the confirm floor from the op rollup alone (design 2.7 pins the field)"
+    minted: 2026-07-08
+  ConfirmationSpec.challenge:
+    consumers: [sb/kernel/workflow/engine.py, tools/manifest_compile.py]
+    rejected_alternative: "a bare typed_challenge bool (loses the typed_phrase/typed_hash split)"
+    minted: 2026-07-08
+  ConfirmationSpec.timeout_s:
+    consumers: [sb/kernel/workflow/engine.py, sb/kernel/workflow/result.py]
+    rejected_alternative: "a hardcoded 60s confirm window in the resolver"
+    minted: 2026-07-08
+  ConfirmationSpec.re_check_actor:
+    consumers: [sb/kernel/workflow/engine.py, sb/kernel/workflow/result.py]
+    rejected_alternative: "trusting the first dispatch's authority across the confirm round-trip"
+    minted: 2026-07-08
+  ConfirmationSpec.snapshot_before:
+    consumers: [sb/kernel/workflow/audit.py, sb/kernel/workflow/result.py]
+    rejected_alternative: "always-snapshot (audit payload bloat on high-volume reversible ops)"
+    minted: 2026-07-08

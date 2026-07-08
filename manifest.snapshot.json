@@ -1,6 +1,11 @@
 {
   "compiler_version": "1.0.0",
   "field_roles": {
+    "ConfirmationSpec.challenge": "S",
+    "ConfirmationSpec.re_check_actor": "S",
+    "ConfirmationSpec.reversibility": "S",
+    "ConfirmationSpec.snapshot_before": "S",
+    "ConfirmationSpec.timeout_s": "S",
     "EventSpec.audited": "S",
     "EventSpec.delivery": "S",
     "EventSpec.expected_subscribers": "S",
@@ -44,6 +49,6 @@
     "stores": {}
   },
   "schema_version": 1,
-  "stable_hash": "sha256:2172f6629efa9caeb40d316876e42760da94bb0f6c5818387748bf0142a8e6fd",
+  "stable_hash": "sha256:ac0e63a304fdd66a9182eb9326dd27047cf4d41bbb857af1e7666a98ec744163",
   "subsystems": {}
 }
