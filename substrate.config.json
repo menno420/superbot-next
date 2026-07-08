@@ -156,7 +156,14 @@
       "FeatureFactRequest": "kernel/ai/feature_facts.py",
       "OrchestrationProfile": "kernel/ai/orchestration.py",
       "RegisteredTool": "kernel/ai/tools_catalogue.py",
-      "ConversationTurn": "kernel/ai/conversation.py"
+      "ConversationTurn": "kernel/ai/conversation.py",
+      "GroundingResult": "kernel/ai/grounding/verify.py",
+      "NameMatchers": "kernel/ai/grounding/name_guard.py",
+      "ExistenceAttribute": "kernel/ai/grounding/absence_guard.py",
+      "NLMessage": "kernel/ai/nl_engine.py",
+      "NLOutcome": "kernel/ai/nl_engine.py",
+      "EvalSuiteSpec": "kernel/ai/evals.py",
+      "EvalCase": "kernel/ai/evals.py"
     },
     "roots": [
       "sb"

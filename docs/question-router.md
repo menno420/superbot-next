@@ -123,3 +123,29 @@ graduation.)
   is retroactively auditable.
 - **Maintainer answer:** (pending)
 - **Routing result:** (pending)
+
+### Q: K10 AI kernel owner items — API keys, model ratification, pricing/budget session, test guild + CUT-1 (owner-gated)
+
+- **Question:** (a) API keys: `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` are
+  presence-gated SecretSpecs with CREDENTIAL_REGISTRY rows; the platform is
+  DORMANT (AI_ENABLED default off, deterministic default provider) until the
+  owner supplies keys + flips `AI_ENABLED`. (b) Model selection: the shipped
+  routing tables are built verbatim (anthropic: realtime→claude-haiku-4-5,
+  considered→claude-sonnet-4-6; openai: gpt-4o-mini) — ratify or override via
+  `AI_TASK_ROUTING` (per-task `task=provider:model` CSV; no code change
+  needed). (c) The A-13/Q-0243 pricing + budget session also owns AI COST
+  posture: per-request tool budgets exist (AIToolBudget), tool cost_class
+  metadata exists, but no spend accounting/budget ceiling is built — the
+  category-B ACTION fence stays until Q-0243 rules. (d) Test guild + CUT-1:
+  the canonical plan step-12 milestone (container boot on the test-bot token
+  into the test guild, companion C zone map) needs the owner's guild
+  designation + token handoff; NO composition-root main() exists yet — CUT-1
+  execution is flagged, not blocked-on (see D-0024).
+- **Why agents need this:** (b) freezes the per-task model defaults the
+  band-7 eval scorecards pin against; (c) decides whether K10 grows a spend
+  ledger before band 7; (d) gates the first live milestone.
+- **Options / safe default:** built = dormant-until-keyed + shipped model
+  tables + budget-only cost bounds. Everything runs deterministic-provider
+  in CI regardless (A-17 socket-deny).
+- **Maintainer answer:** (pending)
+- **Routing result:** (pending)
