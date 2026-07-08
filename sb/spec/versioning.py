@@ -39,6 +39,35 @@ class VersionPolicy(str, enum.Enum):
     DROP = "drop"                                # clear the row (ONLY legal when bears_value=False)
 
 
+class ForwardMapKind(str, enum.Enum):
+    """S14 (spec 13 §2.4b) — how the CUT-2 forward importer maps this store
+    OLD→NEW; the invertibility input of the `rollback_class` derivation.
+    Grounded in existing signals, never a fresh judgment: NAME_STABLE = the
+    §5.2 name-stable set; RENAME = a pure-bijection alias-map entry;
+    COLLAPSE = session-state→checkpoint / merging map; NEW_ONLY = no
+    old-schema source; DROP = a store_retirements.yml entry (SF-g)."""
+
+    NAME_STABLE = "name_stable"   # invertible
+    RENAME = "rename"             # invertible (pure column/table rename)
+    COLLAPSE = "collapse"         # NOT invertible (merges/aggregates old rows)
+    NEW_ONLY = "new_only"         # NOT invertible (no old-schema home)
+    DROP = "drop"                 # NOT invertible (retired at migration)
+
+
+INVERTIBLE_MAP_KINDS = (ForwardMapKind.NAME_STABLE, ForwardMapKind.RENAME)
+
+
+class RollbackClass(str, enum.Enum):
+    """S14 (spec 13 §2.4b) — the disposition of this store's
+    post-`cutover_flip_ts` writes on rollback. DERIVED by
+    `derive_rollback_class`, never hand-set — except the owner's
+    REPLAY_INTENT narrowing override (`StoreSpec.replay_intent`)."""
+
+    REVERSE_IMPORTABLE = "reverse_importable"  # invertible AND bears_value
+    DECLARED_LOSS = "declared_loss"            # non-invertible OR not value-bearing
+    REPLAY_INTENT = "replay_intent"            # owner narrowing of a REVERSE_IMPORTABLE store
+
+
 class DataClass(str, enum.Enum):
     """S11 (spec 10 §2.A class 12) — the PII discriminator
     `check_data_lifecycle` keys on."""
@@ -92,6 +121,11 @@ class StoreSpec:
     erasure_ref: WorkflowRef | None = None            # [S] REQUIRED iff data_class != NONE (AUDITED K7 hook)
     is_cache: bool = False                            # [S] marks a cache store (drives cache_scope)
     cache_scope: CacheScope | None = None             # [S] REQUIRED iff is_cache
+    # ---- S14 rollback-disposition fields (spec 13 §2.4b; additive) ----
+    forward_map_kind: ForwardMapKind | None = None    # [S] OLD→NEW mapping kind; None only if
+    #     derivable (SESSION ⇒ COLLAPSE / a store_retirements.yml DROP) — else fence-red
+    replay_intent: bool = False                       # [O] OWNER override: narrows an otherwise
+    #     REVERSE_IMPORTABLE store to a human-reviewed replay list (never widens)
 
 
 register_field_roles(
@@ -100,8 +134,52 @@ register_field_roles(
     invariant_tag="S", reader_domains="S", payload_version="S", bears_value="S",
     version_policy="S", active_rows_ref="S", retire_ref="S", upcast_ref="S",
     compensation_ref="S", data_class="S", erasure_ref="S", is_cache="S",
-    cache_scope="S",
+    cache_scope="S", forward_map_kind="S", replay_intent="O",
 )
+
+
+# --- the rollback_class derivation (S14, spec 13 §2.4b — mechanical) -------------
+
+class RollbackUnresolved(ValueError):
+    """SEMANTIC_VIOLATION("rollback_class_unresolved") — the store declares
+    no forward_map_kind and none is derivable (spec 13 §2.5 fence)."""
+
+
+def resolve_forward_map_kind(spec: StoreSpec, *,
+                             retired_tables: frozenset[str] = frozenset(),
+                             ) -> ForwardMapKind | None:
+    """Declared kind, else the two derivable short-circuits: SESSION ⇒
+    COLLAPSE (§5.1 session-state→checkpoints) and a store_retirements.yml
+    entry ⇒ DROP (SF-g). NO silent absence-of-source ⇒ NEW_ONLY fallback:
+    until the CUT-2 forward-importer alias map exists, a store must DECLARE
+    NEW_ONLY — a silent default would misclass a renamed value store as
+    unrecoverable (D-0017)."""
+    if spec.checkpoint_class is CheckpointClass.SESSION:
+        return ForwardMapKind.COLLAPSE  # the collapse short-circuit ALWAYS wins
+    if spec.forward_map_kind is not None:
+        return spec.forward_map_kind
+    if spec.table in retired_tables:
+        return ForwardMapKind.DROP
+    return None
+
+
+def derive_rollback_class(spec: StoreSpec, *,
+                          retired_tables: frozenset[str] = frozenset(),
+                          ) -> RollbackClass:
+    """The §2.4b derivation table. Raises RollbackUnresolved when the store
+    cannot resolve — the `rollback_class_resolved` fence input."""
+    kind = resolve_forward_map_kind(spec, retired_tables=retired_tables)
+    if kind is None:
+        raise RollbackUnresolved(
+            f"{spec.table}: rollback_class_unresolved — declare "
+            f"forward_map_kind (or retire via store_retirements.yml)")
+    if kind not in INVERTIBLE_MAP_KINDS:
+        return RollbackClass.DECLARED_LOSS   # structurally cannot round-trip (T-5)
+    if not spec.bears_value:
+        return RollbackClass.DECLARED_LOSS   # declared-loss by POSTURE (Q3-B), not capability
+    if spec.replay_intent:
+        return RollbackClass.REPLAY_INTENT   # the ONE hand-set narrowing
+    return RollbackClass.REVERSE_IMPORTABLE
 
 
 # --- the store registry (S11) ---------------------------------------------------

@@ -19,7 +19,7 @@ from typing import Any, Mapping
 
 from sb.kernel.db.pool import execute, fetchall, fetchone
 from sb.spec.refs import EngineRef, WorkflowRef
-from sb.spec.versioning import CheckpointClass, DataClass, StoreSpec, register_store
+from sb.spec.versioning import CheckpointClass, DataClass, ForwardMapKind, StoreSpec, register_store
 from sb.spec.draft import (
     Draft,
     DraftOperation,
@@ -54,6 +54,7 @@ DRAFTS_STORE = register_store(StoreSpec(
     retention="expires_at",   # per-draft TTL; janitor writes EXPIRED
     checkpoint_class=CheckpointClass.AGGREGATE,
     invariant_tag="draft_staging",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=(),
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("kernel.draft.discard_subject_drafts"),

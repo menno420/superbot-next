@@ -1,0 +1,144 @@
+# restore-verify.yml — the CONTINUOUS, SIDE-EFFECT-FREE verified-restore
+# proof (S14, frozen L0 spec 13 §2.2). A scheduled RELIABILITY job, not a
+# PR-required check:
+#
+#   download the latest backup artifact → restore into a fresh Postgres
+#   service container whose DSN is forced SB_DATA_PLANE=test → boot the bot
+#   in SB_VERIFY_BOOT mode (no gateway/token, PollSupervisor + outbox relay
+#   suppressed) → run the dry-run invariant sweep (run_verify_import) →
+#   green iff boots AND sweep-clean.
+#
+# This IS dossier 11's "verified := boots + dry-run sweep clean", run weekly
+# against the real artifact instead of once by hand. It also:
+#   - asserts the latest MONTHLY artifact exists with retention 400 (the
+#     §2.1 item-3 clamp check — a skipped repo-Settings raise goes RED here);
+#   - emits `last_verified_restore_age` (the backup-health / RPO witness for
+#     the §5.4 scoreboard) to the job summary.
+#
+# Privacy posture (§2.2): the restored snapshot lives ONLY in this job's
+# ephemeral runner + service container; NO artifact of restored data is
+# uploaded — only pass/fail + counts. permissions are minimal.
+#
+# OWNER steps (flagged): BACKUP_ENABLED var + DATABASE_PUBLIC_URL secret +
+# the repo artifact-retention raise (backup-db.yml header); making this a
+# CUT-3 gate (Q2 leg i, recommended HARD) is an owner posture call.
+
+name: Restore verify (weekly)
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'  # weekly, Monday 05:00 UTC (>= the daily backup cadence)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read    # to locate/download the backup artifact
+  issues: write    # failure notification only
+
+concurrency:
+  group: restore-verify
+  cancel-in-progress: false
+
+jobs:
+  restore-verify:
+    runs-on: ubuntu-latest
+    if: vars.BACKUP_ENABLED == 'true'
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: verify
+          POSTGRES_PASSWORD: verify
+          POSTGRES_DB: restore_target
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U verify"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime deps from the hash-pinned lock (S13)
+        run: pip install --require-hashes -r requirements.lock
+
+      - name: Locate + download the latest daily backup artifact
+        id: fetch
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const arts = await github.paginate(github.rest.actions.listArtifactsForRepo,
+              { owner: context.repo.owner, repo: context.repo.repo, per_page: 100 });
+            const daily = arts
+              .filter(a => a.name.startsWith('postgres-backup-') && !a.expired)
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            if (!daily.length) {
+              core.setFailed('no backup artifact found — is backup-db.yml running?');
+              return;
+            }
+            const latest = daily[0];
+            const ageH = (Date.now() - new Date(latest.created_at)) / 3.6e6;
+            core.setOutput('artifact_id', latest.id);
+            core.setOutput('age_hours', ageH.toFixed(1));
+            await core.summary
+              .addRaw(`**last_verified_restore_age:** ${ageH.toFixed(1)} h (artifact ${latest.name})\n`)
+              .write();
+            // §2.1 item 3 clamp check: the latest MONTHLY artifact must not
+            // have been clamped to 90-day retention.
+            const monthly = daily.filter(a => a.name.startsWith('postgres-backup-monthly-'));
+            if (monthly.length) {
+              const m = monthly[0];
+              const retDays = (new Date(m.expires_at) - new Date(m.created_at)) / 8.64e7;
+              if (retDays < 395) {
+                core.setFailed(`monthly artifact retention is ~${retDays.toFixed(0)}d — the repo ` +
+                  'Artifact-and-log-retention max was not raised to 400 (silent clamp, spec 13 T-1).');
+              }
+            } else {
+              core.warning('no monthly backup artifact yet (first month?) — clamp check skipped.');
+            }
+            const dl = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner, repo: context.repo.repo,
+              artifact_id: latest.id, archive_format: 'zip' });
+            const fs = require('fs');
+            fs.writeFileSync('backup.zip', Buffer.from(dl.data));
+
+      - name: Restore into the service container
+        run: |
+          unzip -o backup.zip
+          DUMP=$(ls superbot-backup-*.sql.gz | head -1)
+          echo "Restoring $DUMP"
+          zcat "$DUMP" | psql "postgresql://verify:verify@localhost:5432/restore_target" -v ON_ERROR_STOP=1 -q
+          echo "Restore complete."
+        env:
+          PGPASSWORD: verify
+
+      - name: Verify-boot + dry-run sweep (SB_VERIFY_BOOT, test-plane forced)
+        env:
+          SB_VERIFY_BOOT: "true"
+          SB_DATA_PLANE: "test"
+          SB_TEST_DB_HOSTS: "localhost"
+          DATABASE_URL: "postgresql://verify:verify@localhost:5432/restore_target"
+          DISCORD_BOT_TOKEN_PRODUCTION: "verify-boot-placeholder"  # never used: no gateway is built
+        run: python3 -m sb.app.verify_boot | tee verify-report.json
+
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const today = new Date().toISOString().slice(0, 10);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `Verified-restore FAILED (${today})`,
+              body: [
+                'The weekly restore-verify reliability job failed — the backup layer',
+                'is NOT proven restorable right now (do not cut over on a red proof).',
+                '', `**Run:** ${runUrl}`, '',
+                'Legs: artifact fetch / monthly-clamp check / psql restore /',
+                'SB_VERIFY_BOOT boot / dry-run invariant sweep — see the log for',
+                'which leg failed and `docs/operations/rollback-playbook.md`.',
+              ].join('\n'),
+            });

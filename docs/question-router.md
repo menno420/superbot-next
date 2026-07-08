@@ -56,3 +56,24 @@ graduation.)
   [operations/credential-lifecycle.md](operations/credential-lifecycle.md).
 - **Maintainer answer:** (pending)
 - **Routing result:** (pending)
+
+### Q: backup/DR owner legs Q1 / Q2(i) / Q3? (S14, owner-gated)
+
+- **Question:** (Q1) RPO target + source tier — (A) the honest 24 h `pg_dump`
+  floor for ALL stores / (B) build a continuous off-box `audit_log` export for
+  the `bears_value` spine / (C) buy Railway PITR? (Q2 leg i) is the
+  verified-restore proof a HARD CUT-3 gate (recommended) or advisory? (Q3)
+  rollback-data disposition + window N — posture B is BUILT (narrow
+  reverse-import of the invertible-∧-value-bearing tier + owner-signed M1/M2
+  declared-loss manifest + short forward-fix-biased N); the VALUE of N is the
+  Stage-3 carry.
+- **Why agents need this:** Q1 is a plan-cost vs build-cost call; Q3 is a
+  data-loss policy — both genuinely owner-only (options+recommendation only,
+  frozen L0 spec 13 §4).
+- **Options / safe default:** spec 13 §4 (superbot oracle); built defaults:
+  Q1(A) floor stands, Q2(i) proof exists as a reliability job (gate designation
+  is repo-Settings), Q3(B) mechanics live with ZERO reverse-importable stores
+  until the port bands declare invertible value stores. Playbook:
+  [operations/rollback-playbook.md](operations/rollback-playbook.md).
+- **Maintainer answer:** (pending)
+- **Routing result:** (pending)

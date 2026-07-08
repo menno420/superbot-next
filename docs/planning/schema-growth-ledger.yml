@@ -778,3 +778,14 @@ entries:
     consumers: [tools/check_credential_lifecycle.py, docs/operations/credential-lifecycle.md]
     rejected_alternative: "unordered severity labels (the runbook triage needs a total order)"
     minted: 2026-07-08
+  # S14 (spec 13 §2.4b): the rollback-disposition facet on 09's
+  # version-extended StoreSpec (additive; rollback_class itself is DERIVED
+  # by derive_rollback_class, never a registered field).
+  StoreSpec.forward_map_kind:
+    consumers: [tools/check_rollback_disposition.py, tools/importer/reverse/core.py]
+    rejected_alternative: "deriving invertibility from name equality at rollback time (guesses under pressure)"
+    minted: 2026-07-08
+  StoreSpec.replay_intent:
+    consumers: [sb/spec/versioning.py, tools/check_rollback_disposition.py]
+    rejected_alternative: "a hand-set rollback_class enum field (every store a fresh manual guess, fights the Q3 posture)"
+    minted: 2026-07-08

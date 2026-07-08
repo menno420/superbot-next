@@ -50,7 +50,8 @@ jobs:
             check_amendments check_config_usage check_cost_posture \
             check_credential_lifecycle check_data_lifecycle check_egress \
             check_escape_hatches check_lockfile_fresh check_metric_cardinality \
-            check_migrations check_namespace check_no_skip check_schema_growth \
+            check_migrations check_namespace check_no_skip \
+            check_rollback_disposition check_schema_growth \
             check_symbol_shadowing; do
             echo "::group::${checker}"
             python3 "tools/${checker}.py"

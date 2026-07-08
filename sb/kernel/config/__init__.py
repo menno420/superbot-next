@@ -248,6 +248,13 @@ def preflight(env: Mapping[str, str] | None = None) -> Config:
 
     assert_data_plane(cfg, _accrue=errors)
     assert_intents(cfg, _accrue=errors)
+    # S14 (spec 13 §2.2c): the two rails COMPOSE — a verify-boot on a
+    # non-test plane is RefuseBoot; even the DB-write path of a restored
+    # snapshot must be structurally test-only.
+    if getattr(cfg, "SB_VERIFY_BOOT", False) and cfg.data_plane is not DataPlane.TEST:
+        errors.append(ConfigError(
+            "SB_VERIFY_BOOT",
+            f"verify-boot requires SB_DATA_PLANE=test, got {cfg.data_plane.value!r}"))
     if errors:
         raise StartupError(errors)
     return cfg

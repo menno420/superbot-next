@@ -15,6 +15,7 @@ from sb.spec.refs import EngineRef, WorkflowRef
 from sb.spec.versioning import (
     CheckpointClass,
     DataClass,
+    ForwardMapKind,
     StoreSpec,
     register_store,
 )
@@ -37,6 +38,7 @@ QUARANTINE_STORE = register_store(StoreSpec(
     retention="until_disposition",   # owner-signed disposition closes a row
     checkpoint_class=CheckpointClass.LEDGER,
     invariant_tag="quarantine_evidence",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=("operator_dashboard",),
     data_class=DataClass.MEMBER_PII,
     erasure_ref=WorkflowRef("kernel.invariants.scrub_quarantine_subject"),
@@ -48,6 +50,7 @@ SWEEP_LOG_STORE = register_store(StoreSpec(
     retention="180d",
     checkpoint_class=CheckpointClass.AGGREGATE,
     invariant_tag="sweep_bookkeeping",
+    forward_map_kind=ForwardMapKind.NEW_ONLY,  # fresh-chain kernel table (S14)
     reader_domains=("operator_dashboard",),
 ))
 
