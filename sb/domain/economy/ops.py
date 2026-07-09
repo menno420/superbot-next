@@ -39,10 +39,14 @@ EVT_BALANCE_CHANGED = "economy.balance_changed"
 
 _MENTION = re.compile(r"^<@!?(\d{15,20})>$")
 
-_rng: random.Random = random.Random()
+# None => catalogue.pick_daily falls back to the MODULE-GLOBAL random —
+# the instance the parity harness seeds per case (`random.seed(case.seed)`),
+# so a fresh replay reproduces the captured draw (D-0060; a private unseeded
+# Random() here made every daily amount diverge from its golden).
+_rng: random.Random | None = None
 
 
-def set_rng_for_tests(rng: random.Random) -> None:
+def set_rng_for_tests(rng: random.Random | None) -> None:
     global _rng
     _rng = rng
 
@@ -96,6 +100,12 @@ async def _record_daily(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"coins": new_bal, "streak": streak, "tier": tier_label,
                "tier_emoji": tier_emoji, "amount": amount,
                "claims": new_count},
+        # the shipped Daily Reward embed's copy as a content ack (the D-0052
+        # sanctioned channel; embed render = presentation successor)
+        user_message=(f"🎁 Daily Reward — {tier_emoji} **{tier_label}** "
+                      f"reward! **+{amount}** 🪙 · Balance **{new_bal:,}** 🪙 "
+                      f"· 🔥 Streak **{streak}** days · Total claims "
+                      f"{new_count}"),
     )
 
 
@@ -122,6 +132,7 @@ async def _record_work(conn, ctx: WorkflowContext) -> LegOutcome:
     job = _job_from(ctx)
     if job not in catalogue.JOBS:
         raise ValidatorError(
+            "job",
             f"❌ Unknown job {job!r} — see `!joblist` for jobs you can work.")
 
     row = await store.ensure_and_get_economy(conn, user_id=uid, guild_id=gid)
@@ -135,6 +146,7 @@ async def _record_work(conn, ctx: WorkflowContext) -> LegOutcome:
     eligible = await service.available_jobs(uid, gid)
     if job not in eligible:
         raise ValidatorError(
+            "job",
             "❌ You don't meet that job's requirements yet — earn XP or buy "
             "the required items from `!shop`.")
 
@@ -157,11 +169,16 @@ async def _record_work(conn, ctx: WorkflowContext) -> LegOutcome:
     ctx.params["_xp_gain"] = catalogue.JOBS[job]["xp"]
     ctx.params["_job"] = job
     ctx.params["_now"] = now
+    mastery = min(times, 100)
+    mastery_note = f" (+{mastery}% mastery)" if mastery else ""
     return LegOutcome(
         step=StepResult(uid, "work", True),
         before={"coins": new_bal - pay, "times_worked": new_times - 1},
         after={"coins": new_bal, "times_worked": new_times, "job": job,
-               "pay": pay, "mastery_bonus_pct": min(times, 100)},
+               "pay": pay, "mastery_bonus_pct": mastery},
+        user_message=(f"💼 Worked as **{job.replace('_', ' ').title()}** — "
+                      f"earned **{pay:,}** 🪙{mastery_note}. "
+                      f"Balance: **{new_bal:,}** 🪙"),
     )
 
 
@@ -180,13 +197,13 @@ async def _record_pay(conn, ctx: WorkflowContext) -> LegOutcome:
         if amount is None and len(argv) > 1 and str(argv[1]).lstrip("-").isdigit():
             amount = int(argv[1])
     if target is None or amount is None:
-        raise ValidatorError("Usage: `!pay @user <amount>`")
+        raise ValidatorError("member", "Usage: `!pay @user <amount>`")
     target = int(str(target).strip("<@!>"))
     amount = int(amount)
     if target == uid:
-        raise ValidatorError("❌ You can't pay yourself.")
+        raise ValidatorError("member", "❌ You can't pay yourself.")
     if amount <= 0:
-        raise ValidatorError("❌ Amount must be positive.")
+        raise ValidatorError("amount", "❌ Amount must be positive.")
 
     new_from = await store.try_debit_coins(conn, user_id=uid, guild_id=gid,
                                            amount=amount)
@@ -213,6 +230,8 @@ async def _record_pay(conn, ctx: WorkflowContext) -> LegOutcome:
         step=StepResult(target, "pay", True),
         before={"from": new_from + amount, "to": new_to - amount},
         after={"from": new_from, "to": new_to, "amount": amount},
+        user_message=(f"💸 Sent **{amount:,}** 🪙 to <@{target}> — "
+                      f"your balance: **{new_from:,}** 🪙"),
     )
 
 
@@ -239,6 +258,7 @@ async def _record_buy(conn, ctx: WorkflowContext) -> LegOutcome:
     item = _item_from(ctx)
     if item not in catalogue.SHOP_ITEMS:
         raise ValidatorError(
+            "item",
             f"❌ Unknown shop item {item!r} — see `!shop` for the catalogue.")
     price = int(catalogue.SHOP_ITEMS[item]["price"])
 
@@ -265,6 +285,8 @@ async def _record_buy(conn, ctx: WorkflowContext) -> LegOutcome:
         step=StepResult(uid, "buy", True),
         before={"coins": new_bal + price, "owned": False},
         after={"coins": new_bal, "owned": True, "item": item, "price": price},
+        user_message=(f"🛒 Bought **{item.replace('_', ' ').title()}** for "
+                      f"**{price:,}** 🪙 — balance **{new_bal:,}** 🪙"),
     )
 
 

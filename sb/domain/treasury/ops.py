@@ -57,16 +57,17 @@ def _amount_from(ctx: WorkflowContext) -> int:
                 amount = int(token)
                 break
     if amount is None:
-        raise ValidatorError("➕ Give a number of coins.")
+        raise ValidatorError("amount", "➕ Give a number of coins.")
     try:
         # the Contribute modal submits a free-text field — the shipped
         # modal's non-numeric rejection, verbatim copy.
         amount = int(str(amount).strip())
     except ValueError:
         raise ValidatorError(
+            "amount",
             f"❌ `{str(amount).strip()}` is not a whole number of coins.") from None
     if amount <= 0:
-        raise ValidatorError("➕ Give a positive number of coins.")
+        raise ValidatorError("amount", "➕ Give a positive number of coins.")
     return amount
 
 
@@ -103,6 +104,9 @@ async def _record_contribute(conn, ctx: WorkflowContext) -> LegOutcome:
                "amount": amount},
         payload={"treasury_balance": treasury_balance,
                  "user_balance": user_balance},
+        user_message=(f"🏛️ Contributed **{amount:,}** 🪙 — the treasury now "
+                      f"holds **{treasury_balance:,}** 🪙 (your balance: "
+                      f"**{user_balance:,}** 🪙)."),
     )
 
 
@@ -123,7 +127,7 @@ async def _record_disburse(conn, ctx: WorkflowContext) -> LegOutcome:
                 target = int(stripped)
                 break
     if target is None:
-        raise ValidatorError("Usage: `!treasury grant @member <amount>`")
+        raise ValidatorError("member", "Usage: `!treasury grant @member <amount>`")
     target = int(str(target).strip("<@!>"))
     amount = _amount_from(ctx)
     now = _now(ctx)
@@ -133,6 +137,7 @@ async def _record_disburse(conn, ctx: WorkflowContext) -> LegOutcome:
     if new_treasury is None:
         available = await store.get_treasury(gid, conn=conn)
         raise ValidatorError(
+            "amount",
             f"🏛️ The treasury only holds **{available}** 🪙 — not enough "
             f"to disburse **{amount}** 🪙.")
     user_balance = await economy_store.credit_coins(
@@ -153,6 +158,8 @@ async def _record_disburse(conn, ctx: WorkflowContext) -> LegOutcome:
                "amount": amount},
         payload={"treasury_balance": new_treasury,
                  "user_balance": user_balance},
+        user_message=(f"🏛️ Disbursed **{amount:,}** 🪙 to <@{target}> — the "
+                      f"treasury now holds **{new_treasury:,}** 🪙."),
     )
 
 
