@@ -398,3 +398,82 @@ def test_manifest_facets_validate():
     assert {s.table for s in m.MANIFEST.stores} == {
         "economy_balances", "economy_audit_log", "economy", "job_progress",
         "inventory"}
+
+
+# --- D-0060: legs speak their acks; refusals render verbatim; replay seams ----------
+
+def test_daily_leg_speaks_the_shipped_ack(monkeypatch):
+    from sb.domain.economy import ops
+
+    FakeEconomyStore(coins=0, track={"last_daily": 0, "daily_streak": 0,
+                                     "daily_count": 0}).install(monkeypatch)
+    ops.set_rng_for_tests(random.Random(7))
+    out = asyncio.run(ops._record_daily(None, _ctx({})))
+    assert out.user_message and out.user_message.startswith("🎁 Daily Reward")
+    assert "Streak **1**" in out.user_message
+
+
+def test_work_and_pay_and_buy_legs_speak(monkeypatch):
+    from sb.domain.economy import ops
+
+    fake = FakeEconomyStore(coins=500).install(monkeypatch)
+    out = asyncio.run(ops._record_work(None, _ctx({"job": "janitor"})))
+    assert out.user_message and "Worked as **Janitor**" in out.user_message
+
+    out = asyncio.run(ops._record_pay(
+        None, _ctx({"target_id": 77, "amount": 50})))
+    assert out.user_message and "Sent **50** 🪙 to <@77>" in out.user_message
+
+    fake.coins[42] = 10_000
+    out = asyncio.run(ops._record_buy(None, _ctx({"item": "toolkit"})))
+    assert out.user_message and "Bought **Toolkit**" in out.user_message
+
+
+def test_daily_rng_defaults_to_the_seeded_global(monkeypatch):
+    """Replay determinism (D-0060): with no injected rng the draw comes from
+    the module-global `random` the parity harness seeds per case."""
+    from sb.domain.economy import ops
+    from sb.domain.economy.catalogue import pick_daily
+
+    ops.set_rng_for_tests(None)
+    FakeEconomyStore(coins=0, track={"last_daily": 0, "daily_streak": 0,
+                                     "daily_count": 0}).install(monkeypatch)
+    random.seed(42)
+    expected_amount, expected_label, _ = pick_daily(1)
+    random.seed(42)
+    out = asyncio.run(ops._record_daily(None, _ctx({})))
+    assert out.after["amount"] == expected_amount
+    assert out.after["tier"] == expected_label
+
+
+def test_domain_refusal_renders_its_copy_bare():
+    """InsufficientFunds/Cooldown/AlreadyOwned carry raise-site copy the
+    envelope renders VERBATIM — never the missing-argument boilerplate."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.kernel.interaction.errors import from_exception
+    from sb.kernel.interaction.request import Surface
+
+    exc = InsufficientFundsError("❌ Not enough coins — you have **0** 🪙.")
+    env = from_exception(exc, surface=Surface.MAINTENANCE, target=None)
+    assert env.user_message == "❌ Not enough coins — you have **0** 🪙."
+    assert "Missing/invalid argument" not in env.user_message
+
+
+def test_validator_error_param_form_keeps_the_usage_hint():
+    from sb.kernel.interaction.errors import ValidatorError, from_exception
+    from sb.kernel.interaction.request import Surface
+
+    env = from_exception(ValidatorError("amount"),
+                         surface=Surface.MAINTENANCE, target=None)
+    assert "Missing/invalid argument: `amount`" in env.user_message
+
+
+def test_system_clock_reads_the_pinnable_time_seam(monkeypatch):
+    """SYSTEM_CLOCK must read time.time() (the one seam the parity harness
+    pins) so default-clock legs replay against the logical clock."""
+    import time as _time
+
+    from sb.kernel.workflow.context import SYSTEM_CLOCK
+
+    monkeypatch.setattr(_time, "time", lambda: 1_853_737_031.0)
+    assert int(SYSTEM_CLOCK().timestamp()) == 1_853_737_031

@@ -24,8 +24,16 @@ __all__ = ["LegOutcome", "LegHandler", "SYSTEM_CLOCK", "WorkflowContext"]
 
 
 def SYSTEM_CLOCK() -> datetime:
-    """The default clock — UTC now (a callable so tests inject)."""
-    return datetime.now(timezone.utc)
+    """The default clock — UTC now (a callable so tests inject).
+
+    Reads through ``time.time()`` (identical to ``datetime.now`` live) so
+    the ONE wall-clock seam the parity harness pins covers ctx.clock too:
+    domain legs stamping `ctx.clock().timestamp()` into rows replay against
+    the logical capture clock instead of the real one (band-3 finding,
+    D-0060 — economy `last_daily` diffed on every fresh replay)."""
+    import time
+
+    return datetime.fromtimestamp(time.time(), tz=timezone.utc)
 
 
 @dataclass(frozen=True)
