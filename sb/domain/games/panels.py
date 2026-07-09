@@ -119,6 +119,13 @@ def world_hub_spec() -> PanelSpec:
                 emoji="🐾", audience_tier="user",
                 handler=PanelRef("creature.hub")),
             PanelActionSpec(
+                action_id="world_deathmatch", label="Deathmatch",
+                emoji="⚔️", audience_tier="user",
+                handler=PanelRef("deathmatch.hub")),
+            PanelActionSpec(
+                action_id="world_casino", label="Casino", emoji="🎰",
+                audience_tier="user", handler=PanelRef("casino.hub")),
+            PanelActionSpec(
                 action_id="world_card", label="My World Card", emoji="🪪",
                 audience_tier="user",
                 handler=HandlerRef("games.world_card_view"),
@@ -128,7 +135,7 @@ def world_hub_spec() -> PanelSpec:
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("world_mine", "world_fish", "world_farm",
              "world_creatures"),
-            ("world_card",),)),)),
+            ("world_deathmatch", "world_casino", "world_card"),)),)),
     )
 
 

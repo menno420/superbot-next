@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.48%** tier-1/2 over 580 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.15%** tier-1/2 over 599 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -153,6 +153,17 @@ Cumulative fit: **89.48%** tier-1/2 over 580 units (spike line: 85.26% / 95 unit
 | 6 | chain | store | chain_channels | 1 | 2 | StoreSpec, shipped one-row-per-channel shape (DataClass.NONE) |
 | 6 | chain | op | create/delete/set_limit/record_progress | 4 | 2 | K7 lanes = the shipped RS07 canonical-writer semantics (create preserves a limit-only row's limit; no-change skips) |
 | 6 | chain | engine | message rule core | 1 | 3 | check_message headless (allowed word + word cap + the shipped warning copy) |
+| 6 | deathmatch | command | dm_challenge + dm_help | 2 | 2 | CommandSpec rows verbatim (+ the shipped fluency aliases deathmatch/challenge/dm) |
+| 6 | deathmatch | panel | deathmatch.hub | 1 | 2 | the shipped DeathmatchPanelView declarative (Fight Bot / stats / top / help) |
+| 6 | deathmatch | store | deathmatch_stats | 1 | 2 | StoreSpec, shipped shape (PvP only — bot duels off the board, PR-6 rule) |
+| 6 | deathmatch | setting | turn_timeout | 1 | 2 | SettingSpec verbatim from the shipped schemas.py (deathmatch_turn_timeout, presets 30/60/120/300) |
+| 6 | deathmatch | op | challenge/accept/decline/move/bot_start/bot_move | 6 | 2 | K7 lanes on the blackjack-PvP g1 recipe; the finishing move settles stats + consumes the row in ONE txn |
+| 6 | deathmatch | engine | duel core + bot AI | 1 | 3 | the shipped _Duel + pick_bot_action headless (injectable rng; bare-fighter baseline until the equipment port) |
+| 6 | deathmatch | engine | Deathmatch + RPS providers | 2 | 3 | rank-provider rows (dm_leaderboard/dm_lb/board + rpslb) over the slice-4 stat stores |
+| 6 | rps_tournament | store | rps_players | 1 | 2 | StoreSpec, shipped (user_id,guild_id) shape; written from the quick-play lane (the shipped bot-match stats site) |
+| 6 | casino | command | casino + poker/holdem | 2 | 2 | CommandSpec rows verbatim; poker = honest pending terminal (per-player ephemeral tables are live-adapter work) |
+| 6 | casino | panel | casino.hub | 1 | 2 | the shipped casino hub declarative (poker + hand rankings) |
+| 6 | casino | engine | card model + hand evaluator | 1 | 3 | utils/cards + utils/poker/evaluate ported VERBATIM (pure; the Hold'em table docks on when the live adapter arms) |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -160,4 +171,4 @@ Per band:
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
-- band 6: 89.01% (162/182)
+- band 6: 88.06% (177/201)

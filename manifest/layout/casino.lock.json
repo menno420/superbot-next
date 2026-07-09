@@ -1,0 +1,18 @@
+{
+ "entries": {
+  "casino:casino:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "casino:poker:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  }
+ },
+ "schema_version": 1,
+ "subsystem": "casino"
+}

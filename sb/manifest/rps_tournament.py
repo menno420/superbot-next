@@ -10,6 +10,7 @@ from __future__ import annotations
 from sb.domain.rps import handlers as _handlers
 from sb.domain.rps import panels as _panels
 from sb.domain.rps.ops import register_ops
+from sb.domain.rps.stats import RPS_PLAYERS_STORE
 from sb.domain.rps.rules import GAME_MODES
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -97,7 +98,7 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.rps_hub_spec(),),
     settings=_SETTINGS,
-    stores=(),          # checkpoint rows ride the games manifest's stores
+    stores=(RPS_PLAYERS_STORE,),  # + checkpoint rows on the games manifest
     events=(),          # emits economy.balance_changed (owner: economy)
     capabilities=(),
 )
@@ -108,7 +109,9 @@ _panels.register_rps_sessions()
 
 def _ensure_refs() -> None:
     from sb.domain.rps import ops as _ops
+    from sb.domain.rps import stats as _stats
 
+    _stats.ensure_refs()
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
