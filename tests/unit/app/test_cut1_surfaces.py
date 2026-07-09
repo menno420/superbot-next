@@ -166,6 +166,46 @@ class TestPrefixContextReply:
         assert msg.replies == [None]
 
 
+class TestHandleChatAward:
+    def _patch_core(self, monkeypatch):
+        import sb.domain.xp.service as xp_service
+        awards: list[tuple[int, int]] = []
+
+        async def fake_award(user_id, guild_id, *, now):
+            awards.append((user_id, guild_id))
+            return "AWARD"
+
+        monkeypatch.setattr(xp_service, "handle_chat_message", fake_award)
+        return awards
+
+    def test_bots_and_dms_never_award(self, monkeypatch):
+        awards = self._patch_core(monkeypatch)
+        assert run(message_feed.handle_chat_award(
+            _FakeMessage("hi", bot_author=True))) is None
+        dm = _FakeMessage("hi")
+        dm.guild = None
+        assert run(message_feed.handle_chat_award(dm)) is None
+        assert not awards
+
+    def test_human_guild_message_awards_commands_included(self, monkeypatch):
+        awards = self._patch_core(monkeypatch)
+        assert run(message_feed.handle_chat_award(
+            _FakeMessage("just chatting"))) == "AWARD"
+        assert run(message_feed.handle_chat_award(
+            _FakeMessage("!help"))) == "AWARD"    # shipped: commands award too
+        assert awards == [(42, 7), (42, 7)]
+
+    def test_award_fault_never_breaks_the_loop(self, monkeypatch):
+        import sb.domain.xp.service as xp_service
+
+        async def boom(user_id, guild_id, *, now):
+            raise RuntimeError("db down")
+
+        monkeypatch.setattr(xp_service, "handle_chat_message", boom)
+        assert run(message_feed.handle_chat_award(
+            _FakeMessage("hello"))) is None
+
+
 class TestArmMessageFeed:
     def test_registers_an_additive_on_message_listener(self):
         listeners: list[tuple[object, str]] = []
@@ -175,6 +215,24 @@ class TestArmMessageFeed:
         assert len(listeners) == 1
         assert listeners[0][1] == "on_message"
         assert asyncio.iscoroutinefunction(listeners[0][0])
+
+    def test_listener_runs_prefix_dispatch_then_chat_award(self, monkeypatch):
+        order: list[str] = []
+
+        async def fake_prefix(message, *, prefix):
+            order.append("prefix")
+
+        async def fake_award(message):
+            order.append("award")
+
+        monkeypatch.setattr(message_feed, "handle_prefix_message", fake_prefix)
+        monkeypatch.setattr(message_feed, "handle_chat_award", fake_award)
+        listeners: list[tuple[object, str]] = []
+        bot = SimpleNamespace(
+            add_listener=lambda coro, name: listeners.append((coro, name)))
+        message_feed.arm_message_feed(bot, prefix="!")
+        run(listeners[0][0](_FakeMessage("!rank")))
+        assert order == ["prefix", "award"]     # capture order: dispatch first
 
 
 # ------------------------------------------------------------------ command tree

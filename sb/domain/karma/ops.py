@@ -127,12 +127,18 @@ async def _record_give(conn, ctx: WorkflowContext) -> LegOutcome:
             f"You've reached your daily limit of {policy.daily_cap} karma "
             f"grants. Come back tomorrow!")
 
+    # Row stamps ride ctx.clock() (NOT DB NOW()) so the cooldown/cap reads
+    # above compare against the SAME clock they were written with — under
+    # the parity harness's pinned clock a NOW()-stamped row sat outside
+    # every logical window and the cooldown never fired on replay (the
+    # band-3 SYSTEM_CLOCK seam finding, D-0060 precedent).
     new_total = await store.credit_karma(conn, to_user=to_user, guild_id=gid,
-                                         amount=amount)
+                                         amount=amount, now=now)
     await store.increment_given(conn, from_user=from_user, guild_id=gid)
     await store.insert_karma_audit(conn, guild_id=gid, from_user=from_user,
                                    to_user=to_user, delta=amount,
-                                   source=source, reason=reason)
+                                   source=source, reason=reason,
+                                   occurred_at=now)
 
     ctx.params["_from_user"] = from_user
     ctx.params["_to_user"] = to_user
