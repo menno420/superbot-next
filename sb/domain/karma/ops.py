@@ -37,19 +37,29 @@ __all__ = ["EVT_KARMA_GRANTED", "register_ops"]
 EVT_KARMA_GRANTED = "karma.granted"
 
 
-class SelfKarmaError(ValidatorError):
+class _DomainRefusal(ValidatorError):
+    """A domain-rule refusal (not a malformed argument): the raise-site
+    sentence IS the user copy, rendered bare (the D-0060 refusal-copy
+    posture — the envelope's missing-argument boilerplate wrapped these
+    until band 4; the economy _DomainRefusal precedent)."""
+
+    def __init__(self, message: str):
+        super().__init__("", message)
+
+
+class SelfKarmaError(_DomainRefusal):
     """A member cannot grant karma to themselves."""
 
 
-class KarmaDisabledError(ValidatorError):
+class KarmaDisabledError(_DomainRefusal):
     """Karma is disabled for the guild."""
 
 
-class KarmaCooldownError(ValidatorError):
+class KarmaCooldownError(_DomainRefusal):
     """The giver already thanked this recipient within the window."""
 
 
-class KarmaDailyCapError(ValidatorError):
+class KarmaDailyCapError(_DomainRefusal):
     """The giver hit their per-day grant cap."""
 
 
@@ -96,11 +106,12 @@ async def _record_give(conn, ctx: WorkflowContext) -> LegOutcome:
     reason = _reason_from(ctx)
 
     if to_user is None:
-        raise ValidatorError("Usage: `!thanks @user [reason]`")
+        raise ValidatorError("member", "Usage: `!thanks @user [reason]`")
     if amount <= 0:
-        raise ValidatorError("❌ Karma amount must be positive.")
+        raise ValidatorError("amount", "❌ Karma amount must be positive.")
     if from_user == to_user:
-        raise SelfKarmaError("You can't give karma to yourself.")
+        # shipped copy verbatim (golden karma.self_grant_rejected)
+        raise SelfKarmaError("❌ You can't give karma to yourself.")
 
     policy = await load_policy(gid)
     if not policy.enabled:
@@ -114,9 +125,11 @@ async def _record_give(conn, ctx: WorkflowContext) -> LegOutcome:
         recent = await store.recent_grant_count(gid, from_user, to_user,
                                                 window_start, conn=conn)
         if recent > 0:
+            # shipped copy (golden karma.repeat_cooldown); mention instead
+            # of the display name — the headless leg has no member read
             raise KarmaCooldownError(
-                f"You've already thanked <@{to_user}> recently — try again "
-                f"in {format_remaining(policy.cooldown_seconds)}.")
+                f"❌ You've already thanked <@{to_user}> recently — try "
+                f"again in {format_remaining(policy.cooldown_seconds)}.")
 
     # Per-giver daily cap (rolling 24 h, shipped).
     day_start = now - timedelta(days=1)

@@ -450,8 +450,8 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                         marker.intent, ", ".join(marker.degrades))
         emit_degrade_notices(markers)
 
-        # 14b. the message feed — the ONE armed message-band consumer
-        #      (prefix-command dispatch; report §4.2's other feeds stay
+        # 14b. the message feed — prefix-command dispatch + the passive XP
+        #      chat award (band 4, D-0061; report §4.2's other feeds stay
         #      dormant successors). Registered AFTER the markers per spec
         #      14 §2.B: a degraded ``prefix`` class means no registration.
         degraded_classes = {cls for m in markers for cls in m.degrades}
@@ -463,8 +463,9 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
             arm_message_feed(bot, prefix=str(cfg.BOT_PREFIX or "!"))
             logger.info("message feed armed: prefix dispatch on %r "
-                        "(bot/self messages ignored; fuzzy/NL/passive "
-                        "feeds stay dormant)", str(cfg.BOT_PREFIX or "!"))
+                        "+ passive XP chat award (bot/self messages "
+                        "ignored; fuzzy/NL/counting/chain feeds stay "
+                        "dormant)", str(cfg.BOT_PREFIX or "!"))
 
         # 15. the ONE PollSupervisor (outbox relay/reaper + durability lanes).
         from sb.app.poll_host import build_poll_supervisor
