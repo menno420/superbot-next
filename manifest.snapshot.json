@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 30,
+  "manifest_count": 34,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -732,6 +732,62 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "catch"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "creatures"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "dex"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "dextop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "cbattle"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "cbrecord"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "surface": "prefix",
+          "value": "cbattletop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "surface": "prefix",
@@ -816,6 +872,174 @@
           "subsystem": "economy",
           "surface": "prefix",
           "value": "joblist"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "surface": "prefix",
+          "value": "farm"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "fish"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "fishing"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "fishlog"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "fishtop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "trophies"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "forecast"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "sail"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "rod"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "bait"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "craftbait"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "craftcharm"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "craftrod"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "rodrecipes"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "craftpearl"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "curios"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "craftcurio"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "tidepool"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "dock"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "boathouse"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "fishery"
         },
         {
           "kind": "command",
@@ -984,6 +1208,302 @@
           "subsystem": "logging",
           "surface": "prefix",
           "value": "test"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "minemenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "mine"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "chop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "explore"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "sell"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "sellall"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "buy"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "market"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "mineinv"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "minestats"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "fastmine"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "build"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "buildlist"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "buildable"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "use"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "cook"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "equip"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "unequip"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "gear"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "loadout"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "character"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "descend"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "ascend"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "mineworld"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "vault"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "stash"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "unstash"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "vaultupgrade"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "skills"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "skill"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "titles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "forge"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "home"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "workshop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "repair"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "quickcraft"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
+          "value": "reset_inventory"
         },
         {
           "kind": "command",
@@ -1499,6 +2019,21 @@
           "value": "spotlight_refresh"
         },
         {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_catch"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_dex"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_top"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "daily"
@@ -1539,6 +2074,41 @@
           "value": "overview"
         },
         {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm_collect"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm_buy_hen"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm_upgrade_coop"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm_refresh"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_cast"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_log"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_trophies"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "games_blackjack"
@@ -1557,6 +2127,26 @@
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "games_worldcard"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_mine"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_fish"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_farm"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_creatures"
         },
         {
           "source": "sb/manifest/games.py",
@@ -1597,6 +2187,26 @@
           "source": "sb/manifest/inventory.py",
           "subsystem": "inventory",
           "value": "open_other"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_mine"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_chop"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_explore"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_sell_all"
         },
         {
           "source": "sb/manifest/proof_channel.py",
@@ -1813,6 +2423,11 @@
           "value": "counters.hub"
         },
         {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.hub"
+        },
+        {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diagnostic.hub"
@@ -1831,6 +2446,16 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.shop_panel"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm.hub"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.hub"
         },
         {
           "source": "sb/manifest/games.py",
@@ -1901,6 +2526,11 @@
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "value": "logging.hub"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.hub"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -2447,6 +3077,11 @@
           "value": "counters"
         },
         {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature"
+        },
+        {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diagnostic"
@@ -2455,6 +3090,16 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing"
         },
         {
           "source": "sb/manifest/games.py",
@@ -2495,6 +3140,11 @@
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "value": "logging"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -2564,6 +3214,16 @@
           "value": "prohibited_words"
         },
         {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_collection_log"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_battle_record"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy_balances"
@@ -2587,6 +3247,16 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "inventory"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "chicken_farm"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_catch_log"
         },
         {
           "source": "sb/manifest/games.py",
@@ -2632,6 +3302,16 @@
           "source": "sb/manifest/karma.py",
           "subsystem": "karma",
           "value": "karma_audit_log"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_inventory"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_player_state"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -2724,8 +3404,17 @@
       "engine:cleanup.store": {
         "module": "sb.domain.cleanup.store"
       },
+      "engine:creature.store": {
+        "module": "sb.domain.creature.store"
+      },
       "engine:economy.store": {
         "module": "sb.domain.economy.store"
+      },
+      "engine:farm.store": {
+        "module": "sb.domain.farm.store"
+      },
+      "engine:fishing.store": {
+        "module": "sb.domain.fishing.store"
       },
       "engine:games.store": {
         "module": "sb.domain.games.store"
@@ -2735,6 +3424,9 @@
       },
       "engine:karma.store": {
         "module": "sb.domain.karma.store"
+      },
+      "engine:mining.store": {
+        "module": "sb.domain.mining.store"
       },
       "engine:moderation.store": {
         "module": "sb.domain.moderation.store"
@@ -2796,6 +3488,27 @@
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:creature.battle_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:creature.battle_record_view": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.battletop_view": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.catch_route": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.dex_view": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.dextop_view": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.menu_view": {
+        "module": "sb.domain.creature.service"
+      },
       "handler:economy.balance_view": {
         "module": "sb.domain.economy.handlers"
       },
@@ -2810,6 +3523,66 @@
       },
       "handler:economy.work_view": {
         "module": "sb.domain.economy.handlers"
+      },
+      "handler:fishing.bait_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.boathouse_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.craftbait_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.craftcharm_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.craftcurio_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.craftpearl_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.craftrod_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.curios_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.dock_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.fish_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.fishery_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.forecast_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.log_view": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.menu_view": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rod_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.rodrecipes_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.sail_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.tidepool_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.top_view": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.trophies_view": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:games.session_gc_fire": {
         "module": "sb.domain.games.service"
@@ -2855,6 +3628,117 @@
       },
       "handler:logging.test_send": {
         "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:mining.ascend_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.build_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.buildable_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.buildlist_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.buy_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.character_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.chop_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.cook_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.descend_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.equip_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.explore_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.fastmine_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.forge_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.gear_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.home_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.inventory_view": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.loadout_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.market_view": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.mine_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.mineinv_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.mineworld_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.quickcraft_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.repair_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.reset_inventory_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.sell_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.sellall_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.skill_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.skills_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.stash_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.stats_view": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.titles_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.unequip_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.unstash_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.use_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.vault_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.vaultupgrade_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.workshop_pending": {
+        "module": "sb.domain.operator_spine"
       },
       "handler:moderation.modlogs_view": {
         "module": "sb.domain.moderation.service"
@@ -2997,6 +3881,9 @@
       "panel:counters.hub": {
         "module": "sb.domain.operator_spine"
       },
+      "panel:creature.hub": {
+        "module": "sb.manifest.creature"
+      },
       "panel:diagnostic.hub": {
         "module": "sb.domain.diagnostic.panels"
       },
@@ -3008,6 +3895,12 @@
       },
       "panel:economy.shop_panel": {
         "module": "sb.domain.economy.panels"
+      },
+      "panel:farm.hub": {
+        "module": "sb.domain.farm.panels"
+      },
+      "panel:fishing.hub": {
+        "module": "sb.manifest.fishing"
       },
       "panel:games.hub": {
         "module": "sb.domain.games.panels"
@@ -3050,6 +3943,9 @@
       },
       "panel:logging.hub": {
         "module": "sb.domain.server_logging.panels"
+      },
+      "panel:mining.hub": {
+        "module": "sb.manifest.mining"
       },
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
@@ -3125,6 +4021,9 @@
       },
       "provider:economy.shop_overview": {
         "module": "sb.domain.economy.panels"
+      },
+      "provider:farm.hub_status": {
+        "module": "sb.domain.farm.panels"
       },
       "provider:games.hub_overview": {
         "module": "sb.domain.games.panels"
@@ -3282,6 +4181,24 @@
       "workflow:cleanup.word_remove_op": {
         "module": "sb.domain.cleanup.ops"
       },
+      "workflow:creature.catch": {
+        "module": "sb.domain.creature.ops"
+      },
+      "workflow:creature.erase_subject_battles": {
+        "module": "sb.domain.creature.ops"
+      },
+      "workflow:creature.erase_subject_collection": {
+        "module": "sb.domain.creature.ops"
+      },
+      "workflow:creature.record_battle": {
+        "module": "sb.domain.creature.ops"
+      },
+      "workflow:creature.record_battle_result": {
+        "module": "sb.domain.creature.ops"
+      },
+      "workflow:creature.record_catch": {
+        "module": "sb.domain.creature.ops"
+      },
       "workflow:economy.award_work_xp": {
         "module": "sb.domain.economy.ops"
       },
@@ -3332,6 +4249,36 @@
       },
       "workflow:economy.work": {
         "module": "sb.domain.economy.ops"
+      },
+      "workflow:farm.buy_chicken": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:farm.collect": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:farm.erase_subject_farm": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:farm.record_buy_chicken": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:farm.record_collect": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:farm.record_upgrade_coop": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:farm.upgrade_coop": {
+        "module": "sb.domain.farm.ops"
+      },
+      "workflow:fishing.cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.erase_subject_catch_log": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_cast": {
+        "module": "sb.domain.fishing.ops"
       },
       "workflow:games.balance_payload_0": {
         "module": "sb.domain.games.ops"
@@ -3407,6 +4354,48 @@
       },
       "workflow:karma.tombstone_subject_audit": {
         "module": "sb.domain.karma.ops"
+      },
+      "workflow:mining.buy": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.erase_subject_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.erase_subject_state": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.explore": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.harvest": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.mine": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_buy": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_explore": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_harvest": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_mine": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_sell": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.sell": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.sell_all": {
+        "module": "sb.domain.mining.ops"
       },
       "workflow:moderation.action_payload": {
         "module": "sb.domain.moderation.ops"
@@ -3712,6 +4701,14 @@
         },
         "subsystem": "governance"
       },
+      "chicken_farm": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "chicken_farm",
+        "sole_writer": {
+          "$ref": "engine:farm.store"
+        },
+        "subsystem": "farm"
+      },
       "cleanup_policies": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "cleanup_policies",
@@ -3719,6 +4716,22 @@
           "$ref": "engine:governance.store"
         },
         "subsystem": "governance"
+      },
+      "creature_battle_record": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "creature_battle_record",
+        "sole_writer": {
+          "$ref": "engine:creature.store"
+        },
+        "subsystem": "creature"
+      },
+      "creature_collection_log": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "creature_collection_log",
+        "sole_writer": {
+          "$ref": "engine:creature.store"
+        },
+        "subsystem": "creature"
       },
       "economy": {
         "checkpoint_class": "aggregate",
@@ -3743,6 +4756,14 @@
           "$ref": "engine:economy.store"
         },
         "subsystem": "economy"
+      },
+      "fishing_catch_log": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_catch_log",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
       },
       "game_state": {
         "checkpoint_class": "session",
@@ -3831,6 +4852,22 @@
           "$ref": "engine:karma.store"
         },
         "subsystem": "karma"
+      },
+      "mining_inventory": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_inventory",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
+      "mining_player_state": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_player_state",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
       },
       "mod_logs": {
         "checkpoint_class": "ledger",
@@ -3963,7 +5000,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:79c09e2f71eb6871a4bf2b070064efc81f50c67d061d23809aceae1dd940dc68",
+  "stable_hash": "sha256:09b6aa093db07c7d698f43c8558ef3264dd5f93e793112af683cf81f7c86e322",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -6447,6 +7484,381 @@
       "version": 1,
       "wizard_sections": []
     },
+    "creature": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "hunt"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "catch",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:creature.catch_route"
+          },
+          "slash_common": false,
+          "summary": "Hunt a wild creature — rarity-weighted encounter, level-nudged catch roll.",
+          "usage": "!catch",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "creaturemenu",
+            "pets"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "creatures",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:creature.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the creatures menu.",
+          "usage": "!creatures",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "collection"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "dex",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:creature.dex_view"
+          },
+          "slash_common": false,
+          "summary": "Your creature collection log.",
+          "usage": "!dex",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "topcatchers"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "dextop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:creature.dextop_view"
+          },
+          "slash_common": false,
+          "summary": "Top catchers by species collected.",
+          "usage": "!dextop",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "creaturebattle"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cbattle",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:creature.battle_pending"
+          },
+          "slash_common": false,
+          "summary": "Battle another player's creatures.",
+          "usage": "!cbattle @player",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "battlerecord"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cbrecord",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:creature.battle_record_view"
+          },
+          "slash_common": false,
+          "summary": "Your creature battle record.",
+          "usage": "!cbrecord",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "pvptop",
+            "battletop"
+          ],
+          "audience_tier": "user",
+          "capability": "creature",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cbattletop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:creature.battletop_view"
+          },
+          "slash_common": false,
+          "summary": "The creature battle leaderboard.",
+          "usage": "!cbattletop",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "creature",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "creature_catch",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🐾",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.catch_route"
+              },
+              "label": "Catch",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "creature_dex",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.dex_view"
+              },
+              "label": "My Dex",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "creature_top",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.dextop_view"
+              },
+              "label": "Top Catchers",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Hunt wild creatures — rarity drives both how often they appear and how hard they are to catch. Your creature level (shared game XP) nudges the odds."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "creature_catch",
+                    "creature_dex",
+                    "creature_top"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.world"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "creature.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "🐾 Creatures",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:creature.erase_subject_collection"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "creature_collection_log",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:creature.store"
+          },
+          "table": "creature_collection_log",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:creature.erase_subject_battles"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "creature_battle_record",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:creature.store"
+          },
+          "table": "creature_battle_record",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
     "diagnostic": {
       "capabilities": [],
       "commands": [
@@ -7419,6 +8831,909 @@
       "version": 1,
       "wizard_sections": []
     },
+    "farm": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "chickenfarm",
+            "coop"
+          ],
+          "audience_tier": "user",
+          "capability": "farm",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "farm",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:farm.hub"
+          },
+          "slash_common": false,
+          "summary": "Open your idle chicken farm — collect eggs, buy hens, upgrade the coop.",
+          "usage": "!farm",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "farm",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "farm_collect",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🥚",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:farm.collect"
+              },
+              "label": "Collect",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "farm_buy_hen",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🐔",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:farm.buy_chicken"
+              },
+              "label": "Buy Hen",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "farm_upgrade_coop",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏠",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:farm.upgrade_coop"
+              },
+              "label": "Upgrade Coop",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "farm_refresh",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:farm.hub"
+              },
+              "label": "Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Your idle farm — hens lay eggs while you're away. Collect eggs for coins, buy hens to lay faster, and upgrade the coop to hold more."
+            },
+            {
+              "provider": {
+                "$ref": "provider:farm.hub_status"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "farm_collect",
+                    "farm_buy_hen",
+                    "farm_upgrade_coop",
+                    "farm_refresh"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.world"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "farm.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "farm",
+          "timeout_s": 180,
+          "title": "🐔 Chicken Farm",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:farm.erase_subject_farm"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "chicken_farm",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:farm.store"
+          },
+          "table": "chicken_farm",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "fishing": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "fish",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.fish_route"
+          },
+          "slash_common": false,
+          "summary": "Cast a line — one instant catch roll.",
+          "usage": "!fish",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "fishmenu"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "fishing",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:fishing.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the fishing hub.",
+          "usage": "!fishing",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "fishdex"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "fishlog",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.log_view"
+          },
+          "slash_common": false,
+          "summary": "Your fish dex — every species you've caught.",
+          "usage": "!fishlog",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "topfishers"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "fishtop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.top_view"
+          },
+          "slash_common": false,
+          "summary": "Top anglers by total catches.",
+          "usage": "!fishtop",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "bigfish",
+            "fishtrophy"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "trophies",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.trophies_view"
+          },
+          "slash_common": false,
+          "summary": "Trophy records — the biggest catches.",
+          "usage": "!trophies",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "fishforecast",
+            "fishingweather"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "forecast",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.forecast_pending"
+          },
+          "slash_common": false,
+          "summary": "Today's fishing weather.",
+          "usage": "!forecast",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "setsail"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sail",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.sail_pending"
+          },
+          "slash_common": false,
+          "summary": "Set sail to the deepwater venue.",
+          "usage": "!sail",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rodshop",
+            "buyrod"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rod",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.rod_pending"
+          },
+          "slash_common": false,
+          "summary": "The rod shop.",
+          "usage": "!rod",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "baitshop",
+            "buybait"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bait",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.bait_pending"
+          },
+          "slash_common": false,
+          "summary": "The bait shop.",
+          "usage": "!bait",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "baitcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "craftbait",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftbait_pending"
+          },
+          "slash_common": false,
+          "summary": "Craft bait from fish.",
+          "usage": "!craftbait",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "charmcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "craftcharm",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftcharm_pending"
+          },
+          "slash_common": false,
+          "summary": "Craft a fishing charm.",
+          "usage": "!craftcharm",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rodcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "craftrod",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftrod_pending"
+          },
+          "slash_common": false,
+          "summary": "Craft a rod.",
+          "usage": "!craftrod",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rodrecipe",
+            "rrecipes"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rodrecipes",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.rodrecipes_pending"
+          },
+          "slash_common": false,
+          "summary": "Rod crafting recipes.",
+          "usage": "!rodrecipes",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "pearlcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "craftpearl",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftpearl_pending"
+          },
+          "slash_common": false,
+          "summary": "Craft pearl bait.",
+          "usage": "!craftpearl",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "curio",
+            "carvings"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "curios",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.curios_pending"
+          },
+          "slash_common": false,
+          "summary": "Your curio collection.",
+          "usage": "!curios",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "carve",
+            "curiocraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "craftcurio",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftcurio_pending"
+          },
+          "slash_common": false,
+          "summary": "Carve a curio from coral.",
+          "usage": "!craftcurio",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "reef",
+            "tidepools"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "tidepool",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.tidepool_pending"
+          },
+          "slash_common": false,
+          "summary": "The tide pool structure.",
+          "usage": "!tidepool",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "pier",
+            "fishingdock"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "dock",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.dock_pending"
+          },
+          "slash_common": false,
+          "summary": "The dock structure.",
+          "usage": "!dock",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "moorings",
+            "boat"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "boathouse",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.boathouse_pending"
+          },
+          "slash_common": false,
+          "summary": "The boathouse structure.",
+          "usage": "!boathouse",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "hatchery",
+            "fishfarm"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "fishery",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.fishery_pending"
+          },
+          "slash_common": false,
+          "summary": "The fishery structure.",
+          "usage": "!fishery",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "fishing",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "fishing_cast",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎣",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.fish_route"
+              },
+              "label": "Cast",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fishing_log",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.log_view"
+              },
+              "label": "Fish Dex",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fishing_trophies",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.trophies_view"
+              },
+              "label": "Trophies",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Cast a line — 21 species across 7 size bands; level up to unlock bigger fish. Caught fish land in your pack (sell or cook them); the biggest of each species is your trophy."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fishing_cast",
+                    "fishing_log",
+                    "fishing_trophies"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.world"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "fishing.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🎣 Fishing",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_catch_log"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_catch_log",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_catch_log",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
     "games": {
       "capabilities": [],
       "commands": [
@@ -7734,6 +10049,102 @@
         {
           "actions": [
             {
+              "action_id": "world_mine",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⛏️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "Mine",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "world_fish",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎣",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "Fish",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "world_farm",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🐔",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:farm.hub"
+              },
+              "label": "Farm",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "world_creatures",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🐾",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:creature.hub"
+              },
+              "label": "Creatures",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
               "action_id": "world_card",
               "audience_tier": "user",
               "audit": "",
@@ -7779,6 +10190,12 @@
             "pages": [
               {
                 "rows": [
+                  [
+                    "world_mine",
+                    "world_fish",
+                    "world_farm",
+                    "world_creatures"
+                  ],
                   [
                     "world_card"
                   ]
@@ -10497,6 +12914,1089 @@
         }
       ],
       "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "mining": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "minemenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:mining.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the mining hub.",
+          "usage": "!minemenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "mine",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.mine_route"
+          },
+          "slash_common": false,
+          "summary": "One mining swing — roll ore loot.",
+          "usage": "!mine",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "chop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.chop_route"
+          },
+          "slash_common": false,
+          "summary": "Chop wood.",
+          "usage": "!chop",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "explore",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.explore_route"
+          },
+          "slash_common": false,
+          "summary": "Explore the caves for a random find.",
+          "usage": "!explore",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sell",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.sell_route"
+          },
+          "slash_common": false,
+          "summary": "Sell a resource: !sell <item> [qty].",
+          "usage": "!sell",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sellall",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.sellall_route"
+          },
+          "slash_common": false,
+          "summary": "Sell every sellable resource in your pack.",
+          "usage": "!sellall",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "buy",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.buy_route"
+          },
+          "slash_common": false,
+          "summary": "Buy gear from the shop: !buy <item>.",
+          "usage": "!buy",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "market",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.market_view"
+          },
+          "slash_common": false,
+          "summary": "Market prices — what sells for what.",
+          "usage": "!market",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "mineinventory"
+          ],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "mineinv",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.inventory_view"
+          },
+          "slash_common": false,
+          "summary": "Your mining pack.",
+          "usage": "!mineinv",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "minestats",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.stats_view"
+          },
+          "slash_common": false,
+          "summary": "Your mining stats.",
+          "usage": "!minestats",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "fastmine",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.fastmine_pending"
+          },
+          "slash_common": false,
+          "summary": "Grid dig (fast mine).",
+          "usage": "!fastmine",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "craft"
+          ],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "build",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.build_pending"
+          },
+          "slash_common": false,
+          "summary": "Build a structure.",
+          "usage": "!build",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "buildlist",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.buildlist_pending"
+          },
+          "slash_common": false,
+          "summary": "List built structures.",
+          "usage": "!buildlist",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "buildable",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.buildable_pending"
+          },
+          "slash_common": false,
+          "summary": "What you can build now.",
+          "usage": "!buildable",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "use",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.use_pending"
+          },
+          "slash_common": false,
+          "summary": "Use a consumable item.",
+          "usage": "!use",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cook",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.cook_pending"
+          },
+          "slash_common": false,
+          "summary": "Cook fish at a campfire.",
+          "usage": "!cook",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "equip",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.equip_pending"
+          },
+          "slash_common": false,
+          "summary": "Equip a tool or gear piece.",
+          "usage": "!equip",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "unequip",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.unequip_pending"
+          },
+          "slash_common": false,
+          "summary": "Unequip a gear slot.",
+          "usage": "!unequip",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "gear",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.gear_pending"
+          },
+          "slash_common": false,
+          "summary": "Your equipped gear.",
+          "usage": "!gear",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "loadouts"
+          ],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "loadout",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.loadout_pending"
+          },
+          "slash_common": false,
+          "summary": "Gear loadout presets.",
+          "usage": "!loadout",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "profile",
+            "char"
+          ],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "character",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.character_pending"
+          },
+          "slash_common": false,
+          "summary": "Your character sheet.",
+          "usage": "!character",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "descend",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.descend_pending"
+          },
+          "slash_common": false,
+          "summary": "Descend to a deeper mining band.",
+          "usage": "!descend",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ascend",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.ascend_pending"
+          },
+          "slash_common": false,
+          "summary": "Return toward the surface.",
+          "usage": "!ascend",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "mineworld",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.mineworld_pending"
+          },
+          "slash_common": false,
+          "summary": "The shared mining world grid.",
+          "usage": "!mineworld",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "vault",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.vault_pending"
+          },
+          "slash_common": false,
+          "summary": "Your vault.",
+          "usage": "!vault",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "stash",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.stash_pending"
+          },
+          "slash_common": false,
+          "summary": "Stash resources in the vault.",
+          "usage": "!stash",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "unstash",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.unstash_pending"
+          },
+          "slash_common": false,
+          "summary": "Withdraw from the vault.",
+          "usage": "!unstash",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "vaultupgrade",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.vaultupgrade_pending"
+          },
+          "slash_common": false,
+          "summary": "Upgrade vault capacity.",
+          "usage": "!vaultupgrade",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "skills",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.skills_pending"
+          },
+          "slash_common": false,
+          "summary": "Your skill tree.",
+          "usage": "!skills",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "skill",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.skill_pending"
+          },
+          "slash_common": false,
+          "summary": "Spend a skill point.",
+          "usage": "!skill",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "titles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.titles_pending"
+          },
+          "slash_common": false,
+          "summary": "Your earned titles.",
+          "usage": "!titles",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "forge",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.forge_pending"
+          },
+          "slash_common": false,
+          "summary": "The forge.",
+          "usage": "!forge",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "home",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.home_pending"
+          },
+          "slash_common": false,
+          "summary": "Your home structure.",
+          "usage": "!home",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "workshop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.workshop_pending"
+          },
+          "slash_common": false,
+          "summary": "The repair workshop.",
+          "usage": "!workshop",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "repair",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.repair_pending"
+          },
+          "slash_common": false,
+          "summary": "Repair worn gear.",
+          "usage": "!repair",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "quickcraft",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.quickcraft_pending"
+          },
+          "slash_common": false,
+          "summary": "Craft the best available recipe.",
+          "usage": "!quickcraft",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "reset_inventory",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.reset_inventory_pending"
+          },
+          "slash_common": false,
+          "summary": "Admin: reset a mining inventory.",
+          "usage": "!reset_inventory",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "mining",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "mining_mine",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⛏️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.mine_route"
+              },
+              "label": "Mine",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mining_chop",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪓",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.chop_route"
+              },
+              "label": "Chop",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mining_explore",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧭",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.explore_route"
+              },
+              "label": "Explore",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mining_sell_all",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "💰",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.sellall_route"
+              },
+              "label": "Sell All",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Dig for ore, chop wood, explore — then sell your haul at the market. Deeper bands hold richer ore."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "mining_mine",
+                    "mining_chop",
+                    "mining_explore",
+                    "mining_sell_all"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.world"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "⛏️ Mining",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_inventory"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_inventory",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community",
+            "inventory"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_inventory",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_state"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_player_state",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_player_state",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },

@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.91%** tier-1/2 over 446 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.54%** tier-1/2 over 545 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -119,6 +119,28 @@ Cumulative fit: **89.91%** tier-1/2 over 446 units (spike line: 85.26% / 95 unit
 | 6 | rps_tournament | op | solo/PvP/tournament lanes | 7 | 2 | K7 CompoundOpSpecs; second throw settles in the same txn |
 | 6 | rps_tournament | engine | rules tables | 1 | 2 | closed alias/win-condition data, shipped verbatim |
 | 6 | rps_tournament | setting | entry fee/mode/best_of | 3 | 2 | SettingSpec rows (in-memory shipped settings made durable) |
+| 6 | farm | command | farm | 1 | 2 | CommandSpec routing the farm hub (shipped single-command surface) |
+| 6 | farm | panel | farm.hub | 1 | 2 | collect/buy-hen/upgrade-coop/refresh actions over the K7 lanes |
+| 6 | farm | store | chicken_farm | 1 | 2 | StoreSpec, shipped shape (BIGINT epochs), MEMBER_ID erasure |
+| 6 | farm | op | collect/buy_chicken/upgrade_coop | 3 | 2 | K7 money lanes w/ shipped copy + settle-at-old-flock subtlety |
+| 6 | farm | engine | idle core (settle/pricing) | 1 | 3 | pure shipped math verbatim (core.py) — justified code by design |
+| 6 | creature | command | creature family (7 shipped) | 7 | 2 | CommandSpec rows verbatim (catch/dex/dextop/cbrecord/… ) |
+| 6 | creature | panel | creature.hub | 1 | 2 | catch/dex/top actions, RESULT_CARD views |
+| 6 | creature | store | collection_log + battle_record | 2 | 2 | StoreSpec x2, shipped shapes, MEMBER_ID erasure |
+| 6 | creature | op | catch + record_battle_result | 2 | 2 | K7 lanes (fled writes NOTHING; battle RECORD lane live) |
+| 6 | creature | engine | catalog + catch roll | 1 | 3 | creatures.json byte-identical + injectable-rng roll — justified |
+| 6 | mining | command | FULL 37-command shipped surface | 37 | 2 | CommandSpec rows verbatim; 27 deep-system commands = honest pending terminals riding the D-0043 successor port |
+| 6 | mining | panel | mining.hub | 1 | 2 | mine/chop/explore/sell-all actions over the K7 lanes |
+| 6 | mining | store | mining_inventory + player_state | 2 | 2 | StoreSpec x2 (TEXT user ids kept, +guild_id col) |
+| 6 | mining | op | mine/harvest/explore/sell/sell_all/buy | 6 | 2 | K7 lanes; ledger rows + game-XP emits in one leg each |
+| 6 | mining | engine | rewards + market tables | 2 | 3 | shipped reward math verbatim (legacy pickaxe path) + GEAR_SHOP/RESOURCE value data — justified code |
+| 6 | mining | engine | extra-inventory-source fill | 1 | 3 | the D-0032 waiting-port body (mining_inventory -> !inventory) |
+| 6 | fishing | command | FULL 20-command shipped surface | 20 | 2 | CommandSpec rows verbatim; 15 gear/venue/craft/structure commands = honest pending terminals (D-0043) |
+| 6 | fishing | panel | fishing.hub | 1 | 2 | cast/log/trophies actions, RESULT_CARD views |
+| 6 | fishing | store | fishing_catch_log | 1 | 2 | StoreSpec, shipped shape, MEMBER_ID erasure |
+| 6 | fishing | op | fishing.cast | 1 | 2 | K7 lane — dex upsert + pearl + fish->mining_inventory + xp in ONE leg (starter profile) |
+| 6 | fishing | engine | catalog + weight bands | 1 | 3 | fish.json (32 species = 21 shore + 11 deepwater) + weight roll — justified code |
+| 6 | games | engine | band-6 rank providers | 6 | 3 | mining/creatures/fishing/farm/gamexp/crafting RankProviders w/ shipped alias rows (registry pattern, band-4 precedent) |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -126,4 +148,4 @@ Per band:
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
-- band 6: 91.67% (44/48)
+- band 6: 89.12% (131/147)

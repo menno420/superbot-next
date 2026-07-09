@@ -106,13 +106,29 @@ def world_hub_spec() -> PanelSpec:
         ),
         actions=(
             PanelActionSpec(
+                action_id="world_mine", label="Mine", emoji="⛏️",
+                audience_tier="user", handler=PanelRef("mining.hub")),
+            PanelActionSpec(
+                action_id="world_fish", label="Fish", emoji="🎣",
+                audience_tier="user", handler=PanelRef("fishing.hub")),
+            PanelActionSpec(
+                action_id="world_farm", label="Farm", emoji="🐔",
+                audience_tier="user", handler=PanelRef("farm.hub")),
+            PanelActionSpec(
+                action_id="world_creatures", label="Creatures",
+                emoji="🐾", audience_tier="user",
+                handler=PanelRef("creature.hub")),
+            PanelActionSpec(
                 action_id="world_card", label="My World Card", emoji="🪪",
                 audience_tier="user",
                 handler=HandlerRef("games.world_card_view"),
                 result_render=ResultRender.RESULT_CARD),
         ),
         navigation=NavigationSpec(parent=PanelRef("games.hub")),
-        layout=LayoutSpec(pages=(PageSpec(rows=(("world_card",),)),)),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("world_mine", "world_fish", "world_farm",
+             "world_creatures"),
+            ("world_card",),)),)),
     )
 
 

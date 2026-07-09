@@ -1,76 +1,42 @@
 {
  "entries": {
-  "games:games.world:LayoutSpec.pages": {
-   "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
-   },
-   "value": [
-    {
-     "rows": [
-      [
-       "world_mine",
-       "world_fish",
-       "world_farm",
-       "world_creatures"
-      ],
-      [
-       "world_card"
-      ]
-     ]
-    }
-   ]
-  },
-  "games:games.world:PageSpec.rows": {
-   "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
-   },
-   "value": [
-    [
-     "world_mine",
-     "world_fish",
-     "world_farm",
-     "world_creatures"
-    ],
-    [
-     "world_card"
-    ]
-   ]
-  },
-  "games:games.world:PanelSpec.layout": {
-   "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
-   },
-   "value": {
-    "pages": [
-     {
-      "rows": [
-       [
-        "world_mine",
-        "world_fish",
-        "world_farm",
-        "world_creatures"
-       ],
-       [
-        "world_card"
-       ]
-      ]
-     }
-    ]
-   }
-  },
-  "games:games:CommandSpec.help_section_order": {
+  "creature:catch:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
-  "games:world:CommandSpec.help_section_order": {
+  "creature:cbattle:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
-  "games:worldcard:CommandSpec.help_section_order": {
+  "creature:cbattletop:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "creature:cbrecord:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "creature:creatures:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "creature:dex:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "creature:dextop:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -78,5 +44,5 @@
   }
  },
  "schema_version": 1,
- "subsystem": "games"
+ "subsystem": "creature"
 }
