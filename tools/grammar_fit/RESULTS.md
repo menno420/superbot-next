@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.54%** tier-1/2 over 545 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.48%** tier-1/2 over 580 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -141,6 +141,18 @@ Cumulative fit: **89.54%** tier-1/2 over 545 units (spike line: 85.26% / 95 unit
 | 6 | fishing | op | fishing.cast | 1 | 2 | K7 lane — dex upsert + pearl + fish->mining_inventory + xp in ONE leg (starter profile) |
 | 6 | fishing | engine | catalog + weight bands | 1 | 3 | fish.json (32 species = 21 shore + 11 deepwater) + weight roll — justified code |
 | 6 | games | engine | band-6 rank providers | 6 | 3 | mining/creatures/fishing/farm/gamexp/crafting RankProviders w/ shipped alias rows (registry pattern, band-4 precedent) |
+| 6 | counting | command | shipped 10-command surface | 10 | 2 | CommandSpec rows verbatim (countingmenu/cm ... toggle_reset_on_wrong_count/trwc) |
+| 6 | counting | panel | counting.hub | 1 | 2 | the shipped _CountingHubView declarative: no-arg-mode ENUM selector + toggles/reset/disable + read views |
+| 6 | counting | store | counting_state | 1 | 2 | StoreSpec, shipped one-JSONB-row-per-guild shape; MEMBER_ID scrub erasure (per-user tallies inside the blob) |
+| 6 | counting | op | record_count/enable/disable/reset/toggle/set_skip | 6 | 2 | K7 lanes; the leg txn IS the shipped per-channel scope_lock |
+| 6 | counting | engine | parser pipeline (constants+parsing+game_logic) | 1 | 3 | pure shipped modules verbatim (words/emoji/roman/AST math) — justified code by design |
+| 6 | counting | engine | V/M/A decision core | 1 | 3 | compute_decision headless (state-in/decision-out; the feed applies Discord side-effects) |
+| 6 | counting | engine | CountingProvider | 1 | 3 | rank-provider rows (countlb aliases) over the state blob totals fold |
+| 6 | chain | command | chain group + chainmenu | 7 | 2 | CommandSpec rows verbatim (chain create/delete/setlimit/removelimit/list via CommandSpec.group) |
+| 6 | chain | panel | chain.hub | 1 | 2 | the shipped _ChainMenuView declarative: four G-10 modals (channel-blank-= -current fields) + List |
+| 6 | chain | store | chain_channels | 1 | 2 | StoreSpec, shipped one-row-per-channel shape (DataClass.NONE) |
+| 6 | chain | op | create/delete/set_limit/record_progress | 4 | 2 | K7 lanes = the shipped RS07 canonical-writer semantics (create preserves a limit-only row's limit; no-change skips) |
+| 6 | chain | engine | message rule core | 1 | 3 | check_message headless (allowed word + word cap + the shipped warning copy) |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -148,4 +160,4 @@ Per band:
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
-- band 6: 89.12% (131/147)
+- band 6: 89.01% (162/182)
