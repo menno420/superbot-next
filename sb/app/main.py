@@ -247,9 +247,13 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             detail = repr(exc) if exc is not None else "bind timeout"
             return _fail_startup("health_bind", [detail])
 
-        # 7. build_runtime — the snapshot-realized dispatch index (leg B arm)
-        #    + the LIVE manifest imports and their settings registration.
-        from sb.app.build_runtime import build_runtime
+        # 7. build_runtime — the snapshot realization ARMS leg B; DISPATCH
+        #    resolves on the LIVE manifest spec objects (routes intact) via
+        #    install_live_target_index, installed after it so the live
+        #    lookup wins the port (the D-0028(2) follow-up: dispatching on
+        #    the snapshot projection strands every command in a
+        #    "no routable ref" user_error — band-1 live-exercise finding).
+        from sb.app.build_runtime import build_runtime, install_live_target_index
         from sb.domain.settings.service import (
             install_platform_state_store,
             install_read_ports,
@@ -258,6 +262,8 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         runtime = build_runtime(committed)
         manifests = load_live_manifests()
+        index_size = install_live_target_index(manifests)
+        logger.info("live dispatch index installed: %d target(s)", index_size)
         for manifest in manifests:
             try:
                 register_manifest_settings(manifest)
