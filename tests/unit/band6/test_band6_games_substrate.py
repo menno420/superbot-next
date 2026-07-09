@@ -267,3 +267,15 @@ def test_world_card_text(fake_games_store):
                         action="depth_record", now=1_000_000))
     text = run(service.world_card_text(P1, GID))
     assert "World level" in text and "Mining" in text and "25" in text
+
+
+def test_world_card_view_handler_reply_shape(fake_games_store):
+    # resolve.py's HandlerRef leg requires the Reply duck-shape
+    # (.outcome/.user_message); a raw dict AttributeErrors live !worldcard.
+    from sb.domain.games import service
+    from sb.spec.outcomes import SUCCESS
+
+    req = SimpleNamespace(actor=SimpleNamespace(user_id=P1), guild_id=GID)
+    reply = run(service._world_card_view(req))
+    assert reply.outcome == SUCCESS
+    assert "World level" in reply.user_message
