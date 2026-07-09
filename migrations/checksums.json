@@ -14,5 +14,6 @@
   "0013_treasury.sql": "sha256:6eccc4c517fa10fd6a53238ef1f8ccf936fbc8a7af7f5acbf1661776925dce9f",
   "0014_xp.sql": "sha256:beec8b6211b50b5170761bc6ad990aa81fea8a1911f13395bcb015b02c01eecf",
   "0015_karma.sql": "sha256:07b4e3831b05cc4b7cadc73815f1c6aaba5f02c89af7c6b2058fddc1f4d90dfc",
-  "0016_governance.sql": "sha256:9c5f58bc6ee4edb1130d4fb197021aaa65b8e5d2206abf63acfa9a798f7627b7"
+  "0016_governance.sql": "sha256:9c5f58bc6ee4edb1130d4fb197021aaa65b8e5d2206abf63acfa9a798f7627b7",
+  "0017_roles.sql": "sha256:1d761ebaf4efb9285e665671c351462b97cf261813485b418a4fbe33fbd1ff9b"
 }

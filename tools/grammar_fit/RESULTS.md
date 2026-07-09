@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **90.80%** tier-1/2 over 326 units (spike line: 85.26% / 95 units).
+Cumulative fit: **90.40%** tier-1/2 over 375 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -82,10 +82,18 @@ Cumulative fit: **90.80%** tier-1/2 over 326 units (spike line: 85.26% / 95 unit
 | 5 | governance | engine | scope-chain resolver + TTL override cache | 2 | 3 | resolve_visibility/resolve_execution verbatim; the chain walk and staleness bounds are runtime semantics no grammar expresses |
 | 5 | governance | engine | subsystem registry data + tier taxonomy | 2 | 2 | SUBSYSTEM_META 43 rows + PermissionTier metadata = declared data |
 | 5 | governance | engine | port fills (K6 override/role-binding, K8 visibility) | 3 | 3 | install_authority_ports — the S7/S9 waiting-port bodies |
+| 5 | role | command | role commands + aliases | 17 | 1 | CommandSpec verbatim (roles/setrole/reactroles/temprole family) |
+| 5 | role | panel | role.hub (7 shipped buttons, ids pinned) | 1 | 2 | PanelSpec + custom_id_override role:create…role:exemptions |
+| 5 | role | setting | role settings slice | 4 | 2 | SettingSpec x4 (skip_roles + the two stack toggles + rr enable) |
+| 5 | role | store | role stores | 8 | 2 | StoreSpec x8 (thresholds/reaction/modes/menus/options/grants/pickup/exemptions) + 0017 |
+| 5 | role | op | role K7 lanes | 12 | 2 | CompoundOpSpec x12 incl. the grant EFFECT+compensator pair |
+| 5 | role | task | role:grants_expiry | 1 | 2 | ManagedTaskSpec (A-8 consumer; shipped 5-min loop as Interval) |
+| 5 | role | engine | time/XP planners + feasibility + apply | 4 | 3 | compute_assignments/plan_level_role_assignments/evaluate_role/classified apply — pure decision cores verbatim |
+| 5 | role | engine | reaction runtime + xp-port fill | 2 | 3 | handle_reaction_add/remove modes; install_xp_ports fills the D-0031/D-0036 level-role granter |
 
 Per band:
 - band 1: 45.45% (5/11)
 - band 2: 99.41% (169/170)
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
-- band 5: 79.17% (19/24)
+- band 5: 84.93% (62/73)

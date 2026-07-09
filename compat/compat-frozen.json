@@ -433,6 +433,97 @@
     "name": "warnings"
    }
   ],
+  "role": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "assignroles"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "createrole"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "debugroles"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "deleterole"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "listreactroles"
+   },
+   {
+    "aliases": [
+     "reaktionsrollen"
+    ],
+    "group": "",
+    "name": "reactroles"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "refreshmembers"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "removereactrole"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rolecreator"
+   },
+   {
+    "aliases": [
+     "ri"
+    ],
+    "group": "",
+    "name": "roleinfo"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rolemenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "roles"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rolesettings"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setrole"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "temprole"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "temproles"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "unsetrole"
+   }
+  ],
   "security": [
    {
     "aliases": [],
@@ -648,6 +739,13 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
+  "role:create",
+  "role:diagnostics",
+  "role:exemptions",
+  "role:manage",
+  "role:reaction",
+  "role:time",
+  "role:xp",
   "treasury.contribute_form",
   "xp.givexp_form",
   "xp.resetxp_form"
@@ -671,6 +769,7 @@
   "leaderboard",
   "logging",
   "moderation",
+  "role",
   "security",
   "server_management",
   "settings",
