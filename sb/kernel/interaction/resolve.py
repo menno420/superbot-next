@@ -137,6 +137,23 @@ def _routable_ref(req: ResolveRequest):
             or getattr(spec, "on_select", None))
 
 
+def _op_confirmation(route) -> object | None:
+    """The op's own ConfirmationSpec for WorkflowRef routes. CommandSpec
+    carries no confirm field ([S]-pinned), so without this read a
+    confirmation-fenced op behind a command (moderation.kick, §2.7) never
+    reached the interactive confirm gate — every dispatch dead-ended in the
+    engine's HEADLESS backstop refusal (band-2 finding, D-0052)."""
+    if not isinstance(route, WorkflowRef):
+        return None
+    from sb.kernel.workflow.registry import REGISTRY
+
+    try:
+        spec = REGISTRY.resolve(route)
+    except Exception:  # noqa: BLE001 — not a registered op => no confirm
+        return None
+    return getattr(spec, "confirmation", None)
+
+
 def _result(req: ResolveRequest, *, outcome: str, reason: DenialReason,
             error_class: ErrorClass, retryable: bool, visibility: ReplyVisibility,
             user_message: str | None, workflow=None, audit_emitted=False) -> Result:
@@ -309,7 +326,9 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
                             reason=DenialReason.ALLOWED, note="modal-issued")
         return result
     workflow_result = None
-    confirm = _spec_field(req, "confirm", None) or _spec_field(req, "confirmation", None)
+    confirm = (_spec_field(req, "confirm", None)
+               or _spec_field(req, "confirmation", None)
+               or _op_confirmation(_routable_ref(req)))
     if confirm is not None and not req.confirmed:
         prompt = ConfirmPrompt(
             target_key=req.target.key, request_id=req.request_id,

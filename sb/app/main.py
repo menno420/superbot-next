@@ -14,15 +14,20 @@ Test-mode postures (this root boots container-only on the test-bot token):
     provider needs no key) — install_ai_platform() arms the readers only.
   - Privileged intents DEGRADE, never refuse: absent ``SB_INTENT_*_OK``
     yields DegradedCapability markers, read BEFORE any message-band
-    capability registration (none is armed in this root — the message-feed
-    consumers are the ledgered live-adapter successors, report §4.2).
-  - Boot-gate leg C runs COMPARE-ONLY (``sync_enabled=False`` +
-    an explicit drift log): the local app-command tree is EMPTY until the
-    app-command registration successor lands, and ``tree.sync()`` pushes
-    the TREE, not the snapshot — syncing here would erase the remote tree
-    instead of resolving REMOTE_LAG.
+    capability registration. The ONE message-band consumer this root arms
+    is the prefix-command feed (sb/adapters/discord/message_feed.py), and
+    only when the ``prefix`` class is NOT degraded; fuzzy/passive-hook/NL
+    feeds stay the ledgered successors (report §4.2).
+  - The local app-command tree is populated from the LIVE manifests
+    (sb/adapters/discord/command_tree.py). GLOBAL sync stays COMPARE-ONLY
+    (``sync_enabled=False`` + an explicit drift log): the remote GLOBAL
+    set is still the OLD bot's until CUT-3 and a global ``tree.sync()``
+    would replace it. The safe leg is the GUILD-scoped sync to the test
+    guild — armed only on ``SB_DATA_PLANE=test`` + the explicit
+    ``SB_APPCMD_SYNC_GUILD_ID`` opt-in (never touches the global set).
   - CUT-1 items deliberately NOT armed here: rotation schedule (owner flag
-    10), prod-attest custody (flag 4), live-adapter ports/NL shell (§4.2).
+    10), prod-attest custody (flag 4), NL shell/review-feed/role-proof-
+    channel action ports (§4.2).
 
 Shutdown: SIGTERM/SIGINT → request_shutdown → DRAINING (supervisor stops
 claiming) → explicit outbox drain ticks → SHUTTING_DOWN → gateway closed,
@@ -44,7 +49,8 @@ from pathlib import Path
 
 logger = logging.getLogger("sb.app.main")
 
-__all__ = ["ESCROW_RECOVERY_SUBSYSTEMS", "SUBSCRIBE_ROSTER", "cli", "run_app"]
+__all__ = ["ESCROW_RECOVERY_SUBSYSTEMS", "SUBSCRIBE_ROSTER", "cli",
+           "guild_sync_target", "run_app"]
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -94,6 +100,21 @@ def load_live_manifests() -> list[object]:
             manifests.append(manifest)
         manifests.extend(getattr(module, "MANIFESTS", ()) or ())
     return manifests
+
+
+def guild_sync_target(cfg: object) -> int | None:
+    """The guild id the app-command tree may GUILD-scope-sync to, or None.
+    Two gates, both explicit: the test data plane AND the opt-in env
+    (SB_APPCMD_SYNC_GUILD_ID) — the global command set is never synced by
+    this root (it is still the OLD bot's until CUT-3)."""
+    guild_id = getattr(cfg, "SB_APPCMD_SYNC_GUILD_ID", None)
+    if not guild_id:
+        return None
+    if str(getattr(cfg, "SB_DATA_PLANE", "") or "") != "test":
+        logger.warning("SB_APPCMD_SYNC_GUILD_ID set but SB_DATA_PLANE != test "
+                       "— guild sync NOT armed")
+        return None
+    return int(guild_id)
 
 
 def arm_subscribe_roster(bus: object) -> tuple[str, ...]:
@@ -313,6 +334,15 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         register_error_handlers(bot)
         install_channel_emitter(DiscordChannelEmitter(bot))
 
+        # 10b. the local app-command tree, from the SAME live manifests
+        #      dispatch resolves on (D-0050) — populated before connect;
+        #      whether anything syncs is step 13's gated decision.
+        from sb.adapters.discord import command_tree
+
+        tree_count = command_tree.register_app_commands(bot, manifests)
+        logger.info("app-command tree built: %d slash command(s) "
+                    "from the live manifests", tree_count)
+
         # 11. lifecycle STARTING (explicit intent record) → gateway connect.
         lifecycle.set_phase(lifecycle.Phase.STARTING, reason="composition root boot")
         try:
@@ -324,9 +354,9 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         # 12. RUNNING — /ready flips 200 (gateway up + RUNNING + DB up).
         lifecycle.set_phase(lifecycle.Phase.RUNNING, reason="gateway ready")
 
-        # 13. boot-gate leg C — compare-only in the test-mode root (module
-        #     docstring): sync stays off until app-command registration
-        #     populates the local tree; drift is logged, never fatal.
+        # 13. boot-gate leg C — GLOBAL sync stays compare-only in the
+        #     test-mode root (module docstring): the remote GLOBAL set is
+        #     the OLD bot's until CUT-3; drift is logged, never fatal.
         from sb.app.tree_sync import sync_remote
 
         outcome = await sync_remote(bot, committed, enabled=False)
@@ -337,17 +367,33 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             local = snapshot_command_paths(committed)
             remote = _remote_paths(await bot.tree.fetch_commands())
             logger.info(
-                "leg C compare-only (%s): %d snapshot slash paths, %d remote, "
-                "drift=%d (REMOTE_LAG expected until app-command registration)",
-                outcome.reason, len(local), len(remote),
+                "leg C compare-only (%s): %d snapshot slash paths, "
+                "%d local tree, %d remote GLOBAL, global drift=%d "
+                "(REMOTE_LAG stands until the CUT-3 global sync)",
+                outcome.reason, len(local), tree_count, len(remote),
                 len(local ^ remote))
         except Exception:  # noqa: BLE001 — leg C is non-fatal by contract
             logger.warning("leg C compare-only fetch failed (non-fatal)",
                            exc_info=True)
 
+        # 13b. the SAFE sync leg: GUILD-scoped, test plane + explicit
+        #      opt-in only (guild_sync_target) — writes the test guild's
+        #      command scope, never the global set. Non-fatal like leg C.
+        sync_guild_id = guild_sync_target(cfg)
+        if sync_guild_id is not None:
+            try:
+                synced = await command_tree.sync_guild_commands(
+                    bot, sync_guild_id)
+                logger.info("guild app-command sync: %d command(s) → guild "
+                            "%d: %s", len(synced), sync_guild_id,
+                            ", ".join(synced))
+            except Exception:  # noqa: BLE001 — opt-in test leg, never fatal
+                logger.warning("guild app-command sync failed (non-fatal)",
+                               exc_info=True)
+
         # 14. intent-degrade markers BEFORE capability registration (spec 14
-        #     §2.B): read the live set, latch the operator notice; the
-        #     degraded message-band capability classes are simply never
+        #     §2.B): read the live set, latch the operator notice; a
+        #     degraded message-band capability class is simply never
         #     registered in this root.
         from sb.kernel.platform_governance import emit_degrade_notices
 
@@ -356,6 +402,22 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             logger.info("intent DEGRADE: %s → %s not registered",
                         marker.intent, ", ".join(marker.degrades))
         emit_degrade_notices(markers)
+
+        # 14b. the message feed — the ONE armed message-band consumer
+        #      (prefix-command dispatch; report §4.2's other feeds stay
+        #      dormant successors). Registered AFTER the markers per spec
+        #      14 §2.B: a degraded ``prefix`` class means no registration.
+        degraded_classes = {cls for m in markers for cls in m.degrades}
+        if "prefix" in degraded_classes:
+            logger.info("message feed NOT armed: prefix class degraded "
+                        "(message_content unapproved)")
+        else:
+            from sb.adapters.discord.message_feed import arm_message_feed
+
+            arm_message_feed(bot, prefix=str(cfg.BOT_PREFIX or "!"))
+            logger.info("message feed armed: prefix dispatch on %r "
+                        "(bot/self messages ignored; fuzzy/NL/passive "
+                        "feeds stay dormant)", str(cfg.BOT_PREFIX or "!"))
 
         # 15. the ONE PollSupervisor (outbox relay/reaper + durability lanes).
         from sb.app.poll_host import build_poll_supervisor
