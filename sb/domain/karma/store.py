@@ -140,18 +140,20 @@ async def grants_given_since(guild_id: int, from_user: int, since: datetime,
 # --- write primitives (K7 leg only — conn REQUIRED) ------------------------------------
 
 async def credit_karma(conn: Any, *, to_user: int, guild_id: int,
-                       amount: int) -> int:
-    """Upsert + RETURNING; GREATEST(0, …) floors the total (shipped)."""
+                       amount: int, now: datetime) -> int:
+    """Upsert + RETURNING; GREATEST(0, …) floors the total (shipped).
+    ``last_received`` stamps the caller's ctx.clock() — the ops-leg clock
+    seam (never DB NOW(); see ops._record_give)."""
     row = await fetchone(
         "INSERT INTO karma "
         "    (user_id, guild_id, karma_points, received_count, last_received) "
-        "VALUES ($1, $2, GREATEST(0, $3), 1, NOW()) "
+        "VALUES ($1, $2, GREATEST(0, $3), 1, $4) "
         "ON CONFLICT (user_id, guild_id) DO UPDATE SET "
         "    karma_points   = GREATEST(0, karma.karma_points + $3), "
         "    received_count = karma.received_count + 1, "
-        "    last_received  = NOW() "
+        "    last_received  = $4 "
         "RETURNING karma_points",
-        (to_user, guild_id, amount), conn=conn)
+        (to_user, guild_id, amount, now), conn=conn)
     return int(row["karma_points"]) if row else 0
 
 
@@ -167,15 +169,21 @@ async def increment_given(conn: Any, *, from_user: int,
 
 async def insert_karma_audit(conn: Any, *, guild_id: int, from_user: int,
                              to_user: int, delta: int, source: str,
-                             reason: str | None) -> str:
+                             reason: str | None,
+                             occurred_at: datetime) -> str:
     """Append one immutable row; returns the minted ``mutation_id`` (the
-    S14 ledger-reinsert conflict key)."""
+    S14 ledger-reinsert conflict key). ``occurred_at`` stamps the caller's
+    ctx.clock() so the anti-abuse window reads (recent_grant_count /
+    grants_given_since, both ``occurred_at >= ctx.clock()-window``) compare
+    against the clock the row was written with."""
     movement_id = str(uuid.uuid4())
     await execute(
         "INSERT INTO karma_audit_log "
-        "    (mutation_id, guild_id, from_user, to_user, delta, source, reason) "
-        "VALUES ($1, $2, $3, $4, $5, $6, $7)",
-        (movement_id, guild_id, from_user, to_user, delta, source, reason),
+        "    (mutation_id, guild_id, from_user, to_user, delta, source, "
+        "     reason, occurred_at) "
+        "VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+        (movement_id, guild_id, from_user, to_user, delta, source, reason,
+         occurred_at),
         conn=conn)
     return movement_id
 
