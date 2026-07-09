@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.63%** tier-1/2 over 656 units (spike line: 85.26% / 95 units).
+Cumulative fit: **90.00%** tier-1/2 over 700 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -179,6 +179,14 @@ Cumulative fit: **89.63%** tier-1/2 over 656 units (spike line: 85.26% / 95 unit
 | 7 | projmoon | engine | K10 registrations | 1 | 2 | projmoon.answer claimed byte-identical + probe order 110 + gatherer + verifier + floor + contract — registry rows |
 | 7 | projmoon | engine | MINTED 12-probe eval corpus | 1 | 2 | the A-17(d) mandate (oracle had NO projmoon corpus): 12 probes over the committed fixtures as EvalSuiteSpec data |
 | 7 | media | engine | video gatherer + probe + tasks | 1 | 2 | video.describe/compare/qa claimed byte-identical; URL probe confidences verbatim; gatherer = shipped short-circuit semantics over the install_video_metadata_reader port |
+| 7 | ai | command | ai group + aimenu + aireview group | 23 | 2 | CommandSpec rows verbatim (shipped !ai/!aireview surfaces incl. the preset add/from/list/remove family) |
+| 7 | ai | panel | ai.hub | 1 | 2 | the shipped !aimenu declarative (status/readiness/routing/diagnostics/review/providers read views) |
+| 7 | ai | store | ai_review_log + ai_answer_presets | 2 | 2 | StoreSpecs, shipped migrations 100/102 shapes; MEMBER_PII delete+detach erasure |
+| 7 | ai | setting | the 11 declared ai.* SettingSpecs | 11 | 2 | the shipped utils.settings_keys.ai vocabulary declared (band-1 fail-closed readers now resolve real declarations) |
+| 7 | ai | op | record/resolve review + set/remove preset | 4 | 2 | K7 lanes; the shipped audit.action_recorded emit folds into the K7 central audit row |
+| 7 | ai | engine | review registry + fail-safe writers | 1 | 3 | shipped bounded in-memory answer registry (ADR-001/002 process-local by design) + redact-before-store — justified code |
+| 7 | ai | engine | round-cash answer workflow | 1 | 3 | the shipped recognisers (range patterns/completion shift/ABR/modifier honesty) + inclusive-range evidence compute — the first register_answer_workflow runner |
+| 7 | ai | engine | K10 seams + profiles + tools | 1 | 2 | guild-policy overlay reader, preset short-circuit, 3 domain orchestration profiles, 8 BTD6 tool rows w/ real handlers, NL message shell + history scanner — ALL registry/port rows |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -187,4 +195,4 @@ Per band:
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
 - band 6: 88.06% (177/201)
-- band 7: 94.74% (54/57)
+- band 7: 95.05% (96/101)

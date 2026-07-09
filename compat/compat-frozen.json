@@ -43,6 +43,123 @@
     "name": "slashes"
    }
   ],
+  "ai": [
+   {
+    "aliases": [],
+    "group": "aireview.preset",
+    "name": "add"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ai"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "aimenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "aireview"
+   },
+   {
+    "aliases": [],
+    "group": "aireview",
+    "name": "channel"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "diagnostics"
+   },
+   {
+    "aliases": [],
+    "group": "aireview",
+    "name": "export"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "forget"
+   },
+   {
+    "aliases": [],
+    "group": "aireview.preset",
+    "name": "from"
+   },
+   {
+    "aliases": [],
+    "group": "aireview",
+    "name": "list"
+   },
+   {
+    "aliases": [],
+    "group": "aireview.preset",
+    "name": "list"
+   },
+   {
+    "aliases": [],
+    "group": "aireview",
+    "name": "off"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "policy"
+   },
+   {
+    "aliases": [],
+    "group": "aireview",
+    "name": "preset"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "providers"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "readiness"
+   },
+   {
+    "aliases": [],
+    "group": "aireview.preset",
+    "name": "remove"
+   },
+   {
+    "aliases": [],
+    "group": "aireview",
+    "name": "resolve"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "routing"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "settings"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "status"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "support-report"
+   },
+   {
+    "aliases": [],
+    "group": "ai",
+    "name": "why-no-response"
+   }
+  ],
   "automod": [
    {
     "aliases": [],
@@ -1688,6 +1805,7 @@
  "schema_version": 1,
  "subsystem_keys": [
   "admin",
+  "ai",
   "automod",
   "blackjack",
   "btd6",
