@@ -79,6 +79,21 @@ evidenced* by this session's from-version misreport — the same
 config-vs-dist mismatch, caught by neither tool. That idea should be
 promoted into the kit's checker suite.
 
+## Incident — born-red gate not armed under the OLD dist (PR #44 premature merge)
+
+PR #44 was opened born-red per convention with auto-merge armed — and merged
+65 seconds later containing *only* the session card: the required checks ran
+against the OLD pre-1.0 vendored dist, whose `check --strict` does **not**
+enforce the session-card markers, so nothing held the card red. The
+born-red convention was documented in `.sessions/README.md` but unenforced
+until this very upgrade lands (the v1.0.0 check gates markers + a completed
+Status badge — verified locally red-then-green this session). The actual
+upgrade ships as the follow-up PR #45 from the same branch, under the same
+scope. Lesson (superbot-next's local copy of the kit repo's #7 lesson):
+*arming auto-merge is only safe when the gate that holds the PR red is
+already enforced on main* — this was the last session where that was false
+here.
+
 ## ⚑ Flags
 
 - Self-initiated: committed `.substrate/backup/` (the rollback bank) rather
