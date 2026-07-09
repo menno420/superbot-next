@@ -60,8 +60,13 @@ credential, five steps:
 3. **Rotate** — `WORKER_ENV`: the durable one-shot (above). Others:
    synchronous re-issue + read-back in-fire under the same horizon guard.
 4. **Revoke** — kill the leaked copy via the row's `revocation_ref`
-   (closed vocabulary). Leaf revocation being agent-runnable needs the
-   CL-2 brake carve-out (owner-gated — see the question router).
+   (closed vocabulary). RULED (PR #30, CL-2, 2026-07-08; D-0033): the
+   Q-0213 brake is NARROWED for credential revocation only — the closed
+   `RevocationRef` set is agent-runnable during a compromise response;
+   resource/store DELETION stays ask-first, unchanged. Encode the
+   exception in `sb/kernel/credentials/rotation.py`'s RotationProvider
+   dispatch when CUT-1 installs a real provider (nothing executes today —
+   un-installed = loud FAILED+finding).
 5. **Post-mortem** — confirm prod healthy on new creds; the `verified`
    ledger row IS the `last_rotated_at` write; if supply-chain, remove/pin
    the dep + regenerate `requirements.lock` in the same PR.
@@ -76,15 +81,17 @@ stands: adopt → regenerate the lock in the same PR → the lock diff is the
 deferred-review artifact. CI: `check_lockfile_fresh` (static + `--regen`)
 and `pip-audit` over the resolved lock (`.github/workflows/ci.yml`).
 
-## Owner-gated (proposed, never self-applied — routed in the question router)
+## Owner-gated legs (CL-1/CL-2/CL-3 RULED 2026-07-08 via PR #30; CL-5b still open)
 
-- **CL-1** recovery arm at all (recommended: yes — recovery is orthogonal
-  to the Q-0213 concentration decision).
-- **CL-2** narrow the Q-0213 `*Delete` brake so credential REVOCATION (the
-  `RevocationRef` closed set) is agent-runnable recovery; resource deletion
-  stays ask-first.
-- **CL-3** lockfile + CI gates composing WITH adopt-freely (recommended:
-  built as-shipped; the lock diff is the deferred review).
+- **CL-1** recovery arm at all — RULED: keep the full arm as built
+  (PR #30, 2026-07-08; D-0033).
+- **CL-2** ~~narrow the Q-0213 `*Delete` brake~~ — RULED YES (PR #30,
+  2026-07-08): revocation over the closed `RevocationRef` set is
+  agent-runnable in a compromise response; resource deletion stays
+  ask-first (D-0033).
+- **CL-3** lockfile + CI gates composing WITH adopt-freely — RULED:
+  accepted as built; the lock diff is the deferred review (PR #30,
+  2026-07-08; D-0033).
 - **CL-5b** `SB_PROD_ATTEST` durable custody SOURCE (plain env vs sealed vs
   OIDC) — carried forward unresolved (SF-d); only its rotation ROW lives in
   the registry.

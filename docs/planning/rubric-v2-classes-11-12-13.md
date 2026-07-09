@@ -1,8 +1,11 @@
-# Rubric v2 — classes 11 / 12 / 13 (PROPOSAL — owner-gated, not self-applied)
+# Rubric v2 — classes 11 / 12 / 13 (ADOPTED)
 
-> **Status:** `plan` — a PROPOSAL awaiting owner adoption (S11, 2026-07-08). The review rubric is an owner-directed system
-> (Q-0233 froze the ten classes): these three classes + the precedence rule are **proposed
-> for adoption** (spec 10 T-1), never self-applied. Source of the full drop-in text:
+> **Status:** `binding` — ADOPTED: the owner adopted the three classes + the
+> 13>12>11 precedence AS-SHAPED via the S11 question-router block (PR #30,
+> 2026-07-08; ledgered in decisions.md). The review rubric is an owner-directed system
+> (Q-0233 froze the ten classes): these three classes + the precedence rule were
+> proposed (spec 10 T-1) and are now adopted — still never self-applied beyond
+> the adopted text. Source of the full drop-in text:
 > `superbot:docs/analysis/rebuild-discovery/foundations/design/strand-3-cross-cutting-concerns/10-security-abuse-rubric.md` §2.A.
 > The **checkable mechanics landed in THIS repo at S11** regardless of rubric adoption —
 > the lens is proposed; the fences are live.
