@@ -6422,6 +6422,9 @@
       "workflow:moderation.compensate_unban": {
         "module": "sb.domain.moderation.ops"
       },
+      "workflow:moderation.compensate_warn_escalation": {
+        "module": "sb.domain.moderation.ops"
+      },
       "workflow:moderation.kick": {
         "module": "sb.domain.moderation.ops"
       },
@@ -7051,7 +7054,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:1af05914913150558cf7de2c0e3d119420341ffe9f7d8c18e562a721e17dbfa2",
+  "stable_hash": "sha256:3df71931c0c030be2c59cd91182ccd99af7a686f3c6e6038f1d4cb6dbd6264c9",
   "subsystems": {
     "admin": {
       "capabilities": [],

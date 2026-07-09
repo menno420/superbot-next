@@ -30,7 +30,9 @@ __all__ = [
     "get_mod_logs",
     "get_warnings",
     "log_mod_action",
+    "set_warnings",
     "tombstone_subject_rows",
+    "withdraw_mod_log_rows",
 ]
 
 #: shipped display token, verbatim (services/moderation_service.py:93)
@@ -79,12 +81,40 @@ def _store_marker() -> str:
 async def log_mod_action(conn: Any, *, guild_id: int, action: str,
                          target_id: int, moderator_id: int,
                          reason: str = DEFAULT_REASON,
-                         at: _dt.datetime | None = None) -> None:
+                         at: _dt.datetime | None = None) -> int:
+    """Append one history row; returns its id — the warn-escalation
+    compensator needs the handle to withdraw rows whose Discord action
+    was then refused (ORDER 004 item 1)."""
     ts = at or _dt.datetime.now(tz=_dt.timezone.utc)
-    await execute(
+    row = await fetchone(
         "INSERT INTO mod_logs (timestamp, guild_id, action, target_id, "
-        "moderator_id, reason) VALUES ($1, $2, $3, $4, $5, $6)",
+        "moderator_id, reason) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
         (ts, guild_id, action, target_id, moderator_id, reason), conn=conn)
+    return int(row["id"]) if row else 0
+
+
+async def withdraw_mod_log_rows(conn: Any, *, ids: tuple[int, ...]) -> int:
+    """Delete specific history rows by id — ONLY for compensating rows
+    written in the same op whose EFFECT Discord refused (the rows claim an
+    action that never happened; the oracle never writes them at all)."""
+    if not ids:
+        return 0
+    rows = await fetchall(
+        "DELETE FROM mod_logs WHERE id = ANY($1::bigint[]) RETURNING id",
+        (list(ids),), conn=conn)
+    return len(rows)
+
+
+async def set_warnings(conn: Any, *, user_id: int, guild_id: int,
+                       count: int) -> None:
+    """Restore an exact warning count (compensator use; count<=0 deletes)."""
+    if count <= 0:
+        await clear_warnings(conn, user_id=user_id, guild_id=guild_id)
+        return
+    await execute(
+        "INSERT INTO warnings (user_id, guild_id, count) VALUES ($1, $2, $3) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET count = $3",
+        (user_id, guild_id, count), conn=conn)
 
 
 async def add_warning(conn: Any, *, user_id: int, guild_id: int) -> int:

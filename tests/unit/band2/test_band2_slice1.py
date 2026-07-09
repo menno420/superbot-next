@@ -79,7 +79,10 @@ def test_parse_target_and_reason_prefix_form():
 
 def test_warn_escalation_ladder(monkeypatch):
     """Threshold reached => escalation recorded + count reset IN the leg
-    (shipped WarnOutcome semantics), decision threaded to the EFFECT leg."""
+    (shipped WarnOutcome SUCCESS semantics), decision + compensation
+    handles threaded to the EFFECT leg. The oracle keeps these writes only
+    when the escalation ACTION applies — the Discord-refused path is
+    test_warn_escalation_blocked_compensates below (ORDER 004 item 1)."""
     from types import SimpleNamespace
 
     from sb.domain.moderation import ops, store
@@ -99,6 +102,7 @@ def test_warn_escalation_ladder(monkeypatch):
     async def fake_log(conn, *, guild_id, action, target_id, moderator_id,
                        reason, at=None):
         rows.append((action, target_id, reason))
+        return len(rows)                    # row id handle (RETURNING id)
 
     monkeypatch.setattr(store, "add_warning", fake_add_warning)
     monkeypatch.setattr(store, "clear_warnings", fake_clear)
@@ -118,9 +122,72 @@ def test_warn_escalation_ladder(monkeypatch):
     assert rows[2][2] == "Warnings cleared"
     assert ctx.params["_escalation"] == "timeout"
     assert ctx.params["_target_id"] == 900000000000000103
+    # the compensation handles for a Discord-refused escalation
+    assert ctx.params["_escalation_row_ids"] == (2, 3)
+    assert ctx.params["_pre_escalation_count"] == 3
     # shipped operator ack, line 1 (render_warn_outcome_lines verbatim)
     assert outcome.user_message == (
         "⚠️ <@900000000000000103> warned (3/3). Reason: spam")
+
+
+def test_warn_escalation_blocked_compensates(monkeypatch):
+    """ORACLE ALIGNMENT (disbot services/moderation_service.py warn,
+    discord.Forbidden branch): a Discord-refused escalation keeps the
+    warning COUNT and leaves NO escalation/"Warnings cleared" history rows
+    (WarnOutcome.escalation_blocked) — the compensator restores the count
+    and withdraws the two in-txn rows; the WARN op wires it (fork E)."""
+    import contextlib
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, store
+    from sb.kernel.db import pool
+    from sb.kernel.workflow.context import WorkflowContext
+    from sb.spec.refs import WorkflowRef
+
+    _register_declarations()
+    restored: list[tuple] = []
+    withdrawn: list[tuple] = []
+
+    async def fake_set_warnings(conn, *, user_id, guild_id, count):
+        restored.append((user_id, guild_id, count))
+
+    async def fake_withdraw(conn, *, ids):
+        withdrawn.append(tuple(ids))
+        return len(ids)
+
+    @contextlib.asynccontextmanager
+    async def fake_txn():
+        yield None
+
+    monkeypatch.setattr(store, "set_warnings", fake_set_warnings)
+    monkeypatch.setattr(store, "withdraw_mod_log_rows", fake_withdraw)
+    monkeypatch.setattr(pool, "transaction", fake_txn)
+
+    ctx = WorkflowContext(
+        actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+        request_id="r2", confirmed=False,
+        params={"_escalation": "timeout",
+                "_target_id": 900000000000000103,
+                "_pre_escalation_count": 3,
+                "_escalation_row_ids": (11, 12)})
+    out = asyncio.run(ops._compensate_warn_escalation(None, ctx))
+    assert restored == [(900000000000000103, 1, 3)]   # count KEPT (oracle)
+    assert withdrawn == [(11, 12)]                    # phantom rows gone
+    assert out.after["escalation_blocked"] == "timeout"
+
+    # no escalation due => the compensator is a no-op
+    ctx2 = WorkflowContext(
+        actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+        request_id="r3", confirmed=False, params={})
+    out2 = asyncio.run(ops._compensate_warn_escalation(None, ctx2))
+    assert out2.after == {"compensated": "nothing"}
+    assert restored == [(900000000000000103, 1, 3)]
+
+    # the WARN op declares the compensator on its EFFECT leg (fork E wiring)
+    effect = [leg for leg in ops.WARN.legs if leg.leg_id == "apply"][0]
+    assert effect.reversibility == "compensatable"
+    assert effect.compensator == WorkflowRef(
+        "moderation.compensate_warn_escalation")
 
 
 def test_timeout_record_leg_parses_duration(monkeypatch):
@@ -230,7 +297,10 @@ def test_op_reversibility_rollup_and_kick_confirmation():
     def rev(key: str) -> str:
         return REGISTRY.resolve(WorkflowRef(key)).reversibility
 
-    assert rev("moderation.warn") == "reversible"
+    # warn's effect leg declares its escalation compensator (ORDER 004
+    # item 1) — the rollup derives compensatable, ban's class; still no
+    # §2.7 confirm (only irreversible mints the fence).
+    assert rev("moderation.warn") == "compensatable"
     assert rev("moderation.ban") == "compensatable"
     assert rev("moderation.kick") == "irreversible"
     assert KICK.confirmation is not None            # the frozen §2.7 fence
