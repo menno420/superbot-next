@@ -7,7 +7,6 @@
     "soft_target_sessions": 50
   },
   "graduation_proposed": false,
-  "kit_version": "1.0.0",
   "last_compaction_session": 0,
   "mode": "guided",
   "mode_history": [],
@@ -27,27 +26,15 @@
       "source": "derived",
       "value": "docs"
     },
-    "primary_language": {
-      "question_id": "Q-003",
-      "source": "derived",
-      "value": "Python"
-    },
     "project_name": {
       "question_id": "Q-002",
       "source": "derived",
       "value": "superbot-next"
-    },
-    "verify_command": {
-      "question_id": "Q-005",
-      "source": "derived",
-      "value": "python3 -m pytest"
     }
   },
   "slots": {
     "doc_roots": "provisional",
-    "primary_language": "provisional",
-    "project_name": "provisional",
-    "verify_command": "provisional"
+    "project_name": "provisional"
   },
   "stage": "integration",
   "stance": "analysis",

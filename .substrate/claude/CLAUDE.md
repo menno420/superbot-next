@@ -14,7 +14,7 @@
 
 ## What this project is
 
-superbot-next is built in ${primary_language}.
+superbot-next is built in Python.
 
 ## Orientation — read first, in order
 
@@ -31,7 +31,7 @@ ${architecture_layers}
 Run before every push:
 
 ```
-${verify_command}
+python3 -m pytest
 ```
 
 ## How the maintainer works
