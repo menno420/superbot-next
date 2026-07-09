@@ -34,8 +34,10 @@ from __future__ import annotations
 
 import logging
 
+from sb.adapters.discord import confirm_view as confirm_view_mod
 from sb.adapters.discord.responders import InteractionResponder
-from sb.kernel.interaction.adapters.component import dispatch_component
+from sb.kernel.interaction.adapters.component import CONFIRM_PREFIX, dispatch_component
+from sb.kernel.interaction.adapters.modal import dispatch_modal
 from sb.kernel.interaction.errors import from_exception
 from sb.kernel.interaction.request import Surface
 from sb.kernel.panels.engine import may_interact, session_for
@@ -44,21 +46,39 @@ logger = logging.getLogger("sb.adapters.discord.component_feed")
 
 __all__ = [
     "COMPONENT_INTERACTION_TYPE",
+    "MODAL_SUBMIT_INTERACTION_TYPE",
     "arm_component_feed",
     "handle_component_interaction",
+    "handle_confirm_modal_submit",
     "is_component_interaction",
+    "is_confirm_modal_submit",
 ]
 
 #: Discord wire value for ``InteractionType.component`` (buttons + selects).
 COMPONENT_INTERACTION_TYPE = 3
+#: Discord wire value for ``InteractionType.modal_submit``. Only the S9b
+#: CONFIRM capture modal (custom_id ``sb.confirm:``) is consumed here —
+#: general G-10 panel modals stay the ledgered dormant successor.
+MODAL_SUBMIT_INTERACTION_TYPE = 5
 
 
 def is_component_interaction(interaction: object) -> bool:
     """True only for the component band (wire type 3). Application commands
-    (2) belong to the command tree; autocomplete (4) and modal submits (5)
-    stay dormant successors — never consumed here."""
+    (2) belong to the command tree; autocomplete (4) stays a dormant
+    successor; modal submits (5) are consumed ONLY for the confirm capture
+    (``is_confirm_modal_submit``) — never consumed here."""
     itype = getattr(interaction, "type", None)
     return getattr(itype, "value", itype) == COMPONENT_INTERACTION_TYPE
+
+
+def is_confirm_modal_submit(interaction: object) -> bool:
+    """True only for the S9b confirm capture modal's submit: wire type 5
+    AND the fixed ``sb.confirm:`` custom_id. Any other modal submit is left
+    alone (G-10 panel modals stay dormant until their own feed arms)."""
+    itype = getattr(interaction, "type", None)
+    if getattr(itype, "value", itype) != MODAL_SUBMIT_INTERACTION_TYPE:
+        return False
+    return _custom_id(interaction).startswith(CONFIRM_PREFIX)
 
 
 def _custom_id(interaction: object) -> str:
@@ -82,6 +102,21 @@ async def handle_component_interaction(interaction: object) -> object | None:
         # the live view's interaction_check owns the denial copy — one
         # response per click, never two racing writers.
         return None
+    custom_id = _custom_id(interaction)
+    if custom_id.startswith(confirm_view_mod.CONFIRM_OPEN_PREFIX):
+        # a typed-challenge Confirm click: answer WITH the capture modal
+        # (presentation mechanics — the modal's SUBMIT is the confirmed
+        # re-entry; this click never dispatches).
+        rest = custom_id[len(confirm_view_mod.CONFIRM_OPEN_PREFIX):]
+        target_key, _, request_id = rest.rpartition(":")
+        try:
+            await interaction.response.send_modal(
+                confirm_view_mod.build_confirm_modal(target_key or rest,
+                                                     request_id or ""))
+        except Exception:  # noqa: BLE001
+            logger.warning("component feed: confirm modal open failed on %r",
+                           custom_id, exc_info=True)
+        return None
     responder = InteractionResponder(interaction, surface=Surface.COMPONENT)
     try:
         return await dispatch_component(interaction, responder=responder)
@@ -97,12 +132,65 @@ async def handle_component_interaction(interaction: object) -> object | None:
         return None
 
 
+async def handle_confirm_modal_submit(interaction: object) -> object | None:
+    """The S9b typed-challenge capture submit: check the typed phrase, then
+    re-enter through the MODAL adapter (surface=MODAL, ``confirmed=True``
+    parsed from the ``sb.confirm:`` custom_id; the resolver restores the
+    stashed command args). A wrong phrase declines politely — no dispatch.
+    Never raises — a fault renders the K8 error envelope."""
+    if not is_confirm_modal_submit(interaction):
+        return None
+    custom_id = _custom_id(interaction)
+    rest = custom_id[len(CONFIRM_PREFIX):]
+    target_key, _, _ = rest.rpartition(":")
+    typed = _modal_field_value(interaction, "typed_value")
+    responder = InteractionResponder(interaction, surface=Surface.MODAL)
+    try:
+        if not confirm_view_mod.phrase_matches(target_key or rest, typed):
+            await responder.deny(
+                "That didn't match — nothing was done.", ephemeral=True)
+            return None
+        return await dispatch_modal(interaction, responder=responder)
+    except Exception as exc:  # noqa: BLE001 — the feed never breaks the event loop
+        envelope = from_exception(exc, surface=Surface.MODAL, target=None)
+        try:
+            if not responder.is_acked():
+                await responder.deny(envelope.user_message, ephemeral=True)
+        except Exception:  # noqa: BLE001
+            logger.warning("confirm modal feed: error render failed",
+                           exc_info=True)
+        logger.warning("confirm modal feed: dispatch fault on %r", custom_id,
+                       exc_info=True)
+        return None
+
+
+def _modal_field_value(interaction: object, field_id: str) -> object:
+    data = getattr(interaction, "data", None) or {}
+    rows = (data.get("components") if isinstance(data, dict)
+            else getattr(data, "components", None)) or ()
+    for row in rows:
+        inner = (row.get("components") if isinstance(row, dict)
+                 else getattr(row, "components", None)) or ()
+        for comp in inner:
+            cid = (comp.get("custom_id") if isinstance(comp, dict)
+                   else getattr(comp, "custom_id", None))
+            if str(cid) == field_id:
+                return (comp.get("value") if isinstance(comp, dict)
+                        else getattr(comp, "value", None))
+    return None
+
+
 def arm_component_feed(bot: object) -> None:
     """Register the on_interaction listener (``bot.add_listener`` —
     additive, never replaces the Bot's own event). No intent gate: the
-    interaction band needs no privileged intent (unlike the message feed)."""
+    interaction band needs no privileged intent (unlike the message feed).
+    Carries the component band (wire 3) AND the one confirm-capture modal
+    submit (wire 5, ``sb.confirm:`` only)."""
 
     async def on_interaction(interaction: object) -> None:
+        if is_confirm_modal_submit(interaction):
+            await handle_confirm_modal_submit(interaction)
+            return
         await handle_component_interaction(interaction)
 
     bot.add_listener(on_interaction, "on_interaction")

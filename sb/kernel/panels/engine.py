@@ -39,6 +39,7 @@ __all__ = [
     "install_panel_presenter",
     "may_interact",
     "open_panel",
+    "register_confirm_session",
     "reset_panel_engine_for_tests",
     "session_for",
 ]
@@ -100,6 +101,19 @@ def _store_session(message_key: str, session: PanelSession) -> None:
     _sessions[message_key] = session
     while len(_sessions) > _SESSIONS_MAX:
         _sessions.pop(next(iter(_sessions)))
+
+
+def register_confirm_session(message_key: str, *, invoker_id: int | None,
+                             timeout_s: int | None) -> None:
+    """Invoker-lock a CONFIRM surface message (02 §3.2 — the confirm view is
+    a session-scoped kernel view): the live component feed mirrors
+    ``may_interact`` for every component click, so registering the confirm
+    message here locks BOTH the view path and the feed path through the one
+    seam. panel_id is the reserved confirm surface marker, not a registry
+    panel."""
+    _store_session(message_key, PanelSession(
+        panel_id="sb.confirm", invoker_id=invoker_id, audience="invoker",
+        timeout_s=timeout_s))
 
 
 def may_interact(session: PanelSession | None, user_id: int | None) -> bool:

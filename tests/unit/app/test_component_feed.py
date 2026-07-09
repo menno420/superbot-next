@@ -141,6 +141,116 @@ class TestHandleComponentInteraction:
         assert acked == [True] and not interaction.response.sent
 
 
+def _modal_submit(custom_id: str, typed: str | None, *, type_value: int = 5):
+    itype = SimpleNamespace(value=type_value)
+    rows = []
+    if typed is not None:
+        rows = [{"components": [{"custom_id": "typed_value", "value": typed}]}]
+    return SimpleNamespace(
+        id=556,
+        type=itype,
+        data={"custom_id": custom_id, "components": rows},
+        user=SimpleNamespace(id=42),
+        guild=SimpleNamespace(id=7, owner_id=42),
+        channel_id=9,
+        message=None,
+        response=_FakeResponse(),
+    )
+
+
+class TestConfirmOpenClick:
+    """A typed-challenge Confirm click (sb.confirm.open:) answers WITH the
+    capture modal — presentation mechanics, never a dispatch."""
+
+    def test_open_click_sends_the_capture_modal(self, monkeypatch):
+        dispatched = []
+        monkeypatch.setattr(component_feed, "dispatch_component",
+                            lambda *a, **k: dispatched.append(1))
+        built = []
+        monkeypatch.setattr(
+            component_feed.confirm_view_mod, "build_confirm_modal",
+            lambda target_key, request_id: built.append(
+                (target_key, request_id)) or "MODAL")
+        sent = []
+
+        interaction = _interaction("sb.confirm.open:kick:rid-7")
+
+        async def send_modal(modal):
+            sent.append(modal)
+
+        interaction.response.send_modal = send_modal
+        assert run(component_feed.handle_component_interaction(interaction)) is None
+        assert built == [("kick", "rid-7")]
+        assert sent == ["MODAL"]
+        assert not dispatched
+
+    def test_open_click_respects_the_invoker_lock(self, monkeypatch):
+        built = []
+        monkeypatch.setattr(
+            component_feed.confirm_view_mod, "build_confirm_modal",
+            lambda *a: built.append(a))
+        session = PanelSession(panel_id="sb.confirm", invoker_id=1,
+                               audience="invoker")
+        monkeypatch.setattr(component_feed, "session_for",
+                            lambda key: session if key == "1001" else None)
+        interaction = _interaction("sb.confirm.open:kick:rid-7", user_id=42)
+        assert run(component_feed.handle_component_interaction(interaction)) is None
+        assert not built
+
+
+class TestConfirmModalSubmit:
+    def test_only_confirm_modal_submits_are_recognized(self):
+        assert component_feed.is_confirm_modal_submit(
+            _modal_submit("sb.confirm:kick:rid-1", "kick"))
+        assert not component_feed.is_confirm_modal_submit(
+            _modal_submit("treasury.contribute_form", "5"))   # G-10 stays dormant
+        assert not component_feed.is_confirm_modal_submit(
+            _interaction("sb.confirm:kick:rid-1"))            # wire 3 ≠ submit
+
+    def test_matching_phrase_dispatches_through_the_modal_adapter(self, monkeypatch):
+        seen = {}
+
+        async def fake_dispatch(interaction, *, responder):
+            seen["interaction"] = interaction
+            seen["responder"] = responder
+            return "RESULT"
+
+        monkeypatch.setattr(component_feed, "dispatch_modal", fake_dispatch)
+        interaction = _modal_submit("sb.confirm:kick:rid-1", "kick")
+        assert run(component_feed.handle_confirm_modal_submit(
+            interaction)) == "RESULT"
+        assert seen["interaction"] is interaction
+        assert seen["responder"].surface is Surface.MODAL
+
+    def test_wrong_phrase_declines_and_never_dispatches(self, monkeypatch):
+        called = []
+        monkeypatch.setattr(component_feed, "dispatch_modal",
+                            lambda *a, **k: called.append(1))
+        interaction = _modal_submit("sb.confirm:kick:rid-1", "ban")
+        assert run(component_feed.handle_confirm_modal_submit(interaction)) is None
+        assert not called
+        assert interaction.response.sent == [
+            ("That didn't match — nothing was done.", True)]
+
+    def test_phrase_check_is_case_insensitive(self, monkeypatch):
+        async def fake_dispatch(interaction, *, responder):
+            return "RESULT"
+
+        monkeypatch.setattr(component_feed, "dispatch_modal", fake_dispatch)
+        assert run(component_feed.handle_confirm_modal_submit(
+            _modal_submit("sb.confirm:kick:rid-1", " KICK "))) == "RESULT"
+
+    def test_dispatch_fault_renders_the_envelope(self, monkeypatch):
+        async def boom(interaction, *, responder):
+            raise RuntimeError("wiring fault")
+
+        monkeypatch.setattr(component_feed, "dispatch_modal", boom)
+        interaction = _modal_submit("sb.confirm:kick:rid-1", "kick")
+        assert run(component_feed.handle_confirm_modal_submit(interaction)) is None
+        assert len(interaction.response.sent) == 1
+        assert interaction.response.sent[0][1] is True
+
+
 class TestArmComponentFeed:
     def test_registers_an_additive_on_interaction_listener(self):
         listeners: list[tuple[object, str]] = []
@@ -150,3 +260,28 @@ class TestArmComponentFeed:
         assert len(listeners) == 1
         assert listeners[0][1] == "on_interaction"
         assert asyncio.iscoroutinefunction(listeners[0][0])
+
+    def test_the_listener_routes_confirm_modal_submits(self, monkeypatch):
+        listeners: list[tuple[object, str]] = []
+        bot = SimpleNamespace(
+            add_listener=lambda coro, name: listeners.append((coro, name)))
+        component_feed.arm_component_feed(bot)
+        on_interaction = listeners[0][0]
+
+        routed = {}
+
+        async def fake_modal(interaction):
+            routed["modal"] = interaction
+
+        async def fake_component(interaction):
+            routed["component"] = interaction
+
+        monkeypatch.setattr(component_feed, "handle_confirm_modal_submit",
+                            fake_modal)
+        monkeypatch.setattr(component_feed, "handle_component_interaction",
+                            fake_component)
+        submit = _modal_submit("sb.confirm:kick:rid-1", "kick")
+        click = _interaction()
+        run(on_interaction(submit))
+        run(on_interaction(click))
+        assert routed == {"modal": submit, "component": click}

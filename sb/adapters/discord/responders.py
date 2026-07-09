@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import logging
 
+from sb.adapters.discord import confirm_view as confirm_view_mod
 from sb.kernel.interaction.request import ConfirmPrompt, Surface
+from sb.kernel.panels.engine import register_confirm_session
 from sb.spec.outcomes import ReplyVisibility
 
 logger = logging.getLogger("sb.adapters.discord.responders")
@@ -45,13 +47,46 @@ class InteractionResponder:
         await self._interaction.response.send_modal(modal_ref)
 
     async def open_confirm(self, prompt: ConfirmPrompt) -> None:
-        # v1 confirm surface: an ephemeral prompt whose confirm control
-        # custom_id encodes (target_key, confirm token, request_id) — the
-        # component adapter re-enters resolve() with confirmed=True. The
-        # kernel confirm VIEW (buttons/modal) is S9b panel-runtime work.
-        custom_id = f"sb.confirm:{prompt.target_key}:{prompt.request_id}"
-        await self._interaction.response.send_message(
-            f"{prompt.prompt_text} (confirm id: `{custom_id}`)", ephemeral=True)
+        # the S9b confirm surface (02 §3.2): a typed challenge opens the
+        # capture modal DIRECTLY while the interaction is still un-acked
+        # (the modal must be the first response); otherwise the Confirm/
+        # Cancel button view goes out (ephemeral), invoker-locked through
+        # the kernel confirm session the component feed mirrors.
+        response = getattr(self._interaction, "response", None)
+        if confirm_view_mod.discord_ui is None:
+            # text fallback: no discord package (hermetic/test contexts) —
+            # the raw confirm id stays the manual re-entry handle.
+            custom_id = f"sb.confirm:{prompt.target_key}:{prompt.request_id}"
+            await self._interaction.response.send_message(
+                f"{prompt.prompt_text} (confirm id: `{custom_id}`)",
+                ephemeral=True)
+            return
+        if (confirm_view_mod.is_typed_challenge(prompt.challenge)
+                and response is not None and not response.is_done()):
+            await response.send_modal(confirm_view_mod.build_confirm_modal(
+                prompt.target_key, prompt.request_id))
+            return
+        view = confirm_view_mod.build_confirm_view(prompt)
+        message = None
+        if response is not None and not response.is_done():
+            await response.send_message(prompt.prompt_text, view=view,
+                                        ephemeral=True)
+            try:
+                message = await self._interaction.original_response()
+            except Exception:  # noqa: BLE001 — lock registration is best-effort
+                logger.debug("confirm original_response fetch failed",
+                             exc_info=True)
+        else:
+            # a followup send returns the message (interaction webhooks
+            # carry a token) — the lock/timeout handle comes back directly.
+            message = await self._interaction.followup.send(
+                prompt.prompt_text, view=view, ephemeral=True)
+        view.message = message
+        invoker = getattr(getattr(self._interaction, "user", None), "id", None)
+        if message is not None:
+            register_confirm_session(str(getattr(message, "id", "")),
+                                     invoker_id=invoker,
+                                     timeout_s=prompt.timeout_s)
 
     async def render(self, result: object) -> None:
         message = getattr(result, "user_message", None)
@@ -91,12 +126,24 @@ class MessageResponder:
         await self._ctx.reply("This action needs the slash-command version.")
 
     async def open_confirm(self, prompt: ConfirmPrompt) -> None:
-        # v1 confirm surface on the message band: the same custom-id-in-text
-        # convention as InteractionResponder — the id IS the re-entry handle
-        # (the component adapter resolves it back to this command).
-        custom_id = f"sb.confirm:{prompt.target_key}:{prompt.request_id}"
-        await self._ctx.reply(
-            f"{prompt.prompt_text} (confirm id: `{custom_id}`)")
+        # the S9b confirm surface on the message band: the Confirm/Cancel
+        # button view (a prefix message has no interaction, so a typed
+        # challenge's capture modal opens from the Confirm CLICK — the live
+        # component feed answers sb.confirm.open: with the modal).
+        if confirm_view_mod.discord_ui is None:
+            # text fallback: no discord package (hermetic/test contexts).
+            custom_id = f"sb.confirm:{prompt.target_key}:{prompt.request_id}"
+            await self._ctx.reply(
+                f"{prompt.prompt_text} (confirm id: `{custom_id}`)")
+            return
+        view = confirm_view_mod.build_confirm_view(prompt)
+        message = await self._ctx.reply(prompt.prompt_text, view=view)
+        view.message = message
+        invoker = getattr(getattr(self._ctx, "author", None), "id", None)
+        if message is not None:
+            register_confirm_session(str(getattr(message, "id", "")),
+                                     invoker_id=invoker,
+                                     timeout_s=prompt.timeout_s)
 
     async def render(self, result: object) -> None:
         message = getattr(result, "user_message", None)
