@@ -37,6 +37,7 @@ entries are amended, never deleted.
 | 8. Games (band 6) | — pending | blackjack 2, rps_tournament 1, games 2, farm 1, creature 5, mining 2, fishing 2, counting 3, chain 7, casino 2 | — | — | pending |
 | 9. Knowledge + AI (band 7 — needs keys) | — pending | ai 20, btd6 39, project_moon 10+1 | — | — | pending |
 | **5. Economy family (band 3: economy + treasury + inventory)** | Golden replay on a FRESH `parity_band3` DB (3 runs: run 1 pre-fix, runs 2-3 byte-identical post-fix) + live exercise on the test guild @ PR #85 branch (real gateway driver, the main() twin incl. plugin-host step 9b), under the ORDER-004 item-3 binding (walking-skeleton + classify-or-fix). **Live (agent-driven, real pipeline)**: `!balance` → wallet line; `!daily` → "🎁 Daily Reward — ⬜ **Common** reward! **+813** 🪙 · Balance **813** 🪙 · 🔥 Streak **1** days · Total claims 1" (the leg ACK — silent before this band); ONE-TXN ATOMICITY proven on every value op (fresh-actor K7 daily/work + prefix pay + panel buy: balance moved EXACTLY by the ledger delta, `new_balance` column == aggregate, aggregate == Σ ledger at every step; a REFUSED op writes NOTHING — cooldown/insufficient/overdraw all checked pre/post); `!daily` again → verbatim domain refusal "⏰ Already claimed today! Come back in **23h 59m**." (unwrapped — the D-0060 envelope fix live); `!work` bare → Job Center list; `!work janitor` → "💼 Worked as **Janitor** — earned **50** 🪙…" + job_progress row; `!pay @syn 25` → both gift rows + conservation (sum of wallets invariant), pay-back drained; `!pay` self → "❌ You can't pay yourself."; PANEL ACTIONS live: `!economymenu` renders the shipped button grid (economy:daily/work/shop/balance/inventory/jobs/treasury/overview verbatim custom_ids), economy:shop click → Item Shop panel, `item_select` pick → audited `economy.buy` ("🛒 Bought **Toolkit** for **2,000** 🪙 — balance **9,380** 🪙" + inventory row + shop:toolkit ledger row), re-pick → "You already own a **toolkit**!", economy:daily click on cooldown → verbatim copy through the COMPONENT surface; `!inventory` → "🔧 **Tools** — 🔧 Toolkit" (unified-inventory assembly; band-6 mining/fishing extra-source ports honestly absent); `!treasury` hub + Contribute click → the G-10 `ModalSpec` OPENS (modal SUBMIT stays the ledgered dormant successor — wire-type-5 is consumed for `sb.confirm:` only; classified, not driven); treasury contribute/disburse round-trip via K7 (100 in → 100 out, `treasury:contribute`/`treasury:disburse` ledger rows, pool 0→100→0), overdraw → verbatim refusal; **INV-F reconciliation sweep CLEAN** (run_verify_import: violations {}, quarantine 0, twice). DB left documented: bot wallet 9,380 🪙 + toolkit ×1 (35 audited ledger rows), synthetic test wallets (9000000000000004xx) drained to 0, treasury 0 | 0/9 green: economy 0/6, treasury 0/2, inventory 0/1 (runs 1-3) | **Replay: RED (expected, classified — NO new class)** — post-fix reds decompose entirely into the band-2 named set: cross-band noise (xp/ai_decision_audit deltas + xp.awarded events on every prefix golden, PLUS the new-nuance RNG-STREAM OFFSET: multi-step goldens' daily amounts sit after the old bot's passive-XP draws in the seeded stream, so `economy.balance_and_daily` diffs 879≠1025 while single-step `sweep.daily` replays its draw EXACTLY); kernel-surface drift (audit_log/event_outbox/economy_balances/`mutation_id` rows + command.dispatched shapes + the slash golden's `events: unexpected`); the shipped invoking-message deletion (every golden's trailing delete_message); successor-boundary render drift (shipped rich wallet/daily/jobcenter/inventory embeds + the economymenu grid's panel_anchors/ensure-row side effects + deferred slash type-5 vs the v1 content acks and declaration-first hubs). **Live: PASS** for every ported surface | **4 found + fixed (PR #85, D-0060)**: (1) `SYSTEM_CLOCK` read a wall-clock seam the harness CANNOT pin (`datetime.now`) — every default-clock epoch stamp (economy last_daily/last_worked, treasury updated_at) diffed on every fresh replay; now reads through `time.time()` (identical live). (2) The daily tier draw used a PRIVATE unseeded `random.Random()` — the per-case `random.seed(case.seed)` never reached it; module-global default restores captured-draw replay (sweep.daily 1025/Uncommon exact). (3) `daily`/`pay`/`buy` succeeded SILENTLY live (the flag-12/D-0052 class, third victim as predicted) — all five value legs now speak golden-derived or honest acks. (4) Domain refusals (insufficient funds/cooldown/already-owned/treasury) rendered wrapped in "Missing/invalid argument: `<whole sentence>`…" because their shipped sentences rode ValidatorError's PARAM slot; `ValidatorError(message=…)` now carries verbatim user copy (param-only form keeps the usage hint — band-2 unchanged); sweep.treasury_contribute's refusal line replays byte-equal | All three rows STAY `pending` (A-16: cross-band noise + kernel drift alone keep every case red; no flips, no exemption rows). `verified_live`: NO records minted — Q-0244 needs pipeline_replay green |
+| **6. XP + karma + community (band 4: xp + karma + community + community_spotlight + leaderboard)** | Golden replay on a FRESH `parity_band4` DB (4 runs: run 1 pre-fix, runs 2-4 byte-identical post-fix) + live exercise on the test guild @ PR #88 branch (real gateway driver = the band-3 main() twin incl. plugin-host step 9b PLUS the step-16 subscribe roster — fan-outs need the bus armed), under the ORDER-004 item-3 binding. **Live (agent-driven, real pipeline)**: CHAT AWARD through the REAL feed function (`message_feed.handle_chat_award`, the on_message body verbatim): first human message → award success delta **22** (in [15,25]), xp row {xp 22, messages 1}; second message inside the 60s cooldown → returns None, ROW UNCHANGED; rng sample over 6 fresh actors → draws 20/21/20/15/15/18, ALL in [xp_min,xp_max]; cooldown EXPIRY proven under an audited settings bracket (xp_cooldown→2s via `settings.set_scalar`, RESTORED via clear after): same actor re-awards post-window, delta in bounds, messages incremented; LEVEL-UP FAN-OUT: `settings.bind` xp.announce_channel → throwaway channel, `!givexp @syn 250` → "✅ Gave **250** XP … (Level **1**)" + the fan-out line "🎉 **Level Up!** <@…> reached **Level 1**!" delivered to the BOUND channel (binding unbound + channel deleted after); KARMA LADDER: `!thanks @syn for testing` → "✨ … gave karma to … — they now have **1** karma." + EXACTLY one karma_audit_log row + {points 1, received 1}/{given 1}; repeat inside 1h → blocked, WRITES NOTHING; self-grant → "❌ You can't give karma to yourself." (bare shipped copy — the refusal fix live); `!karma` card + `!karma add` alias grant; LEADERBOARDS/PROVIDERS: 12 rank providers registered (xp/coins/karma + 9 game categories), `!leaderboard` hub, `!leaderboard xp|karma|coins` boards render real standings, `!rank` card (XP rank + coin rank); consecutive same-command drives throttled by the shipped CooldownSpec ("Slow down — try again in 7s" — spaced re-drives succeed); COMMUNITY HUB: `!community` → declaration-first hub, all four panel clicks live (community.hub.xp/karma/leaderboard/spotlight); SPOTLIGHT: `!spotlight` glance (XP earned/coins/leaders/recent level-ups) + xp_leaders/richest clicks; `!xpmenu` panel; **INV-G/INV-K sweep CLEAN** (run_verify_import: violations {}, quarantine 0). DB left documented: xp rows for synthetic block 9000000000000005xx (38/250-L1/15-21) + bot 10xp, karma 2 points + 2 audit rows, brackets/bindings restored, throwaway channel deleted | 0/15 green: xp 0/3, karma 0/8, community 0/2, community_spotlight 0/1, leaderboard 0/1 (runs 1-4) | **Replay: RED (expected, classified — NO new class)** — post-fix reds decompose entirely into the named set: cross-band noise (ai_decision_audit deltas; the old `xp` table's `coins` alias column split to economy_balances at the D-0031 boundary); kernel-surface drift (audit_log/event_outbox/`mutation_id` rows + command.dispatched shapes + slash `events: unexpected`); the shipped invoking-message deletion; successor-boundary render drift (rank/xpmenu PNG card via `get_from_cdn` + shipped rich karma/community/spotlight/leaderboard embeds + the shipped 5-feature community hub grid vs the v1 hub + `<cid:n>`/`nav:*` ids); capture-world config (`sweep.rank`'s golden captured the OLD bot's own "⚠️ An unexpected error occurred." — the capture world's failure, not a v1 deviation). CASCADE CLOSED: with the passive award armed in the harness, band-3's `xp: missing` + RNG-stream-offset lines vanish (replay now consumes the same per-message draws the captures did — the D-0060 cascade note realized). **Live: PASS** for every ported surface | **4 found + fixed (PR #88, D-0061)**: (1) the chat award had NO CALLER anywhere — live feed armed only the prefix twin, harness no-opped non-command messages; armed on BOTH (every human guild message, commands included, dispatch first). (2) The chat draw used a PRIVATE unseeded `random.Random()` (the exact D-0060 economy bug, 2nd victim); module-global fallback restores captured-draw replay (delta 25, seed 42, exact). (3) Karma stamped `occurred_at`/`last_received` with DB `NOW()` while cooldown/cap reads compare `ctx.clock()` — under the pinned replay clock the per-recipient cooldown NEVER fired (`karma.repeat_cooldown` granted twice where the old bot refused); both stamps now ride the leg's ctx.clock, the repeat blocks and writes nothing. (4) Karma's rejection ladder + xp's guards rendered WRAPPED ("Missing/invalid argument: `You can't give karma to yourself.`…" — live-only symptom, replay hides it behind the embeds-vs-content type diff); karma now rides the economy `_DomainRefusal` copy-only form, xp the two-arg form | All five rows STAY `pending` (A-16: kernel drift + render drift keep every case red; no flips, no exemption rows; flag-13 ruling still the gate). `verified_live`: NO records minted — Q-0244 needs pipeline_replay green |
 
 ## Kernel-boot evidence (step 1, verbatim key lines)
 
@@ -275,6 +276,73 @@ ORDER-004 item 4 proof (PR #83, D-0059, real engine + superbot_test):
   platform_latch_set rows (settings, guild 0) via settings.platform_latch;
   end state platform.degrade_state restored to "none"; boot from the branch
   -> RUNNING, /ready 200, SIGTERM clean exit
+```
+
+## Band-4 evidence (step 6, verbatim key lines)
+
+```
+golden replay (fresh parity_band4 DB; run 1 pre-fix, runs 2-4 post-fix
+  BYTE-IDENTICAL): 0/15 all runs; post-fix diff deltas prove the seams —
+  pre-fix:  karma.repeat_cooldown karma_points 1 != 2 (cooldown never
+            fired under the pinned clock — replay granted TWICE),
+            xp.chat_award steps[0].events: missing (no caller anywhere),
+            db_delta.xp: missing on EVERY prefix golden (no passive award)
+  post-fix: repeat grant BLOCKS and step 1 writes nothing (golden's
+            write-nothing step matched); xp.chat_award step-0 xp.awarded
+            replays EXACTLY (delta 25 = seed-42 first draw of
+            randint(15,25)); the xp: missing lines are GONE corpus-wide
+            (band-3 re-run: economy.balance_and_daily's RNG-stream offset
+            line vanished — the D-0060 cascade note realized);
+            remaining lines all named classes, NO new class
+live exercise (driver = main() twin incl. step 9b + step-16 subscribe
+  roster, real gateway, #bot-activity; bot uid 1298426054636994611,
+  synthetic actors 9000000000000005xx):
+  chat award (REAL feed fn): first msg -> success {delta 22, new_xp 22,
+            source chat}, row {xp 22, messages 1}; second msg inside 60s
+            -> None, row byte-unchanged; 6-actor rng sample draws
+            20/21/20/15/15/18 all in [15,25]; xp_cooldown bracket 60->2s
+            (settings.set_scalar, audited) -> post-window re-award, delta
+            in bounds, messages 1->2; bracket RESTORED (clear_scalar)
+  level-up fan-out: settings.bind xp.announce_channel -> #band4-levelups;
+            !givexp -> "✅ Gave **250** XP to <@…>. They now have **250**
+            XP (Level **1**)."; bound channel received "🎉 **Level Up!**
+            <@900000000000000502> reached **Level 1**!"; unbind + channel
+            deleted in finally
+  karma:    !thanks @syn for testing -> "✨ <@bot> gave karma to <@syn> —
+            they now have **1** karma." (+1 audit row, {points 1,
+            received 1}, giver {given 1}); repeat inside 1h -> blocked
+            "❌ You've already thanked <@syn> recently — try again in
+            1h." AND WROTE NOTHING (pre==post rows); self ->
+            "❌ You can't give karma to yourself." (bare — the D-0061
+            refusal fix live; pre-fix it rendered wrapped in
+            "Missing/invalid argument: `…`"); !karma -> card (points/
+            rank/activity); !karma add -> alias grant
+  boards:   12 providers registered (xp coins karma counting deathmatch
+            rps mining creatures fishing farm gamexp crafting);
+            !leaderboard -> category hub; !leaderboard xp ->
+            "🏆 XP Leaderboard 🥇 <@…502> — Level 1 (250 XP) …";
+            karma/coins boards render after the shipped per-command
+            cooldown window ("Slow down — try again in 7s" when driven
+            back-to-back — CooldownSpec, not a bug)
+  community: !community hub (community.hub.xp/karma/leaderboard/spotlight
+            + nav:help) — ALL four clicks live: XP panel (rank field,
+            "15–25 XP per message · 60s cooldown"), karma card,
+            leaderboard category select panel, spotlight glance
+  spotlight: !spotlight -> "Server at a Glance ⭐ 422 XP · 🪙 9,380 coins"
+            + XP Leaders + Richest + Recent Level-Ups (the real givexp
+            level-up listed); xp_leaders/richest clicks -> boards
+  INV-G/INV-K sweep: run_verify_import -> clean=true, violations {},
+            quarantine 0
+  DB left documented: xp rows 05{01:38, 02:250 L1, 10-15:15-21} + bot 10;
+            karma 05{01,02} 1 point each, bot given_count 2, 2 audit
+            rows; settings bracket + binding restored; channel deleted
+wrap-up (band-3 session debt, settled this session): PRs #86/#87 were
+  stuck "behind" the up-to-date ruleset -> API update_pull_request_branch
+  + auto-merge; MERGED 17:03Z/17:04Z. Stale bot (post-#75 main, pid 15779)
+  SIGTERMed -> clean exit; fresh boot from the band-4 branch for the
+  walking skeleton, then from merged main post-#88 (RUNNING at session
+  end: /ready 200, plugin admitted, 13 guild commands, feed armed WITH
+  chat award).
 ```
 
 ## Flagged for owner
