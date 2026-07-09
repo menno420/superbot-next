@@ -9,7 +9,9 @@
 
 1. `.claude/CLAUDE.md` — the working agreement.
 2. `docs/current-state.md` — the living status ledger.
-3. This file — task-specific reading routes.
+3. `docs/CAPABILITIES.md` — verified session capabilities & walls (the
+   discovery rule lives there; append what you learn).
+4. This file — task-specific reading routes.
 
 ## Binding contracts
 
@@ -26,7 +28,7 @@ The planted doc set (this router reaches every live doc — keep it that way):
 `docs/collaboration-model.md` · `docs/helper-policy.md` ·
 `docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·
 `docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·
-`docs/question-router.md` · `docs/ideas/README.md` — plus the root
+`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/ideas/README.md` — plus the root
 `CONSTITUTION.md` (the working agreement) and `.session-journal.md`.
 
 ## Verifying any change

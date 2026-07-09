@@ -24,6 +24,17 @@
   large and cross-cutting (architectural), or the goal itself is genuinely
   ambiguous.
 
+## Routing work to the owner
+
+The owner is the scarcest resource in the program. An ask reaches the owner
+only when the agent has **attempted the action itself** or can name the
+**exact wall** (error text, permission denial) proving only the owner can do
+it — assumption-based asks are banned. Every ask uses the OWNER-ACTION
+format — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED
+(canonical: `control/README.md`) — phrased so a non-technical owner can act
+directly: one plain sentence, an exact click path, paste-ready text.
+Withdraw asks that have gone stale; fewer, clearer asks beat complete lists.
+
 ## Friction → guard
 
 Anything that interrupts a session's workflow — a stale file, a checker that
