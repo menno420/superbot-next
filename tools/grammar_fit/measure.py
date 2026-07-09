@@ -199,6 +199,26 @@ UNITS: tuple[Unit, ...] = (
     Unit(5, "governance", "engine",
          "port fills (K6 override/role-binding, K8 visibility)", 3, 3,
          "install_authority_ports — the S7/S9 waiting-port bodies"),
+    # --- band 5 (role slice) ---------------------------------------------------
+    Unit(5, "role", "command", "role commands + aliases", 17, 1,
+         "CommandSpec verbatim (roles/setrole/reactroles/temprole family)"),
+    Unit(5, "role", "panel", "role.hub (7 shipped buttons, ids pinned)", 1, 2,
+         "PanelSpec + custom_id_override role:create…role:exemptions"),
+    Unit(5, "role", "setting", "role settings slice", 4, 2,
+         "SettingSpec x4 (skip_roles + the two stack toggles + rr enable)"),
+    Unit(5, "role", "store", "role stores", 8, 2,
+         "StoreSpec x8 (thresholds/reaction/modes/menus/options/grants/"
+         "pickup/exemptions) + 0017"),
+    Unit(5, "role", "op", "role K7 lanes", 12, 2,
+         "CompoundOpSpec x12 incl. the grant EFFECT+compensator pair"),
+    Unit(5, "role", "task", "role:grants_expiry", 1, 2,
+         "ManagedTaskSpec (A-8 consumer; shipped 5-min loop as Interval)"),
+    Unit(5, "role", "engine", "time/XP planners + feasibility + apply", 4, 3,
+         "compute_assignments/plan_level_role_assignments/evaluate_role/"
+         "classified apply — pure decision cores verbatim"),
+    Unit(5, "role", "engine", "reaction runtime + xp-port fill", 2, 3,
+         "handle_reaction_add/remove modes; install_xp_ports fills the "
+         "D-0031/D-0036 level-role granter"),
 )
 
 

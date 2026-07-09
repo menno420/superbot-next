@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 24,
+  "manifest_count": 25,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -1002,6 +1002,142 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "roles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "rolesettings"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "roleinfo"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "rolemenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "rolecreator"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "assignroles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "createrole"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "deleterole"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "setrole"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "unsetrole"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "debugroles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "refreshmembers"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "reactroles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "removereactrole"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "listreactroles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "temprole"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "surface": "prefix",
+          "value": "temproles"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/security.py",
           "subsystem": "security",
           "surface": "prefix",
@@ -1253,6 +1389,41 @@
           "value": "open_other"
         },
         {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_create"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_manage"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_time"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_xp"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_reaction"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_diagnostics"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_exemptions"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -1470,6 +1641,11 @@
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role.hub"
         },
         {
           "source": "sb/manifest/security.py",
@@ -1804,6 +1980,26 @@
           "value": "moderation_public_log_actions"
         },
         {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "skip_roles"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "time_roles_stack"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "xp_roles_stack"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "reaction_roles_enabled"
+        },
+        {
           "source": "sb/manifest/security.py",
           "subsystem": "security",
           "value": "security_enabled"
@@ -2001,6 +2197,11 @@
           "value": "moderation"
         },
         {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role"
+        },
+        {
           "source": "sb/manifest/security.py",
           "subsystem": "security",
           "value": "security"
@@ -2113,6 +2314,46 @@
           "value": "warnings"
         },
         {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_thresholds"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "reaction_roles"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "reaction_role_message_modes"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_menus"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_menu_options"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_grants"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_menu_pickup_stats"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role_automation_exemptions"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -2149,6 +2390,9 @@
       },
       "engine:moderation.store": {
         "module": "sb.domain.moderation.store"
+      },
+      "engine:role.store": {
+        "module": "sb.domain.role.store"
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
@@ -2246,6 +2490,57 @@
       "handler:moderation.warnings_view": {
         "module": "sb.domain.moderation.service"
       },
+      "handler:role.assignroles_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:role.create_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:role.debug_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:role.diagnostics_view": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.exemptions_view": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.grants_expiry_fire": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.manage_view": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.reaction_view": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.reactroles_bind": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.reactroles_unbind": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.roleinfo_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:role.setrole": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.temprole": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.temproles": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.time_roles_view": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.unsetrole": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.xp_roles_view": {
+        "module": "sb.domain.role.handlers"
+      },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
       },
@@ -2341,6 +2636,9 @@
       },
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
+      },
+      "panel:role.hub": {
+        "module": "sb.domain.role.panels"
       },
       "panel:security.hub": {
         "module": "sb.domain.operator_spine"
@@ -2446,6 +2744,9 @@
       },
       "provider:moderation.hub_policy": {
         "module": "sb.domain.moderation.panels"
+      },
+      "provider:role.hub_overview": {
+        "module": "sb.domain.role.panels"
       },
       "provider:sb.panels.help_index": {
         "module": "sb.kernel.panels.projections"
@@ -2660,6 +2961,87 @@
       "workflow:moderation.warn": {
         "module": "sb.domain.moderation.ops"
       },
+      "workflow:role.apply_grant_temp": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.bind_reaction": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.clear_message_mode": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.compensate_grant_temp": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.create_menu": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.delete_menu": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.erase_subject_grants": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.expire_temp_role": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.grant_temp_role": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_bind_reaction": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_clear_message_mode": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_create_menu": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_delete_menu": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_expire_temp": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_grant_temp": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_remove_threshold": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_set_exemption": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_set_message_mode": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_set_threshold": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_unbind_reaction": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.record_update_menu": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.remove_threshold": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.set_exemption": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.set_message_mode": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.set_threshold": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.unbind_reaction": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.update_menu": {
+        "module": "sb.domain.role.ops"
+      },
       "workflow:settings.changed_payload": {
         "module": "sb.domain.settings.ops"
       },
@@ -2840,6 +3222,70 @@
         },
         "subsystem": "cleanup"
       },
+      "reaction_role_message_modes": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "reaction_role_message_modes",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "reaction_roles": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "reaction_roles",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "role_automation_exemptions": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "role_automation_exemptions",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "role_grants": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "role_grants",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "role_menu_options": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "role_menu_options",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "role_menu_pickup_stats": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "role_menu_pickup_stats",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "role_menus": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "role_menus",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
+      "role_thresholds": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "role_thresholds",
+        "sole_writer": {
+          "$ref": "engine:role.store"
+        },
+        "subsystem": "role"
+      },
       "settings": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "settings",
@@ -2883,7 +3329,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:903eb0ad18765977c15940fd868ee56e4e82bb5984c08af00392f74204f62b5e",
+  "stable_hash": "sha256:46efa99db4c41ccb0f6230dd430e2df91ad719db5c09862f25deebcb830c37e8",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9428,6 +9874,961 @@
             "$ref": "engine:moderation.store"
           },
           "table": "warnings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "role": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "roles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:role.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the Role Hub — create, manage, automate.",
+          "usage": "!roles",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rolesettings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.time_roles_view"
+          },
+          "slash_common": false,
+          "summary": "Show the configured time-based role tiers.",
+          "usage": "!rolesettings",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "ri"
+          ],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "roleinfo",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.roleinfo_pending"
+          },
+          "slash_common": false,
+          "summary": "Inspect one role (live guild view).",
+          "usage": "!roleinfo <role>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rolemenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.reaction_view"
+          },
+          "slash_common": false,
+          "summary": "List reaction-role menus and bindings.",
+          "usage": "!rolemenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rolecreator",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.create_pending"
+          },
+          "slash_common": false,
+          "summary": "Interactive role creation (live adapter).",
+          "usage": "!rolecreator",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "assignroles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.assignroles_pending"
+          },
+          "slash_common": false,
+          "summary": "Run the time-role reconciliation now.",
+          "usage": "!assignroles",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "createrole",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.create_pending"
+          },
+          "slash_common": false,
+          "summary": "Create a server role (live adapter).",
+          "usage": "!createrole <name> [color]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "deleterole",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.create_pending"
+          },
+          "slash_common": false,
+          "summary": "Delete a server role (live adapter).",
+          "usage": "!deleterole <role>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "setrole",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.setrole"
+          },
+          "slash_common": false,
+          "summary": "Auto-assign a role after N days in the server.",
+          "usage": "!setrole <days> <role name>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "unsetrole",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.unsetrole"
+          },
+          "slash_common": false,
+          "summary": "Remove a time-based role tier.",
+          "usage": "!unsetrole <role name>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "debugroles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.debug_pending"
+          },
+          "slash_common": false,
+          "summary": "Role automation diagnostics (live adapter).",
+          "usage": "!debugroles",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "refreshmembers",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.debug_pending"
+          },
+          "slash_common": false,
+          "summary": "Refresh the member cache (live adapter).",
+          "usage": "!refreshmembers",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "reaktionsrollen"
+          ],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "reactroles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.reactroles_bind"
+          },
+          "slash_common": false,
+          "summary": "Bind an emoji reaction on a message to a role.",
+          "usage": "!reactroles <message_id> <emoji> <@role>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "removereactrole",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.reactroles_unbind"
+          },
+          "slash_common": false,
+          "summary": "Remove a reaction-role binding.",
+          "usage": "!removereactrole <message_id> <emoji>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "listreactroles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.reaction_view"
+          },
+          "slash_common": false,
+          "summary": "List reaction-role bindings.",
+          "usage": "!listreactroles",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "moderator",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "temprole",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.temprole"
+          },
+          "slash_common": false,
+          "summary": "Grant a role temporarily (auto-removed on expiry).",
+          "usage": "!temprole @member <duration> <@role>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "role",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "temproles",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:role.temproles"
+          },
+          "slash_common": false,
+          "summary": "Show a member's active temporary roles.",
+          "usage": "!temproles [@member]",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "role",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "role_create",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:create",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📝",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.create_pending"
+              },
+              "label": "Create",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_manage",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:manage",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🗂️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.manage_view"
+              },
+              "label": "Manage",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_time",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:time",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⏱️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.time_roles_view"
+              },
+              "label": "Time Roles",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_xp",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:xp",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚡",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.xp_roles_view"
+              },
+              "label": "XP Roles",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_reaction",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:reaction",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "💬",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.reaction_view"
+              },
+              "label": "Reaction Roles",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_diagnostics",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:diagnostics",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔧",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.diagnostics_view"
+              },
+              "label": "Diagnostics",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_exemptions",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "role:exemptions",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🚫",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:role.exemptions_view"
+              },
+              "label": "Exemptions",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Create, manage, and automate server roles — time tiers, XP tiers, reaction roles, and exemptions."
+            },
+            {
+              "provider": {
+                "$ref": "provider:role.hub_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "role_create",
+                    "role_manage",
+                    "role_time"
+                  ],
+                  [
+                    "role_xp",
+                    "role_reaction"
+                  ],
+                  [
+                    "role_diagnostics",
+                    "role_exemptions"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "role.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "role",
+          "timeout_s": 180,
+          "title": "🎭 Role Hub",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Comma-separated role names the automation engines never touch (legacy skip list).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "skip_roles",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "skip_roles",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Keep previously-earned tenure tiers on promotion instead of removing them. Historical default: off.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "time_roles_stack",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "time_roles_stack",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "on_by_default",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": true,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Keep lower level roles when a higher tier is earned. Historical default: on.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "xp_roles_stack",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "xp_roles_stack",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "on_by_default",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": true,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master switch for the emoji reaction-role surface.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "reaction_roles_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "reaction_roles_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "role_thresholds",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "xp",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "role_thresholds",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "reaction_roles",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "reaction_roles",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "reaction_role_message_modes",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "reaction_role_message_modes",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "role_menus",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "role_menus",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "role_menu_options",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "role_menu_options",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:role.erase_subject_grants"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "role_grants",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "role_grants",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "role_menu_pickup_stats",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "role_menu_pickup_stats",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "role_automation_exemptions",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "xp",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:role.store"
+          },
+          "table": "role_automation_exemptions",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
