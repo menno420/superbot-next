@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.70%** tier-1/2 over 398 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.91%** tier-1/2 over 446 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -102,6 +102,23 @@ Cumulative fit: **89.70%** tier-1/2 over 398 units (spike line: 85.26% / 95 unit
 | 5 | proof_channel | store | proof_channel_locks | 1 | 2 | StoreSpec + 0018 (bug #8 durable deadlines) |
 | 5 | proof_channel | op | proof K7 lanes | 3 | 2 | grant (record+EFFECT w/ compensator) / end / the sweep's unlock |
 | 5 | proof_channel | task | proof:lock_reconcile | 1 | 2 | ManagedTaskSpec — the shipped per-lock timers + on_ready reconcile as ONE minute-granularity sweep |
+| 6 | games | command | games/world/worldcard | 3 | 2 | CommandSpec rows (games kind=both) routing panels + a view |
+| 6 | games | panel | games.hub + games.world | 2 | 2 | nav-only hub + world read panel, provider-fed overview |
+| 6 | games | store | game_state + game_xp | 2 | 2 | SESSION checkpoint store + AGGREGATE shared track (reverse-importable, erasure bodies) |
+| 6 | games | op | games.gc_sweep_row | 1 | 2 | the audited GC refund lane (shipped session_gc re-homed) |
+| 6 | games | task | games:session_gc | 1 | 2 | ManagedTaskSpec Interval(3600) over the 24h TTL |
+| 6 | games | engine | wager primitives + game-XP core | 2 | 3 | conn-threaded escrow/settle-once + soft-cap award policy — justified code under the K7 legs (P0-1 semantics) |
+| 6 | games | engine | g1 session registry/dispatcher | 1 | 3 | the §3.4 dynamic-id seam: prefix claims + resolve() re-entry (kernel port fill, one justified module) |
+| 6 | blackjack | command | blackjack/bjtournament/bjstart/bjstatus | 4 | 2 | CommandSpec rows, shipped names verbatim |
+| 6 | blackjack | panel | blackjack.hub | 1 | 2 | 3 actions incl. G-10 bet modal |
+| 6 | blackjack | op | solo/PvP/tournament lanes | 10 | 2 | K7 CompoundOpSpecs over the checkpoint store; settle table in one leg each |
+| 6 | blackjack | engine | card/deck/dealer primitives | 1 | 3 | pure shipped math (engine.py) — justified code by design |
+| 6 | blackjack | setting | default_entry_fee | 1 | 2 | SettingSpec, shipped persisted key |
+| 6 | rps_tournament | command | rps family | 7 | 2 | CommandSpec rows, shipped names/aliases verbatim |
+| 6 | rps_tournament | panel | rps_tournament.hub | 1 | 2 | move ENUM selector (values->op) + rules/settings views |
+| 6 | rps_tournament | op | solo/PvP/tournament lanes | 7 | 2 | K7 CompoundOpSpecs; second throw settles in the same txn |
+| 6 | rps_tournament | engine | rules tables | 1 | 2 | closed alias/win-condition data, shipped verbatim |
+| 6 | rps_tournament | setting | entry fee/mode/best_of | 3 | 2 | SettingSpec rows (in-memory shipped settings made durable) |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -109,3 +126,4 @@ Per band:
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
+- band 6: 91.67% (44/48)

@@ -50,6 +50,32 @@
     "name": "automod"
    }
   ],
+  "blackjack": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "bjstart"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "bjstatus"
+   },
+   {
+    "aliases": [
+     "bjtourn"
+    ],
+    "group": "",
+    "name": "bjtournament"
+   },
+   {
+    "aliases": [
+     "bj"
+    ],
+    "group": "",
+    "name": "blackjack"
+   }
+  ],
   "channel": [
    {
     "aliases": [],
@@ -270,6 +296,25 @@
     "aliases": [],
     "group": "",
     "name": "work"
+   }
+  ],
+  "games": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "games"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "world"
+   },
+   {
+    "aliases": [
+     "mystats"
+    ],
+    "group": "",
+    "name": "worldcard"
    }
   ],
   "help": [
@@ -551,6 +596,47 @@
     "name": "unsetrole"
    }
   ],
+  "rps_tournament": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rps"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rpsbot"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rpshelp"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rpsmatchup"
+   },
+   {
+    "aliases": [
+     "rpsreg"
+    ],
+    "group": "",
+    "name": "rpsregister"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rpssettings"
+   },
+   {
+    "aliases": [
+     "rpsbegin"
+    ],
+    "group": "",
+    "name": "rpsstart"
+   }
+  ],
   "security": [
    {
     "aliases": [],
@@ -661,6 +747,21 @@
    "reason",
    "user_id"
   ],
+  "game_xp.awarded": [
+   "action",
+   "delta",
+   "game",
+   "guild_id",
+   "new_game_xp",
+   "new_total_xp",
+   "user_id"
+  ],
+  "game_xp.level_up": [
+   "game",
+   "guild_id",
+   "new_level",
+   "user_id"
+  ],
   "governance.cache.invalidated": [
    "guild_id",
    "mutation_id",
@@ -758,6 +859,7 @@
   "video.qa"
  ],
  "legacy_custom_ids": [
+  "blackjack.solo_bet_form",
   "economy:balance",
   "economy:daily",
   "economy:inventory",
@@ -783,6 +885,7 @@
  "subsystem_keys": [
   "admin",
   "automod",
+  "blackjack",
   "channel",
   "cleanup",
   "community",
@@ -790,6 +893,7 @@
   "counters",
   "diagnostic",
   "economy",
+  "games",
   "governance",
   "help",
   "image_moderation",
@@ -801,6 +905,7 @@
   "platform",
   "proof_channel",
   "role",
+  "rps_tournament",
   "security",
   "server_management",
   "settings",

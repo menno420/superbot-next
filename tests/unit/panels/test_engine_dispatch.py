@@ -167,7 +167,7 @@ def test_component_adapter_page_turn():
 def test_component_adapter_dynamic_and_expiry():
     seen = []
 
-    async def dyn(routed, interaction):
+    async def dyn(routed, interaction, responder):
         seen.append(routed)
         return "handled"
     install_dynamic_dispatcher(dyn)

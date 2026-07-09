@@ -30,7 +30,9 @@ CONFIRM_PREFIX = "sb.confirm:"
 
 # g<N>: dynamic-session dispatch port — the games band installs the real
 # session dispatcher; until then a dynamic id gets the polite expiry.
-DynamicDispatcher = Callable[[DynamicRoute, object], Awaitable[object]]
+# Signature fixed at first install (band 6): (route, interaction, responder)
+# — the dispatcher re-enters resolve() and needs the surface responder.
+DynamicDispatcher = Callable[[DynamicRoute, object, object], Awaitable[object]]
 _dynamic_dispatcher: DynamicDispatcher | None = None
 
 
@@ -117,7 +119,7 @@ async def dispatch_component(interaction: object, *, responder) -> object | None
             await responder.deny("Couldn't open that panel — try again.", ephemeral=True)
         return None
     if isinstance(routed, DynamicRoute) and _dynamic_dispatcher is not None:
-        return await _dynamic_dispatcher(routed, interaction)
+        return await _dynamic_dispatcher(routed, interaction, responder)
     expiry = routed if isinstance(routed, ExpiredRoute) else ExpiredRoute(custom_id)
     await responder.deny(expiry.message, ephemeral=True)
     return None
