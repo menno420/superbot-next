@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 25,
+  "manifest_count": 27,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -1002,6 +1002,46 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "surface": "prefix",
+          "value": "+prize"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "surface": "prefix",
+          "value": "-prize"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "surface": "prefix",
+          "value": "prizestatus"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "surface": "prefix",
+          "value": "prizemenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "surface": "prefix",
+          "value": "timedprize"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "surface": "prefix",
@@ -1389,6 +1429,26 @@
           "value": "open_other"
         },
         {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "prize_grant"
+        },
+        {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "prize_timed"
+        },
+        {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "prize_end"
+        },
+        {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "prize_refresh"
+        },
+        {
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "value": "role_create"
@@ -1641,6 +1701,11 @@
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
+        },
+        {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "proof_channel.hub"
         },
         {
           "source": "sb/manifest/role.py",
@@ -2197,6 +2262,16 @@
           "value": "moderation"
         },
         {
+          "source": "sb/manifest/platform.py",
+          "subsystem": "platform",
+          "value": "platform"
+        },
+        {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "proof_channel"
+        },
+        {
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "value": "role"
@@ -2314,6 +2389,21 @@
           "value": "warnings"
         },
         {
+          "source": "sb/manifest/platform.py",
+          "subsystem": "platform",
+          "value": "guild_command_access_policy"
+        },
+        {
+          "source": "sb/manifest/platform.py",
+          "subsystem": "platform",
+          "value": "guild_command_access_channels"
+        },
+        {
+          "source": "sb/manifest/proof_channel.py",
+          "subsystem": "proof_channel",
+          "value": "proof_channel_locks"
+        },
+        {
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "value": "role_thresholds"
@@ -2390,6 +2480,12 @@
       },
       "engine:moderation.store": {
         "module": "sb.domain.moderation.store"
+      },
+      "engine:platform.command_access_store": {
+        "module": "sb.domain.platform.command_access"
+      },
+      "engine:proof_channel.store": {
+        "module": "sb.domain.proof_channel.store"
       },
       "engine:role.store": {
         "module": "sb.domain.role.store"
@@ -2489,6 +2585,21 @@
       },
       "handler:moderation.warnings_view": {
         "module": "sb.domain.moderation.service"
+      },
+      "handler:proof_channel.end": {
+        "module": "sb.domain.proof_channel.handlers"
+      },
+      "handler:proof_channel.grant": {
+        "module": "sb.domain.proof_channel.handlers"
+      },
+      "handler:proof_channel.lock_reconcile_fire": {
+        "module": "sb.domain.proof_channel.handlers"
+      },
+      "handler:proof_channel.status": {
+        "module": "sb.domain.proof_channel.handlers"
+      },
+      "handler:proof_channel.timed_grant": {
+        "module": "sb.domain.proof_channel.handlers"
       },
       "handler:role.assignroles_pending": {
         "module": "sb.domain.operator_spine"
@@ -2637,6 +2748,9 @@
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
       },
+      "panel:proof_channel.hub": {
+        "module": "sb.domain.proof_channel.handlers"
+      },
       "panel:role.hub": {
         "module": "sb.domain.role.panels"
       },
@@ -2744,6 +2858,9 @@
       },
       "provider:moderation.hub_policy": {
         "module": "sb.domain.moderation.panels"
+      },
+      "provider:proof_channel.status_overview": {
+        "module": "sb.domain.proof_channel.handlers"
       },
       "provider:role.hub_overview": {
         "module": "sb.domain.role.panels"
@@ -2961,6 +3078,45 @@
       "workflow:moderation.warn": {
         "module": "sb.domain.moderation.ops"
       },
+      "workflow:platform.record_set_access_channels": {
+        "module": "sb.domain.platform.command_access"
+      },
+      "workflow:platform.record_set_access_mode": {
+        "module": "sb.domain.platform.command_access"
+      },
+      "workflow:platform.set_access_channels": {
+        "module": "sb.domain.platform.command_access"
+      },
+      "workflow:platform.set_access_mode": {
+        "module": "sb.domain.platform.command_access"
+      },
+      "workflow:proof_channel.apply_lock": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.apply_unlock": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.compensate_lock": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.end_access": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.erase_subject_locks": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.grant_access": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.record_lock": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.record_unlock": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.record_unlock_row": {
+        "module": "sb.domain.proof_channel.ops"
+      },
       "workflow:role.apply_grant_temp": {
         "module": "sb.domain.role.ops"
       },
@@ -3166,6 +3322,22 @@
         },
         "subsystem": "governance"
       },
+      "guild_command_access_channels": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "guild_command_access_channels",
+        "sole_writer": {
+          "$ref": "engine:platform.command_access_store"
+        },
+        "subsystem": "platform"
+      },
+      "guild_command_access_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "guild_command_access_policy",
+        "sole_writer": {
+          "$ref": "engine:platform.command_access_store"
+        },
+        "subsystem": "platform"
+      },
       "guild_treasury": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "guild_treasury",
@@ -3221,6 +3393,14 @@
           "$ref": "engine:cleanup.store"
         },
         "subsystem": "cleanup"
+      },
+      "proof_channel_locks": {
+        "checkpoint_class": "session",
+        "invariant_tag": "proof_channel_locks",
+        "sole_writer": {
+          "$ref": "engine:proof_channel.store"
+        },
+        "subsystem": "proof_channel"
       },
       "reaction_role_message_modes": {
         "checkpoint_class": "aggregate",
@@ -3329,7 +3509,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:46efa99db4c41ccb0f6230dd430e2df91ad719db5c09862f25deebcb830c37e8",
+  "stable_hash": "sha256:bfbcae14c94ae154f2fa70aa8857e9b262d381aa3f7ffc0792237896476abfe1",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9874,6 +10054,440 @@
             "$ref": "engine:moderation.store"
           },
           "table": "warnings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "platform": {
+      "capabilities": [],
+      "commands": [],
+      "data_invariants": [],
+      "events": [],
+      "key": "platform",
+      "panels": [],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "guild_command_access_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "interaction",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:platform.command_access_store"
+          },
+          "table": "guild_command_access_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "guild_command_access_channels",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "interaction",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:platform.command_access_store"
+          },
+          "table": "guild_command_access_channels",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "proof_channel": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "proof_channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "+prize",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:proof_channel.grant"
+          },
+          "slash_common": false,
+          "summary": "Grant a winner exclusive access to the proof channel.",
+          "usage": "+prize @winner",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "proof_channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "-prize",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:proof_channel.end"
+          },
+          "slash_common": false,
+          "summary": "End the prize session — proof channel read-only again.",
+          "usage": "-prize",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "proof_channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "prizestatus",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:proof_channel.status"
+          },
+          "slash_common": false,
+          "summary": "Show the proof channel's current lock state.",
+          "usage": "!prizestatus",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "proof_channel",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 10,
+            "rate": 2,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "prizemenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:proof_channel.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the interactive prize channel management panel.",
+          "usage": "!prizemenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "proof_channel",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "timedprize",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:proof_channel.timed_grant"
+          },
+          "slash_common": false,
+          "summary": "Grant timed access; auto-unlocks after N minutes (survives restarts).",
+          "usage": "timedprize @winner <minutes>",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "proof_channel",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "prize_grant",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎁",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:proof_channel.grant_access"
+              },
+              "label": "Grant",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "winner_id",
+                    "label": "Winner user id",
+                    "max_length": null,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "proof_channel.grant_form",
+                "on_submit": null,
+                "title": "Grant prize access"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "prize_timed",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⏱️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:proof_channel.grant_access"
+              },
+              "label": "Timed",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "winner_id",
+                    "label": "Winner user id",
+                    "max_length": null,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "duration_minutes",
+                    "label": "Duration (minutes)",
+                    "max_length": null,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "proof_channel.timed_form",
+                "on_submit": null,
+                "title": "Timed prize access"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "prize_end",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:proof_channel.end_access"
+              },
+              "label": "End",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "prize_refresh",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:proof_channel.hub"
+              },
+              "label": "Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Grant winners exclusive proof-channel access — manual or timed (auto-unlock survives restarts)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:proof_channel.status_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "prize_grant",
+                    "prize_timed",
+                    "prize_end",
+                    "prize_refresh"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "proof_channel.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "proof_channel",
+          "timeout_s": 180,
+          "title": "🏆 Prize Channel Manager",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Channel used for prize-claim sessions (`+prize` / `timedprize` lock it to the winner). When bound it takes precedence over the legacy lookup of a channel literally named `proof`.",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "proof_channel",
+          "required": false,
+          "resource_link": ""
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "session",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:proof_channel.erase_subject_locks"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "proof_channel_locks",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:proof_channel.store"
+          },
+          "table": "proof_channel_locks",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

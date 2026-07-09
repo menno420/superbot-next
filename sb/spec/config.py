@@ -227,6 +227,12 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
                owner_subsystem="ops"),  # side-effect-free verify-boot profile: no
     #     gateway/token, PollSupervisor + outbox relay NOT started; preflight
     #     REQUIRES SB_DATA_PLANE=test when True (restore-verify.yml, T-7 fix)
+
+    # ---- band-5 additive field (control_api.py harvest — Q-0156/Q-0159:
+    #      the private /control/* dashboard bridge is DORMANT unless this
+    #      shared-secret token is deliberately configured) ----
+    SecretSpec("CONTROL_API_TOKEN", ConfigType.SECRET, default=None,
+               posture=_DOR, owner_subsystem="platform"),
 )
 
 
