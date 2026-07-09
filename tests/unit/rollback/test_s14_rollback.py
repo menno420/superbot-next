@@ -216,9 +216,11 @@ class TestVerifyBootRails:
         cfg = preflight(env)
         assert cfg.SB_VERIFY_BOOT is True
 
-    def test_config_field_count_is_51(self):
+    def test_config_field_count(self):
         from sb.spec.config import CONFIG_FIELDS
-        # 40 harvested + 11 operational/family folds (S14 +1; K10 +4:
+        # 40 harvested + 12 operational/family folds (S14 +1; K10 +4:
         # AI_TOOLS_ENABLED + AI_SERVER_MEMBER_LOOKUP_ENABLED harvest
-        # corrections, AI_TASKS_DISABLED + AI_TASK_ROUTING CSV folds).
-        assert len(CONFIG_FIELDS) == 52
+        # corrections, AI_TASKS_DISABLED + AI_TASK_ROUTING CSV folds;
+        # CUT-1 +1: SB_APPCMD_SYNC_GUILD_ID, the guild-scoped
+        # app-command sync opt-in — spec 13 §8-5 additive growth).
+        assert len(CONFIG_FIELDS) == 53
