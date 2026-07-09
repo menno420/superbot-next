@@ -57,8 +57,9 @@ def test_farm_settle_and_pricing():
     settled = core.settle(state, 601)   # two full intervals
     assert settled.eggs == 4
     assert settled.updated_at == 600    # remainder preserved
-    # cap: level-0 coop holds 20
-    assert core.settle(core.FarmState(10, 0, 0, 10_000), 10_000).eggs == 0
+    # zero elapsed lays nothing (uninitialized-timestamp normalization
+    # lives in ops._stored, NOT core — pass updated_at=now)
+    assert core.settle(core.FarmState(10, 0, 10_000, 10_000), 10_000).eggs == 0
     capped = core.settle(core.FarmState(10, 0, 0, 0), 100_000)
     assert capped.eggs == core.coop_capacity(0) == 20
     assert core.chicken_price(1) == 40
@@ -288,7 +289,10 @@ class FakeFishStore:
 def test_fishing_catalog_and_bands():
     from sb.domain.fishing import catalog
 
-    assert len(catalog.SPECIES) == 21
+    # 32 total = 21 shore (the shipped catalog) + 11 deepwater (the
+    # venue split grew the catalog past the shipped 21)
+    assert len(catalog.SPECIES) == 32
+    assert len(catalog.species_for_venue("shore")) == 21
     assert len(catalog.unlocked_species(1)) == 3
     assert len(catalog.unlocked_species(7)) == len(
         catalog.species_for_venue("shore"))

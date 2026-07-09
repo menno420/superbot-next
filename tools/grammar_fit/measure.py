@@ -287,6 +287,58 @@ UNITS: tuple[Unit, ...] = (
          "closed alias/win-condition data, shipped verbatim"),
     Unit(6, "rps_tournament", "setting", "entry fee/mode/best_of", 3, 2,
          "SettingSpec rows (in-memory shipped settings made durable)"),
+
+    # ---- band 6 slice 2 (checkpoint games: farm/creature/mining/fishing) ----
+    Unit(6, "farm", "command", "farm", 1, 2,
+         "CommandSpec routing the farm hub (shipped single-command surface)"),
+    Unit(6, "farm", "panel", "farm.hub", 1, 2,
+         "collect/buy-hen/upgrade-coop/refresh actions over the K7 lanes"),
+    Unit(6, "farm", "store", "chicken_farm", 1, 2,
+         "StoreSpec, shipped shape (BIGINT epochs), MEMBER_ID erasure"),
+    Unit(6, "farm", "op", "collect/buy_chicken/upgrade_coop", 3, 2,
+         "K7 money lanes w/ shipped copy + settle-at-old-flock subtlety"),
+    Unit(6, "farm", "engine", "idle core (settle/pricing)", 1, 3,
+         "pure shipped math verbatim (core.py) — justified code by design"),
+    Unit(6, "creature", "command", "creature family (7 shipped)", 7, 2,
+         "CommandSpec rows verbatim (catch/dex/dextop/cbrecord/… )"),
+    Unit(6, "creature", "panel", "creature.hub", 1, 2,
+         "catch/dex/top actions, RESULT_CARD views"),
+    Unit(6, "creature", "store", "collection_log + battle_record", 2, 2,
+         "StoreSpec x2, shipped shapes, MEMBER_ID erasure"),
+    Unit(6, "creature", "op", "catch + record_battle_result", 2, 2,
+         "K7 lanes (fled writes NOTHING; battle RECORD lane live)"),
+    Unit(6, "creature", "engine", "catalog + catch roll", 1, 3,
+         "creatures.json byte-identical + injectable-rng roll — justified"),
+    Unit(6, "mining", "command", "FULL 37-command shipped surface", 37, 2,
+         "CommandSpec rows verbatim; 27 deep-system commands = honest "
+         "pending terminals riding the D-0043 successor port"),
+    Unit(6, "mining", "panel", "mining.hub", 1, 2,
+         "mine/chop/explore/sell-all actions over the K7 lanes"),
+    Unit(6, "mining", "store", "mining_inventory + player_state", 2, 2,
+         "StoreSpec x2 (TEXT user ids kept, +guild_id col)"),
+    Unit(6, "mining", "op", "mine/harvest/explore/sell/sell_all/buy", 6, 2,
+         "K7 lanes; ledger rows + game-XP emits in one leg each"),
+    Unit(6, "mining", "engine", "rewards + market tables", 2, 3,
+         "shipped reward math verbatim (legacy pickaxe path) + "
+         "GEAR_SHOP/RESOURCE value data — justified code"),
+    Unit(6, "mining", "engine", "extra-inventory-source fill", 1, 3,
+         "the D-0032 waiting-port body (mining_inventory -> !inventory)"),
+    Unit(6, "fishing", "command", "FULL 20-command shipped surface", 20, 2,
+         "CommandSpec rows verbatim; 15 gear/venue/craft/structure "
+         "commands = honest pending terminals (D-0043)"),
+    Unit(6, "fishing", "panel", "fishing.hub", 1, 2,
+         "cast/log/trophies actions, RESULT_CARD views"),
+    Unit(6, "fishing", "store", "fishing_catch_log", 1, 2,
+         "StoreSpec, shipped shape, MEMBER_ID erasure"),
+    Unit(6, "fishing", "op", "fishing.cast", 1, 2,
+         "K7 lane — dex upsert + pearl + fish->mining_inventory + xp "
+         "in ONE leg (starter profile)"),
+    Unit(6, "fishing", "engine", "catalog + weight bands", 1, 3,
+         "fish.json (32 species = 21 shore + 11 deepwater) + weight "
+         "roll — justified code"),
+    Unit(6, "games", "engine", "band-6 rank providers", 6, 3,
+         "mining/creatures/fishing/farm/gamexp/crafting RankProviders "
+         "w/ shipped alias rows (registry pattern, band-4 precedent)"),
 )
 
 

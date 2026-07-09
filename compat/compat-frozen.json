@@ -237,6 +237,59 @@
     "name": "counters"
    }
   ],
+  "creature": [
+   {
+    "aliases": [
+     "hunt"
+    ],
+    "group": "",
+    "name": "catch"
+   },
+   {
+    "aliases": [
+     "creaturebattle"
+    ],
+    "group": "",
+    "name": "cbattle"
+   },
+   {
+    "aliases": [
+     "battletop",
+     "pvptop"
+    ],
+    "group": "",
+    "name": "cbattletop"
+   },
+   {
+    "aliases": [
+     "battlerecord"
+    ],
+    "group": "",
+    "name": "cbrecord"
+   },
+   {
+    "aliases": [
+     "creaturemenu",
+     "pets"
+    ],
+    "group": "",
+    "name": "creatures"
+   },
+   {
+    "aliases": [
+     "collection"
+    ],
+    "group": "",
+    "name": "dex"
+   },
+   {
+    "aliases": [
+     "topcatchers"
+    ],
+    "group": "",
+    "name": "dextop"
+   }
+  ],
   "diagnostic": [
    {
     "aliases": [],
@@ -296,6 +349,167 @@
     "aliases": [],
     "group": "",
     "name": "work"
+   }
+  ],
+  "farm": [
+   {
+    "aliases": [
+     "chickenfarm",
+     "coop"
+    ],
+    "group": "",
+    "name": "farm"
+   }
+  ],
+  "fishing": [
+   {
+    "aliases": [
+     "baitshop",
+     "buybait"
+    ],
+    "group": "",
+    "name": "bait"
+   },
+   {
+    "aliases": [
+     "boat",
+     "moorings"
+    ],
+    "group": "",
+    "name": "boathouse"
+   },
+   {
+    "aliases": [
+     "baitcraft"
+    ],
+    "group": "",
+    "name": "craftbait"
+   },
+   {
+    "aliases": [
+     "charmcraft"
+    ],
+    "group": "",
+    "name": "craftcharm"
+   },
+   {
+    "aliases": [
+     "carve",
+     "curiocraft"
+    ],
+    "group": "",
+    "name": "craftcurio"
+   },
+   {
+    "aliases": [
+     "pearlcraft"
+    ],
+    "group": "",
+    "name": "craftpearl"
+   },
+   {
+    "aliases": [
+     "rodcraft"
+    ],
+    "group": "",
+    "name": "craftrod"
+   },
+   {
+    "aliases": [
+     "carvings",
+     "curio"
+    ],
+    "group": "",
+    "name": "curios"
+   },
+   {
+    "aliases": [
+     "fishingdock",
+     "pier"
+    ],
+    "group": "",
+    "name": "dock"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "fish"
+   },
+   {
+    "aliases": [
+     "fishfarm",
+     "hatchery"
+    ],
+    "group": "",
+    "name": "fishery"
+   },
+   {
+    "aliases": [
+     "fishmenu"
+    ],
+    "group": "",
+    "name": "fishing"
+   },
+   {
+    "aliases": [
+     "fishdex"
+    ],
+    "group": "",
+    "name": "fishlog"
+   },
+   {
+    "aliases": [
+     "topfishers"
+    ],
+    "group": "",
+    "name": "fishtop"
+   },
+   {
+    "aliases": [
+     "fishforecast",
+     "fishingweather"
+    ],
+    "group": "",
+    "name": "forecast"
+   },
+   {
+    "aliases": [
+     "buyrod",
+     "rodshop"
+    ],
+    "group": "",
+    "name": "rod"
+   },
+   {
+    "aliases": [
+     "rodrecipe",
+     "rrecipes"
+    ],
+    "group": "",
+    "name": "rodrecipes"
+   },
+   {
+    "aliases": [
+     "setsail"
+    ],
+    "group": "",
+    "name": "sail"
+   },
+   {
+    "aliases": [
+     "reef",
+     "tidepools"
+    ],
+    "group": "",
+    "name": "tidepool"
+   },
+   {
+    "aliases": [
+     "bigfish",
+     "fishtrophy"
+    ],
+    "group": "",
+    "name": "trophies"
    }
   ],
   "games": [
@@ -424,6 +638,202 @@
     "aliases": [],
     "group": "logging",
     "name": "test"
+   }
+  ],
+  "mining": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ascend"
+   },
+   {
+    "aliases": [
+     "craft"
+    ],
+    "group": "",
+    "name": "build"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "buildable"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "buildlist"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "buy"
+   },
+   {
+    "aliases": [
+     "char",
+     "profile"
+    ],
+    "group": "",
+    "name": "character"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "chop"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "cook"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "descend"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "equip"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "explore"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "fastmine"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "forge"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "gear"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "home"
+   },
+   {
+    "aliases": [
+     "loadouts"
+    ],
+    "group": "",
+    "name": "loadout"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "market"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "mine"
+   },
+   {
+    "aliases": [
+     "mineinventory"
+    ],
+    "group": "",
+    "name": "mineinv"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "minemenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "minestats"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "mineworld"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "quickcraft"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "repair"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "reset_inventory"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "sell"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "sellall"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "skill"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "skills"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "stash"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "titles"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "unequip"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "unstash"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "use"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "vault"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "vaultupgrade"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "workshop"
    }
   ],
   "moderation": [
@@ -891,8 +1301,11 @@
   "community",
   "community_spotlight",
   "counters",
+  "creature",
   "diagnostic",
   "economy",
+  "farm",
+  "fishing",
   "games",
   "governance",
   "help",
@@ -901,6 +1314,7 @@
   "karma",
   "leaderboard",
   "logging",
+  "mining",
   "moderation",
   "platform",
   "proof_channel",
