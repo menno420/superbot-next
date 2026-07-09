@@ -36,6 +36,7 @@ entries are amended, never deleted.
 | 7. Governance + roles + platform (band 5) | — pending | role 1, proof_channel 3, general/utility sweeps | — | — | pending |
 | 8. Games (band 6) | — pending | blackjack 2, rps_tournament 1, games 2, farm 1, creature 5, mining 2, fishing 2, counting 3, chain 7, casino 2 | — | — | pending |
 | 9. Knowledge + AI (band 7 — needs keys) | — pending | ai 20, btd6 39, project_moon 10+1 | — | — | pending |
+| **5. Economy family (band 3: economy + treasury + inventory)** | Golden replay on a FRESH `parity_band3` DB (3 runs: run 1 pre-fix, runs 2-3 byte-identical post-fix) + live exercise on the test guild @ PR #85 branch (real gateway driver, the main() twin incl. plugin-host step 9b), under the ORDER-004 item-3 binding (walking-skeleton + classify-or-fix). **Live (agent-driven, real pipeline)**: `!balance` → wallet line; `!daily` → "🎁 Daily Reward — ⬜ **Common** reward! **+813** 🪙 · Balance **813** 🪙 · 🔥 Streak **1** days · Total claims 1" (the leg ACK — silent before this band); ONE-TXN ATOMICITY proven on every value op (fresh-actor K7 daily/work + prefix pay + panel buy: balance moved EXACTLY by the ledger delta, `new_balance` column == aggregate, aggregate == Σ ledger at every step; a REFUSED op writes NOTHING — cooldown/insufficient/overdraw all checked pre/post); `!daily` again → verbatim domain refusal "⏰ Already claimed today! Come back in **23h 59m**." (unwrapped — the D-0060 envelope fix live); `!work` bare → Job Center list; `!work janitor` → "💼 Worked as **Janitor** — earned **50** 🪙…" + job_progress row; `!pay @syn 25` → both gift rows + conservation (sum of wallets invariant), pay-back drained; `!pay` self → "❌ You can't pay yourself."; PANEL ACTIONS live: `!economymenu` renders the shipped button grid (economy:daily/work/shop/balance/inventory/jobs/treasury/overview verbatim custom_ids), economy:shop click → Item Shop panel, `item_select` pick → audited `economy.buy` ("🛒 Bought **Toolkit** for **2,000** 🪙 — balance **9,380** 🪙" + inventory row + shop:toolkit ledger row), re-pick → "You already own a **toolkit**!", economy:daily click on cooldown → verbatim copy through the COMPONENT surface; `!inventory` → "🔧 **Tools** — 🔧 Toolkit" (unified-inventory assembly; band-6 mining/fishing extra-source ports honestly absent); `!treasury` hub + Contribute click → the G-10 `ModalSpec` OPENS (modal SUBMIT stays the ledgered dormant successor — wire-type-5 is consumed for `sb.confirm:` only; classified, not driven); treasury contribute/disburse round-trip via K7 (100 in → 100 out, `treasury:contribute`/`treasury:disburse` ledger rows, pool 0→100→0), overdraw → verbatim refusal; **INV-F reconciliation sweep CLEAN** (run_verify_import: violations {}, quarantine 0, twice). DB left documented: bot wallet 9,380 🪙 + toolkit ×1 (35 audited ledger rows), synthetic test wallets (9000000000000004xx) drained to 0, treasury 0 | 0/9 green: economy 0/6, treasury 0/2, inventory 0/1 (runs 1-3) | **Replay: RED (expected, classified — NO new class)** — post-fix reds decompose entirely into the band-2 named set: cross-band noise (xp/ai_decision_audit deltas + xp.awarded events on every prefix golden, PLUS the new-nuance RNG-STREAM OFFSET: multi-step goldens' daily amounts sit after the old bot's passive-XP draws in the seeded stream, so `economy.balance_and_daily` diffs 879≠1025 while single-step `sweep.daily` replays its draw EXACTLY); kernel-surface drift (audit_log/event_outbox/economy_balances/`mutation_id` rows + command.dispatched shapes + the slash golden's `events: unexpected`); the shipped invoking-message deletion (every golden's trailing delete_message); successor-boundary render drift (shipped rich wallet/daily/jobcenter/inventory embeds + the economymenu grid's panel_anchors/ensure-row side effects + deferred slash type-5 vs the v1 content acks and declaration-first hubs). **Live: PASS** for every ported surface | **4 found + fixed (PR #85, D-0060)**: (1) `SYSTEM_CLOCK` read a wall-clock seam the harness CANNOT pin (`datetime.now`) — every default-clock epoch stamp (economy last_daily/last_worked, treasury updated_at) diffed on every fresh replay; now reads through `time.time()` (identical live). (2) The daily tier draw used a PRIVATE unseeded `random.Random()` — the per-case `random.seed(case.seed)` never reached it; module-global default restores captured-draw replay (sweep.daily 1025/Uncommon exact). (3) `daily`/`pay`/`buy` succeeded SILENTLY live (the flag-12/D-0052 class, third victim as predicted) — all five value legs now speak golden-derived or honest acks. (4) Domain refusals (insufficient funds/cooldown/already-owned/treasury) rendered wrapped in "Missing/invalid argument: `<whole sentence>`…" because their shipped sentences rode ValidatorError's PARAM slot; `ValidatorError(message=…)` now carries verbatim user copy (param-only form keeps the usage hint — band-2 unchanged); sweep.treasury_contribute's refusal line replays byte-equal | All three rows STAY `pending` (A-16: cross-band noise + kernel drift alone keep every case red; no flips, no exemption rows). `verified_live`: NO records minted — Q-0244 needs pipeline_replay green |
 
 ## Kernel-boot evidence (step 1, verbatim key lines)
 
@@ -226,6 +227,56 @@ ORDER-004 item 1 proof (real engine, fresh parity_o4 DB, order004_warn_proof.py)
            warnings")]; count reset; mod_logs +[warn, timeout, clearwarnings]
 ```
 
+## Band-3 evidence (step 5 + ORDER-004 item 4, verbatim key lines)
+
+```
+golden replay (fresh parity_band3 DB; run 1 pre-fix, runs 2-3 post-fix
+  BYTE-IDENTICAL): 0/9 all runs; post-fix diff deltas prove the seams —
+  pre-fix:  economy.last_daily 1853737031 != 1783614506 (real clock leaked)
+            sweep.daily delta 1025 != 2301 (private unseeded Random)
+            treasury_contribute content "🏛️ Contributing **3** 🪙 is more
+            than your **0** 🪙." != "Missing/invalid argument: `🏛️ …`…"
+  post-fix: all three lines GONE (clock pinned, draw exact, copy byte-equal);
+            remaining lines all named classes, NO new class
+live exercise (driver = main() twin incl. step 9b, real gateway,
+  #bot-activity; bot uid 1298426054636994611, synthetic actors
+  9000000000000004xx):
+  !daily -> "🎁 Daily Reward — ⬜ **Common** reward! **+813** 🪙 · Balance
+            **813** 🪙 · 🔥 Streak **1** days · Total claims 1"
+  daily atomicity (fresh actor): pre coins=None/0 rows -> post 857 == ledger
+            row {delta 857, new_balance 857, reason daily} == Σledger; a
+            cooldown-refused daily writes NOTHING (rows/balance unchanged)
+  !daily again -> "⏰ Already claimed today! Come back in **23h 59m**."
+            (verbatim, unwrapped — the refusal-copy fix live)
+  work: "💼 Worked as **Cashier** — earned **75** 🪙. Balance: **932** 🪙"
+            + job_progress row + work:cashier ledger row, aggregate==Σ
+  pay: conservation proven (863+0 -> 838+25; both gift rows); self-pay ->
+            "❌ You can't pay yourself."
+  panel actions: economymenu grid (economy:daily/work/shop/… verbatim ids);
+            economy:shop click -> Item Shop; item_select "toolkit" ->
+            "🛒 Bought **Toolkit** for **2,000** 🪙 — balance **9,380** 🪙"
+            + inventory row {toolkit, 1} + shop:toolkit ledger row; re-pick
+            -> "You already own a **toolkit**!"; economy:daily on cooldown
+            speaks the verbatim copy through the COMPONENT surface
+  !inventory -> "🎒 …'s Inventory / 🔧 **Tools** — 🔧 Toolkit" (band-6
+            extra-source ports honestly absent)
+  treasury: contribute click -> ModalSpec(treasury.contribute_form) OPENS
+            (G-10 submit = ledgered dormant successor, classified); K7
+            round-trip 0->100->0 with treasury:contribute/disburse ledger
+            rows; overdraw -> "🏛️ The treasury only holds **0** 🪙 — not
+            enough to disburse **10000000** 🪙."
+  INV-F reconciliation sweep: run_verify_import -> clean=true, violations {},
+            quarantine 0 (ran twice, before and after the buy)
+  DB left documented: bot wallet 9,380 🪙 + toolkit ×1 (35 audited
+            economy_audit_log rows), synthetic wallets drained to 0,
+            guild_treasury 0
+ORDER-004 item 4 proof (PR #83, D-0059, real engine + superbot_test):
+  degrade set/restore bracket through emit_degrade_notices -> TWO audited
+  platform_latch_set rows (settings, guild 0) via settings.platform_latch;
+  end state platform.degrade_state restored to "none"; boot from the branch
+  -> RUNNING, /ready 200, SIGTERM clean exit
+```
+
 ## Flagged for owner
 
 1. **Stale remote command tree on the test app**: the test application still
@@ -302,16 +353,23 @@ ORDER-004 item 1 proof (real engine, fresh parity_o4 DB, order004_warn_proof.py)
    VIEW renders (Confirm/Cancel buttons; typed challenges capture the
    phrase in a modal) — a human can now complete or cancel a confirm
    end-to-end.
-12. **Band-3 heads-up (silent-success class)**: economy routes `daily`/
-   `pay` straight at WorkflowRefs like moderation did — they will reply
-   with silence until their legs adopt the new `LegOutcome.user_message`
-   channel (D-0052). Cheap fix during the band-3 pass.
+12. **[RESOLVED 2026-07-09, band-3 pass]** Band-3 heads-up (silent-success
+   class): economy routes `daily`/`pay` straight at WorkflowRefs like
+   moderation did — they replied with silence exactly as predicted (third
+   victim of the class). Fixed in PR #85: all five value legs (daily, work,
+   pay, buy, treasury contribute/disburse) speak through
+   `LegOutcome.user_message`; live acks verified in the step-5 row.
 13. **Kernel-surface drift is a standing red class for every MUTATION
    golden** (D-0052): the new architecture writes audit_log/event_outbox
    rows and emits command.dispatched/audit.action_recorded shapes the old
    bot never had. Bands 3+ inherit it; parity flips stay blocked until the
    owner rules how the corpus treats kernel surfaces (exemption class,
-   normalizer scope, or accepted-forever red).
+   normalizer scope, or accepted-forever red). **UPDATE (band-3 session)**:
+   ORDER-004 item 2 (drive `help` to byte-parity and flip the first
+   parity.yml row through the A-16 door) stays ⚑ GATED on this ruling —
+   help's replay reds include command.dispatched trace shapes, so no
+   exemption rows can be minted until the owner names the class's
+   disposition.
 14. **Presentation rework = owner-ordered priority (2026-07-09)**: the
    deferred surfaces the OF row classifies (help category/pagination, the
    operator-spine hub menus, the S9b confirm view, help content/grouping
