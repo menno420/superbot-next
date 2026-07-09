@@ -93,6 +93,8 @@ _visibility_reader: VisibilityReader = _all_visible
 _panel_engine: PanelEngine = _no_panel_engine
 _transparency_sink: TransparencySink = LoggingTransparencySink()
 _seen_request_ids: dict[str, None] = {}   # confirm re-entry dedup (in-memory, §④.2)
+_pending_confirm_args: dict[str, dict] = {}   # request_id -> original args
+                                              # (v1 confirm re-entry carry)
 _SEEN_MAX = 4096
 
 
@@ -123,6 +125,7 @@ def reset_resolver_ports_for_tests() -> None:
     _panel_engine = _no_panel_engine
     _transparency_sink = LoggingTransparencySink()
     _seen_request_ids.clear()
+    _pending_confirm_args.clear()
 
 
 # --- helpers ------------------------------------------------------------------
@@ -335,6 +338,14 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
             challenge=getattr(confirm, "challenge", Challenge.BUTTON),
             timeout_s=getattr(confirm, "timeout_s", 60),
         )
+        # stash the ORIGINAL args for the re-entry: the confirm control
+        # carries only (target_key, request_id), so without this the
+        # confirmed dispatch lost the command's own arguments (`!kick @m r`
+        # re-entered arg-less and died in a member-missing user_error —
+        # band-2 finding, D-0052). Same in-memory posture as the dedup map.
+        _pending_confirm_args[req.request_id] = dict(req.args)
+        while len(_pending_confirm_args) > _SEEN_MAX:
+            _pending_confirm_args.pop(next(iter(_pending_confirm_args)))
         try:
             await req.responder.open_confirm(prompt)
         except Exception:  # noqa: BLE001
@@ -360,6 +371,14 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
         while len(_seen_request_ids) > _SEEN_MAX:
             _seen_request_ids.pop(next(iter(_seen_request_ids)))
 
+    # the confirmed re-entry restores the original command args (stashed at
+    # prompt time); the re-entry's own args (interaction_id, ...) win ties.
+    dispatch_args = dict(req.args)
+    if req.confirmed:
+        stashed = _pending_confirm_args.pop(req.request_id, None)
+        if stashed:
+            dispatch_args = {**stashed, **dispatch_args}
+
     route = _routable_ref(req)
     outcome = SUCCESS
     reason = DenialReason.ALLOWED
@@ -373,7 +392,7 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
             ctx = WorkflowContext(
                 actor=actor, guild_id=req.guild_id or 0,
                 request_id=req.request_id, confirmed=req.confirmed,
-                params=dict(req.args),
+                params=dispatch_args,
             )
             workflow_result = await workflow_engine.run(route, ctx)
             outcome = workflow_result.outcome                # copied through UNCHANGED

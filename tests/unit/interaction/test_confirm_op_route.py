@@ -70,6 +70,50 @@ def test_workflow_route_issues_confirm_prompt():
         getattr(r, "user_message", None) is None for r in responder.rendered)
 
 
+def test_confirm_reentry_restores_original_args(monkeypatch):
+    """The confirm control carries only (target_key, request_id) — the
+    resolver stashes the ORIGINAL command args at prompt time and restores
+    them on the confirmed re-entry (else `!kick @m reason` re-entered
+    arg-less and died in a member-missing user_error)."""
+    from tests.unit.interaction.conftest import make_request
+    from sb.kernel.interaction.resolve import resolve
+    from sb.kernel.workflow import engine as engine_mod
+
+    _register_confirm_op("probe.confirm_op_d")
+    seen_params: list[dict] = []
+
+    async def fake_run(route, ctx):
+        seen_params.append(dict(ctx.params))
+        from sb.kernel.workflow.result import WorkflowResult
+        from sb.spec.authority import Lane
+
+        return WorkflowResult(
+            mutation_id="m1", guild_id=ctx.guild_id, domain="probe",
+            operation="probe.confirm_op_d", outcome="success",
+            reversibility="irreversible", lane=Lane.TIER)
+
+    # resolve.py binds the engine MODULE (workflow_engine.run) — patching
+    # the module attribute reaches the resolver's call site.
+    monkeypatch.setattr(engine_mod, "run", fake_run)
+
+    spec = Spec(route=WorkflowRef("probe.confirm_op_d"))
+    responder = FakeResponder(Surface.PREFIX)
+    first = asyncio.run(resolve(make_request(
+        spec, surface=Surface.PREFIX, responder=responder,
+        args={"argv": ("<@9>", "why"), "user_id": 1})))
+    assert first.workflow is None and len(responder.confirms) == 1
+    prompt = responder.confirms[0]
+    assert seen_params == []                       # op did NOT run
+
+    second = asyncio.run(resolve(make_request(
+        spec, surface=Surface.COMPONENT, confirmed=True,
+        request_id=prompt.request_id, args={"interaction_id": 5})))
+    assert second.outcome == "success"
+    assert len(seen_params) == 1
+    assert seen_params[0]["argv"] == ("<@9>", "why")   # restored
+    assert seen_params[0]["interaction_id"] == 5       # re-entry args win ties
+
+
 def test_confirm_reentry_falls_back_to_command_surfaces():
     """sb.confirm:<key>:<rid> for a PREFIX-only command resolves through the
     component adapter's surface fallback."""
