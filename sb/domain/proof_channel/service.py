@@ -10,7 +10,7 @@ ONE minute-granularity lane, D-0041).
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Protocol
 
 from sb.domain.proof_channel import store
@@ -74,7 +74,15 @@ async def bound_proof_channel(guild_id: int) -> int | None:
 
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    """The lane clock — reads through ``time.time()`` (identical to
+    ``datetime.now`` live) so the ONE wall-clock seam the parity harness
+    pins covers the lock/reconcile lane too: LOCK_TIMED stamps
+    ``unlock_at`` from the leg's ``ctx.clock()``; the sweep's due-read
+    must ride the SAME seam or the deadline never matches under a pinned
+    clock (the band-4 karma two-clocks bug, D-0061)."""
+    import time
+
+    return datetime.fromtimestamp(time.time(), tz=timezone.utc)
 
 
 async def reconcile_due_locks(now: datetime | None = None) -> int:

@@ -120,7 +120,7 @@ async def emit_role_audit(guild_id: int, *, mutation_id: str,
             "scope": "guild", "guild_id": guild_id, "prev_value": None,
             "new_value": new_value, "actor_id": actor_id,
             "actor_type": actor_type,
-            "occurred_at": datetime.now(tz=timezone.utc).isoformat()})
+            "occurred_at": _utcnow().isoformat()})  # the pinnable lane clock
     except Exception:  # noqa: BLE001 — audit fact is best-effort (shipped)
         logger.warning("role: audit fact emit failed", exc_info=True)
 
@@ -235,17 +235,25 @@ async def handle_reaction_remove(guild_id: int, message_id: int, emoji: str,
 # --- temp grants (role_grants_service.py) ------------------------------------------------
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    """The lane clock — reads through ``time.time()`` (identical to
+    ``datetime.now`` live) so the ONE wall-clock seam the parity harness
+    pins covers the grant/expiry lane too (the D-0060 SYSTEM_CLOCK
+    posture; band-4's karma two-clocks bug was the same split)."""
+    import time
+
+    return datetime.fromtimestamp(time.time(), tz=timezone.utc)
 
 
 async def grant_temp_role(ctx, *, member_id: int, role_id: int,
                           seconds: int) -> datetime:
     """Discord add + audited persisted grant via the K7 lane. Returns the
-    expiry. Caller verified manageability; a late Forbidden propagates."""
+    expiry. Caller verified manageability; a late Forbidden propagates.
+    The expiry stamp rides the leg's ``ctx.clock()`` — ONE clock per lane
+    (D-0061: never stamp with a clock the reads don't share)."""
     from sb.domain.role.ops import GRANT_TEMP_ROLE
     from sb.kernel.workflow import engine
 
-    expires_at = _utcnow() + timedelta(seconds=seconds)
+    expires_at = ctx.clock() + timedelta(seconds=seconds)
     ctx.params.update({"member_id": member_id, "role_id": role_id,
                        "expires_at_iso": expires_at.isoformat()})
     result = await engine.run(GRANT_TEMP_ROLE, ctx)

@@ -25,9 +25,13 @@ __all__ = ["ensure_ops_refs", "register_ops"]
 
 
 def _verr(message: str):
+    """Copy-only ValidatorError — the raise-site sentence IS the user copy,
+    rendered bare (the D-0060/D-0061 refusal-copy posture; the one-arg
+    param form wrapped every sentence in the missing-argument
+    boilerplate)."""
     from sb.kernel.interaction.errors import ValidatorError
 
-    return ValidatorError(message)
+    return ValidatorError("", message)
 
 
 async def _resolve_channel(ctx: WorkflowContext) -> int:
@@ -37,7 +41,8 @@ async def _resolve_channel(ctx: WorkflowContext) -> int:
     if not cid:
         cid = await bound_proof_channel(int(ctx.guild_id or 0)) or 0
     if not cid:
-        raise _verr("Channel '#proof' not found. Please create one first.")
+        # shipped copy verbatim (parity/goldens/proof_channel/sweep_timedprize)
+        raise _verr("Channel '#proof' not found.")
     ctx.params["channel_id"] = cid
     return cid
 
@@ -55,12 +60,21 @@ async def _record_lock(conn, ctx: WorkflowContext) -> LegOutcome:
         await store.upsert_lock(conn, guild_id=gid, channel_id=cid,
                                 winner_id=winner_id, unlock_at=unlock_at)
         ctx.params["_unlock_at"] = unlock_at.isoformat()
+    # the sanctioned DB-leg ack channel (D-0052/D-0057): the panel/modal
+    # path routes this WorkflowRef directly — without leg copy a granted
+    # lock succeeds SILENTLY there (prefix handlers compose their own
+    # Reply and ignore this line).
+    copy = (f"<@{winner_id}> has access to <#{cid}> for {minutes} "
+            f"minute(s) — auto-unlocks at {ctx.params.get('_unlock_at')}."
+            if minutes else
+            f"<@{winner_id}> has been granted access to <#{cid}>!")
     return LegOutcome(
         step=StepResult(winner_id, "record_lock", True),
         before={},
         after={"channel_id": cid, "winner_id": winner_id,
                "duration_minutes": minutes,
-               "unlock_at": ctx.params.get("_unlock_at")})
+               "unlock_at": ctx.params.get("_unlock_at")},
+        user_message=copy)
 
 
 @workflow("proof_channel.apply_lock")
@@ -93,7 +107,9 @@ async def _record_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
         step=StepResult(gid, "record_unlock", True),
         before={"lock_present": removed},
         after={"channel_id": cid, "removed": removed,
-               "reason": str(ctx.params.get("reason", "manual") or "manual")})
+               "reason": str(ctx.params.get("reason", "manual") or "manual")},
+        # panel-path ack (the sweep's SYSTEM run renders nowhere — harmless)
+        user_message=f"<#{cid}> is now read-only for everyone.")
 
 
 @workflow("proof_channel.apply_unlock")

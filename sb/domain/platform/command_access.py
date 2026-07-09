@@ -149,8 +149,9 @@ async def _record_set_access_mode(conn, ctx: WorkflowContext) -> LegOutcome:
     gid = int(ctx.guild_id or 0)
     mode = str(ctx.params.get("mode", "") or "")
     if mode not in _VALID_MODES:
+        # copy-only form: the sentence renders bare (D-0060/D-0061 posture)
         raise ValidatorError(
-            f"Mode must be one of: {', '.join(_VALID_MODES)}.")
+            "", f"Mode must be one of: {', '.join(_VALID_MODES)}.")
     actor = int(getattr(getattr(ctx, "actor", None), "user_id", 0) or 0)
     prior = await fetchone(
         "SELECT mode FROM guild_command_access_policy WHERE guild_id=$1",
@@ -173,7 +174,9 @@ async def _record_set_access_channels(conn, ctx: WorkflowContext) -> LegOutcome:
     gid = int(ctx.guild_id or 0)
     channels = tuple(int(c) for c in (ctx.params.get("channel_ids") or ()))
     if not channels and not ctx.params.get("allow_empty", False):
-        raise ValidatorError("Give at least one channel id (or allow_empty).")
+        # copy-only form: the sentence renders bare (D-0060/D-0061 posture)
+        raise ValidatorError(
+            "", "Give at least one channel id (or allow_empty).")
     actor = int(getattr(getattr(ctx, "actor", None), "user_id", 0) or 0)
     row = await fetchone(
         "SELECT mode FROM guild_command_access_policy WHERE guild_id=$1",
