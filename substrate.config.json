@@ -175,7 +175,8 @@
       "SettingGroupSpec": "spec/settings.py",
       "DomainPanelSpec": "spec/settings.py",
       "SettingResolution": "domain/settings/service.py",
-      "WizardSectionSpec": "spec/setup.py"
+      "WizardSectionSpec": "spec/setup.py",
+      "GovernanceContext": "domain/governance/models.py"
     },
     "roots": [
       "sb"

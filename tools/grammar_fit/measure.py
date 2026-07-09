@@ -182,6 +182,23 @@ UNITS: tuple[Unit, ...] = (
          "provider-fed overview + the games selector's honest band-6 empty state"),
     Unit(4, "community_spotlight", "engine", "level-up feed subscriber", 1, 3,
          "the xp.level_up -> spotlight DECLARED consumption; bounded deque verbatim"),
+    # --- band 5 (governance slice) --------------------------------------------
+    Unit(5, "governance", "setting", "governance settings slice", 3, 2,
+         "SettingSpec x3 (governance_version + the two tier-grant role ids)"),
+    Unit(5, "governance", "store", "governance stores", 5, 2,
+         "StoreSpec x5 (visibility/cleanup/audit/cap-overrides/templates) + 0016"),
+    Unit(5, "governance", "event", "governance.* events", 5, 2,
+         "EventSpec x5, compat-frozen names (events.py: Do NOT rename after v1)"),
+    Unit(5, "governance", "op", "governance K7 lanes", 4, 2,
+         "CompoundOpSpec x4 — the shipped GovernanceMutationPipeline as lanes"),
+    Unit(5, "governance", "engine", "scope-chain resolver + TTL override cache", 2, 3,
+         "resolve_visibility/resolve_execution verbatim; the chain walk and "
+         "staleness bounds are runtime semantics no grammar expresses"),
+    Unit(5, "governance", "engine", "subsystem registry data + tier taxonomy", 2, 2,
+         "SUBSYSTEM_META 43 rows + PermissionTier metadata = declared data"),
+    Unit(5, "governance", "engine",
+         "port fills (K6 override/role-binding, K8 visibility)", 3, 3,
+         "install_authority_ports — the S7/S9 waiting-port bodies"),
 )
 
 
