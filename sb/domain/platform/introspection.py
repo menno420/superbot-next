@@ -1,0 +1,298 @@
+"""Guild introspection (band 5) — services/guild_introspection_service.py
+VERBATIM (duck-typed pure reads; no discord import): the AI tools' and
+diagnostics' guild-shape reads. Member-data surfaces stay behind the
+caller's member-data opt-in gate (shipped contract).
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any
+
+_ROLE_CAP = 60
+_CHANNEL_CAP = 80
+_MEMBER_MATCH_CAP = 10
+# Full-roster enumeration cap. Higher than the by-name match cap because
+# "list everyone" legitimately wants more rows, but still bounded so a
+# large guild cannot blow the model's prompt budget. The response carries
+# ``truncated`` + ``total`` so the model can say "showing N of M".
+_MEMBER_LIST_CAP = 100
+
+
+def _iso_date(value: Any) -> str | None:
+    """Return the date portion of a datetime-like value, or ``None``."""
+    if not isinstance(value, datetime):
+        return None
+    return value.date().isoformat()
+
+
+def _display_name(obj: Any) -> str:
+    """Best-effort display name for a member/user-like object."""
+    for attr in ("display_name", "name", "global_name"):
+        val = getattr(obj, attr, None)
+        if isinstance(val, str) and val.strip():
+            return val.strip()
+    return "unknown"
+
+
+def server_overview(guild: Any, *, include_members: bool = False) -> dict[str, Any]:
+    """High-level summary of ``guild``.
+
+    Channel / category / role counts, owner, creation date, and boost
+    status are always included (all operator-visible). The aggregate
+    ``member_count`` is included only when ``include_members`` is true.
+    """
+    text_channels = list(getattr(guild, "text_channels", ()) or ())
+    voice_channels = list(getattr(guild, "voice_channels", ()) or ())
+    categories = list(getattr(guild, "categories", ()) or ())
+    roles = list(getattr(guild, "roles", ()) or ())
+
+    owner = getattr(guild, "owner", None)
+    overview: dict[str, Any] = {
+        "name": getattr(guild, "name", None),
+        "description": getattr(guild, "description", None) or None,
+        "owner": _display_name(owner) if owner is not None else "unknown",
+        "created": _iso_date(getattr(guild, "created_at", None)),
+        "counts": {
+            "text_channels": len(text_channels),
+            "voice_channels": len(voice_channels),
+            "categories": len(categories),
+            # ``roles`` includes @everyone; report the human-facing total
+            # (roles the operator actually created) by dropping it.
+            "roles": max(0, len(roles) - 1),
+        },
+        "boost_level": getattr(guild, "premium_tier", None),
+        "boost_count": getattr(guild, "premium_subscription_count", None),
+    }
+    if include_members:
+        overview["member_count"] = getattr(guild, "member_count", None)
+    return overview
+
+
+def _role_permission_summary(role: Any) -> str:
+    """Compact privilege label for a role (admin / manage / none)."""
+    perms = getattr(role, "permissions", None)
+    if perms is None:
+        return "none"
+    if getattr(perms, "administrator", False):
+        return "administrator"
+    elevated = [
+        name
+        for name in (
+            "manage_guild",
+            "manage_roles",
+            "manage_channels",
+            "ban_members",
+            "kick_members",
+            "manage_messages",
+        )
+        if getattr(perms, name, False)
+    ]
+    return ", ".join(elevated) if elevated else "none"
+
+
+def list_roles(
+    guild: Any,
+    *,
+    include_member_counts: bool = False,
+    limit: int = _ROLE_CAP,
+) -> dict[str, Any]:
+    """List the guild's roles, highest first, with a privilege summary.
+
+    Per-role member counts are emitted only when
+    ``include_member_counts`` is true (the member-data opt-in tier).
+    """
+    roles = [
+        r
+        for r in (getattr(guild, "roles", ()) or ())
+        if getattr(r, "name", "") != "@everyone"
+    ]
+    roles.sort(key=lambda r: getattr(r, "position", 0), reverse=True)
+    truncated = len(roles) > limit
+    out: list[dict[str, Any]] = []
+    for role in roles[:limit]:
+        entry: dict[str, Any] = {
+            "name": getattr(role, "name", "?"),
+            "privileges": _role_permission_summary(role),
+            "hoisted": bool(getattr(role, "hoist", False)),
+            "mentionable": bool(getattr(role, "mentionable", False)),
+        }
+        if include_member_counts:
+            members = getattr(role, "members", None)
+            entry["member_count"] = len(list(members)) if members is not None else None
+        out.append(entry)
+    return {"roles": out, "total": len(roles), "truncated": truncated}
+
+
+def list_channels(
+    guild: Any,
+    member: Any = None,
+    *,
+    limit: int = _CHANNEL_CAP,
+) -> dict[str, Any]:
+    """List text/voice channels the ``member`` can view, grouped by category.
+
+    When ``member`` is provided, channels they cannot view are omitted so
+    the model never describes a channel hidden from the asker. When it is
+    ``None`` (no member context), all channels are listed.
+    """
+    entries: list[dict[str, Any]] = []
+    text_channels = list(getattr(guild, "text_channels", ()) or ())
+    voice_channels = list(getattr(guild, "voice_channels", ()) or ())
+
+    def _visible(channel: Any) -> bool:
+        if member is None:
+            return True
+        perms_for = getattr(channel, "permissions_for", None)
+        if perms_for is None:
+            return True
+        try:
+            perms = perms_for(member)
+        except Exception:  # noqa: BLE001 — defensive per-channel
+            return False
+        return bool(getattr(perms, "view_channel", False))
+
+    for channel, kind in (
+        *((c, "text") for c in text_channels),
+        *((c, "voice") for c in voice_channels),
+    ):
+        if not _visible(channel):
+            continue
+        parent = getattr(channel, "category", None)
+        entries.append(
+            {
+                "name": getattr(channel, "name", "?"),
+                "type": kind,
+                "category": (
+                    getattr(parent, "name", None) if parent is not None else None
+                ),
+                "topic": (
+                    (getattr(channel, "topic", None) or None)
+                    if kind == "text"
+                    else None
+                ),
+            },
+        )
+    truncated = len(entries) > limit
+    return {"channels": entries[:limit], "total": len(entries), "truncated": truncated}
+
+
+def _member_permission_tier(member: Any, owner_id: Any) -> str:
+    """Compact permission tier for a member (owner / admin / mod / member).
+
+    Mirrors the precedence in ``bot_knowledge_service.resolve_user_tier``:
+    guild ownership wins over the Administrator permission, which wins over
+    the Manage Server (moderator) permission. Anything else is a regular
+    member. Kept here (not imported) so the introspection service stays
+    free of cross-service deps; the two are pinned to agree by test.
+    """
+    if owner_id is not None and getattr(member, "id", None) == owner_id:
+        return "owner"
+    perms = getattr(member, "guild_permissions", None)
+    if perms is None:
+        return "member"
+    if getattr(perms, "administrator", False):
+        return "administrator"
+    if getattr(perms, "manage_guild", False):
+        return "moderator"
+    return "member"
+
+
+def list_members(
+    guild: Any,
+    *,
+    limit: int = _MEMBER_LIST_CAP,
+) -> dict[str, Any]:
+    """Enumerate every member of ``guild`` with their permission tier.
+
+    Returns each member's display name, owner/bot flags, permission tier
+    (owner / administrator / moderator / member), and role names. This is
+    the "list everyone and their permissions" companion to
+    :func:`lookup_member`'s by-name search. Caller is responsible for
+    gating it behind the member-data opt-in (same flag as ``lookup_member``).
+
+    Members are sorted by permission tier (owner → admin → mod → member),
+    then by display name, so the most privileged appear first and survive
+    the cap. Bounded by ``limit``; the result carries ``total`` and
+    ``truncated`` so the model can report "showing N of M".
+    """
+    members = list(getattr(guild, "members", ()) or ())
+    owner_id = getattr(guild, "owner_id", None)
+    _TIER_ORDER = {"owner": 0, "administrator": 1, "moderator": 2, "member": 3}
+
+    entries: list[dict[str, Any]] = []
+    for member in members:
+        tier = _member_permission_tier(member, owner_id)
+        role_names = [
+            getattr(r, "name", "")
+            for r in (getattr(member, "roles", ()) or ())
+            if getattr(r, "name", "") != "@everyone"
+        ]
+        entries.append(
+            {
+                "display_name": _display_name(member),
+                "permission_tier": tier,
+                "is_owner": tier == "owner",
+                "is_bot": bool(getattr(member, "bot", False)),
+                "roles": role_names,
+            },
+        )
+
+    entries.sort(
+        key=lambda e: (
+            _TIER_ORDER.get(e["permission_tier"], 3),
+            e["display_name"].lower(),
+        ),
+    )
+    total = len(entries)
+    truncated = total > limit
+    return {"members": entries[:limit], "total": total, "truncated": truncated}
+
+
+def lookup_member(guild: Any, query: str, *, requester: Any = None) -> dict[str, Any]:
+    """Resolve members matching ``query`` (display name / username substring).
+
+    Returns each match's display name, server join date, and role names —
+    all visible to any server member via the Discord client. Caller is
+    responsible for gating this behind the member-data opt-in. Matches are
+    capped at :data:`_MEMBER_MATCH_CAP`.
+    """
+    needle = (query or "").strip().lower()
+    if not needle:
+        return {"found": False, "matches": [], "note": "empty query"}
+    members = list(getattr(guild, "members", ()) or ())
+    matches: list[dict[str, Any]] = []
+    owner_id = getattr(guild, "owner_id", None)
+    for member in members:
+        names = [
+            str(getattr(member, attr, "") or "").lower()
+            for attr in ("display_name", "name", "global_name")
+        ]
+        if not any(needle in name for name in names if name):
+            continue
+        role_names = [
+            getattr(r, "name", "")
+            for r in (getattr(member, "roles", ()) or ())
+            if getattr(r, "name", "") != "@everyone"
+        ]
+        matches.append(
+            {
+                "display_name": _display_name(member),
+                "joined": _iso_date(getattr(member, "joined_at", None)),
+                "is_bot": bool(getattr(member, "bot", False)),
+                "is_owner": getattr(member, "id", None) == owner_id,
+                "roles": role_names,
+            },
+        )
+        if len(matches) >= _MEMBER_MATCH_CAP:
+            break
+    return {"found": bool(matches), "matches": matches}
+
+
+__all__ = [
+    "list_channels",
+    "list_members",
+    "list_roles",
+    "lookup_member",
+    "server_overview",
+]

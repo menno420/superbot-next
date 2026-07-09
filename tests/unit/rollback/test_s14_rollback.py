@@ -221,4 +221,4 @@ class TestVerifyBootRails:
         # 40 harvested + 11 operational/family folds (S14 +1; K10 +4:
         # AI_TOOLS_ENABLED + AI_SERVER_MEMBER_LOOKUP_ENABLED harvest
         # corrections, AI_TASKS_DISABLED + AI_TASK_ROUTING CSV folds).
-        assert len(CONFIG_FIELDS) == 51
+        assert len(CONFIG_FIELDS) == 52

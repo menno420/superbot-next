@@ -164,6 +164,14 @@ CREDENTIAL_REGISTRY: tuple[CredentialSpec, ...] = (
                    "CLAUDE_ROUTINE_TOKEN",
                    RotationPosture.ON_COMPROMISE, None,
                    RevocationRef.ANTHROPIC_CONSOLE, BlastTier.CONTROL),
+    # -- band-5 row (the S13-deferred CONTROL_API_TOKEN — its SecretSpec
+    #    landed with the control-api band; ON_COMPROMISE like the sibling
+    #    worker tokens — a cadence swap must be coordinated with the
+    #    dashboard side, so no autonomous rotation) --
+    CredentialSpec("control_api_token", CredentialStore.WORKER_ENV,
+                   "CONTROL_API_TOKEN",
+                   RotationPosture.ON_COMPROMISE, None,
+                   RevocationRef.RAILWAY_VAR_ROTATE, BlastTier.CONTROL),
     # -- out-of-band leaves --
     CredentialSpec("database_public_url", CredentialStore.GITHUB_ACTIONS_SECRET, None,
                    RotationPosture.AUTONOMOUS, 90,

@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **90.40%** tier-1/2 over 375 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.70%** tier-1/2 over 398 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -90,10 +90,22 @@ Cumulative fit: **90.40%** tier-1/2 over 375 units (spike line: 85.26% / 95 unit
 | 5 | role | task | role:grants_expiry | 1 | 2 | ManagedTaskSpec (A-8 consumer; shipped 5-min loop as Interval) |
 | 5 | role | engine | time/XP planners + feasibility + apply | 4 | 3 | compute_assignments/plan_level_role_assignments/evaluate_role/classified apply — pure decision cores verbatim |
 | 5 | role | engine | reaction runtime + xp-port fill | 2 | 3 | handle_reaction_add/remove modes; install_xp_ports fills the D-0031/D-0036 level-role granter |
+| 5 | platform | store | command-access stores | 2 | 2 | StoreSpec x2 (old 050) + 0018 — the K8 admission DB truth |
+| 5 | platform | op | platform K7 lanes | 2 | 2 | set_access_mode / set_access_channels |
+| 5 | platform | engine | access reader fill + TTL cache | 1 | 3 | install_access_policy_reader — the S9 waiting-port body |
+| 5 | platform | engine | guild-teardown registry | 1 | 3 | guild_lifecycle.py compiled: hook registry w/ shipped isolation |
+| 5 | platform | engine | consistency report | 1 | 3 | severity contract + fail-isolated collector registry verbatim |
+| 5 | platform | engine | introspection + guild snapshot | 2 | 3 | duck-typed pure reads verbatim; snapshot privacy tokens pinned |
+| 5 | platform | engine | K10 claims | 3 | 2 | platform.explain_status/explain_consistency/code_context.explain byte-identical + fact gatherers |
+| 5 | proof_channel | command | prize commands | 5 | 1 | CommandSpec verbatim (+prize/-prize/prizestatus/prizemenu/timedprize) |
+| 5 | proof_channel | panel | proof_channel.hub | 1 | 2 | the _PrizeManagerView as declared grammar (G-10 modals) |
+| 5 | proof_channel | store | proof_channel_locks | 1 | 2 | StoreSpec + 0018 (bug #8 durable deadlines) |
+| 5 | proof_channel | op | proof K7 lanes | 3 | 2 | grant (record+EFFECT w/ compensator) / end / the sweep's unlock |
+| 5 | proof_channel | task | proof:lock_reconcile | 1 | 2 | ManagedTaskSpec — the shipped per-lock timers + on_ready reconcile as ONE minute-granularity sweep |
 
 Per band:
 - band 1: 45.45% (5/11)
 - band 2: 99.41% (169/170)
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
-- band 5: 84.93% (62/73)
+- band 5: 83.33% (80/96)

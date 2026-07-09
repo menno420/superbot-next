@@ -433,6 +433,33 @@
     "name": "warnings"
    }
   ],
+  "proof_channel": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "+prize"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "-prize"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "prizemenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "prizestatus"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "timedprize"
+   }
+  ],
   "role": [
    {
     "aliases": [],
@@ -739,6 +766,8 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
+  "proof_channel.grant_form",
+  "proof_channel.timed_form",
   "role:create",
   "role:diagnostics",
   "role:exemptions",
@@ -769,6 +798,8 @@
   "leaderboard",
   "logging",
   "moderation",
+  "platform",
+  "proof_channel",
   "role",
   "security",
   "server_management",

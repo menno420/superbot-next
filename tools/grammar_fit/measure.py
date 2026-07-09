@@ -219,6 +219,34 @@ UNITS: tuple[Unit, ...] = (
     Unit(5, "role", "engine", "reaction runtime + xp-port fill", 2, 3,
          "handle_reaction_add/remove modes; install_xp_ports fills the "
          "D-0031/D-0036 level-role granter"),
+    # --- band 5 (platform/control + proof_channel slice) -----------------------
+    Unit(5, "platform", "store", "command-access stores", 2, 2,
+         "StoreSpec x2 (old 050) + 0018 — the K8 admission DB truth"),
+    Unit(5, "platform", "op", "platform K7 lanes", 2, 2,
+         "set_access_mode / set_access_channels"),
+    Unit(5, "platform", "engine", "access reader fill + TTL cache", 1, 3,
+         "install_access_policy_reader — the S9 waiting-port body"),
+    Unit(5, "platform", "engine", "guild-teardown registry", 1, 3,
+         "guild_lifecycle.py compiled: hook registry w/ shipped isolation"),
+    Unit(5, "platform", "engine", "consistency report", 1, 3,
+         "severity contract + fail-isolated collector registry verbatim"),
+    Unit(5, "platform", "engine", "introspection + guild snapshot", 2, 3,
+         "duck-typed pure reads verbatim; snapshot privacy tokens pinned"),
+    Unit(5, "platform", "engine", "K10 claims", 3, 2,
+         "platform.explain_status/explain_consistency/code_context.explain "
+         "byte-identical + fact gatherers"),
+    Unit(5, "proof_channel", "command", "prize commands", 5, 1,
+         "CommandSpec verbatim (+prize/-prize/prizestatus/prizemenu/"
+         "timedprize)"),
+    Unit(5, "proof_channel", "panel", "proof_channel.hub", 1, 2,
+         "the _PrizeManagerView as declared grammar (G-10 modals)"),
+    Unit(5, "proof_channel", "store", "proof_channel_locks", 1, 2,
+         "StoreSpec + 0018 (bug #8 durable deadlines)"),
+    Unit(5, "proof_channel", "op", "proof K7 lanes", 3, 2,
+         "grant (record+EFFECT w/ compensator) / end / the sweep's unlock"),
+    Unit(5, "proof_channel", "task", "proof:lock_reconcile", 1, 2,
+         "ManagedTaskSpec — the shipped per-lock timers + on_ready "
+         "reconcile as ONE minute-granularity sweep"),
 )
 
 

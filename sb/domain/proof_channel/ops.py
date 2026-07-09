@@ -1,0 +1,196 @@
+"""Proof-channel K7 lanes (band 5): lock (record + post-commit channel
+EFFECT), timed lock (same + the durable deadline row), unlock, and the
+erasure body. Authority = staff (the registry visibility_tier; shipped
+gate was perms_or_owner(manage_channels=True) — manage_channels has no
+tier bit, staff/manage_guild is the nearest floor, D-0041)."""
+
+from __future__ import annotations
+
+from datetime import datetime, timedelta
+
+from sb.domain.proof_channel import store
+from sb.kernel.workflow.context import LegOutcome, WorkflowContext
+from sb.kernel.workflow.registry import REGISTRY
+from sb.kernel.workflow.result import StepResult
+from sb.kernel.workflow.spec import (
+    CompoundOpSpec,
+    IdempotencyPosture,
+    LegKind,
+    LegSpec,
+    WorkflowLane,
+)
+from sb.spec.refs import WorkflowRef, workflow
+
+__all__ = ["ensure_ops_refs", "register_ops"]
+
+
+def _verr(message: str):
+    from sb.kernel.interaction.errors import ValidatorError
+
+    return ValidatorError(message)
+
+
+async def _resolve_channel(ctx: WorkflowContext) -> int:
+    from sb.domain.proof_channel.service import bound_proof_channel
+
+    cid = int(ctx.params.get("channel_id", 0) or 0)
+    if not cid:
+        cid = await bound_proof_channel(int(ctx.guild_id or 0)) or 0
+    if not cid:
+        raise _verr("Channel '#proof' not found. Please create one first.")
+    ctx.params["channel_id"] = cid
+    return cid
+
+
+@workflow("proof_channel.record_lock")
+async def _record_lock(conn, ctx: WorkflowContext) -> LegOutcome:
+    gid = int(ctx.guild_id or 0)
+    winner_id = int(ctx.params.get("winner_id", 0) or 0)
+    if not winner_id:
+        raise _verr("Usage: `+prize @winner`")
+    cid = await _resolve_channel(ctx)
+    minutes = int(ctx.params.get("duration_minutes", 0) or 0)
+    if minutes:
+        unlock_at = ctx.clock() + timedelta(minutes=minutes)
+        await store.upsert_lock(conn, guild_id=gid, channel_id=cid,
+                                winner_id=winner_id, unlock_at=unlock_at)
+        ctx.params["_unlock_at"] = unlock_at.isoformat()
+    return LegOutcome(
+        step=StepResult(winner_id, "record_lock", True),
+        before={},
+        after={"channel_id": cid, "winner_id": winner_id,
+               "duration_minutes": minutes,
+               "unlock_at": ctx.params.get("_unlock_at")})
+
+
+@workflow("proof_channel.apply_lock")
+async def _apply_lock(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.domain.proof_channel.service import active_channel_actions
+
+    await active_channel_actions().lock_channel_for_winner(
+        int(ctx.guild_id or 0), int(ctx.params.get("channel_id", 0) or 0),
+        int(ctx.params.get("winner_id", 0) or 0))
+    return LegOutcome(step=StepResult(0, "apply_lock", True),
+                      before={}, after={"applied": "lock"})
+
+
+@workflow("proof_channel.compensate_lock")
+async def _compensate_lock(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Lock's compensator: drop the deadline row (pure DB)."""
+    await store.delete_lock(conn, guild_id=int(ctx.guild_id or 0),
+                            channel_id=int(ctx.params.get("channel_id", 0)
+                                           or 0))
+    return LegOutcome(step=StepResult(0, "compensate_lock", True),
+                      before={}, after={"compensated": "lock"})
+
+
+@workflow("proof_channel.record_unlock")
+async def _record_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
+    gid = int(ctx.guild_id or 0)
+    cid = await _resolve_channel(ctx)
+    removed = await store.delete_lock(conn, guild_id=gid, channel_id=cid)
+    return LegOutcome(
+        step=StepResult(gid, "record_unlock", True),
+        before={"lock_present": removed},
+        after={"channel_id": cid, "removed": removed,
+               "reason": str(ctx.params.get("reason", "manual") or "manual")})
+
+
+@workflow("proof_channel.apply_unlock")
+async def _apply_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.domain.proof_channel.service import active_channel_actions
+
+    await active_channel_actions().unlock_channel(
+        int(ctx.guild_id or 0), int(ctx.params.get("channel_id", 0) or 0))
+    return LegOutcome(step=StepResult(0, "apply_unlock", True),
+                      before={}, after={"applied": "unlock"})
+
+
+@workflow("proof_channel.erase_subject_locks")
+async def _erase_subject_locks(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_locks(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_locks", True),
+                      before={}, after={"rows": rows})
+
+
+GRANT_PRIZE = CompoundOpSpec(
+    op_key="proof_channel.grant_access", domain="proof_channel",
+    lane=WorkflowLane.DOMAIN, authority_ref="staff",
+    legs=(
+        LegSpec("record", LegKind.DB,
+                WorkflowRef("proof_channel.record_lock"), "reversible"),
+        LegSpec("apply", LegKind.EFFECT,
+                WorkflowRef("proof_channel.apply_lock"), "compensatable",
+                compensator=WorkflowRef("proof_channel.compensate_lock")),
+    ),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="proof_access_granted", emits=())
+
+RECORD_UNLOCK = CompoundOpSpec(
+    op_key="proof_channel.record_unlock_row", domain="proof_channel",
+    lane=WorkflowLane.DOMAIN, authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("proof_channel.record_unlock"), "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="proof_access_revoked", emits=())
+
+END_PRIZE = CompoundOpSpec(
+    op_key="proof_channel.end_access", domain="proof_channel",
+    lane=WorkflowLane.DOMAIN, authority_ref="staff",
+    legs=(
+        LegSpec("record", LegKind.DB,
+                WorkflowRef("proof_channel.record_unlock"), "reversible"),
+        LegSpec("apply", LegKind.EFFECT,
+                WorkflowRef("proof_channel.apply_unlock"), "reversible"),
+    ),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="proof_access_revoked", emits=())
+
+_OPS = (GRANT_PRIZE, RECORD_UNLOCK, END_PRIZE)
+
+_REF_TABLE = (
+    ("proof_channel.record_lock", _record_lock),
+    ("proof_channel.apply_lock", _apply_lock),
+    ("proof_channel.compensate_lock", _compensate_lock),
+    ("proof_channel.record_unlock", _record_unlock),
+    ("proof_channel.apply_unlock", _apply_unlock),
+    ("proof_channel.erase_subject_locks", _erase_subject_locks),
+)
+
+
+def _op_runner(op: CompoundOpSpec):
+    async def _run(ctx):
+        from sb.kernel.workflow import engine
+
+        return await engine.run(op, ctx)
+    return _run
+
+
+def _register_op_markers() -> None:
+    from sb.spec.refs import is_registered
+    from sb.spec.refs import workflow as _workflow
+
+    for op in _OPS:
+        if not is_registered(WorkflowRef(op.op_key)):
+            _workflow(op.op_key)(_op_runner(op))
+
+
+def register_ops() -> None:
+    for op in _OPS:
+        try:
+            REGISTRY.register(op)
+        except ValueError as exc:
+            if "duplicate CompoundOpSpec" not in str(exc):
+                raise
+    _register_op_markers()
+
+
+def ensure_ops_refs() -> None:
+    from sb.spec.refs import is_registered
+    from sb.spec.refs import workflow as _workflow
+
+    for name, fn in _REF_TABLE:
+        if not is_registered(WorkflowRef(name)):
+            _workflow(name)(fn)
+    _register_op_markers()
