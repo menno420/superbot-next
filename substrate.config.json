@@ -32,9 +32,12 @@
     "pass_records_dir": "planning",
     "reference_roots": []
   },
+  "heartbeat_files": [
+    "control/status.md"
+  ],
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
-  "kit_version": "1.2.0",
+  "kit_version": "1.6.0",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",

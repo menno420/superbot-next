@@ -16,6 +16,8 @@ from __future__ import annotations
 import logging
 
 from sb.domain.games import store, xp as game_xp
+from sb.kernel.interaction.handler_kit import Reply
+from sb.spec.outcomes import SUCCESS
 from sb.spec.refs import HandlerRef, handler, is_registered
 
 logger = logging.getLogger("sb.domain.games.service")
@@ -120,11 +122,13 @@ async def _session_gc_handler(ctx: object) -> dict:
 
 
 @handler("games.world_card_view")
-async def _world_card_view(req: object) -> dict:
+async def _world_card_view(req: object) -> Reply:
+    # The resolver's HandlerRef leg reads .outcome/.user_message off the
+    # reply (resolve.py); a raw dict crashes the surface into a BUG envelope.
     actor = getattr(req, "actor", None)
     uid = int(getattr(actor, "user_id", 0) or 0)
     gid = int(getattr(req, "guild_id", 0) or 0)
-    return {"text": await world_card_text(uid, gid)}
+    return Reply(SUCCESS, await world_card_text(uid, gid))
 
 
 def ensure_service_refs() -> None:

@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — agent working agreement
 
 > **Status:** `binding`
@@ -20,11 +14,15 @@ superbot-next is built in Python.
 
 1. This file — the working agreement.
 2. `docs/current-state.md` — what is true right now.
-3. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.
+3. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).
+   Never declare a wall or a missing credential without its discovery rule:
+   check the file → check the env → attempt once + capture the exact error →
+   append the finding same session.
+4. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.
 
 ## Architecture — layers & import rules
 
-${architecture_layers}
+sb/spec + sb/namespace are stdlib-only grammar leaves (frozen dataclasses, registries) that import nothing above them; sb/kernel bands (config, observability, db, authority, events, workflow, draft, panels, scheduler, ...) import spec/namespace and never domain — no kernel->domain import edge, ever; sb/domain/<key> port-band subsystems import kernel + spec and sit behind the audited seams; sb/adapters (discord, http) import kernel + spec; sb/app is the composition root and may import everything; sb/manifest holds pure declarations + handler registrations. Layer map: sb/__init__.py (rebuild design-spec 1.1); guards: tools/check_symbol_shadowing.py, check_namespace.py, check_no_skip.py, check_config_usage.py
 
 ## Verifying a change
 
@@ -36,7 +34,7 @@ python3 -m pytest
 
 ## How the maintainer works
 
-${owner_profile}
+The owner designs, directs, and reviews outcomes; he does not code and relies on agents for complete end-to-end work, cross-checked by other agents. He thinks iteratively and in fragments — reason a partial ask forward to its fuller form and state that picture back inline before building (understand-and-reflect). Default to decide-and-flag autonomy (PL-001): act on contained reversible work, flag decisions with a one-line rationale instead of parking them; route only genuine product-intent ambiguity to docs/question-router.md. Reports concise and evidence-first
 
 ## Workflow adoption
 

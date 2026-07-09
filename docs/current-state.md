@@ -6,18 +6,35 @@
 > work always win over this file. Read it second (right after the working
 > agreement) and keep it current as the project moves.
 
+> **Live operational truth lives in [`control/status.md`](../control/status.md)**
+> (blockers, owner actions, next lane) and the testing ledger
+> (`docs/status/testing-report-2026-07-09.md`). This file stays a thin snapshot on
+> purpose — one source of truth, no second ledger to drift. Red-CI orientation:
+> [`docs/status/README-first.md`](status/README-first.md).
+
 ## Stability baseline
 
-(Describe the accepted-stable baseline once established — what is known-good and
-should not be re-audited without a reported regression.)
+All seven port bands built (41 subsystems / 276 commands / 121 settings,
+hash-pinned `manifest.snapshot.json`); boots to RUNNING on real PostgreSQL
+(CUT-1 smoke PASS); unit suite ~1,125 green; the 22-checker fleet + six required
+named gates green on main. The `golden-parity` **report** leg is red-by-design
+(README-first.md) — not a regression signal.
 
 ## In flight
 
-(Verify against live source control — this section is a dated snapshot.)
+(Verify against live source control — this section is a dated snapshot,
+2026-07-09.) Band-5 (governance/roles/platform) live-testing is the current
+lane; PR #95 (band-5 replay/live seams, D-0062) open at snapshot time. First
+`ported` flip ⚑ gated on the owner's flag-13 ruling (`control/status.md`
+OWNER-ACTION 1).
 
 ## Recently shipped (newest first)
 
-(Merged work only, newest first.)
+- 2026-07-09 — worldcard Reply-shape fix + red-orientation docs (this session).
+- 2026-07-09 — kit v1.6.0 upgrade (#96); gen-1 retro pair complete (#87
+  self-review, #92 project review); band-4 live-tested complete (#88, #94).
+- Full history: the append-only decision ledger (`docs/decisions.md`, 61
+  entries) and merged PRs are the record — this list stays shallow by design.
 
 ## Review rhythm
 

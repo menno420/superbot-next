@@ -36,6 +36,16 @@ jobs:
           fi
           echo "control_only=$control_only" >> "$GITHUB_OUTPUT"
           echo "control-only diff: $control_only"
+      - name: control-status gate (fast lane — a control diff must still prove its heartbeat)
+        if: steps.lane.outputs.control_only == 'true'
+        # The lane skips the heavy gate, but a control-only PR edits
+        # exactly the files the status checker validates — without
+        # this step a heartbeat-deleting control PR merges GREEN and
+        # pre-reddens the NEXT unrelated PR (kit fleet review
+        # 2026-07-09). Scoped + stdlib-only on the system python3
+        # (no setup-python): the lane stays fast, and heartbeat PRs
+        # still need no session card.
+        run: python3 bootstrap.py check --strict --status-only
       - uses: actions/setup-python@v5
         if: steps.lane.outputs.control_only != 'true'
         with:
