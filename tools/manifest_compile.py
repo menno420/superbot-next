@@ -784,6 +784,12 @@ def compile_manifests(
     return CompileResult(ok, full_snapshot, stable_hash, tuple(violations))
 
 
+def serialize_manifest(manifest: object) -> object:
+    """Public: one manifest → pure data (the P8 ``_serialize`` mechanics),
+    for out-of-tree manifest pinning (``sb/app/plugin_host.py``)."""
+    return _serialize(manifest)
+
+
 def render_snapshot(snapshot: dict) -> str:
     """The committed-file rendering: canonical body, human-diffable indentation."""
     return json.dumps(snapshot, sort_keys=True, indent=2, ensure_ascii=False) + "\n"

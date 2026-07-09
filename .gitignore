@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+# packaging build artifacts (pyproject.toml — the plugin-contract dist)
+build/
+dist/
+*.egg-info/

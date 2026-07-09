@@ -1,0 +1,34 @@
+# pyproject.toml — packaging for the GAME-PLUGIN CONTRACT (ORDER 002;
+# docs/game-plugin-contract.md): makes the `sb` package pip-installable so an
+# external game-plugin repo can develop against the kernel seams
+# (sb.spec manifest grammar, refs, panels) via the documented git-dependency
+# pattern:
+#
+#     superbot-next @ git+https://github.com/menno420/superbot-next@<sha>
+#
+# Dependency truth stays in requirements.txt / requirements.lock (S13,
+# spec 12 §2.C — the lock is the deployable set); the `dependencies` table
+# below is read DYNAMICALLY from requirements.txt so there is one source.
+# The installed dist supports manifest AUTHORING and unit tests out-of-tree;
+# a full live boot still runs from a host-repo checkout (migrations/, tools/,
+# manifest.snapshot.json are deliberately not packaged).
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "superbot-next"
+version = "0.1.0"
+description = "superbot-next host — the sb kernel/spec package, installable for out-of-tree game plugins (docs/game-plugin-contract.md)."
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["sb*"]
+
+[tool.setuptools.package-data]
+"sb.namespace" = ["*.json", "*.yml"]

@@ -319,6 +319,40 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             return _fail_startup("boot_gate_leg_b",
                                  [str(v) for v in report.violations])
 
+        # 9b. the plugin host — installed out-of-tree game plugins join the
+        #     SAME live seams (docs/game-plugin-contract.md): entry-point
+        #     discovery, committed-pin verify (the plugin twin of leg A),
+        #     one joint compile over host+plugins, THEN the union re-installs
+        #     the live dispatch index and registers plugin settings/panels.
+        #     Deliberately AFTER legs A/B: both hash the in-tree corpus, and
+        #     a plugin import before the recompile would leak its refs into
+        #     the snapshot's refs projection and red a green tree.
+        from sb.app.plugin_host import load_plugins
+
+        plugin_report = load_plugins(manifests)
+        for dist_name in plugin_report.skipped:
+            logger.warning("plugin pinned but not installed — skipped: %s",
+                           dist_name)
+        if plugin_report.violations:
+            return _fail_startup("plugin_gate",
+                                 list(plugin_report.violations))
+        if plugin_report.manifests:
+            manifests = list(manifests) + list(plugin_report.manifests)
+            index_size = install_live_target_index(manifests)
+            for manifest in plugin_report.manifests:
+                try:
+                    register_manifest_settings(manifest)
+                except ValueError as exc:
+                    if "already declared" not in str(exc):
+                        raise
+            plugin_panels = register_manifest_panels(
+                list(plugin_report.manifests))
+            logger.info(
+                "plugin host: %d plugin(s) admitted (%s) — live index "
+                "re-installed: %d target(s), +%d plugin panel(s)",
+                len(plugin_report.loaded), "; ".join(plugin_report.loaded),
+                index_size, plugin_panels)
+
         # 10. the gateway client + the K8 error shims + the live emitter.
         from sb.adapters.discord import gateway as gw
 
