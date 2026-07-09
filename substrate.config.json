@@ -14,7 +14,7 @@
     "compaction_sessions": 20,
     "critical_slot_grace_sessions": 3,
     "guided_practice_sessions": 3,
-    "reconciliation_prs": 20,
+    "reconciliation_prs": 30,
     "reconciliation_sessions": 20,
     "staleness_days": 14
   },
@@ -34,6 +34,7 @@
   },
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
+  "kit_version": "1.0.0",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",
