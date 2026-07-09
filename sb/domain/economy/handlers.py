@@ -94,11 +94,8 @@ def _register() -> None:
             if result.outcome != SUCCESS:
                 return Reply(result.outcome,
                              result.user_message or "Could not work that job.")
-            after = (result.after or {})
-            job = str(after.get("work", {}).get("job", "")
-                      if isinstance(after.get("work"), dict) else "") or "job"
-            return Reply(SUCCESS, f"💼 Work complete — **{job}**. "
-                                  f"{result.user_message or ''}".strip())
+            # the leg speaks the success copy now (D-0060)
+            return Reply(SUCCESS, result.user_message or "💼 Work complete.")
         available = await service.available_jobs(uid, gid)
         if not available:
             return Reply(BLOCKED,
