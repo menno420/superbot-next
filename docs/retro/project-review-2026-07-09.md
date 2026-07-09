@@ -1,6 +1,6 @@
 # Project review — superbot-next gen-1 (2026-07-09)
 
-> **Status:** retro deliverable (ORDER 006, control/inbox.md 2026-07-09T17:36Z).
+> **Status:** `historical` — ORDER 006 deliverable (agent audit + owner-actions + continuation, point-in-time).
 > Companion to `docs/retro/self-review-2026-07-09.md` (ORDER 005, PR #87) — that
 > file answers the QUESTIONS.md IDs; THIS file is the agent audit, the ⚑
 > owner-actions list, and the continuation section the retro was missing.
