@@ -58,13 +58,23 @@ def test_require_reason_blocks_before_side_effects():
 
 def test_parse_target_and_reason_prefix_form():
     from sb.domain.moderation.service import parse_target_and_reason
+    from sb.kernel.interaction.errors import ValidatorError
 
     target, reason = parse_target_and_reason(
         {"argv": ("<@900000000000000103>", "parity", "test")})
     assert target == 900000000000000103
     assert reason == "parity test"
-    with pytest.raises(ValueError):
+    # bare numeric id — the shipped `!unban <user_id>` contract (a banned
+    # user can never be mentioned); band-2 replay found this rejected.
+    target, reason = parse_target_and_reason({"argv": ("3", "why not")})
+    assert target == 3
+    assert reason == "why not"
+    # a missing target is a polite user_error (ValidatorError), never a
+    # BUG envelope — still a ValueError subclass for legacy call sites.
+    with pytest.raises(ValidatorError):
         parse_target_and_reason({"argv": ("not-a-mention",)})
+    with pytest.raises(ValueError):
+        parse_target_and_reason({"argv": ()})
 
 
 def test_warn_escalation_ladder(monkeypatch):
@@ -101,9 +111,113 @@ def test_warn_escalation_ladder(monkeypatch):
     outcome = asyncio.run(ops._record_warn(None, ctx))
     assert outcome.after["escalated"] == "timeout"   # 3rd warn hits threshold
     assert counts["n"] == 0                          # ladder resets the count
-    assert [r[0] for r in rows] == ["warn", "timeout"]
+    # shipped history vocabulary: warn row, escalation row ("Reached N
+    # warnings"), and the reset's own "clearwarnings" row — three rows.
+    assert [r[0] for r in rows] == ["warn", "timeout", "clearwarnings"]
+    assert rows[1][2] == "Reached 3 warnings"
+    assert rows[2][2] == "Warnings cleared"
     assert ctx.params["_escalation"] == "timeout"
     assert ctx.params["_target_id"] == 900000000000000103
+    # shipped operator ack, line 1 (render_warn_outcome_lines verbatim)
+    assert outcome.user_message == (
+        "⚠️ <@900000000000000103> warned (3/3). Reason: spam")
+
+
+def test_timeout_record_leg_parses_duration(monkeypatch):
+    """Shipped `!timeout @member <minutes>`: the duration is REQUIRED and,
+    with no explicit reason, IS the reason ("N minutes" — shipped verbatim);
+    a missing duration is a polite user_error."""
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, store
+    from sb.kernel.interaction.errors import ValidatorError
+    from sb.kernel.workflow.context import WorkflowContext
+
+    _register_declarations()
+    rows: list[tuple] = []
+
+    async def fake_log(conn, *, guild_id, action, target_id, moderator_id,
+                       reason, at=None):
+        rows.append((action, target_id, reason))
+
+    monkeypatch.setattr(store, "log_mod_action", fake_log)
+
+    def _ctx(argv):
+        return WorkflowContext(
+            actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+            request_id="r1", confirmed=False, params={"argv": argv})
+
+    ctx = _ctx(("<@900000000000000103>", "3"))
+    outcome = asyncio.run(ops._record_timeout(None, ctx))
+    assert ctx.params["_minutes"] == 3
+    assert ctx.params["_reason"] == "3 minutes"
+    assert outcome.after["minutes"] == 3
+    assert rows[-1] == ("timeout", 900000000000000103, "3 minutes")
+
+    ctx = _ctx(("<@900000000000000103>", "5", "being", "rude"))
+    asyncio.run(ops._record_timeout(None, ctx))
+    assert ctx.params["_minutes"] == 5
+    assert ctx.params["_reason"] == "being rude"
+
+    with pytest.raises(ValidatorError):
+        asyncio.run(ops._record_timeout(None, _ctx(("<@900000000000000103>",))))
+
+
+def test_apply_legs_carry_shipped_acks(monkeypatch):
+    """EFFECT legs speak the shipped operator acks (band-2 finding: op
+    success used to render SILENT — no user_message channel existed)."""
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, service
+    from sb.kernel.workflow.context import WorkflowContext
+
+    applied: list[tuple] = []
+
+    class FakeActions:
+        async def timeout_member(self, guild_id, user_id, *, minutes, reason):
+            applied.append(("timeout", user_id, minutes, reason))
+
+        async def kick_member(self, guild_id, user_id, *, reason):
+            applied.append(("kick", user_id, reason))
+
+        async def ban_member(self, guild_id, user_id, *, reason,
+                             delete_message_days):
+            applied.append(("ban", user_id, reason, delete_message_days))
+
+        async def unban_member(self, guild_id, user_id, *, reason):
+            applied.append(("unban", user_id, reason))
+
+        async def dm_member(self, user_id, text):
+            applied.append(("dm", user_id))
+
+    service.install_moderation_actions(FakeActions())
+    try:
+        def _ctx(**params):
+            return WorkflowContext(
+                actor=SimpleNamespace(user_id=42, actor_type="user"),
+                guild_id=1, request_id="r1", confirmed=True, params=params)
+
+        out = asyncio.run(ops._apply_timeout(
+            None, _ctx(_target_id=7, _reason="3 minutes", _minutes=3)))
+        assert out.user_message == "⏳ <@7> timed out for 3 minute(s)."
+        assert applied[-1] == ("timeout", 7, 3, "3 minutes")
+
+        out = asyncio.run(ops._apply_kick(
+            None, _ctx(_target_id=7, _reason="No reason provided")))
+        assert out.user_message == "👢 <@7> kicked. Reason: No reason provided"
+
+        out = asyncio.run(ops._apply_unban(
+            None, _ctx(_target_id=3, _reason="No reason provided")))
+        assert out.user_message == "✅ <@3> unbanned."
+
+        out = asyncio.run(ops._apply_warn_effects(
+            None, _ctx(_target_id=7, _escalation="timeout",
+                       _warn_threshold=3, _timeout_minutes=10)))
+        assert out.user_message == ("⏳ <@7> timed out for 10 minutes "
+                                    "(3 warnings).")
+        assert applied[-1] == ("timeout", 7, 10, "Reached 3 warnings")
+    finally:
+        service.reset_moderation_ports_for_tests()
 
 
 def test_op_reversibility_rollup_and_kick_confirmation():

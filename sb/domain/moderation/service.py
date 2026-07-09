@@ -124,18 +124,31 @@ def resolve_reason(reason: str, policy: ModerationPolicy, *, action: str) -> str
 
 def parse_target_and_reason(params: dict) -> tuple[int, str]:
     """Surface-normalized arg extraction: explicit target_id/reason params
-    (slash/panel) or the prefix argv form (`<@id> free text reason`)."""
+    (slash/panel) or the prefix argv form (`<@id> free text reason`).
+    Bare numeric ids are accepted too — the shipped `!unban <user_id>`
+    contract (a banned user can never be mentioned).
+
+    A missing/unparseable target raises ``ValidatorError`` so dispatch
+    classifies it as a polite ``user_error`` denial (usage hint), never a
+    BUG envelope (band-2 testing finding, 2026-07-09)."""
+    from sb.kernel.interaction.errors import ValidatorError
+
     target = params.get("target_id") or params.get("member") or params.get("user")
     reason = str(params.get("reason", "") or "")
     if target is None:
         argv = tuple(params.get("argv", ()) or ())
         if argv:
-            match = _MENTION.match(str(argv[0]))
+            first = str(argv[0])
+            match = _MENTION.match(first)
             if match:
                 target = int(match.group(1))
                 reason = " ".join(str(a) for a in argv[1:])
+            elif first.isdigit():
+                target = int(first)
+                reason = " ".join(str(a) for a in argv[1:])
     if target is None:
-        raise ValueError("no target member supplied (mention or target_id)")
+        raise ValidatorError(
+            "member", "no target member supplied (mention or user id)")
     return int(str(target).strip("<@!>")), reason
 
 

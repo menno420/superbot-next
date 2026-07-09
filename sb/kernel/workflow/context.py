@@ -48,6 +48,9 @@ class LegOutcome:
     after: object | None = None                # -> central-row new_value + diff
     payload: object | None = None              # typed value the op result surfaces
     warnings: tuple[str, ...] = ()
+    user_message: str | None = None            # success copy line — legs in order,
+                                               # newline-joined into WorkflowResult
+                                               # .user_message (None = no line)
 
 
 class LegHandler(Protocol):

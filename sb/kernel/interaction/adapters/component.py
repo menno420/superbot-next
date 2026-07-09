@@ -62,6 +62,17 @@ def request_from_component(interaction: object, *, responder,
                     else getattr(data, "custom_id", ""))
     target_key, confirmed, request_id = parse_custom_id(custom_id)
     target = lookup_target(target_key, surface)
+    if target is None and confirmed:
+        # the confirm control re-enters ITS OWN command: a prefix/slash-only
+        # command (e.g. `!kick`, CommandKind.PREFIX) has no COMPONENT index
+        # entry, but its `sb.confirm:` click is still that command's own
+        # re-entry — look it up on the surfaces commands register under
+        # (band-2 finding, D-0052: confirm ids minted by prefix commands
+        # could never resolve).
+        for fallback in (Surface.PREFIX, Surface.SLASH):
+            target = lookup_target(target_key, fallback)
+            if target is not None:
+                break
     if target is None:
         routed = route_custom_id(target_key)
         if isinstance(routed, ComponentBinding):

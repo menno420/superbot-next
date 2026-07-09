@@ -91,7 +91,12 @@ class MessageResponder:
         await self._ctx.reply("This action needs the slash-command version.")
 
     async def open_confirm(self, prompt: ConfirmPrompt) -> None:
-        await self._ctx.reply(prompt.prompt_text)
+        # v1 confirm surface on the message band: the same custom-id-in-text
+        # convention as InteractionResponder — the id IS the re-entry handle
+        # (the component adapter resolves it back to this command).
+        custom_id = f"sb.confirm:{prompt.target_key}:{prompt.request_id}"
+        await self._ctx.reply(
+            f"{prompt.prompt_text} (confirm id: `{custom_id}`)")
 
     async def render(self, result: object) -> None:
         message = getattr(result, "user_message", None)

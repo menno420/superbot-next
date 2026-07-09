@@ -158,6 +158,14 @@ async def _run_db_legs(spec, ctx, conn) -> tuple[list[LegOutcome], list[StepResu
     return outcomes, steps
 
 
+def _join_leg_copy(outcomes: list[LegOutcome]) -> str | None:
+    """Success copy supplied by legs (LegOutcome.user_message), leg order,
+    newline-joined — the surface renders WorkflowResult.user_message as-is."""
+    lines = [str(o.user_message) for o in outcomes
+             if getattr(o, "user_message", None)]
+    return "\n".join(lines) if lines else None
+
+
 def _rollup(outcomes: list[LegOutcome]) -> tuple[object, object]:
     befores = {getattr(o.step, "target_name", str(i)): o.before
                for i, o in enumerate(outcomes) if o.before is not None}
@@ -242,12 +250,15 @@ async def _execute(spec: CompoundOpSpec, ctx: WorkflowContext, *,
             before, after = _rollup(outcomes)
             outcome_so_far = SUCCESS if all(s.ok for s in steps) else PARTIAL
             # 4c. pending result (payload_builder may read every field here).
+            # Legs may supply success copy (LegOutcome.user_message) — joined
+            # in leg order; EFFECT legs append theirs post-commit (step 5).
+            db_copy = _join_leg_copy(outcomes)
             pending = WorkflowResult(
                 mutation_id=mutation_id, guild_id=ctx.guild_id,
                 domain=spec.domain, operation=spec.op_key,
                 outcome=outcome_so_far, reversibility=spec.reversibility,
                 steps=tuple(steps), lane=spec.lane, before=before, after=after,
-                committed_at=None, dedup_key=key,
+                committed_at=None, dedup_key=key, user_message=db_copy,
             )
             # 4d. central audit (row + durable bus twin), in-txn.
             occurred_at = ctx.clock() if callable(ctx.clock) else ctx.clock
@@ -319,6 +330,7 @@ async def _run_effect_legs(spec: CompoundOpSpec, ctx: WorkflowContext,
     PARTIAL (fork E — no saga engine in v1)."""
     steps = list(result.steps)
     degraded = False
+    copy_lines: list[str] = []
     for leg in spec.legs:
         if leg.kind is not LegKind.EFFECT:
             continue
@@ -326,6 +338,8 @@ async def _run_effect_legs(spec: CompoundOpSpec, ctx: WorkflowContext,
         try:
             out = await handler(None, ctx)
             steps.append(out.step)
+            if getattr(out, "user_message", None):
+                copy_lines.append(str(out.user_message))
         except Exception as exc:  # noqa: BLE001 — compensate-or-record (fork E)
             degraded = True
             steps.append(StepResult(0, leg.leg_id, False, str(exc)))
@@ -339,7 +353,11 @@ async def _run_effect_legs(spec: CompoundOpSpec, ctx: WorkflowContext,
     outcome = classify_outcome(tuple(steps)) if steps else result.outcome
     if degraded and outcome == SUCCESS:
         outcome = PARTIAL
-    return replace(result, steps=tuple(steps), outcome=outcome)
+    user_message = result.user_message
+    if copy_lines:
+        user_message = "\n".join(filter(None, [user_message, *copy_lines]))
+    return replace(result, steps=tuple(steps), outcome=outcome,
+                   user_message=user_message)
 
 
 def _record_finding(spec: CompoundOpSpec, leg_id: str, summary: str) -> None:
