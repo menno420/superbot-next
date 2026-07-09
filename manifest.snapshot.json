@@ -3963,7 +3963,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:777681273d769efadf87f701dac9e5ef8098464383b65eeb24dbb1f2cfca8d27",
+  "stable_hash": "sha256:79c09e2f71eb6871a4bf2b070064efc81f50c67d061d23809aceae1dd940dc68",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -7816,7 +7816,9 @@
           "checkpoint_class": "session",
           "compensation_ref": null,
           "data_class": "member_id",
-          "erasure_ref": "games.discard_subject_sessions",
+          "erasure_ref": {
+            "$ref": "workflow:games.discard_subject_sessions"
+          },
           "forward_map_kind": "name_stable",
           "invariant_tag": "game_state",
           "is_cache": false,
@@ -7842,7 +7844,9 @@
           "checkpoint_class": "aggregate",
           "compensation_ref": null,
           "data_class": "member_id",
-          "erasure_ref": "games.erase_subject_game_xp",
+          "erasure_ref": {
+            "$ref": "workflow:games.erase_subject_game_xp"
+          },
           "forward_map_kind": "name_stable",
           "invariant_tag": "game_xp",
           "is_cache": false,
