@@ -87,7 +87,8 @@ def _ensure_help_provider() -> ProviderRef:
             for subsystem in sorted(_help_entries):
                 lines = [f"`{name}` — {summary}" if summary else f"`{name}`"
                          for name, summary in _help_entries[subsystem]]
-                rows.append((subsystem, "\n".join(lines) or "—"))
+                rows.append((subsystem,
+                             "\n".join(lines) or "No commands declared yet."))
             return tuple(rows)
     return ref
 
