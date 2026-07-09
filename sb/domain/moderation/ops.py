@@ -67,14 +67,19 @@ async def _record_warn(conn, ctx: WorkflowContext) -> LegOutcome:
         # "clearwarnings"/"Warnings cleared" row via clear_warnings()).
         await store.clear_warnings(conn, user_id=target_id,
                                    guild_id=int(ctx.guild_id or 0))
-        await store.log_mod_action(
+        escalation_row = await store.log_mod_action(
             conn, guild_id=int(ctx.guild_id or 0), action=escalation,
             target_id=target_id, moderator_id=_actor_id(ctx),
             reason=f"Reached {policy.warn_threshold} warnings")
-        await store.log_mod_action(
+        clear_row = await store.log_mod_action(
             conn, guild_id=int(ctx.guild_id or 0), action="clearwarnings",
             target_id=target_id, moderator_id=_actor_id(ctx),
             reason="Warnings cleared")
+        # compensation handles: a Discord-refused escalation must NOT leave
+        # phantom history rows or a wiped count (the oracle keeps the count
+        # and reports escalation_blocked — ORDER 004 item 1).
+        ctx.params["_escalation_row_ids"] = (escalation_row, clear_row)
+        ctx.params["_pre_escalation_count"] = count
     # thread the decision to the EFFECT leg + payload through params
     ctx.params["_warn_count"] = count
     ctx.params["_warn_threshold"] = policy.warn_threshold
@@ -284,6 +289,49 @@ async def _compensate_unban(conn, ctx: WorkflowContext) -> LegOutcome:
                       before={}, after={"compensated": "unban"})
 
 
+@workflow("moderation.compensate_warn_escalation")
+async def _compensate_warn_escalation(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Warn's compensator (fork E; conn=None — opens its own txn): a
+    Discord-refused escalation withdraws the in-txn escalation bookkeeping
+    so the DB matches the oracle (disbot moderation_service.warn): the
+    warning COUNT is kept and no escalation/"Warnings cleared" history rows
+    exist — the effect never happened, the history must not claim it did.
+    The warn row itself stays (the warning WAS recorded). An operator
+    finding reports the blocked escalation (the WarnOutcome
+    ``escalation_blocked`` twin)."""
+    from sb.kernel.db import pool
+
+    escalation = str(ctx.params.get("_escalation") or "")
+    if not escalation:
+        return LegOutcome(step=StepResult(0, "compensate_warn_escalation", True),
+                          before={}, after={"compensated": "nothing"})
+    target_id = int(ctx.params.get("_target_id", 0))
+    guild_id = int(ctx.guild_id or 0)
+    pre_count = int(ctx.params.get("_pre_escalation_count", 0))
+    row_ids = tuple(int(i) for i in
+                    ctx.params.get("_escalation_row_ids", ()) if i)
+    async with pool.transaction() as txn:
+        await store.set_warnings(txn, user_id=target_id, guild_id=guild_id,
+                                 count=pre_count)
+        withdrawn = await store.withdraw_mod_log_rows(txn, ids=row_ids)
+    try:
+        from sb.kernel.observability.findings import record_operator_finding
+
+        record_operator_finding(
+            source="workflow:moderation.warn", severity="warning",
+            summary=(f"warn escalation ({escalation}) blocked by Discord — "
+                     f"count restored to {pre_count}, "
+                     f"{withdrawn} history row(s) withdrawn"),
+            detail="", correlation_id=None)
+    except Exception:  # noqa: BLE001 — findings are observability only
+        pass
+    return LegOutcome(step=StepResult(0, "compensate_warn_escalation", True),
+                      before={"warnings": 0},
+                      after={"warnings": pre_count,
+                             "withdrawn_rows": withdrawn,
+                             "escalation_blocked": escalation})
+
+
 @workflow("moderation.action_payload")
 def _action_payload(ctx: WorkflowContext, result) -> dict:
     return {
@@ -331,7 +379,11 @@ def _op(op_key: str, verb: str, db_ref: str, effect_ref: str | None, *,
 
 WARN = _op("moderation.warn", "member_warned",
            "moderation.record_warn", "moderation.apply_warn_effects",
-           effect_reversibility="reversible")   # escalation default = liftable timeout
+           effect_reversibility="compensatable",
+           compensator="moderation.compensate_warn_escalation")
+           # a refused escalation un-writes the in-txn ladder bookkeeping
+           # (count kept, phantom rows withdrawn — the oracle's
+           # escalation_blocked semantics; ORDER 004 item 1)
 TIMEOUT = _op("moderation.timeout", "member_timed_out",
               "moderation.record_timeout", "moderation.apply_timeout",
               effect_reversibility="reversible")
@@ -369,6 +421,7 @@ _REF_TABLE = (
     ("moderation.apply_unban", _apply_unban),
     ("moderation.compensate_ban", _compensate_ban),
     ("moderation.compensate_unban", _compensate_unban),
+    ("moderation.compensate_warn_escalation", _compensate_warn_escalation),
     ("moderation.action_payload", _action_payload),
 )
 
