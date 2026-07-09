@@ -343,6 +343,19 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         logger.info("app-command tree built: %d slash command(s) "
                     "from the live manifests", tree_count)
 
+        # 10c. the component feed — buttons/selects re-enter the kernel
+        #      spine (custom_id → dispatch_component → resolve()/panel
+        #      engine), the interaction-band twin of step 14b's message
+        #      feed. No intent gate: components ride the interaction band
+        #      (spec 14 §2.B degrades message-band classes only). Without
+        #      this listener every nav:*/panel/confirm click dies in the
+        #      view's no-op default (owner-feedback triage, 2026-07-09).
+        from sb.adapters.discord.component_feed import arm_component_feed
+
+        arm_component_feed(bot)
+        logger.info("component feed armed: button/select dispatch "
+                    "(custom_id → resolve(); modal submits stay dormant)")
+
         # 11. lifecycle STARTING (explicit intent record) → gateway connect.
         lifecycle.set_phase(lifecycle.Phase.STARTING, reason="composition root boot")
         try:
