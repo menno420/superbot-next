@@ -6528,7 +6528,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b2e5b645995ef810373fc1bc3c0733a3603730876a0cba9f3e6ea215b2150cc4",
+  "stable_hash": "sha256:353e6cb3a931ed045dfda2619ddc74339d1f72930be16ba8552aa9ce2eea2161",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19353,7 +19353,7 @@
           },
           "slash_common": false,
           "summary": "Timeout a member.",
-          "usage": "!timeout @member [reason]",
+          "usage": "!timeout @member <minutes>",
           "usage_weight": 1.0
         },
         {

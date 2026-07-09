@@ -40,6 +40,7 @@ from parity.harness.world import DEFAULT_PERSONAS, World
 
 from sb.adapters.parity.transport import (
     ParityChannelEmitter,
+    ParityModerationActions,
     ParityPresenter,
     ParityResponder,
     ParityTransport,
@@ -240,14 +241,21 @@ class Harness:
 
     def _arm_capture_ports(self) -> None:
         """(Re-)install the capture seams — also the post-reset re-arm."""
+        from sb.domain.moderation.service import install_moderation_actions
         from sb.kernel.interaction.egress import install_channel_emitter
         from sb.kernel.interaction.resolve import install_panel_engine
         from sb.kernel.panels import engine as panel_engine
 
         assert self.http is not None
+        assert self.world is not None
         install_panel_engine(panel_engine.open_panel)
         panel_engine.install_panel_presenter(ParityPresenter(self.http))
         install_channel_emitter(ParityChannelEmitter(self.http))
+        # the moderation EFFECT legs' guild-action port — capture twin, same
+        # obligation as the live root's adapter (else every moderation op
+        # replays PARTIAL with a not-installed finding: a harness gap).
+        install_moderation_actions(
+            ParityModerationActions(self.http, self.world.clock))
 
     # ------------------------------------------------------- per-case resets
 
@@ -409,6 +417,7 @@ class Harness:
             self.db_ready = False
         # release the process-global seams we armed (same-process test hygiene)
         try:
+            from sb.domain.moderation.service import reset_moderation_ports_for_tests
             from sb.kernel import lifecycle
             from sb.kernel.interaction import cooldown as cooldown_mod
             from sb.kernel.interaction.adapters import reset_adapter_ports_for_tests
@@ -420,6 +429,7 @@ class Harness:
             panel_engine.reset_panel_engine_for_tests()
             reset_adapter_ports_for_tests()
             reset_channel_emitter_for_tests()
+            reset_moderation_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
         except Exception:  # noqa: BLE001 — close is best-effort

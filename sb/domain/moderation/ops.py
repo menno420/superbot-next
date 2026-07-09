@@ -61,13 +61,20 @@ async def _record_warn(conn, ctx: WorkflowContext) -> LegOutcome:
             and policy.warn_escalation_action in ("timeout", "kick", "ban")):
         escalation = policy.warn_escalation_action
         # shipped ladder: escalate then RESET the count (warn -> auto-action
-        # -> clear), recorded as its own history row in the same txn.
+        # -> clear), each recorded as its own history row in the same txn —
+        # shipped row vocabulary verbatim (services/moderation_service.py:
+        # escalation reason "Reached N warnings"; the reset writes its
+        # "clearwarnings"/"Warnings cleared" row via clear_warnings()).
         await store.clear_warnings(conn, user_id=target_id,
                                    guild_id=int(ctx.guild_id or 0))
         await store.log_mod_action(
             conn, guild_id=int(ctx.guild_id or 0), action=escalation,
             target_id=target_id, moderator_id=_actor_id(ctx),
-            reason=f"warn threshold reached ({count}/{policy.warn_threshold})")
+            reason=f"Reached {policy.warn_threshold} warnings")
+        await store.log_mod_action(
+            conn, guild_id=int(ctx.guild_id or 0), action="clearwarnings",
+            target_id=target_id, moderator_id=_actor_id(ctx),
+            reason="Warnings cleared")
     # thread the decision to the EFFECT leg + payload through params
     ctx.params["_warn_count"] = count
     ctx.params["_warn_threshold"] = policy.warn_threshold
@@ -81,6 +88,11 @@ async def _record_warn(conn, ctx: WorkflowContext) -> LegOutcome:
         before={"warnings": count - 1},
         after={"warnings": 0 if escalation else count,
                "escalated": escalation or "none"},
+        # shipped operator ack, verbatim (moderation_helpers.
+        # render_warn_outcome_lines line 1); the escalation line is the
+        # EFFECT leg's copy — only rendered when the action really applied.
+        user_message=(f"⚠️ <@{target_id}> warned "
+                      f"({count}/{policy.warn_threshold}). Reason: {reason}"),
     )
 
 
@@ -100,7 +112,41 @@ def _record_action_leg(name: str, action: str):
     return _leg
 
 
-_record_timeout = _record_action_leg("moderation.record_timeout", "timeout")
+@workflow("moderation.record_timeout")
+async def _record_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Timeout carries a REQUIRED duration (shipped `!timeout @member
+    <minutes>`); when no explicit reason is supplied the reason IS the
+    duration (`"N minutes"`, shipped verbatim — timeout is the one action
+    exempt from require_reason for exactly that reason)."""
+    from sb.kernel.interaction.errors import ValidatorError
+
+    policy = await service.load_policy(int(ctx.guild_id or 0))
+    target_id, trailing = service.parse_target_and_reason(dict(ctx.params))
+    minutes = ctx.params.get("minutes")
+    rest = trailing.split()
+    if minutes is None and rest and str(rest[0]).lstrip("-").isdigit():
+        minutes = int(rest[0])
+        rest = rest[1:]
+    if minutes is None:
+        raise ValidatorError(
+            "duration", "timeout needs a duration in minutes "
+                        "(`!timeout @member <minutes>`)")
+    minutes = max(1, min(int(minutes), policy.max_timeout_minutes))
+    explicit_reason = str(ctx.params.get("reason", "") or "") or " ".join(rest)
+    reason = explicit_reason.strip() or f"{minutes} minutes"
+    await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
+                               action="timeout", target_id=target_id,
+                               moderator_id=_actor_id(ctx), reason=reason)
+    ctx.params["_target_id"] = target_id
+    ctx.params["_reason"] = reason
+    ctx.params["_minutes"] = minutes
+    ctx.params["_event_action"] = "timeout"
+    return LegOutcome(step=StepResult(0, "record_timeout", True),
+                      before={}, after={"action": "timeout",
+                                        "target_id": target_id,
+                                        "minutes": minutes})
+
+
 _record_kick = _record_action_leg("moderation.record_kick", "kick")
 _record_ban = _record_action_leg("moderation.record_ban", "ban")
 _record_unban = _record_action_leg("moderation.record_unban", "unban")
@@ -108,19 +154,23 @@ _record_unban = _record_action_leg("moderation.record_unban", "unban")
 
 @workflow("moderation.record_clearwarnings")
 async def _record_clearwarnings(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The stored action token is ``"clearwarnings"`` (one word) — the
+    shipped row vocabulary every pre-port surface wrote, so imported and
+    new history rows render one label (services/moderation_service.py)."""
     target_id, _reason = service.parse_target_and_reason(dict(ctx.params))
     prior = await store.get_warnings(target_id, int(ctx.guild_id or 0), conn=conn)
     await store.clear_warnings(conn, user_id=target_id,
                                guild_id=int(ctx.guild_id or 0))
     await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
-                               action="clear_warnings", target_id=target_id,
+                               action="clearwarnings", target_id=target_id,
                                moderator_id=_actor_id(ctx),
-                               reason="warnings cleared")
+                               reason="Warnings cleared")
     ctx.params["_target_id"] = target_id
-    ctx.params["_reason"] = "warnings cleared"
-    ctx.params["_event_action"] = "clear_warnings"
+    ctx.params["_reason"] = "Warnings cleared"
+    ctx.params["_event_action"] = "clearwarnings"
     return LegOutcome(step=StepResult(0, "record_clearwarnings", True),
-                      before={"warnings": prior}, after={"warnings": 0})
+                      before={"warnings": prior}, after={"warnings": 0},
+                      user_message=f"✅ Warnings cleared for <@{target_id}>.")
 
 
 # --- privacy erasure bodies (the store-declared refs; flag-18 discipline) ---------
@@ -148,20 +198,30 @@ async def _clear_subject_warnings(conn, ctx: WorkflowContext) -> LegOutcome:
 async def _apply_warn_effects(conn, ctx: WorkflowContext) -> LegOutcome:
     escalation = ctx.params.get("_escalation")
     target_id = int(ctx.params.get("_target_id", 0))
-    reason = str(ctx.params.get("_reason", service.DEFAULT_REASON))
+    threshold = int(ctx.params.get("_warn_threshold", 3))
+    # the shipped escalation reason, verbatim — the auto-action's Discord
+    # audit reason is the ladder, not the triggering warn's free text
+    reason = f"Reached {threshold} warnings"
+    copy = None                      # shipped escalation line, verbatim
     if escalation == "timeout":
+        minutes = int(ctx.params.get("_timeout_minutes", 10))
         await service.active_actions().timeout_member(
             int(ctx.guild_id or 0), target_id,
-            minutes=int(ctx.params.get("_timeout_minutes", 10)), reason=reason)
+            minutes=minutes, reason=reason)
+        copy = (f"⏳ <@{target_id}> timed out for {minutes} minutes "
+                f"({threshold} warnings).")
     elif escalation == "kick":
         await service.active_actions().kick_member(
             int(ctx.guild_id or 0), target_id, reason=reason)
+        copy = f"👢 <@{target_id}> kicked ({threshold} warnings)."
     elif escalation == "ban":
         await service.active_actions().ban_member(
             int(ctx.guild_id or 0), target_id, reason=reason,
             delete_message_days=0)
+        copy = f"🚫 <@{target_id}> banned ({threshold} warnings)."
     return LegOutcome(step=StepResult(0, "apply_warn_effects", True),
-                      before={}, after={"escalation": escalation or "none"})
+                      before={}, after={"escalation": escalation or "none"},
+                      user_message=copy)
 
 
 def _apply_action_leg(name: str, action: str):
@@ -170,26 +230,29 @@ def _apply_action_leg(name: str, action: str):
         target_id = int(ctx.params.get("_target_id", 0))
         reason = str(ctx.params.get("_reason", service.DEFAULT_REASON))
         actions = service.active_actions()
+        copy = None                  # shipped operator acks, verbatim
         if action == "timeout":
-            policy = await service.load_policy(int(ctx.guild_id or 0))
-            minutes = min(int(ctx.params.get("minutes",
-                                             policy.warn_timeout_minutes)),
-                          policy.max_timeout_minutes)
+            minutes = int(ctx.params.get("_minutes", 0)) or 10
             await actions.timeout_member(int(ctx.guild_id or 0), target_id,
                                          minutes=minutes, reason=reason)
+            copy = f"⏳ <@{target_id}> timed out for {minutes} minute(s)."
         elif action == "kick":
             await actions.kick_member(int(ctx.guild_id or 0), target_id,
                                       reason=reason)
+            copy = f"👢 <@{target_id}> kicked. Reason: {reason}"
         elif action == "ban":
             policy = await service.load_policy(int(ctx.guild_id or 0))
             await actions.ban_member(
                 int(ctx.guild_id or 0), target_id, reason=reason,
                 delete_message_days=policy.ban_delete_message_days)
+            copy = f"🚫 <@{target_id}> banned. Reason: {reason}"
         elif action == "unban":
             await actions.unban_member(int(ctx.guild_id or 0), target_id,
                                        reason=reason)
+            copy = f"✅ <@{target_id}> unbanned."
         return LegOutcome(step=StepResult(0, name.split(".")[-1], True),
-                          before={}, after={"applied": action})
+                          before={}, after={"applied": action},
+                          user_message=copy)
     return _leg
 
 

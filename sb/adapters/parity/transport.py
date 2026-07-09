@@ -25,6 +25,7 @@ from sb.spec.outcomes import ReplyVisibility
 
 __all__ = [
     "ParityChannelEmitter",
+    "ParityModerationActions",
     "ParityPresenter",
     "ParityResponder",
     "ParityTransport",
@@ -241,8 +242,11 @@ class ParityResponder:
         if self._channel_id is None:
             self._transport.gap("ParityResponder._reply: no channel")
             return
+        # discord.py's HTTP send always carries components ([] when no
+        # view) — the goldens' wire shape for every plain-content send.
         self._transport.record_send(
-            self._channel_id, {"content": message, "tts": False})
+            self._channel_id,
+            {"components": [], "content": message, "tts": False})
 
 
 class ParityPresenter:
@@ -279,5 +283,61 @@ class ParityChannelEmitter:
         if content.trust is TrustLevel.UNTRUSTED:
             body = neutralize_untrusted(body)
         message_id = self._transport.record_send(
-            int(channel_id), {"content": body, "tts": False})
+            int(channel_id),
+            {"components": [], "content": body, "tts": False})
         return EmitResult(sent=True, message_id=message_id)
+
+
+class ParityModerationActions:
+    """The GuildModerationActions capture twin — the moderation EFFECT
+    legs' Discord state mutations, recorded in the goldens' wire verbs
+    (fake_http captured discord.py's HTTP layer: member timeout is an
+    ``edit_member`` PATCH with ``communication_disabled_until``; kick/
+    ban/unban are their own routes). Without this the replay composition
+    root leaves the not-installed port raising, so every moderation op
+    degrades to PARTIAL with an operator finding — a harness gap, not
+    bot behavior."""
+
+    def __init__(self, transport: ParityTransport, clock: Any) -> None:
+        self._transport = transport
+        self._clock = clock
+
+    def _until(self, minutes: int) -> str:
+        from datetime import timedelta
+
+        return (self._clock.now + timedelta(minutes=minutes)).isoformat()
+
+    async def timeout_member(self, guild_id: int, user_id: int, *,
+                             minutes: int, reason: str) -> None:
+        self._transport.record(
+            "edit_member",
+            {"guild_id": int(guild_id), "user_id": int(user_id),
+             "reason": reason},
+            {"communication_disabled_until": self._until(int(minutes))})
+
+    async def kick_member(self, guild_id: int, user_id: int, *,
+                          reason: str) -> None:
+        self._transport.record(
+            "kick", {"guild_id": int(guild_id), "user_id": int(user_id),
+                     "reason": reason})
+
+    async def ban_member(self, guild_id: int, user_id: int, *, reason: str,
+                         delete_message_days: int) -> None:
+        args: dict[str, Any] = {"guild_id": int(guild_id),
+                                "user_id": int(user_id), "reason": reason}
+        if int(delete_message_days) > 0:
+            # discord.py sends seconds; shipped only passed the kwarg when
+            # a purge window was configured (moderation_service.ban).
+            args["delete_message_seconds"] = int(delete_message_days) * 86400
+        self._transport.record("ban", args)
+
+    async def unban_member(self, guild_id: int, user_id: int, *,
+                           reason: str) -> None:
+        self._transport.record(
+            "unban", {"guild_id": int(guild_id), "user_id": int(user_id),
+                      "reason": reason})
+
+    async def dm_member(self, user_id: int, text: str) -> None:
+        # no golden exercises the courtesy DM (dm_on_action defaults off);
+        # record the honesty gap rather than inventing a wire shape.
+        self._transport.gap(f"dm_member:{user_id}")
