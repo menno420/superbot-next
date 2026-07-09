@@ -26,7 +26,26 @@ from sb.kernel.panels.render import install_hub_resolver
 
 logger = logging.getLogger("sb.app.panel_host")
 
-__all__ = ["install_panel_runtime"]
+__all__ = ["install_panel_runtime", "register_manifest_panels"]
+
+
+def register_manifest_panels(manifests: list) -> int:
+    """Register every manifest-DECLARED PanelSpec with the K8 panel registry
+    (fences run at registration; identical re-registration is a no-op).
+
+    The composition-root obligation the manifest imports cannot carry: most
+    manifests only CONSTRUCT their PanelSpecs (``panels=(...,)``) — without
+    this call ``get_panel`` raises ``LookupError`` for every PanelRef-routed
+    command (settings.hub, help.home, diagnostic.hub, setup.hub, ...) the
+    moment a command dispatches. Returns the number of panels registered."""
+    from sb.kernel.panels.registry import register_panel
+
+    count = 0
+    for manifest in manifests:
+        for spec in getattr(manifest, "panels", ()) or ():
+            register_panel(spec)
+            count += 1
+    return count
 
 
 def install_panel_runtime(*, hub_resolver: Callable[[str], str | None] | None = None) -> None:

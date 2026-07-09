@@ -167,6 +167,17 @@ class Harness:
             except ValueError as exc:
                 if "already declared" not in str(exc):
                     raise         # second start in one process re-registers
+
+        # Manifest-declared PanelSpecs must reach the K8 registry exactly
+        # like the live root (sb/app/main.py step 8): most manifests only
+        # CONSTRUCT their panels — without registration every PanelRef-routed
+        # command (settings.hub, help.home, ...) dispatches into a
+        # LookupError BUG envelope instead of a render.
+        from sb.kernel.panels.registry import register_panel
+
+        for manifest in manifests:
+            for spec in getattr(manifest, "panels", ()) or ():
+                register_panel(spec)
         if self.db_ready:
             from sb.domain.settings.service import (
                 install_platform_state_store,
