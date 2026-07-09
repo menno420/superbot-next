@@ -11,17 +11,14 @@ button/NL mention path is the K10 message shell (band-7 slice 3)."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
 from sb.spec.outcomes import SUCCESS
+from sb.kernel.interaction.handler_kit import (
+    Reply,
+    ctx_from_request as _ctx_from_req,
+)
 
 __all__ = ["Reply", "ensure_handler_refs"]
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
 
 
 def _ok(text: str) -> Reply:
@@ -34,14 +31,6 @@ def _argv(req) -> list[str]:
 
 def _query(req) -> str:
     return " ".join(_argv(req)).strip() or str(req.args.get("name") or "").strip()
-
-
-def _ctx_from_req(req, params: dict):
-    from sb.kernel.workflow.context import WorkflowContext
-
-    return WorkflowContext(
-        actor=req.actor, guild_id=int(req.guild_id or 0),
-        request_id=req.request_id, confirmed=req.confirmed, params=params)
 
 
 # --- reference views (dataset-backed) ----------------------------------------------

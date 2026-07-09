@@ -5,25 +5,14 @@ board — the shipped rank_providers rows)."""
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 
 from sb.spec.outcomes import BLOCKED, SUCCESS
+from sb.kernel.interaction.handler_kit import (
+    Reply,
+    ctx_from_request as _ctx_from_req,
+)
 
 __all__ = ["Reply", "ensure_handler_refs", "register_provider_rows"]
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
-
-
-def _ctx_from_req(req, params: dict):
-    from sb.kernel.workflow.context import WorkflowContext
-
-    return WorkflowContext(
-        actor=req.actor, guild_id=int(req.guild_id or 0),
-        request_id=req.request_id, confirmed=req.confirmed, params=params)
 
 
 _provider_registered = False

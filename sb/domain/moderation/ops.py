@@ -8,6 +8,14 @@ shipped contract).
 Authority: op-level `authority_ref=""` = the ADMIN floor (shipped v1
 policy); the governance band's capability resolver narrows it later
 (the band-1 settings-lane precedent).
+
+NAMED SUCCESSOR — `moderation.target_dm_notify` (ORDER 004 item 4, ledgered
+D-0059): the oracle DMs the target on warn/timeout/kick/ban (`_notify_target`
+in disbot moderation_service — the parity transport records it as a fake-HTTP
+`gap`). v1 deliberately ships without it; the successor is a best-effort
+EFFECT leg (a refused DM never blocks or compensates the action, mirroring
+the oracle) riding the D-0049 guild-action adapter arming, which brings the
+first DM-capable port.
 """
 
 from __future__ import annotations
