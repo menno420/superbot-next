@@ -1,5 +1,69 @@
 {
  "entries": {
+  "inventory:inventory.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "open_mining_materials",
+       "open_crafted_items",
+       "open_tools",
+       "open_fishing",
+       "open_collectibles"
+      ],
+      [
+       "open_economy_items",
+       "open_other"
+      ]
+     ]
+    }
+   ]
+  },
+  "inventory:inventory.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "open_mining_materials",
+     "open_crafted_items",
+     "open_tools",
+     "open_fishing",
+     "open_collectibles"
+    ],
+    [
+     "open_economy_items",
+     "open_other"
+    ]
+   ]
+  },
+  "inventory:inventory.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "open_mining_materials",
+        "open_crafted_items",
+        "open_tools",
+        "open_fishing",
+        "open_collectibles"
+       ],
+       [
+        "open_economy_items",
+        "open_other"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "inventory:inventory:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

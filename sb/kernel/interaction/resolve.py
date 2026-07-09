@@ -263,11 +263,22 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
     declared = _spec_field(req, "reply_visibility", None)
     committed_v = declared or lane_default(decision.lane)
     defer_mode = _spec_field(req, "defer_mode", None) or _surface_default_defer(req)
+    modal_issued = False
     try:
         if defer_mode is DeferMode.AUTO:
             await req.responder.ack(ephemeral=committed_v is ReplyVisibility.EPHEMERAL)
         elif defer_mode is DeferMode.MODAL:
-            await req.responder.open_modal(getattr(spec, "modal", None))
+            if req.surface is Surface.MODAL:
+                # the SUBMIT re-entry (G-10): the form is already collected —
+                # ack like AUTO and fall through to dispatch with the fields.
+                await req.responder.ack(
+                    ephemeral=committed_v is ReplyVisibility.EPHEMERAL)
+            else:
+                # the OPENING click: issue the declared form and stop — the
+                # handler runs on submit, never on open (G-10; terminal
+                # below, mirroring the confirm-issued pattern).
+                await req.responder.open_modal(getattr(spec, "modal", None))
+                modal_issued = True
     except Exception:  # noqa: BLE001 — a failed ack is a transient render issue
         logger.warning("responder ack/open_modal failed", exc_info=True)
 
@@ -286,6 +297,17 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
             logger.warning("transparency sink emit failed", exc_info=True)
 
     # 5. dispatch.
+    if modal_issued:
+        # G-10 terminal: the modal IS the response; dispatch happens on the
+        # submit re-entry (surface=MODAL) with args = the field values.
+        result = _result(req, outcome=SUCCESS, reason=DenialReason.ALLOWED,
+                         error_class=ErrorClass.NONE, retryable=False,
+                         visibility=ReplyVisibility.EPHEMERAL,
+                         user_message=None, audit_emitted=True)
+        emit_dispatch_trace(req, decision, override_applied=override_applied,
+                            base_allowed=base_allowed, outcome=SUCCESS,
+                            reason=DenialReason.ALLOWED, note="modal-issued")
+        return result
     workflow_result = None
     confirm = _spec_field(req, "confirm", None) or _spec_field(req, "confirmation", None)
     if confirm is not None and not req.confirmed:

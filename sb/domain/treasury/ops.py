@@ -58,7 +58,13 @@ def _amount_from(ctx: WorkflowContext) -> int:
                 break
     if amount is None:
         raise ValidatorError("➕ Give a number of coins.")
-    amount = int(amount)
+    try:
+        # the Contribute modal submits a free-text field — the shipped
+        # modal's non-numeric rejection, verbatim copy.
+        amount = int(str(amount).strip())
+    except ValueError:
+        raise ValidatorError(
+            f"❌ `{str(amount).strip()}` is not a whole number of coins.") from None
     if amount <= 0:
         raise ValidatorError("➕ Give a positive number of coins.")
     return amount

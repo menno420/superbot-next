@@ -12,6 +12,79 @@
    },
    "value": 0
   },
+  "economy:economy.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "daily",
+       "work",
+       "shop"
+      ],
+      [
+       "balance",
+       "inventory",
+       "jobs",
+       "treasury"
+      ],
+      [
+       "overview"
+      ]
+     ]
+    }
+   ]
+  },
+  "economy:economy.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "daily",
+     "work",
+     "shop"
+    ],
+    [
+     "balance",
+     "inventory",
+     "jobs",
+     "treasury"
+    ],
+    [
+     "overview"
+    ]
+   ]
+  },
+  "economy:economy.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "daily",
+        "work",
+        "shop"
+       ],
+       [
+        "balance",
+        "inventory",
+        "jobs",
+        "treasury"
+       ],
+       [
+        "overview"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "economy:economy:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-3 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

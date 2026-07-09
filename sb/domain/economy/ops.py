@@ -102,6 +102,12 @@ async def _record_daily(conn, ctx: WorkflowContext) -> LegOutcome:
 def _job_from(ctx: WorkflowContext) -> str:
     job = str(ctx.params.get("job", "") or "")
     if not job:
+        # component select (panel-action slice): the COMPONENT adapter
+        # carries the chosen option as args["values"] — same audited op,
+        # third arg spelling.
+        values = tuple(ctx.params.get("values", ()) or ())
+        job = str(values[0]) if values else ""
+    if not job:
         argv = tuple(ctx.params.get("argv", ()) or ())
         job = str(argv[0]) if argv else ""
     return job.lower().strip()
@@ -212,6 +218,10 @@ async def _record_pay(conn, ctx: WorkflowContext) -> LegOutcome:
 
 def _item_from(ctx: WorkflowContext) -> str:
     item = str(ctx.params.get("item", "") or "")
+    if not item:
+        # component select (panel-action slice): args["values"] spelling.
+        values = tuple(ctx.params.get("values", ()) or ())
+        item = str(values[0]) if values else ""
     if not item:
         argv = tuple(ctx.params.get("argv", ()) or ())
         item = " ".join(str(a) for a in argv) if argv else ""

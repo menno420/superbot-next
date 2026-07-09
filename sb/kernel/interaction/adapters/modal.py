@@ -7,8 +7,10 @@ from __future__ import annotations
 
 from sb.kernel.interaction.adapters import actor_from_member, lookup_target
 from sb.kernel.interaction.adapters.component import parse_custom_id
-from sb.kernel.interaction.request import ResolveRequest, Surface
+from sb.kernel.interaction.request import ResolveRequest, Surface, TargetRef
 from sb.kernel.interaction.resolve import resolve
+from sb.kernel.panels.registry import ComponentBinding
+from sb.kernel.panels.router import route as route_custom_id
 
 
 def _modal_fields(data: object) -> dict:
@@ -37,7 +39,15 @@ def request_from_modal(interaction: object, *, responder) -> ResolveRequest | No
     target = lookup_target(target_key, Surface.MODAL) or lookup_target(
         target_key, Surface.COMPONENT)
     if target is None:
-        return None
+        # G-10 fallthrough (the component adapter's precedence, mirrored):
+        # a panel-declared modal's custom-id root routes back to the
+        # declaring PanelActionSpec via the §3.4 static table.
+        routed = route_custom_id(target_key)
+        if isinstance(routed, ComponentBinding):
+            target = TargetRef(key=f"{routed.panel_id}.{routed.component_id}",
+                               spec=routed.spec)
+        else:
+            return None
     guild = getattr(interaction, "guild", None)
     args = _modal_fields(data)
     args.setdefault("interaction_id", getattr(interaction, "id", None))

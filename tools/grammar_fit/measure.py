@@ -120,6 +120,20 @@ UNITS: tuple[Unit, ...] = (
          "shipped display algebra verbatim as pure functions"),
     Unit(3, "inventory", "port", "install_extra_inventory_source", 1, 3,
          "the band-6 mining/fishing merge seam — honest waiting port"),
+
+    # --- band 3 slice 3 (the panel-action slice), appended 2026-07-09 -----
+    Unit(3, "economy", "action", "hub daily/work/shop/balance/inventory/jobs/treasury/overview", 8, 1,
+         "PanelActionSpec data — shipped custom_ids pinned verbatim; kernel-generated callbacks"),
+    Unit(3, "economy", "selector", "jobcenter job_select + shop item_select", 2, 1,
+         "SelectorSpec over the audited economy.work/economy.buy ops; provider/static options"),
+    Unit(3, "economy", "panel", "economy.jobcenter + economy.shop_panel", 2, 2,
+         "declared sub-panels (the shipped _WorkSubView/_ShopSubView) — nav serialized, closures gone"),
+    Unit(3, "treasury", "action", "contribute (G-10 modal) + refresh", 2, 1,
+         "PanelActionSpec + ModalSpec data — the shipped one-field modal as declared form"),
+    Unit(3, "inventory", "action", "hub open-category x7", 7, 1,
+         "PanelActionSpec -> open-child PanelRefs over the static category population"),
+    Unit(3, "inventory", "panel", "category detail panels x7", 7, 2,
+         "ListBlock + declared sort/filter algebra; interactive re-sort waits on the BrowserView engine (D-0034)"),
 )
 
 

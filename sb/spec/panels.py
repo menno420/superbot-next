@@ -218,6 +218,14 @@ class SelectorSpec:
         ⇒ K6's ADMIN-floor CAPABILITY lane)."""
         return self.capability_required or self.audience_tier or ""
 
+    @property
+    def route(self) -> WorkflowRef | HandlerRef | None:
+        """The routable ref resolve() duck-reads (same seam as
+        PanelActionSpec.route) — a selector's dispatch IS its on_select.
+        Property, not a field (the band-2 off_until_opt_in precedent):
+        no schema growth, the compiled shape is unchanged."""
+        return self.on_select
+
 
 # --- modal form body (L-24 rider 4 — amendment G-10, in-spec) -------------------
 
