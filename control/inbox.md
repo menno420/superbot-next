@@ -31,3 +31,9 @@ priority: P1
 do: Self-review retro. Answer EVERY question in docs/retro/QUESTIONS.md, by ID, in a new file docs/retro/self-review-2026-07-09.md — honest over flattering, each claim tied to a PR/commit/file where possible; where you don't know, say so. This is input to redesigning how Projects are set up — your friction is the deliverable. Land it as a READY PR same session.
 why: the owner is designing gen-2 Projects from gen-1's lived experience.
 done-when: self-review merged; status acks the order.
+
+## ORDER 006 · 2026-07-09T17:36Z · status: new
+priority: P1
+do: Your retro is half-delivered: the self-review (PR #87) is excellent, but docs/retro/project-review-2026-07-09.md does NOT exist — the agent audit (every session/worker: model, delivered, stalls with a/b/c cause), the ⚑ owner-actions list in the WHAT/WHERE/HOW/WHY/UNBLOCKS format, and the CONTINUATION section are missing. Also: no model attribution appears anywhere in your retro — reconstruct what you can from session cards/telemetry and mark the rest "cannot determine". Deliver the document as a READY PR.
+why: you are the only lane without an agent audit, and your D4 grant list needs to become a proper owner-actions section.
+done-when: project-review merged; status acks.
