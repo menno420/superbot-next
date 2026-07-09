@@ -257,7 +257,8 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         from sb.kernel.settings import register_manifest_settings
 
         runtime = build_runtime(committed)
-        for manifest in load_live_manifests():
+        manifests = load_live_manifests()
+        for manifest in manifests:
             try:
                 register_manifest_settings(manifest)
             except ValueError as exc:
@@ -266,8 +267,15 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         install_read_ports()
         install_platform_state_store()
 
-        # 8. panel runtime + THE one bus threaded into engine/trace.
-        from sb.app.panel_host import install_panel_runtime
+        # 8. panel runtime + THE one bus threaded into engine/trace. The
+        #    manifest-declared PanelSpecs register FIRST (a PanelRef-routed
+        #    command dispatching against an empty registry is a LookupError
+        #    → BUG envelope — the band-1 replay found exactly that).
+        from sb.app.panel_host import install_panel_runtime, register_manifest_panels
+
+        panel_count = register_manifest_panels(manifests)
+        logger.info("panel registry armed: %d manifest-declared panel(s)",
+                    panel_count)
         from sb.kernel.events_bus import EventBus
         from sb.kernel.interaction import trace as trace_mod
         from sb.kernel.workflow import engine as workflow_engine

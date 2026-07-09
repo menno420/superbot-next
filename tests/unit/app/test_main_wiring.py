@@ -93,3 +93,58 @@ class TestGatewayAdapter:
 
             with pytest.raises(RuntimeError):
                 gateway.build_intents(object())
+
+
+class TestManifestPanelRegistration:
+    """The band-1 replay finding: PanelRef-routed commands dispatched into
+    `LookupError: no PanelSpec registered` because neither composition root
+    registered the manifest-DECLARED panels. `register_manifest_panels` is
+    the shared obligation (main.py step 8; the parity harness mirrors it).
+
+    Hermetic on purpose: importing the FULL manifest roster here (directly,
+    or transitively via sb.manifest.help's all-manifest projection) would
+    front-run the band tests' import-time registrations (rank providers
+    reset + re-arm builtins-only mid-suite) — so the integration case uses
+    the three band-1 manifests with no transitive roster import; the
+    mechanics use synthetic manifests."""
+
+    def _band1_manifests(self):
+        return [importlib.import_module(f"sb.manifest.{k}").MANIFEST
+                for k in ("settings", "diagnostic", "setup")]
+
+    def test_band1_panelref_routes_resolve_after_registration(self):
+        from sb.app.panel_host import register_manifest_panels
+        from sb.kernel.panels import registry
+
+        manifests = self._band1_manifests()
+        count = register_manifest_panels(manifests)
+        assert count == sum(len(m.panels) for m in manifests) and count >= 3
+        # the band-1 PanelRef routes resolve (the replay's exact reds)
+        for panel_id in ("settings.hub", "diagnostic.hub", "setup.hub"):
+            assert registry.get_panel(panel_id).panel_id == panel_id
+        # identical re-registration is a no-op, not a PanelCompileError
+        assert register_manifest_panels(manifests) == count
+
+    def test_counts_only_declared_panels(self):
+        from types import SimpleNamespace
+
+        from sb.app.panel_host import register_manifest_panels
+
+        class _Spy:
+            def __init__(self, panel_id: str) -> None:
+                self.panel_id = panel_id
+
+        import sb.kernel.panels.registry as reg
+
+        seen: list[str] = []
+        original = reg.register_panel
+        reg.register_panel = lambda spec: seen.append(spec.panel_id)  # type: ignore[assignment]
+        try:
+            count = register_manifest_panels([
+                SimpleNamespace(panels=(_Spy("a.hub"), _Spy("b.hub"))),
+                SimpleNamespace(panels=()),
+                SimpleNamespace(),                      # no panels attribute
+            ])
+        finally:
+            reg.register_panel = original  # type: ignore[assignment]
+        assert count == 2 and seen == ["a.hub", "b.hub"]

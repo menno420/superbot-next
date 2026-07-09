@@ -1,5 +1,8 @@
 # Testing report — subsystem-by-subsystem live phase (started 2026-07-09)
 
+> **Status:** `living-ledger` — the testing-phase results ledger; rows are
+> appended/amended as each step of the 9-step order is exercised.
+
 The live-testing ledger for the owner's 9-step order (rebuild completion
 report §5). One row per subsystem/step as it is exercised against the live
 boot (`python3 -m sb`, test data plane, owner test bot). Append rows —
