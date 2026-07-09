@@ -42,8 +42,8 @@ Several things went wrong during the run. None of them lost work.
 - **D-0025: parity flips deferred rather than faked.** Band 1 found that
   parity rows could not honestly be flipped without a replay adapter, so
   D-0025 recorded the deferral instead of flipping rows on weak evidence. The
-  adapter was then actually built (PR #27, ledgered as D-0028: a fake-HTTP
-  transport over the real pipeline), keeping flips at zero honestly.
+  adapter was then actually built (PR #27: a fake-HTTP transport over the real
+  pipeline, with its own ledger entry), keeping flips at zero honestly.
 - **Transient CI failures on PR #40** (band 6 slice 1) were caught by the
   checker fleet and fixed before merge, not after.
 - **A misleading credential name.** A repo variable named
@@ -139,7 +139,7 @@ multi-repo builds of this size; overkill for small tasks.
   same date).
 - Testing report: `docs/status/testing-report-2026-07-09.md` (in progress at
   the time of writing).
-- Decision ledger: `docs/decisions.md`, D-0001…D-0048.
+- Decision ledger: `docs/decisions.md` (48 entries at the end of the run).
 - Team memory: `/tmp/claude/memory/team/` (session-infrastructure side).
 - Testing is owner-driven, subsystem by subsystem — the suggested order is
   §5 of the completion report.
