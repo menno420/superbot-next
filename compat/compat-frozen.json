@@ -178,6 +178,27 @@
     "name": "wordmenu"
    }
   ],
+  "community": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "community"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "community"
+   }
+  ],
+  "community_spotlight": [
+   {
+    "aliases": [
+     "activity"
+    ],
+    "group": "",
+    "name": "spotlight"
+   }
+  ],
   "counters": [
    {
     "aliases": [],
@@ -272,6 +293,50 @@
     ],
     "group": "",
     "name": "inventory"
+   }
+  ],
+  "karma": [
+   {
+    "aliases": [],
+    "group": "karma",
+    "name": "add"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "karma"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "karma"
+   },
+   {
+    "aliases": [
+     "rep",
+     "thank"
+    ],
+    "group": "",
+    "name": "thanks"
+   }
+  ],
+  "leaderboard": [
+   {
+    "aliases": [
+     "counting_leaderboard",
+     "countlb",
+     "dm_lb",
+     "dm_leaderboard",
+     "farmlb",
+     "fishlb",
+     "lb",
+     "minelb",
+     "miningleaderboard",
+     "rankings",
+     "rpslb"
+    ],
+    "group": "",
+    "name": "leaderboard"
    }
   ],
   "logging": [
@@ -436,6 +501,38 @@
     "group": "",
     "name": "welcome"
    }
+  ],
+  "xp": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "givexp"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rank"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "resetxp"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "xpconfig"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "xpimport"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "xpmenu"
+   }
   ]
  },
  "event_payloads": {
@@ -445,6 +542,14 @@
    "new_balance",
    "reason",
    "user_id"
+  ],
+  "karma.granted": [
+   "delta",
+   "from_user",
+   "guild_id",
+   "new_total",
+   "source",
+   "to_user"
   ],
   "moderation.action_taken": [
    "action",
@@ -457,6 +562,26 @@
    "guild_id",
    "key",
    "subsystem"
+  ],
+  "xp.awarded": [
+   "delta",
+   "guild_id",
+   "new_level",
+   "new_xp",
+   "source",
+   "user_id"
+  ],
+  "xp.level_up": [
+   "guild_id",
+   "new_level",
+   "source",
+   "user_id"
+  ],
+  "xp.reset": [
+   "actor_id",
+   "guild_id",
+   "source",
+   "user_id"
   ]
  },
  "legacy_ai_task_ids": [
@@ -487,7 +612,9 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
-  "treasury.contribute_form"
+  "treasury.contribute_form",
+  "xp.givexp_form",
+  "xp.resetxp_form"
  ],
  "schema_version": 1,
  "subsystem_keys": [
@@ -495,12 +622,16 @@
   "automod",
   "channel",
   "cleanup",
+  "community",
+  "community_spotlight",
   "counters",
   "diagnostic",
   "economy",
   "help",
   "image_moderation",
   "inventory",
+  "karma",
+  "leaderboard",
   "logging",
   "moderation",
   "security",
@@ -508,6 +639,7 @@
   "settings",
   "setup",
   "treasury",
-  "welcome"
+  "welcome",
+  "xp"
  ]
 }

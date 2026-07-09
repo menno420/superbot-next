@@ -1,0 +1,48 @@
+{
+ "entries": {
+  "xp:announce_channel:BindingSpec.group": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": ""
+  },
+  "xp:givexp:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "xp:rank:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "xp:resetxp:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "xp:xpconfig:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "xp:xpimport:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "xp:xpmenu:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  }
+ },
+ "schema_version": 1,
+ "subsystem": "xp"
+}

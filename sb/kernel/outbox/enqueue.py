@@ -235,6 +235,13 @@ async def enqueue_all(
     for emit_index, emit in enumerate(emits):
         payload_builder = getattr(emit, "payload_builder", None)
         payload = payload_builder(ctx, result) if payload_builder else {}
+        if payload is None:
+            # Conditional emission (band 4, D-0036): the payload builder IS
+            # the condition point — None means "this invocation does not
+            # cross the event's boundary" (xp.level_up on a non-boundary
+            # award is the arming case). emit_index positions stay stable
+            # per the DECLARED tuple, so dedup tokens never shift.
+            continue
         event_name = getattr(emit, "event", None) or getattr(emit, "event_name", "")
         if getattr(emit, "delivery", DeliveryClass.BEST_EFFORT) is DeliveryClass.AT_LEAST_ONCE:
             if op_dedup_key is not None:

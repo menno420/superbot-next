@@ -60,7 +60,8 @@ ECONOMY_BALANCES_STORE = register_store(StoreSpec(
     checkpoint_class=CheckpointClass.AGGREGATE,
     invariant_tag="economy_balances",
     forward_map_kind=ForwardMapKind.RENAME,
-    reader_domains=("diagnostics", "games", "xp"),
+    reader_domains=("diagnostics", "games", "xp", "community"),  # band 4:
+    # the coins rank provider + spotlight totals read the aggregate
     bears_value=True,
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("economy.erase_subject_balances"),
