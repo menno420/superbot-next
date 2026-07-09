@@ -1197,6 +1197,82 @@
     "name": "warnings"
    }
   ],
+  "projmoon": [
+   {
+    "aliases": [
+     "damagetype"
+    ],
+    "group": "pm",
+    "name": "damage"
+   },
+   {
+    "aliases": [
+     "grade"
+    ],
+    "group": "pm",
+    "name": "ego"
+   },
+   {
+    "aliases": [],
+    "group": "pm",
+    "name": "list"
+   },
+   {
+    "aliases": [
+     "search",
+     "what"
+    ],
+    "group": "pm",
+    "name": "lookup"
+   },
+   {
+    "aliases": [
+     "combat",
+     "mechanics"
+    ],
+    "group": "pm",
+    "name": "mechanic"
+   },
+   {
+    "aliases": [
+     "literary",
+     "origin"
+    ],
+    "group": "pm",
+    "name": "origins"
+   },
+   {
+    "aliases": [
+     "limbus",
+     "projectmoon"
+    ],
+    "group": "",
+    "name": "pm"
+   },
+   {
+    "aliases": [
+     "affinity",
+     "sins"
+    ],
+    "group": "pm",
+    "name": "sin"
+   },
+   {
+    "aliases": [
+     "sinners"
+    ],
+    "group": "pm",
+    "name": "sinner"
+   },
+   {
+    "aliases": [
+     "keyword",
+     "statuses"
+    ],
+    "group": "pm",
+    "name": "status"
+   }
+  ],
   "proof_channel": [
    {
     "aliases": [],
@@ -1595,6 +1671,7 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
+  "projmoon.lookup_form",
   "proof_channel.grant_form",
   "proof_channel.timed_form",
   "role:create",
@@ -1639,6 +1716,7 @@
   "mining",
   "moderation",
   "platform",
+  "projmoon",
   "proof_channel",
   "role",
   "rps_tournament",

@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.55%** tier-1/2 over 641 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.63%** tier-1/2 over 656 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -173,6 +173,12 @@ Cumulative fit: **89.55%** tier-1/2 over 641 units (spike line: 85.26% / 95 unit
 | 7 | btd6 | engine | keywords/difficulty_costs/paragon math | 1 | 3 | pure shipped utils VERBATIM (curated keyword lists, cost multipliers, wiki degree formulas) — justified code by design |
 | 7 | btd6 | engine | K10 registrations | 1 | 2 | task ids claimed byte-identical + route probe + fact gatherer + verifiers + paragon existence attr + refusal floor + task contract + A-17 suite — ALL registry rows on K10 seams |
 | 7 | btd6 | engine | 16-probe QA eval corpus | 1 | 2 | shipped tests/evals/btd6_corpus.py imported verbatim as EvalSuiteSpec data (deterministic gate + advisory judge tier) |
+| 7 | projmoon | command | pm + 9 category subcommands | 10 | 2 | CommandSpec rows verbatim (shipped !pm group incl. all aliases); read-only dataset views, zero domain writes |
+| 7 | projmoon | panel | projmoon.hub | 1 | 2 | the shipped LimbusBrowseView declarative (lookup modal + one action per entity kind + Origins) |
+| 7 | projmoon | engine | dataset + context + grounding | 1 | 3 | shipped projmoon_{data,context,grounding}_service ported VERBATIM (typed loader, roster grounding, names-only verifier) |
+| 7 | projmoon | engine | K10 registrations | 1 | 2 | projmoon.answer claimed byte-identical + probe order 110 + gatherer + verifier + floor + contract — registry rows |
+| 7 | projmoon | engine | MINTED 12-probe eval corpus | 1 | 2 | the A-17(d) mandate (oracle had NO projmoon corpus): 12 probes over the committed fixtures as EvalSuiteSpec data |
+| 7 | media | engine | video gatherer + probe + tasks | 1 | 2 | video.describe/compare/qa claimed byte-identical; URL probe confidences verbatim; gatherer = shipped short-circuit semantics over the install_video_metadata_reader port |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -181,4 +187,4 @@ Per band:
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
 - band 6: 88.06% (177/201)
-- band 7: 95.24% (40/42)
+- band 7: 94.74% (54/57)

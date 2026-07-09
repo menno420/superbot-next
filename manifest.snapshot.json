@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 39,
+  "manifest_count": 40,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -2028,6 +2028,86 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "pm"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "lookup"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "list"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "origins"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "sinner"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "sin"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "status"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "ego"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "damage"
+        },
+        {
+          "kind": "command",
+          "parent_group": "pm",
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "surface": "prefix",
+          "value": "mechanic"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/proof_channel.py",
           "subsystem": "proof_channel",
           "surface": "prefix",
@@ -2771,6 +2851,41 @@
           "value": "mining_sell_all"
         },
         {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_lookup"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_sinners"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_sins"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_grades"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_statuses"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_mechanics"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "pm_origins"
+        },
+        {
           "source": "sb/manifest/proof_channel.py",
           "subsystem": "proof_channel",
           "value": "prize_grant"
@@ -3123,6 +3238,11 @@
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "projmoon.hub"
         },
         {
           "source": "sb/manifest/proof_channel.py",
@@ -3777,6 +3897,11 @@
           "source": "sb/manifest/platform.py",
           "subsystem": "platform",
           "value": "platform"
+        },
+        {
+          "source": "sb/manifest/projmoon.py",
+          "subsystem": "projmoon",
+          "value": "projmoon"
         },
         {
           "source": "sb/manifest/proof_channel.py",
@@ -4543,6 +4668,36 @@
       "handler:moderation.warnings_view": {
         "module": "sb.domain.moderation.service"
       },
+      "handler:projmoon.damage_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.ego_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.list_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.lookup_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.mechanic_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.origins_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.overview_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.sin_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.sinner_view": {
+        "module": "sb.domain.projmoon.service"
+      },
+      "handler:projmoon.status_view": {
+        "module": "sb.domain.projmoon.service"
+      },
       "handler:proof_channel.end": {
         "module": "sb.domain.proof_channel.handlers"
       },
@@ -4761,6 +4916,9 @@
       },
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
+      },
+      "panel:projmoon.hub": {
+        "module": "sb.domain.projmoon.panels"
       },
       "panel:proof_channel.hub": {
         "module": "sb.domain.proof_channel.handlers"
@@ -5972,7 +6130,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:f76d321d2b6189089090abc5911ad61557a184afa57235cd8d8bfd72164187d0",
+  "stable_hash": "sha256:bc45f0e62cbf768738fda32b6f350ee51b675e31f0fe036592210d3e4db502e7",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -18403,6 +18561,517 @@
           "version_policy": "reject_and_preserve"
         }
       ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "projmoon": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "limbus",
+            "projectmoon"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "pm",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.overview_view"
+          },
+          "slash_common": false,
+          "summary": "Browse the Project Moon (Limbus) reference.",
+          "usage": "!pm",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "search",
+            "what"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "lookup",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.lookup_view"
+          },
+          "slash_common": false,
+          "summary": "Resolve any Limbus name/term across every category.",
+          "usage": "!pm lookup",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "list",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.list_view"
+          },
+          "slash_common": false,
+          "summary": "List a whole category (sinners/sins/damage/ego/statuses).",
+          "usage": "!pm list",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "origin",
+            "literary"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "origins",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.origins_view"
+          },
+          "slash_common": false,
+          "summary": "The 12 Sinners' literary origins.",
+          "usage": "!pm origins",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "sinners"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sinner",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.sinner_view"
+          },
+          "slash_common": false,
+          "summary": "Look up one Sinner (or list all).",
+          "usage": "!pm sinner",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "sins",
+            "affinity"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sin",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.sin_view"
+          },
+          "slash_common": false,
+          "summary": "Look up one Sin affinity (or list all).",
+          "usage": "!pm sin",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "statuses",
+            "keyword"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "status",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.status_view"
+          },
+          "slash_common": false,
+          "summary": "Look up one status keyword (or list all).",
+          "usage": "!pm status",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "grade"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ego",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.ego_view"
+          },
+          "slash_common": false,
+          "summary": "Look up one E.G.O grade (or list all).",
+          "usage": "!pm ego",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "damagetype"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "damage",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.damage_view"
+          },
+          "slash_common": false,
+          "summary": "Look up one damage type (or list all).",
+          "usage": "!pm damage",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "mechanics",
+            "combat"
+          ],
+          "audience_tier": "user",
+          "capability": "projmoon",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "pm",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "mechanic",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:projmoon.mechanic_view"
+          },
+          "slash_common": false,
+          "summary": "Look up one combat mechanic (or list all).",
+          "usage": "!pm mechanic",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "projmoon",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "pm_lookup",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🔎",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.lookup_view"
+              },
+              "label": "Lookup",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Name or term",
+                    "max_length": 60,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "projmoon.lookup_form",
+                "on_submit": {
+                  "$ref": "handler:projmoon.lookup_view"
+                },
+                "title": "Limbus Lookup"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pm_sinners",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧑‍🤝‍🧑",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.sinner_view"
+              },
+              "label": "Sinners",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pm_sins",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.sin_view"
+              },
+              "label": "Sins",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pm_grades",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎖️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.ego_view"
+              },
+              "label": "E.G.O Grades",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pm_statuses",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.status_view"
+              },
+              "label": "Statuses",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pm_mechanics",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚙️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.mechanic_view"
+              },
+              "label": "Mechanics",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pm_origins",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:projmoon.origins_view"
+              },
+              "label": "Origins",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Read-only Limbus Company reference over committed structural facts: the 12 Sinners, 7 Sins, 3 damage types, 5 E.G.O grades, statuses, and combat mechanics. Lookup resolves any name or term."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pm_lookup",
+                    "pm_sinners",
+                    "pm_sins"
+                  ],
+                  [
+                    "pm_grades",
+                    "pm_statuses",
+                    "pm_mechanics",
+                    "pm_origins"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "projmoon.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "projmoon",
+          "timeout_s": 180,
+          "title": "🌑 Project Moon — Limbus Company",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
       "version": 1,
       "wizard_sections": []
     },
