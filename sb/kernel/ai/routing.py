@@ -12,8 +12,9 @@ Resolution order:
    (the shipped per-task ``AI_ROUTING_<TASK>`` env pattern, CSV-folded).
 3. Default registry built from ``flags.default_provider()``.
 
-Model defaults are the SHIPPED tables verbatim; final model selection is
-owner-ratified (flagged — see the K10 question-router block).
+Model defaults were the SHIPPED tables verbatim until the owner ruled the
+K10 question-router block (PR #30, 2026-07-08): the Anthropic tables below
+carry that ruling (K10(b) — bias hard toward Haiku); see D-0033.
 """
 
 from __future__ import annotations
@@ -33,21 +34,34 @@ __all__ = [
 
 DEFAULT_TIMEOUT_SECONDS = 20.0
 
-# Shipped OpenAI default: gpt-4o-mini across the board.
+# Shipped OpenAI default: gpt-4o-mini across the board. OWNER FLAG
+# (PR #30, K10(b), 2026-07-08): gpt-4o-mini is ruled UNRELIABLE; the
+# replacement GPT model is TBD — until the owner names one this stays the
+# only OpenAI value (provider is non-default; nothing routes here unless an
+# operator explicitly selects openai).
 _OPENAI_FALLBACK_MODEL = "gpt-4o-mini"
-_ANTHROPIC_FALLBACK_MODEL = "claude-sonnet-4-6"
+# OWNER RULING (PR #30, K10(b), 2026-07-08) — overrides the shipped tables:
+# bias HARD toward claude-haiku-4-5 (sonnet-4-6 is too slow for most tasks);
+# reserve Sonnet for tasks that need deeper reasoning. Unknown/new task ids
+# therefore fall to Haiku, not Sonnet.
+_ANTHROPIC_FALLBACK_MODEL = "claude-haiku-4-5"
 
-# Shipped Anthropic per-task policy: real-time / live-chat tasks (a user is
-# waiting; heaviest tool users) → fast Haiku; considered non-real-time
-# tasks → Sonnet. Verbatim from routing.py @7f7628e1.
+# Anthropic per-task policy under the K10(b) ruling: ONLY the
+# deeper-reasoning trio keeps Sonnet (mutation proposals, moderation
+# judgment, deep strategy analysis); every explain/suggest/triage/answer
+# task — and the fallback — is Haiku. (Shipped @7f7628e1 had six Sonnet
+# tasks + a Sonnet fallback; the exact trio kept here is this port's
+# judgment call under the ruling, ledgered in D-0033 — owner veto flips
+# rows, not shape.)
 _ANTHROPIC_DEFAULT_MODELS: dict[str, str] = {
-    # Non-real-time / considered tasks → Sonnet.
-    "setup.suggest": "claude-sonnet-4-6",
+    # Deeper-reasoning tasks → Sonnet (the reserved set).
     "settings.propose": "claude-sonnet-4-6",
-    "logs.triage": "claude-sonnet-4-6",
-    "code_context.explain": "claude-sonnet-4-6",
     "moderation.assist": "claude-sonnet-4-6",
     "btd6.strategy_review": "claude-sonnet-4-6",
+    # Ruled down to Haiku by K10(b) (were Sonnet shipped-side).
+    "setup.suggest": "claude-haiku-4-5",
+    "logs.triage": "claude-haiku-4-5",
+    "code_context.explain": "claude-haiku-4-5",
     # Live chat (user is waiting) → fast Haiku.
     "btd6.answer": "claude-haiku-4-5",
     "general.nl_answer": "claude-haiku-4-5",

@@ -59,7 +59,16 @@ class RotationUnavailable(ConnectionError):
 class RotationProvider(Protocol):
     """The CUT-1 ops port. The SECRET VALUE never crosses this boundary back
     to the caller — `issue` performs the re-issue AND the store-var swap and
-    returns only the new credential's NON-SECRET fingerprint."""
+    returns only the new credential's NON-SECRET fingerprint.
+
+    CL-2 RULING (PR #30, 2026-07-08; D-0033): when CUT-1 installs a real
+    provider, credential REVOCATION over the closed `RevocationRef` set is
+    agent-runnable during a compromise response (the narrowed Q-0213
+    brake). The carve-out is scoped STRICTLY to `RevocationRef` kinds —
+    never store/resource deletion, which stays ask-first. Encode the
+    exception at the dispatch site that fires revocation, not here in the
+    Protocol (nothing executes today; un-installed = loud FAILED+finding).
+    """
 
     async def issue(self, cred: CredentialSpec) -> str:
         """Re-issue + swap the store var; return the non-secret fingerprint."""

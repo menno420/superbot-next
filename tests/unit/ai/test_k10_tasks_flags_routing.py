@@ -95,20 +95,30 @@ class TestRouting:
         target = routing.resolve("general.nl_answer")
         assert target.provider == "deterministic"
 
-    def test_anthropic_model_tables_shipped_values(self):
+    def test_anthropic_model_tables_k10b_ruled_values(self):
+        # OWNER RULING K10(b) (PR #30): bias hard toward Haiku; Sonnet is
+        # reserved for the deeper-reasoning trio (D-0033).
         assert (
             routing.default_model_for("anthropic", "general.nl_answer")
             == "claude-haiku-4-5"
         )
         assert (
             routing.default_model_for("anthropic", "logs.triage")
+            == "claude-haiku-4-5"          # ruled down from shipped Sonnet
+        )
+        assert (
+            routing.default_model_for("anthropic", "settings.propose")
+            == "claude-sonnet-4-6"         # the reserved deeper-reasoning set
+        )
+        assert (
+            routing.default_model_for("anthropic", "moderation.assist")
             == "claude-sonnet-4-6"
         )
         assert routing.default_model_for("openai", "logs.triage") == "gpt-4o-mini"
-        # Unknown task falls to the provider fallback model.
+        # Unknown task falls to the provider fallback model — Haiku per K10(b).
         assert (
             routing.default_model_for("anthropic", "newdomain.answer")
-            == "claude-sonnet-4-6"
+            == "claude-haiku-4-5"
         )
 
     def test_config_routing_entry_wins_over_default(self):
