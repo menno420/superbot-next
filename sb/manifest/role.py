@@ -53,8 +53,12 @@ _COMMANDS = (
     _cmd("roleinfo", HandlerRef("role.roleinfo_pending"), aliases=("ri",),
          summary="Inspect one role (live guild view).",
          usage="!roleinfo <role>"),
-    _cmd("rolemenu", HandlerRef("role.reaction_view"),
-         summary="List reaction-role menus and bindings.",
+    # rolemenu opened the shipped RoleHubPanelView (role_cog.py) — the
+    # golden (parity/goldens/role/sweep_rolemenu.json) captures the hub
+    # embed + buttons, NOT a reaction-role listing (band-5 mis-map fix;
+    # `!listreactroles` keeps the reaction_view text surface).
+    _cmd("rolemenu", PanelRef("role.hub"),
+         summary="Open the Role Hub — create, manage, automate.",
          usage="!rolemenu"),
     _cmd("rolecreator", HandlerRef("role.create_pending"),
          summary="Interactive role creation (live adapter).",

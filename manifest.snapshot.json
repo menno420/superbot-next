@@ -7057,7 +7057,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:40ea3b28d977513303117ab2d63b22454ac39e47b2756fcbbbf207bbc0b1a43a",
+  "stable_hash": "sha256:21721a74b00922f481b84fc076d65e3148dd489979575fb087989a9949d676f8",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -24086,10 +24086,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.reaction_view"
+            "$ref": "panel:role.hub"
           },
           "slash_common": false,
-          "summary": "List reaction-role menus and bindings.",
+          "summary": "Open the Role Hub — create, manage, automate.",
           "usage": "!rolemenu",
           "usage_weight": 1.0
         },

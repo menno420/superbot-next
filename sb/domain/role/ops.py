@@ -41,9 +41,13 @@ def _actor_id(ctx: WorkflowContext) -> int:
 
 
 def _verr(message: str):
+    """Copy-only ValidatorError — the raise-site sentence IS the user copy,
+    rendered bare (the D-0060/D-0061 refusal-copy posture; the one-arg
+    param form wrapped every sentence in the missing-argument
+    boilerplate — band-5 was the 5th victim family)."""
     from sb.kernel.interaction.errors import ValidatorError
 
-    return ValidatorError(message)
+    return ValidatorError("", message)
 
 
 # --- threshold legs -----------------------------------------------------------
