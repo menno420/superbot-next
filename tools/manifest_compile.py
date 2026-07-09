@@ -494,6 +494,7 @@ def _p6_semantic(manifests: list, violations: list[Violation]) -> None:
                      "never_strand: route must resolve to a PanelRef/justified "
                      "HandlerRef/WorkflowRef")
         declared_actions: dict[str, object] = {}
+        declared_selectors: set[str] = set()
         for panel_spec in panels:
             pid = _get(panel_spec, "panel_id", None) or _get(panel_spec, "id", "?")
             if _get(panel_spec, "navigation", None) is None:
@@ -502,18 +503,43 @@ def _p6_semantic(manifests: list, violations: list[Violation]) -> None:
                 action_id = _get(action, "action_id", None)
                 if action_id:
                     declared_actions[str(action_id)] = action
+            for selector in _get(panel_spec, "selectors", ()) or ():
+                selector_id = _get(selector, "selector_id", None)
+                if selector_id:
+                    declared_selectors.add(str(selector_id))
         bound_counts: dict[str, int] = {}
         for panel_spec in panels:
             pid = _get(panel_spec, "panel_id", None) or _get(panel_spec, "id", "?")
-            for comp in _get(panel_spec, "components", ()) or ():
-                target = _get(comp, "action_id", None) or _get(comp, "selector_id", None)
-                if target is None:
-                    continue
-                if str(target) not in declared_actions:
-                    flag(key, f"PanelSpec:{pid}",
-                         f"never_strand: component targets undeclared action {target!r}")
-                else:
-                    bound_counts[str(target)] = bound_counts.get(str(target), 0) + 1
+            comps = _get(panel_spec, "components", None)
+            if comps is not None:
+                # duck-typed component tables (pre-layout fixture shape).
+                for comp in comps or ():
+                    target = _get(comp, "action_id", None) or _get(comp, "selector_id", None)
+                    if target is None:
+                        continue
+                    if str(target) not in declared_actions:
+                        flag(key, f"PanelSpec:{pid}",
+                             f"never_strand: component targets undeclared action {target!r}")
+                    else:
+                        bound_counts[str(target)] = bound_counts.get(str(target), 0) + 1
+                continue
+            # the real grammar (panel-action slice, D-0034): placement IS
+            # PanelSpec.layout — the ONE arrangement structure. A placed id
+            # binds its action; selector ids are their own declared
+            # population (registration's layout-coverage fence already
+            # guarantees exhaustive+exclusive placement; this predicate
+            # re-proves it manifest-side, arrangement-independent).
+            layout = _get(panel_spec, "layout", None)
+            for page in (_get(layout, "pages", ()) or ()):
+                for row in (_get(page, "rows", ()) or ()):
+                    for target in row or ():
+                        target = str(target)
+                        if target in declared_actions:
+                            bound_counts[target] = bound_counts.get(target, 0) + 1
+                        elif target not in declared_selectors:
+                            flag(key, f"PanelSpec:{pid}",
+                                 f"never_strand: component targets undeclared "
+                                 f"action {target!r}")
         for action_id in declared_actions:
             n = bound_counts.get(action_id, 0)
             if n != 1:

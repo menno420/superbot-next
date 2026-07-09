@@ -1,0 +1,137 @@
+# named-gates.yml — the design-spec §6 REQUIRED-CHECK NAMES, as jobs.
+#
+# The owner armed the main-branch ruleset with the §6 gate names
+# (build-brief §8.1 — "agents author the workflow FILES; owner flips the
+# settings"): merges started refusing with N-of-5 required checks
+# "expected" because no job carried those names. This workflow carries
+# them, each mapped onto the tooling that already implements the gate's
+# semantics (ci.yml keeps the full fleet; these are the NAMED entrances):
+#
+#   code-quality        — pytest under the pinned interpreter (§6 gate 1).
+#   manifest-validate   — compile + snapshot drift + namespace + escape
+#                         hatches + schema-growth ledger (§6 gate 2; A-19
+#                         puts check_escape_hatches INSIDE this gate).
+#   architecture        — symbol-shadowing + adapter no-skip + config-seam
+#                         + metric-cardinality passes (§6 gate 3).
+#   sim-gate            — sim-reviewed-or-exempt (§6 gate 4 / §2.10.6).
+#   golden-parity       — the gate LEG of the acceptance oracle (ported
+#                         rows must replay green vs the CI Postgres; the
+#                         red-by-design full-corpus dashboard stays the
+#                         `report` job in golden-parity.yml, NEVER
+#                         required).
+#   check_compat_frozen — the pinned compat artifacts vs the manifest
+#                         export (§6 gate 6; tools/check_compat_frozen.py,
+#                         pin CODEOWNERS-routed).
+
+name: named-gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pytest pyyaml
+      - name: Unit tests (guarded-import discipline — no runtime deps)
+        run: python3 -m pytest tests/ -q
+
+  manifest-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pyyaml
+      - name: Compile + snapshot drift (P9 recompile-parity)
+        run: python3 tools/manifest_compile.py
+      - name: Namespace collisions
+        run: python3 tools/check_namespace.py
+      - name: Escape hatches (A-19 — inside this named gate)
+        run: python3 tools/check_escape_hatches.py
+      - name: Schema-growth ledger (A-2)
+        run: python3 tools/check_schema_growth.py
+      - name: Amendment registry
+        run: python3 tools/check_amendments.py
+
+  architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pyyaml
+      - name: Symbol shadowing
+        run: python3 tools/check_symbol_shadowing.py
+      - name: Adapter no-skip fence
+        run: python3 tools/check_no_skip.py
+      - name: Config-accessor seam
+        run: python3 tools/check_config_usage.py
+      - name: Metric cardinality
+        run: python3 tools/check_metric_cardinality.py
+      - name: Egress fence (RC-21/A-5)
+        run: python3 tools/check_egress.py
+
+  sim-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pyyaml
+      - name: Sim-reviewed-or-exempt (§2.10.6)
+        run: python3 tools/check_sim_gate.py
+
+  golden-parity:
+    # The REQUIRED leg of gate 5: ported subsystems replay green.
+    # (The full-corpus red-by-design dashboard is golden-parity.yml's
+    # `report` job — deliberately NOT here, never required.)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: parity
+          POSTGRES_PASSWORD: parity
+          POSTGRES_DB: parity_replay
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U parity"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: "postgresql://parity:parity@localhost:5432/parity_replay"
+      SB_DATA_PLANE: "test"
+      SB_TEST_DB_HOSTS: "localhost"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install runtime deps from the hash-pinned lock (S13)
+        run: pip install --require-hashes -r requirements.lock
+      - name: check_parity_depth (A-16 depth floor, inside this named gate)
+        run: python3 tools/check_parity_depth.py
+      - name: Gate — ported subsystems must replay green
+        run: python3 tools/run_golden_parity.py --gate
+
+  check_compat_frozen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Pinned compat artifacts vs manifest export (§6 gate 6)
+        run: python3 tools/check_compat_frozen.py

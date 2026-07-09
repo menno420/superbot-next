@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **94.22%** tier-1/2 over 225 units (spike line: 85.26% / 95 units).
+Cumulative fit: **94.86%** tier-1/2 over 253 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -46,8 +46,14 @@ Cumulative fit: **94.22%** tier-1/2 over 225 units (spike line: 85.26% / 95 unit
 | 3 | inventory | panel | inventory.hub | 1 | 2 | read-view hub over the coupled item catalogue |
 | 3 | inventory | engine | grouping/rarity/sort pure helpers | 3 | 2 | shipped display algebra verbatim as pure functions |
 | 3 | inventory | port | install_extra_inventory_source | 1 | 3 | the band-6 mining/fishing merge seam — honest waiting port |
+| 3 | economy | action | hub daily/work/shop/balance/inventory/jobs/treasury/overview | 8 | 1 | PanelActionSpec data — shipped custom_ids pinned verbatim; kernel-generated callbacks |
+| 3 | economy | selector | jobcenter job_select + shop item_select | 2 | 1 | SelectorSpec over the audited economy.work/economy.buy ops; provider/static options |
+| 3 | economy | panel | economy.jobcenter + economy.shop_panel | 2 | 2 | declared sub-panels (the shipped _WorkSubView/_ShopSubView) — nav serialized, closures gone |
+| 3 | treasury | action | contribute (G-10 modal) + refresh | 2 | 1 | PanelActionSpec + ModalSpec data — the shipped one-field modal as declared form |
+| 3 | inventory | action | hub open-category x7 | 7 | 1 | PanelActionSpec -> open-child PanelRefs over the static category population |
+| 3 | inventory | panel | category detail panels x7 | 7 | 2 | ListBlock + declared sort/filter algebra; interactive re-sort waits on the BrowserView engine (D-0034) |
 
 Per band:
 - band 1: 45.45% (5/11)
 - band 2: 99.41% (169/170)
-- band 3: 86.36% (38/44)
+- band 3: 91.67% (66/72)

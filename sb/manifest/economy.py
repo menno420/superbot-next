@@ -96,7 +96,10 @@ MANIFEST = SubsystemManifest(
              cooldown=CooldownSpec(rate=2, per_s=5),
              summary="Work a job and earn coins + XP (1 h cooldown).",
              usage="!work [job]"),
-        _cmd("shop", HandlerRef("economy.shop_view"),
+        # panel-action slice: !shop opens the interactive shop panel (the
+        # shipped _ShopView flow); the economy.shop_view text handler stays
+        # registered as the NL/read fallback.
+        _cmd("shop", PanelRef("economy.shop_panel"),
              summary="Browse and buy items from the shop.", usage="!shop"),
         _cmd("balance", HandlerRef("economy.balance_view"),
              aliases=("bal", "wallet"),
@@ -114,7 +117,8 @@ MANIFEST = SubsystemManifest(
              summary="Show all jobs, requirements, and your mastery.",
              usage="!joblist"),
     ),
-    panels=(_panels.economy_hub_spec(),),
+    panels=(_panels.economy_hub_spec(), _panels.jobcenter_spec(),
+            _panels.shop_panel_spec()),
     settings=_SETTINGS,
     stores=(ECONOMY_BALANCES_STORE, ECONOMY_AUDIT_STORE, ECONOMY_TRACK_STORE,
             JOB_PROGRESS_STORE, INVENTORY_STORE),

@@ -979,6 +979,93 @@
           "value": "welcome"
         }
       ],
+      "custom_id": [
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "daily"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "work"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "shop"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "balance"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "inventory"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "jobs"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "treasury"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "overview"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_mining_materials"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_crafted_items"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_tools"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_fishing"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_collectibles"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_economy_items"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "open_other"
+        },
+        {
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "value": "contribute"
+        },
+        {
+          "source": "sb/manifest/treasury.py",
+          "subsystem": "treasury",
+          "value": "refresh"
+        }
+      ],
       "event": [
         {
           "source": "sb/manifest/economy.py",
@@ -1033,6 +1120,16 @@
           "value": "economy.hub"
         },
         {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.jobcenter"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.shop_panel"
+        },
+        {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.home"
@@ -1046,6 +1143,41 @@
           "source": "sb/manifest/inventory.py",
           "subsystem": "inventory",
           "value": "inventory.hub"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_mining_materials"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_crafted_items"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_tools"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_fishing"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_collectibles"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_economy_items"
+        },
+        {
+          "source": "sb/manifest/inventory.py",
+          "subsystem": "inventory",
+          "value": "inventory.cat_other"
         },
         {
           "source": "sb/manifest/logging.py",
@@ -1653,6 +1785,9 @@
       "handler:economy.work_view": {
         "module": "sb.domain.economy.handlers"
       },
+      "handler:inventory.render_line": {
+        "module": "sb.domain.inventory.panels"
+      },
       "handler:inventory.view": {
         "module": "sb.domain.inventory.handlers"
       },
@@ -1704,11 +1839,38 @@
       "panel:economy.hub": {
         "module": "sb.domain.economy.panels"
       },
+      "panel:economy.jobcenter": {
+        "module": "sb.domain.economy.panels"
+      },
+      "panel:economy.shop_panel": {
+        "module": "sb.domain.economy.panels"
+      },
       "panel:help.home": {
         "module": "sb.domain.help.service"
       },
       "panel:image_moderation.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:inventory.cat_collectibles": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "panel:inventory.cat_crafted_items": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "panel:inventory.cat_economy_items": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "panel:inventory.cat_fishing": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "panel:inventory.cat_mining_materials": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "panel:inventory.cat_other": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "panel:inventory.cat_tools": {
+        "module": "sb.domain.inventory.panels"
       },
       "panel:inventory.hub": {
         "module": "sb.domain.inventory.panels"
@@ -1755,6 +1917,9 @@
       "provider:diagnostic.status_index": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "provider:economy.available_jobs": {
+        "module": "sb.domain.economy.panels"
+      },
       "provider:economy.baseline_balance_ledger": {
         "module": "sb.domain.economy.invariants"
       },
@@ -1764,10 +1929,37 @@
       "provider:economy.hub_overview": {
         "module": "sb.domain.economy.panels"
       },
+      "provider:economy.jobcenter_overview": {
+        "module": "sb.domain.economy.panels"
+      },
+      "provider:economy.shop_overview": {
+        "module": "sb.domain.economy.panels"
+      },
       "provider:image_moderation.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
       "provider:inventory.hub_overview": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_collectibles": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_crafted_items": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_economy_items": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_fishing": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_mining_materials": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_other": {
+        "module": "sb.domain.inventory.panels"
+      },
+      "provider:inventory.items_tools": {
         "module": "sb.domain.inventory.panels"
       },
       "provider:logging.hub_status": {
@@ -2055,7 +2247,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:42549ecc670523e5a7ad9c3fe24b0a17e4c8262ec34b9b95922ab21e13daa127",
+  "stable_hash": "sha256:ebb4b7309d1bd44833f18ad722b3a6b7a8b201056a147d981d7d43981b342df9",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -3982,7 +4174,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:economy.shop_view"
+            "$ref": "panel:economy.shop_panel"
           },
           "slash_common": false,
           "summary": "Browse and buy items from the shop.",
@@ -4161,7 +4353,200 @@
       "key": "economy",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "daily",
+              "audience_tier": "user",
+              "audit": "economy.balance_changed",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:daily",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎁",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:economy.daily"
+              },
+              "label": "Daily",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "work",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:work",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "💼",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:economy.jobcenter"
+              },
+              "label": "Work",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "shop",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:shop",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🛒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:economy.shop_panel"
+              },
+              "label": "Shop",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "balance",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:balance",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "💰",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:economy.balance_view"
+              },
+              "label": "Balance",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "inventory",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:inventory",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.hub"
+              },
+              "label": "Inventory",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "jobs",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:jobs",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:economy.joblist_view"
+              },
+              "label": "Jobs",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "treasury",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:treasury",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏛️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:treasury.hub"
+              },
+              "label": "Treasury",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "overview",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "economy:overview",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:economy.hub"
+              },
+              "label": "Overview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
@@ -4185,7 +4570,26 @@
           },
           "justification": "",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "daily",
+                    "work",
+                    "shop"
+                  ],
+                  [
+                    "balance",
+                    "inventory",
+                    "jobs",
+                    "treasury"
+                  ],
+                  [
+                    "overview"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
@@ -4203,6 +4607,160 @@
           "subsystem": "economy",
           "timeout_s": 180,
           "title": "Economy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Choose a job below.\nPay increases **+1%** each time you work the same job (max +100%)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:economy.jobcenter_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "job_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:economy.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "economy.jobcenter",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "❌ No jobs available. Earn XP or buy items from 🛒 Shop.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "workflow:economy.work"
+              },
+              "options_source": {
+                "$ref": "provider:economy.available_jobs"
+              },
+              "page_size": 25,
+              "placeholder": "Choose a job to work…",
+              "selector_id": "job_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "economy",
+          "timeout_s": 180,
+          "title": "💼 Job Center",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Buy items to unlock higher-tier jobs. Purchases are unique — one of each per member."
+            },
+            {
+              "provider": {
+                "$ref": "provider:economy.shop_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "item_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:economy.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "economy.shop_panel",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "The shop is empty.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "workflow:economy.buy"
+              },
+              "options_source": [
+                "car",
+                "toolkit",
+                "suit"
+              ],
+              "page_size": 25,
+              "placeholder": "Select an item to buy…",
+              "selector_id": "item_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "economy",
+          "timeout_s": 180,
+          "title": "🛒 Item Shop",
           "usage_weight": 1.0
         }
       ],
@@ -4800,16 +5358,262 @@
       "key": "inventory",
       "panels": [
         {
+          "actions": [
+            {
+              "action_id": "open_mining_materials",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⛏️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_mining_materials"
+              },
+              "label": "Mining Materials",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_crafted_items",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏗️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_crafted_items"
+              },
+              "label": "Crafted Items",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_tools",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔧",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_tools"
+              },
+              "label": "Tools",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_fishing",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎣",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_fishing"
+              },
+              "label": "Fishing",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_collectibles",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_collectibles"
+              },
+              "label": "Collectibles",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_economy_items",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "💼",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_economy_items"
+              },
+              "label": "Economy Items",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_other",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📦",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:inventory.cat_other"
+              },
+              "label": "Other",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "The unified item browser — one catalogue across economy, mining, fishing, and collectibles, grouped by category, rarest-first. Select a category below to view details."
+            },
+            {
+              "provider": {
+                "$ref": "provider:inventory.hub_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "open_mining_materials",
+                    "open_crafted_items",
+                    "open_tools",
+                    "open_fishing",
+                    "open_collectibles"
+                  ],
+                  [
+                    "open_economy_items",
+                    "open_other"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "🎒 Inventory",
+          "usage_weight": 1.0
+        },
+        {
           "actions": [],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "The unified item browser — one catalogue across economy, mining, fishing, and collectibles. `!inventory [@user]` shows owned items grouped by category, rarest-first."
-            },
-            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [
+                  "Gem",
+                  "Ore",
+                  "Resource"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
               "provider": {
-                "$ref": "provider:inventory.hub_overview"
+                "$ref": "provider:inventory.items_mining_materials"
               }
             }
           ],
@@ -4830,18 +5634,385 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": null,
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
-          "panel_id": "inventory.hub",
+          "panel_id": "inventory.cat_mining_materials",
           "renderer_override": null,
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "inventory",
           "timeout_s": 180,
-          "title": "Inventory",
+          "title": "⛏️ Mining Materials",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [
+                  "Structure"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
+              "provider": {
+                "$ref": "provider:inventory.items_crafted_items"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.cat_crafted_items",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "🏗️ Crafted Items",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [
+                  "Job Unlock",
+                  "Tool"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
+              "provider": {
+                "$ref": "provider:inventory.items_tools"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.cat_tools",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "🔧 Tools",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [
+                  "Material"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
+              "provider": {
+                "$ref": "provider:inventory.items_fishing"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.cat_fishing",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "🎣 Fishing",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [
+                  "Curio"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
+              "provider": {
+                "$ref": "provider:inventory.items_collectibles"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.cat_collectibles",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "🏆 Collectibles",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [
+                  "Job Unlock"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
+              "provider": {
+                "$ref": "provider:inventory.items_economy_items"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.cat_economy_items",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "💼 Economy Items",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "rarity",
+                "empty_state": "Nothing here.",
+                "filter_options": [],
+                "item_render_ref": {
+                  "$ref": "handler:inventory.render_line"
+                },
+                "max_pages": 10,
+                "page_size": 12,
+                "sort_options": [
+                  "rarity",
+                  "quantity",
+                  "name"
+                ]
+              },
+              "provider": {
+                "$ref": "provider:inventory.items_other"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:inventory.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "inventory.cat_other",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "inventory",
+          "timeout_s": 180,
+          "title": "📦 Other",
           "usage_weight": 1.0
         }
       ],
@@ -7200,12 +8371,79 @@
       "key": "treasury",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "contribute",
+              "audience_tier": "user",
+              "audit": "economy.balance_changed",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "➕",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:treasury.contribute"
+              },
+              "label": "Contribute",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "amount",
+                    "label": "Amount (coins)",
+                    "max_length": 12,
+                    "min_length": null,
+                    "placeholder": "e.g. 100",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "treasury.contribute_form",
+                "on_submit": {
+                  "$ref": "workflow:treasury.contribute"
+                },
+                "title": "Contribute to the treasury"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "refresh",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:treasury.hub"
+              },
+              "label": "Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "The server-owned coin pool — the collective layer between the economy and governance. Every movement rides the audited seam and the economy ledger's treasury:* money trail."
+              "text": "The server's shared coin pool. Everyone can **Contribute** their own coins to grow it; server managers disburse from it with `!treasury grant @member <amount>`."
             },
             {
               "provider": {
@@ -7224,7 +8462,16 @@
           },
           "justification": "",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "contribute",
+                    "refresh"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
@@ -7241,7 +8488,7 @@
           "session_lifecycle": false,
           "subsystem": "treasury",
           "timeout_s": 180,
-          "title": "Server Treasury",
+          "title": "🏛️ Server Treasury",
           "usage_weight": 1.0
         }
       ],

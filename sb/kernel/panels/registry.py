@@ -105,6 +105,12 @@ def register_panel(spec: PanelSpec) -> PanelSpec:
     for action in spec.actions:
         cid = action.custom_id_override or f"{spec.panel_id}.{action.action_id}"
         minted.append((cid, ComponentBinding(spec.panel_id, action.action_id, action)))
+        if action.modal is not None:
+            # G-10: the modal's custom-id root routes the SUBMIT back to the
+            # declaring action (the MODAL adapter's static-table fallthrough)
+            # — the form is data, dispatch stays the action's handler.
+            minted.append((action.modal.modal_id,
+                           ComponentBinding(spec.panel_id, action.action_id, action)))
     for selector in spec.selectors:
         cid = selector.custom_id_override or f"{spec.panel_id}.{selector.selector_id}"
         minted.append((cid, ComponentBinding(spec.panel_id, selector.selector_id, selector)))

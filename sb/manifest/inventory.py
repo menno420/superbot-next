@@ -23,7 +23,7 @@ MANIFEST = SubsystemManifest(
                             "inventory hub.",
                     usage="!inventory [@user]"),
     ),
-    panels=(_panels.inventory_hub_spec(),),
+    panels=(_panels.inventory_hub_spec(), *_panels.category_detail_specs()),
     settings=(), stores=(), events=(), capabilities=(),
 )
 

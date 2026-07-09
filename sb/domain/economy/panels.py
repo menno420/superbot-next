@@ -1,25 +1,56 @@
-"""The economy hub panel (band 3) — `economymenu`/`/economy`'s read-view v1
-(the band-1/2 hub pattern): loop status + catalogue snapshot; the shipped
-Daily/Work/Shop/... button actions arrive with the panel-action slice
-(successor work, like every hub so far)."""
+"""The economy panels (band 3) — the hub WITH its shipped action set (the
+panel-action slice), the Job Center sub-panel (the shipped `_WorkSubView`
+dropdown as a declared selector over the audited `economy.work` op), and the
+Shop sub-panel (the shipped `_ShopSubView` item picker over `economy.buy`).
+
+Shipped custom_ids (`economy:daily` … `economy:overview`) are pinned
+VERBATIM via `custom_id_override` — the persistent-view click vocabulary the
+old goldens replay. Back/nav ids are engine-owned (`nav:*`, the band-1
+convention): the shipped `economy:back`/`economy:shop:back`/
+`economy:work:back` closures are replaced by the §2.4 serializable nav —
+ledgered deviation, D-0034."""
 
 from __future__ import annotations
 
 from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
+    ActionStyle,
     Audience,
     EmbedFrameSpec,
     FieldsBlock,
     FooterMode,
+    LayoutSpec,
     NavigationSpec,
+    PageSpec,
+    PanelActionSpec,
     PanelSpec,
+    ResultRender,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
-from sb.spec.refs import ProviderRef, is_registered, panel, provider
+from sb.spec.refs import (
+    HandlerRef,
+    PanelRef,
+    ProviderRef,
+    WorkflowRef,
+    is_registered,
+    panel,
+    provider,
+)
 
-__all__ = ["economy_hub_spec", "ensure_panel_refs", "install_economy_panels"]
+__all__ = [
+    "economy_hub_spec",
+    "ensure_panel_refs",
+    "install_economy_panels",
+    "jobcenter_spec",
+    "shop_panel_spec",
+]
 
 _HUB_PROVIDER = "economy.hub_overview"
+_JOBCENTER_PROVIDER = "economy.jobcenter_overview"
+_JOBS_PROVIDER = "economy.available_jobs"
+_SHOP_PROVIDER = "economy.shop_overview"
 
 
 def _ensure_hub_provider() -> ProviderRef:
@@ -55,6 +86,54 @@ def _ensure_hub_provider() -> ProviderRef:
     return ref
 
 
+def _ensure_jobcenter_provider() -> ProviderRef:
+    ref = ProviderRef(_JOBCENTER_PROVIDER)
+    if not is_registered(ref):
+        @provider(_JOBCENTER_PROVIDER)
+        async def jobcenter_overview(ctx: object):
+            from sb.domain.economy import service, store
+
+            guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+            user_id = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
+                          or 0)
+            level = await service.active_level_reader()(user_id, guild_id)
+            coins = await store.get_coins(user_id, guild_id)
+            return (
+                ("Level", str(level)),
+                ("Coins", f"{coins:,} 🪙"),
+            )
+    return ref
+
+
+def _ensure_jobs_provider() -> ProviderRef:
+    ref = ProviderRef(_JOBS_PROVIDER)
+    if not is_registered(ref):
+        @provider(_JOBS_PROVIDER)
+        async def available_jobs_options(ctx: object):
+            from sb.domain.economy import service
+
+            guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+            user_id = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
+                          or 0)
+            return tuple(await service.available_jobs(user_id, guild_id))
+    return ref
+
+
+def _ensure_shop_provider() -> ProviderRef:
+    ref = ProviderRef(_SHOP_PROVIDER)
+    if not is_registered(ref):
+        @provider(_SHOP_PROVIDER)
+        async def shop_overview(ctx: object):
+            from sb.domain.economy import catalogue
+
+            return tuple(
+                (f"{d['emoji']} {name.replace('_', ' ').title()} — "
+                 f"{d['price']:,} 🪙",
+                 d["desc"])
+                for name, d in catalogue.SHOP_ITEMS.items())
+    return ref
+
+
 def economy_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="economy.hub",
@@ -68,7 +147,120 @@ def economy_hub_spec() -> PanelSpec:
                       "economy_audit_log money trail."),
             FieldsBlock(provider=_ensure_hub_provider()),
         ),
+        actions=(
+            # Row 0 — the shipped earn loop (main_panel.py, ids verbatim).
+            PanelActionSpec(
+                action_id="daily", label="Daily", emoji="🎁",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=WorkflowRef("economy.daily"),
+                audit="economy.balance_changed",
+                custom_id_override="economy:daily"),
+            PanelActionSpec(
+                action_id="work", label="Work", emoji="💼",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=PanelRef("economy.jobcenter"),
+                custom_id_override="economy:work"),
+            PanelActionSpec(
+                action_id="shop", label="Shop", emoji="🛒",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=PanelRef("economy.shop_panel"),
+                custom_id_override="economy:shop"),
+            # Row 1 — the shipped read/browse set.
+            PanelActionSpec(
+                action_id="balance", label="Balance", emoji="💰",
+                audience_tier="user",
+                handler=HandlerRef("economy.balance_view"),
+                custom_id_override="economy:balance"),
+            PanelActionSpec(
+                action_id="inventory", label="Inventory", emoji="🎒",
+                audience_tier="user",
+                handler=PanelRef("inventory.hub"),
+                custom_id_override="economy:inventory"),
+            PanelActionSpec(
+                action_id="jobs", label="Jobs", emoji="📋",
+                audience_tier="user",
+                handler=HandlerRef("economy.joblist_view"),
+                custom_id_override="economy:jobs"),
+            PanelActionSpec(
+                action_id="treasury", label="Treasury", emoji="🏛️",
+                audience_tier="user",
+                handler=PanelRef("treasury.hub"),
+                custom_id_override="economy:treasury"),
+            # Row 2 — the shipped refresh-to-overview control.
+            PanelActionSpec(
+                action_id="overview", label="Overview", emoji="↩",
+                audience_tier="user",
+                handler=PanelRef("economy.hub"),
+                result_render=ResultRender.REFRESH_PANEL,
+                custom_id_override="economy:overview"),
+        ),
         navigation=NavigationSpec(),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("daily", "work", "shop"),
+            ("balance", "inventory", "jobs", "treasury"),
+            ("overview",),
+        )),)),
+    )
+
+
+def jobcenter_spec() -> PanelSpec:
+    """The shipped Job Center (`_WorkSubView`): per-user eligible-job
+    dropdown whose pick runs the audited `economy.work` op."""
+    return PanelSpec(
+        panel_id="economy.jobcenter",
+        subsystem="economy",
+        title="💼 Job Center",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        body=(
+            TextBlock("Choose a job below.\n"
+                      "Pay increases **+1%** each time you work the same "
+                      "job (max +100%)."),
+            FieldsBlock(provider=_ensure_jobcenter_provider()),
+        ),
+        selectors=(
+            SelectorSpec(
+                selector_id="job_select", kind=SelectorKind.ENTITY,
+                on_select=WorkflowRef("economy.work"),
+                options_source=_ensure_jobs_provider(),
+                placeholder="Choose a job to work…",
+                empty_state="❌ No jobs available. Earn XP or buy items "
+                            "from 🛒 Shop.",
+                audience_tier="user"),
+        ),
+        navigation=NavigationSpec(parent=PanelRef("economy.hub")),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("job_select",),)),)),
+    )
+
+
+def shop_panel_spec() -> PanelSpec:
+    """The shipped shop panel (`_ShopSubView`): static item picker whose
+    pick runs the audited `economy.buy` op (Q-0071 — grant-first,
+    audited-debit-second, raced clicks re-decided in-txn)."""
+    from sb.domain.economy.catalogue import SHOP_ITEMS
+
+    return PanelSpec(
+        panel_id="economy.shop_panel",
+        subsystem="economy",
+        title="🛒 Item Shop",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        body=(
+            TextBlock("Buy items to unlock higher-tier jobs. Purchases are "
+                      "unique — one of each per member."),
+            FieldsBlock(provider=_ensure_shop_provider()),
+        ),
+        selectors=(
+            SelectorSpec(
+                selector_id="item_select", kind=SelectorKind.ENTITY,
+                on_select=WorkflowRef("economy.buy"),
+                options_source=tuple(SHOP_ITEMS),
+                placeholder="Select an item to buy…",
+                empty_state="The shop is empty.",
+                audience_tier="user"),
+        ),
+        navigation=NavigationSpec(parent=PanelRef("economy.hub")),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("item_select",),)),)),
     )
 
 
@@ -77,19 +269,39 @@ def _hub_factory() -> PanelSpec:
     return economy_hub_spec()
 
 
-def install_economy_panels() -> PanelSpec:
-    spec = economy_hub_spec()
-    try:
-        return register_panel(spec)
-    except ValueError as exc:
-        if "already registered" in str(exc) or "duplicate" in str(exc):
-            return spec
-        raise
+@panel("economy.jobcenter")
+def _jobcenter_factory() -> PanelSpec:
+    return jobcenter_spec()
+
+
+@panel("economy.shop_panel")
+def _shop_factory() -> PanelSpec:
+    return shop_panel_spec()
+
+
+def install_economy_panels() -> tuple[PanelSpec, ...]:
+    specs = (economy_hub_spec(), jobcenter_spec(), shop_panel_spec())
+    out = []
+    for spec in specs:
+        try:
+            out.append(register_panel(spec))
+        except ValueError as exc:
+            if "already registered" in str(exc) or "duplicate" in str(exc):
+                out.append(spec)
+            else:
+                raise
+    return tuple(out)
 
 
 def ensure_panel_refs() -> None:
-    from sb.spec.refs import PanelRef, is_registered as _is, panel as _panel
+    from sb.spec.refs import PanelRef as _P, is_registered as _is, panel as _panel
 
     _ensure_hub_provider()
-    if not _is(PanelRef("economy.hub")):
-        _panel("economy.hub")(_hub_factory)
+    _ensure_jobcenter_provider()
+    _ensure_jobs_provider()
+    _ensure_shop_provider()
+    for pid, factory in (("economy.hub", _hub_factory),
+                         ("economy.jobcenter", _jobcenter_factory),
+                         ("economy.shop_panel", _shop_factory)):
+        if not _is(_P(pid)):
+            _panel(pid)(factory)

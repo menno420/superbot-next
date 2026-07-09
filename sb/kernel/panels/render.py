@@ -249,11 +249,22 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                 continue
             custom_id = getattr(cspec, "custom_id_override", "") or f"{spec.panel_id}.{comp_id}"
             if hasattr(cspec, "selector_id"):
-                options = cspec.options_source if isinstance(cspec.options_source, tuple) else ()
+                if isinstance(cspec.options_source, tuple):
+                    options = cspec.options_source
+                else:
+                    # provider-fed options (SelectorSpec.options_source is
+                    # "static tuple | provider" by grammar) — materialized at
+                    # render time from the invoker's context; a broken/empty
+                    # provider degrades to a disabled selector showing its
+                    # empty_state, never a crashed panel.
+                    options = tuple(await _provider_rows(cspec.options_source, ctx) or ())
+                options = options[: min(cspec.page_size, 25)]
                 components.append(RenderedComponent(
                     kind="selector", custom_id=custom_id,
                     label=resolver.resolve(cspec.placeholder, locale=loc), row=row_idx,
-                    placeholder=resolver.resolve(cspec.placeholder, locale=loc),
+                    placeholder=resolver.resolve(
+                        cspec.placeholder if options else cspec.empty_state, locale=loc),
+                    disabled=not options,
                     min_values=cspec.min_values, max_values=cspec.max_values,
                     options=tuple(str(o) for o in options)))
             else:
