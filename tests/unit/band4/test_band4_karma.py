@@ -51,17 +51,18 @@ class FakeKarmaStore:
         async def grants_given_since(guild_id, from_user, since, conn=None):
             return self.given_today
 
-        async def credit_karma(conn, *, to_user, guild_id, amount):
+        async def credit_karma(conn, *, to_user, guild_id, amount, now):
             self.total += amount
-            self.credits.append((to_user, amount))
+            self.credits.append((to_user, amount, now))
             return self.total
 
         async def increment_given(conn, *, from_user, guild_id):
             self.given.append(from_user)
 
         async def insert_karma_audit(conn, *, guild_id, from_user, to_user,
-                                     delta, source, reason):
-            self.audit.append((from_user, to_user, delta, source, reason))
+                                     delta, source, reason, occurred_at):
+            self.audit.append((from_user, to_user, delta, source, reason,
+                               occurred_at))
             return f"m{len(self.audit)}"
 
         from sb.domain.karma import store as store_mod
@@ -127,9 +128,11 @@ def test_give_writes_credit_given_and_audit(monkeypatch):
     _policy(monkeypatch)
     ctx = _ctx({"argv": ("<@7>", "for", "the", "help"), "source": "command"})
     out = run(ops._record_give(None, ctx))
-    assert fake.credits == [(7, 1)]
+    assert [c[:2] for c in fake.credits] == [(7, 1)]
+    assert fake.credits[0][2] == ctx.clock()      # ctx-clock stamp, not NOW()
     assert fake.given == [42]
-    assert fake.audit == [(42, 7, 1, "command", "for the help")]
+    assert [a[:5] for a in fake.audit] == [(42, 7, 1, "command", "for the help")]
+    assert fake.audit[0][5] == ctx.clock()        # occurred_at rides ctx.clock
     assert out.after["new_total"] == 1
     payload = ops._granted_payload(ctx, None)
     assert payload == {"guild_id": 1, "from_user": 42, "to_user": 7,
@@ -152,7 +155,7 @@ def test_zero_cooldown_skips_the_recent_read(monkeypatch):
     monkeypatch.setattr(store_mod, "recent_grant_count", recent)
     _policy(monkeypatch, cooldown_seconds=0)
     run(ops._record_give(None, _ctx({"target_id": 7})))
-    assert not calls and fake.credits == [(7, 1)]
+    assert not calls and [c[:2] for c in fake.credits] == [(7, 1)]
 
 
 # --- policy defaults ------------------------------------------------------------------------

@@ -278,47 +278,50 @@ class Harness:
                            channel: str = "general",
                            mentions: tuple[int, ...] = ()) -> None:
         """A member message: prefix-command dispatch through the REAL
-        pipeline. Non-command messages are the message pipeline's surface
-        (unported bands) — no-ops here, honestly diffed by the goldens."""
+        pipeline, then the passive XP chat award (band 4 — the shipped
+        listener awarded on EVERY human message, commands included; the
+        captures carry its ``xp.awarded`` on command goldens, dispatch
+        events first). The still-unported message-pipeline surfaces
+        (counting/chain/fuzzy/NL) stay no-ops here, honestly diffed."""
         if self.world is None:
             raise RuntimeError("harness not started")
         self.world.clock.advance()
         message_id = self.world.ids.allocate()
-        if not content.startswith(PREFIX):
-            await self._settle()
-            return
-        tokens = content[len(PREFIX):].split()
-        if not tokens:
-            await self._settle()
-            return
         target_key = None
         rest: list[str] = []
-        for n in range(min(3, len(tokens)), 0, -1):
-            candidate = " ".join(tokens[:n])
-            if self._lookup(candidate, Surface.PREFIX) is not None:
-                target_key, rest = candidate, tokens[n:]
-                break
-        if target_key is None:
+        if content.startswith(PREFIX):
+            tokens = content[len(PREFIX):].split()
+            for n in range(min(3, len(tokens)), 0, -1):
+                candidate = " ".join(tokens[:n])
+                if self._lookup(candidate, Surface.PREFIX) is not None:
+                    target_key, rest = candidate, tokens[n:]
+                    break
             # unknown command: the old bot's typo re-dispatch is the fuzzy
             # adapter's surface — not driven until its band ports the corpus.
-            await self._settle()
-            return
         member = _member_for(persona)
         channel_id = self.world.channels[channel]
-        ctx = SimpleNamespace(
-            command=SimpleNamespace(qualified_name=target_key),
-            author=member,
-            guild=SimpleNamespace(id=self.world.guild_id,
-                                  owner_id=DEFAULT_PERSONAS["admin"]["id"]),
-            channel=SimpleNamespace(id=channel_id),
-            message=SimpleNamespace(id=message_id),
-            kwargs={"argv": tuple(rest), "text": " ".join(rest)},
-        )
-        responder = ParityResponder(self.http, surface=Surface.PREFIX,
-                                    channel_id=channel_id)
-        from sb.kernel.interaction.adapters.prefix import dispatch_prefix
+        if target_key is not None:
+            ctx = SimpleNamespace(
+                command=SimpleNamespace(qualified_name=target_key),
+                author=member,
+                guild=SimpleNamespace(id=self.world.guild_id,
+                                      owner_id=DEFAULT_PERSONAS["admin"]["id"]),
+                channel=SimpleNamespace(id=channel_id),
+                message=SimpleNamespace(id=message_id),
+                kwargs={"argv": tuple(rest), "text": " ".join(rest)},
+            )
+            responder = ParityResponder(self.http, surface=Surface.PREFIX,
+                                        channel_id=channel_id)
+            from sb.kernel.interaction.adapters.prefix import dispatch_prefix
 
-        await dispatch_prefix(ctx, responder=responder)
+            await dispatch_prefix(ctx, responder=responder)
+        if self.db_ready:
+            # the DB-backed passive award (cooldown row + settings reads);
+            # the db-free contract harness stays award-silent by design.
+            from sb.domain.xp.service import handle_chat_message
+
+            await handle_chat_message(int(member.id), self.world.guild_id,
+                                      now=int(_time_mod.time()))
         await self._settle()
 
     async def invoke_slash(self, name: str,
