@@ -27,11 +27,17 @@ def command_inventory() -> dict[str, tuple[tuple[str, str], ...]]:
                 continue
             key = str(getattr(manifest, "key", info.name))
             for cmd in getattr(manifest, "commands", ()) or ():
-                name = str(getattr(cmd, "name", "") or "")
+                # the QUALIFIED name (group path + name) — a grouped
+                # subcommand's bare name ("add", "list") is ambiguous in
+                # the hub listing (owner-feedback triage, 2026-07-09).
+                name = str(getattr(cmd, "qualified_name", "") or ""
+                           ) or str(getattr(cmd, "name", "") or "")
                 if name:
                     inventory.setdefault(key, []).append(
                         (name, str(getattr(cmd, "summary", "") or "")))
-    return {k: tuple(v) for k, v in sorted(inventory.items())}
+    # deterministic, sensible order at BOTH levels: subsystems
+    # alphabetically, commands alphabetically within each subsystem.
+    return {k: tuple(sorted(v)) for k, v in sorted(inventory.items())}
 
 
 def build_help_panel() -> PanelSpec:
