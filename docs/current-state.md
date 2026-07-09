@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — Current State
 
 > **Status:** `living-ledger`
@@ -27,4 +21,4 @@ should not be re-audited without a reported regression.)
 
 ## Review rhythm
 
-${review_ritual}
+PRs open READY with a born-red .sessions/ card as the first commit and auto-merge (squash) the moment the six required named checks are green (code-quality, manifest-validate, architecture, sim-gate, golden-parity, check_compat_frozen — .github/workflows/named-gates.yml); the owner reviews reactively after merge, never-wait / silence = consent (PL-002). The card flips complete as the deliberate last step; control/status.md is overwritten every session as the heartbeat; a reconciliation pass runs every 30 PRs

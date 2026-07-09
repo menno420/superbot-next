@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — owner working profile
 
 > **Status:** `owner-guidance`
@@ -14,11 +8,11 @@
 
 ## How the owner works
 
-${owner_profile}
+The owner designs, directs, and reviews outcomes; he does not code and relies on agents for complete end-to-end work, cross-checked by other agents. He thinks iteratively and in fragments — reason a partial ask forward to its fuller form and state that picture back inline before building (understand-and-reflect). Default to decide-and-flag autonomy (PL-001): act on contained reversible work, flag decisions with a one-line rationale instead of parking them; route only genuine product-intent ambiguity to docs/question-router.md. Reports concise and evidence-first
 
 ## Review ritual
 
-${review_ritual}
+PRs open READY with a born-red .sessions/ card as the first commit and auto-merge (squash) the moment the six required named checks are green (code-quality, manifest-validate, architecture, sim-gate, golden-parity, check_compat_frozen — .github/workflows/named-gates.yml); the owner reviews reactively after merge, never-wait / silence = consent (PL-002). The card flips complete as the deliberate last step; control/status.md is overwritten every session as the heartbeat; a reconciliation pass runs every 30 PRs
 
 ## Privacy note
 

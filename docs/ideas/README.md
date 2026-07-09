@@ -16,6 +16,30 @@
 (5) OUTCOME  implemented | on a roadmap | in discussion | rejected
 ```
 
+## Frontmatter — the idea-outcome record
+
+Every idea file in this directory (README excepted) opens with a flat
+YAML-subset frontmatter block — the machine-readable outcome record
+("ideas that ship and survive"), so a sweep can score the backlog without
+parsing prose:
+
+```
+---
+state: captured | routed | promoted | historical
+origin: lab | owner | consumer:<owner>/<repo>
+shipped_pr: null | <PR number in shipped_repo>
+shipped_repo: null | <owner>/<repo>
+merged_date: null | YYYY-MM-DD
+outcome: open | shipped | survived | reverted | rejected
+---
+```
+
+Conventions: `shipped`/`survived`/`reverted` require all three ship fields;
+`open`/`rejected` keep them null; `survived` means the merge is ≥ 30 days old
+with no revert; name files `<slug>-YYYY-MM-DD.md` (the generation-date cohort
+key) and link every file from this README. The prose keeps the story, the
+frontmatter keeps the score.
+
 ## Backlog
 
 (Captured ideas, each with a state and a next destination — none left at `raw`.)

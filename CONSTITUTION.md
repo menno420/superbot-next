@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — constitution
 
 > **Status:** `binding`
@@ -29,7 +23,7 @@
   a separate blocking question. Two payoffs, not one: it catches a misread
   before work happens, and the filled-in picture is itself new material the
   owner reasons against and redirects.
-- When a doc and a source file disagree: ${drift_resolution}
+- When a doc and a source file disagree: the source file wins — read the code, fix the doc in the same change; a checker that reports green against visible drift is itself the bug (PL-006 source-wins / false-green)
 
 ## Autonomy rails — act vs. ask
 
@@ -48,6 +42,20 @@
   changes.
 - Every rule change ships with its provenance id. This file carries **no
   history** — the ledger does; superseded rules are looked up there.
+
+## Program law
+
+Rulings that bind **every** repo in this program live canonically in the
+substrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register
+(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md):
+PL-001 decide-and-flag · PL-002 never-wait rebuild autonomy · PL-003
+rail-before-scale · PL-004 empirical model allocation · PL-005 observe-first
+budgets · PL-006 source-wins / false-green · PL-007 enforce-don't-exhort ·
+PL-008 adopt-freely with a kill-switch · PL-009 the kit-lab's rails.
+**Cite PL-IDs — never copy ruling bodies into this repo.** The register is
+the one home; a local copy is drift by construction. Repo-local rulings stay
+in `docs/decisions.md` / `docs/question-router.md`; a local ruling promoted
+program-wide becomes a PL-block there and a pointer here.
 
 ## Rails specific to superbot-next
 

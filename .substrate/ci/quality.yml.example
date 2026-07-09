@@ -4,8 +4,14 @@
 #
 # `bootstrap.py check --strict` runs every kit checker in one pass:
 # docs hygiene (badges / links / reachability), session-log markers,
-# namespace shadowing, seam authority, orientation budget, and the
-# decision ledger.
+# namespace shadowing, seam authority, orientation budget, the
+# decision ledger, and the control/ status heartbeat.
+#
+# Coordination-only writes (control/** heartbeats) should skip heavy
+# suites — but if a check is REQUIRED, use an in-job short-circuit
+# (see the staged substrate-gate.yml's control lane), never
+# `paths-ignore`: a required context that never reports stays
+# pending and blocks auto-merge.
 #
 # name: substrate-quality
 # on:

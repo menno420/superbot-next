@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — collaboration model
 
 > **Status:** `binding`
@@ -46,7 +40,17 @@ the answer would actually matter and be actionable. A big or vague idea
 earns a dedicated research pass or its own session before being answered
 from memory alone.
 
+## Program law
+
+This model's program-wide form, and the rulings that bind every repo in the
+program, live canonically in the substrate-kit repo at
+`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001
+decide-and-flag, PL-002 never-wait, PL-007 enforce-don't-exhort) and
+`docs/program/collaboration-model.md`
+(https://github.com/menno420/substrate-kit/tree/main/docs/program).
+**Cite PL-IDs — never copy ruling bodies into this repo.**
+
 ## Drift & staleness
 
-- When a doc and a source file disagree: ${drift_resolution}
-- Staleness review cadence: ${staleness_review}
+- When a doc and a source file disagree: the source file wins — read the code, fix the doc in the same change; a checker that reports green against visible drift is itself the bug (PL-006 source-wins / false-green)
+- Staleness review cadence: reconciliation every 30 PRs / 20 sessions with a 14-day staleness horizon (substrate.config.json cadence): reconcile docs/current-state.md and the ledgers against merged PRs, then plan the next band

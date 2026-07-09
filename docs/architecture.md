@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — architecture
 
 > **Status:** `binding`
@@ -13,7 +7,7 @@
 
 ## Layers & import rules
 
-${architecture_layers}
+sb/spec + sb/namespace are stdlib-only grammar leaves (frozen dataclasses, registries) that import nothing above them; sb/kernel bands (config, observability, db, authority, events, workflow, draft, panels, scheduler, ...) import spec/namespace and never domain — no kernel->domain import edge, ever; sb/domain/<key> port-band subsystems import kernel + spec and sit behind the audited seams; sb/adapters (discord, http) import kernel + spec; sb/app is the composition root and may import everything; sb/manifest holds pure declarations + handler registrations. Layer map: sb/__init__.py (rebuild design-spec 1.1); guards: tools/check_symbol_shadowing.py, check_namespace.py, check_no_skip.py, check_config_usage.py
 
 | Layer | May import | Must NOT import |
 |---|---|---|
@@ -43,5 +37,5 @@ believing the other covers it.
 ## Verifying a change
 
 ```
-${verify_command}
+python3 -m pytest
 ```

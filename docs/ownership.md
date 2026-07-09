@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — ownership
 
 > **Status:** `binding`
@@ -18,7 +12,7 @@
 
 ## Ownership model
 
-${ownership_model}
+One owner per write path: each sb/domain/<key> subsystem owns its own tables and writes them only through the audited workflow seam; kernel bands own their infrastructure stores (sb/kernel/db owns the pool and the migrations/ chain + checksums.json); the manifest declaration (sb/manifest + manifest/) is the ownership registry — commands, settings, events, and stores per subsystem — with growth gated by tools/check_namespace.py and tools/check_schema_growth.py
 
 ## Ownership table
 
@@ -28,4 +22,4 @@ ${ownership_model}
 
 ## New areas
 
-${new_area_ownership}
+A new area lands as a port band: an sb/domain/<key>/ subsystem plus its manifest declaration (that declaration IS the ownership/folio entry), its migrations chain entry, sim arrangement lock, parity goldens, and a verification/ sign-off row — and the docs/repo-navigation-map.md table is extended in the same change
