@@ -247,6 +247,46 @@ UNITS: tuple[Unit, ...] = (
     Unit(5, "proof_channel", "task", "proof:lock_reconcile", 1, 2,
          "ManagedTaskSpec — the shipped per-lock timers + on_ready "
          "reconcile as ONE minute-granularity sweep"),
+
+    # ---- band 6 slice 1 (games substrate + wager games) ----
+    Unit(6, "games", "command", "games/world/worldcard", 3, 2,
+         "CommandSpec rows (games kind=both) routing panels + a view"),
+    Unit(6, "games", "panel", "games.hub + games.world", 2, 2,
+         "nav-only hub + world read panel, provider-fed overview"),
+    Unit(6, "games", "store", "game_state + game_xp", 2, 2,
+         "SESSION checkpoint store + AGGREGATE shared track "
+         "(reverse-importable, erasure bodies)"),
+    Unit(6, "games", "op", "games.gc_sweep_row", 1, 2,
+         "the audited GC refund lane (shipped session_gc re-homed)"),
+    Unit(6, "games", "task", "games:session_gc", 1, 2,
+         "ManagedTaskSpec Interval(3600) over the 24h TTL"),
+    Unit(6, "games", "engine", "wager primitives + game-XP core", 2, 3,
+         "conn-threaded escrow/settle-once + soft-cap award policy — "
+         "justified code under the K7 legs (P0-1 semantics)"),
+    Unit(6, "games", "engine", "g1 session registry/dispatcher", 1, 3,
+         "the §3.4 dynamic-id seam: prefix claims + resolve() re-entry "
+         "(kernel port fill, one justified module)"),
+    Unit(6, "blackjack", "command", "blackjack/bjtournament/bjstart/"
+         "bjstatus", 4, 2, "CommandSpec rows, shipped names verbatim"),
+    Unit(6, "blackjack", "panel", "blackjack.hub", 1, 2,
+         "3 actions incl. G-10 bet modal"),
+    Unit(6, "blackjack", "op", "solo/PvP/tournament lanes", 10, 2,
+         "K7 CompoundOpSpecs over the checkpoint store; settle table "
+         "in one leg each"),
+    Unit(6, "blackjack", "engine", "card/deck/dealer primitives", 1, 3,
+         "pure shipped math (engine.py) — justified code by design"),
+    Unit(6, "blackjack", "setting", "default_entry_fee", 1, 2,
+         "SettingSpec, shipped persisted key"),
+    Unit(6, "rps_tournament", "command", "rps family", 7, 2,
+         "CommandSpec rows, shipped names/aliases verbatim"),
+    Unit(6, "rps_tournament", "panel", "rps_tournament.hub", 1, 2,
+         "move ENUM selector (values->op) + rules/settings views"),
+    Unit(6, "rps_tournament", "op", "solo/PvP/tournament lanes", 7, 2,
+         "K7 CompoundOpSpecs; second throw settles in the same txn"),
+    Unit(6, "rps_tournament", "engine", "rules tables", 1, 2,
+         "closed alias/win-condition data, shipped verbatim"),
+    Unit(6, "rps_tournament", "setting", "entry fee/mode/best_of", 3, 2,
+         "SettingSpec rows (in-memory shipped settings made durable)"),
 )
 
 

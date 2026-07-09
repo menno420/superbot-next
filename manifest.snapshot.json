@@ -309,13 +309,23 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 27,
+  "manifest_count": 30,
   "projections": {
     "events": {
       "economy.balance_changed": {
         "delivery": "best_effort",
         "observability_only": false,
         "owner_subsystem": "economy"
+      },
+      "game_xp.awarded": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "games"
+      },
+      "game_xp.level_up": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "games"
       },
       "governance.cache.invalidated": {
         "delivery": "best_effort",
@@ -446,6 +456,38 @@
           "subsystem": "automod",
           "surface": "prefix",
           "value": "automod"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "surface": "prefix",
+          "value": "blackjack"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "surface": "prefix",
+          "value": "bjtournament"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "surface": "prefix",
+          "value": "bjstart"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "surface": "prefix",
+          "value": "bjstatus"
         },
         {
           "kind": "command",
@@ -774,6 +816,38 @@
           "subsystem": "economy",
           "surface": "prefix",
           "value": "joblist"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "surface": "prefix",
+          "value": "games"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "surface": "slash",
+          "value": "games"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "surface": "prefix",
+          "value": "world"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "surface": "prefix",
+          "value": "worldcard"
         },
         {
           "kind": "command",
@@ -1178,6 +1252,62 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rps"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rpsregister"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rpsstart"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rpsbot"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rpsmatchup"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rpshelp"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "surface": "prefix",
+          "value": "rpssettings"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/security.py",
           "subsystem": "security",
           "surface": "prefix",
@@ -1314,6 +1444,21 @@
       ],
       "custom_id": [
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "bj_solo_free"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "bj_solo_bet"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "bj_status"
+        },
+        {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
           "value": "xp"
@@ -1392,6 +1537,31 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "overview"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games_blackjack"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games_rps"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games_world"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games_worldcard"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_card"
         },
         {
           "source": "sb/manifest/inventory.py",
@@ -1484,6 +1654,16 @@
           "value": "role_exemptions"
         },
         {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_rules"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_settings_view"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -1519,6 +1699,16 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.balance_changed"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "game_xp.awarded"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "game_xp.level_up"
         },
         {
           "source": "sb/manifest/governance.py",
@@ -1588,6 +1778,11 @@
           "value": "automod.hub"
         },
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack.hub"
+        },
+        {
           "source": "sb/manifest/channel.py",
           "subsystem": "channel",
           "value": "channel.hub"
@@ -1636,6 +1831,16 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.shop_panel"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games.hub"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games.world"
         },
         {
           "source": "sb/manifest/help.py",
@@ -1711,6 +1916,11 @@
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "value": "role.hub"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament.hub"
         },
         {
           "source": "sb/manifest/security.py",
@@ -1823,6 +2033,11 @@
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod_exempt_channels"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack_default_entry_fee"
         },
         {
           "source": "sb/manifest/cleanup.py",
@@ -2065,6 +2280,21 @@
           "value": "reaction_roles_enabled"
         },
         {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_default_entry_fee"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_default_mode"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_default_best_of"
+        },
+        {
           "source": "sb/manifest/security.py",
           "subsystem": "security",
           "value": "security_enabled"
@@ -2187,6 +2417,11 @@
           "value": "automod"
         },
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack"
+        },
+        {
           "source": "sb/manifest/channel.py",
           "subsystem": "channel",
           "value": "channel"
@@ -2220,6 +2455,11 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games"
         },
         {
           "source": "sb/manifest/governance.py",
@@ -2275,6 +2515,11 @@
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "value": "role"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament"
         },
         {
           "source": "sb/manifest/security.py",
@@ -2342,6 +2587,16 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "inventory"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "game_state"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "game_xp"
         },
         {
           "source": "sb/manifest/governance.py",
@@ -2472,6 +2727,9 @@
       "engine:economy.store": {
         "module": "sb.domain.economy.store"
       },
+      "engine:games.store": {
+        "module": "sb.domain.games.store"
+      },
       "engine:governance.store": {
         "module": "sb.domain.governance.store"
       },
@@ -2514,6 +2772,18 @@
       "handler:admin.subsystems_view": {
         "module": "sb.domain.admin.handlers"
       },
+      "handler:blackjack.play": {
+        "module": "sb.domain.blackjack.handlers"
+      },
+      "handler:blackjack.status_view": {
+        "module": "sb.domain.blackjack.handlers"
+      },
+      "handler:blackjack.tournament_open_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:blackjack.tournament_start_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:channel.ops_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -2540,6 +2810,12 @@
       },
       "handler:economy.work_view": {
         "module": "sb.domain.economy.handlers"
+      },
+      "handler:games.session_gc_fire": {
+        "module": "sb.domain.games.service"
+      },
+      "handler:games.world_card_view": {
+        "module": "sb.domain.games.service"
       },
       "handler:inventory.render_line": {
         "module": "sb.domain.inventory.panels"
@@ -2652,6 +2928,27 @@
       "handler:role.xp_roles_view": {
         "module": "sb.domain.role.handlers"
       },
+      "handler:rps.bot_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:rps.help_view": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.matchup_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:rps.play": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.register_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:rps.settings_view": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.start_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
       },
@@ -2678,6 +2975,9 @@
       },
       "panel:automod.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:blackjack.hub": {
+        "module": "sb.domain.blackjack.panels"
       },
       "panel:channel.hub": {
         "module": "sb.domain.operator_spine"
@@ -2708,6 +3008,12 @@
       },
       "panel:economy.shop_panel": {
         "module": "sb.domain.economy.panels"
+      },
+      "panel:games.hub": {
+        "module": "sb.domain.games.panels"
+      },
+      "panel:games.world": {
+        "module": "sb.domain.games.panels"
       },
       "panel:help.home": {
         "module": "sb.domain.help.service"
@@ -2753,6 +3059,9 @@
       },
       "panel:role.hub": {
         "module": "sb.domain.role.panels"
+      },
+      "panel:rps_tournament.hub": {
+        "module": "sb.domain.rps.panels"
       },
       "panel:security.hub": {
         "module": "sb.domain.operator_spine"
@@ -2816,6 +3125,9 @@
       },
       "provider:economy.shop_overview": {
         "module": "sb.domain.economy.panels"
+      },
+      "provider:games.hub_overview": {
+        "module": "sb.domain.games.panels"
       },
       "provider:image_moderation.hub_settings": {
         "module": "sb.domain.operator_spine"
@@ -2898,6 +3210,66 @@
       "provider:xp.hub_overview": {
         "module": "sb.domain.xp.panels"
       },
+      "workflow:blackjack.pvp_accept": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.pvp_challenge": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.pvp_decline": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.pvp_move": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_pvp_accept": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_pvp_challenge": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_pvp_decline": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_pvp_move": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_solo_double": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_solo_hit": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_solo_stand": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_solo_start": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_tournament_enter": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_tournament_payout": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.solo_double": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.solo_hit": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.solo_stand": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.solo_start": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.tournament_enter": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.tournament_payout": {
+        "module": "sb.domain.blackjack.ops"
+      },
       "workflow:cleanup.word_add": {
         "module": "sb.domain.cleanup.ops"
       },
@@ -2960,6 +3332,30 @@
       },
       "workflow:economy.work": {
         "module": "sb.domain.economy.ops"
+      },
+      "workflow:games.balance_payload_0": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.balance_payload_1": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.discard_subject_sessions": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.erase_subject_game_xp": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.game_xp_awarded_payload": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.game_xp_levelup_payload": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.gc_sweep_row": {
+        "module": "sb.domain.games.ops"
+      },
+      "workflow:games.record_gc_sweep_row": {
+        "module": "sb.domain.games.ops"
       },
       "workflow:governance.cache_invalidated_payload": {
         "module": "sb.domain.governance.ops"
@@ -3198,6 +3594,48 @@
       "workflow:role.update_menu": {
         "module": "sb.domain.role.ops"
       },
+      "workflow:rps.pvp_accept": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.pvp_challenge": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.pvp_decline": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.pvp_move": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_pvp_accept": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_pvp_challenge": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_pvp_decline": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_pvp_move": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_solo_play": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_tournament_enter": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_tournament_payout": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.solo_play": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.tournament_enter": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.tournament_payout": {
+        "module": "sb.domain.rps.ops"
+      },
       "workflow:settings.changed_payload": {
         "module": "sb.domain.settings.ops"
       },
@@ -3305,6 +3743,22 @@
           "$ref": "engine:economy.store"
         },
         "subsystem": "economy"
+      },
+      "game_state": {
+        "checkpoint_class": "session",
+        "invariant_tag": "game_state",
+        "sole_writer": {
+          "$ref": "engine:games.store"
+        },
+        "subsystem": "games"
+      },
+      "game_xp": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "game_xp",
+        "sole_writer": {
+          "$ref": "engine:games.store"
+        },
+        "subsystem": "games"
       },
       "governance_audit_log": {
         "checkpoint_class": "ledger",
@@ -3509,7 +3963,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:bfbcae14c94ae154f2fa70aa8857e9b262d381aa3f7ffc0792237896476abfe1",
+  "stable_hash": "sha256:777681273d769efadf87f701dac9e5ef8098464383b65eeb24dbb1f2cfca8d27",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -4237,6 +4691,291 @@
           "storage": "kv",
           "validator": null,
           "value_type": "str"
+        }
+      ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "blackjack": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "bj"
+          ],
+          "audience_tier": "user",
+          "capability": "blackjack",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "blackjack",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:blackjack.play"
+          },
+          "slash_common": false,
+          "summary": "Play blackjack — solo vs the dealer, or challenge a player (stakes escrowed).",
+          "usage": "!blackjack [bet] | !blackjack @player [bet]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "bjtourn"
+          ],
+          "audience_tier": "staff",
+          "capability": "blackjack",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bjtournament",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:blackjack.tournament_open_pending"
+          },
+          "slash_common": false,
+          "summary": "Start a Blackjack tournament (registration + private round channels).",
+          "usage": "!bjtournament [entry_fee] [rounds] [mins]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "blackjack",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bjstart",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:blackjack.tournament_start_pending"
+          },
+          "slash_common": false,
+          "summary": "Manually start a pending Blackjack tournament early.",
+          "usage": "!bjstart",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "blackjack",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bjstatus",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:blackjack.status_view"
+          },
+          "slash_common": false,
+          "summary": "Show the current tournament status.",
+          "usage": "!bjstatus",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "blackjack",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "bj_solo_free",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🃏",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:blackjack.solo_start"
+              },
+              "label": "Solo Free Play",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bj_solo_bet",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🪙",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:blackjack.solo_start"
+              },
+              "label": "Solo Bet",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "bet",
+                    "label": "Bet (coins)",
+                    "max_length": 9,
+                    "min_length": null,
+                    "placeholder": "e.g. 25",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "blackjack.solo_bet_form",
+                "on_submit": {
+                  "$ref": "workflow:blackjack.solo_start"
+                },
+                "title": "Blackjack — place your bet"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bj_status",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.status_view"
+              },
+              "label": "Tournament Status",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Beat the dealer without going over 21. Free play wins pay a fixed reward; bets pay 1:1 (naturals 3:2). Challenge a player with `!blackjack @player [bet]` — stakes are escrowed when the challenge is accepted."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bj_solo_free",
+                    "bj_solo_bet",
+                    "bj_status"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "blackjack.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "blackjack",
+          "timeout_s": 180,
+          "title": "🃏 Blackjack",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "blackjack.tournament.manage",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Default entry fee (🪙 coins) applied when an admin runs `!bjtournament` without an explicit entry_fee argument.",
+          "input_hint": "numeric_presets",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "default_entry_fee",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [
+            0,
+            10,
+            25,
+            50,
+            100
+          ],
+          "scope_default": "guild",
+          "settings_key": "blackjack_default_entry_fee",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
         }
       ],
       "stores": [],
@@ -6673,6 +7412,453 @@
             "$ref": "engine:economy.store"
           },
           "table": "inventory",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "games": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "games",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "games",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:games.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the Games hub — competitive games and channel activities.",
+          "usage": "!games | /games",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "games",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "world",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:games.world"
+          },
+          "slash_common": false,
+          "summary": "Open the Explore world hub — the open-world town square.",
+          "usage": "!world",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "mystats"
+          ],
+          "audience_tier": "user",
+          "capability": "games",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "worldcard",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:games.world_card_view"
+          },
+          "slash_common": false,
+          "summary": "Show your cross-game world card — global level + per-game standing.",
+          "usage": "!worldcard",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "game_xp.awarded",
+          "observability_only": false,
+          "owner_subsystem": "games",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "user_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "game",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "action",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "delta",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "new_game_xp",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "new_total_xp",
+              "required": true,
+              "type": "int"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "game_xp.level_up",
+          "observability_only": false,
+          "owner_subsystem": "games",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "user_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "game",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "new_level",
+              "required": true,
+              "type": "int"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
+      "key": "games",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "games_blackjack",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🃏",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:blackjack.hub"
+              },
+              "label": "Blackjack",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "games_rps",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✂️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:rps_tournament.hub"
+              },
+              "label": "Rock Paper Scissors",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "games_world",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🌍",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:games.world"
+              },
+              "label": "World",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "games_worldcard",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪪",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.world_card_view"
+              },
+              "label": "My World Card",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Competitive games and channel activities. Wagered games escrow stakes when a challenge is accepted; your cross-game progress lives on the shared world track (`!worldcard`)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:games.hub_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "games_blackjack",
+                    "games_rps"
+                  ],
+                  [
+                    "games_world",
+                    "games_worldcard"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "games.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "games",
+          "timeout_s": 180,
+          "title": "🎮 Games",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "world_card",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪪",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.world_card_view"
+              },
+              "label": "My World Card",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "The open-world town square. Each game keeps its own ladder; your shared world level derives from the game-XP pool. Game worlds (Mine · Fish · Farm · Creatures) dock here as their bands land."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "world_card"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "games.world",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "games",
+          "timeout_s": 180,
+          "title": "🌍 Explore — the world",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "session",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": "games.discard_subject_sessions",
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "game_state",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "24h GC (session_gc sweep)",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:games.store"
+          },
+          "table": "game_state",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": true,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": "games.erase_subject_game_xp",
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "game_xp",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:games.store"
+          },
+          "table": "game_xp",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
@@ -11447,6 +12633,397 @@
           "version_policy": "reject_and_preserve"
         }
       ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "rps_tournament": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rps",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.play"
+          },
+          "slash_common": false,
+          "summary": "Quick RPS — vs the bot, or challenge a player (stakes escrowed at accept).",
+          "usage": "!rps [move] [bet] | !rps @player [bet]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rpsreg"
+          ],
+          "audience_tier": "staff",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rpsregister",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.register_pending"
+          },
+          "slash_common": false,
+          "summary": "Start tournament registration (reaction sign-up, optional role ping).",
+          "usage": "!rpsregister [@role] [entry_fee]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rpsbegin"
+          ],
+          "audience_tier": "staff",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rpsstart",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.start_pending"
+          },
+          "slash_common": false,
+          "summary": "Start the registered RPS tournament.",
+          "usage": "!rpsstart [mode] [best_of]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rpsbot",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.bot_pending"
+          },
+          "slash_common": false,
+          "summary": "Start matches against the bot.",
+          "usage": "!rpsbot [mode] [best_of] [@members/@roles]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rpsmatchup",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.matchup_pending"
+          },
+          "slash_common": false,
+          "summary": "Manually create a tournament match between two members.",
+          "usage": "!rpsmatchup @player1 @player2",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rpshelp",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.help_view"
+          },
+          "slash_common": false,
+          "summary": "Show RPS command help.",
+          "usage": "!rpshelp",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "rps_tournament",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rpssettings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:rps.settings_view"
+          },
+          "slash_common": false,
+          "summary": "Show the RPS settings (edit them in the settings hub).",
+          "usage": "!rpssettings",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "rps_tournament",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "rps_rules",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📜",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.help_view"
+              },
+              "label": "Rules",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rps_settings_view",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚙️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.settings_view"
+              },
+              "label": "Settings",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Quick play vs the bot (pick a move below — free play wins pay a fixed reward), challenge a player with `!rps @player [bet]` (stakes escrowed at accept), or run tournaments with `!rpsregister` / `!rpsstart`."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rps_quick_move"
+                  ],
+                  [
+                    "rps_rules",
+                    "rps_settings_view"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "rps_tournament.hub",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "workflow:rps.solo_play"
+              },
+              "options_source": [
+                "rock",
+                "paper",
+                "scissors"
+              ],
+              "page_size": 25,
+              "placeholder": "Quick play — choose your move",
+              "selector_id": "rps_quick_move",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "rps_tournament",
+          "timeout_s": 180,
+          "title": "✂️ Rock Paper Scissors",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "rps_tournament.tournament.manage",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Default entry fee (🪙 coins) applied when an admin runs `!rpsregister` without an explicit entry_fee argument.",
+          "input_hint": "numeric_presets",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "default_entry_fee",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [
+            0,
+            10,
+            25,
+            50,
+            100
+          ],
+          "scope_default": "guild",
+          "settings_key": "rps_default_entry_fee",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "rps_tournament.tournament.manage",
+          "co_edit_group": "",
+          "default": "classic",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Tournament game mode when `!rpsstart` gets none (classic, lizard_spock, chess, elemental).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "default_mode",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "rps_default_mode",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "rps_tournament.tournament.manage",
+          "co_edit_group": "",
+          "default": 3,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Best-of rounds when `!rpsstart` gets none (odd positive integer).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "default_best_of",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "rps_default_best_of",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        }
+      ],
+      "stores": [],
       "version": 1,
       "wizard_sections": []
     },
