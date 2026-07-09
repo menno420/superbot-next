@@ -76,6 +76,20 @@
     "name": "blackjack"
    }
   ],
+  "casino": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "casino"
+   },
+   {
+    "aliases": [
+     "holdem"
+    ],
+    "group": "",
+    "name": "poker"
+   }
+  ],
   "chain": [
    {
     "aliases": [],
@@ -398,6 +412,24 @@
     ],
     "group": "",
     "name": "dextop"
+   }
+  ],
+  "deathmatch": [
+   {
+    "aliases": [
+     "challenge",
+     "deathmatch",
+     "dm"
+    ],
+    "group": "",
+    "name": "dm_challenge"
+   },
+   {
+    "aliases": [
+     "deathmatch_help"
+    ],
+    "group": "",
+    "name": "dm_help"
    }
   ],
   "diagnostic": [
@@ -1410,6 +1442,7 @@
   "admin",
   "automod",
   "blackjack",
+  "casino",
   "chain",
   "channel",
   "cleanup",
@@ -1418,6 +1451,7 @@
   "counters",
   "counting",
   "creature",
+  "deathmatch",
   "diagnostic",
   "economy",
   "farm",

@@ -210,8 +210,20 @@ class FixedChoice(random.Random):
         return self._value
 
 
-def test_rps_solo_win_and_free_play(fake_economy, fake_games_store):
+def _mute_rps_stats(monkeypatch):
+    from sb.domain.rps import stats as rps_stats
+
+    async def record_result(conn, **kwargs):
+        return None
+
+    monkeypatch.setattr(rps_stats, "record_result", record_result)
+
+
+def test_rps_solo_win_and_free_play(fake_economy, fake_games_store,
+                                    monkeypatch):
     from sb.domain.rps import ops
+
+    _mute_rps_stats(monkeypatch)
 
     ops.set_rng_for_tests(FixedChoice("scissors"))
     fake_economy.balances[(P1, GID)] = 50
@@ -224,8 +236,11 @@ def test_rps_solo_win_and_free_play(fake_economy, fake_games_store):
     assert f"+{ops.FREE_WIN}" in out.after["result"]
 
 
-def test_rps_solo_loss_floors(fake_economy, fake_games_store):
+def test_rps_solo_loss_floors(fake_economy, fake_games_store,
+                              monkeypatch):
     from sb.domain.rps import ops
+
+    _mute_rps_stats(monkeypatch)
 
     ops.set_rng_for_tests(FixedChoice("paper"))
     fake_economy.balances[(P1, GID)] = 10

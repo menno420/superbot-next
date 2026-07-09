@@ -125,6 +125,16 @@ async def _record_solo_play(conn, ctx: WorkflowContext) -> LegOutcome:
         text = "😞 You lose!"
     else:
         text = "🤝 Tie!"
+    # stats row (slice 4): the shipped _bot_matches.update_player_stats
+    # site — quick play vs the bot IS the shipped bot match. Display
+    # name captured at game time when the feed provides it; mention
+    # fallback headless.
+    from sb.domain.rps import stats as rps_stats
+
+    await rps_stats.record_result(
+        conn, user_id=uid, guild_id=gid,
+        name=str(ctx.params.get("_display_name") or f"<@{uid}>"),
+        result={1: "win", 2: "loss"}.get(outcome, "tie"))
     ctx.params["_balance_changes"] = changes
     after = {"move": move, "bot_move": bot_move, "result": text,
              "emoji": _EMOJI.get(move, ""),
@@ -367,8 +377,21 @@ TOURN_PAYOUT = _op("rps.tournament_payout", "tournament_paid",
 _OPS = (SOLO_PLAY, PVP_CHALLENGE, PVP_ACCEPT, PVP_DECLINE, PVP_MOVE,
         TOURN_ENTER, TOURN_PAYOUT)
 
+@workflow("rps.erase_subject_stats")
+async def _erase_subject_stats(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.domain.rps import stats as rps_stats
+
+    uid = int(ctx.params.get("subject_user_id")
+              or getattr(ctx.actor, "user_id", 0) or 0)
+    deleted = await rps_stats.erase_subject_stats(conn, user_id=uid)
+    return LegOutcome(step=StepResult(uid, "erase", True), before={},
+                      after={"rows_deleted": deleted,
+                             "disposition": "deleted"})
+
+
 _REF_TABLE = (
     ("rps.record_solo_play", _record_solo_play),
+    ("rps.erase_subject_stats", _erase_subject_stats),
     ("rps.record_pvp_challenge", _record_pvp_challenge),
     ("rps.record_pvp_accept", _record_pvp_accept),
     ("rps.record_pvp_decline", _record_pvp_decline),

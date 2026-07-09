@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 36,
+  "manifest_count": 38,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -488,6 +488,22 @@
           "subsystem": "blackjack",
           "surface": "prefix",
           "value": "bjstatus"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "surface": "prefix",
+          "value": "casino"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "surface": "prefix",
+          "value": "poker"
         },
         {
           "kind": "command",
@@ -920,6 +936,22 @@
           "subsystem": "creature",
           "surface": "prefix",
           "value": "cbattletop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "surface": "prefix",
+          "value": "dm_challenge"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "surface": "prefix",
+          "value": "dm_help"
         },
         {
           "kind": "command",
@@ -2115,6 +2147,16 @@
           "value": "bj_status"
         },
         {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino_poker"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino_hand_ranks"
+        },
+        {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
           "value": "chain_list"
@@ -2230,6 +2272,26 @@
           "value": "creature_top"
         },
         {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_fight_bot"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_stats"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_top"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_help"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "daily"
@@ -2343,6 +2405,16 @@
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "world_creatures"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_deathmatch"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "world_casino"
         },
         {
           "source": "sb/manifest/games.py",
@@ -2589,6 +2661,11 @@
           "value": "blackjack.hub"
         },
         {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino.hub"
+        },
+        {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
           "value": "chain.hub"
@@ -2632,6 +2709,11 @@
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
           "value": "creature.hub"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch.hub"
         },
         {
           "source": "sb/manifest/diagnostic.py",
@@ -2899,6 +2981,11 @@
           "source": "sb/manifest/counters.py",
           "subsystem": "counters",
           "value": "counters_bots_template"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch_turn_timeout"
         },
         {
           "source": "sb/manifest/governance.py",
@@ -3258,6 +3345,11 @@
           "value": "blackjack"
         },
         {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino"
+        },
+        {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
           "value": "chain"
@@ -3296,6 +3388,11 @@
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
           "value": "creature"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch"
         },
         {
           "source": "sb/manifest/diagnostic.py",
@@ -3448,6 +3545,11 @@
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
           "value": "creature_battle_record"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch_stats"
         },
         {
           "source": "sb/manifest/economy.py",
@@ -3605,6 +3707,11 @@
           "value": "role_automation_exemptions"
         },
         {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_players"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -3639,6 +3746,9 @@
       "engine:creature.store": {
         "module": "sb.domain.creature.store"
       },
+      "engine:deathmatch.store": {
+        "module": "sb.domain.deathmatch.store"
+      },
       "engine:economy.store": {
         "module": "sb.domain.economy.store"
       },
@@ -3671,6 +3781,9 @@
       },
       "engine:role.store": {
         "module": "sb.domain.role.store"
+      },
+      "engine:rps.stats_store": {
+        "module": "sb.domain.rps.stats"
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
@@ -3707,6 +3820,12 @@
       },
       "handler:blackjack.tournament_start_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:casino.hand_rank_view": {
+        "module": "sb.domain.casino.service"
+      },
+      "handler:casino.poker_pending": {
+        "module": "sb.domain.casino.service"
       },
       "handler:chain.create_route": {
         "module": "sb.domain.chain.service"
@@ -3788,6 +3907,18 @@
       },
       "handler:creature.menu_view": {
         "module": "sb.domain.creature.service"
+      },
+      "handler:deathmatch.challenge_route": {
+        "module": "sb.domain.deathmatch.service"
+      },
+      "handler:deathmatch.help_view": {
+        "module": "sb.domain.deathmatch.service"
+      },
+      "handler:deathmatch.stats_view": {
+        "module": "sb.domain.deathmatch.service"
+      },
+      "handler:deathmatch.top_view": {
+        "module": "sb.domain.deathmatch.service"
       },
       "handler:economy.balance_view": {
         "module": "sb.domain.economy.handlers"
@@ -4143,6 +4274,9 @@
       "panel:blackjack.hub": {
         "module": "sb.domain.blackjack.panels"
       },
+      "panel:casino.hub": {
+        "module": "sb.domain.casino.panels"
+      },
       "panel:chain.hub": {
         "module": "sb.domain.chain.panels"
       },
@@ -4169,6 +4303,9 @@
       },
       "panel:creature.hub": {
         "module": "sb.manifest.creature"
+      },
+      "panel:deathmatch.hub": {
+        "module": "sb.domain.deathmatch.panels"
       },
       "panel:diagnostic.hub": {
         "module": "sb.domain.diagnostic.panels"
@@ -4547,6 +4684,45 @@
       },
       "workflow:creature.record_catch": {
         "module": "sb.domain.creature.ops"
+      },
+      "workflow:deathmatch.accept": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.bot_move": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.bot_start": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.challenge": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.decline": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.erase_subject_stats": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.move": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.record_accept": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.record_bot_move": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.record_bot_start": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.record_challenge": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.record_decline": {
+        "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:deathmatch.record_move": {
+        "module": "sb.domain.deathmatch.ops"
       },
       "workflow:economy.award_work_xp": {
         "module": "sb.domain.economy.ops"
@@ -4932,6 +5108,9 @@
       "workflow:role.update_menu": {
         "module": "sb.domain.role.ops"
       },
+      "workflow:rps.erase_subject_stats": {
+        "module": "sb.domain.rps.ops"
+      },
       "workflow:rps.pvp_accept": {
         "module": "sb.domain.rps.ops"
       },
@@ -5097,6 +5276,14 @@
           "$ref": "engine:creature.store"
         },
         "subsystem": "creature"
+      },
+      "deathmatch_stats": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "deathmatch_stats",
+        "sole_writer": {
+          "$ref": "engine:deathmatch.store"
+        },
+        "subsystem": "deathmatch"
       },
       "economy": {
         "checkpoint_class": "aggregate",
@@ -5322,6 +5509,14 @@
         },
         "subsystem": "role"
       },
+      "rps_players": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "rps_players",
+        "sole_writer": {
+          "$ref": "engine:rps.stats_store"
+        },
+        "subsystem": "rps_tournament"
+      },
       "settings": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "settings",
@@ -5365,7 +5560,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:0c6971eb75b608aa92b7d2eafc4adf761e0d0f6f92ac1aa692f4464eee26533f",
+  "stable_hash": "sha256:6c3bf33949147b5f51e0a50de7652813aaeed34f62bd258a48dd257779c08b39",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -6380,6 +6575,168 @@
           "value_type": "int"
         }
       ],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "casino": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "casino",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "casino",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:casino.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the Casino hub — group card games like poker.",
+          "usage": "!casino",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "holdem"
+          ],
+          "audience_tier": "user",
+          "capability": "casino",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "poker",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:casino.poker_pending"
+          },
+          "slash_common": false,
+          "summary": "Open a multiplayer Texas Hold'em table in this channel.",
+          "usage": "!poker",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "casino",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "casino_poker",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "♠",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_pending"
+              },
+              "label": "Poker (Hold'em)",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "casino_hand_ranks",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📜",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.hand_rank_view"
+              },
+              "label": "Hand Rankings",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Group card games — every player gets their own private table view. v1 seats multiplayer Texas Hold'em; roulette and friends dock into this hub as they land."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "casino_poker",
+                    "casino_hand_ranks"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "casino.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "casino",
+          "timeout_s": 180,
+          "title": "🎰 Casino",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
       "stores": [],
       "version": 1,
       "wizard_sections": []
@@ -9249,6 +9606,285 @@
       "version": 1,
       "wizard_sections": []
     },
+    "deathmatch": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "deathmatch",
+            "challenge",
+            "dm"
+          ],
+          "audience_tier": "user",
+          "capability": "deathmatch",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "dm_challenge",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:deathmatch.challenge_route"
+          },
+          "slash_common": false,
+          "summary": "Challenge another user to a deathmatch duel.",
+          "usage": "!deathmatch @user",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "deathmatch_help"
+          ],
+          "audience_tier": "user",
+          "capability": "deathmatch",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "dm_help",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:deathmatch.help_view"
+          },
+          "slash_common": false,
+          "summary": "Deathmatch commands + how duels work.",
+          "usage": "!dm_help",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "deathmatch",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "dm_fight_bot",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🤖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:deathmatch.bot_start"
+              },
+              "label": "Fight Bot",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "dm_stats",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📊",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.stats_view"
+              },
+              "label": "My Stats",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "dm_top",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.top_view"
+              },
+              "label": "Leaderboard",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "dm_help",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "❓",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.help_view"
+              },
+              "label": "Help",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Turn-based duels: 100 HP each, attack for 15 (30 on a crit), defend to halve the next hit. Challenge a player with `!deathmatch @user` — PvP wins count on the leaderboard. **Fight Bot** starts an immediate duel vs the bot (results stay off the leaderboard)."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "dm_fight_bot",
+                    "dm_stats",
+                    "dm_top",
+                    "dm_help"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:games.world"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "deathmatch.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "deathmatch",
+          "timeout_s": 180,
+          "title": "⚔️ Deathmatch",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "deathmatch.game.challenge",
+          "co_edit_group": "",
+          "default": 60,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Seconds each player has to respond on their turn before the duel times out and the opponent wins by default.",
+          "input_hint": "numeric_presets",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "turn_timeout",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [
+            30,
+            60,
+            120,
+            300
+          ],
+          "scope_default": "guild",
+          "settings_key": "deathmatch_turn_timeout",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:deathmatch.erase_subject_stats"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "deathmatch_stats",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:deathmatch.store"
+          },
+          "table": "deathmatch_stats",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
     "diagnostic": {
       "capabilities": [],
       "commands": [
@@ -11535,6 +12171,54 @@
               "visible_when": ""
             },
             {
+              "action_id": "world_deathmatch",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚔️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:deathmatch.hub"
+              },
+              "label": "Deathmatch",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "world_casino",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎰",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:casino.hub"
+              },
+              "label": "Casino",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
               "action_id": "world_card",
               "audience_tier": "user",
               "audit": "",
@@ -11587,6 +12271,8 @@
                     "world_creatures"
                   ],
                   [
+                    "world_deathmatch",
+                    "world_casino",
                     "world_card"
                   ]
                 ]
@@ -17917,7 +18603,37 @@
           "value_type": "int"
         }
       ],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_pii",
+          "erasure_ref": {
+            "$ref": "workflow:rps.erase_subject_stats"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "rps_players",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:rps.stats_store"
+          },
+          "table": "rps_players",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },

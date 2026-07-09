@@ -378,6 +378,41 @@ UNITS: tuple[Unit, ...] = (
     Unit(6, "chain", "engine", "message rule core", 1, 3,
          "check_message headless (allowed word + word cap + the shipped "
          "warning copy)"),
+
+    # ---- band 6 slice 4 (deathmatch + casino + PvP stat stores) ----
+    Unit(6, "deathmatch", "command", "dm_challenge + dm_help", 2, 2,
+         "CommandSpec rows verbatim (+ the shipped fluency aliases "
+         "deathmatch/challenge/dm)"),
+    Unit(6, "deathmatch", "panel", "deathmatch.hub", 1, 2,
+         "the shipped DeathmatchPanelView declarative (Fight Bot / "
+         "stats / top / help)"),
+    Unit(6, "deathmatch", "store", "deathmatch_stats", 1, 2,
+         "StoreSpec, shipped shape (PvP only — bot duels off the "
+         "board, PR-6 rule)"),
+    Unit(6, "deathmatch", "setting", "turn_timeout", 1, 2,
+         "SettingSpec verbatim from the shipped schemas.py "
+         "(deathmatch_turn_timeout, presets 30/60/120/300)"),
+    Unit(6, "deathmatch", "op",
+         "challenge/accept/decline/move/bot_start/bot_move", 6, 2,
+         "K7 lanes on the blackjack-PvP g1 recipe; the finishing move "
+         "settles stats + consumes the row in ONE txn"),
+    Unit(6, "deathmatch", "engine", "duel core + bot AI", 1, 3,
+         "the shipped _Duel + pick_bot_action headless (injectable "
+         "rng; bare-fighter baseline until the equipment port)"),
+    Unit(6, "deathmatch", "engine", "Deathmatch + RPS providers", 2, 3,
+         "rank-provider rows (dm_leaderboard/dm_lb/board + rpslb) over "
+         "the slice-4 stat stores"),
+    Unit(6, "rps_tournament", "store", "rps_players", 1, 2,
+         "StoreSpec, shipped (user_id,guild_id) shape; written from the "
+         "quick-play lane (the shipped bot-match stats site)"),
+    Unit(6, "casino", "command", "casino + poker/holdem", 2, 2,
+         "CommandSpec rows verbatim; poker = honest pending terminal "
+         "(per-player ephemeral tables are live-adapter work)"),
+    Unit(6, "casino", "panel", "casino.hub", 1, 2,
+         "the shipped casino hub declarative (poker + hand rankings)"),
+    Unit(6, "casino", "engine", "card model + hand evaluator", 1, 3,
+         "utils/cards + utils/poker/evaluate ported VERBATIM (pure; "
+         "the Hold'em table docks on when the live adapter arms)"),
 )
 
 
