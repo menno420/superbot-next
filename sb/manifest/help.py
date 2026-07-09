@@ -26,7 +26,7 @@ MANIFEST = SubsystemManifest(
             slash_common=True,               # D-5: discovery is essential
         ),
     ),
-    panels=(_service.build_help_panel(),),
+    panels=_service.build_help_panels(),
 )
 
 _ai_tasks.register_ai_tasks()
@@ -36,7 +36,7 @@ def _ensure_refs() -> None:
     """P1 re-arm hook (D-0025): the help provider/panel refs + task claim."""
     from sb.spec.refs import PanelRef as _P, is_registered, panel as _panel
 
-    _service.build_help_panel()   # re-registers the provider ref
+    _service.build_help_panels()  # re-registers the provider/handler refs
     if not is_registered(_P("help.home")):
         _panel("help.home")(_service._help_home_factory)
     _ai_tasks.register_ai_tasks()

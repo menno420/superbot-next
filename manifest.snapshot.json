@@ -3391,6 +3391,241 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_games"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_blackjack"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_casino"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_deathmatch"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_rps_tournament"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_mining"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_mining_p2"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_counting"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_chain"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_fishing"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_creature"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_farm"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_games"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_btd6"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_btd6_p2"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_btd6"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_projmoon"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_project_moon"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_economy"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_inventory"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_leaderboard"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_treasury"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_economy"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_moderation"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_automod"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_image_moderation"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_cleanup"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_logging"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_proof_channel"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_security"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_moderation"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_community"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_xp"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_karma"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_community_spotlight"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_role"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_welcome"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_counters"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_community"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_admin"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_channel"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_server_management"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_ai"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_settings"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_diagnostic"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_setup"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_admin"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.home"
         },
         {
@@ -4864,6 +5099,12 @@
       "handler:games.world_card_view": {
         "module": "sb.domain.games.service"
       },
+      "handler:help.open_category": {
+        "module": "sb.domain.help.service"
+      },
+      "handler:help.open_subsystem": {
+        "module": "sb.domain.help.service"
+      },
       "handler:inventory.render_line": {
         "module": "sb.domain.inventory.panels"
       },
@@ -5230,7 +5471,148 @@
       "panel:games.world": {
         "module": "sb.domain.games.panels"
       },
+      "panel:help.cat_admin": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_btd6": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_community": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_economy": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_games": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_moderation": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_project_moon": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.home": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_admin": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_ai": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_automod": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_blackjack": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_btd6": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_btd6_p2": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_casino": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_chain": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_channel": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_cleanup": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_community": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_community_spotlight": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_counters": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_counting": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_creature": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_deathmatch": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_diagnostic": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_economy": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_farm": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_fishing": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_games": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_image_moderation": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_inventory": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_karma": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_leaderboard": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_logging": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_mining": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_mining_p2": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_moderation": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_projmoon": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_proof_channel": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_role": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_rps_tournament": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_security": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_server_management": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_settings": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_setup": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_treasury": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_welcome": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_xp": {
         "module": "sb.domain.help.service"
       },
       "panel:image_moderation.hub": {
@@ -5401,8 +5783,149 @@
       "provider:role.hub_overview": {
         "module": "sb.domain.role.panels"
       },
-      "provider:sb.panels.help_index": {
-        "module": "sb.kernel.panels.projections"
+      "provider:sb.panels.help_cat_admin": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_btd6": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_community": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_economy": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_games": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_moderation": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_project_moon": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_admin_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_ai_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_automod_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_blackjack_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_btd6_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_btd6_1": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_casino_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_chain_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_channel_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_cleanup_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_community_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_community_spotlight_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_counters_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_counting_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_creature_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_deathmatch_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_diagnostic_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_economy_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_farm_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_fishing_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_games_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_image_moderation_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_inventory_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_karma_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_leaderboard_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_logging_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_mining_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_mining_1": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_moderation_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_projmoon_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_proof_channel_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_role_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_rps_tournament_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_security_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_server_management_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_settings_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_setup_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_treasury_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_welcome_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_xp_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_home_categories": {
+        "module": "sb.domain.help.service"
       },
       "provider:security.hub_settings": {
         "module": "sb.domain.operator_spine"
@@ -6528,7 +7051,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:353e6cb3a931ed045dfda2619ddc74339d1f72930be16ba8552aa9ce2eea2161",
+  "stable_hash": "sha256:1af05914913150558cf7de2c0e3d119420341ffe9f7d8c18e562a721e17dbfa2",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -15997,11 +16520,591 @@
           "audience": "public",
           "body": [
             {
-              "text": "Everything the bot can do, from its own manifests."
+              "text": "3 command(s), generated from the `games` manifest."
             },
             {
               "provider": {
-                "$ref": "provider:sb.panels.help_index"
+                "$ref": "provider:sb.panels.help_cmds_games_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_games",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎮 Games — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "4 command(s), generated from the `blackjack` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_blackjack_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_blackjack",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🃏 Blackjack — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "2 command(s), generated from the `casino` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_casino_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_casino",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎰 Casino — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "2 command(s), generated from the `deathmatch` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_deathmatch_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_deathmatch",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⚔️ Deathmatch — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "7 command(s), generated from the `rps_tournament` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_rps_tournament_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_rps_tournament",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "✂️ Rock Paper Scissors — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "37 command(s), generated from the `mining` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_mining_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "More (2/2) ▶",
+                "route": {
+                  "$ref": "panel:help.sub_mining_p2"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_mining",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⛏️ Mining — commands · page 1/2",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "37 command(s), generated from the `mining` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_mining_1"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "◀ First page",
+                "route": {
+                  "$ref": "panel:help.sub_mining"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_mining_p2",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⛏️ Mining — commands · page 2/2",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "10 command(s), generated from the `counting` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_counting_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_counting",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🔢 Counting — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "7 command(s), generated from the `chain` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_chain_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_chain",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🔗 Word Chain — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "20 command(s), generated from the `fishing` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_fishing_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_fishing",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎣 Fishing — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "7 command(s), generated from the `creature` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_creature_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_creature",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🐾 Creatures — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `farm` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_farm_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_games"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_farm",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🐔 Chicken Farm — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Game flows and tournaments."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_games"
               }
             }
           ],
@@ -16016,7 +17119,1910 @@
           },
           "justification": "",
           "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_games",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "🎮 Games",
+                "🃏 Blackjack",
+                "🎰 Casino",
+                "⚔️ Deathmatch",
+                "✂️ Rock Paper Scissors",
+                "⛏️ Mining",
+                "🔢 Counting",
+                "🔗 Word Chain",
+                "🎣 Fishing",
+                "🐾 Creatures",
+                "🐔 Chicken Farm"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎮 Games",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "33 command(s), generated from the `btd6` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_btd6_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
             "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "More (2/2) ▶",
+                "route": {
+                  "$ref": "panel:help.sub_btd6_p2"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_btd6"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_btd6",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🐵 BTD6 Assistant — commands · page 1/2",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "33 command(s), generated from the `btd6` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_btd6_1"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "◀ First page",
+                "route": {
+                  "$ref": "panel:help.sub_btd6"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_btd6"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_btd6_p2",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🐵 BTD6 Assistant — commands · page 2/2",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Bloons Tower Defense 6 assistant — lookups, strategy guidance, and round breakdowns."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_btd6"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_btd6",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "🐵 BTD6 Assistant"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🐵 BTD6 Assistant",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "10 command(s), generated from the `projmoon` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_projmoon_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_project_moon"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_projmoon",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🌑 Project Moon — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Limbus Company knowledge — Sinners, Sins, status keywords, damage types, and E.G.O grades."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_project_moon"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_project_moon",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "🌑 Project Moon"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🌑 Project Moon",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "9 command(s), generated from the `economy` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_economy_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_economy"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_economy",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "💰 Economy — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `inventory` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_inventory_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_economy"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_inventory",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎒 Inventory — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `leaderboard` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_leaderboard_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_economy"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_leaderboard",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🏆 Leaderboard — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "3 command(s), generated from the `treasury` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_treasury_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_economy"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_treasury",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🏛️ Treasury — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Currency, items, work, shop, and standings."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_economy"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_economy",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "💰 Economy",
+                "🎒 Inventory",
+                "🏆 Leaderboard",
+                "🏛️ Treasury"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "💰 Economy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "10 command(s), generated from the `moderation` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_moderation_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_moderation",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🔨 Moderation — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `automod` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_automod_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_automod",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🛡️ Automod — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `image_moderation` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_image_moderation_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_image_moderation",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🖼️ Image moderation — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "7 command(s), generated from the `cleanup` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_cleanup_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_cleanup",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "8 command(s), generated from the `logging` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_logging_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_logging",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "📝 Server Logging — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "5 command(s), generated from the `proof_channel` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_proof_channel_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_proof_channel",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "📋 Proof Channel — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `security` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_security_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_moderation"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_security",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🛡️ Server Security — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Warnings, timeouts, bans, cleanup, audit logs."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_moderation"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_moderation",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "🔨 Moderation",
+                "🛡️ Automod",
+                "🖼️ Image moderation",
+                "🧹 Cleanup",
+                "📝 Server Logging",
+                "📋 Proof Channel",
+                "🛡️ Server Security"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🛡️ Moderation & Safety",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "2 command(s), generated from the `community` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_community_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_community",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🌱 Community — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "6 command(s), generated from the `xp` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_xp_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_xp",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⭐ XP & Levels — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "4 command(s), generated from the `karma` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_karma_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_karma",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "✨ Karma — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `community_spotlight` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_community_spotlight_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_community_spotlight",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🌟 Community Spotlight — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "17 command(s), generated from the `role` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_role_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_role",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎭 Roles — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `welcome` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_welcome_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_welcome",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "👋 Welcome — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "2 command(s), generated from the `counters` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_counters_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_counters",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "📊 Server Counters — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Progression, roles, and community activities."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_community"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_community",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "🌱 Community",
+                "⭐ XP & Levels",
+                "✨ Karma",
+                "🌟 Community Spotlight",
+                "🎭 Roles",
+                "👋 Welcome",
+                "📊 Server Counters"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🌱 Community",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "7 command(s), generated from the `admin` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_admin_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_admin",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⚙️ Administration — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "17 command(s), generated from the `channel` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_channel_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_channel",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "📐 Channels — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "2 command(s), generated from the `server_management` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_server_management_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_server_management",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🧭 Server Management — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "23 command(s), generated from the `ai` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_ai_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_ai",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🤖 AI Platform — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `settings` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_settings_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_settings",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⚙️ Settings Manager — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `diagnostic` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_diagnostic_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_diagnostic",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🩺 Diagnostics — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `setup` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_setup_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_setup",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🧰 Setup — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Settings, diagnostics, server management, channels, AI, and ops."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_admin"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_admin",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "⚙️ Administration",
+                "📐 Channels",
+                "🧭 Server Management",
+                "🤖 AI Platform",
+                "⚙️ Settings Manager",
+                "🩺 Diagnostics",
+                "🧰 Setup"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "⚙️ Server & Admin",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Pick a category below — every entry is generated from the bot's own manifests."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_home_categories"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "category_select"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
@@ -16029,11 +19035,38 @@
           },
           "panel_id": "help.home",
           "renderer_override": null,
-          "selectors": [],
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No categories available.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_category"
+              },
+              "options_source": [
+                "🎮 Games",
+                "🐵 BTD6 Assistant",
+                "🌑 Project Moon",
+                "💰 Economy",
+                "🛡️ Moderation & Safety",
+                "🌱 Community",
+                "⚙️ Server & Admin"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a category…",
+              "selector_id": "category_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
           "session_lifecycle": false,
           "subsystem": "help",
           "timeout_s": 180,
-          "title": "Help",
+          "title": "📚 Help",
           "usage_weight": 1.0
         }
       ],
