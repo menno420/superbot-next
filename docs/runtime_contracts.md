@@ -1,9 +1,3 @@
-> ⚠️ **UNRENDERED SLOTS BELOW — run `python3 bootstrap.py ask`.**
-> Every `${...}` token in this file is an unfilled interview slot, not
-> project truth. Fill: `bootstrap answer <slot> <value...>`, then
-> `bootstrap render --live` (fills in place and removes this banner).
-> Prose without `${...}` tokens is live guidance already.
-
 # superbot-next — runtime contracts
 
 > **Status:** `binding`
@@ -28,7 +22,7 @@ queue bounds, cache coherence.)
 
 ## Mutation seam
 
-${mutation_seam}
+All domain writes flow through the manifest-declared workflow seam (sb/kernel/workflow): every leg carries a LegAuditSpec and each compound op writes ONE central audit row (audit_verb = mutation_type); adapters may never skip the seam (tools/check_no_skip.py); env/config reads go only through the typed Config accessor (tools/check_config_usage.py — the config-accessor seam pinned in substrate.config.json); draft-lane changes apply via sb/kernel/draft's pipeline
 
 ## Failure modes
 

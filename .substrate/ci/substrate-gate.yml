@@ -1,0 +1,57 @@
+# substrate-kit enforcement gate (LIVE — installed by `bootstrap.py adopt --wire-enforcement`).
+# Holds the merge red until the session journal is written and every
+# hygiene check passes. Add a label carve-out if some PRs legitimately
+# need no session card — but if this check is REQUIRED, prefer an
+# in-job short-circuit (like the control lane below) over
+# `paths-ignore`: a required context that never reports stays
+# pending and blocks auto-merge forever.
+name: substrate-gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  substrate-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: control fast lane (control/**-only diff short-circuits green)
+        # Heartbeat/inbox commits are coordination, not code: they
+        # skip the heavy gate but the job still REPORTS green so a
+        # required context never jams auto-merge. Empty/unreadable
+        # diffs fail safe onto the full suite.
+        id: lane
+        run: |
+          if [ -n "${{ github.base_ref }}" ]; then
+            range="origin/${{ github.base_ref }}...HEAD"
+          else
+            range="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          files="$(git diff --name-only "$range" 2>/dev/null || true)"
+          control_only=false
+          if [ -n "$files" ] && [ -z "$(printf '%s\n' "$files" | grep -v '^control/')" ]; then
+            control_only=true
+          fi
+          echo "control_only=$control_only" >> "$GITHUB_OUTPUT"
+          echo "control-only diff: $control_only"
+      - uses: actions/setup-python@v5
+        if: steps.lane.outputs.control_only != 'true'
+        with:
+          python-version: "3.x"
+      - name: substrate gate (docs + session-log required)
+        if: steps.lane.outputs.control_only != 'true'
+        # Gate on the session card THIS PR/push touches (CI flattens
+        # mtimes, so the engine's newest-by-mtime guess is unreliable
+        # here). No card in the diff -> no --session-log argument ->
+        # the engine's mtime fallback (fail-open).
+        run: |
+          if [ -n "${{ github.base_ref }}" ]; then
+            range="origin/${{ github.base_ref }}...HEAD"
+          else
+            range="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          card="$(git diff --name-only --diff-filter=d "$range" -- '.sessions/*.md' ':!.sessions/README.md' 2>/dev/null | tail -1)"
+          echo "session gate card: ${card:-<none - mtime fallback>}"
+          python3 bootstrap.py check --strict --require-session-log ${card:+--session-log "$card"}

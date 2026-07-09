@@ -34,7 +34,7 @@
   },
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
-  "kit_version": "1.0.0",
+  "kit_version": "1.2.0",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",
@@ -206,16 +206,16 @@
   "scopes": {},
   "seams": [
     {
-      "name": "config-accessor",
-      "paths": [
-        "sb/**/*.py"
-      ],
-      "forbidden": "os\\.getenv|os\\.environ",
       "allowed": [
         "sb/kernel/config/**",
         "sb/adapters/parity/boot.py"
       ],
-      "message": "read cfg.<ENV_VAR> via the typed Config accessor; env reads live only in sb/kernel/config (spec 05 s3.2)"
+      "forbidden": "os\\.getenv|os\\.environ",
+      "message": "read cfg.<ENV_VAR> via the typed Config accessor; env reads live only in sb/kernel/config (spec 05 s3.2)",
+      "name": "config-accessor",
+      "paths": [
+        "sb/**/*.py"
+      ]
     }
   ],
   "session_markers": [
@@ -230,6 +230,10 @@
     {
       "label": "Previous-session review",
       "needle": "previous-session review"
+    },
+    {
+      "label": "Model line",
+      "needle": "\ud83d\udcca Model:"
     }
   ],
   "sessions_dir": ".sessions",
