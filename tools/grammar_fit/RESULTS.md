@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **91.72%** tier-1/2 over 302 units (spike line: 85.26% / 95 units).
+Cumulative fit: **90.80%** tier-1/2 over 326 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -75,9 +75,17 @@ Cumulative fit: **91.72%** tier-1/2 over 302 units (spike line: 85.26% / 95 unit
 | 4 | community_spotlight | command | spotlight (activity) | 1 | 1 | CommandSpec verbatim |
 | 4 | community_spotlight | panel | community_spotlight.hub + games | 2 | 2 | provider-fed overview + the games selector's honest band-6 empty state |
 | 4 | community_spotlight | engine | level-up feed subscriber | 1 | 3 | the xp.level_up -> spotlight DECLARED consumption; bounded deque verbatim |
+| 5 | governance | setting | governance settings slice | 3 | 2 | SettingSpec x3 (governance_version + the two tier-grant role ids) |
+| 5 | governance | store | governance stores | 5 | 2 | StoreSpec x5 (visibility/cleanup/audit/cap-overrides/templates) + 0016 |
+| 5 | governance | event | governance.* events | 5 | 2 | EventSpec x5, compat-frozen names (events.py: Do NOT rename after v1) |
+| 5 | governance | op | governance K7 lanes | 4 | 2 | CompoundOpSpec x4 — the shipped GovernanceMutationPipeline as lanes |
+| 5 | governance | engine | scope-chain resolver + TTL override cache | 2 | 3 | resolve_visibility/resolve_execution verbatim; the chain walk and staleness bounds are runtime semantics no grammar expresses |
+| 5 | governance | engine | subsystem registry data + tier taxonomy | 2 | 2 | SUBSYSTEM_META 43 rows + PermissionTier metadata = declared data |
+| 5 | governance | engine | port fills (K6 override/role-binding, K8 visibility) | 3 | 3 | install_authority_ports — the S7/S9 waiting-port bodies |
 
 Per band:
 - band 1: 45.45% (5/11)
 - band 2: 99.41% (169/170)
 - band 3: 91.67% (66/72)
 - band 4: 75.51% (37/49)
+- band 5: 79.17% (19/24)

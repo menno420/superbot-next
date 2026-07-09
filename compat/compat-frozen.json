@@ -543,6 +543,42 @@
    "reason",
    "user_id"
   ],
+  "governance.cache.invalidated": [
+   "guild_id",
+   "mutation_id",
+   "occurred_at"
+  ],
+  "governance.cleanup.changed": [
+   "actor_id",
+   "guild_id",
+   "mutation_id",
+   "occurred_at",
+   "scope_id",
+   "scope_type"
+  ],
+  "governance.execution.allowed": [
+   "bypass",
+   "capability",
+   "denied_by",
+   "guild_id",
+   "subsystem"
+  ],
+  "governance.execution.denied": [
+   "capability",
+   "denied_by",
+   "guild_id",
+   "subsystem"
+  ],
+  "governance.visibility.changed": [
+   "actor_id",
+   "enabled",
+   "guild_id",
+   "mutation_id",
+   "occurred_at",
+   "scope_id",
+   "scope_type",
+   "subsystem"
+  ],
   "karma.granted": [
    "delta",
    "from_user",
@@ -627,6 +663,7 @@
   "counters",
   "diagnostic",
   "economy",
+  "governance",
   "help",
   "image_moderation",
   "inventory",

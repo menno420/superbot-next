@@ -309,13 +309,38 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 23,
+  "manifest_count": 24,
   "projections": {
     "events": {
       "economy.balance_changed": {
         "delivery": "best_effort",
         "observability_only": false,
         "owner_subsystem": "economy"
+      },
+      "governance.cache.invalidated": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "governance"
+      },
+      "governance.cleanup.changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "governance"
+      },
+      "governance.execution.allowed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "governance"
+      },
+      "governance.execution.denied": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "governance"
+      },
+      "governance.visibility.changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "governance"
       },
       "karma.granted": {
         "delivery": "best_effort",
@@ -1265,6 +1290,31 @@
           "value": "economy.balance_changed"
         },
         {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance.visibility.changed"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance.cleanup.changed"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance.cache.invalidated"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance.execution.denied"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance.execution.allowed"
+        },
+        {
           "source": "sb/manifest/karma.py",
           "subsystem": "karma",
           "value": "karma.granted"
@@ -1557,6 +1607,21 @@
           "source": "sb/manifest/counters.py",
           "subsystem": "counters",
           "value": "counters_bots_template"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance_version"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "trusted_tier_role_id"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "moderator_tier_role_id"
         },
         {
           "source": "sb/manifest/image_moderation.py",
@@ -1896,6 +1961,11 @@
           "value": "economy"
         },
         {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance"
+        },
+        {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help"
@@ -1998,6 +2068,31 @@
           "value": "inventory"
         },
         {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "subsystem_visibility"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "cleanup_policies"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance_audit_log"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "capability_execution_overrides"
+        },
+        {
+          "source": "sb/manifest/governance.py",
+          "subsystem": "governance",
+          "value": "governance_templates"
+        },
+        {
           "source": "sb/manifest/karma.py",
           "subsystem": "karma",
           "value": "karma"
@@ -2045,6 +2140,9 @@
       },
       "engine:economy.store": {
         "module": "sb.domain.economy.store"
+      },
+      "engine:governance.store": {
+        "module": "sb.domain.governance.store"
       },
       "engine:karma.store": {
         "module": "sb.domain.karma.store"
@@ -2445,6 +2543,42 @@
       "workflow:economy.work": {
         "module": "sb.domain.economy.ops"
       },
+      "workflow:governance.cache_invalidated_payload": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.cleanup_payload": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.record_remove_cleanup": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.record_set_capability_override": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.record_set_cleanup": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.record_set_visibility": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.remove_cleanup": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.set_capability_override": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.set_cleanup": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.set_visibility": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.tombstone_subject_audit": {
+        "module": "sb.domain.governance.ops"
+      },
+      "workflow:governance.visibility_payload": {
+        "module": "sb.domain.governance.ops"
+      },
       "workflow:karma.erase_subject_karma": {
         "module": "sb.domain.karma.ops"
       },
@@ -2594,6 +2728,22 @@
       }
     },
     "stores": {
+      "capability_execution_overrides": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "capability_execution_overrides",
+        "sole_writer": {
+          "$ref": "engine:governance.store"
+        },
+        "subsystem": "governance"
+      },
+      "cleanup_policies": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "cleanup_policies",
+        "sole_writer": {
+          "$ref": "engine:governance.store"
+        },
+        "subsystem": "governance"
+      },
       "economy": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "economy",
@@ -2617,6 +2767,22 @@
           "$ref": "engine:economy.store"
         },
         "subsystem": "economy"
+      },
+      "governance_audit_log": {
+        "checkpoint_class": "ledger",
+        "invariant_tag": "governance_audit_log",
+        "sole_writer": {
+          "$ref": "engine:governance.store"
+        },
+        "subsystem": "governance"
+      },
+      "governance_templates": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "governance_templates",
+        "sole_writer": {
+          "$ref": "engine:governance.store"
+        },
+        "subsystem": "governance"
       },
       "guild_treasury": {
         "checkpoint_class": "aggregate",
@@ -2690,6 +2856,14 @@
         },
         "subsystem": "settings"
       },
+      "subsystem_visibility": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "subsystem_visibility",
+        "sole_writer": {
+          "$ref": "engine:governance.store"
+        },
+        "subsystem": "governance"
+      },
       "warnings": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "warnings",
@@ -2709,7 +2883,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:a36703d0eed1f301446491cc4fc20a99595830cde847ddb6d76104abcf5fecd2",
+  "stable_hash": "sha256:903eb0ad18765977c15940fd868ee56e4e82bb5984c08af00392f74204f62b5e",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -5873,6 +6047,418 @@
             "$ref": "engine:economy.store"
           },
           "table": "inventory",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "governance": {
+      "capabilities": [],
+      "commands": [],
+      "data_invariants": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "governance.visibility.changed",
+          "observability_only": false,
+          "owner_subsystem": "governance",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "scope_type",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "scope_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "occurred_at",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "actor_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "subsystem",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "enabled",
+              "required": false,
+              "type": "bool"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "governance.cleanup.changed",
+          "observability_only": false,
+          "owner_subsystem": "governance",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "scope_type",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "scope_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "occurred_at",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "actor_id",
+              "required": true,
+              "type": "int"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "governance.cache.invalidated",
+          "observability_only": false,
+          "owner_subsystem": "governance",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "occurred_at",
+              "required": true,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "governance.execution.denied",
+          "observability_only": false,
+          "owner_subsystem": "governance",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "capability",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "subsystem",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "denied_by",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "governance.execution.allowed",
+          "observability_only": false,
+          "owner_subsystem": "governance",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "capability",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "subsystem",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "bypass",
+              "required": false,
+              "type": "bool"
+            },
+            {
+              "name": "denied_by",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
+      "key": "governance",
+      "panels": [],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Internal registry-version stamp — the upgrade hook prunes orphan overrides when the registry moves. Managed by the platform, not operator-facing.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "governance_version",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "governance_version",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Role granting the `trusted` visibility tier (ISSUE-015). Holders see trusted-tier surfaces without any Discord permission. 0 = unset.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "trusted_tier_role_id",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "trusted_tier_role_id",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Role granting the `moderator` tier (ADR-008 — capability-native moderation authority without the matching Discord permissions). 0 = unset.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "moderator_tier_role_id",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "moderator_tier_role_id",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "subsystem_visibility",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "interaction",
+            "diagnostics",
+            "help"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:governance.store"
+          },
+          "table": "subsystem_visibility",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "cleanup_policies",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "interaction",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:governance.store"
+          },
+          "table": "cleanup_policies",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "ledger",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:governance.tombstone_subject_audit"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "governance_audit_log",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:governance.store"
+          },
+          "table": "governance_audit_log",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "capability_execution_overrides",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "authority",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:governance.store"
+          },
+          "table": "capability_execution_overrides",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "governance_templates",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:governance.store"
+          },
+          "table": "governance_templates",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
