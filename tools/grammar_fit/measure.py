@@ -442,6 +442,26 @@ UNITS: tuple[Unit, ...] = (
     Unit(7, "btd6", "engine", "16-probe QA eval corpus", 1, 2,
          "shipped tests/evals/btd6_corpus.py imported verbatim as "
          "EvalSuiteSpec data (deterministic gate + advisory judge tier)"),
+    # ---- band 7 / projmoon + media (PR: band7-slice2; base 7825d44) ----
+    Unit(7, "projmoon", "command", "pm + 9 category subcommands", 10, 2,
+         "CommandSpec rows verbatim (shipped !pm group incl. all "
+         "aliases); read-only dataset views, zero domain writes"),
+    Unit(7, "projmoon", "panel", "projmoon.hub", 1, 2,
+         "the shipped LimbusBrowseView declarative (lookup modal + one "
+         "action per entity kind + Origins)"),
+    Unit(7, "projmoon", "engine", "dataset + context + grounding", 1, 3,
+         "shipped projmoon_{data,context,grounding}_service ported "
+         "VERBATIM (typed loader, roster grounding, names-only verifier)"),
+    Unit(7, "projmoon", "engine", "K10 registrations", 1, 2,
+         "projmoon.answer claimed byte-identical + probe order 110 + "
+         "gatherer + verifier + floor + contract — registry rows"),
+    Unit(7, "projmoon", "engine", "MINTED 12-probe eval corpus", 1, 2,
+         "the A-17(d) mandate (oracle had NO projmoon corpus): 12 "
+         "probes over the committed fixtures as EvalSuiteSpec data"),
+    Unit(7, "media", "engine", "video gatherer + probe + tasks", 1, 2,
+         "video.describe/compare/qa claimed byte-identical; URL probe "
+         "confidences verbatim; gatherer = shipped short-circuit "
+         "semantics over the install_video_metadata_reader port"),
 )
 
 

@@ -1,0 +1,84 @@
+{
+ "entries": {
+  "projmoon:damage:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:ego:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:list:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:lookup:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:mechanic:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:origins:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:pm:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:projmoon.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:projmoon.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:projmoon.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:sin:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:sinner:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "projmoon:status:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  }
+ },
+ "schema_version": 1,
+ "subsystem": "projmoon"
+}
