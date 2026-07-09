@@ -233,6 +233,15 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
     #      shared-secret token is deliberately configured) ----
     SecretSpec("CONTROL_API_TOKEN", ConfigType.SECRET, default=None,
                posture=_DOR, owner_subsystem="platform"),
+
+    # ---- CUT-1 additive field (spec 13 §8-5 growth): the app-command
+    #      GUILD-scoped sync opt-in. Absent = leg C stays compare-only (no
+    #      sync at all). Set to a guild id AND boot on the test plane → the
+    #      composition root guild-scopes the local tree to THAT guild
+    #      (copy_global_to + sync(guild)); the remote GLOBAL command set —
+    #      the OLD bot's until CUT-3 — is never written. ----
+    ConfigSpec("SB_APPCMD_SYNC_GUILD_ID", ConfigType.INT, default=None,
+               owner_subsystem="ops"),
 )
 
 
