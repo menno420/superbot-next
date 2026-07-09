@@ -68,7 +68,13 @@ def _ensure_settings_provider(subsystem: str) -> ProviderRef:
                     value = decl.default
                 rows.append((decl.name, f"`{value}`"))
             if not rows:
-                return (("no declared settings", "—"),)
+                # honest empty state (owner-ordered render rule: never a
+                # bare dash) — say WHY it is empty and WHAT arrives next.
+                return ((
+                    "No declared settings",
+                    f"The `{_sub}` subsystem declares no settings yet. "
+                    "Menu actions for this hub arrive with the "
+                    "operator-spine successor slices."),)
             return tuple(rows[:24])
     return ref
 

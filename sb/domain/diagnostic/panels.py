@@ -30,7 +30,8 @@ def _ensure_status_provider() -> ProviderRef:
             rows = [
                 ("phase", status["phase"]),
                 ("declared settings", str(status["declared_settings"])),
-                ("subsystems", ", ".join(status["declared_subsystems"]) or "—"),
+                ("subsystems", ", ".join(status["declared_subsystems"])
+                 or "No subsystems declared yet."),
                 ("ai", f"provider={status['ai'].get('provider_active', 'n/a')}"),
             ]
             for f in status["recent_findings"][:6]:
