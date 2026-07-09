@@ -13,3 +13,9 @@ priority: P2
 do: Game-plugin contract (owner decision 2026-07-09: each new game lives in its OWN repo as a plugin package the host consumes — this order builds the host side; do NOT let it derail live-testing, interleave after the current band). Deliver: (1) a packaging/import strategy so an external repo can develop against the kernel (sb.spec / manifest types) — e.g. installable sb package or documented git-dependency pattern; (2) plugin discovery + registration at the composition root (an installed plugin exports its SubsystemManifest; host compiles + hash-pins it like in-tree subsystems); (3) a minimal hello-world plugin example (one command + one panel) proving the path; (4) docs: the plugin contract (what a plugin may declare, which kernel seams it gets — economy, game-XP, EffectiveStats, panels — and what stays host-owned). Dedicated game Projects (mining; exploration/D&D) will build against this.
 why: unblocks the fleet's game-domain Projects on the architecture the manifest system was built for.
 done-when: hello-world plugin from a separate repo registers and renders in the test guild; contract doc committed; status reports done=002.
+
+## ORDER 003 · 2026-07-09T14:51Z · status: new
+priority: P2
+do: Housekeeping: close your stale heartbeat PR #60 (its cancelled CI was never re-run and its content is superseded by the merged #73) with a one-line supersede comment. Continue your current work otherwise — no change of direction.
+why: an abandoned open PR is the known failure mode (Q-0103 class); terminal-state it.
+done-when: #60 closed; status notes it.
