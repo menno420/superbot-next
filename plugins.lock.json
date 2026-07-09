@@ -1,0 +1,12 @@
+{
+  "plugins": {
+    "superbot-plugin-hello": {
+      "manifest_hash": "sha256:06023075b8db1a16f4f3c1bb4a9400252e88931501de50deccdc095a825e93a0",
+      "subsystems": [
+        "hello"
+      ],
+      "version": "0.1.0"
+    }
+  },
+  "schema_version": 1
+}

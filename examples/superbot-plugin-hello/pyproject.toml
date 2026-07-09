@@ -1,0 +1,33 @@
+# superbot-plugin-hello — the game-plugin-contract hello-world.
+#
+# One command (`!hello` / `/hello`) + one panel (`hello.home`), declared as a
+# SubsystemManifest and exported through the `sb.plugins` entry-point group.
+# The superbot-next host discovers it at boot (sb/app/plugin_host.py), verifies
+# it against the committed pin registry (plugins.lock.json), joint-compiles it
+# with the in-tree manifests, and registers it on the same live seams —
+# see docs/game-plugin-contract.md in the host repo.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "superbot-plugin-hello"
+version = "0.1.0"
+description = "Hello-world game plugin for superbot-next — the plugin-contract proof (one command + one panel)."
+requires-python = ">=3.11"
+# No runtime dependencies: the host process provides the `sb` package.
+dependencies = []
+
+[project.optional-dependencies]
+# Standalone development (authoring/tests outside a host checkout): install
+# the host kernel from git — pin a SHA/tag for reproducible dev environments.
+host = ["superbot-next @ git+https://github.com/menno420/superbot-next"]
+
+# The contract's discovery hook: the host imports this module (which registers
+# the plugin's refs) and reads its MANIFEST attribute.
+[project.entry-points."sb.plugins"]
+hello = "superbot_plugin_hello.manifest"
+
+[tool.setuptools.packages.find]
+include = ["superbot_plugin_hello*"]
