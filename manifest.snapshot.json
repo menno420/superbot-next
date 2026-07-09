@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 34,
+  "manifest_count": 36,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -488,6 +488,62 @@
           "subsystem": "blackjack",
           "surface": "prefix",
           "value": "bjstatus"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "chain"
+        },
+        {
+          "kind": "command",
+          "parent_group": "chain",
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "create"
+        },
+        {
+          "kind": "command",
+          "parent_group": "chain",
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "delete"
+        },
+        {
+          "kind": "command",
+          "parent_group": "chain",
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "setlimit"
+        },
+        {
+          "kind": "command",
+          "parent_group": "chain",
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "removelimit"
+        },
+        {
+          "kind": "command",
+          "parent_group": "chain",
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "list"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "surface": "prefix",
+          "value": "chainmenu"
         },
         {
           "kind": "command",
@@ -728,6 +784,86 @@
           "subsystem": "counters",
           "surface": "prefix",
           "value": "counterpreset"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "countingmenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "start_match"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "end_match"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "reset_count"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "toggle_turns"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "count_info"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "counttop"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "count_rules"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "set_skip_numbers"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "surface": "prefix",
+          "value": "toggle_reset_on_wrong_count"
         },
         {
           "kind": "command",
@@ -1979,6 +2115,31 @@
           "value": "bj_status"
         },
         {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain_list"
+        },
+        {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain_create"
+        },
+        {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain_set_limit"
+        },
+        {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain_clear_limit"
+        },
+        {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain_delete"
+        },
+        {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
           "value": "xp"
@@ -2017,6 +2178,41 @@
           "source": "sb/manifest/community_spotlight.py",
           "subsystem": "community_spotlight",
           "value": "spotlight_refresh"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_info"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_top"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_rules"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_toggle_turns"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_toggle_reset"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_reset"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_disable"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -2393,6 +2589,11 @@
           "value": "blackjack.hub"
         },
         {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain.hub"
+        },
+        {
           "source": "sb/manifest/channel.py",
           "subsystem": "channel",
           "value": "channel.hub"
@@ -2421,6 +2622,11 @@
           "source": "sb/manifest/counters.py",
           "subsystem": "counters",
           "value": "counters.hub"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting.hub"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -3052,6 +3258,11 @@
           "value": "blackjack"
         },
         {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain"
+        },
+        {
           "source": "sb/manifest/channel.py",
           "subsystem": "channel",
           "value": "channel"
@@ -3075,6 +3286,11 @@
           "source": "sb/manifest/counters.py",
           "subsystem": "counters",
           "value": "counters"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -3209,9 +3425,19 @@
       ],
       "table": [
         {
+          "source": "sb/manifest/chain.py",
+          "subsystem": "chain",
+          "value": "chain_channels"
+        },
+        {
           "source": "sb/manifest/cleanup.py",
           "subsystem": "cleanup",
           "value": "prohibited_words"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_state"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -3401,8 +3627,14 @@
       ]
     },
     "refs": {
+      "engine:chain.store": {
+        "module": "sb.domain.chain.store"
+      },
       "engine:cleanup.store": {
         "module": "sb.domain.cleanup.store"
+      },
+      "engine:counting.store": {
+        "module": "sb.domain.counting.store"
       },
       "engine:creature.store": {
         "module": "sb.domain.creature.store"
@@ -3476,6 +3708,24 @@
       "handler:blackjack.tournament_start_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:chain.create_route": {
+        "module": "sb.domain.chain.service"
+      },
+      "handler:chain.delete_route": {
+        "module": "sb.domain.chain.service"
+      },
+      "handler:chain.list_view": {
+        "module": "sb.domain.chain.service"
+      },
+      "handler:chain.removelimit_route": {
+        "module": "sb.domain.chain.service"
+      },
+      "handler:chain.setlimit_route": {
+        "module": "sb.domain.chain.service"
+      },
+      "handler:chain.usage_view": {
+        "module": "sb.domain.chain.service"
+      },
       "handler:channel.ops_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -3487,6 +3737,36 @@
       },
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:counting.enable_here_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.end_match_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.info_view": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.reset_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.rules_view": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.set_skip_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.start_match_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.toggle_reset_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.toggle_turns_route": {
+        "module": "sb.domain.counting.service"
+      },
+      "handler:counting.top_view": {
+        "module": "sb.domain.counting.service"
       },
       "handler:creature.battle_pending": {
         "module": "sb.domain.operator_spine"
@@ -3863,6 +4143,9 @@
       "panel:blackjack.hub": {
         "module": "sb.domain.blackjack.panels"
       },
+      "panel:chain.hub": {
+        "module": "sb.domain.chain.panels"
+      },
       "panel:channel.hub": {
         "module": "sb.domain.operator_spine"
       },
@@ -3880,6 +4163,9 @@
       },
       "panel:counters.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:counting.hub": {
+        "module": "sb.domain.counting.panels"
       },
       "panel:creature.hub": {
         "module": "sb.manifest.creature"
@@ -4169,6 +4455,30 @@
       "workflow:blackjack.tournament_payout": {
         "module": "sb.domain.blackjack.ops"
       },
+      "workflow:chain.create": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.delete": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.record_create": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.record_delete": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.record_progress": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.record_progress_leg": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.record_set_limit": {
+        "module": "sb.domain.chain.ops"
+      },
+      "workflow:chain.set_limit": {
+        "module": "sb.domain.chain.ops"
+      },
       "workflow:cleanup.word_add": {
         "module": "sb.domain.cleanup.ops"
       },
@@ -4180,6 +4490,45 @@
       },
       "workflow:cleanup.word_remove_op": {
         "module": "sb.domain.cleanup.ops"
+      },
+      "workflow:counting.disable_channel": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.enable_channel": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_count": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_count_leg": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_disable": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_enable": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_reset": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_set_skip": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.record_toggle": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.reset_count": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.scrub_subject_counts": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.set_skip_step": {
+        "module": "sb.domain.counting.ops"
+      },
+      "workflow:counting.toggle_flag": {
+        "module": "sb.domain.counting.ops"
       },
       "workflow:creature.catch": {
         "module": "sb.domain.creature.ops"
@@ -4701,6 +5050,14 @@
         },
         "subsystem": "governance"
       },
+      "chain_channels": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "chain_channels",
+        "sole_writer": {
+          "$ref": "engine:chain.store"
+        },
+        "subsystem": "chain"
+      },
       "chicken_farm": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "chicken_farm",
@@ -4716,6 +5073,14 @@
           "$ref": "engine:governance.store"
         },
         "subsystem": "governance"
+      },
+      "counting_state": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "counting_state",
+        "sole_writer": {
+          "$ref": "engine:counting.store"
+        },
+        "subsystem": "counting"
       },
       "creature_battle_record": {
         "checkpoint_class": "aggregate",
@@ -5000,7 +5365,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:09b6aa093db07c7d698f43c8558ef3264dd5f93e793112af683cf81f7c86e322",
+  "stable_hash": "sha256:0c6971eb75b608aa92b7d2eafc4adf761e0d0f6f92ac1aa692f4464eee26533f",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -6016,6 +6381,477 @@
         }
       ],
       "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "chain": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "chain",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:chain.usage_view"
+          },
+          "slash_common": false,
+          "summary": "Manage message chains and word limits.",
+          "usage": "!chain <create|delete|setlimit|removelimit|list>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "chain",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "create",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:chain.create_route"
+          },
+          "slash_common": false,
+          "summary": "Lock a channel to one allowed word.",
+          "usage": "!chain create",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "chain",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "delete",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:chain.delete_route"
+          },
+          "slash_common": false,
+          "summary": "Remove a channel's chain (word and limit).",
+          "usage": "!chain delete",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "chain",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "setlimit",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:chain.setlimit_route"
+          },
+          "slash_common": false,
+          "summary": "Cap messages at N words (0 removes the cap).",
+          "usage": "!chain setlimit",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "chain",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "removelimit",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:chain.removelimit_route"
+          },
+          "slash_common": false,
+          "summary": "Remove a channel's word limit.",
+          "usage": "!chain removelimit",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "chain",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "list",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:chain.list_view"
+          },
+          "slash_common": false,
+          "summary": "List every chain/limit in this server.",
+          "usage": "!chain list",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "chain",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "chainmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:chain.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the chain management panel.",
+          "usage": "!chainmenu",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "chain",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "chain_list",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:chain.list_view"
+              },
+              "label": "List",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "chain_create",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "➕",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:chain.create_route"
+              },
+              "label": "Create Chain",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Channel (mention/ID, blank = current)",
+                    "max_length": 32,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "word",
+                    "label": "Allowed word",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "chain.create_form",
+                "on_submit": {
+                  "$ref": "handler:chain.create_route"
+                },
+                "title": "Create Chain"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "chain_set_limit",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "📏",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:chain.setlimit_route"
+              },
+              "label": "Set Limit",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Channel (mention/ID, blank = current)",
+                    "max_length": 32,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "limit",
+                    "label": "Word limit (0 = remove limit)",
+                    "max_length": 6,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "chain.set_limit_form",
+                "on_submit": {
+                  "$ref": "handler:chain.setlimit_route"
+                },
+                "title": "Set Word Limit"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "chain_clear_limit",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🧹",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:chain.removelimit_route"
+              },
+              "label": "Clear Limit",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Channel (mention/ID, blank = current)",
+                    "max_length": 32,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "chain.clear_limit_form",
+                "on_submit": {
+                  "$ref": "handler:chain.removelimit_route"
+                },
+                "title": "Clear Word Limit"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "chain_delete",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🗑️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:chain.delete_route"
+              },
+              "label": "Delete Chain",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Channel (mention/ID, blank = current)",
+                    "max_length": 32,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "chain.delete_form",
+                "on_submit": {
+                  "$ref": "handler:chain.delete_route"
+                },
+                "title": "Delete Chain"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Message chains: lock a channel to one allowed word, cap message length, and watch the chain count climb. All other messages are removed."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "chain_list"
+                  ],
+                  [
+                    "chain_create",
+                    "chain_set_limit",
+                    "chain_clear_limit"
+                  ],
+                  [
+                    "chain_delete"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "chain.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "chain",
+          "timeout_s": 180,
+          "title": "🔗 Chain Manager",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "chain_channels",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:chain.store"
+          },
+          "table": "chain_channels",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },
@@ -7481,6 +8317,560 @@
         }
       ],
       "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "counting": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "cm"
+          ],
+          "audience_tier": "user",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "countingmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:counting.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the counting management panel.",
+          "usage": "!countingmenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "sm"
+          ],
+          "audience_tier": "staff",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "start_match",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.start_match_route"
+          },
+          "slash_common": false,
+          "summary": "Start a counting match: !start_match <mode> [args].",
+          "usage": "!start_match",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "em"
+          ],
+          "audience_tier": "staff",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "end_match",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.end_match_route"
+          },
+          "slash_common": false,
+          "summary": "End the counting match in a channel.",
+          "usage": "!end_match",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rc"
+          ],
+          "audience_tier": "staff",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "reset_count",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.reset_route"
+          },
+          "slash_common": false,
+          "summary": "Reset a counting channel to its starting state.",
+          "usage": "!reset_count",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "tt"
+          ],
+          "audience_tier": "staff",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "toggle_turns",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.toggle_turns_route"
+          },
+          "slash_common": false,
+          "summary": "Toggle the no-counting-twice-in-a-row rule.",
+          "usage": "!toggle_turns",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "ci"
+          ],
+          "audience_tier": "user",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "count_info",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.info_view"
+          },
+          "slash_common": false,
+          "summary": "Show a counting channel's mode + state.",
+          "usage": "!count_info",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "ct",
+            "counting_top"
+          ],
+          "audience_tier": "user",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "counttop",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.top_view"
+          },
+          "slash_common": false,
+          "summary": "This channel's top counters.",
+          "usage": "!counttop",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "cr"
+          ],
+          "audience_tier": "user",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "count_rules",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.rules_view"
+          },
+          "slash_common": false,
+          "summary": "The counting rules.",
+          "usage": "!count_rules",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "ssn"
+          ],
+          "audience_tier": "staff",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "set_skip_numbers",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.set_skip_route"
+          },
+          "slash_common": false,
+          "summary": "Set the skip step for a 'skip' match.",
+          "usage": "!set_skip_numbers",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "trwc"
+          ],
+          "audience_tier": "staff",
+          "capability": "counting",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "toggle_reset_on_wrong_count",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:counting.toggle_reset_route"
+          },
+          "slash_common": false,
+          "summary": "Toggle reset-to-start on a wrong count.",
+          "usage": "!toggle_reset_on_wrong_count",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "counting",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "counting_info",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "ℹ️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.info_view"
+              },
+              "label": "Info",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_top",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.top_view"
+              },
+              "label": "Top",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_rules",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📜",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.rules_view"
+              },
+              "label": "Rules",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_toggle_turns",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.toggle_turns_route"
+              },
+              "label": "Toggle Turns",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_toggle_reset",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "♻️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.toggle_reset_route"
+              },
+              "label": "Toggle Reset",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_reset",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔁",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.reset_route"
+              },
+              "label": "Reset Count",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_disable",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🛑",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.end_match_route"
+              },
+              "label": "Disable Here",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Run counting matches in this channel: pick a mode below to enable counting HERE, or use `!start_match <mode> [args]` (multiples/custom modes take arguments). Wrong numbers are removed; ✅ marks accepted counts."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "counting_enable_mode"
+                  ],
+                  [
+                    "counting_info",
+                    "counting_top",
+                    "counting_rules"
+                  ],
+                  [
+                    "counting_toggle_turns",
+                    "counting_toggle_reset"
+                  ],
+                  [
+                    "counting_reset",
+                    "counting_disable"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "counting.hub",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:counting.enable_here_route"
+              },
+              "options_source": [
+                "normal",
+                "reverse",
+                "skip",
+                "random",
+                "prime",
+                "fibonacci",
+                "squares",
+                "cubes",
+                "factorials"
+              ],
+              "page_size": 25,
+              "placeholder": "Enable Here — pick a counting mode",
+              "selector_id": "counting_enable_mode",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "counting",
+          "timeout_s": 180,
+          "title": "🔢 Counting",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:counting.scrub_subject_counts"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "counting_state",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games",
+            "community"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:counting.store"
+          },
+          "table": "counting_state",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },
