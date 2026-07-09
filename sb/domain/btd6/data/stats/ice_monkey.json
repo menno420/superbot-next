@@ -1,0 +1,5060 @@
+{
+  "tower_id": "ice_monkey",
+  "canonical": "IceMonkey",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "base_cost": 400,
+  "category": "primary",
+  "upgrades": [
+    {
+      "path": 1,
+      "tier": 1,
+      "name": "Permafrost",
+      "cost": 150,
+      "xp": 160,
+      "description": "Bloons move slowly even after thawing out."
+    },
+    {
+      "path": 1,
+      "tier": 2,
+      "name": "Cold Snap",
+      "cost": 350,
+      "xp": 500,
+      "description": "Can freeze and pop Lead and Camo Bloons."
+    },
+    {
+      "path": 1,
+      "tier": 3,
+      "name": "Ice Shards",
+      "cost": 1500,
+      "xp": 2500,
+      "description": "Removes Camo and Regrow properties when damaging Bloons. Razor sharp shards fly out when Frozen Bloons pop."
+    },
+    {
+      "path": 1,
+      "tier": 4,
+      "name": "Embrittlement",
+      "cost": 2300,
+      "xp": 8250,
+      "description": "Can hit MOAB-class Bloons. All hit Bloons become brittle, taking extra damage while frozen, and losing Lead immunity for a short time."
+    },
+    {
+      "path": 1,
+      "tier": 5,
+      "name": "Super Brittle",
+      "cost": 28000,
+      "xp": 25000,
+      "description": "Bloons take huge damage while frozen, while Ice Shards rip through Ceramic Bloons like paper!"
+    },
+    {
+      "path": 2,
+      "tier": 1,
+      "name": "Enhanced Freeze",
+      "cost": 200,
+      "xp": 160,
+      "description": "Attacks faster and freezes for longer."
+    },
+    {
+      "path": 2,
+      "tier": 2,
+      "name": "Deep Freeze",
+      "cost": 300,
+      "xp": 500,
+      "description": "Increases pierce, freezes an extra layer and freeze lasts longer."
+    },
+    {
+      "path": 2,
+      "tier": 3,
+      "name": "Arctic Wind",
+      "cost": 2750,
+      "xp": 2500,
+      "description": "Gains a super cold aura that slows Bloons and freezes water nearby."
+    },
+    {
+      "path": 2,
+      "tier": 4,
+      "name": "Snowstorm",
+      "cost": 4000,
+      "xp": 8500,
+      "description": "Snowstorm Ability: Freezes all regular Bloons on screen, briefly freezes White, Zebra, and Camo, and slows MOAB-class."
+    },
+    {
+      "path": 2,
+      "tier": 5,
+      "name": "Absolute Zero",
+      "cost": 21000,
+      "xp": 27500,
+      "description": "Each attack freezes all Bloons everywhere for a short time. Snowstorm freezes all Bloon types for even longer while greatly increasing attack speed of all Ice Monkeys for the duration."
+    },
+    {
+      "path": 3,
+      "tier": 1,
+      "name": "Larger Radius",
+      "cost": 150,
+      "xp": 160,
+      "description": "Larger freeze area."
+    },
+    {
+      "path": 3,
+      "tier": 2,
+      "name": "Re-Freeze",
+      "cost": 200,
+      "xp": 500,
+      "description": "Can re-freeze Bloons that are already frozen."
+    },
+    {
+      "path": 3,
+      "tier": 3,
+      "name": "Cryo Cannon",
+      "cost": 1900,
+      "xp": 2500,
+      "description": "Rapidly shoots smaller ice bombs over longer range."
+    },
+    {
+      "path": 3,
+      "tier": 4,
+      "name": "Icicles",
+      "cost": 2750,
+      "xp": 9000,
+      "description": "Does bonus damage to MOAB-Class Bloons. Frozen Bloons grow sharp icicles that can pop Bloons that touch them."
+    },
+    {
+      "path": 3,
+      "tier": 5,
+      "name": "Icicle Impale",
+      "cost": 30000,
+      "xp": 30000,
+      "description": "Shoots huge icicle spikes that do huge damage to MOAB-Class Bloons and freezes them."
+    }
+  ],
+  "tiers": {
+    "000": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "000",
+      "crosspath": "0-0-0"
+    },
+    "001": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "001",
+      "crosspath": "0-0-1"
+    },
+    "002": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "002",
+      "crosspath": "0-0-2"
+    },
+    "003": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "-3.45, 12.02, 9.8",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "003",
+      "crosspath": "0-0-3"
+    },
+    "004": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.75,
+          "eject": "-4.7, 17.5, 10.5",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 8,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "004",
+      "crosspath": "0-0-4"
+    },
+    "005": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.75,
+          "eject": "-6.4, 15.3, 9.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 6,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Shatter",
+              "cannot_pop": "Cannot damage Lead",
+              "immuneBloonProperties": 1,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 48,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "005",
+      "crosspath": "0-0-5"
+    },
+    "010": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "010",
+      "crosspath": "0-1-0"
+    },
+    "011": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "011",
+      "crosspath": "0-1-1"
+    },
+    "012": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "012",
+      "crosspath": "0-1-2"
+    },
+    "013": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.9,
+          "eject": "-3.45, 12.02, 9.8",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "013",
+      "crosspath": "0-1-3"
+    },
+    "014": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5625,
+          "eject": "-4.7, 17.5, 10.5",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 8,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "014",
+      "crosspath": "0-1-4"
+    },
+    "015": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5625,
+          "eject": "-6.4, 15.3, 9.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 6,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Shatter",
+              "cannot_pop": "Cannot damage Lead",
+              "immuneBloonProperties": 1,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 48,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "015",
+      "crosspath": "0-1-5"
+    },
+    "020": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "020",
+      "crosspath": "0-2-0"
+    },
+    "021": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "021",
+      "crosspath": "0-2-1"
+    },
+    "022": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "022",
+      "crosspath": "0-2-2"
+    },
+    "023": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.9,
+          "eject": "-3.45, 12.02, 9.8",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "023",
+      "crosspath": "0-2-3"
+    },
+    "024": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5625,
+          "eject": "-4.7, 17.5, 10.5",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 8,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "024",
+      "crosspath": "0-2-4"
+    },
+    "025": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5625,
+          "eject": "-6.4, 15.3, 9.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 6,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Shatter",
+              "cannot_pop": "Cannot damage Lead",
+              "immuneBloonProperties": 1,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 48,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "025",
+      "crosspath": "0-2-5"
+    },
+    "030": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 25,
+          "radius": 25,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "030",
+      "crosspath": "0-3-0"
+    },
+    "031": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 32,
+          "radius": 32,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "031",
+      "crosspath": "0-3-1"
+    },
+    "032": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 32,
+          "radius": 32,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "032",
+      "crosspath": "0-3-2"
+    },
+    "040": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 30,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 30,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Snowstorm",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 6
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "radius": 35,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "040",
+      "crosspath": "0-4-0"
+    },
+    "041": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 37,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 37,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Snowstorm",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 6
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 42,
+          "radius": 42,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "041",
+      "crosspath": "0-4-1"
+    },
+    "042": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 37,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 37,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Snowstorm",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 6
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 42,
+          "radius": 42,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "042",
+      "crosspath": "0-4-2"
+    },
+    "050": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 40,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 300,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                }
+              ]
+            },
+            {
+              "name": "GlobalProjectile",
+              "pierce": 999,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 3,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 0.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 40,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Absolute Zero",
+          "cooldown": 25,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.4,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": false,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        },
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.7,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": true,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "050",
+      "crosspath": "0-5-0"
+    },
+    "051": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 300,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                }
+              ]
+            },
+            {
+              "name": "GlobalProjectile",
+              "pierce": 999,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 3,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 0.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Absolute Zero",
+          "cooldown": 25,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.4,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": false,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        },
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.7,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": true,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "051",
+      "crosspath": "0-5-1"
+    },
+    "052": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 300,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                }
+              ]
+            },
+            {
+              "name": "GlobalProjectile",
+              "pierce": 999,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 3,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 0.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Absolute Zero",
+          "cooldown": 25,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.4,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": false,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        },
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.7,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": true,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "052",
+      "crosspath": "0-5-2"
+    },
+    "100": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "100",
+      "crosspath": "1-0-0"
+    },
+    "101": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "101",
+      "crosspath": "1-0-1"
+    },
+    "102": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "102",
+      "crosspath": "1-0-2"
+    },
+    "103": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "-3.45, 12.02, 9.8",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "103",
+      "crosspath": "1-0-3"
+    },
+    "104": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.75,
+          "eject": "-4.7, 17.5, 10.5",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 8,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "104",
+      "crosspath": "1-0-4"
+    },
+    "105": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.75,
+          "eject": "-6.4, 15.3, 9.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 6,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": true
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Shatter",
+              "cannot_pop": "Cannot damage Lead",
+              "immuneBloonProperties": 1,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 48,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "105",
+      "crosspath": "1-0-5"
+    },
+    "110": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "110",
+      "crosspath": "1-1-0"
+    },
+    "120": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "120",
+      "crosspath": "1-2-0"
+    },
+    "130": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 25,
+          "radius": 25,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "130",
+      "crosspath": "1-3-0"
+    },
+    "140": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 30,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 30,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Snowstorm",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 6
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "radius": 35,
+          "multiplier": 0.6,
+          "filterInvisible": true,
+          "filterOutFrozen": true,
+          "filterOutLead": true,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "140",
+      "crosspath": "1-4-0"
+    },
+    "150": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 40,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 300,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            },
+            {
+              "name": "GlobalProjectile",
+              "pierce": 999,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Cold",
+              "cannot_pop": "Cannot damage Lead or White",
+              "immuneBloonProperties": 5,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 3,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 0.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 40,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Absolute Zero",
+          "cooldown": 25,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 10
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.4,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": false,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        },
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.7,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": true,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "150",
+      "crosspath": "1-5-0"
+    },
+    "200": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "200",
+      "crosspath": "2-0-0"
+    },
+    "201": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "201",
+      "crosspath": "2-0-1"
+    },
+    "202": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 27,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 27,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "202",
+      "crosspath": "2-0-2"
+    },
+    "203": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Camo",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "-3.45, 12.02, 9.8",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": false
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "203",
+      "crosspath": "2-0-3"
+    },
+    "204": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Camo",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.75,
+          "eject": "-4.7, 17.5, 10.5",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": false
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 8,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "204",
+      "crosspath": "2-0-4"
+    },
+    "205": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Camo",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.75,
+          "eject": "-6.4, 15.3, 9.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Cryo",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 6,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.2,
+              "filterInvisible": false
+            },
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": -1,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 48,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Icicles",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "205",
+      "crosspath": "2-0-5"
+    },
+    "210": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "210",
+      "crosspath": "2-1-0"
+    },
+    "220": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "220",
+      "crosspath": "2-2-0"
+    },
+    "230": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 25,
+          "radius": 25,
+          "multiplier": 0.6,
+          "filterInvisible": false,
+          "filterOutFrozen": true,
+          "filterOutLead": false,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "230",
+      "crosspath": "2-3-0"
+    },
+    "240": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 30,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 30,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Snowstorm",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 6
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.6,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "radius": 35,
+          "multiplier": 0.6,
+          "filterInvisible": false,
+          "filterOutFrozen": true,
+          "filterOutLead": false,
+          "filterOutMoabs": true
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "240",
+      "crosspath": "2-4-0"
+    },
+    "250": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 40,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 300,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 3
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            },
+            {
+              "name": "GlobalProjectile",
+              "pierce": 999,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 3,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 0.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 40,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Absolute Zero",
+          "cooldown": 25,
+          "projectiles": [
+            {
+              "name": "SnowstormProjectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 9999999,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": true,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Ice",
+                  "lifespan": 10
+                },
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "zones": [
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.4,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": false,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        },
+        {
+          "kind": "SlowBloonsZone",
+          "name": "Arctic Wind",
+          "speedScale": 0.7,
+          "speedChange": 0,
+          "zoneRadius": 35,
+          "bloonTag": "Moabs",
+          "inclusive": true,
+          "radius": 35,
+          "multiplier": 0.4,
+          "multiplierForMoabs": 0.7
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "250",
+      "crosspath": "2-5-0"
+    },
+    "300": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "300",
+      "crosspath": "3-0-0"
+    },
+    "301": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 32,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 32,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "301",
+      "crosspath": "3-0-1"
+    },
+    "302": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 32,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 32,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "302",
+      "crosspath": "3-0-2"
+    },
+    "310": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "310",
+      "crosspath": "3-1-0"
+    },
+    "320": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "320",
+      "crosspath": "3-2-0"
+    },
+    "400": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "400",
+      "crosspath": "4-0-0"
+    },
+    "401": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 32,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "-0.05, 6.88, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 32,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "401",
+      "crosspath": "4-0-1"
+    },
+    "402": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 32,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 2.4,
+          "eject": "-0.05, 6.88, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 32,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "402",
+      "crosspath": "4-0-2"
+    },
+    "410": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "-0.05, 6.88, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "410",
+      "crosspath": "4-1-0"
+    },
+    "420": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.8,
+          "eject": "-0.05, 6.88, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": -1,
+              "damage_type": "Glacier",
+              "cannot_pop": "Cannot damage White",
+              "immuneBloonProperties": 4,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "420",
+      "crosspath": "4-2-0"
+    },
+    "500": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 5,
+              "maxDamage": -1,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 5,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "500",
+      "crosspath": "5-0-0"
+    },
+    "501": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 32,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 5,
+              "maxDamage": -1,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 5,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 32,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "501",
+      "crosspath": "5-0-1"
+    },
+    "502": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 32,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 27,
+              "vsBlockerRadius": 0,
+              "damage": 5,
+              "maxDamage": -1,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 5,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 32,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "502",
+      "crosspath": "5-0-2"
+    },
+    "510": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.9,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 40,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 5,
+              "maxDamage": -1,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 5,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 1.75
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "510",
+      "crosspath": "5-1-0"
+    },
+    "520": {
+      "placeableOnLand": true,
+      "placeableOnWater": true,
+      "placeableOnTrack": false,
+      "range": 25,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.9,
+          "eject": "0, 0, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 45,
+              "maxPierce": -1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 5,
+              "maxDamage": -1,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForCeramic": 5,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "Permafrost",
+                  "lifespan": 9999999
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                },
+                {
+                  "name": "Ice",
+                  "lifespan": 2.2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 25,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": true,
+      "targetTypeStrong": false,
+      "code": "520",
+      "crosspath": "5-2-0"
+    }
+  },
+  "paragon_cost": 300000,
+  "paragon_name": "Herald of Everfrost"
+}

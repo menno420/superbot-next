@@ -1,0 +1,3577 @@
+{
+  "hero_id": "ezili",
+  "canonical": "Ezili",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "base_cost": 550,
+  "cost_chimps": 550,
+  "levels": {
+    "1": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 40,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 40,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 1,
+      "description": "Ezili curses Bloons with dark voodoo power."
+    },
+    "2": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 2,
+      "description": "Increased attack range."
+    },
+    "3": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 3,
+      "description": "Heartstopper: allows Purple popping and prevents any regrow from happening for 10 seconds."
+    },
+    "4": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1.2,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 4,
+      "description": "Ezili's main attack now curses multiple Bloons."
+    },
+    "5": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 5,
+      "description": "Increased attack speed."
+    },
+    "6": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 6,
+      "description": "Ezili's attack does far more damage to MOAB-Class Bloons."
+    },
+    "7": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 2.6
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 7,
+      "description": "Sacrificial Totem: A totem that gives Camo detection, extra pierce, attack range, attack speed, and projectile speed to nearby Monkeys, especially Wizard Monkeys. Drains 10 lives."
+    },
+    "8": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 8,
+      "description": "Damage over time lasts longer and damages faster."
+    },
+    "9": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 9,
+      "description": "Ezili's attack strips off Camo, Regrow and Fortified properties from non-MOAB class Bloons."
+    },
+    "10": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 10,
+      "description": "MOAB Hex: places a curse on a MOAB-Class Bloon, it takes damage every second until annihilated."
+    },
+    "11": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 19,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 45,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 11,
+      "description": "Increased attack range. Increases pierce of reanimated Bloons by 50%."
+    },
+    "12": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 8,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 15
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 15
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 12,
+      "description": "Heartstopper reduced cooldown and increased duration. Deals increased damage to MOABs."
+    },
+    "13": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 15,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 11,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 15
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 15
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 13,
+      "description": "Base attack has larger splash radius and increased pierce."
+    },
+    "14": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 15,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 11,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 5.5
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 14,
+      "description": "Heartstopper lasts much longer."
+    },
+    "15": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 15,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 11,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 15,
+      "description": "Damage over time lasts longer and damages faster."
+    },
+    "16": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 15,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 11,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 60
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 16,
+      "description": "Sacrificial Totem lasts longer and costs only 1 life to use. Main attack removes Camo from DDTs."
+    },
+    "17": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 25,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 60
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 17,
+      "description": "Base attack has larger splash radius and increased pierce."
+    },
+    "18": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.8,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 25,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 60
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 18,
+      "description": "Increased attack speed."
+    },
+    "19": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.8,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 25,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 29,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 60,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 60
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 19,
+      "description": "Dark voodoo curse pops more layers with each damage tick."
+    },
+    "20": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 47,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.8,
+          "eject": "0, 9.8, 7",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 20,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 49,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 25,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForMoabs": 49,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliVoodoo",
+                  "lifespan": 6.05
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 47,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Heartstopper",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 3000,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                },
+                {
+                  "name": "GrowBlock",
+                  "lifespan": 30
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sacrificial Totem",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "MOAB Hex",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 0,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "EziliHex",
+                  "lifespan": 25
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "SacrificialTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 78,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 6,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [],
+          "buffs": [
+            {
+              "kind": "RangeSupport",
+              "rangeAdditive": 0,
+              "rangePercentage": 0.2,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.85,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "VisibilitySupport",
+              "grantsCamoDetection": true,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "ProjectileSpeedSupport",
+              "projectileSpeedPercentage": 0.25,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "RateSupport",
+              "rateMultiplier": 0.95,
+              "isGlobal": false,
+              "maxStackSize": 0
+            },
+            {
+              "kind": "PierceSupport",
+              "pierceAdditive": 1,
+              "isGlobal": false,
+              "maxStackSize": 0
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 60
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 20,
+      "description": "MOAB Hex works faster and can destroy BAD Bloons."
+    }
+  }
+}

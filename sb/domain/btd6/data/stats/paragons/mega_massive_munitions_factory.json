@@ -1,0 +1,129 @@
+{
+  "paragon_id": "mega_massive_munitions_factory",
+  "tower_id": "spike_factory",
+  "canonical": "Mega Massive Munitions Factory",
+  "tower_canonical": "Spike Factory",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "cost": 750000,
+  "cost_chimps": null,
+  "xp": 1000000,
+  "base": {
+    "placeableOnLand": true,
+    "placeableOnWater": false,
+    "placeableOnTrack": false,
+    "range": 42,
+    "towerSelectionMenuThemeId": "ActionButton",
+    "footprintRadius": 8,
+    "doesntBlockTowerPlacement": false,
+    "attacks": [
+      {
+        "name": "Attack",
+        "rate": 11,
+        "eject": "0, 0, 36.4",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 50,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 6,
+            "vsBlockerRadius": 0,
+            "damage": 100,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForMoabs": 480,
+            "filterInvisible": false
+          },
+          {
+            "name": "MiniSpike",
+            "pierce": 10,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 6,
+            "vsBlockerRadius": 0,
+            "damage": 40,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForMoabs": 100,
+            "filterInvisible": false
+          },
+          {
+            "name": "SmallExplosion",
+            "pierce": 30,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 30,
+            "vsBlockerRadius": 0,
+            "damage": 120,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForFortified": 240,
+            "filterInvisible": false
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 42,
+        "attackThroughWalls": true,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      }
+    ],
+    "abilities": [
+      {
+        "name": "Controlled Burst",
+        "cooldown": 15
+      },
+      {
+        "name": "Spikeageddon",
+        "cooldown": 75
+      }
+    ],
+    "zones": [
+      {
+        "kind": "SpikeParagonDamageZone",
+        "name": "Carpet of Spikes",
+        "radius": 2000,
+        "damage": 30,
+        "damage_type": "Normal",
+        "cannot_pop": "Can damage any Bloon type",
+        "immuneBloonProperties": 0,
+        "interval": 0.5,
+        "initialDelay": 0,
+        "triggerImmediate": true,
+        "distributeToChildren": true,
+        "damageModifierForBoss": 800,
+        "damageModifierForMoabs": 300
+      }
+    ],
+    "targetTypeFirst": false,
+    "targetTypeLast": false,
+    "targetTypeClose": false,
+    "targetTypeStrong": false
+  }
+}

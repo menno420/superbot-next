@@ -1,0 +1,177 @@
+{
+  "paragon_id": "nautic_siege_core",
+  "tower_id": "monkey_sub",
+  "canonical": "Nautic Siege Core",
+  "tower_canonical": "Monkey Sub",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "cost": 400000,
+  "cost_chimps": null,
+  "xp": 1000000,
+  "base": {
+    "placeableOnLand": false,
+    "placeableOnWater": true,
+    "placeableOnTrack": false,
+    "range": 52,
+    "towerSelectionMenuThemeId": "MonkeySub",
+    "footprintRadius": 7,
+    "doesntBlockTowerPlacement": false,
+    "attacks": [
+      {
+        "name": "Attack",
+        "rate": 0.15,
+        "eject": "0, 0, 0",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 1,
+            "maxPierce": 1,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 2,
+            "vsBlockerRadius": 0,
+            "damage": 40,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 170,
+            "lifespan": 2.9411764,
+            "damageModifierForMoabs": 160,
+            "damageModifierForBoss": 200,
+            "filterInvisible": false
+          },
+          {
+            "name": "AirburstSplit",
+            "pierce": 9,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 12,
+            "vsBlockerRadius": 0,
+            "damage": 40,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 340,
+            "lifespan": 0.27941176,
+            "damageModifierForMoabs": 80,
+            "damageModifierForBoss": 100,
+            "filterInvisible": false
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 52,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "SubmergedAttack_SubmergeAttack",
+        "rate": 0.28,
+        "eject": "0, 0, 0",
+        "fireWithoutTarget": true,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Pulse",
+            "pierce": 1000,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": true,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 52,
+            "vsBlockerRadius": 0,
+            "damage": 250,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForCeramic": 250,
+            "damageModifierForBoss": 250,
+            "filterInvisible": false
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 2000,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      }
+    ],
+    "abilities": [
+      {
+        "name": "Final Strike",
+        "cooldown": 240
+      }
+    ],
+    "buffs": [
+      {
+        "kind": "SubmergeSupport",
+        "name": "Ability cooldown buff",
+        "abilityCooldownMultiplier": 1.3,
+        "isGlobal": false
+      },
+      {
+        "kind": "SubmergeSupport",
+        "name": "Ability cooldown buff (global)",
+        "abilityCooldownMultiplier": 1.2,
+        "isGlobal": true,
+        "heroXpMultiplier": 1
+      },
+      {
+        "kind": "SubmergeSupport",
+        "name": "Ability cooldown buff (Paragon)",
+        "abilityCooldownMultiplier": 1.1,
+        "isGlobal": false,
+        "filterOutNonParagon": true
+      },
+      {
+        "kind": "MonkeySubParagonSupport",
+        "name": "Sub buff",
+        "pierceMultiplier": 3,
+        "damageMultiplier": 7,
+        "isGlobal": false,
+        "customRadius": 0,
+        "appliesToOwningTower": false,
+        "maxStackSize": 0,
+        "filterInBaseTowerId": "Monkey Sub"
+      },
+      {
+        "kind": "MonkeySubParagonSupport",
+        "name": "Hero buff",
+        "pierceMultiplier": 3,
+        "damageMultiplier": 6,
+        "isGlobal": false,
+        "rateMultiplier": 1.3,
+        "heroXpMultiplier": 5,
+        "customRadius": 0,
+        "appliesToOwningTower": false,
+        "maxStackSize": 0,
+        "filterInSets": "Hero"
+      }
+    ],
+    "targetTypeFirst": true,
+    "targetTypeLast": true,
+    "targetTypeClose": true,
+    "targetTypeStrong": true
+  }
+}

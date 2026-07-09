@@ -1,0 +1,266 @@
+{
+  "paragon_id": "ascended_shadow",
+  "tower_id": "ninja_monkey",
+  "canonical": "Ascended Shadow",
+  "tower_canonical": "Ninja Monkey",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "cost": 500000,
+  "cost_chimps": null,
+  "xp": 500000,
+  "base": {
+    "placeableOnLand": true,
+    "placeableOnWater": false,
+    "placeableOnTrack": false,
+    "range": 70,
+    "towerSelectionMenuThemeId": "Camo",
+    "footprintRadius": 6,
+    "doesntBlockTowerPlacement": false,
+    "attacks": [
+      {
+        "name": "Attack",
+        "rate": 0.217,
+        "eject": "-1.99, 17.6, 11.2",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 4,
+            "maxPierce": 0,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 6,
+            "vsBlockerRadius": 0,
+            "damage": 32,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 300,
+            "lifespan": 0.62,
+            "damageModifierForBoss": 32,
+            "damageModifierForCamo": 16,
+            "filterInvisible": false
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 70,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "FlashBombAttack",
+        "rate": 1.5,
+        "eject": "-2.25, 10.71, 4.56",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "FlashBomb",
+            "pierce": 1,
+            "maxPierce": 1,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 5,
+            "vsBlockerRadius": 0,
+            "speed": 300,
+            "lifespan": 0.57,
+            "filterInvisible": false
+          },
+          {
+            "name": "Explosion",
+            "pierce": 40,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": true,
+            "radius": 40,
+            "vsBlockerRadius": 0,
+            "damage": 96,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForBoss": 96,
+            "damageModifierForCamo": 48,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "Stun",
+                "lifespan": 3
+              }
+            ]
+          },
+          {
+            "name": "Shurikens",
+            "pierce": 10,
+            "maxPierce": 0,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 12,
+            "vsBlockerRadius": 0,
+            "damage": 80,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 300,
+            "lifespan": 0.62,
+            "damageModifierForBoss": 80,
+            "damageModifierForCamo": 40,
+            "filterInvisible": false
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 70,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "SabotageAttack",
+        "rate": 1,
+        "eject": "-1.99, 17.6, 11.2",
+        "fireWithoutTarget": true,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "SabotageProjectile",
+            "pierce": 9999999,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 999,
+            "vsBlockerRadius": 0,
+            "damage": 0,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "Sabotage",
+                "lifespan": 9999999
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 999,
+        "attackThroughWalls": true,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "StickyBombAttack",
+        "rate": 8,
+        "eject": "-1.99, 17.6, 11.2",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "StickyBombProjectile",
+            "pierce": 1,
+            "maxPierce": 1,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 0,
+            "vsBlockerRadius": 0,
+            "speed": 600,
+            "lifespan": 0.5,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "NinjaParagonStickyBomb",
+                "lifespan": 3
+              },
+              {
+                "name": "ParagonStickySplash",
+                "lifespan": 3
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 9999999,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      }
+    ],
+    "buffs": [
+      {
+        "kind": "VisibilitySupport",
+        "name": "Camo buff",
+        "grantsCamoDetection": true,
+        "isGlobal": true,
+        "maxStackSize": 0,
+        "customRadius": 0,
+        "appliesToOwningTower": false
+      },
+      {
+        "kind": "VisibilitySupport",
+        "name": "Camo buff",
+        "grantsCamoDetection": true,
+        "isGlobal": true,
+        "onlyAffectParagon": true,
+        "maxStackSize": 0,
+        "customRadius": 0,
+        "appliesToOwningTower": false
+      },
+      {
+        "kind": "SupportShinobiTactics",
+        "name": "Shinobi Tactics",
+        "rateMultiplier": 0.92,
+        "isGlobal": false,
+        "maxStacks": 20,
+        "maxStackSize": 20,
+        "piercePercentage": 0.08,
+        "filterInBaseTowerId": "Ninja Monkey"
+      },
+      {
+        "kind": "RangeSupport",
+        "name": "Range buff",
+        "rangeAdditive": 10,
+        "rangePercentage": 0,
+        "isGlobal": true,
+        "maxStackSize": 0,
+        "customRadius": 0,
+        "appliesToOwningTower": false,
+        "filterInBaseTowerId": "Ninja Monkey"
+      }
+    ],
+    "targetTypeFirst": true,
+    "targetTypeLast": true,
+    "targetTypeClose": true,
+    "targetTypeStrong": true
+  }
+}

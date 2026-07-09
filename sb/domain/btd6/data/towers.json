@@ -1,0 +1,1478 @@
+{
+  "data_version": "1.0",
+  "game_version": "55.1",
+  "source": "hand-curated from public BTD6 reference data",
+  "towers": [
+    {
+      "id": "dart_monkey",
+      "canonical": "Dart Monkey",
+      "aliases": [
+        "dart",
+        "darts",
+        "darty"
+      ],
+      "category": "primary",
+      "base_cost": 200,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Sharp Shots",
+          "Razor Sharp Shots",
+          "Spike-o-pult",
+          "Juggernaut",
+          "Ultra-Juggernaut"
+        ],
+        "mid": [
+          "Quick Shots",
+          "Very Quick Shots",
+          "Triple Shot",
+          "Super Monkey Fan Club",
+          "Plasma Monkey Fan Club"
+        ],
+        "bot": [
+          "Long Range Darts",
+          "Enhanced Eyesight",
+          "Crossbow",
+          "Sharp Shooter",
+          "Crossbow Master"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          140,
+          200,
+          320,
+          1800,
+          15000
+        ],
+        "mid": [
+          100,
+          190,
+          450,
+          7200,
+          45000
+        ],
+        "bot": [
+          90,
+          200,
+          575,
+          2050,
+          21500
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Dart_Monkey_(BTD6)"
+    },
+    {
+      "id": "boomerang_monkey",
+      "canonical": "Boomerang Monkey",
+      "aliases": [
+        "boomer",
+        "boomerang",
+        "boomy"
+      ],
+      "category": "primary",
+      "base_cost": 315,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Improved Rangs",
+          "Glaives",
+          "Glaive Ricochet",
+          "M.O.A.R Glaives",
+          "Glaive Lord"
+        ],
+        "mid": [
+          "Faster Throwing",
+          "Faster Rangs",
+          "Bionic Boomerang",
+          "Turbo Charge",
+          "Perma Charge"
+        ],
+        "bot": [
+          "Long Range Rangs",
+          "Red Hot Rangs",
+          "Kylie Boomerang",
+          "MOAB Press",
+          "MOAB Domination"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          200,
+          280,
+          600,
+          2000,
+          32500
+        ],
+        "mid": [
+          175,
+          250,
+          1250,
+          4200,
+          35000
+        ],
+        "bot": [
+          100,
+          300,
+          1300,
+          2700,
+          50000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Boomerang_Monkey_(BTD6)"
+    },
+    {
+      "id": "bomb_shooter",
+      "canonical": "Bomb Shooter",
+      "aliases": [
+        "bomb",
+        "bombs",
+        "bombshooter"
+      ],
+      "category": "primary",
+      "base_cost": 375,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Bigger Bombs",
+          "Heavy Bombs",
+          "Really Big Bombs",
+          "Bloon Impact",
+          "Bloon Crush"
+        ],
+        "mid": [
+          "Faster Reload",
+          "Missile Launcher",
+          "MOAB Mauler",
+          "MOAB Assassin",
+          "MOAB Eliminator"
+        ],
+        "bot": [
+          "Extra Range",
+          "Frag Bombs",
+          "Cluster Bombs",
+          "Recursive Cluster",
+          "Bomb Blitz"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          250,
+          650,
+          1100,
+          2800,
+          55000
+        ],
+        "mid": [
+          250,
+          400,
+          1000,
+          3450,
+          26000
+        ],
+        "bot": [
+          200,
+          300,
+          700,
+          2500,
+          30000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Bomb_Shooter_(BTD6)"
+    },
+    {
+      "id": "tack_shooter",
+      "canonical": "Tack Shooter",
+      "aliases": [
+        "tack",
+        "tacks",
+        "tackshooter"
+      ],
+      "category": "primary",
+      "base_cost": 260,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Faster Shooting",
+          "Even Faster Shooting",
+          "Hot Shots",
+          "Ring of Fire",
+          "Inferno Ring"
+        ],
+        "mid": [
+          "Long Range Tacks",
+          "Super Range Tacks",
+          "Blade Shooter",
+          "Blade Maelstrom",
+          "Super Maelstrom"
+        ],
+        "bot": [
+          "More Tacks",
+          "Even More Tacks",
+          "Tack Sprayer",
+          "Overdrive",
+          "The Tack Zone"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          150,
+          300,
+          600,
+          3500,
+          45500
+        ],
+        "mid": [
+          100,
+          225,
+          550,
+          2700,
+          15000
+        ],
+        "bot": [
+          110,
+          110,
+          450,
+          3200,
+          20000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Tack_Shooter_(BTD6)"
+    },
+    {
+      "id": "ice_monkey",
+      "canonical": "Ice Monkey",
+      "aliases": [
+        "ice",
+        "icicle"
+      ],
+      "category": "primary",
+      "base_cost": 400,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Permafrost",
+          "Cold Snap",
+          "Ice Shards",
+          "Embrittlement",
+          "Super Brittle"
+        ],
+        "mid": [
+          "Enhanced Freeze",
+          "Deep Freeze",
+          "Arctic Wind",
+          "Snowstorm",
+          "Absolute Zero"
+        ],
+        "bot": [
+          "Larger Radius",
+          "Re-Freeze",
+          "Cryo Cannon",
+          "Icicles",
+          "Icicle Impale"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          150,
+          350,
+          1500,
+          2300,
+          28000
+        ],
+        "mid": [
+          200,
+          300,
+          2750,
+          4000,
+          21000
+        ],
+        "bot": [
+          150,
+          200,
+          1900,
+          2750,
+          30000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Ice_Monkey_(BTD6)"
+    },
+    {
+      "id": "glue_gunner",
+      "canonical": "Glue Gunner",
+      "aliases": [
+        "glue",
+        "gluey"
+      ],
+      "category": "primary",
+      "base_cost": 225,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Glue Soak",
+          "Corrosive Glue",
+          "Bloon Dissolver",
+          "Bloon Liquefier",
+          "The Bloon Solver"
+        ],
+        "mid": [
+          "Bigger Globs",
+          "Glue Splatter",
+          "Glue Hose",
+          "Glue Strike",
+          "Glue Storm"
+        ],
+        "bot": [
+          "Stickier Glue",
+          "Stronger Glue",
+          "MOAB Glue",
+          "Relentless Glue",
+          "Super Glue"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          200,
+          300,
+          2000,
+          5000,
+          22500
+        ],
+        "mid": [
+          100,
+          970,
+          1950,
+          4000,
+          16000
+        ],
+        "bot": [
+          280,
+          400,
+          3600,
+          4000,
+          24000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Glue_Gunner_(BTD6)"
+    },
+    {
+      "id": "desperado",
+      "canonical": "Desperado",
+      "aliases": [
+        "des",
+        "cowboy",
+        "gunslinger",
+        "despo"
+      ],
+      "category": "primary",
+      "base_cost": 300,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Quickdraw",
+          "Standoff",
+          "Big Iron",
+          "Twin Sixes",
+          "The Blazing Sun"
+        ],
+        "mid": [
+          "Eagle Eye",
+          "Bullseye",
+          "Deadeye",
+          "Bounty Hunter",
+          "Golden Justice"
+        ],
+        "bot": [
+          "Wanderer",
+          "Nomad",
+          "Enforcer",
+          "Avenger",
+          "The Desert Phantom"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          200,
+          200,
+          1200,
+          5800,
+          16500
+        ],
+        "mid": [
+          150,
+          350,
+          3000,
+          6000,
+          42000
+        ],
+        "bot": [
+          220,
+          280,
+          2100,
+          9500,
+          31000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Desperado_(BTD6)"
+    },
+    {
+      "id": "sniper_monkey",
+      "canonical": "Sniper Monkey",
+      "aliases": [
+        "sniper"
+      ],
+      "category": "military",
+      "base_cost": 350,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Full Metal Jacket",
+          "Large Calibre",
+          "Deadly Precision",
+          "Maim MOAB",
+          "Cripple MOAB"
+        ],
+        "mid": [
+          "Night Vision Goggles",
+          "Shrapnel Shot",
+          "Bouncing Bullet",
+          "Supply Drop",
+          "Elite Sniper"
+        ],
+        "bot": [
+          "Fast Firing",
+          "Even Faster Firing",
+          "Semi-Automatic",
+          "Full Auto Rifle",
+          "Elite Defender"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          350,
+          1300,
+          2200,
+          6300,
+          32000
+        ],
+        "mid": [
+          250,
+          450,
+          2100,
+          7600,
+          12000
+        ],
+        "bot": [
+          450,
+          450,
+          2700,
+          4100,
+          14900
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Sniper_Monkey_(BTD6)"
+    },
+    {
+      "id": "monkey_sub",
+      "canonical": "Monkey Sub",
+      "aliases": [
+        "sub",
+        "subs",
+        "submarine"
+      ],
+      "category": "military",
+      "base_cost": 325,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Longer Range",
+          "Advanced Intel",
+          "Submerge and Support",
+          "Bloontonium Reactor",
+          "Energizer"
+        ],
+        "mid": [
+          "Barbed Darts",
+          "Heat-tipped Darts",
+          "Ballistic Missile",
+          "First Strike Capability",
+          "Pre-emptive Strike"
+        ],
+        "bot": [
+          "Twin Guns",
+          "Airburst Darts",
+          "Triple Guns",
+          "Armor Piercing Darts",
+          "Sub Commander"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          130,
+          500,
+          700,
+          2400,
+          28000
+        ],
+        "mid": [
+          450,
+          300,
+          1350,
+          13000,
+          29000
+        ],
+        "bot": [
+          450,
+          1000,
+          1100,
+          2500,
+          25000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Monkey_Sub_(BTD6)"
+    },
+    {
+      "id": "monkey_buccaneer",
+      "canonical": "Monkey Buccaneer",
+      "aliases": [
+        "bucc",
+        "buccaneer",
+        "boat",
+        "pirate"
+      ],
+      "category": "military",
+      "base_cost": 400,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Faster Shooting",
+          "Double Shot",
+          "Destroyer",
+          "Aircraft Carrier",
+          "Carrier Flagship"
+        ],
+        "mid": [
+          "Grape Shot",
+          "Hot Shot",
+          "Cannon Ship",
+          "Monkey Pirates",
+          "Pirate Lord"
+        ],
+        "bot": [
+          "Long Range",
+          "Crow's Nest",
+          "Merchantman",
+          "Favored Trades",
+          "Trade Empire"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          275,
+          425,
+          3350,
+          8000,
+          26000
+        ],
+        "mid": [
+          550,
+          500,
+          900,
+          3900,
+          27000
+        ],
+        "bot": [
+          200,
+          350,
+          2400,
+          5500,
+          23000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Monkey_Buccaneer_(BTD6)"
+    },
+    {
+      "id": "monkey_ace",
+      "canonical": "Monkey Ace",
+      "aliases": [
+        "ace",
+        "plane",
+        "monkey plane"
+      ],
+      "category": "military",
+      "base_cost": 800,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Rapid Fire",
+          "Lots More Darts",
+          "Fighter Plane",
+          "Operation: Dart Storm",
+          "Sky Shredder"
+        ],
+        "mid": [
+          "Exploding Pineapple",
+          "Spy Plane",
+          "Bomber Ace",
+          "Ground Zero",
+          "Tsar Bomba"
+        ],
+        "bot": [
+          "Sharper Darts",
+          "Centered Path",
+          "Neva-Miss Targeting",
+          "Spectre",
+          "Flying Fortress"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          450,
+          550,
+          1000,
+          3300,
+          42500
+        ],
+        "mid": [
+          200,
+          350,
+          900,
+          16000,
+          26000
+        ],
+        "bot": [
+          500,
+          550,
+          2550,
+          23400,
+          85000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Monkey_Ace_(BTD6)"
+    },
+    {
+      "id": "heli_pilot",
+      "canonical": "Heli Pilot",
+      "aliases": [
+        "heli",
+        "helicopter",
+        "helipilot"
+      ],
+      "category": "military",
+      "base_cost": 1500,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Quad Darts",
+          "Pursuit",
+          "Razor Rotors",
+          "Apache Dartship",
+          "Apache Prime"
+        ],
+        "mid": [
+          "Bigger Jets",
+          "IFR",
+          "Downdraft",
+          "Support Chinook",
+          "Special Poperations"
+        ],
+        "bot": [
+          "Faster Darts",
+          "Faster Firing",
+          "MOAB Shove",
+          "Comanche Defense",
+          "Comanche Commander"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          800,
+          500,
+          1850,
+          19600,
+          45000
+        ],
+        "mid": [
+          300,
+          600,
+          3500,
+          9500,
+          30000
+        ],
+        "bot": [
+          250,
+          350,
+          3400,
+          8500,
+          35000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Heli_Pilot_(BTD6)"
+    },
+    {
+      "id": "mortar_monkey",
+      "canonical": "Mortar Monkey",
+      "aliases": [
+        "mortar",
+        "mortars"
+      ],
+      "category": "military",
+      "base_cost": 600,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Bigger Blast",
+          "Bloon Buster",
+          "Shell Shock",
+          "The Big One",
+          "The Biggest One"
+        ],
+        "mid": [
+          "Faster Reload",
+          "Rapid Reload",
+          "Heavy Shells",
+          "Artillery Battery",
+          "Pop and Awe"
+        ],
+        "bot": [
+          "Increased Accuracy",
+          "Burny Stuff",
+          "Signal Flare",
+          "Shattering Shells",
+          "Blooncineration"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          300,
+          500,
+          825,
+          7000,
+          36000
+        ],
+        "mid": [
+          400,
+          500,
+          900,
+          6500,
+          38000
+        ],
+        "bot": [
+          200,
+          400,
+          1100,
+          9500,
+          40000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Mortar_Monkey_(BTD6)"
+    },
+    {
+      "id": "dartling_gunner",
+      "canonical": "Dartling Gunner",
+      "aliases": [
+        "dartling",
+        "dartlings",
+        "dart gun"
+      ],
+      "category": "military",
+      "base_cost": 850,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Focused Firing",
+          "Laser Shock",
+          "Laser Cannon",
+          "Plasma Accelerator",
+          "Ray of Doom"
+        ],
+        "mid": [
+          "Advanced Targeting",
+          "Faster Barrel Spin",
+          "Hydra Rocket Pods",
+          "Rocket Storm",
+          "M.A.D"
+        ],
+        "bot": [
+          "Faster Swivel",
+          "Powerful Darts",
+          "Buckshot",
+          "Bloon Area Denial System",
+          "Bloon Exclusion Zone"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          300,
+          900,
+          3000,
+          11750,
+          75000
+        ],
+        "mid": [
+          250,
+          950,
+          4500,
+          5000,
+          65000
+        ],
+        "bot": [
+          150,
+          1200,
+          3000,
+          12000,
+          58000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Dartling_Gunner_(BTD6)"
+    },
+    {
+      "id": "wizard_monkey",
+      "canonical": "Wizard Monkey",
+      "aliases": [
+        "wiz",
+        "wizard"
+      ],
+      "category": "magic",
+      "base_cost": 250,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Guided Magic",
+          "Arcane Blast",
+          "Arcane Mastery",
+          "Arcane Spike",
+          "Archmage"
+        ],
+        "mid": [
+          "Fireball",
+          "Wall of Fire",
+          "Dragon's Breath",
+          "Summon Phoenix",
+          "Wizard Lord Phoenix"
+        ],
+        "bot": [
+          "Intense Magic",
+          "Monkey Sense",
+          "Shimmer",
+          "Necromancer: Unpopped Army",
+          "Prince of Darkness"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          175,
+          450,
+          1450,
+          10000,
+          32000
+        ],
+        "mid": [
+          300,
+          800,
+          3300,
+          6000,
+          50000
+        ],
+        "bot": [
+          300,
+          300,
+          1500,
+          2800,
+          26500
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Wizard_Monkey_(BTD6)"
+    },
+    {
+      "id": "super_monkey",
+      "canonical": "Super Monkey",
+      "aliases": [
+        "super",
+        "smonkey",
+        "supermonkey"
+      ],
+      "category": "magic",
+      "base_cost": 2500,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Laser Blasts",
+          "Plasma Blasts",
+          "Sun Avatar",
+          "Sun Temple",
+          "True Sun God"
+        ],
+        "mid": [
+          "Super Range",
+          "Epic Range",
+          "Robo Monkey",
+          "Tech Terror",
+          "The Anti-Bloon"
+        ],
+        "bot": [
+          "Knockback",
+          "Ultravision",
+          "Dark Knight",
+          "Dark Champion",
+          "Legend of the Night"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          2000,
+          2500,
+          20000,
+          100000,
+          500000
+        ],
+        "mid": [
+          1500,
+          1900,
+          7500,
+          25000,
+          70000
+        ],
+        "bot": [
+          3000,
+          1200,
+          5600,
+          55555,
+          165650
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Super_Monkey_(BTD6)"
+    },
+    {
+      "id": "ninja_monkey",
+      "canonical": "Ninja Monkey",
+      "aliases": [
+        "ninja",
+        "ninjas",
+        "shinobi"
+      ],
+      "category": "magic",
+      "base_cost": 400,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Ninja Discipline",
+          "Sharp Shurikens",
+          "Double Shot",
+          "Bloonjitsu",
+          "Grandmaster Ninja"
+        ],
+        "mid": [
+          "Distraction",
+          "Counter-Espionage",
+          "Shinobi Tactics",
+          "Bloon Sabotage",
+          "Grand Saboteur"
+        ],
+        "bot": [
+          "Seeking Shuriken",
+          "Caltrops",
+          "Flash Bomb",
+          "Sticky Bomb",
+          "Master Bomber"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          350,
+          350,
+          900,
+          2750,
+          35000
+        ],
+        "mid": [
+          250,
+          400,
+          1200,
+          5200,
+          22000
+        ],
+        "bot": [
+          300,
+          450,
+          2250,
+          5000,
+          40000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Ninja_Monkey_(BTD6)"
+    },
+    {
+      "id": "alchemist",
+      "canonical": "Alchemist",
+      "aliases": [
+        "alch",
+        "alchy",
+        "alchemist"
+      ],
+      "category": "magic",
+      "base_cost": 550,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Larger Potions",
+          "Acidic Mixture Dip",
+          "Berserker Brew",
+          "Stronger Stimulant",
+          "Permanent Brew"
+        ],
+        "mid": [
+          "Stronger Acid",
+          "Perishing Potions",
+          "Unstable Concoction",
+          "Transforming Tonic",
+          "Total Transformation"
+        ],
+        "bot": [
+          "Faster Throwing",
+          "Acid Pool",
+          "Lead to Gold",
+          "Rubber to Gold",
+          "Bloon Master Alchemist"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          250,
+          350,
+          1400,
+          2850,
+          48000
+        ],
+        "mid": [
+          250,
+          475,
+          2800,
+          4200,
+          45000
+        ],
+        "bot": [
+          650,
+          450,
+          1000,
+          2750,
+          40000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Alchemist_(BTD6)"
+    },
+    {
+      "id": "druid",
+      "canonical": "Druid",
+      "aliases": [
+        "dru",
+        "druids"
+      ],
+      "category": "magic",
+      "base_cost": 400,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Hard Thorns",
+          "Heart of Thunder",
+          "Druid of the Storm",
+          "Ball Lightning",
+          "Monarch of Storms"
+        ],
+        "mid": [
+          "Thorn Swarm",
+          "Heart of Oak",
+          "Druid of the Jungle",
+          "Jungle's Bounty",
+          "Spirit of the Forest"
+        ],
+        "bot": [
+          "Druidic Reach",
+          "Heart of Vengeance",
+          "Druid of Wrath",
+          "Poplust",
+          "Avatar of Wrath"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          350,
+          850,
+          1700,
+          4500,
+          60000
+        ],
+        "mid": [
+          250,
+          350,
+          1050,
+          4900,
+          35000
+        ],
+        "bot": [
+          100,
+          300,
+          600,
+          2350,
+          45000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Druid_(BTD6)"
+    },
+    {
+      "id": "mermonkey",
+      "canonical": "Mermonkey",
+      "aliases": [
+        "merm",
+        "mer monkey",
+        "fishy"
+      ],
+      "category": "magic",
+      "base_cost": 300,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Trident Efficiency",
+          "Trident Swiftness",
+          "Abyss Dweller",
+          "Abyssal Warrior",
+          "Lord of the Abyss"
+        ],
+        "mid": [
+          "Sharper Prongs",
+          "Tidal Chill",
+          "Riptide Champion",
+          "Arctic Knight",
+          "Popseidon"
+        ],
+        "bot": [
+          "Echosense Precision",
+          "Echosense Network",
+          "Alluring Melody",
+          "Symphonic Resonance",
+          "The Final Harmonic"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          150,
+          250,
+          1800,
+          4200,
+          23000
+        ],
+        "mid": [
+          200,
+          225,
+          2000,
+          8000,
+          52000
+        ],
+        "bot": [
+          200,
+          280,
+          2000,
+          7600,
+          25000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Mermonkey_(BTD6)"
+    },
+    {
+      "id": "banana_farm",
+      "canonical": "Banana Farm",
+      "aliases": [
+        "farm",
+        "farms",
+        "bf",
+        "banana"
+      ],
+      "category": "support",
+      "base_cost": 1250,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Increased Production",
+          "Greater Production",
+          "Banana Plantation",
+          "Banana Research Facility",
+          "Banana Central"
+        ],
+        "mid": [
+          "Long Life Bananas",
+          "Valuable Bananas",
+          "Monkey Bank",
+          "IMF Loan",
+          "Monkey-Nomics"
+        ],
+        "bot": [
+          "EZ Collect",
+          "Banana Salvage",
+          "Marketplace",
+          "Central Market",
+          "Monkey Wall Street"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          500,
+          600,
+          3000,
+          19000,
+          115000
+        ],
+        "mid": [
+          300,
+          800,
+          3650,
+          7200,
+          100000
+        ],
+        "bot": [
+          250,
+          400,
+          2700,
+          15000,
+          70000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Banana_Farm_(BTD6)"
+    },
+    {
+      "id": "spike_factory",
+      "canonical": "Spike Factory",
+      "aliases": [
+        "spike",
+        "spikes",
+        "spac"
+      ],
+      "category": "support",
+      "base_cost": 1000,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Bigger Stacks",
+          "White Hot Spikes",
+          "Spiked Balls",
+          "Spiked Mines",
+          "Super Mines"
+        ],
+        "mid": [
+          "Faster Production",
+          "Even Faster Production",
+          "MOAB SHREDR",
+          "Spike Storm",
+          "Carpet of Spikes"
+        ],
+        "bot": [
+          "Long Reach",
+          "Smart Spikes",
+          "Long Life Spikes",
+          "Deadly Spikes",
+          "Perma-Spike"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          800,
+          600,
+          2300,
+          9500,
+          125000
+        ],
+        "mid": [
+          600,
+          800,
+          2500,
+          7000,
+          41000
+        ],
+        "bot": [
+          150,
+          400,
+          1300,
+          3600,
+          30000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Spike_Factory_(BTD6)"
+    },
+    {
+      "id": "monkey_village",
+      "canonical": "Monkey Village",
+      "aliases": [
+        "village",
+        "vil",
+        "monkey vil"
+      ],
+      "category": "support",
+      "base_cost": 1200,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Bigger Radius",
+          "Jungle Drums",
+          "Primary Training",
+          "Primary Mentoring",
+          "Primary Expertise"
+        ],
+        "mid": [
+          "Grow Blocker",
+          "Radar Scanner",
+          "Monkey Intelligence Bureau",
+          "Call to Arms",
+          "Homeland Defense"
+        ],
+        "bot": [
+          "Monkey Business",
+          "Monkey Commerce",
+          "Monkey Town",
+          "Monkey City",
+          "Monkeyopolis"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          400,
+          1500,
+          800,
+          2500,
+          25000
+        ],
+        "mid": [
+          250,
+          2000,
+          7500,
+          20000,
+          40000
+        ],
+        "bot": [
+          500,
+          500,
+          10000,
+          3000,
+          5000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Monkey_Village_(BTD6)"
+    },
+    {
+      "id": "engineer_monkey",
+      "canonical": "Engineer Monkey",
+      "aliases": [
+        "engi",
+        "engineer",
+        "eng"
+      ],
+      "category": "support",
+      "base_cost": 350,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Sentry Gun",
+          "Faster Engineering",
+          "Sprockets",
+          "Sentry Expert",
+          "Sentry Champion"
+        ],
+        "mid": [
+          "Larger Service Area",
+          "Deconstruction",
+          "Cleansing Foam",
+          "Overclock",
+          "Ultraboost"
+        ],
+        "bot": [
+          "Oversize Nails",
+          "Pin",
+          "Double Gun",
+          "Bloon Trap",
+          "XXXL Trap"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          500,
+          400,
+          575,
+          2500,
+          32000
+        ],
+        "mid": [
+          250,
+          350,
+          900,
+          13500,
+          72000
+        ],
+        "bot": [
+          450,
+          220,
+          450,
+          3600,
+          45000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Engineer_Monkey_(BTD6)"
+    },
+    {
+      "id": "beast_handler",
+      "canonical": "Beast Handler",
+      "aliases": [
+        "beast",
+        "handler",
+        "bh"
+      ],
+      "category": "support",
+      "base_cost": 250,
+      "description": "",
+      "upgrade_paths": {
+        "top": [
+          "Piranha",
+          "Barracuda",
+          "Great White",
+          "Orca",
+          "Megalodon"
+        ],
+        "mid": [
+          "Microraptor",
+          "Adasaurus",
+          "Velociraptor",
+          "Tyrannosaurus Rex",
+          "Giganotosaurus"
+        ],
+        "bot": [
+          "Gyrfalcon",
+          "Horned Owl",
+          "Golden Eagle",
+          "Giant Condor",
+          "Pouākai"
+        ]
+      },
+      "upgrade_costs": {
+        "top": [
+          160,
+          810,
+          2010,
+          12500,
+          45000
+        ],
+        "mid": [
+          175,
+          830,
+          2065,
+          9500,
+          60000
+        ],
+        "bot": [
+          190,
+          860,
+          2120,
+          9000,
+          30000
+        ]
+      },
+      "wiki_url": "https://www.bloonswiki.com/Beast_Handler_(BTD6)"
+    }
+  ]
+}

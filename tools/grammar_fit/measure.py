@@ -413,6 +413,35 @@ UNITS: tuple[Unit, ...] = (
     Unit(6, "casino", "engine", "card model + hand evaluator", 1, 3,
          "utils/cards + utils/poker/evaluate ported VERBATIM (pure; "
          "the Hold'em table docks on when the live adapter arms)"),
+    # ---- band 7 / btd6 (PR: band7-slice1-btd6; base 1c17978) ----
+    Unit(7, "btd6", "command", "btd6menu + btd6ref/btd6strat/btd6events/"
+         "btd6ops groups", 33, 2,
+         "CommandSpec rows verbatim (shipped group surfaces); ingestion-"
+         "backed subcommands = honest pending terminals (D-0046)"),
+    Unit(7, "btd6", "panel", "btd6.hub", 1, 2,
+         "the shipped BTD6PanelView declarative (lookup modals + "
+         "strategies + grounding check + events pending)"),
+    Unit(7, "btd6", "store", "btd6_strategies", 1, 2,
+         "StoreSpec, shipped migration-041 shape; MEMBER_PII anonymize "
+         "erasure (identity detached, row retained)"),
+    Unit(7, "btd6", "setting", "strategy_submission_channel", 1, 2,
+         "SettingSpec (the route probe's strategy-intake cue channel)"),
+    Unit(7, "btd6", "op", "submit_strategy/review_strategy", 2, 2,
+         "K7 lanes; shipped btd6_strategy_audit folds into the central "
+         "audit row (one-write discipline)"),
+    Unit(7, "btd6", "engine", "dataset + resolver + context passes", 1, 3,
+         "focused ports of the shipped 5.6k-line grounding pipeline "
+         "(fixture/paragon/catalog/interaction passes) — justified code"),
+    Unit(7, "btd6", "engine", "keywords/difficulty_costs/paragon math", 1, 3,
+         "pure shipped utils VERBATIM (curated keyword lists, cost "
+         "multipliers, wiki degree formulas) — justified code by design"),
+    Unit(7, "btd6", "engine", "K10 registrations", 1, 2,
+         "task ids claimed byte-identical + route probe + fact gatherer "
+         "+ verifiers + paragon existence attr + refusal floor + task "
+         "contract + A-17 suite — ALL registry rows on K10 seams"),
+    Unit(7, "btd6", "engine", "16-probe QA eval corpus", 1, 2,
+         "shipped tests/evals/btd6_corpus.py imported verbatim as "
+         "EvalSuiteSpec data (deterministic gate + advisory judge tier)"),
 )
 
 

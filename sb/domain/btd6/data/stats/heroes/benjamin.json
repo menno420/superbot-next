@@ -1,0 +1,1360 @@
+{
+  "hero_id": "benjamin",
+  "canonical": "Benjamin",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "base_cost": 1200,
+  "cost_chimps": 1200,
+  "levels": {
+    "1": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 90,
+      "level": 1,
+      "description": "Hacks in $90 every round."
+    },
+    "2": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 140,
+      "level": 2,
+      "description": "Generates $140 per round instead of $90."
+    },
+    "3": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 140,
+      "level": 3,
+      "description": "Biohack: 4 closest Monkeys pop an extra layer per attack for 6 seconds. Affected Monkeys can't attack for 2 seconds after effect ends."
+    },
+    "4": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 140,
+      "level": 4,
+      "description": "Cyber Security - Restores 5 lives at the end of each round."
+    },
+    "5": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.05,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 140,
+      "level": 5,
+      "description": "Bank Hack - all banks earn +5% income."
+    },
+    "6": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.05,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 140,
+      "level": 6,
+      "description": "Skimming - earns +$1 for every new Bloon spawned."
+    },
+    "7": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.05,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 140,
+      "level": 7,
+      "description": "Bloon Trojan - Every few seconds sends a Trojan software virus to random Bloon. Affected Bloon spawns no children when destroyed and produces 1 extra cash for every layer."
+    },
+    "8": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.05,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 250,
+      "level": 8,
+      "description": "Income increased to $250 per round."
+    },
+    "9": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 250,
+      "level": 9,
+      "description": "Bank hack increased to 12%."
+    },
+    "10": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 250,
+      "level": 10,
+      "description": "Syphon Funding: Downgrades most newly spawned Bloons by 1 rank. Cash per pop from affected Bloons is double. Lasts 10 seconds."
+    },
+    "11": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 1000,
+      "level": 11,
+      "description": "Income increased to $1000 per round."
+    },
+    "12": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 1000,
+      "level": 12,
+      "description": "Skimming increased to $2 per Bloon."
+    },
+    "13": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 1000,
+      "level": 13,
+      "description": "Biohack increases bonus damage and affects 6 Monkeys for 8 seconds."
+    },
+    "14": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 1000,
+      "level": 14,
+      "description": "Cyber Security adds 10 lives per round and can go up to 100 over starting lives."
+    },
+    "15": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 5,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 2500,
+      "level": 15,
+      "description": "Income increased to $2500 per round."
+    },
+    "16": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 3,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 2500,
+      "level": 16,
+      "description": "Bloon Trojan is sent more often and earns more cash."
+    },
+    "17": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 3,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 5000,
+      "level": 17,
+      "description": "Income increased to $5000 per round."
+    },
+    "18": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 3,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 5000,
+      "level": 18,
+      "description": "Bloon Trojan can affect BFB and DDT Bloons."
+    },
+    "19": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 3,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 5000,
+      "level": 19,
+      "description": "Biohack lasts 9 seconds and affected Monkeys pop 3 extra layers instead of 2."
+    },
+    "20": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 20,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "SharedAttack",
+          "projectiles": [],
+          "count": 0,
+          "targetTypes": "Depends on targeting option",
+          "range": 20,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        },
+        {
+          "name": "BloonTrojan",
+          "rate": 3,
+          "eject": "1.6683002, 11.713424, 12.493168",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 1,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 10,
+              "vsBlockerRadius": 0,
+              "speed": 200,
+              "lifespan": 10,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "CashEffect",
+                  "lifespan": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 9999999,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Biohack",
+          "cooldown": 30
+        },
+        {
+          "name": "Syphon Funding",
+          "cooldown": 65
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "BananaCashIncreaseSupport",
+          "incomePercentage": 0.12,
+          "isGlobal": true,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": false,
+      "targetTypeLast": false,
+      "targetTypeClose": false,
+      "targetTypeStrong": false,
+      "cashPerRound": 5000,
+      "level": 20,
+      "description": "Syphon Funding lasts 20 seconds and cash per pop is triple normal for affected Bloons."
+    }
+  }
+}
