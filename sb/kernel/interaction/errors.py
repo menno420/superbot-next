@@ -29,11 +29,16 @@ __all__ = ["ErrorEnvelope", "ValidatorError", "from_exception"]
 
 class ValidatorError(ValueError):
     """The step-2b argument-validation failure (a `user_error` row input).
-    Carries the offending parameter name for the usage hint."""
+    Carries the offending parameter name for the usage hint. When
+    ``message`` is given, it is the VERBATIM user copy (the raise site owns
+    the sentence — domain refusals like insufficient funds / cooldown
+    active render their shipped copy bare instead of wrapped in the
+    missing-argument boilerplate; band-3 finding, D-0060)."""
 
     def __init__(self, param: str, message: str = ""):
         super().__init__(message or f"invalid argument: {param}")
         self.param = param
+        self.user_copy: str | None = message or None
 
 
 @dataclass(frozen=True)
@@ -78,10 +83,16 @@ def _classify(exc: BaseException) -> tuple[ErrorClass, DenialReason, bool, str]:
 def _user_message(exc: BaseException, error_class: ErrorClass, *,
                   target: "TargetRef | None", section_label: str | None) -> str:
     if error_class is ErrorClass.USER_ERROR:
-        param = getattr(exc, "param", None)
-        name = getattr(param, "name", param) or "?"
-        cmd = target.key if target is not None else "?"
-        message = f"Missing/invalid argument: `{name}`. `!help {cmd}` for usage."
+        custom = getattr(exc, "user_copy", None)
+        if custom:
+            # raise-site verbatim copy (ValidatorError(message=...) — D-0060)
+            message = str(custom)
+        else:
+            param = getattr(exc, "param", None)
+            name = getattr(param, "name", param) or "?"
+            cmd = target.key if target is not None else "?"
+            message = (f"Missing/invalid argument: `{name}`. "
+                       f"`!help {cmd}` for usage.")
     elif error_class is ErrorClass.DENIED:
         if "Forbidden" in _name_chain(exc):
             perm = getattr(exc, "missing_permission", None) or "?"

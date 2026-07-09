@@ -34,16 +34,25 @@ __all__ = [
 ]
 
 
-class InsufficientFundsError(ValidatorError):
+class _DomainRefusal(ValidatorError):
+    """A domain-rule refusal (not a malformed argument): the raise-site
+    sentence IS the user copy, rendered bare (D-0060 — the envelope's
+    missing-argument boilerplate wrapped these until band 3)."""
+
+    def __init__(self, message: str):
+        super().__init__("", message)
+
+
+class InsufficientFundsError(_DomainRefusal):
     """A debit/transfer would overdraw — classifies USER_ERROR/BLOCKED with
     the message as user copy (shipped copy built at the raise site)."""
 
 
-class CooldownActiveError(ValidatorError):
+class CooldownActiveError(_DomainRefusal):
     """Daily/work claimed while the domain cooldown is still running."""
 
 
-class AlreadyOwnedError(ValidatorError):
+class AlreadyOwnedError(_DomainRefusal):
     """Unique shop item purchase while already owned."""
 
 
