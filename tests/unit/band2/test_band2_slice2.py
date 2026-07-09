@@ -128,6 +128,57 @@ def test_word_ops_registered_and_word_add_leg(monkeypatch):
     assert outcome.after == {"word": "spamword", "added": True}
 
 
+def test_word_ops_speak_success_copy(monkeypatch):
+    """Found live (band-2 slice 2): both word ops answered with SILENCE —
+    success copy now rides the sanctioned DB-leg `user_message` channel
+    (the moderation exemplar)."""
+    from types import SimpleNamespace
+
+    from sb.domain.cleanup import ops, store
+    from sb.kernel.workflow.context import WorkflowContext
+
+    async def fake_add(conn, *, guild_id, word):
+        return word == "fresh"                      # "dupe" = already listed
+
+    async def fake_remove(conn, *, guild_id, word):
+        return word == "fresh"                      # "gone" = never listed
+
+    monkeypatch.setattr(store, "add_word", fake_add)
+    monkeypatch.setattr(store, "remove_word", fake_remove)
+
+    def ctx(word):
+        return WorkflowContext(actor=SimpleNamespace(user_id=1), guild_id=2,
+                               request_id="r", confirmed=False,
+                               params={"argv": (word,)})
+
+    assert asyncio.run(ops._word_add(None, ctx("fresh"))).user_message \
+        == "✅ Added `fresh` to the prohibited words."
+    assert "already" in asyncio.run(
+        ops._word_add(None, ctx("dupe"))).user_message
+    assert asyncio.run(ops._word_remove(None, ctx("fresh"))).user_message \
+        == "✅ Removed `fresh` from the prohibited words."
+    assert "wasn't" in asyncio.run(
+        ops._word_remove(None, ctx("gone"))).user_message
+
+
+def test_word_op_missing_word_is_user_error():
+    """A bare `!word add` must raise ValidatorError (polite user_error
+    denial), never a bare ValueError BUG envelope."""
+    from types import SimpleNamespace
+
+    import pytest
+
+    from sb.domain.cleanup import ops
+    from sb.kernel.interaction.errors import ValidatorError
+    from sb.kernel.workflow.context import WorkflowContext
+
+    ctx = WorkflowContext(actor=SimpleNamespace(user_id=1), guild_id=2,
+                          request_id="r", confirmed=False,
+                          params={"argv": ()})
+    with pytest.raises(ValidatorError):
+        asyncio.run(ops._word_add(None, ctx))
+
+
 def test_pending_handler_is_honest_blocked():
     from sb.domain.operator_spine import pending_handler
     from sb.spec.outcomes import BLOCKED

@@ -25,7 +25,11 @@ def _word_from(ctx: WorkflowContext) -> str:
         argv = tuple(ctx.params.get("argv", ()) or ())
         word = str(argv[0]) if argv else ""
     if not word:
-        raise ValueError("no word supplied")
+        # ValidatorError ⇒ polite user_error denial with a usage hint,
+        # never a BUG envelope (the band-2 parse_target_and_reason lesson).
+        from sb.kernel.interaction.errors import ValidatorError
+
+        raise ValidatorError("word", "no word supplied")
     return word.lower().strip()
 
 
@@ -33,8 +37,13 @@ def _word_from(ctx: WorkflowContext) -> str:
 async def _word_add(conn, ctx: WorkflowContext) -> LegOutcome:
     word = _word_from(ctx)
     added = await store.add_word(conn, guild_id=int(ctx.guild_id or 0), word=word)
+    # success copy through the sanctioned DB-leg channel (the moderation
+    # exemplar) — found live: both word ops answered with SILENCE.
+    copy = (f"✅ Added `{word}` to the prohibited words." if added
+            else f"`{word}` is already on the prohibited-word list.")
     return LegOutcome(step=StepResult(0, "word_add", True),
-                      before={}, after={"word": word, "added": added})
+                      before={}, after={"word": word, "added": added},
+                      user_message=copy)
 
 
 @workflow("cleanup.word_remove")
@@ -42,8 +51,11 @@ async def _word_remove(conn, ctx: WorkflowContext) -> LegOutcome:
     word = _word_from(ctx)
     removed = await store.remove_word(conn, guild_id=int(ctx.guild_id or 0),
                                       word=word)
+    copy = (f"✅ Removed `{word}` from the prohibited words." if removed
+            else f"`{word}` wasn't on the prohibited-word list.")
     return LegOutcome(step=StepResult(0, "word_remove", True),
-                      before={"present": removed}, after={"word": word})
+                      before={"present": removed}, after={"word": word},
+                      user_message=copy)
 
 
 def _op(op_key: str, verb: str, ref: str) -> CompoundOpSpec:
