@@ -7,11 +7,22 @@
     "soft_target_sessions": 50
   },
   "graduation_proposed": false,
-  "kit_version": "1.0.0",
+  "kit_version": "1.2.0",
   "last_compaction_session": 0,
   "mode": "guided",
   "mode_history": [],
   "open_questions": [],
+  "planted_doc_hashes": {
+    "CONSTITUTION.md": "7c9d672e03c6e2218db8db7f13939466dfc449574b3e614c9534dfd535d02652",
+    "docs/AGENT_ORIENTATION.md": "7fade1f62f191de72883b7b0083ba0d5bc0d8bfbecb73c1af9fd1aa435b6a220",
+    "docs/ai-project-workflow.md": "9aeecf6cb4908f9cca5506ffc8961ca642fc1ac6479f3de7ff3e168deaa2a536",
+    "docs/architecture.md": "fb44df327e30eb312f0ac4f88102a9bee90a40820f5118c454e940f002ae331e",
+    "docs/collaboration-model.md": "40a83f103f36381aa59fc55f1be611ff3c25058c00dd09a9e087a201aeb8441d",
+    "docs/current-state.md": "740f12424c9c75c250ecc0bacae5bcefeae4efc5fd23100205e2738789debe31",
+    "docs/owner-profile.md": "1c0b32dca7ec60a26c7098c69bdc21b53f7c17b50705e6dbf5541336ea664b87",
+    "docs/ownership.md": "727746318a65e85b2ced228b4671faa1fa62e63b728ccffb08f3d58dc1cf4ba1",
+    "docs/runtime_contracts.md": "583fc42ac1da60f9b0454129f8d737d5b8286827a26a515f85897abd7b7f51ed"
+  },
   "project_id": "0f00ecc87d58",
   "promotion_rights": "propose",
   "quiet_sessions": 0,
@@ -22,32 +33,86 @@
   "review_log": [],
   "session_count": 0,
   "slot_values": {
+    "architecture_layers": {
+      "question_id": "Q-004",
+      "source": "user",
+      "value": "sb/spec + sb/namespace are stdlib-only grammar leaves (frozen dataclasses, registries) that import nothing above them; sb/kernel bands (config, observability, db, authority, events, workflow, draft, panels, scheduler, ...) import spec/namespace and never domain \u2014 no kernel->domain import edge, ever; sb/domain/<key> port-band subsystems import kernel + spec and sit behind the audited seams; sb/adapters (discord, http) import kernel + spec; sb/app is the composition root and may import everything; sb/manifest holds pure declarations + handler registrations. Layer map: sb/__init__.py (rebuild design-spec 1.1); guards: tools/check_symbol_shadowing.py, check_namespace.py, check_no_skip.py, check_config_usage.py"
+    },
     "doc_roots": {
       "question_id": "Q-007",
-      "source": "derived",
+      "source": "confirmed:user",
       "value": "docs"
+    },
+    "drift_resolution": {
+      "question_id": "Q-011",
+      "source": "user",
+      "value": "the source file wins \u2014 read the code, fix the doc in the same change; a checker that reports green against visible drift is itself the bug (PL-006 source-wins / false-green)"
+    },
+    "integration_mode": {
+      "question_id": "Q-001",
+      "source": "user",
+      "value": "guided"
+    },
+    "mutation_seam": {
+      "question_id": "Q-009",
+      "source": "user",
+      "value": "All domain writes flow through the manifest-declared workflow seam (sb/kernel/workflow): every leg carries a LegAuditSpec and each compound op writes ONE central audit row (audit_verb = mutation_type); adapters may never skip the seam (tools/check_no_skip.py); env/config reads go only through the typed Config accessor (tools/check_config_usage.py \u2014 the config-accessor seam pinned in substrate.config.json); draft-lane changes apply via sb/kernel/draft's pipeline"
+    },
+    "new_area_ownership": {
+      "question_id": "Q-013",
+      "source": "user",
+      "value": "A new area lands as a port band: an sb/domain/<key>/ subsystem plus its manifest declaration (that declaration IS the ownership/folio entry), its migrations chain entry, sim arrangement lock, parity goldens, and a verification/ sign-off row \u2014 and the docs/repo-navigation-map.md table is extended in the same change"
+    },
+    "owner_profile": {
+      "question_id": "Q-008",
+      "source": "user",
+      "value": "The owner designs, directs, and reviews outcomes; he does not code and relies on agents for complete end-to-end work, cross-checked by other agents. He thinks iteratively and in fragments \u2014 reason a partial ask forward to its fuller form and state that picture back inline before building (understand-and-reflect). Default to decide-and-flag autonomy (PL-001): act on contained reversible work, flag decisions with a one-line rationale instead of parking them; route only genuine product-intent ambiguity to docs/question-router.md. Reports concise and evidence-first"
+    },
+    "ownership_model": {
+      "question_id": "Q-006",
+      "source": "user",
+      "value": "One owner per write path: each sb/domain/<key> subsystem owns its own tables and writes them only through the audited workflow seam; kernel bands own their infrastructure stores (sb/kernel/db owns the pool and the migrations/ chain + checksums.json); the manifest declaration (sb/manifest + manifest/) is the ownership registry \u2014 commands, settings, events, and stores per subsystem \u2014 with growth gated by tools/check_namespace.py and tools/check_schema_growth.py"
     },
     "primary_language": {
       "question_id": "Q-003",
-      "source": "derived",
+      "source": "confirmed:user",
       "value": "Python"
     },
     "project_name": {
       "question_id": "Q-002",
-      "source": "derived",
+      "source": "confirmed:user",
       "value": "superbot-next"
+    },
+    "review_ritual": {
+      "question_id": "Q-010",
+      "source": "user",
+      "value": "PRs open READY with a born-red .sessions/ card as the first commit and auto-merge (squash) the moment the six required named checks are green (code-quality, manifest-validate, architecture, sim-gate, golden-parity, check_compat_frozen \u2014 .github/workflows/named-gates.yml); the owner reviews reactively after merge, never-wait / silence = consent (PL-002). The card flips complete as the deliberate last step; control/status.md is overwritten every session as the heartbeat; a reconciliation pass runs every 30 PRs"
+    },
+    "staleness_review": {
+      "question_id": "Q-012",
+      "source": "user",
+      "value": "reconciliation every 30 PRs / 20 sessions with a 14-day staleness horizon (substrate.config.json cadence): reconcile docs/current-state.md and the ledgers against merged PRs, then plan the next band"
     },
     "verify_command": {
       "question_id": "Q-005",
-      "source": "derived",
+      "source": "confirmed:user",
       "value": "python3 -m pytest"
     }
   },
   "slots": {
-    "doc_roots": "provisional",
-    "primary_language": "provisional",
-    "project_name": "provisional",
-    "verify_command": "provisional"
+    "architecture_layers": "filled",
+    "doc_roots": "filled",
+    "drift_resolution": "filled",
+    "integration_mode": "filled",
+    "mutation_seam": "filled",
+    "new_area_ownership": "filled",
+    "owner_profile": "filled",
+    "ownership_model": "filled",
+    "primary_language": "filled",
+    "project_name": "filled",
+    "review_ritual": "filled",
+    "staleness_review": "filled",
+    "verify_command": "filled"
   },
   "stage": "integration",
   "stance": "analysis",
