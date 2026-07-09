@@ -5,17 +5,11 @@ already in sb/domain/inventory/service.py."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
 from sb.spec.outcomes import SUCCESS
+from sb.kernel.interaction.handler_kit import Reply
 
 __all__ = ["Reply", "ensure_handler_refs"]
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
 
 
 def _register() -> None:

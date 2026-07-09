@@ -6,25 +6,14 @@ named successor port)."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
 from sb.spec.outcomes import BLOCKED, SUCCESS
+from sb.kernel.interaction.handler_kit import (
+    Reply,
+    ctx_from_request as _ctx_from_req,
+)
 
 __all__ = ["Reply", "ensure_handler_refs", "install_inventory_source"]
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
-
-
-def _ctx_from_req(req, params: dict):
-    from sb.kernel.workflow.context import WorkflowContext
-
-    return WorkflowContext(
-        actor=req.actor, guild_id=int(req.guild_id or 0),
-        request_id=req.request_id, confirmed=req.confirmed, params=params)
 
 
 async def _mining_inventory_source(user_id: int, guild_id: int) -> dict:

@@ -7,17 +7,14 @@ message-band successor work; entry/payout money lanes are live)."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
 from sb.spec.outcomes import BLOCKED, SUCCESS
+from sb.kernel.interaction.handler_kit import (
+    Reply,
+    ctx_from_request as _ctx_from_req,
+)
 
 __all__ = ["Reply", "ensure_handler_refs"]
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
 
 
 _HELP_TEXT = (
@@ -35,14 +32,6 @@ _HELP_TEXT = (
     "without any prefix.\n"
     "Valid moves depend on the game mode selected."
 )
-
-
-def _ctx_from_req(req, params: dict):
-    from sb.kernel.workflow.context import WorkflowContext
-
-    return WorkflowContext(
-        actor=req.actor, guild_id=int(req.guild_id or 0),
-        request_id=req.request_id, confirmed=req.confirmed, params=params)
 
 
 def _mention_token(argv) -> int | None:

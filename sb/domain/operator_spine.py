@@ -10,7 +10,6 @@ slices install the real ops)."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
 from sb.kernel.panels.registry import register_panel
 from sb.spec.outcomes import BLOCKED
@@ -23,6 +22,7 @@ from sb.spec.panels import (
     PanelSpec,
     TextBlock,
 )
+from sb.kernel.interaction.handler_kit import Reply
 from sb.spec.refs import (
     HandlerRef,
     PanelRef,
@@ -39,12 +39,6 @@ __all__ = [
     "hub_spec",
     "pending_handler",
 ]
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
 
 
 def _settings_provider_name(subsystem: str) -> str:

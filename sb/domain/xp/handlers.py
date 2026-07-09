@@ -9,27 +9,16 @@ resolve through the band-4 provider registry
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 
 from sb.spec.outcomes import BLOCKED, SUCCESS
+from sb.kernel.interaction.handler_kit import (
+    Reply,
+    ctx_from_request as _ctx_from_req,
+)
 
 __all__ = ["Reply", "ensure_handler_refs"]
 
 _STAT_TYPES = {"xp", "coins", "both"}     # shipped verbatim (xp_helpers)
-
-
-@dataclass(frozen=True)
-class Reply:
-    outcome: str
-    user_message: str
-
-
-def _ctx_from_req(req, params: dict):
-    from sb.kernel.workflow.context import WorkflowContext
-
-    return WorkflowContext(
-        actor=req.actor, guild_id=int(req.guild_id or 0),
-        request_id=req.request_id, confirmed=req.confirmed, params=params)
 
 
 def _progress_bar(current: int, needed: int, width: int = 10) -> str:

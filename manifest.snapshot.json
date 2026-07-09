@@ -6635,6 +6635,9 @@
       "workflow:settings.write_binding": {
         "module": "sb.domain.settings.ops"
       },
+      "workflow:settings.write_platform_latch": {
+        "module": "sb.domain.settings.ops"
+      },
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
       },
@@ -7054,7 +7057,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:3df71931c0c030be2c59cd91182ccd99af7a686f3c6e6038f1d4cb6dbd6264c9",
+  "stable_hash": "sha256:40ea3b28d977513303117ab2d63b22454ac39e47b2756fcbbbf207bbc0b1a43a",
   "subsystems": {
     "admin": {
       "capabilities": [],

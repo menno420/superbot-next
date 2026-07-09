@@ -4,8 +4,9 @@ services/settings_mutation.py): coerce → validate → capability → DB write 
 audit in ONE transaction → advisory ``settings.changed`` AFTER commit
 (best-effort), verbatim as lane structure.
 
-Design-spec §4.1: settings NEVER writes — these four ops are the only write
-paths to the `settings` / `subsystem_bindings` tables (sole_writer
+Design-spec §4.1: settings NEVER writes — these ops (four operator lanes +
+the S15 `settings.platform_latch` system lane) are the only write paths to
+the `settings` / `subsystem_bindings` tables (sole_writer
 EngineRef("settings.store"); the leg helpers live in sb/kernel/db/settings).
 
 Authority: op-level `authority_ref=""` = the ADMIN floor — the shipped v1
@@ -42,6 +43,7 @@ __all__ = [
     "CLEAR_SCALAR",
     "BIND",
     "UNBIND",
+    "PLATFORM_LATCH",
     "register_ops",
 ]
 
@@ -122,6 +124,27 @@ async def _erase_binding(conn, ctx: WorkflowContext) -> LegOutcome:
     )
 
 
+@workflow("settings.write_platform_latch")
+async def _write_platform_latch(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The S15 durable-latch write (ORDER 004 item 4 — K7 sole-writer
+    alignment): `platform.*` rows are kernel-owned one-way markers, NOT
+    SettingDeclarations (declaring them would surface kernel latches as
+    operator-editable settings), so this leg fences on the prefix instead
+    of `_declared_or_refuse` — still no raw-KV write path."""
+    key = str(ctx.params["key"])
+    if not key.startswith("platform."):
+        raise ValueError(
+            f"platform_latch writes only `platform.*` keys, got {key!r}")
+    value = str(ctx.params["value"])
+    prior = await db_settings.upsert_setting(conn, guild_id=0, key=key,
+                                             value=value)
+    return LegOutcome(
+        step=StepResult(0, "write_platform_latch", True),
+        before={"key": key, "value": prior},
+        after={"key": key, "value": value},
+    )
+
+
 @workflow("settings.changed_payload")
 def _changed_payload(ctx: WorkflowContext, result) -> dict:
     return {
@@ -187,7 +210,22 @@ UNBIND = CompoundOpSpec(
     emits=_EMITS,
 )
 
-_OPS = (SET_SCALAR, CLEAR_SCALAR, BIND, UNBIND)
+PLATFORM_LATCH = CompoundOpSpec(
+    op_key="settings.platform_latch",
+    domain="settings",
+    lane=WorkflowLane.SCALAR,
+    authority_ref="",                     # system actor rides the K6 step-1 bypass
+    legs=(LegSpec("write", LegKind.DB,
+                  WorkflowRef("settings.write_platform_latch"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY,
+    dedup_key=None,
+    audit_verb="platform_latch_set",
+    emits=(),                             # kernel marker, not operator config —
+                                          # no advisory settings.changed
+)
+
+_OPS = (SET_SCALAR, CLEAR_SCALAR, BIND, UNBIND, PLATFORM_LATCH)
 
 
 def register_ops() -> None:
@@ -210,6 +248,7 @@ def ensure_ops_refs() -> None:
         ("settings.erase_scalar", _erase_scalar),
         ("settings.write_binding", _write_binding),
         ("settings.erase_binding", _erase_binding),
+        ("settings.write_platform_latch", _write_platform_latch),
         ("settings.changed_payload", _changed_payload),
     ):
         if not is_registered(WorkflowRef(name)):

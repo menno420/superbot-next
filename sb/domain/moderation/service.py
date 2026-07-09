@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
+from sb.kernel.interaction.handler_kit import Reply
 
 __all__ = [
     "GuildModerationActions",
@@ -198,13 +199,6 @@ def reset_moderation_ports_for_tests() -> None:
 
 
 # --- read handlers (HandlerRef routes) --------------------------------------------
-
-@dataclass(frozen=True)
-class Reply:
-    """Minimal handler result the resolver renders (outcome + user copy)."""
-
-    outcome: str
-    user_message: str
 
 
 def _register_handlers() -> None:

@@ -190,17 +190,37 @@ def _state_read(key: str) -> str | None:
 
 
 def _state_write(key: str, value: str) -> None:
+    """Sync port write: update the in-memory view NOW, persist through the
+    K7 lane fire-and-forget (ORDER 004 item 4 — the raw upsert bypassed the
+    sole-writer/audit lane; `settings.platform_latch` is its audited home).
+    A failed persist stays best-effort BY DESIGN: latches are once-per-
+    state-change markers — a lost write re-fires the notice at the next
+    boot warm-up, never corrupts (spec 14 §2.B)."""
+    import uuid
+
     _platform_state[key] = value
 
     async def _persist() -> None:
-        from sb.kernel.db.pool import transaction
-
         try:
-            async with transaction() as conn:
-                await db_settings.upsert_setting(conn, guild_id=0, key=key,
-                                                 value=value)
+            from sb.domain.settings.ops import PLATFORM_LATCH
+            from sb.kernel.interaction.request import ActorRef
+            from sb.kernel.workflow import engine
+            from sb.kernel.workflow.context import WorkflowContext
+            from sb.spec.outcomes import SUCCESS
+
+            result = await engine.run(PLATFORM_LATCH, WorkflowContext(
+                actor=ActorRef(user_id=None, is_guild_operator=False,
+                               is_bot_owner=False, is_dm=False,
+                               actor_type="system", member_tier=None),
+                guild_id=0,
+                request_id=f"platform-latch-{uuid.uuid4().hex}",
+                params={"key": key, "value": value}))
+            if result.outcome != SUCCESS:
+                logger.warning("platform latch persist %s for %s: %s",
+                               result.outcome, key, result.user_message)
         except Exception:  # noqa: BLE001 — latch persist is best-effort
-            logger.warning("platform latch persist failed for %s", key)
+            logger.warning("platform latch persist failed for %s", key,
+                           exc_info=True)
 
     try:
         import asyncio
