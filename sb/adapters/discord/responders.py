@@ -18,6 +18,34 @@ logger = logging.getLogger("sb.adapters.discord.responders")
 
 __all__ = ["InteractionResponder", "MessageResponder"]
 
+_CONTENT_LIMIT = 2000                       # Discord hard cap per message
+
+
+def _content_chunks(text: str, limit: int = _CONTENT_LIMIT) -> list[str]:
+    """Split success copy into <= limit chunks on line boundaries (a single
+    over-long line hard-splits). Discord rejects >2000-char content with a
+    400 — without this, a long reply dies in render and the invoker sees
+    NOTHING (found live: `!coglist`'s manifest listing)."""
+    if len(text) <= limit:
+        return [text]
+    chunks: list[str] = []
+    current = ""
+    for line in text.splitlines(keepends=True):
+        while len(line) > limit:            # one pathological line
+            if current:
+                chunks.append(current)
+                current = ""
+            chunks.append(line[:limit])
+            line = line[limit:]
+        if len(current) + len(line) > limit:
+            chunks.append(current)
+            current = line
+        else:
+            current += line
+    if current.strip():
+        chunks.append(current)
+    return [c.rstrip("\n") for c in chunks if c.rstrip("\n")]
+
 
 class InteractionResponder:
     """Wraps a `discord.Interaction` (slash / component / modal)."""
@@ -95,10 +123,12 @@ class InteractionResponder:
             return
         ephemeral = visibility is ReplyVisibility.EPHEMERAL
         response = getattr(self._interaction, "response", None)
+        chunks = _content_chunks(str(message))
         if response is not None and not response.is_done():
-            await response.send_message(message, ephemeral=ephemeral)
-        else:
-            await self._interaction.followup.send(message, ephemeral=ephemeral)
+            await response.send_message(chunks[0], ephemeral=ephemeral)
+            chunks = chunks[1:]
+        for chunk in chunks:
+            await self._interaction.followup.send(chunk, ephemeral=ephemeral)
 
 
 class MessageResponder:
@@ -150,4 +180,5 @@ class MessageResponder:
         visibility = getattr(result, "reply_visibility", None)
         if message is None or visibility is ReplyVisibility.SILENT:
             return
-        await self._ctx.reply(message)
+        for chunk in _content_chunks(str(message)):
+            await self._ctx.reply(chunk)
