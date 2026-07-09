@@ -185,9 +185,15 @@ async def update_status(draft_id: str, status: DraftStatus, *, conn,
 async def reap_stuck_applying(now: datetime, ttl_s: int, *, conn) -> tuple[str, ...]:
     """ONE conditional-CAS statement — only a STALE APPLYING row (no per-op
     heartbeat for the whole TTL) flips to PARTIAL."""
+    # $1::timestamptz pins the parameter's type for the subtraction: without
+    # the cast Postgres resolves `$1 - make_interval(...)` through the
+    # PREFERRED datetime type (interval - interval → interval) and prepare
+    # fails with `timestamptz < interval` (caught by the CUT-1 live boot —
+    # the unit fakes never prepared the statement against a real server).
     rows = await fetchall(
         "UPDATE sb_drafts SET status='partial', updated_at=$1"
-        " WHERE status='applying' AND updated_at < $1 - make_interval(secs => $2)"
+        " WHERE status='applying'"
+        " AND updated_at < $1::timestamptz - make_interval(secs => $2)"
         " RETURNING draft_id", (now, float(ttl_s)), conn=conn)
     return tuple(str(r["draft_id"]) for r in rows)
 
