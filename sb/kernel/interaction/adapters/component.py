@@ -19,14 +19,19 @@ from typing import Awaitable, Callable
 
 from sb.kernel.interaction.adapters import actor_from_member, lookup_target
 from sb.kernel.interaction.request import ResolveRequest, Surface, TargetRef
-from sb.kernel.interaction.resolve import resolve
+from sb.kernel.interaction.resolve import cancel_pending_confirm, resolve
+from sb.kernel.interaction.result import Result
 from sb.kernel.panels import engine as panel_engine
+from sb.spec.outcomes import DECLINED, DenialReason, ErrorClass, ReplyVisibility
 from sb.kernel.panels.registry import ComponentBinding, NavBinding
 from sb.kernel.panels.router import DynamicRoute, ExpiredRoute, route as route_custom_id
 
 logger = logging.getLogger("sb.kernel.interaction.adapters.component")
 
 CONFIRM_PREFIX = "sb.confirm:"
+#: the S9b confirm view's Cancel control (02 §3.2 step 3 — the decline
+#: terminal; kernel-owned so every surface's cancel speaks the same vocab).
+CONFIRM_CANCEL_PREFIX = "sb.confirm.cancel:"
 
 # g<N>: dynamic-session dispatch port — the games band installs the real
 # session dispatcher; until then a dynamic id gets the polite expiry.
@@ -101,6 +106,27 @@ def request_from_component(interaction: object, *, responder,
 
 
 async def dispatch_component(interaction: object, *, responder) -> object | None:
+    data = getattr(interaction, "data", None) or {}
+    raw_custom_id = str(data.get("custom_id", "") if isinstance(data, dict)
+                        else getattr(data, "custom_id", ""))
+    if raw_custom_id.startswith(CONFIRM_CANCEL_PREFIX):
+        # the Cancel click IS the §2.7 DECLINED terminal — no dispatch, no
+        # mutation; a later Confirm click on the same request_id declines.
+        rest = raw_custom_id[len(CONFIRM_CANCEL_PREFIX):]
+        _, _, request_id = rest.rpartition(":")
+        cancel_pending_confirm(request_id or rest)
+        result = Result(outcome=DECLINED, reason=DenialReason.CONFIRM_DECLINED,
+                        error_class=ErrorClass.NONE, retryable=False,
+                        reply_visibility=ReplyVisibility.EPHEMERAL,
+                        user_message="Cancelled — nothing was done.",
+                        surface=Surface.COMPONENT, workflow=None,
+                        audit_emitted=False, request_id=request_id or rest)
+        try:
+            await responder.render(result)
+        except Exception:  # noqa: BLE001 — a failed decline render never raises
+            logger.warning("confirm-cancel render failed", exc_info=True)
+        return result
+
     req = request_from_component(interaction, responder=responder)
     if req is not None:
         return await resolve(req)

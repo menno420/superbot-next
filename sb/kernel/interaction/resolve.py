@@ -60,6 +60,7 @@ from sb.spec.refs import HandlerRef, PanelRef, WorkflowRef, resolve as resolve_r
 logger = logging.getLogger("sb.kernel.interaction.resolve")
 
 __all__ = [
+    "cancel_pending_confirm",
     "install_access_policy_reader",
     "install_panel_engine",
     "install_transparency_sink",
@@ -95,6 +96,7 @@ _transparency_sink: TransparencySink = LoggingTransparencySink()
 _seen_request_ids: dict[str, None] = {}   # confirm re-entry dedup (in-memory, §④.2)
 _pending_confirm_args: dict[str, dict] = {}   # request_id -> original args
                                               # (v1 confirm re-entry carry)
+_cancelled_request_ids: dict[str, None] = {}  # confirm-cancel terminal (S9b view)
 _SEEN_MAX = 4096
 
 
@@ -126,9 +128,38 @@ def reset_resolver_ports_for_tests() -> None:
     _transparency_sink = LoggingTransparencySink()
     _seen_request_ids.clear()
     _pending_confirm_args.clear()
+    _cancelled_request_ids.clear()
+
+
+def cancel_pending_confirm(request_id: str) -> bool:
+    """The confirm-terminal's kernel leg (02 §3.2 step 3 — decline/timeout):
+    drop the stashed args and remember the cancellation so a late confirm
+    click gets the DECLINED terminal, not a dispatch. Returns True when a
+    pending confirm existed (an idle cancel is not an error — the surface
+    may cancel twice or after expiry). Same in-memory posture as the maps
+    above."""
+    had_pending = _pending_confirm_args.pop(request_id, None) is not None
+    _cancelled_request_ids[request_id] = None
+    while len(_cancelled_request_ids) > _SEEN_MAX:
+        _cancelled_request_ids.pop(next(iter(_cancelled_request_ids)))
+    return had_pending
 
 
 # --- helpers ------------------------------------------------------------------
+
+async def _declined(req: ResolveRequest, user_message: str) -> Result:
+    """The confirm DECLINED terminal (§2.7 vocab), RENDERED — a clicked
+    Confirm must answer even when it dispatches nothing."""
+    result = _result(req, outcome=DECLINED, reason=DenialReason.CONFIRM_DECLINED,
+                     error_class=ErrorClass.NONE, retryable=False,
+                     visibility=ReplyVisibility.EPHEMERAL,
+                     user_message=user_message)
+    try:
+        await req.responder.render(result)
+    except Exception:  # noqa: BLE001 — render failure is logged, never raised
+        logger.warning("responder.render failed (confirm terminal)", exc_info=True)
+    return result
+
 
 def _spec_field(req: ResolveRequest, name: str, default=None):
     return getattr(req.target.spec, name, default)
@@ -359,14 +390,14 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
                             reason=DenialReason.CONFIRM_DECLINED, note="confirm-issued")
         return result
     if req.confirmed:
+        # a cancelled confirm's late click gets the §2.7 DECLINED terminal —
+        # never a dispatch (the S9b cancel control, 02 §3.2 step 3).
+        if req.request_id in _cancelled_request_ids:
+            return await _declined(req, "This action was cancelled.")
         # the re-entry idempotency checkpoint: request_id is the dedup key —
         # a double-clicked confirm runs once (in-memory, vocab §④.2).
         if req.request_id in _seen_request_ids:
-            return _result(req, outcome=DECLINED,
-                           reason=DenialReason.CONFIRM_DECLINED,
-                           error_class=ErrorClass.NONE, retryable=False,
-                           visibility=ReplyVisibility.EPHEMERAL,
-                           user_message="This action was already confirmed.")
+            return await _declined(req, "This action was already confirmed.")
         _seen_request_ids[req.request_id] = None
         while len(_seen_request_ids) > _SEEN_MAX:
             _seen_request_ids.pop(next(iter(_seen_request_ids)))
