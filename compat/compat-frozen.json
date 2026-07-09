@@ -76,6 +76,43 @@
     "name": "blackjack"
    }
   ],
+  "chain": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "chain"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "chainmenu"
+   },
+   {
+    "aliases": [],
+    "group": "chain",
+    "name": "create"
+   },
+   {
+    "aliases": [],
+    "group": "chain",
+    "name": "delete"
+   },
+   {
+    "aliases": [],
+    "group": "chain",
+    "name": "list"
+   },
+   {
+    "aliases": [],
+    "group": "chain",
+    "name": "removelimit"
+   },
+   {
+    "aliases": [],
+    "group": "chain",
+    "name": "setlimit"
+   }
+  ],
   "channel": [
    {
     "aliases": [],
@@ -235,6 +272,79 @@
     "aliases": [],
     "group": "",
     "name": "counters"
+   }
+  ],
+  "counting": [
+   {
+    "aliases": [
+     "ci"
+    ],
+    "group": "",
+    "name": "count_info"
+   },
+   {
+    "aliases": [
+     "cr"
+    ],
+    "group": "",
+    "name": "count_rules"
+   },
+   {
+    "aliases": [
+     "cm"
+    ],
+    "group": "",
+    "name": "countingmenu"
+   },
+   {
+    "aliases": [
+     "counting_top",
+     "ct"
+    ],
+    "group": "",
+    "name": "counttop"
+   },
+   {
+    "aliases": [
+     "em"
+    ],
+    "group": "",
+    "name": "end_match"
+   },
+   {
+    "aliases": [
+     "rc"
+    ],
+    "group": "",
+    "name": "reset_count"
+   },
+   {
+    "aliases": [
+     "ssn"
+    ],
+    "group": "",
+    "name": "set_skip_numbers"
+   },
+   {
+    "aliases": [
+     "sm"
+    ],
+    "group": "",
+    "name": "start_match"
+   },
+   {
+    "aliases": [
+     "trwc"
+    ],
+    "group": "",
+    "name": "toggle_reset_on_wrong_count"
+   },
+   {
+    "aliases": [
+     "tt"
+    ],
+    "group": "",
+    "name": "toggle_turns"
    }
   ],
   "creature": [
@@ -1270,6 +1380,10 @@
  ],
  "legacy_custom_ids": [
   "blackjack.solo_bet_form",
+  "chain.clear_limit_form",
+  "chain.create_form",
+  "chain.delete_form",
+  "chain.set_limit_form",
   "economy:balance",
   "economy:daily",
   "economy:inventory",
@@ -1296,11 +1410,13 @@
   "admin",
   "automod",
   "blackjack",
+  "chain",
   "channel",
   "cleanup",
   "community",
   "community_spotlight",
   "counters",
+  "counting",
   "creature",
   "diagnostic",
   "economy",
