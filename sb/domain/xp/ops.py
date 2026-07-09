@@ -84,7 +84,8 @@ def _amount_from(ctx: WorkflowContext) -> int:
     try:
         amount = int(str(raw).strip())
     except (TypeError, ValueError):
-        raise ValidatorError("❌ Amount must be a whole number of XP.")
+        raise ValidatorError("amount",
+                             "❌ Amount must be a whole number of XP.")
     return amount
 
 
@@ -98,7 +99,7 @@ async def _record_award(conn, ctx: WorkflowContext) -> LegOutcome:
     target = _target_from(ctx)
     amount = _amount_from(ctx)
     if amount <= 0:
-        raise ValidatorError("❌ Amount must be positive.")
+        raise ValidatorError("amount", "❌ Amount must be positive.")
     source = str(ctx.params.get("source", "") or "admin:givexp")
     now = _now(ctx)
 
@@ -146,7 +147,8 @@ async def _record_import(conn, ctx: WorkflowContext) -> LegOutcome:
     gid = int(ctx.guild_id or 0)
     raw = tuple(ctx.params.get("records", ()) or ())
     if not raw:
-        raise ValidatorError("❌ Nothing to import — no (user, level) records.")
+        raise ValidatorError(
+            "records", "❌ Nothing to import — no (user, level) records.")
     source = str(ctx.params.get("source", "") or "import:generic")
     now = _now(ctx)
 
@@ -154,7 +156,8 @@ async def _record_import(conn, ctx: WorkflowContext) -> LegOutcome:
     raised = 0
     for user_id, level in sorted(best.items()):
         if level < 0:
-            raise ValidatorError(f"❌ Level must be >= 0, got {level}.")
+            raise ValidatorError(
+                "level", f"❌ Level must be >= 0, got {level}.")
         _, _, did_raise = await store.set_imported_xp(
             conn, user_id=user_id, guild_id=gid,
             xp=total_xp_for_level(level), level=level, now=now)
@@ -184,7 +187,8 @@ async def _record_repair_level(conn, ctx: WorkflowContext) -> LegOutcome:
     try:
         user_id, guild_id = (int(part) for part in row_id.split(":", 1))
     except ValueError:
-        raise ValidatorError(f"❌ Unparseable xp violation row_id {row_id!r}.")
+        raise ValidatorError(
+            "row_id", f"❌ Unparseable xp violation row_id {row_id!r}.")
     row = await fetchone(
         "SELECT xp, level FROM xp WHERE user_id=$1 AND guild_id=$2",
         (user_id, guild_id), conn=conn)

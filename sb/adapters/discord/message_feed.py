@@ -1,13 +1,22 @@
 """The live MESSAGE FEED adapter (CUT-1, completion-report flag 30 /
 §4.2's "message feeds"): gateway ``on_message`` → prefix-command dispatch.
 
-The ONE armed consumer is the prefix twin — a human-typed ``!command``
-reaches ``dispatch_prefix`` → ``resolve()`` (the no-skip fence, spec 02
-§7) and responds via :class:`MessageResponder`. Everything else on the
-message band stays DORMANT here, exactly as ledgered: the fuzzy typo
-re-dispatch (its band ports the corpus), the passive on_message hooks
-(xp chat award, counting, chain — their live feeds are named successors),
-and the NL shell (AI arming is flag 7/52 owner work).
+TWO armed consumers ride the one listener:
+
+* the prefix twin — a human-typed ``!command`` reaches ``dispatch_prefix``
+  → ``resolve()`` (the no-skip fence, spec 02 §7) and responds via
+  :class:`MessageResponder`;
+* the passive XP chat award (band 4) — EVERY human guild message, commands
+  included (the shipped listener ran on the raw message event; the old
+  captures carry its ``xp.awarded`` on command goldens), runs
+  ``xp.service.handle_chat_message`` AFTER any prefix dispatch. Cooldown +
+  rng + the participation gate live in the domain core; the audited K7
+  ``xp.award`` op does the writing.
+
+Everything else on the message band stays DORMANT here, exactly as
+ledgered: the fuzzy typo re-dispatch (its band ports the corpus), the
+remaining passive on_message hooks (counting, chain — their live feeds are
+named successors), and the NL shell (AI arming is flag 7/52 owner work).
 
 Shipped old-bot contract carried verbatim: bot/self-authored messages are
 ignored before anything else; non-prefix content is not consumed. The
@@ -33,7 +42,8 @@ from sb.kernel.interaction.request import Surface
 
 logger = logging.getLogger("sb.adapters.discord.message_feed")
 
-__all__ = ["arm_message_feed", "handle_prefix_message", "match_prefix_target"]
+__all__ = ["arm_message_feed", "handle_chat_award", "handle_prefix_message",
+           "match_prefix_target"]
 
 #: The deepest qualified command path ("group sub sub") the matcher tries —
 #: the parity harness's exact bound.
@@ -107,12 +117,39 @@ async def handle_prefix_message(message: object, *, prefix: str) -> object | Non
         return None
 
 
+async def handle_chat_award(message: object) -> object | None:
+    """The passive XP chat-award consumer (band 4): every human GUILD
+    message earns the shipped cooldown/rng-gated award through the audited
+    ``xp.award`` op. Silent by design (the shipped listener never replied;
+    the level-up fan-out speaks through the bound announce channel). Never
+    raises — an award fault must not break the message loop."""
+    import time
+
+    author = getattr(message, "author", None)
+    if author is None or bool(getattr(author, "bot", False)):
+        return None
+    guild = getattr(message, "guild", None)
+    if guild is None or getattr(guild, "id", None) is None:
+        return None
+    from sb.domain.xp.service import handle_chat_message
+
+    try:
+        return await handle_chat_message(int(author.id), int(guild.id),
+                                         now=int(time.time()))
+    except Exception:  # noqa: BLE001 — the feed never breaks the event loop
+        logger.warning("chat award fault", exc_info=True)
+        return None
+
+
 def arm_message_feed(bot: object, *, prefix: str) -> None:
     """Register the on_message listener (``bot.add_listener`` — additive,
     never replaces the Bot's own event). The composition root calls this
-    ONLY after the intent-degrade markers cleared the ``prefix`` class."""
+    ONLY after the intent-degrade markers cleared the ``prefix`` class.
+    Order per shipped capture: prefix dispatch first, then the passive
+    chat award (command goldens carry karma.granted BEFORE xp.awarded)."""
 
     async def on_message(message: object) -> None:
         await handle_prefix_message(message, prefix=prefix)
+        await handle_chat_award(message)
 
     bot.add_listener(on_message, "on_message")

@@ -87,7 +87,12 @@ async def _default_role_granter(guild_id: int, user_id: int,
 _participation_gate: ParticipationGate = _default_participation_gate
 _role_granter: RoleGranter = _default_role_granter
 _history_scanner: HistoryScanner | None = None
-_rng: random.Random = random.Random()
+# None => the chat draw falls back to the MODULE-GLOBAL random — the
+# instance the parity harness seeds per case (`random.seed(case.seed)`),
+# so a fresh replay reproduces the captured amount (the economy-daily
+# D-0060 precedent; a private unseeded Random() here made every chat
+# award diverge from its golden).
+_rng: random.Random | None = None
 
 
 def install_participation_gate(gate: ParticipationGate) -> None:
@@ -111,7 +116,7 @@ def active_history_scanner() -> HistoryScanner | None:
     return _history_scanner
 
 
-def set_rng_for_tests(rng: random.Random) -> None:
+def set_rng_for_tests(rng: random.Random | None) -> None:
     global _rng
     _rng = rng
 
@@ -121,7 +126,7 @@ def reset_xp_ports_for_tests() -> None:
     _participation_gate = _default_participation_gate
     _role_granter = _default_role_granter
     _history_scanner = None
-    _rng = random.Random()
+    _rng = None
 
 
 # --- the chat hot path -----------------------------------------------------------------
@@ -146,7 +151,7 @@ async def handle_chat_message(user_id: int, guild_id: int, *,
     if not await _participation_gate(user_id, guild_id):
         return None
 
-    amount = _rng.randint(xp_min, xp_max)
+    amount = (_rng or random).randint(xp_min, xp_max)
     return await _run_award(user_id=user_id, guild_id=guild_id,
                             amount=amount, source="chat", now=now)
 
