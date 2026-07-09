@@ -16,7 +16,8 @@ from sb.kernel.interaction.adapters import install_target_index
 from sb.kernel.interaction.request import Surface, TargetRef
 from sb.spec.events import KNOWN_EVENTS
 
-__all__ = ["RuntimeIndex", "build_runtime"]
+__all__ = ["RuntimeIndex", "build_live_index", "build_runtime",
+           "install_live_target_index"]
 
 
 class RuntimeIndex:
@@ -111,3 +112,60 @@ def build_runtime(snapshot: dict) -> RuntimeIndex:
     runtime = RuntimeIndex(snapshot)
     install_target_index(runtime.lookup)
     return runtime
+
+
+# --- the LIVE dispatch index (the D-0028(2) follow-up) -------------------------
+#
+# RuntimeIndex projects the snapshot STRUCTURALLY — that arms boot-gate leg B,
+# but its specs are `_SnapshotSpec` projections whose routes serialize as
+# `{"$ref": ...}` (and the snapshot's `subsystems` mapping is not the list its
+# `_build` expects), so dispatching on it strands EVERY command in a
+# "no routable ref" user_error — the band-1 live exercise's exact finding.
+# Dispatch belongs to the REAL manifest spec objects (PanelRef routes intact),
+# the same truth the parity harness (sb/adapters/parity/boot.py) has always
+# dispatched on; the snapshot index stays what it is: leg B's realization.
+
+
+def build_live_index(manifests: list) -> dict[tuple[str, Surface], TargetRef]:
+    """key/(surface) → TargetRef over the LIVE manifest spec objects:
+    commands (qualified name + aliases, per CommandKind) and the panels'
+    declared component custom_ids (actions/selectors + modal roots)."""
+    index: dict[tuple[str, Surface], TargetRef] = {}
+    for manifest in manifests:
+        for cmd in getattr(manifest, "commands", ()) or ():
+            name = str(getattr(cmd, "name", "") or "")
+            if not name:
+                continue
+            qualified = str(getattr(cmd, "qualified_name", "") or name)
+            kind = str(getattr(cmd, "kind", "both") or "both")
+            keys = [qualified] + [str(a) for a in (getattr(cmd, "aliases", ()) or ())]
+            for key in keys:
+                if kind in ("slash", "both"):
+                    index[(key, Surface.SLASH)] = TargetRef(key=key, spec=cmd)
+                if kind in ("prefix", "both"):
+                    index[(key, Surface.PREFIX)] = TargetRef(key=key, spec=cmd)
+        for panel in getattr(manifest, "panels", ()) or ():
+            panel_id = str(getattr(panel, "panel_id", "") or "")
+            for action in getattr(panel, "actions", ()) or ():
+                cid = (getattr(action, "custom_id_override", None)
+                       or f"{panel_id}.{getattr(action, 'action_id', '')}")
+                index[(cid, Surface.COMPONENT)] = TargetRef(key=cid, spec=action)
+            for selector in getattr(panel, "selectors", ()) or ():
+                cid = (getattr(selector, "custom_id_override", None)
+                       or f"{panel_id}.{getattr(selector, 'selector_id', '')}")
+                index[(cid, Surface.COMPONENT)] = TargetRef(key=cid, spec=selector)
+    return index
+
+
+def install_live_target_index(manifests: list) -> int:
+    """Build the live-manifest dispatch index and install it as THE adapters'
+    target-index port (call AFTER build_runtime so dispatch resolves on real
+    specs while leg B keeps the snapshot realization). Returns the entry
+    count for the boot log."""
+    index = build_live_index(manifests)
+
+    def _lookup(key: str, surface: Surface) -> TargetRef | None:
+        return index.get((key, surface))
+
+    install_target_index(_lookup)
+    return len(index)

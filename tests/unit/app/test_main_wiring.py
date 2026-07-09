@@ -148,3 +148,74 @@ class TestManifestPanelRegistration:
         finally:
             reg.register_panel = original  # type: ignore[assignment]
         assert count == 2 and seen == ["a.hub", "b.hub"]
+
+
+class TestLiveDispatchIndex:
+    """The D-0028(2) follow-up: the snapshot projection (RuntimeIndex) is
+    leg B's realization, NOT a dispatchable index — its specs are empty
+    `_SnapshotSpec` projections (routes serialize as refs; the snapshot's
+    `subsystems` mapping is not the list `_build` expects), so the live boot
+    stranded every command in "no routable ref". Dispatch resolves on the
+    LIVE manifest spec objects instead."""
+
+    def _band1_manifests(self):
+        return [importlib.import_module(f"sb.manifest.{k}").MANIFEST
+                for k in ("settings", "diagnostic", "setup")]
+
+    def test_live_index_carries_routable_specs(self):
+        from sb.app.build_runtime import build_live_index
+        from sb.kernel.interaction.request import Surface
+
+        index = build_live_index(self._band1_manifests())
+        for key in ("settings", "diagnostics", "setup"):
+            for surface in (Surface.PREFIX, Surface.SLASH):
+                ref = index.get((key, surface))
+                assert ref is not None, (key, surface)
+                route = getattr(ref.spec, "route", None)
+                assert route is not None and getattr(route, "name", None), key
+
+    def test_snapshot_index_specs_are_not_routable(self):
+        # the honest statement of WHY the live index exists: the committed
+        # snapshot's RuntimeIndex specs carry no route (leg B only).
+        from sb.app.build_runtime import RuntimeIndex
+        from sb.app.main import committed_snapshot
+        from sb.kernel.interaction.request import Surface
+
+        idx = RuntimeIndex(committed_snapshot())
+        ref = idx.lookup("settings", Surface.PREFIX)
+        assert ref is not None
+        assert getattr(ref.spec, "route", None) is None
+
+    def test_install_live_target_index_wins_the_port(self):
+        from sb.app.build_runtime import install_live_target_index
+        from sb.kernel.interaction import adapters as adapters_mod
+        from sb.kernel.interaction.request import Surface
+
+        count = install_live_target_index(self._band1_manifests())
+        try:
+            assert count >= 6
+            ref = adapters_mod.lookup_target("setup", Surface.PREFIX)
+            assert ref is not None
+            assert getattr(ref.spec, "route", None) is not None
+        finally:
+            adapters_mod.reset_adapter_ports_for_tests()
+
+    def test_component_custom_ids_indexed(self):
+        from types import SimpleNamespace
+
+        from sb.app.build_runtime import build_live_index
+        from sb.kernel.interaction.request import Surface
+
+        manifest = SimpleNamespace(
+            commands=(),
+            panels=(SimpleNamespace(
+                panel_id="t.hub",
+                actions=(SimpleNamespace(action_id="go",
+                                         custom_id_override=None),),
+                selectors=(SimpleNamespace(selector_id="pick",
+                                           custom_id_override="t:pick"),),
+            ),),
+        )
+        index = build_live_index([manifest])
+        assert ("t.hub.go", Surface.COMPONENT) in index
+        assert ("t:pick", Surface.COMPONENT) in index
