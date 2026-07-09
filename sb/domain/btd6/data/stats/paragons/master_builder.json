@@ -1,0 +1,507 @@
+{
+  "paragon_id": "master_builder",
+  "tower_id": "engineer_monkey",
+  "canonical": "Master Builder",
+  "tower_canonical": "Engineer Monkey",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "cost": 650000,
+  "cost_chimps": null,
+  "xp": 750000,
+  "base": {
+    "placeableOnLand": true,
+    "placeableOnWater": false,
+    "placeableOnTrack": false,
+    "range": 60,
+    "towerSelectionMenuThemeId": "Default",
+    "footprintRadius": 7,
+    "doesntBlockTowerPlacement": false,
+    "attacks": [
+      {
+        "name": "AttackNailgunR",
+        "rate": 2,
+        "eject": "-9.7, 23, 10.1",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 15,
+            "maxPierce": 0,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 2,
+            "vsBlockerRadius": 0,
+            "damage": 300,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 375,
+            "lifespan": 0.18666667,
+            "damageModifierForBoss": 100,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "Pin",
+                "lifespan": 5
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 60,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "AttackNailgunBackR",
+        "rate": 2,
+        "eject": "-13.1, 10, 28.2",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 15,
+            "maxPierce": 0,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 2,
+            "vsBlockerRadius": 0,
+            "damage": 300,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 375,
+            "lifespan": 0.18666667,
+            "damageModifierForBoss": 100,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "Pin",
+                "lifespan": 5
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 60,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "AttackNailgunBackL",
+        "rate": 2,
+        "eject": "13.1, 10, 28.2",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 15,
+            "maxPierce": 0,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 2,
+            "vsBlockerRadius": 0,
+            "damage": 300,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 375,
+            "lifespan": 0.18666667,
+            "damageModifierForBoss": 100,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "Pin",
+                "lifespan": 5
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 60,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      }
+    ],
+    "abilities": [
+      {
+        "name": "SentryParagonSpawner",
+        "cooldown": 20
+      },
+      {
+        "name": "Paragon Overclock",
+        "cooldown": 60
+      }
+    ],
+    "subtowers": [
+      {
+        "name": "Green Sentry Paragon",
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 70,
+        "towerSelectionMenuThemeId": "ActionButton",
+        "footprintRadius": 4,
+        "doesntBlockTowerPlacement": true,
+        "attacks": [
+          {
+            "name": "Attack",
+            "rate": 0.2,
+            "eject": "0, 9, 12",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 10,
+                "maxPierce": 0,
+                "ignoreBlockers": true,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 2,
+                "vsBlockerRadius": 0,
+                "damage": 20,
+                "maxDamage": 0,
+                "damage_type": "Plasma",
+                "cannot_pop": "Cannot damage Purple or Glass",
+                "immuneBloonProperties": 72,
+                "distributeToChildren": true,
+                "overrideDistributeBlocker": false,
+                "ignoreImmunityDestroy": false,
+                "damageModifierForBoss": 30,
+                "filterInvisible": false
+              },
+              {
+                "name": "ProjectileAtEnd",
+                "pierce": 10,
+                "maxPierce": 0,
+                "ignoreBlockers": true,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 2,
+                "vsBlockerRadius": 0,
+                "damage": 100,
+                "maxDamage": 0,
+                "damage_type": "Plasma",
+                "cannot_pop": "Cannot damage Purple or Glass",
+                "immuneBloonProperties": 72,
+                "distributeToChildren": true,
+                "overrideDistributeBlocker": false,
+                "ignoreImmunityDestroy": false,
+                "damageModifierForBoss": 250,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 9999999,
+            "attackThroughWalls": false,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 20,
+            "filterInvisible": false
+          },
+          {
+            "name": "Spawner",
+            "rate": 6,
+            "eject": "0, 9, 12",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 1,
+                "maxPierce": 0,
+                "ignoreBlockers": true,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 2,
+                "vsBlockerRadius": 0,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 40,
+            "attackThroughWalls": true,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 0,
+            "filterInvisible": false
+          }
+        ],
+        "targetTypeFirst": false,
+        "targetTypeLast": false,
+        "targetTypeClose": false,
+        "targetTypeStrong": false,
+        "targetTypeNormal": true,
+        "targetTypeLocked": true
+      },
+      {
+        "name": "Red Sentry Paragon",
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 70,
+        "towerSelectionMenuThemeId": "Default",
+        "footprintRadius": 4,
+        "doesntBlockTowerPlacement": true,
+        "attacks": [
+          {
+            "name": "Attack",
+            "rate": 0.05,
+            "eject": "0, 9, 12",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 10,
+                "maxPierce": 0,
+                "ignoreBlockers": false,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 5,
+                "vsBlockerRadius": 0,
+                "damage": 5,
+                "maxDamage": 0,
+                "damage_type": "Plasma",
+                "cannot_pop": "Cannot damage Purple or Glass",
+                "immuneBloonProperties": 72,
+                "distributeToChildren": true,
+                "overrideDistributeBlocker": false,
+                "ignoreImmunityDestroy": false,
+                "speed": 150,
+                "lifespan": 1,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 70,
+            "attackThroughWalls": false,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 0,
+            "filterInvisible": false
+          },
+          {
+            "name": "Spawner",
+            "rate": 6,
+            "eject": "0, 9, 12",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 1,
+                "maxPierce": 0,
+                "ignoreBlockers": true,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 2,
+                "vsBlockerRadius": 0,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 40,
+            "attackThroughWalls": true,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 0,
+            "filterInvisible": false
+          }
+        ],
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+      },
+      {
+        "name": "Blue Sentry Paragon",
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 70,
+        "towerSelectionMenuThemeId": "Default",
+        "footprintRadius": 4,
+        "doesntBlockTowerPlacement": true,
+        "attacks": [
+          {
+            "name": "Attack",
+            "rate": 0.5,
+            "eject": "0, 9, 12",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 20,
+                "maxPierce": 0,
+                "ignoreBlockers": false,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 3,
+                "vsBlockerRadius": 0,
+                "damage": 0,
+                "maxDamage": 0,
+                "damage_type": "Normal",
+                "cannot_pop": "Can damage any Bloon type",
+                "immuneBloonProperties": 0,
+                "distributeToChildren": false,
+                "overrideDistributeBlocker": false,
+                "ignoreImmunityDestroy": false,
+                "speed": 350,
+                "lifespan": 1.1428572,
+                "damageModifierForMoabs": 750,
+                "filterInvisible": false
+              },
+              {
+                "name": "Blast",
+                "pierce": 20,
+                "maxPierce": 0,
+                "ignoreBlockers": true,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 30,
+                "vsBlockerRadius": 0,
+                "damage": 3,
+                "maxDamage": 0,
+                "damage_type": "Normal",
+                "cannot_pop": "Can damage any Bloon type",
+                "immuneBloonProperties": 0,
+                "distributeToChildren": true,
+                "overrideDistributeBlocker": false,
+                "ignoreImmunityDestroy": false,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 70,
+            "attackThroughWalls": false,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 0,
+            "filterInvisible": false
+          },
+          {
+            "name": "Spawner",
+            "rate": 6,
+            "eject": "0, 9, 12",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 1,
+                "maxPierce": 0,
+                "ignoreBlockers": true,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 2,
+                "vsBlockerRadius": 0,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 40,
+            "attackThroughWalls": true,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 0,
+            "filterInvisible": false
+          }
+        ],
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true
+      },
+      {
+        "name": "Modified Sentry Paragon",
+        "placeableOnLand": true,
+        "placeableOnWater": false,
+        "placeableOnTrack": false,
+        "range": 50,
+        "towerSelectionMenuThemeId": "Default",
+        "footprintRadius": 4,
+        "doesntBlockTowerPlacement": true,
+        "attacks": [
+          {
+            "name": "Attack",
+            "rate": 0.06,
+            "eject": "0, 6, 8",
+            "fireWithoutTarget": false,
+            "fireBetweenRounds": false,
+            "projectiles": [
+              {
+                "name": "Projectile",
+                "pierce": 5,
+                "maxPierce": 0,
+                "ignoreBlockers": false,
+                "usePointCollisionWithBloons": false,
+                "canCollisionBeBlockedByMapLos": false,
+                "radius": 6,
+                "vsBlockerRadius": 0,
+                "damage": 4,
+                "maxDamage": 0,
+                "damage_type": "Plasma",
+                "cannot_pop": "Cannot damage Purple or Glass",
+                "immuneBloonProperties": 72,
+                "distributeToChildren": true,
+                "overrideDistributeBlocker": false,
+                "ignoreImmunityDestroy": false,
+                "speed": 280,
+                "lifespan": 0.6,
+                "damageModifierForMoabs": 2,
+                "damageModifierForBoss": 4,
+                "filterInvisible": false
+              }
+            ],
+            "count": 1,
+            "targetTypes": "Depends on targeting option",
+            "range": 50,
+            "attackThroughWalls": false,
+            "framesBeforeRetarget": 0,
+            "sharedGridRange": 0,
+            "filterInvisible": false
+          }
+        ],
+        "targetTypeFirst": true,
+        "targetTypeLast": true,
+        "targetTypeClose": true,
+        "targetTypeStrong": true,
+        "lifespan": 19
+      }
+    ],
+    "targetTypeFirst": true,
+    "targetTypeLast": true,
+    "targetTypeClose": true,
+    "targetTypeStrong": true
+  }
+}

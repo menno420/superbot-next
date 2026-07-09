@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 38,
+  "manifest_count": 39,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -488,6 +488,270 @@
           "subsystem": "blackjack",
           "surface": "prefix",
           "value": "bjstatus"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "btd6menu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "btd6ref"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "tower"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "hero"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "round"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "income"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "rbe"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "relic"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ref",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "ct"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "btd6strat"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "browse"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "mine"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "strategy"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "strategy-audit"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "submit"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "pending"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "strategies"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6strat",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "why-no-response"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "btd6events"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "live"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "event"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "leaderboard"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "sources"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "source-health"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "latest-data"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "refresh-source"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6events",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "grounding"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "btd6ops"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ops",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "readiness"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ops",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "runs"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ops",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "source_enable"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ops",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "source_disable"
+        },
+        {
+          "kind": "command",
+          "parent_group": "btd6ops",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "seed-data"
         },
         {
           "kind": "command",
@@ -2147,6 +2411,36 @@
           "value": "bj_status"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_tower"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_hero"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_round"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_strategies"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_grounding"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_events"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino_poker"
@@ -2661,6 +2955,11 @@
           "value": "blackjack.hub"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6.hub"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino.hub"
@@ -2956,6 +3255,11 @@
           "source": "sb/manifest/blackjack.py",
           "subsystem": "blackjack",
           "value": "blackjack_default_entry_fee"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_strategy_submission_channel"
         },
         {
           "source": "sb/manifest/cleanup.py",
@@ -3345,6 +3649,11 @@
           "value": "blackjack"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino"
@@ -3521,6 +3830,11 @@
         }
       ],
       "table": [
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_strategies"
+        },
         {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
@@ -3734,6 +4048,9 @@
       ]
     },
     "refs": {
+      "engine:btd6.store": {
+        "module": "sb.domain.btd6.store"
+      },
       "engine:chain.store": {
         "module": "sb.domain.chain.store"
       },
@@ -3820,6 +4137,75 @@
       },
       "handler:blackjack.tournament_start_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:btd6.events_grounding_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.events_pending": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.events_usage_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ops_pending": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ops_usage_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_ct_pending": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_hero_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_income_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_rbe_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_relic_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_round_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_tower_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.ref_usage_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_audit_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_browse_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_detail_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_mine_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_pending_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_published_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_review_route": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_submit_route": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_usage_view": {
+        "module": "sb.domain.btd6.service"
+      },
+      "handler:btd6.strat_why_view": {
+        "module": "sb.domain.btd6.service"
       },
       "handler:casino.hand_rank_view": {
         "module": "sb.domain.casino.service"
@@ -4274,6 +4660,9 @@
       "panel:blackjack.hub": {
         "module": "sb.domain.blackjack.panels"
       },
+      "panel:btd6.hub": {
+        "module": "sb.domain.btd6.panels"
+      },
       "panel:casino.hub": {
         "module": "sb.domain.casino.panels"
       },
@@ -4591,6 +4980,21 @@
       },
       "workflow:blackjack.tournament_payout": {
         "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:btd6.record_review_strategy": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.record_submit_strategy": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.review_strategy": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.scrub_strategy_submitter": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.submit_strategy": {
+        "module": "sb.domain.btd6.ops"
       },
       "workflow:chain.create": {
         "module": "sb.domain.chain.ops"
@@ -5221,6 +5625,14 @@
       }
     },
     "stores": {
+      "btd6_strategies": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "btd6_strategies",
+        "sole_writer": {
+          "$ref": "engine:btd6.store"
+        },
+        "subsystem": "btd6"
+      },
       "capability_execution_overrides": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "capability_execution_overrides",
@@ -5560,7 +5972,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:6c3bf33949147b5f51e0a50de7652813aaeed34f62bd258a48dd257779c08b39",
+  "stable_hash": "sha256:f76d321d2b6189089090abc5911ad61557a184afa57235cd8d8bfd72164187d0",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -6576,6 +6988,1108 @@
         }
       ],
       "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "btd6": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "btd6menu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:btd6.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the BTD6 panel.",
+          "usage": "!btd6menu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "btd6ref",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_usage_view"
+          },
+          "slash_common": false,
+          "summary": "Deterministic BTD6 reference lookups.",
+          "usage": "!btd6ref <tower|hero|round|income|rbe|relic|ct>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "tower",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_tower_view"
+          },
+          "slash_common": false,
+          "summary": "Tower identity, costs (all difficulties), upgrades, paragon.",
+          "usage": "!btd6ref tower <name>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "hero",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_hero_view"
+          },
+          "slash_common": false,
+          "summary": "Hero identity, cost, and ability list.",
+          "usage": "!btd6ref hero <name>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "round",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_round_view"
+          },
+          "slash_common": false,
+          "summary": "Round composition, danger, RBE and cash.",
+          "usage": "!btd6ref round <n> [abr]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "income",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_income_view"
+          },
+          "slash_common": false,
+          "summary": "Total round cash over an inclusive round range.",
+          "usage": "!btd6ref income <from> <to>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "rbe",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_rbe_view"
+          },
+          "slash_common": false,
+          "summary": "Red Bloon Equivalent for a round.",
+          "usage": "!btd6ref rbe <n> [abr]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "relic",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_relic_view"
+          },
+          "slash_common": false,
+          "summary": "A Contested Territory relic's static effect.",
+          "usage": "!btd6ref relic <name>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ref",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ct",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ref_ct_pending"
+          },
+          "slash_common": false,
+          "summary": "Live Contested Territory status (ingestion successor).",
+          "usage": "!btd6ref ct",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "btd6strat",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_usage_view"
+          },
+          "slash_common": false,
+          "summary": "BTD6 strategy memory — submit, browse, review.",
+          "usage": "!btd6strat <submit|mine|browse|pending|strategies|strategy|strategy-audit|why-no-response>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "browse",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_browse_view"
+          },
+          "slash_common": false,
+          "summary": "This server's strategies.",
+          "usage": "!btd6strat browse",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "mine",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_mine_view"
+          },
+          "slash_common": false,
+          "summary": "Strategies you submitted here.",
+          "usage": "!btd6strat mine",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "strategy",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_detail_view"
+          },
+          "slash_common": false,
+          "summary": "One strategy in full.",
+          "usage": "!btd6strat strategy",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "strategy-audit",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_audit_view"
+          },
+          "slash_common": false,
+          "summary": "Where a strategy's transition audit lives.",
+          "usage": "!btd6strat strategy-audit",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "submit",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_submit_route"
+          },
+          "slash_common": false,
+          "summary": "Submit a strategy: title | summary.",
+          "usage": "!btd6strat submit",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "pending",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_pending_view"
+          },
+          "slash_common": false,
+          "summary": "Strategies awaiting review.",
+          "usage": "!btd6strat pending",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "strategies",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_published_view"
+          },
+          "slash_common": false,
+          "summary": "Published (cross-server) strategies.",
+          "usage": "!btd6strat strategies",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6strat",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "why-no-response",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.strat_why_view"
+          },
+          "slash_common": false,
+          "summary": "Recent btd6.answer routing decisions for this server.",
+          "usage": "!btd6strat why-no-response",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "btd6events",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_usage_view"
+          },
+          "slash_common": false,
+          "summary": "BTD6 live-event views (+ grounding check).",
+          "usage": "!btd6events <live|event|leaderboard|sources|source-health|latest-data|refresh-source|grounding>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "live",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "Current live events (ingestion successor).",
+          "usage": "!btd6events live",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "event",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "One live event in detail (ingestion successor).",
+          "usage": "!btd6events event",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "leaderboard",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "Live event leaderboard (ingestion successor).",
+          "usage": "!btd6events leaderboard",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sources",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "Registered NK data sources (ingestion successor).",
+          "usage": "!btd6events sources",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "source-health",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "Source freshness/health (ingestion successor).",
+          "usage": "!btd6events source-health",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "latest-data",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "Latest fetched envelopes (ingestion successor).",
+          "usage": "!btd6events latest-data",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "refresh-source",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_pending"
+          },
+          "slash_common": false,
+          "summary": "Force-refresh one source (ingestion successor).",
+          "usage": "!btd6events refresh-source",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6events",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "grounding",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.events_grounding_view"
+          },
+          "slash_common": false,
+          "summary": "Show exactly what the retrieval grounds for a question.",
+          "usage": "!btd6events grounding",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "btd6ops",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ops_usage_view"
+          },
+          "slash_common": false,
+          "summary": "BTD6 ingestion operations (successor port).",
+          "usage": "!btd6ops <readiness|runs|source_enable|source_disable|seed-data>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ops",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "readiness",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Ingestion readiness (successor port).",
+          "usage": "!btd6ops readiness",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ops",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "runs",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Recent ingestion runs (successor port).",
+          "usage": "!btd6ops runs",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ops",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "source_enable",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Enable a data source (successor port).",
+          "usage": "!btd6ops source_enable",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ops",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "source_disable",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Disable a data source (successor port).",
+          "usage": "!btd6ops source_disable",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ops",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "seed-data",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.ops_pending"
+          },
+          "slash_common": false,
+          "summary": "Seed the data store from files (successor port).",
+          "usage": "!btd6ops seed-data",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "btd6",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "btd6_tower",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🗼",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ref_tower_view"
+              },
+              "label": "Tower Lookup",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Tower name",
+                    "max_length": 60,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.tower_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.ref_tower_view"
+                },
+                "title": "Tower Lookup"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "btd6_hero",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🦸",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ref_hero_view"
+              },
+              "label": "Hero Lookup",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Hero name",
+                    "max_length": 60,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.hero_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.ref_hero_view"
+                },
+                "title": "Hero Lookup"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "btd6_round",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🎯",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ref_round_view"
+              },
+              "label": "Round Lookup",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Round number (add 'abr' for ABR)",
+                    "max_length": 12,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.round_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.ref_round_view"
+                },
+                "title": "Round Lookup"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "btd6_strategies",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📚",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.strat_published_view"
+              },
+              "label": "Strategies",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "btd6_grounding",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🔎",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.events_grounding_view"
+              },
+              "label": "Grounding Check",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Your BTD6 question",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.grounding_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.events_grounding_view"
+                },
+                "title": "Grounding Check"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "btd6_events",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📡",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.events_pending"
+              },
+              "label": "Live Events",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Deterministic BTD6 reference over the committed game dataset — towers, heroes, rounds, bosses, paragons — plus the community strategy memory. Natural-language answers ride the grounded AI path (mention the bot)."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "btd6_tower",
+                    "btd6_hero",
+                    "btd6_round"
+                  ],
+                  [
+                    "btd6_strategies",
+                    "btd6_grounding",
+                    "btd6_events"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "btd6.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "btd6",
+          "timeout_s": 180,
+          "title": "🎈 BTD6 Assistant",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "btd6.strategy.configure",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Channel bound as the BTD6 strategy intake — BTD6-looking messages there route to the Sonnet-reserved btd6.strategy_review task instead of btd6.answer.",
+          "input_hint": "channel",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "strategy_submission_channel",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "btd6_strategy_submission_channel",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_pii",
+          "erasure_ref": {
+            "$ref": "workflow:btd6.scrub_strategy_submitter"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "btd6_strategies",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "ai"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:btd6.store"
+          },
+          "table": "btd6_strategies",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },

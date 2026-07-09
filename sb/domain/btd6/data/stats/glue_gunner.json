@@ -1,0 +1,4653 @@
+{
+  "tower_id": "glue_gunner",
+  "canonical": "GlueGunner",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "base_cost": 225,
+  "category": "primary",
+  "upgrades": [
+    {
+      "path": 1,
+      "tier": 1,
+      "name": "Glue Soak",
+      "cost": 200,
+      "xp": 150,
+      "description": "Glue soaks through all layers of Bloon."
+    },
+    {
+      "path": 1,
+      "tier": 2,
+      "name": "Corrosive Glue",
+      "cost": 300,
+      "xp": 550,
+      "description": "Glued Bloons pop one layer every few seconds."
+    },
+    {
+      "path": 1,
+      "tier": 3,
+      "name": "Bloon Dissolver",
+      "cost": 2000,
+      "xp": 2500,
+      "description": "Can glue one additional Bloon per shot and solvents melt two layers every second."
+    },
+    {
+      "path": 1,
+      "tier": 4,
+      "name": "Bloon Liquefier",
+      "cost": 5000,
+      "xp": 9000,
+      "description": "Applies liquifying compounds that do 10 pops every second, and drops powerful acid onto the track after destroying a Bloon."
+    },
+    {
+      "path": 1,
+      "tier": 5,
+      "name": "The Bloon Solver",
+      "cost": 22500,
+      "xp": 37500,
+      "description": "Bloons a problem? Here's the solution."
+    },
+    {
+      "path": 2,
+      "tier": 1,
+      "name": "Bigger Globs",
+      "cost": 100,
+      "xp": 120,
+      "description": "Can coat 2 Bloons per shot."
+    },
+    {
+      "path": 2,
+      "tier": 2,
+      "name": "Glue Splatter",
+      "cost": 970,
+      "xp": 900,
+      "description": "Splatters glue across up to 5 Bloons per shot."
+    },
+    {
+      "path": 2,
+      "tier": 3,
+      "name": "Glue Hose",
+      "cost": 1950,
+      "xp": 2500,
+      "description": "Shoots glue 3x as fast and in a wider area!"
+    },
+    {
+      "path": 2,
+      "tier": 4,
+      "name": "Glue Strike",
+      "cost": 4000,
+      "xp": 8500,
+      "description": "Glue Strike Ability: Glues all Bloons on screen, causing them to take more damage from all sources while it lasts."
+    },
+    {
+      "path": 2,
+      "tier": 5,
+      "name": "Glue Storm",
+      "cost": 16000,
+      "xp": 25000,
+      "description": "Glue Storm Ability: Pelts the whole screen with glue for 10 seconds."
+    },
+    {
+      "path": 3,
+      "tier": 1,
+      "name": "Stickier Glue",
+      "cost": 280,
+      "xp": 130,
+      "description": "Makes glue effect last much longer."
+    },
+    {
+      "path": 3,
+      "tier": 2,
+      "name": "Stronger Glue",
+      "cost": 400,
+      "xp": 600,
+      "description": "Slows down Bloons even more."
+    },
+    {
+      "path": 3,
+      "tier": 3,
+      "name": "MOAB Glue",
+      "cost": 3600,
+      "xp": 2500,
+      "description": "Improved glue formula allows it to stick to MOAB-Class Bloons."
+    },
+    {
+      "path": 3,
+      "tier": 4,
+      "name": "Relentless Glue",
+      "cost": 4000,
+      "xp": 8000,
+      "description": "When a glued Bloon is popped, nearby Bloons are stunned."
+    },
+    {
+      "path": 3,
+      "tier": 5,
+      "name": "Super Glue",
+      "cost": 24000,
+      "xp": 30000,
+      "description": "Glue so strong it temporarily immobilizes all affected Bloons!"
+    }
+  ],
+  "tiers": {
+    "000": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.9, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "000",
+      "crosspath": "0-0-0"
+    },
+    "001": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "001",
+      "crosspath": "0-0-1"
+    },
+    "002": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 17.3, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "002",
+      "crosspath": "0-0-2"
+    },
+    "003": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-2.3, 13.27, 8.68",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "003",
+      "crosspath": "0-0-3"
+    },
+    "004": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.01, 11.42, 8.97",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "004",
+      "crosspath": "0-0-4"
+    },
+    "005": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.1, 14.8, 9.09",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 6,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 1,
+              "damage_type": "Acid",
+              "cannot_pop": "Cannot damage Glass",
+              "immuneBloonProperties": 64,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStrongerDot",
+                  "lifespan": 24
+                },
+                {
+                  "name": "MoabDamageOnHit",
+                  "lifespan": 0.95
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "005",
+      "crosspath": "0-0-5"
+    },
+    "010": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.9, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "010",
+      "crosspath": "0-1-0"
+    },
+    "011": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.9, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "011",
+      "crosspath": "0-1-1"
+    },
+    "012": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 17.3, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "012",
+      "crosspath": "0-1-2"
+    },
+    "013": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-2.3, 13.27, 8.68",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "013",
+      "crosspath": "0-1-3"
+    },
+    "014": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.01, 14.06, 8.97",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "014",
+      "crosspath": "0-1-4"
+    },
+    "015": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.1, 14.8, 9.09",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 7,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 1,
+              "damage_type": "Acid",
+              "cannot_pop": "Cannot damage Glass",
+              "immuneBloonProperties": 64,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStrongerDot",
+                  "lifespan": 24
+                },
+                {
+                  "name": "MoabDamageOnHit",
+                  "lifespan": 0.95
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "015",
+      "crosspath": "0-1-5"
+    },
+    "020": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.9, 16.74, 8.75",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "020",
+      "crosspath": "0-2-0"
+    },
+    "021": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-1.35, 14.57, 8.75",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "021",
+      "crosspath": "0-2-1"
+    },
+    "022": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 17.3, 8.75",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "022",
+      "crosspath": "0-2-2"
+    },
+    "023": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-2.3, 13.27, 8.68",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "023",
+      "crosspath": "0-2-3"
+    },
+    "024": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.01, 14.06, 8.97",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "024",
+      "crosspath": "0-2-4"
+    },
+    "025": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.1, 14.8, 9.09",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 1,
+              "damage_type": "Acid",
+              "cannot_pop": "Cannot damage Glass",
+              "immuneBloonProperties": 64,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStrongerDot",
+                  "lifespan": 24
+                },
+                {
+                  "name": "MoabDamageOnHit",
+                  "lifespan": 0.95
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 1,
+              "damage_type": "Acid",
+              "cannot_pop": "Cannot damage Glass",
+              "immuneBloonProperties": 64,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "MoabDamageOnHit",
+                  "lifespan": 0.95
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "025",
+      "crosspath": "0-2-5"
+    },
+    "030": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-2, 11.55, 8.26",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "030",
+      "crosspath": "0-3-0"
+    },
+    "031": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-2, 11.55, 8.26",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "031",
+      "crosspath": "0-3-1"
+    },
+    "032": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-2, 11.55, 8.26",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "032",
+      "crosspath": "0-3-2"
+    },
+    "040": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.1, 12.29, 8.82",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Strike",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "040",
+      "crosspath": "0-4-0"
+    },
+    "041": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.1, 12.29, 8.82",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Strike",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "041",
+      "crosspath": "0-4-1"
+    },
+    "042": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.1, 12.29, 8.82",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Strike",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "042",
+      "crosspath": "0-4-2"
+    },
+    "050": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.05, 15.61, 8.73",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Storm",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "050",
+      "crosspath": "0-5-0"
+    },
+    "051": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.05, 15.61, 8.73",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Storm",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "051",
+      "crosspath": "0-5-1"
+    },
+    "052": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.05, 15.61, 8.73",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Storm",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "052",
+      "crosspath": "0-5-2"
+    },
+    "100": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.86, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "100",
+      "crosspath": "1-0-0"
+    },
+    "101": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.9, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "101",
+      "crosspath": "1-0-1"
+    },
+    "102": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 17.3, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "102",
+      "crosspath": "1-0-2"
+    },
+    "103": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-2.3, 13.27, 8.68",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "103",
+      "crosspath": "1-0-3"
+    },
+    "104": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.01, 14.06, 8.97",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "104",
+      "crosspath": "1-0-4"
+    },
+    "105": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.1, 14.8, 9.09",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 6,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 1,
+              "damage_type": "Acid",
+              "cannot_pop": "Cannot damage Glass",
+              "immuneBloonProperties": 64,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStrongerDot",
+                  "lifespan": 24
+                },
+                {
+                  "name": "MoabDamageOnHit",
+                  "lifespan": 0.95
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "105",
+      "crosspath": "1-0-5"
+    },
+    "110": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.9, 15.74, 8.72",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "110",
+      "crosspath": "1-1-0"
+    },
+    "120": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-1.35, 14.57, 8.75",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "120",
+      "crosspath": "1-2-0"
+    },
+    "130": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-2, 11.55, 8.26",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "130",
+      "crosspath": "1-3-0"
+    },
+    "140": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.1, 12.29, 8.82",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Strike",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "140",
+      "crosspath": "1-4-0"
+    },
+    "150": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.05, 15.61, 8.73",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Storm",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "150",
+      "crosspath": "1-5-0"
+    },
+    "200": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-1.35, 14.57, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "200",
+      "crosspath": "2-0-0"
+    },
+    "201": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-1.35, 14.57, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "201",
+      "crosspath": "2-0-1"
+    },
+    "202": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 17.3, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "202",
+      "crosspath": "2-0-2"
+    },
+    "203": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-2.3, 13.27, 8.68",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "203",
+      "crosspath": "2-0-3"
+    },
+    "204": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.01, 14.06, 8.97",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueStronger",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "204",
+      "crosspath": "2-0-4"
+    },
+    "205": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0.1, 14.8, 9.09",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 6,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 1,
+              "damage_type": "Acid",
+              "cannot_pop": "Cannot damage Glass",
+              "immuneBloonProperties": 64,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueStrongerDot",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueStrongerDot",
+                  "lifespan": 24
+                },
+                {
+                  "name": "MoabDamageOnHit",
+                  "lifespan": 0.95
+                },
+                {
+                  "name": "GlueDegradeSplat",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDegradeSplatEffect",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "205",
+      "crosspath": "2-0-5"
+    },
+    "210": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-1.35, 14.57, 7.9",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "210",
+      "crosspath": "2-1-0"
+    },
+    "220": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "-0.98, 17.3, 8.75",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "220",
+      "crosspath": "2-2-0"
+    },
+    "230": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-2, 11.55, 8.26",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "230",
+      "crosspath": "2-3-0"
+    },
+    "240": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.1, 12.29, 8.82",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Strike",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "240",
+      "crosspath": "2-4-0"
+    },
+    "250": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 58,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.34,
+          "eject": "-1.05, 15.61, 8.73",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 58,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Glue Storm",
+          "cooldown": 40,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 999,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueBasic",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "250",
+      "crosspath": "2-5-0"
+    },
+    "300": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.35, 18, 8.3",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "300",
+      "crosspath": "3-0-0"
+    },
+    "301": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.35, 18, 8.3",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "damageModifierForCeramic": 2,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "301",
+      "crosspath": "3-0-1"
+    },
+    "302": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.35, 18, 8.3",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "damageModifierForCeramic": 2,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "302",
+      "crosspath": "3-0-2"
+    },
+    "310": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.35, 18, 8.3",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 3,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "damageModifierForCeramic": 2,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "310",
+      "crosspath": "3-1-0"
+    },
+    "320": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.35, 18, 8.3",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 5,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "320",
+      "crosspath": "3-2-0"
+    },
+    "400": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.4, 20, 9.2",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "400",
+      "crosspath": "4-0-0"
+    },
+    "401": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.4, 20, 9.2",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "401",
+      "crosspath": "4-0-1"
+    },
+    "402": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.4, 20, 9.2",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 2,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "402",
+      "crosspath": "4-0-2"
+    },
+    "410": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.4, 20, 9.2",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 3,
+              "maxPierce": 0,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "410",
+      "crosspath": "4-1-0"
+    },
+    "420": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.5,
+          "eject": "-1.4, 20, 9.2",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 5,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 13,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "420",
+      "crosspath": "4-2-0"
+    },
+    "500": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.25,
+          "eject": "-1.4, 21.96, 7.31",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 12,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "500",
+      "crosspath": "5-0-0"
+    },
+    "501": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.25,
+          "eject": "-3.08, 21.96, 7.31",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 12,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "501",
+      "crosspath": "5-0-1"
+    },
+    "502": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.25,
+          "eject": "-3.08, 21.96, 7.31",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 4,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 12,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 24
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "502",
+      "crosspath": "5-0-2"
+    },
+    "510": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.25,
+          "eject": "-3.08, 21.96, 7.31",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 5,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 12,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "510",
+      "crosspath": "5-1-0"
+    },
+    "520": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 46,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 6,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.25,
+          "eject": "-3.08, 21.96, 7.31",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 8,
+              "maxPierce": 1,
+              "ignoreBlockers": false,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "speed": 300,
+              "lifespan": 0.43,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            },
+            {
+              "name": "Splat",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 25,
+              "vsBlockerRadius": 0,
+              "filterInvisible": true,
+              "effects": [
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                },
+                {
+                  "name": "GlueDissolve",
+                  "lifespan": 11
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 46,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "code": "520",
+      "crosspath": "5-2-0"
+    }
+  },
+  "paragon_cost": null,
+  "paragon_name": null
+}

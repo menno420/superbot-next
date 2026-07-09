@@ -1,0 +1,3703 @@
+{
+  "hero_id": "obyn_greenfoot",
+  "canonical": "ObynGreenfoot",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "base_cost": 650,
+  "cost_chimps": 650,
+  "levels": {
+    "1": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.35,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 130,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 1,
+      "description": "Sends wolf spirits to attack the Bloons."
+    },
+    "2": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.35,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 130,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 2,
+      "description": "Nature's Wrath - all Druids in range get +1 pierce."
+    },
+    "3": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.35,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 130,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 50,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 3,
+      "description": "Brambles: Creates a spiked bush on the track that can pop 50 Bloons. Lasts multiple rounds if not destroyed."
+    },
+    "4": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.35,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 130,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 50,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.85,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 4,
+      "description": "Every 18 seconds creates a totem that slows all Bloons near the totem by 30%. Less effective vs MOAB-class Bloons."
+    },
+    "5": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 4,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 130,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 50,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.85,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 5,
+      "description": "Increased attack speed. Druids of the Jungle have increased range. Grants bonus cash generation to Druids."
+    },
+    "6": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 50,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.85,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 6,
+      "description": "Increased popping power and projectiles move faster."
+    },
+    "7": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.85,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 7,
+      "description": "Brambles can pop 100 Bloons."
+    },
+    "8": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 8,
+      "description": "Nature's ward totems slow Bloons 40%. All Druids in range get Camo detection."
+    },
+    "9": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 4,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 9,
+      "description": "Obyn deals more damage. Druids of the Storm create larger storms more frequently."
+    },
+    "10": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 4,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 10,
+      "description": "Wall of Trees: Summons a wall of trees across the track that destroy all Bloons that enter. When full, the trees burst into money."
+    },
+    "11": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 1.1,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 4,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 11,
+      "description": "Nature's Clarity - all Magic Monkeys in range get +5 range and +2 pierce, and Druids get an additional +1 pierce."
+    },
+    "12": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.8,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 9,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 4,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 162.5,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 12,
+      "description": "Increased attack speed and Magic Monkeys cooldowns reduced by 5%."
+    },
+    "13": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.8,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 4,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 13,
+      "description": "Further increased popping power and projectile speed."
+    },
+    "14": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.8,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 6,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 18,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.6,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.8,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 14,
+      "description": "Attack pops extra layers."
+    },
+    "15": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.8,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 6,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 12,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 100,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Sharp",
+              "cannot_pop": "Cannot damage Lead or frozen",
+              "immuneBloonProperties": 17,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.4,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 15,
+      "description": "Nature's Ward slows Bloons by 60%, and has reduced cooldown."
+    },
+    "16": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.8,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 6,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 12,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 500,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.4,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 16,
+      "description": "Brambles pop 500 Bloons each and can damage all Bloon types."
+    },
+    "17": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.5,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 6,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 12,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 500,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.4,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 17,
+      "description": "Increased attack speed."
+    },
+    "18": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.5,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 6,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 12,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 500,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.4,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 18,
+      "description": "Improved Wrath - all Druid of Wrath pops start each round at 200."
+    },
+    "19": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.5,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 8,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 12,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 500,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 90,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.4,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 19,
+      "description": "Attack pops extra layers."
+    },
+    "20": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 43,
+      "towerSelectionMenuThemeId": "SelectPointInput",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack_MainAttack",
+          "rate": 0.5,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 14,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "damage": 8,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "speed": 203.125,
+              "lifespan": 1.4,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        },
+        {
+          "name": "TotemSpawner_TotemAttack",
+          "rate": 12,
+          "eject": "0, 7.48, 9.64",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 1,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 43,
+          "attackThroughWalls": false,
+          "framesBeforeRetarget": 60,
+          "sharedGridRange": 0,
+          "filterInvisible": false
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brambles",
+          "cooldown": 30,
+          "projectiles": [
+            {
+              "name": "Projectile",
+              "pierce": 500,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 14,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Normal",
+              "cannot_pop": "Can damage any Bloon type",
+              "immuneBloonProperties": 0,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": false
+            }
+          ]
+        },
+        {
+          "name": "Wall of Trees",
+          "cooldown": 75,
+          "projectiles": [
+            {
+              "name": "Collidable",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 4,
+              "vsBlockerRadius": 0,
+              "filterInvisible": false,
+              "effects": [
+                {
+                  "name": "TreeExhaust",
+                  "lifespan": 0
+                }
+              ]
+            },
+            {
+              "name": "Full",
+              "pierce": 9999999,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 5,
+              "vsBlockerRadius": 0,
+              "cashMinimum": 300,
+              "cashMaximum": 300,
+              "filterInvisible": false
+            }
+          ]
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "NaturesWardTotem",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 32,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "SharedAttack",
+              "projectiles": [],
+              "count": 0,
+              "targetTypes": "Depends on targeting option",
+              "range": 32,
+              "attackThroughWalls": false,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": false
+            }
+          ],
+          "zones": [
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.4,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": false
+            },
+            {
+              "kind": "SlowBloonsZone",
+              "speedScale": 0.7,
+              "speedChange": 0,
+              "zoneRadius": 32,
+              "bloonTag": "Moabs",
+              "inclusive": true
+            }
+          ],
+          "targetTypeFirst": false,
+          "targetTypeLast": false,
+          "targetTypeClose": false,
+          "targetTypeStrong": false,
+          "lifespan": 15
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 1,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "VisibilitySupport",
+          "grantsCamoDetection": true,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "MonkeyCityIncomeSupport",
+          "incomeMultiplier": 1.5,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "PierceSupport",
+          "pierceAdditive": 2,
+          "isGlobal": false,
+          "maxStackSize": 0
+        },
+        {
+          "kind": "RangeSupport",
+          "rangeAdditive": 5,
+          "rangePercentage": 0,
+          "isGlobal": false,
+          "maxStackSize": 0
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 20,
+      "description": "Wall of Trees can hold a lot more Bloons, and has shorter cooldown."
+    }
+  }
+}

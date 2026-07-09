@@ -1,0 +1,208 @@
+{
+  "paragon_id": "glaive_dominus",
+  "tower_id": "boomerang_monkey",
+  "canonical": "Glaive Dominus",
+  "tower_canonical": "Boomerang Monkey",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "cost": 375000,
+  "cost_chimps": null,
+  "xp": 500000,
+  "base": {
+    "placeableOnLand": true,
+    "placeableOnWater": false,
+    "placeableOnTrack": false,
+    "range": 60,
+    "towerSelectionMenuThemeId": "AmbidextrousRangs",
+    "footprintRadius": 7,
+    "doesntBlockTowerPlacement": false,
+    "attacks": [
+      {
+        "name": "Attack",
+        "rate": 0.04,
+        "eject": "-3.47, 15, 12",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 60,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 15,
+            "vsBlockerRadius": 0,
+            "damage": 25,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 300,
+            "lifespan": 2,
+            "damageModifierForBoss": 50,
+            "filterInvisible": false
+          },
+          {
+            "name": "MoabDot",
+            "pierce": 1,
+            "maxPierce": 1,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 5,
+            "vsBlockerRadius": 5,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "BoomerangMoabRicochet",
+                "lifespan": 15.1
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 60,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "OrbitAttack",
+        "rate": 0.1,
+        "eject": "0, 0, 0",
+        "fireWithoutTarget": true,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 200,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 50,
+            "vsBlockerRadius": 0,
+            "damage": 42,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForCeramic": 20,
+            "damageModifierForMoabs": 20,
+            "damageModifierForBoss": 150,
+            "filterInvisible": false
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 9999999,
+        "attackThroughWalls": false,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      },
+      {
+        "name": "MOABPressAttack",
+        "rate": 3,
+        "eject": "-3.47, 15, 12",
+        "fireWithoutTarget": false,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 300,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 10,
+            "vsBlockerRadius": 0,
+            "damage": 1,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForMoabs": 19,
+            "pushAmount": 1,
+            "pushMultiplierForMoab": 1,
+            "pushMultiplierForBfb": 0.5,
+            "pushMultiplierForZomg": 0.25,
+            "pushMultiplierForDdt": 0.25,
+            "pushOnlyIfDamaged": false,
+            "filterInvisible": false
+          },
+          {
+            "name": "Explosion",
+            "pierce": 20,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 50,
+            "vsBlockerRadius": 0,
+            "damage": 2500,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForBoss": 4000,
+            "filterInvisible": false,
+            "effects": [
+              {
+                "name": "Fire",
+                "lifespan": 4
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "targetTypes": "Depends on targeting option",
+        "range": 100,
+        "attackThroughWalls": true,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 0,
+        "filterInvisible": false
+      }
+    ],
+    "abilities": [
+      {
+        "name": "Overcharge",
+        "cooldown": 45
+      }
+    ],
+    "buffs": [
+      {
+        "kind": "RateSupport",
+        "rateMultiplier": 0.9,
+        "isGlobal": true,
+        "onlyAffectParagon": true,
+        "maxStackSize": 0
+      },
+      {
+        "kind": "RateSupport",
+        "rateMultiplier": 0.9,
+        "isGlobal": true,
+        "maxStackSize": 0
+      }
+    ],
+    "targetTypeFirst": true,
+    "targetTypeLast": true,
+    "targetTypeClose": true,
+    "targetTypeStrong": true
+  }
+}

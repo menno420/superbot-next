@@ -1,0 +1,1875 @@
+{
+  "hero_id": "adora",
+  "canonical": "Adora",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "base_cost": 1000,
+  "cost_chimps": 1000,
+  "levels": {
+    "1": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 45,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 45,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 1,
+      "description": "Divine Bolt seeks out and destroys."
+    },
+    "2": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 2,
+      "description": "Increased attack range."
+    },
+    "3": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 3,
+      "description": "The Long Arm of Light: Greatly increases attack range and power for a short time & damages all Bloon Types."
+    },
+    "4": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 5,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 4,
+      "description": "Shoots double Divine Bolts."
+    },
+    "5": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 5,
+      "description": "Divine bolts pierce through more Bloons."
+    },
+    "6": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 6,
+      "description": "Shoots 3 Divine Bolts at a time."
+    },
+    "7": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 7,
+      "description": "Blood Sacrifice: Sacrifice a targeted Tower to grant Adora large amounts of XP and boost her attack range and rate of fire for a short time."
+    },
+    "8": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 49,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 49,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 8,
+      "description": "Shoots 4 Divine Bolts at a time."
+    },
+    "9": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 1,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 9,
+      "description": "Increased attack range and increased damage to Fortified Bloons."
+    },
+    "10": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 1,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 1,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 8,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 3,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 3,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 10,
+      "description": "Ball of Light: Brings forth a powerful ball of energy to strike down the Bloons."
+    },
+    "11": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.85,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 1,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 8,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 3,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 3,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 11,
+      "description": "Adora increases attack speed."
+    },
+    "12": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.85,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 8,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 1,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 8,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 3,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 3,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 12,
+      "description": "Shoots 5 Divine Bolts at a time."
+    },
+    "13": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.85,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 2,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 3,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 3,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 13,
+      "description": "Divine Bolts pierce through even more Bloons. Increased damage to Fortified Bloons."
+    },
+    "14": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.85,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 1,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 2,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 3,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 3,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 14,
+      "description": "Shoots 6 Divine Bolts at a time."
+    },
+    "15": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.85,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 2,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 5,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 5,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 15,
+      "description": "Divine Bolts burn through an extra Bloon layer, plus Ball of Light deals more damage."
+    },
+    "16": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.85,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 2,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 5,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 5,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 16,
+      "description": "Long Arm of Light becomes even more deadly."
+    },
+    "17": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.7,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 2,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 5,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 5,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 17,
+      "description": "Adora increases attack speed even more."
+    },
+    "18": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 54,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.7,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 2,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 54,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 5,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 5,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 18,
+      "description": "Shoots 8 Divine Bolts at a time."
+    },
+    "19": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 59,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.7,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 3,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 59,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 5,
+                  "maxDamage": 0,
+                  "damage_type": "Plasma",
+                  "cannot_pop": "Cannot damage Purple or Glass",
+                  "immuneBloonProperties": 72,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 5,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 12
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 19,
+      "description": "Increased attack range. Increased damage to Fortified Bloons."
+    },
+    "20": {
+      "placeableOnLand": true,
+      "placeableOnWater": false,
+      "placeableOnTrack": false,
+      "range": 59,
+      "towerSelectionMenuThemeId": "Default",
+      "footprintRadius": 7,
+      "doesntBlockTowerPlacement": false,
+      "attacks": [
+        {
+          "name": "Attack",
+          "rate": 0.7,
+          "eject": "0, 4.2, 7.78",
+          "fireWithoutTarget": false,
+          "fireBetweenRounds": false,
+          "projectiles": [
+            {
+              "name": "BaseProjectile",
+              "pierce": 11,
+              "maxPierce": 0,
+              "ignoreBlockers": true,
+              "usePointCollisionWithBloons": false,
+              "canCollisionBeBlockedByMapLos": false,
+              "radius": 2,
+              "vsBlockerRadius": 0,
+              "damage": 2,
+              "maxDamage": 0,
+              "damage_type": "Plasma",
+              "cannot_pop": "Cannot damage Purple or Glass",
+              "immuneBloonProperties": 72,
+              "distributeToChildren": true,
+              "overrideDistributeBlocker": false,
+              "ignoreImmunityDestroy": false,
+              "damageModifierForFortified": 3,
+              "filterInvisible": true
+            }
+          ],
+          "count": 1,
+          "targetTypes": "Depends on targeting option",
+          "range": 59,
+          "attackThroughWalls": true,
+          "framesBeforeRetarget": 0,
+          "sharedGridRange": 0,
+          "filterInvisible": true
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Long Arm of Light",
+          "cooldown": 45
+        },
+        {
+          "name": "Blood Sacrifice",
+          "cooldown": 30
+        },
+        {
+          "name": "Ball of Light",
+          "cooldown": 60
+        }
+      ],
+      "subtowers": [
+        {
+          "name": "Ball of Light",
+          "placeableOnLand": true,
+          "placeableOnWater": false,
+          "placeableOnTrack": false,
+          "range": 9999999,
+          "towerSelectionMenuThemeId": "Default",
+          "footprintRadius": 0,
+          "doesntBlockTowerPlacement": false,
+          "attacks": [
+            {
+              "name": "Attack",
+              "rate": 0.05,
+              "eject": "0, 0, 0",
+              "fireWithoutTarget": false,
+              "fireBetweenRounds": false,
+              "projectiles": [
+                {
+                  "name": "Projectile",
+                  "pierce": 11,
+                  "maxPierce": 0,
+                  "ignoreBlockers": true,
+                  "usePointCollisionWithBloons": false,
+                  "canCollisionBeBlockedByMapLos": false,
+                  "radius": 1,
+                  "vsBlockerRadius": 0,
+                  "damage": 20,
+                  "maxDamage": 0,
+                  "damage_type": "Normal",
+                  "cannot_pop": "Can damage any Bloon type",
+                  "immuneBloonProperties": 0,
+                  "distributeToChildren": true,
+                  "overrideDistributeBlocker": false,
+                  "ignoreImmunityDestroy": false,
+                  "damageModifierForFortified": 20,
+                  "filterInvisible": true
+                }
+              ],
+              "count": 1,
+              "targetTypes": "Depends on targeting option",
+              "range": 2000,
+              "attackThroughWalls": true,
+              "framesBeforeRetarget": 0,
+              "sharedGridRange": 0,
+              "filterInvisible": true
+            }
+          ],
+          "targetTypeFirst": true,
+          "targetTypeLast": true,
+          "targetTypeClose": true,
+          "targetTypeStrong": true,
+          "lifespan": 15
+        }
+      ],
+      "targetTypeFirst": true,
+      "targetTypeLast": true,
+      "targetTypeClose": true,
+      "targetTypeStrong": true,
+      "level": 20,
+      "description": "Ball of Light is greatly improved, plus increased rate of fire, range, and duration buffs from Sacrifices."
+    }
+  }
+}

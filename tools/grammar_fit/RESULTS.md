@@ -1,6 +1,6 @@
 # grammar_fit RESULTS (V-2 cumulative ledger)
 
-Cumulative fit: **89.15%** tier-1/2 over 599 units (spike line: 85.26% / 95 units).
+Cumulative fit: **89.55%** tier-1/2 over 641 units (spike line: 85.26% / 95 units).
 
 | band | subsystem | kind | unit | xN | tier | rationale |
 |---|---|---|---|---|---|---|
@@ -164,6 +164,15 @@ Cumulative fit: **89.15%** tier-1/2 over 599 units (spike line: 85.26% / 95 unit
 | 6 | casino | command | casino + poker/holdem | 2 | 2 | CommandSpec rows verbatim; poker = honest pending terminal (per-player ephemeral tables are live-adapter work) |
 | 6 | casino | panel | casino.hub | 1 | 2 | the shipped casino hub declarative (poker + hand rankings) |
 | 6 | casino | engine | card model + hand evaluator | 1 | 3 | utils/cards + utils/poker/evaluate ported VERBATIM (pure; the Hold'em table docks on when the live adapter arms) |
+| 7 | btd6 | command | btd6menu + btd6ref/btd6strat/btd6events/btd6ops groups | 33 | 2 | CommandSpec rows verbatim (shipped group surfaces); ingestion-backed subcommands = honest pending terminals (D-0046) |
+| 7 | btd6 | panel | btd6.hub | 1 | 2 | the shipped BTD6PanelView declarative (lookup modals + strategies + grounding check + events pending) |
+| 7 | btd6 | store | btd6_strategies | 1 | 2 | StoreSpec, shipped migration-041 shape; MEMBER_PII anonymize erasure (identity detached, row retained) |
+| 7 | btd6 | setting | strategy_submission_channel | 1 | 2 | SettingSpec (the route probe's strategy-intake cue channel) |
+| 7 | btd6 | op | submit_strategy/review_strategy | 2 | 2 | K7 lanes; shipped btd6_strategy_audit folds into the central audit row (one-write discipline) |
+| 7 | btd6 | engine | dataset + resolver + context passes | 1 | 3 | focused ports of the shipped 5.6k-line grounding pipeline (fixture/paragon/catalog/interaction passes) — justified code |
+| 7 | btd6 | engine | keywords/difficulty_costs/paragon math | 1 | 3 | pure shipped utils VERBATIM (curated keyword lists, cost multipliers, wiki degree formulas) — justified code by design |
+| 7 | btd6 | engine | K10 registrations | 1 | 2 | task ids claimed byte-identical + route probe + fact gatherer + verifiers + paragon existence attr + refusal floor + task contract + A-17 suite — ALL registry rows on K10 seams |
+| 7 | btd6 | engine | 16-probe QA eval corpus | 1 | 2 | shipped tests/evals/btd6_corpus.py imported verbatim as EvalSuiteSpec data (deterministic gate + advisory judge tier) |
 
 Per band:
 - band 1: 45.45% (5/11)
@@ -172,3 +181,4 @@ Per band:
 - band 4: 75.51% (37/49)
 - band 5: 83.33% (80/96)
 - band 6: 88.06% (177/201)
+- band 7: 95.24% (40/42)

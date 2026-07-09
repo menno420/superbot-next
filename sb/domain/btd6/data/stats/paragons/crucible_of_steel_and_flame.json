@@ -1,0 +1,171 @@
+{
+  "paragon_id": "crucible_of_steel_and_flame",
+  "tower_id": "tack_shooter",
+  "canonical": "Crucible of Steel and Flame",
+  "tower_canonical": "Tack Shooter",
+  "game_version": "55.1",
+  "source": "BTD Mod Helper game data export",
+  "cost": 200000,
+  "cost_chimps": null,
+  "xp": 500000,
+  "base": {
+    "placeableOnLand": true,
+    "placeableOnWater": false,
+    "placeableOnTrack": false,
+    "range": 42.32,
+    "towerSelectionMenuThemeId": "Default",
+    "footprintRadius": 6,
+    "doesntBlockTowerPlacement": false,
+    "attacks": [
+      {
+        "name": "Attack",
+        "rate": 0.0325125,
+        "eject": "0, 0, 23.28",
+        "fireWithoutTarget": true,
+        "fireBetweenRounds": false,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 5,
+            "maxPierce": -1,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 2,
+            "vsBlockerRadius": 0,
+            "damage": 20,
+            "maxDamage": -1,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 140,
+            "lifespan": 0.25,
+            "damageModifierForBoss": 30,
+            "filterInvisible": true
+          },
+          {
+            "name": "SubProjectile",
+            "pierce": 3,
+            "maxPierce": -1,
+            "ignoreBlockers": false,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 0,
+            "vsBlockerRadius": 0,
+            "damage": 10,
+            "maxDamage": -1,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 120,
+            "lifespan": 0.15,
+            "damageModifierForBoss": 20,
+            "filterInvisible": true
+          }
+        ],
+        "count": 2,
+        "targetTypes": "Depends on targeting option",
+        "range": 999,
+        "attackThroughWalls": true,
+        "framesBeforeRetarget": 0,
+        "sharedGridRange": 42.32,
+        "filterInvisible": true
+      }
+    ],
+    "abilities": [
+      {
+        "name": "Eruption",
+        "cooldown": 20,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 80,
+            "maxPierce": -1,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 45,
+            "vsBlockerRadius": 0,
+            "damage": 250,
+            "maxDamage": -1,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "damageModifierForBoss": 250,
+            "filterInvisible": true
+          }
+        ]
+      },
+      {
+        "name": "Meteor Impact",
+        "cooldown": 60,
+        "projectiles": [
+          {
+            "name": "Projectile",
+            "pierce": 1,
+            "maxPierce": 1,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 4,
+            "vsBlockerRadius": 0,
+            "filterInvisible": true
+          },
+          {
+            "name": "Explosion",
+            "pierce": 500,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 120,
+            "vsBlockerRadius": 0,
+            "damage": 60000,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "filterInvisible": true
+          },
+          {
+            "name": "HomingProjectile",
+            "pierce": 2,
+            "maxPierce": 0,
+            "ignoreBlockers": true,
+            "usePointCollisionWithBloons": false,
+            "canCollisionBeBlockedByMapLos": false,
+            "radius": 2,
+            "vsBlockerRadius": 0,
+            "damage": 900,
+            "maxDamage": 0,
+            "damage_type": "Normal",
+            "cannot_pop": "Can damage any Bloon type",
+            "immuneBloonProperties": 0,
+            "distributeToChildren": true,
+            "overrideDistributeBlocker": false,
+            "ignoreImmunityDestroy": false,
+            "speed": 40,
+            "lifespan": 50,
+            "filterInvisible": true
+          }
+        ]
+      }
+    ],
+    "targetTypeFirst": true,
+    "targetTypeLast": true,
+    "targetTypeClose": true,
+    "targetTypeStrong": true
+  }
+}
