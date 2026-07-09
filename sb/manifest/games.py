@@ -9,6 +9,7 @@ from __future__ import annotations
 from sb.domain.games import panels as _panels
 from sb.domain.games import service as _service
 from sb.domain.games.ops import register_ops
+from sb.domain.games.providers import register_game_providers
 from sb.domain.games.session import install_games_dispatcher
 from sb.domain.games.store import GAME_STATE_STORE, GAME_XP_STORE
 from sb.domain.games.xp import EVT_GAME_LEVEL_UP, EVT_GAME_XP_AWARDED
@@ -95,6 +96,7 @@ MANIFEST = SubsystemManifest(
 register_event_specs(list(_EVENTS))
 register_ops()
 install_games_dispatcher()
+register_game_providers()
 
 
 def _ensure_refs() -> None:
@@ -108,6 +110,7 @@ def _ensure_refs() -> None:
     register_event_specs(list(_EVENTS))
     register_ops()
     install_games_dispatcher()
+    register_game_providers()
 
 
 ENSURE_REFS = _ensure_refs
