@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 40,
+  "manifest_count": 41,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -448,6 +448,190 @@
           "subsystem": "admin",
           "surface": "prefix",
           "value": "restart"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "ai"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "status"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "readiness"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "settings"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "policy"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "diagnostics"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "providers"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "routing"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "why-no-response"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "forget"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ai",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "support-report"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "aimenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "aireview"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "list"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "resolve"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "export"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "channel"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "off"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "preset"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview.preset",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "add"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview.preset",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "from"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview.preset",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "list"
+        },
+        {
+          "kind": "command",
+          "parent_group": "aireview.preset",
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "surface": "prefix",
+          "value": "remove"
         },
         {
           "kind": "command",
@@ -2476,6 +2660,36 @@
       ],
       "custom_id": [
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_status"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_readiness"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_routing"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_diagnostics"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_review_list"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_providers"
+        },
+        {
           "source": "sb/manifest/blackjack.py",
           "subsystem": "blackjack",
           "value": "bj_solo_free"
@@ -3060,6 +3274,11 @@
           "value": "admin.hub"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.hub"
+        },
+        {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod.hub"
@@ -3296,6 +3515,61 @@
         }
       ],
       "setting_key": [
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_enabled"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_natural_language_enabled"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_default_provider"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_default_model"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_minimum_level_default"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_cooldown_seconds"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_fresh_user_mention_allowance"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_guild_instruction_profile"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_memory_window_minutes"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_memory_channel_scan_enabled"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_review_channel"
+        },
         {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
@@ -3759,6 +4033,11 @@
           "value": "admin"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai"
+        },
+        {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod"
@@ -3955,6 +4234,16 @@
         }
       ],
       "table": [
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_review_log"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_answer_presets"
+        },
         {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
@@ -4173,6 +4462,9 @@
       ]
     },
     "refs": {
+      "engine:ai.store": {
+        "module": "sb.domain.ai.store"
+      },
       "engine:btd6.store": {
         "module": "sb.domain.btd6.store"
       },
@@ -4250,6 +4542,66 @@
       },
       "handler:admin.subsystems_view": {
         "module": "sb.domain.admin.handlers"
+      },
+      "handler:ai.diagnostics_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.forget_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.policy_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.preset_add_route": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.preset_from_route": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.preset_list_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.preset_remove_route": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.providers_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.readiness_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.review_channel_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.review_export_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.review_list_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.review_resolve_route": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.review_usage_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.routing_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.settings_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.status_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.support_report_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.usage_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.why_view": {
+        "module": "sb.domain.ai.service"
       },
       "handler:blackjack.play": {
         "module": "sb.domain.blackjack.handlers"
@@ -4809,6 +5161,9 @@
       "panel:admin.hub": {
         "module": "sb.domain.operator_spine"
       },
+      "panel:ai.hub": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:automod.hub": {
         "module": "sb.domain.operator_spine"
       },
@@ -5078,6 +5433,33 @@
       },
       "provider:xp.hub_overview": {
         "module": "sb.domain.xp.panels"
+      },
+      "workflow:ai.record_remove_preset": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.record_resolve_entry": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.record_review_entry": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.record_review_entry_leg": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.record_set_preset": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.remove_preset": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.resolve_review_entry": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.scrub_review_subject": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.set_preset": {
+        "module": "sb.domain.ai.ops"
       },
       "workflow:blackjack.pvp_accept": {
         "module": "sb.domain.blackjack.ops"
@@ -5783,6 +6165,22 @@
       }
     },
     "stores": {
+      "ai_answer_presets": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "ai_answer_presets",
+        "sole_writer": {
+          "$ref": "engine:ai.store"
+        },
+        "subsystem": "ai"
+      },
+      "ai_review_log": {
+        "checkpoint_class": "session",
+        "invariant_tag": "ai_review_log",
+        "sole_writer": {
+          "$ref": "engine:ai.store"
+        },
+        "subsystem": "ai"
+      },
       "btd6_strategies": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "btd6_strategies",
@@ -6130,7 +6528,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:bc45f0e62cbf768738fda32b6f350ee51b675e31f0fe036592210d3e4db502e7",
+  "stable_hash": "sha256:b2e5b645995ef810373fc1bc3c0733a3603730876a0cba9f3e6ea215b2150cc4",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -6355,6 +6753,1121 @@
       ],
       "settings": [],
       "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "ai": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ai",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.usage_view"
+          },
+          "slash_common": false,
+          "summary": "AI platform operator views.",
+          "usage": "!ai <status|readiness|settings|policy|diagnostics|providers|routing|why-no-response|forget|support-report>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "status",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.status_view"
+          },
+          "slash_common": false,
+          "summary": "Gateway status summary.",
+          "usage": "!ai status",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "readiness",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.readiness_view"
+          },
+          "slash_common": false,
+          "summary": "Task/verifier/eval-suite readiness.",
+          "usage": "!ai readiness",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "settings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.settings_view"
+          },
+          "slash_common": false,
+          "summary": "Where the declared ai.* settings live.",
+          "usage": "!ai settings",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "policy",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.policy_view"
+          },
+          "slash_common": false,
+          "summary": "The resolved NL policy for this server.",
+          "usage": "!ai policy",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "diagnostics",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.diagnostics_view"
+          },
+          "slash_common": false,
+          "summary": "K10 diagnostics collector snapshot.",
+          "usage": "!ai diagnostics",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "providers",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.providers_view"
+          },
+          "slash_common": false,
+          "summary": "Provider adapters + arm-up state.",
+          "usage": "!ai providers",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "routing",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.routing_view"
+          },
+          "slash_common": false,
+          "summary": "Per-task model routing (K10(b) tables).",
+          "usage": "!ai routing",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "why-no-response",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.why_view"
+          },
+          "slash_common": false,
+          "summary": "Recent NL decisions for this server.",
+          "usage": "!ai why-no-response",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "forget",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.forget_view"
+          },
+          "slash_common": false,
+          "summary": "Clear in-process conversation memory + throttles.",
+          "usage": "!ai forget",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ai",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "support-report",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.support_report_view"
+          },
+          "slash_common": false,
+          "summary": "One-shot AI support summary.",
+          "usage": "!ai support-report",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "aimenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:ai.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the AI platform panel.",
+          "usage": "!aimenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "aireview",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.review_usage_view"
+          },
+          "slash_common": false,
+          "summary": "The AI answer review loop.",
+          "usage": "!aireview <list|resolve|export|channel|off|preset>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "list",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.review_list_view"
+          },
+          "slash_common": false,
+          "summary": "Recent review-log entries (optionally by kind).",
+          "usage": "!aireview list",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "resolve",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.review_resolve_route"
+          },
+          "slash_common": false,
+          "summary": "Mark a review entry reviewed.",
+          "usage": "!aireview resolve",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "export",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.review_export_view"
+          },
+          "slash_common": false,
+          "summary": "Export the unreviewed backlog.",
+          "usage": "!aireview export",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "channel",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.review_channel_view"
+          },
+          "slash_common": false,
+          "summary": "Where the review feed channel is configured.",
+          "usage": "!aireview channel",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "off",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.review_channel_view"
+          },
+          "slash_common": false,
+          "summary": "Turn the review feed off (ai.review_channel = 0).",
+          "usage": "!aireview off",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "preset",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.preset_list_view"
+          },
+          "slash_common": false,
+          "summary": "Vetted answer presets (served with zero model call).",
+          "usage": "!aireview preset <add|from|list|remove>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview.preset",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "add",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.preset_add_route"
+          },
+          "slash_common": false,
+          "summary": "Store a vetted answer: question | answer.",
+          "usage": "!aireview preset add <q> | <a>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview.preset",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "from",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.preset_from_route"
+          },
+          "slash_common": false,
+          "summary": "Vet a review-log entry's question with an answer.",
+          "usage": "!aireview preset from <entry_id> <answer…>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview.preset",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "list",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.preset_list_view"
+          },
+          "slash_common": false,
+          "summary": "List stored presets.",
+          "usage": "!aireview preset list",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "ai",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "aireview.preset",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "remove",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ai.preset_remove_route"
+          },
+          "slash_common": false,
+          "summary": "Remove a stored preset.",
+          "usage": "!aireview preset remove <question>",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "ai",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "ai_status",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📊",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.status_view"
+              },
+              "label": "Status",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ai_readiness",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🩺",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.readiness_view"
+              },
+              "label": "Readiness",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ai_routing",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧭",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.routing_view"
+              },
+              "label": "Routing",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ai_diagnostics",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔬",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.diagnostics_view"
+              },
+              "label": "Diagnostics",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ai_review_list",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📝",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.review_list_view"
+              },
+              "label": "Review Backlog",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ai_providers",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔌",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.providers_view"
+              },
+              "label": "Providers",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Operator views over the AI invocation kernel: gateway status, task readiness, model routing, diagnostics, and the answer review loop. All AI settings ride the declared `ai.*` settings."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "ai_status",
+                    "ai_readiness",
+                    "ai_routing"
+                  ],
+                  [
+                    "ai_diagnostics",
+                    "ai_review_list",
+                    "ai_providers"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "ai.hub",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "🤖 AI Platform",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Master switch for the AI platform in this server.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Allow the bot to answer natural-language mentions.",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "natural_language_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_natural_language_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            "",
+            "anthropic",
+            "openai"
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Per-server provider overlay (anthropic/openai; empty = platform default).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "default_provider",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_default_provider",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Per-server model overlay (must match the provider family; empty = routing default).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "default_model",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_default_model",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            1000
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Minimum member level for NL replies (0 = everyone).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "minimum_level_default",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_minimum_level_default",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            86400
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Per-user NL reply cooldown in seconds (0 = none).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "cooldown_seconds",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_cooldown_seconds",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": [
+            0,
+            100
+          ],
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Replies a below-level user may still get by mentioning the bot (spent per delivered reply).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "fresh_user_mention_allowance",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_fresh_user_mention_allowance",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": "",
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Named instruction/orchestration profile key for this server (empty = compatible default).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "guild_instruction_profile",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_guild_instruction_profile",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "str"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [
+            0,
+            15,
+            30,
+            60,
+            120
+          ],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Conversation-memory window (0/15/30/60/120; 0 = floor-only memory).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "memory_window_minutes",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_memory_window_minutes",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        },
+        {
+          "activation": "off_until_opt_in",
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": false,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Seed memory from recent channel history on a cold buffer (bodies are never persisted).",
+          "input_hint": "",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "memory_channel_scan_enabled",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_memory_channel_scan_enabled",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "bool"
+        },
+        {
+          "activation": null,
+          "advanced": false,
+          "allowed_values": [],
+          "bound_binding": "",
+          "bounds": null,
+          "capability_required": "",
+          "co_edit_group": "",
+          "default": 0,
+          "depends_on": [],
+          "edit_weight": 1.0,
+          "external_side_effects": false,
+          "group": "",
+          "hint": "Channel the AI answer-review feed posts to (0 = off).",
+          "input_hint": "channel",
+          "keyed_secret": "",
+          "legacy_keys": [],
+          "name": "review_channel",
+          "panel_order": 0,
+          "preset_kind": "none",
+          "presets": [],
+          "scope_default": "guild",
+          "settings_key": "ai_review_channel",
+          "storage": "kv",
+          "validator": null,
+          "value_type": "int"
+        }
+      ],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "session",
+          "compensation_ref": null,
+          "data_class": "member_pii",
+          "erasure_ref": {
+            "$ref": "workflow:ai.scrub_review_subject"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "ai_review_log",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "90d",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:ai.store"
+          },
+          "table": "ai_review_log",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:ai.scrub_review_subject"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "ai_answer_presets",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:ai.store"
+          },
+          "table": "ai_answer_presets",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },

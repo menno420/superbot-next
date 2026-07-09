@@ -462,6 +462,33 @@ UNITS: tuple[Unit, ...] = (
          "video.describe/compare/qa claimed byte-identical; URL probe "
          "confidences verbatim; gatherer = shipped short-circuit "
          "semantics over the install_video_metadata_reader port"),
+    # ---- band 7 / ai surface (PR: band7-slice3; base 3d5181f) ----
+    Unit(7, "ai", "command", "ai group + aimenu + aireview group", 23, 2,
+         "CommandSpec rows verbatim (shipped !ai/!aireview surfaces incl. "
+         "the preset add/from/list/remove family)"),
+    Unit(7, "ai", "panel", "ai.hub", 1, 2,
+         "the shipped !aimenu declarative (status/readiness/routing/"
+         "diagnostics/review/providers read views)"),
+    Unit(7, "ai", "store", "ai_review_log + ai_answer_presets", 2, 2,
+         "StoreSpecs, shipped migrations 100/102 shapes; MEMBER_PII "
+         "delete+detach erasure"),
+    Unit(7, "ai", "setting", "the 11 declared ai.* SettingSpecs", 11, 2,
+         "the shipped utils.settings_keys.ai vocabulary declared (band-1 "
+         "fail-closed readers now resolve real declarations)"),
+    Unit(7, "ai", "op", "record/resolve review + set/remove preset", 4, 2,
+         "K7 lanes; the shipped audit.action_recorded emit folds into "
+         "the K7 central audit row"),
+    Unit(7, "ai", "engine", "review registry + fail-safe writers", 1, 3,
+         "shipped bounded in-memory answer registry (ADR-001/002 "
+         "process-local by design) + redact-before-store — justified code"),
+    Unit(7, "ai", "engine", "round-cash answer workflow", 1, 3,
+         "the shipped recognisers (range patterns/completion shift/ABR/"
+         "modifier honesty) + inclusive-range evidence compute — the "
+         "first register_answer_workflow runner"),
+    Unit(7, "ai", "engine", "K10 seams + profiles + tools", 1, 2,
+         "guild-policy overlay reader, preset short-circuit, 3 domain "
+         "orchestration profiles, 8 BTD6 tool rows w/ real handlers, "
+         "NL message shell + history scanner — ALL registry/port rows"),
 )
 
 
