@@ -1,0 +1,513 @@
+{
+ "commands": {
+  "admin": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "admin"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "adminmenu"
+   },
+   {
+    "aliases": [
+     "cogs",
+     "cogslist",
+     "listcogs"
+    ],
+    "group": "",
+    "name": "coglist"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "loglevel"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "restart"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "serverstats"
+   },
+   {
+    "aliases": [
+     "slashlist"
+    ],
+    "group": "",
+    "name": "slashes"
+   }
+  ],
+  "automod": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "automod"
+   }
+  ],
+  "channel": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "bulkcreate"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "bulkdelete"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "channelinfo"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "channelmenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "clone"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "create"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "del"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "evt"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "list"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "lock"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "move"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "permissions"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "rename"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "set"
+   },
+   {
+    "aliases": [
+     "slow"
+    ],
+    "group": "",
+    "name": "slowmode"
+   },
+   {
+    "aliases": [
+     "settopic"
+    ],
+    "group": "",
+    "name": "topic"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "unlock"
+   }
+  ],
+  "cleanup": [
+   {
+    "aliases": [],
+    "group": "word",
+    "name": "add"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "cleanup"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "cleanuphistory"
+   },
+   {
+    "aliases": [],
+    "group": "word",
+    "name": "list"
+   },
+   {
+    "aliases": [],
+    "group": "word",
+    "name": "remove"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "word"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "wordmenu"
+   }
+  ],
+  "counters": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "counterpreset"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "counters"
+   }
+  ],
+  "diagnostic": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "diagnostics"
+   }
+  ],
+  "economy": [
+   {
+    "aliases": [
+     "bal",
+     "wallet"
+    ],
+    "group": "",
+    "name": "balance"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "daily"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "economy"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "economymenu"
+   },
+   {
+    "aliases": [
+     "jobs"
+    ],
+    "group": "",
+    "name": "joblist"
+   },
+   {
+    "aliases": [
+     "transfer"
+    ],
+    "group": "",
+    "name": "pay"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setlogchannel"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "shop"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "work"
+   }
+  ],
+  "help": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "help"
+   }
+  ],
+  "image_moderation": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "imagemod"
+   }
+  ],
+  "inventory": [
+   {
+    "aliases": [
+     "inv"
+    ],
+    "group": "",
+    "name": "inventory"
+   }
+  ],
+  "logging": [
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "create"
+   },
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "disable"
+   },
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "enable"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "logging"
+   },
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "routes"
+   },
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "set"
+   },
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "status"
+   },
+   {
+    "aliases": [],
+    "group": "logging",
+    "name": "test"
+   }
+  ],
+  "moderation": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ban"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "clearwarnings"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "kick"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "moderation"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "modlogs"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "modmenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "timeout"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "unban"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "warn"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "warnings"
+   }
+  ],
+  "security": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "security"
+   }
+  ],
+  "server_management": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "server-management"
+   },
+   {
+    "aliases": [
+     "guildmenu",
+     "servermenu"
+    ],
+    "group": "",
+    "name": "servermanagement"
+   }
+  ],
+  "settings": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "settings"
+   }
+  ],
+  "setup": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup"
+   }
+  ],
+  "treasury": [
+   {
+    "aliases": [
+     "deposit",
+     "donate"
+    ],
+    "group": "treasury",
+    "name": "contribute"
+   },
+   {
+    "aliases": [
+     "disburse",
+     "payout"
+    ],
+    "group": "treasury",
+    "name": "grant"
+   },
+   {
+    "aliases": [
+     "bank",
+     "pool"
+    ],
+    "group": "",
+    "name": "treasury"
+   }
+  ],
+  "welcome": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "welcome"
+   }
+  ]
+ },
+ "event_payloads": {
+  "economy.balance_changed": [
+   "delta",
+   "guild_id",
+   "new_balance",
+   "reason",
+   "user_id"
+  ],
+  "moderation.action_taken": [
+   "action",
+   "actor_id",
+   "guild_id",
+   "reason",
+   "target_id"
+  ],
+  "settings.changed": [
+   "guild_id",
+   "key",
+   "subsystem"
+  ]
+ },
+ "legacy_ai_task_ids": [
+  "btd6.answer",
+  "btd6.strategy_review",
+  "code_context.explain",
+  "general.nl_answer",
+  "help.answer",
+  "logs.triage",
+  "moderation.assist",
+  "platform.explain_consistency",
+  "platform.explain_status",
+  "projmoon.answer",
+  "settings.explain",
+  "settings.propose",
+  "setup.explain",
+  "setup.suggest",
+  "video.compare",
+  "video.describe",
+  "video.qa"
+ ],
+ "legacy_custom_ids": [
+  "economy:balance",
+  "economy:daily",
+  "economy:inventory",
+  "economy:jobs",
+  "economy:overview",
+  "economy:shop",
+  "economy:treasury",
+  "economy:work",
+  "treasury.contribute_form"
+ ],
+ "schema_version": 1,
+ "subsystem_keys": [
+  "admin",
+  "automod",
+  "channel",
+  "cleanup",
+  "counters",
+  "diagnostic",
+  "economy",
+  "help",
+  "image_moderation",
+  "inventory",
+  "logging",
+  "moderation",
+  "security",
+  "server_management",
+  "settings",
+  "setup",
+  "treasury",
+  "welcome"
+ ]
+}
