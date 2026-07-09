@@ -20,7 +20,7 @@
 | `sb/domain/<key>/` | port-band subsystem implementations (service/ops/panels behind the audited seams) | a port band lands a subsystem (band 1 opened it: settings) |
 | `manifest/layout/` | the sim-apply [A]-overlay locks (`<subsystem>.lock.json`, SimRef/Exempt provenance) | sim.apply writes a reviewed arrangement pin |
 | `tools/grammar_fit/` | the V-2 cumulative UNITS ledger (`measure.py` -> RESULTS.md; band rows append-only) | each band appends its classification rows |
-| `docs/status/` | milestone status reports — start with the [Sequence C completion report (2026-07-09)](status/rebuild-completion-report-2026-07-09.md) | a build phase completes and its report is compiled |
+| `docs/status/` | milestone status reports — start with the [Sequence C completion report (2026-07-09)](status/rebuild-completion-report-2026-07-09.md); the [orchestration retrospective (2026-07-09)](status/rebuild-orchestration-retrospective-2026-07-09.md) records how the rebuild run was coordinated | a build phase completes and its report is compiled |
 
 ## Documentation roots
 
