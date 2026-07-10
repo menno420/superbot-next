@@ -136,14 +136,24 @@ async def _compensate_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
     """end_access's compensator (fork E; conn=None): a Discord-refused
     unlock re-inserts the deadline row record_unlock deleted, so the DB
     stops claiming the channel is open and the sweep retries the unlock at
-    the deadline. A permanent grant has no row to restore — no-op."""
+    the deadline. A permanent grant has no row to restore — no-op.
+
+    INSERT-ONLY (codex 4673572674): the delete commits before the EFFECT
+    runs and grant_access is NATURAL_KEY (nothing serializes it against
+    end_access), so a concurrent re-grant can land a newer row for the same
+    guild+channel before this compensator fires — the stale stash must not
+    clobber it. insert_lock_if_absent restores the row only while the slot
+    is empty; otherwise the newer grant wins and its own deadline governs.
+    Follow-up (same class): GRANT_PRIZE's _compensate_lock is a plain
+    delete_lock — a concurrent re-grant between apply_lock's refusal and
+    the compensation would be deleted symmetrically."""
     deleted = ctx.params.get("_deleted_lock")
     if not deleted:
         return LegOutcome(step=StepResult(0, "compensate_unlock", True),
                           before={}, after={"compensated": "nothing"})
     gid = int(ctx.guild_id or 0)
     cid = int(ctx.params.get("channel_id", 0) or 0)
-    await store.upsert_lock(
+    restored = await store.insert_lock_if_absent(
         None, guild_id=gid, channel_id=cid,
         winner_id=int(deleted["winner_id"]),
         unlock_at=datetime.fromisoformat(str(deleted["unlock_at"])))
@@ -153,12 +163,15 @@ async def _compensate_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
         record_operator_finding(
             source="workflow:proof_channel.end_access", severity="warning",
             summary=(f"unlock of channel {cid} blocked by Discord — "
-                     f"deadline row restored, sweep will retry"),
+                     + ("deadline row restored, sweep will retry" if restored
+                        else "newer grant already holds the slot, "
+                             "stash discarded")),
             detail="", correlation_id=None)
     except Exception:  # noqa: BLE001 — findings are observability only
         pass
     return LegOutcome(step=StepResult(0, "compensate_unlock", True),
                       before={}, after={"compensated": "unlock",
+                                        "restored": restored,
                                         "restored_channel_id": cid})
 
 
