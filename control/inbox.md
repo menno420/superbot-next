@@ -83,6 +83,7 @@ ruling never reached the Builder seat.
 done-when: the rule text lives in the repo's doctrine doc AND the first
 substantive Builder PR after this order carries the @codex review request on its
 final head; status acks 010.
+
 ## ORDER 011 · 2026-07-10T16:55Z · status: new
 priority: P1
 do: MAKE SB_TEST_DB_HOSTS FULLY OPTIONAL AND SILENT (owner directive Q-0263.1, superbot
