@@ -44,6 +44,11 @@ frontmatter keeps the score.
 
 (Captured ideas, each with a state and a next destination — none left at `raw`.)
 
+- [`ensure-only-registration-gaps-2026-07-10.md`](ensure-only-registration-gaps-2026-07-10.md) —
+  `captured` → quick-win lane: 99 refs across 8 subsystems registered only in ENSURE_REFS
+  hooks the live root never runs (BUG A class, generalized) — each a live RefUnresolved
+  waiting to fire; gated by the composition-parity burn-down list, fix is mechanical
+  per module (the role/handlers.py `_register_pending()` pattern).
 - [`effect-leg-compensation-gaps-2026-07-10.md`](effect-leg-compensation-gaps-2026-07-10.md) —
   `captured` → quick-win lane: two verified DB-commits-before-uncompensated-EFFECT ops
   (`moderation.timeout`, `proof_channel.end_access`) + the invariant test that makes the
