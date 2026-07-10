@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from typing import Awaitable, Callable
 
 from sb.kernel.interaction.locale import LocaleContext
-from sb.kernel.interaction.request import ResolveRequest
+from sb.kernel.interaction.request import ResolveRequest, Surface
 from sb.kernel.panels.context import PanelContext, PanelOrigin
 from sb.kernel.panels.registry import NavBinding, get_panel, hub_panel_id
 from sb.kernel.panels.render import RenderedPanel, render_panel
@@ -36,6 +36,7 @@ __all__ = [
     "PanelPresenterNotInstalled",
     "PanelSession",
     "handle_nav",
+    "install_panel_anchor_store",
     "install_panel_presenter",
     "may_interact",
     "open_panel",
@@ -67,6 +68,48 @@ _presenter: PanelPresenter = _no_presenter
 def install_panel_presenter(presenter: PanelPresenter) -> None:
     global _presenter
     _presenter = presenter
+
+
+# --- anchor-store port (the shipped panel_anchors registry) ---------------------
+
+# Channel-sent panel messages are recorded so later refresh/stale-marking can
+# find them (sb.kernel.panels.anchors is the Postgres implementation);
+# ephemeral interaction responses are never anchored — no editable channel
+# message exists. Uninstalled port = no-op (DB-free environments).
+_anchor_store = None
+
+#: interaction surfaces present through an interaction response (no channel
+#: message id the bot could re-fetch) — never anchored; the message surfaces
+#: (PREFIX, MAINTENANCE, SETUP) send real channel messages.
+_INTERACTION_SURFACES = frozenset({
+    Surface.SLASH, Surface.COMPONENT, Surface.MODAL,
+    Surface.NL_INTENT, Surface.NL_ORCHESTRATION,
+})
+
+
+def install_panel_anchor_store(store) -> None:
+    global _anchor_store
+    _anchor_store = store
+
+
+async def _record_anchor(spec: PanelSpec, req: ResolveRequest,
+                         message_ref: object) -> None:
+    if _anchor_store is None or message_ref is None:
+        return
+    if req.surface in _INTERACTION_SURFACES:
+        return
+    try:
+        message_id = int(str(message_ref))
+    except (TypeError, ValueError):
+        return              # opaque non-message handle — nothing to anchor
+    try:
+        await _anchor_store(
+            guild_id=req.guild_id, channel_id=req.channel_id,
+            message_id=message_id, subsystem=spec.subsystem,
+            user_id=req.actor.user_id)
+    except Exception:  # noqa: BLE001 — anchoring never takes the panel down
+        logger.warning("panel anchor write failed for %s", spec.panel_id,
+                       exc_info=True)
 
 
 # --- sessions (in-memory; PERSISTENT panels are restart-safe BY custom_id — the
@@ -126,8 +169,9 @@ def may_interact(session: PanelSession | None, user_id: int | None) -> bool:
 
 
 def reset_panel_engine_for_tests() -> None:
-    global _presenter
+    global _presenter, _anchor_store
     _presenter = _no_presenter
+    _anchor_store = None
     _sessions.clear()
 
 
@@ -159,6 +203,7 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
         panel_id=spec.panel_id, invoker_id=rendered.invoker_lock,
         audience=rendered.audience, page=page, timeout_s=rendered.timeout_s,
         message_ref=message_ref))
+    await _record_anchor(spec, req, message_ref)
 
 
 async def open_panel(ref: PanelRef, req: ResolveRequest) -> None:

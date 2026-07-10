@@ -41,6 +41,22 @@ accepted-forever red. The least-destructive encoding was chosen per class:
   imported harness (`parity/harness/`) stays verbatim.
 - Pinned by tests/unit/parity_adapter/test_dispositions.py.
 
+## Ref renumbering (the drops' id-noise completion — help flip PR)
+
+The capture Normalizer numbers run-minted ids by FIRST APPEARANCE
+(`<msg:1>`, `<msg:2>`, …), so a ruled drop that consumed a ref shifts every
+later number: the reason-less invoking delete minted `<msg:1>` on virtually
+every shipped command golden, and the kernel `ai_decision_audit` row
+consumed one more — leaving every surviving ref (e.g. the `panel_anchors`
+row's `message_id`) permanently off-by-N against a fresh capture that never
+allocates those refs. `apply_dispositions` therefore finishes with a
+symmetric canonical renumbering of `<msg:N>` refs (first appearance in the
+DISPOSED document, deterministic sorted-key traversal, per-document
+bijection). This accepts NO new byte differences beyond the three ruled
+classes — it stops the ruled drops from leaking id-noise, exactly the
+Normalizer's own "one extra embed must not cascade id-noise" rule. Pinned
+by `test_minted_refs_renumber_after_drops`.
+
 ## Why symmetric-drop, not expected-side-only
 
 An expected-side-only strip would flag a future v1 invoking-message

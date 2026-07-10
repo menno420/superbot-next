@@ -250,6 +250,12 @@ class Harness:
         assert self.world is not None
         install_panel_engine(panel_engine.open_panel)
         panel_engine.install_panel_presenter(ParityPresenter(self.http))
+        if self.db_ready:
+            # the shipped panel_anchors registry (channel-sent panels only)
+            # — same wiring as the live root's install_panel_runtime.
+            from sb.kernel.panels.anchors import record_anchor
+
+            panel_engine.install_panel_anchor_store(record_anchor)
         install_channel_emitter(ParityChannelEmitter(self.http))
         # the moderation EFFECT legs' guild-action port — capture twin, same
         # obligation as the live root's adapter (else every moderation op

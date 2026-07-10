@@ -109,6 +109,33 @@ def test_apply_is_pure_and_symmetric():
                       apply_dispositions(other)) != []
 
 
+def test_minted_refs_renumber_after_drops():
+    """The ruled drops consume symbolic refs (the reason-less invoking
+    delete minted <msg:1> on every shipped command golden) — the disposition
+    pass renumbers <msg:N> by first appearance in the DISPOSED doc,
+    symmetrically, so the accepted classes cannot leak id-noise into every
+    ref that follows one. Non-disposed bytes around a ref still diff."""
+    from parity.harness.runner import _diff_docs
+
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    golden = _doc()
+    # the shipped side: <msg:1> was the (dropped) invoking delete; the
+    # surviving reasoned delete carries <msg:2>.
+    fresh = _doc()
+    fresh["steps"][0]["calls"] = [
+        c for c in fresh["steps"][0]["calls"]
+        if not (c["method"] == "delete_message"
+                and c["args"]["reason"] is None)]
+    # the new bot never allocated the invoking-delete ref: its reasoned
+    # delete is <msg:1>.
+    fresh["steps"][0]["calls"][1]["args"]["message_id"] = "<msg:1>"
+    assert _diff_docs(apply_dispositions(golden), apply_dispositions(fresh)) == []
+    # a real byte difference on the renumbered call still reds
+    fresh["steps"][0]["calls"][1]["args"]["reason"] = "different purge"
+    assert _diff_docs(apply_dispositions(golden), apply_dispositions(fresh)) != []
+
+
 def test_dispositions_load_from_parity_yml():
     from sb.adapters.parity.dispositions import load_dispositions
 

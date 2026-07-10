@@ -32,38 +32,58 @@ __all__ = [
 
 @dataclass(frozen=True)
 class HelpCategory:
-    """One mother-hub category (shipped HubEntry presentation fields)."""
+    """One mother-hub category (shipped HubEntry presentation fields).
+
+    ``hub_command`` is the shipped hub-opening prefix command the home index
+    advertised per category ("→ `!games`" — the goldens pin the strings
+    verbatim); ``staff_only`` is the shipped visibility gate (the moderation
+    and admin hubs never rendered for non-operator members —
+    parity/goldens/help/help_panel_open.json pins the 6-category member
+    view against the 8-category operator view in sweep_help.json)."""
 
     key: str
     display_name: str
     emoji: str
     purpose: str
+    hub_command: str = ""
+    staff_only: bool = False
 
 
 #: shipped HUBS tuple order drives display order (hub_registry.py verbatim).
 CATEGORIES: tuple[HelpCategory, ...] = (
-    HelpCategory("games", "Games", "🎮", "Game flows and tournaments."),
+    HelpCategory("games", "Games", "🎮", "Game flows and tournaments.",
+                 hub_command="!games"),
     HelpCategory("btd6", "BTD6 Assistant", "🐵",
                  "Bloons Tower Defense 6 assistant — lookups, strategy "
-                 "guidance, and round breakdowns."),
+                 "guidance, and round breakdowns.",
+                 hub_command="!btd6"),
     HelpCategory("project_moon", "Project Moon", "🌑",
                  "Limbus Company knowledge — Sinners, Sins, status keywords, "
-                 "damage types, and E.G.O grades."),
+                 "damage types, and E.G.O grades.",
+                 hub_command="!pm"),
     HelpCategory("economy", "Economy", "💰",
-                 "Currency, items, work, shop, and standings."),
+                 "Currency, items, work, shop, and standings.",
+                 hub_command="!economymenu"),
     HelpCategory("moderation", "Moderation & Safety", "🛡️",
-                 "Warnings, timeouts, bans, cleanup, audit logs."),
+                 "Warnings, timeouts, bans, cleanup, audit logs.",
+                 hub_command="!modmenu", staff_only=True),
     HelpCategory("community", "Community", "🌱",
-                 "Progression, roles, and community activities."),
+                 "Progression, roles, and community activities.",
+                 hub_command="!community"),
     HelpCategory("utility", "Utility", "🧰",
-                 "Info, tools, and discovery commands."),
+                 "Info, tools, and discovery commands.",
+                 hub_command="!utilitymenu"),
     HelpCategory("admin", "Server & Admin", "⚙️",
                  "Settings, diagnostics, server management, channels, AI, "
-                 "and ops."),
+                 "and ops.",
+                 hub_command="!adminmenu", staff_only=True),
 )
 
 #: the projection's honesty valve: subsystems the shipped map never knew
 #: group here instead of shedding (new-architecture keys land visibly).
+#: NOT surfaced on the home index — the shipped home rendered exactly the
+#: eight hubs above (oracle-pinned); Other stays reachable as a category
+#: panel for unmapped keys.
 OTHER_CATEGORY = HelpCategory("other", "Other", "📦",
                               "Everything not yet homed under a category.")
 

@@ -62,9 +62,16 @@ class TestRealTreeIsGreen:
         )
         assert problems == []
 
-    def test_all_subsystems_born_pending(self):
+    def test_statuses_within_the_one_way_door(self):
         parity = load_parity_yml()
-        assert set(parity["subsystems"].values()) == {"pending"}
+        assert set(parity["subsystems"].values()) <= {"pending", "ported"}
+        # the first flip (ORDER-004 item 2): help is ported, one-way — and
+        # every ported row carries its mandatory A-16 ratchet row.
+        assert parity["subsystems"]["help"] == "ported"
+        ratchet = parity["depth"]["ratchet"]
+        for name, status in parity["subsystems"].items():
+            if status == "ported":
+                assert name in ratchet, name
         assert parity["kernel"]["status"] == "pending"
 
     def test_roster_matches_golden_dirs_both_directions(self):
@@ -231,11 +238,31 @@ class TestDepthRules:
 
 # ------------------------------------------------------------- the two legs
 class TestGateDriver:
-    def test_gate_leg_vacuously_green_at_birth(self, capsys):
+    def test_gate_leg_vacuous_only_at_zero_ported(self, capsys, monkeypatch):
+        """The birth semantics, kept as a fixture pin: zero ported rows ⇒
+        vacuously green (the check could be marked required from day one)."""
+        import tools.run_golden_parity as rgp
+
+        monkeypatch.setattr(rgp, "_load_parity_yml",
+                            lambda: {"subsystems": {"xp": "pending"}})
         assert run_gate() == 0
         out = capsys.readouterr().out
         assert "vacuously GREEN" in out
         assert "PENDING (expected-red, reported not failing)" in out
+
+    def test_gate_leg_gates_ported_rows_for_real(self, capsys, monkeypatch):
+        """Post-flip (help is ported) the gate is NEVER vacuous: with no
+        replay binding (the DB-free unit env) it reds honestly instead of
+        false-greening a flipped row."""
+        import tools.run_golden_parity as rgp
+
+        monkeypatch.setattr(
+            rgp, "_replay_binding",
+            lambda: (None, "no bot-under-test binding (unit env)"))
+        assert run_gate() == 1
+        out = capsys.readouterr().out
+        assert "vacuously" not in out
+        assert "flipped `ported` but no replay is possible" in out
 
     def test_report_leg_is_born_red_by_design(self, capsys):
         assert run_report() == 1

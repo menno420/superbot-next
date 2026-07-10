@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 
 from sb.kernel.panels.engine import may_interact, session_for
-from sb.kernel.panels.render import RenderedPanel
+from sb.kernel.panels.render import STYLE_TOKEN_COLORS, RenderedPanel
 
 logger = logging.getLogger("sb.adapters.discord.panel_view")
 
@@ -35,12 +35,27 @@ _STYLE_MAP = {
 }
 
 
+def _select_option(option):
+    """RenderedComponent option → discord.SelectOption: rich mappings carry
+    label/value/description/emoji (the shipped shape); plain strings keep the
+    compact label==value form."""
+    if isinstance(option, dict):
+        return discord.SelectOption(
+            label=str(option.get("label", "")),
+            value=str(option.get("value", option.get("label", ""))),
+            description=str(option["description"]) if option.get("description") else None,
+            emoji=str(option["emoji"]) if option.get("emoji") else None,
+            default=bool(option.get("default", False)))
+    return discord.SelectOption(label=str(option), value=str(option))
+
+
 def build_embed(rendered: RenderedPanel):
     """RenderedEmbed → discord.Embed (budgets already enforced kernel-side)."""
     if discord is None:
         raise RuntimeError("discord is not installed")
     e = rendered.embed
-    embed = discord.Embed(title=e.title or None, description=e.description or None)
+    embed = discord.Embed(title=e.title or None, description=e.description or None,
+                          color=STYLE_TOKEN_COLORS.get(e.style_token))
     for name, value in e.fields:
         embed.add_field(name=name, value=value, inline=False)
     if e.footer:
@@ -69,8 +84,7 @@ def build_view(rendered: RenderedPanel):
                     item = discord_ui.Select(
                         custom_id=comp.custom_id, placeholder=comp.placeholder or None,
                         min_values=comp.min_values, max_values=comp.max_values,
-                        options=[discord.SelectOption(label=o, value=o)
-                                 for o in comp.options] or
+                        options=[_select_option(o) for o in comp.options] or
                                 [discord.SelectOption(label="—", value="")],
                         row=comp.row)
                 else:

@@ -69,7 +69,7 @@ subsystems:
   four_twenty: pending
   games: pending
   general: pending
-  help: pending
+  help: ported
   hermes: pending
   image_moderation: pending
   inventory: pending
@@ -170,4 +170,5 @@ depth:
   # Committed covered-surface floors — counts never decrease. A `ported`
   # subsystem MUST have a row; regenerate with
   #   python3 tools/check_parity_depth.py --write-ratchet
-  ratchet: {}
+  ratchet:
+    help: {events: 1, tables: 3, settings: 0}

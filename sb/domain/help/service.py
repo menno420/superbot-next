@@ -98,24 +98,41 @@ def _ensure_provider(name: str, fn) -> ProviderRef:
     return ref
 
 
+def _visible_categories(ctx) -> tuple[cats.HelpCategory, ...]:
+    """The shipped home index: exactly the eight registry hubs, in shipped
+    order, with the staff-only hubs (moderation, admin) gated on the
+    invoker's operator-ness — parity/goldens/help pins the 6-category member
+    view against the 8-category operator view. Empty rosters do NOT hide a
+    hub (the shipped index was static registry data, not inventory-driven)."""
+    actor = getattr(ctx, "actor", None)
+    is_staff = bool(getattr(actor, "is_guild_operator", False)
+                    or getattr(actor, "is_bot_owner", False))
+    return tuple(cat for cat in cats.CATEGORIES
+                 if is_staff or not cat.staff_only)
+
+
 def _ensure_home_provider() -> ProviderRef:
     async def help_home_categories(ctx):
-        rows = []
-        for cat in (*cats.CATEGORIES, cats.OTHER_CATEGORY):
-            roster = _rosters.get(cat.key)
-            if not roster:
-                continue
-            n_cmds = sum(len(_inventory.get(k, ())) for k in roster)
-            rows.append((f"{cat.emoji} {cat.display_name}",
-                         f"{cat.purpose}\n{len(roster)} features · "
-                         f"{n_cmds} commands"))
-        if not rows:
-            rows.append(("No commands declared",
-                         "No manifest declares any command yet."))
-        return tuple(rows)
+        # the shipped home field copy, verbatim: purpose + the hub command.
+        return tuple(
+            (f"{cat.emoji} {cat.display_name}",
+             f"{cat.purpose}\n→ `{cat.hub_command}`")
+            for cat in _visible_categories(ctx))
 
     return _ensure_provider("sb.panels.help_home_categories",
                             help_home_categories)
+
+
+def _ensure_home_options_provider() -> ProviderRef:
+    async def help_home_options(ctx):
+        # the shipped rich select options (label/value/description/emoji),
+        # same visibility gate as the fields.
+        return tuple(
+            {"label": cat.display_name, "value": cat.key,
+             "description": cat.purpose, "emoji": cat.emoji}
+            for cat in _visible_categories(ctx))
+
+    return _ensure_provider("sb.panels.help_home_options", help_home_options)
 
 
 def _ensure_category_provider(cat_key: str) -> ProviderRef:
@@ -174,7 +191,9 @@ def _ensure_handlers() -> None:
         from sb.kernel.panels.engine import open_panel
 
         values = tuple(req.args.get("values", ()) or ())
-        cat = cats.category_for_option(str(values[0])) if values else None
+        # home select values are category KEYS (the shipped wire shape —
+        # goldens pin value="games" against label="Games").
+        cat = cats.category_by_key(str(values[0])) if values else None
         if cat is None or cat.key not in _rosters:
             return _Reply(SUCCESS, "That category is no longer available.")
         await open_panel(PanelRef(f"help.cat_{cat.key}"), req)
@@ -265,29 +284,30 @@ def _category_panel(cat: cats.HelpCategory) -> PanelSpec:
 
 def _home_panel() -> PanelSpec:
     ref = _ensure_home_provider()
-    options = tuple(
-        cats.category_option(cat)
-        for cat in (*cats.CATEGORIES, cats.OTHER_CATEGORY)
-        if _rosters.get(cat.key))
+    options_ref = _ensure_home_options_provider()
     return PanelSpec(
         panel_id="help.home",
         subsystem="help",
-        title="📚 Help",
-        audience=Audience.PUBLIC,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        # the shipped home shape, byte-pinned by parity/goldens/help: title,
+        # copy, blue accent, the verbatim legacy select id, rich options
+        # (provider-fed — visibility is per-invoker), invoker audience
+        # (slash opens ephemeral, the shipped behavior).
+        title="📚 Help Menu",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blue", footer_mode=FooterMode.NONE),
         body=(
-            TextBlock("Pick a category below — every entry is generated "
-                      "from the bot's own manifests."),
+            TextBlock("Pick a category from the dropdown below."),
             FieldsBlock(provider=ref),
         ),
         selectors=(
             SelectorSpec(
                 selector_id="category_select", kind=SelectorKind.ENTITY,
                 on_select=HandlerRef("help.open_category"),
-                options_source=options,
+                options_source=options_ref,
                 placeholder="Pick a category…",   # the shipped copy, verbatim
                 empty_state="No categories available.",
-                audience_tier="user"),
+                audience_tier="user",
+                custom_id_override="help_categories:select"),  # legacy pin
         ),
         # the help hub IS home — no help slot on itself (render also guards
         # subsystem=="help"), home stays for the root hub when one exists.

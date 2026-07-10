@@ -31,15 +31,16 @@ def _fresh_projection():
     service.build_help_panels()
 
 
-def _actor():
+def _actor(*, operator: bool = False):
     from sb.kernel.interaction.request import ActorRef
 
-    return ActorRef(user_id=7, is_guild_operator=False, is_bot_owner=False,
-                    is_dm=False, member_tier="user")
+    return ActorRef(user_id=7, is_guild_operator=operator, is_bot_owner=False,
+                    is_dm=False, member_tier="admin" if operator else "user")
 
 
-def _ctx():
-    return PanelContext(bot=None, guild_id=42, actor=_actor(), channel_id=9,
+def _ctx(*, operator: bool = False):
+    return PanelContext(bot=None, guild_id=42, actor=_actor(operator=operator),
+                        channel_id=9,
                         origin=PanelOrigin.INTERACTION, audience=Audience.PUBLIC,
                         locale=LocaleContext())
 
@@ -82,13 +83,24 @@ class TestRosterCoverage:
 
 class TestHomePanel:
     def test_home_lists_categories_not_subsystems(self):
+        """The shipped home index (oracle-pinned, parity/goldens/help): the
+        registry hubs in shipped order, staff hubs gated on operator-ness —
+        6 for a member, all 8 for an operator."""
         panels = {p.panel_id: p for p in service.build_help_panels()}
         rendered = run(render_panel(panels["help.home"], _ctx()))
         names = [n for n, _ in rendered.embed.fields]
         assert any("Games" in n for n in names)
-        assert any("Server & Admin" in n for n in names)
-        # compact: one field per non-empty category, never one per subsystem
-        assert len(names) <= len(cats.CATEGORIES) + 1
+        # staff-only hubs are hidden from plain members (the goldens' 6-row view)
+        assert not any("Server & Admin" in n for n in names)
+        assert not any("Moderation" in n for n in names)
+        assert len(names) == sum(1 for c in cats.CATEGORIES if not c.staff_only)
+        operator = run(render_panel(panels["help.home"], _ctx(operator=True)))
+        op_names = [n for n, _ in operator.embed.fields]
+        assert any("Server & Admin" in n for n in op_names)
+        assert len(op_names) == len(cats.CATEGORIES)
+        # the shipped field copy: purpose + the hub command, verbatim
+        assert operator.embed.fields[0][1] == "Game flows and tournaments.\n→ `!games`"
+        assert operator.embed.title == "📚 Help Menu"
 
     def test_home_renders_inside_every_budget(self):
         panels = {p.panel_id: p for p in service.build_help_panels()}
@@ -101,15 +113,32 @@ class TestHomePanel:
             assert len(e.fields) <= MAX_EMBED_FIELDS, pid
 
     def test_home_select_options_round_trip(self):
+        """Provider-fed rich options (the shipped wire shape): value is the
+        category KEY; label/description/emoji the registry presentation; the
+        legacy custom_id survives verbatim; a non-empty roster's key routes
+        to a registered category panel."""
         panels = {p.panel_id: p for p in service.build_help_panels()}
         home = panels["help.home"]
         (selector,) = home.selectors
         assert selector.placeholder == "Pick a category…"   # shipped copy
-        assert 0 < len(selector.options_source) <= 25
-        for option in selector.options_source:
-            cat = cats.category_for_option(option)
+        assert selector.custom_id_override == "help_categories:select"
+        rendered = run(render_panel(home, _ctx(operator=True)))
+        (component,) = rendered.components
+        assert component.custom_id == "help_categories:select"
+        options = component.options
+        assert 0 < len(options) <= 25
+        assert options[0] == {"label": "Games", "value": "games",
+                              "description": "Game flows and tournaments.",
+                              "emoji": "🎮"}
+        for option in options:
+            cat = cats.category_by_key(option["value"])
             assert cat is not None
-            assert f"help.cat_{cat.key}" in panels
+            if service._rosters.get(cat.key):
+                assert f"help.cat_{cat.key}" in panels
+        member = run(render_panel(home, _ctx()))
+        member_values = [o["value"] for o in member.components[0].options]
+        assert "moderation" not in member_values
+        assert "admin" not in member_values
 
     def test_category_select_options_round_trip_to_subsystem_panels(self):
         panels = {p.panel_id: p for p in service.build_help_panels()}
@@ -144,7 +173,8 @@ class TestSelectHandlers:
         handler = resolve_ref(HandlerRef("help.open_category"))
 
         class Req:
-            args = {"values": (cats.category_option(cats.CATEGORIES[0]),)}
+            # home select values are category KEYS (the shipped wire shape)
+            args = {"values": (cats.CATEGORIES[0].key,)}
 
         assert run(handler(Req())) is None
         assert opened == ["help.cat_games"]

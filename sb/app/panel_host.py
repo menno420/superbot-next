@@ -50,6 +50,12 @@ def register_manifest_panels(manifests: list) -> int:
 
 def install_panel_runtime(*, hub_resolver: Callable[[str], str | None] | None = None) -> None:
     install_panel_engine(panel_engine.open_panel)
+    # the shipped panel_anchors registry (channel-sent panels only; the
+    # engine skips interaction surfaces) — db.init precedes this step in the
+    # boot order, so the Postgres store is live here.
+    from sb.kernel.panels.anchors import record_anchor
+
+    panel_engine.install_panel_anchor_store(record_anchor)
     if hub_resolver is not None:
         install_hub_resolver(hub_resolver)
     if importlib.util.find_spec("discord") is None:
