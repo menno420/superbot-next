@@ -70,7 +70,7 @@ subsystems:
   games: pending
   general: pending
   help: ported
-  hermes: pending
+  hermes: ported
   image_moderation: pending
   inventory: pending
   karma: pending
@@ -180,5 +180,6 @@ depth:
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
     help: {events: 1, tables: 3, settings: 0}
+    hermes: {events: 0, tables: 0, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 2, settings: 0}
