@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from sb.domain.rps import handlers as _handlers
 from sb.domain.rps import panels as _panels
+from sb.domain.rps import tournament as _tournament
 from sb.domain.rps.ops import register_ops
 from sb.domain.rps.stats import RPS_PLAYERS_STORE
 from sb.domain.rps.rules import GAME_MODES
@@ -62,24 +63,24 @@ MANIFEST = SubsystemManifest(
                     usage="!rps [move] [bet] | !rps @player [bet]"),
         CommandSpec(name="rpsregister", kind=CommandKind.PREFIX,
                     aliases=("rpsreg",),
-                    route=HandlerRef("rps.register_pending"),
+                    route=HandlerRef("rps.register_route"),
                     audience_tier="staff", capability="rps_tournament",
-                    summary="Start tournament registration (reaction "
-                            "sign-up, optional role ping).",
+                    summary="Start tournament registration (button + "
+                            "reaction sign-up).",
                     usage="!rpsregister [@role] [entry_fee]"),
         CommandSpec(name="rpsstart", kind=CommandKind.PREFIX,
                     aliases=("rpsbegin",),
-                    route=HandlerRef("rps.start_pending"),
+                    route=HandlerRef("rps.start_route"),
                     audience_tier="staff", capability="rps_tournament",
                     summary="Start the registered RPS tournament.",
                     usage="!rpsstart [mode] [best_of]"),
         CommandSpec(name="rpsbot", kind=CommandKind.PREFIX,
-                    route=HandlerRef("rps.bot_pending"),
+                    route=HandlerRef("rps.bot_route"),
                     audience_tier="user", capability="rps_tournament",
                     summary="Start matches against the bot.",
                     usage="!rpsbot [mode] [best_of] [@members/@roles]"),
         CommandSpec(name="rpsmatchup", kind=CommandKind.PREFIX,
-                    route=HandlerRef("rps.matchup_pending"),
+                    route=HandlerRef("rps.matchup_route"),
                     audience_tier="staff", capability="rps_tournament",
                     summary="Manually create a tournament match between "
                             "two members.",
@@ -97,7 +98,8 @@ MANIFEST = SubsystemManifest(
                     usage="!rpssettings"),
     ),
     panels=(_panels.rps_hub_spec(), _panels.rps_quickplay_spec(),
-            _panels.rps_pvp_spec()),
+            _panels.rps_pvp_spec(), _panels.rps_registration_spec(),
+            _panels.rps_match_spec()),
     settings=_SETTINGS,
     stores=(RPS_PLAYERS_STORE,),  # + checkpoint rows on the games manifest
     events=(),          # emits economy.balance_changed (owner: economy)
@@ -116,6 +118,7 @@ def _ensure_refs() -> None:
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
+    _tournament.register_reaction_signup()
     register_ops()
 
 

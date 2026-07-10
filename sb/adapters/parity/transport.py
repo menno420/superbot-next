@@ -401,16 +401,49 @@ class ParityPresenter:
         ephemeral = getattr(rendered, "audience", "") == "invoker"
         responder = getattr(req, "responder", None)
         edit_ref = getattr(rendered, "edit_message_ref", None)
+        channel_id = getattr(req, "channel_id", None)
         if isinstance(responder, ParityResponder):
             if edit_ref is not None:
                 responder.edit_panel(payload, edit_ref)
                 return edit_ref
-            return responder.present_panel(payload, ephemeral=ephemeral)
-        channel_id = getattr(req, "channel_id", None)
+            if (getattr(rendered, "anchor_policy", "") == "channel_anchor"
+                    and channel_id is not None):
+                # CHANNEL_ANCHOR panels are fresh channel messages even when
+                # a click drives them (the live twin sends to the origin's
+                # channel) — the send mints a click-targetable message id,
+                # never a webhook followup.
+                message_id = self._transport.record_send(int(channel_id),
+                                                         payload)
+                self._record_self_reactions(rendered, channel_id, message_id)
+                return message_id
+            message_id = responder.present_panel(payload, ephemeral=ephemeral)
+            self._record_self_reactions(rendered, channel_id, message_id)
+            return message_id
         if channel_id is None:
             self._transport.gap("ParityPresenter: no responder and no channel")
             return None
-        return self._transport.record_send(int(channel_id), payload)
+        message_id = self._transport.record_send(int(channel_id), payload)
+        self._record_self_reactions(rendered, channel_id, message_id)
+        return message_id
+
+    def _record_self_reactions(self, rendered: Any, channel_id: Any,
+                               message_id: Any) -> None:
+        """The bot's own post-send reactions (`message.add_reaction`), in
+        the goldens' wire verb — channel sends only (an interaction
+        response has no reactable message; the shape mirrors fake_http's
+        add_reaction capture)."""
+        emoji_list = tuple(getattr(rendered, "self_reactions", ()) or ())
+        if not emoji_list:
+            return
+        if message_id is None or channel_id is None:
+            self._transport.gap("ParityPresenter: self_reactions on a "
+                                "message-less surface")
+            return
+        for emoji in emoji_list:
+            self._transport.record(
+                "add_reaction",
+                {"channel_id": int(channel_id), "emoji": str(emoji),
+                 "message_id": int(message_id)})
 
 
 class ParityChannelEmitter:

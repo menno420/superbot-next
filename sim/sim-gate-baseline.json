@@ -3164,6 +3164,88 @@
    },
    "value": 0
   },
+  "rps_tournament:rps_tournament.match:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 tournament port renders the shipped GAME_MODES move vocabulary in its shipped declaration order (the shipped match channels took TYPED moves \u2014 no shipped button arrangement exists to carry; the mode decides which declared subset renders). Telemetry sidecar is seeded-empty; the layout sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)."
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "move_rock",
+       "move_paper",
+       "move_scissors",
+       "move_lizard",
+       "move_spock"
+      ],
+      [
+       "move_pawn",
+       "move_knight",
+       "move_queen"
+      ],
+      [
+       "move_fire",
+       "move_water",
+       "move_grass"
+      ]
+     ]
+    }
+   ]
+  },
+  "rps_tournament:rps_tournament.match:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 tournament port renders the shipped GAME_MODES move vocabulary in its shipped declaration order (the shipped match channels took TYPED moves \u2014 no shipped button arrangement exists to carry; the mode decides which declared subset renders). Telemetry sidecar is seeded-empty; the layout sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)."
+   },
+   "value": [
+    [
+     "move_rock",
+     "move_paper",
+     "move_scissors",
+     "move_lizard",
+     "move_spock"
+    ],
+    [
+     "move_pawn",
+     "move_knight",
+     "move_queen"
+    ],
+    [
+     "move_fire",
+     "move_water",
+     "move_grass"
+    ]
+   ]
+  },
+  "rps_tournament:rps_tournament.match:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 tournament port renders the shipped GAME_MODES move vocabulary in its shipped declaration order (the shipped match channels took TYPED moves \u2014 no shipped button arrangement exists to carry; the mode decides which declared subset renders). Telemetry sidecar is seeded-empty; the layout sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)."
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "move_rock",
+        "move_paper",
+        "move_scissors",
+        "move_lizard",
+        "move_spock"
+       ],
+       [
+        "move_pawn",
+        "move_knight",
+        "move_queen"
+       ],
+       [
+        "move_fire",
+        "move_water",
+        "move_grass"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "rps_tournament:rpsbot:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

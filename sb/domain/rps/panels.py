@@ -21,6 +21,7 @@ from sb.kernel.panels.registry import register_panel
 from sb.spec.outcomes import DeferMode
 from sb.spec.panels import (
     ActionStyle,
+    AnchorPolicy,
     Audience,
     EmbedFrameSpec,
     FooterMode,
@@ -37,22 +38,37 @@ from sb.spec.panels import (
 from sb.spec.refs import HandlerRef, WorkflowRef, handler, is_registered, panel
 
 __all__ = [
+    "MATCH_PANEL_ID",
     "PVP_PANEL_ID",
     "QUICKPLAY_PANEL_ID",
+    "REGISTRATION_PANEL_ID",
     "ensure_panel_refs",
     "install_rps_panels",
     "register_rps_sessions",
     "rps_hub_spec",
+    "rps_match_spec",
     "rps_pvp_spec",
     "rps_quickplay_spec",
+    "rps_registration_spec",
 ]
 
 QUICKPLAY_PANEL_ID = "rps_tournament.quickplay"
 PVP_PANEL_ID = "rps_tournament.pvp"
+REGISTRATION_PANEL_ID = "rps_tournament.registration"
+MATCH_PANEL_ID = "rps_tournament.match"
 
 #: shipped button emoji (views/rps/solo_play.py — Rock 🪨 / Paper 📄 /
-#: Scissors ✂️, grey style).
-_QP_EMOJI = {"rock": "🪨", "paper": "📄", "scissors": "✂️"}
+#: Scissors ✂️, grey style) + the mode families' first emoji alias
+#: (cogs/rps_tournament/rules.py MOVE_ALIASES).
+_QP_EMOJI = {"rock": "🪨", "paper": "📄", "scissors": "✂️",
+             "lizard": "🦎", "spock": "🖖",
+             "pawn": "♟️", "knight": "♞", "queen": "♛",
+             "fire": "🔥", "water": "💧", "grass": "🌿"}
+
+#: every move any mode can render — the match panel DECLARES them all so
+#: the engine can mint session ids for whichever subset the mode shows.
+_ALL_MOVES = tuple(dict.fromkeys(
+    move for moves in GAME_MODES.values() for move in moves))
 
 
 def _session_action(action_id: str, label: str,
@@ -300,6 +316,185 @@ async def _render_quickplay(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+def rps_registration_spec() -> PanelSpec:
+    """The shipped tournament-registration message (`!rpsregister` →
+    ``ctx.send(embed=embed, view=reg_view)`` + the ✅ primer): the
+    INFO_COLOR embed with the Entry Fee / Game Mode fields and the green
+    ``Join Tournament`` button (views/rps/registration._RpsRegistrationView)
+    — pinned byte-for-byte by the rpsregister golden. PUBLIC (anyone may
+    join); session-lifecycle so the button rides a run-minted id, exactly
+    the shipped auto-id view; the window is the shipped 600 s."""
+    return PanelSpec(
+        panel_id=REGISTRATION_PANEL_ID,
+        subsystem="rps_tournament",
+        title="🎮 Rock Paper Scissors Tournament Registration 🎮",
+        audience=Audience.PUBLIC,
+        timeout_s=600,                    # the shipped registration_timer
+        frame=EmbedFrameSpec(style_token="blue",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="join", label="Join Tournament", emoji="✅",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("rps.tournament_join"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("join",),)),)),
+        renderer_override=HandlerRef("rps.render_registration"),
+        justification=(
+            "the shipped registration embed's Entry Fee / Game Mode field "
+            "values are request-parameterized copy (fee argument + the "
+            "default_mode setting — cogs/rps_tournament_cog.rps_register); "
+            "grammar TextBlocks are static. The Join button and its "
+            "authority stay declared on the spec; the renderer composes "
+            "the embed + the declared button and asks for the shipped ✅ "
+            "self-reaction primer."),
+        session_lifecycle=True,
+    )
+
+
+def rps_match_spec() -> PanelSpec:
+    """One tournament match as a BUTTON view in the tournament's home
+    channel — the DELIBERATE deviation from the shipped private match
+    channel + no-prefix message parsing (channel provisioning rides the
+    resource-provision port; ledgered). Copy keeps the shipped match-
+    channel announce lines verbatim. CHANNEL_ANCHOR: round-N views open
+    off the round-(N-1) final click and must be fresh channel messages."""
+    return PanelSpec(
+        panel_id=MATCH_PANEL_ID,
+        subsystem="rps_tournament",
+        title="✂️ RPS Tournament Match",
+        audience=Audience.PUBLIC,
+        anchor_policy=AnchorPolicy.CHANNEL_ANCHOR,
+        timeout_s=600,
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        actions=tuple(
+            PanelActionSpec(
+                action_id=f"move_{move}", label=move.title(),
+                emoji=_QP_EMOJI[move], style=ActionStyle.SECONDARY,
+                audience_tier="user", defer_mode=DeferMode.NONE,
+                handler=HandlerRef("rps.tournament_move"))
+            for move in _ALL_MOVES),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            tuple(f"move_{m}" for m in _ALL_MOVES[:5]),
+            tuple(f"move_{m}" for m in _ALL_MOVES[5:8]),
+            tuple(f"move_{m}" for m in _ALL_MOVES[8:]),)),)),
+        renderer_override=HandlerRef("rps.render_match"),
+        justification=(
+            "every line of the match view is match-parameterized copy "
+            "(player mentions, mode/best-of, per-throw score reveals — the "
+            "shipped match-channel sends); grammar TextBlocks are static. "
+            "The mode decides WHICH declared move buttons render (classic "
+            "3 / lizard_spock 5 / chess 3 / elemental 3) — declared "
+            "actions and authority stay on the spec; the renderer only "
+            "composes the staged embed + the mode's declared subset."),
+        session_lifecycle=True,
+    )
+
+
+async def _render_registration(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the golden-pinned registration embed verbatim:
+    INFO_COLOR, `React ✅ or click **Join** to sign up!` + the window line,
+    inline Entry Fee / Game Mode fields, the green Join button, and the
+    shipped ✅ self-reaction primer."""
+    from sb.domain.rps.tournament import (
+        REGISTRATION_EMOJI,
+        REGISTRATION_WINDOW_S,
+    )
+    from sb.kernel.panels.render import (
+        RenderedComponent,
+        RenderedEmbed,
+        RenderedPanel,
+    )
+
+    params = getattr(ctx, "params", {}) or {}
+    fee = int(params.get("entry_fee", 0) or 0)
+    fee_str = f"{fee} 🪙" if fee > 0 else "Free"
+    mode_label = str(params.get("mode_label") or "Classic")
+    closed = bool(params.get("closed"))
+    embed = RenderedEmbed(
+        title=spec.title,
+        description=("React ✅ or click **Join** to sign up!\n"
+                     f"Registration ends in "
+                     f"{REGISTRATION_WINDOW_S // 60} minutes."),
+        fields=(("Entry Fee", fee_str, True), ("Game Mode", mode_label, True)),
+        style_token=spec.frame.style_token)
+    action = spec.actions[0]
+    components = (RenderedComponent(
+        kind="button", custom_id=f"{spec.panel_id}.{action.action_id}",
+        label=action.label, row=0, style=action.style.value,
+        emoji=action.emoji, disabled=closed),)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=components,
+        invoker_lock=None, timeout_s=spec.timeout_s,
+        audience=spec.audience.value, anchor_policy=spec.anchor_policy.value,
+        self_reactions=() if closed else (REGISTRATION_EMOJI,))
+
+
+async def _render_match(spec: PanelSpec, ctx) -> object:
+    """renderer_override — one tournament match, staged: open (the shipped
+    match-channel announce lines) → waiting → per-throw reveal (tie /
+    scored) → done (winner line, buttons disabled)."""
+    from sb.kernel.panels.render import (
+        RenderedComponent,
+        RenderedEmbed,
+        RenderedPanel,
+    )
+
+    params = getattr(ctx, "params", {}) or {}
+    stage = str(params.get("stage") or "open")
+    p1 = int(params.get("p1") or 0)
+    p2 = int(params.get("p2") or 0)
+    mode = str(params.get("mode") or "classic")
+    best_of = int(params.get("best_of") or 1)
+    round_num = int(params.get("round") or 1)
+    done = stage == "done"
+    # the shipped match-channel announce, verbatim lines
+    lines = [f"<@{p1}> vs <@{p2}>",
+             f"Game mode: {mode.capitalize()}, Best of {best_of}",
+             "Please enter your move."]
+    moves = {str(k): str(v) for k, v in dict(params.get("moves") or {}).items()}
+    m1, m2 = moves.get(str(p1), ""), moves.get(str(p2), "")
+
+    def _reveal() -> str:
+        return (f"<@{p1}>: **{m1}** {_QP_EMOJI.get(m1, '')}  ·  "
+                f"<@{p2}>: **{m2}** {_QP_EMOJI.get(m2, '')}")
+
+    scores = {str(k): int(v)
+              for k, v in dict(params.get("scores") or {}).items()}
+    score_line = (f"Score: <@{p1}> **{scores.get(str(p1), 0)}** — "
+                  f"**{scores.get(str(p2), 0)}** <@{p2}>")
+    if stage == "waiting":
+        lines.append("⏳ One move is in — waiting for the other player…")
+    elif stage == "throw_tie":
+        lines += [_reveal(), "🤝 Tie — throw again!", score_line]
+    elif stage == "throw_scored":
+        lines += [_reveal(),
+                  f"<@{int(params.get('throw_winner') or 0)}> takes the "
+                  "throw!", score_line]
+    elif done:
+        lines = lines[:2] + [_reveal(),
+                             f"🏆 <@{int(params.get('winner') or 0)}> wins "
+                             "the match!"]
+    embed = RenderedEmbed(
+        title=f"✂️ RPS Tournament — Round {round_num}",
+        description="\n".join(lines),
+        style_token="green" if done else "purple")
+    components = tuple(
+        RenderedComponent(
+            kind="button", custom_id=f"{spec.panel_id}.move_{move}",
+            label=move.title(), row=0 if i < 5 else 1,
+            style="secondary", emoji=_QP_EMOJI[move], disabled=done)
+        for i, move in enumerate(GAME_MODES.get(mode, GAME_MODES["classic"])))
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=components,
+        invoker_lock=None, timeout_s=spec.timeout_s,
+        audience=spec.audience.value, anchor_policy=spec.anchor_policy.value)
+
+
 @panel("rps_tournament.hub")
 def _hub_factory() -> PanelSpec:
     return rps_hub_spec()
@@ -315,13 +510,26 @@ def _pvp_factory() -> PanelSpec:
     return rps_pvp_spec()
 
 
+@panel(REGISTRATION_PANEL_ID)
+def _registration_factory() -> PanelSpec:
+    return rps_registration_spec()
+
+
+@panel(MATCH_PANEL_ID)
+def _match_factory() -> PanelSpec:
+    return rps_match_spec()
+
+
 handler("rps.render_quickplay")(_render_quickplay)
 handler("rps.render_pvp")(_render_pvp)
+handler("rps.render_registration")(_render_registration)
+handler("rps.render_match")(_render_match)
 
 
 def install_rps_panels() -> PanelSpec:
     spec = rps_hub_spec()
-    for candidate in (spec, rps_quickplay_spec(), rps_pvp_spec()):
+    for candidate in (spec, rps_quickplay_spec(), rps_pvp_spec(),
+                      rps_registration_spec(), rps_match_spec()):
         try:
             register_panel(candidate)
         except ValueError as exc:
@@ -340,8 +548,16 @@ def ensure_panel_refs() -> None:
         _panel(QUICKPLAY_PANEL_ID)(_quickplay_factory)
     if not is_registered(_P(PVP_PANEL_ID)):
         _panel(PVP_PANEL_ID)(_pvp_factory)
+    if not is_registered(_P(REGISTRATION_PANEL_ID)):
+        _panel(REGISTRATION_PANEL_ID)(_registration_factory)
+    if not is_registered(_P(MATCH_PANEL_ID)):
+        _panel(MATCH_PANEL_ID)(_match_factory)
     if not is_registered(_H("rps.render_quickplay")):
         handler("rps.render_quickplay")(_render_quickplay)
     if not is_registered(_H("rps.render_pvp")):
         handler("rps.render_pvp")(_render_pvp)
+    if not is_registered(_H("rps.render_registration")):
+        handler("rps.render_registration")(_render_registration)
+    if not is_registered(_H("rps.render_match")):
+        handler("rps.render_match")(_render_match)
     register_rps_sessions()
