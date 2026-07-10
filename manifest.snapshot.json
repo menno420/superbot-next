@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 44,
+  "manifest_count": 45,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -2684,6 +2684,14 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "surface": "prefix",
+          "value": "uxlab"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/welcome.py",
           "subsystem": "welcome",
           "surface": "prefix",
@@ -3370,6 +3378,51 @@
           "value": "open_four_twenty"
         },
         {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "buttons"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "selects"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "modals"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "embeds"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "components_v2"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "pil_cards"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "mock_studio"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "probe_bench"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "compare"
+        },
+        {
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "rank"
@@ -3821,6 +3874,11 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_ux_lab"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.sub_channel"
         },
         {
@@ -4022,6 +4080,11 @@
           "source": "sb/manifest/utility.py",
           "subsystem": "utility",
           "value": "utility.profile_card"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "ux_lab.home"
         },
         {
           "source": "sb/manifest/welcome.py",
@@ -4756,6 +4819,11 @@
           "source": "sb/manifest/utility.py",
           "subsystem": "utility",
           "value": "utility"
+        },
+        {
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "value": "ux_lab"
         },
         {
           "source": "sb/manifest/welcome.py",
@@ -5789,6 +5857,39 @@
       "handler:utility.user_info_view": {
         "module": "sb.domain.utility.handlers"
       },
+      "handler:ux_lab.buttons_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.compare_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.components_v2_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.embeds_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.home_view": {
+        "module": "sb.domain.ux_lab.handlers"
+      },
+      "handler:ux_lab.mock_studio_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.modals_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.pil_cards_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.probe_bench_wing": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:ux_lab.render_home": {
+        "module": "sb.domain.ux_lab.panels"
+      },
+      "handler:ux_lab.selects_wing": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
       },
@@ -6041,6 +6142,9 @@
       "panel:help.sub_utility": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.sub_ux_lab": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.sub_welcome": {
         "module": "sb.domain.help.service"
       },
@@ -6139,6 +6243,9 @@
       },
       "panel:utility.user_info": {
         "module": "sb.domain.utility.panels"
+      },
+      "panel:ux_lab.home": {
+        "module": "sb.domain.ux_lab.panels"
       },
       "panel:welcome.hub": {
         "module": "sb.domain.operator_spine"
@@ -6392,6 +6499,9 @@
       "provider:sb.panels.help_cmds_utility_0": {
         "module": "sb.domain.help.service"
       },
+      "provider:sb.panels.help_cmds_ux_lab_0": {
+        "module": "sb.domain.help.service"
+      },
       "provider:sb.panels.help_cmds_welcome_0": {
         "module": "sb.domain.help.service"
       },
@@ -6427,6 +6537,9 @@
       },
       "provider:utility.children_field": {
         "module": "sb.domain.utility.panels"
+      },
+      "provider:ux_lab.home_fields": {
+        "module": "sb.domain.ux_lab.panels"
       },
       "provider:welcome.hub_settings": {
         "module": "sb.domain.operator_spine"
@@ -7543,7 +7656,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:e53023aed4538bdcc6a0d18281f6f8a8c69e22473b2a4483428e35f9238387e3",
+  "stable_hash": "sha256:b317c1ee46e3df8fdddcde0c77ad75d4b569ff9eac293b657a59bfa0073679fc",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19808,6 +19921,53 @@
           "audience": "public",
           "body": [
             {
+              "text": "1 command(s), generated from the `ux_lab` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_ux_lab_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_ux_lab",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🧪 UX Lab — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
               "text": "17 command(s), generated from the `channel` manifest."
             },
             {
@@ -20146,6 +20306,7 @@
               },
               "options_source": [
                 "⚙️ Administration",
+                "🧪 UX Lab",
                 "📐 Channels",
                 "🧭 Server Management",
                 "🤖 AI Platform",
@@ -28650,6 +28811,329 @@
           "subsystem": "utility",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "ux_lab": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "interfacelab"
+          ],
+          "audience_tier": "administrator",
+          "capability": "ux_lab",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "uxlab",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ux_lab.home_view"
+          },
+          "slash_common": false,
+          "summary": "Open the UX Lab — the interface gallery + limit probe bench.",
+          "usage": "!uxlab",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "ux_lab",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "buttons",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔘",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.buttons_wing"
+              },
+              "label": "Buttons",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "selects",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.selects_wing"
+              },
+              "label": "Selects",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "modals",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⌨️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.modals_wing"
+              },
+              "label": "Modals",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "embeds",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪧",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.embeds_wing"
+              },
+              "label": "Embeds",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "components_v2",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧱",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.components_v2_wing"
+              },
+              "label": "Components V2",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pil_cards",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.pil_cards_wing"
+              },
+              "label": "PIL cards",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mock_studio",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎭",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.mock_studio_wing"
+              },
+              "label": "Mock studio",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "probe_bench",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔬",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.probe_bench_wing"
+              },
+              "label": "Probe bench",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "compare",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚖️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ux_lab.compare_wing"
+              },
+              "label": "Compare",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Browse every interaction pattern SuperBot could use. Every exhibit **reacts** when you press it and carries a spec card (use-for / avoid-for / platform limits).\n\n**Nothing here is real**: the lab never writes to the database or changes the server (CI-enforced)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:ux_lab.home_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Home-card footer is the literal plan-doc pointer 'Design: docs/planning/ux-lab-interface-gallery-plan-2026-06-12.md' — outside FooterMode's none/subsystem/provenance vocabulary (goldens/ux_lab + goldens/uxlab pin the byte; the utility-panel precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "buttons",
+                    "selects",
+                    "modals",
+                    "embeds"
+                  ],
+                  [
+                    "components_v2",
+                    "pil_cards",
+                    "mock_studio",
+                    "probe_bench"
+                  ],
+                  [
+                    "compare"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "admin",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "ux_lab.home",
+          "renderer_override": {
+            "$ref": "handler:ux_lab.render_home"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ux_lab",
+          "timeout_s": 180,
+          "title": "🧪 UX Lab — interface gallery",
           "usage_weight": 1.0
         }
       ],

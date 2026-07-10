@@ -65,6 +65,19 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # goldens/hermes; blackjack loss/bust terminals)
     "gold": 15844367,         # discord.Color.gold() — the shipped Daily
                               # Reward embed (cogs/economy_cog.py)
+    "blurple": 5793266,       # discord.Color.blurple() — the shipped UX Lab
+                              # Home card (views/ux_lab/home.py;
+                              # goldens/ux_lab + goldens/uxlab)
+}
+
+# hub key → the shipped hub display name (disbot/utils/subsystem_registry.py
+# display_name, verbatim): the shipped standard-nav home button carried the
+# HUB'S name, never a generic "Home" — the goldens pin the label bytes
+# ("↩ Administration", "↩ Community", "↩ Games"). Entries land as ported
+# goldens pin them (the STYLE_TOKEN_COLORS growth rule); an unmapped hub
+# keeps the "Home" placeholder.
+HUB_NAV_LABELS: dict[str, str] = {
+    "admin": "Administration",    # goldens/uxlab/sweep_slash_uxlab
 }
 
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).
@@ -355,8 +368,9 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
         if hub:
             components.append(RenderedComponent(
                 kind="button", custom_id=f"{NAV_HUB_ID_PREFIX}{hub}",
-                label=resolver.resolve("↩ Home", locale=loc), row=NAV_ROW,
-                style=ActionStyle.SECONDARY.value))
+                label=resolver.resolve(
+                    f"↩ {HUB_NAV_LABELS.get(hub, 'Home')}", locale=loc),
+                row=NAV_ROW, style=ActionStyle.SECONDARY.value))
     if nav.parent is not None:
         components.append(RenderedComponent(
             kind="button", custom_id=f"{NAV_BACK_ID_PREFIX}{nav.parent.name}",
