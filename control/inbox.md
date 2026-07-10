@@ -61,7 +61,7 @@ why: OWNER-ACTION 1 gated the first parity pending→ported flip (ORDER-004 item
 owner delegated the round-3 recommended answers wholesale (Q-0262).
 done-when: disposition applied to the parity rows + OWNER-ACTION 1 cleared + status acks 009.
 
-## ORDER 010 · 2026-07-10T16:55Z · status: new
+## ORDER 011 · 2026-07-10T16:55Z · status: new
 priority: P1
 do: MAKE SB_TEST_DB_HOSTS FULLY OPTIONAL AND SILENT (owner directive Q-0263.1, superbot
 router, 2026-07-10; routed by the owner's dispatch session). The test-plane DB-host
@@ -77,4 +77,4 @@ why: the owner ruled the friction outweighs the guard on his own surfaces ("hobb
 project"); the ask also violated the fleet's paste-ready owner-action rule (kit ORDER 008
 class). The guard survives as opt-in for a future prod cutover.
 done-when: bot boots on the test plane with SB_TEST_DB_HOSTS unset (verified in the
-live-drive prep) + tests pin the new behavior + docs updated + status acks 010.
+live-drive prep) + tests pin the new behavior + docs updated + status acks 011.
