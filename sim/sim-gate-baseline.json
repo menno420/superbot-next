@@ -3612,6 +3612,88 @@
    },
    "value": 0
   },
+  "ux_lab:ux_lab.home:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "buttons",
+       "selects",
+       "modals",
+       "embeds"
+      ],
+      [
+       "components_v2",
+       "pil_cards",
+       "mock_studio",
+       "probe_bench"
+      ],
+      [
+       "compare"
+      ]
+     ]
+    }
+   ]
+  },
+  "ux_lab:ux_lab.home:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "buttons",
+     "selects",
+     "modals",
+     "embeds"
+    ],
+    [
+     "components_v2",
+     "pil_cards",
+     "mock_studio",
+     "probe_bench"
+    ],
+    [
+     "compare"
+    ]
+   ]
+  },
+  "ux_lab:ux_lab.home:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "buttons",
+        "selects",
+        "modals",
+        "embeds"
+       ],
+       [
+        "components_v2",
+        "pil_cards",
+        "mock_studio",
+        "probe_bench"
+       ],
+       [
+        "compare"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "ux_lab:uxlab:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "welcome:channel:BindingSpec.group": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
