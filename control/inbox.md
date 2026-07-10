@@ -49,3 +49,14 @@ priority: P0
 do: SELF-ARM YOUR WAKE ROUTINE — you are the Builder seat of the standing autonomous core (superbot docs/planning/round3-launch-pack-2026-07-10.md §5: four Projects loop permanently on ~2-hourly routines without owner input). Arm a recurring 2-HOURLY routine for this Project yourself via the claude-code-remote scheduling tools: call create_trigger (cron every 2 hours; stagger to even hours :00 per §5) with the §5 Builder routine instruction text — "2-HOURLY WAKE (Builder): sync to origin/main HEAD; read control/inbox.md at HEAD; advance the current band; decide-and-flag owner questions (resolve reversible ones yourself; park true owner-only asks as six-field OWNER-ACTION entries); ship something real every wake (a build is better than no build); heartbeat overwrite last. If this trigger is one-shot rather than recurring, re-arm it for +120 minutes before ending the turn." REQUIRED RECORD: write in control/status.md the EXACT create_trigger call you made (tool name + arguments) and its outcome — or, if the scheduling tools are unavailable/denied on your seat, the VERBATIM denial text plus the routine name + instruction text for the owner to create manually. Two lanes (trading-strategy, kit-lab) have already proven agent-armed routines fire; arming is seat-dependent, so your exact record is what turns it into a reproducible recipe. ROUND-3 LANE FOCUS while the routine loops: band-5 live-drive leg FIRST (testing ladder step 7 — replay leg done, live leg pending), then band-6 (games), under the owner's standing "a build is better than no build" bias — ship playable, imperfect increments every session; polish later.
 why: the standing autonomous core needs its Builder seat looping self-armed; the recorded call/denial converts routine-arming from luck into a recipe, and band-5-live→band-6-games is the owner's round-3 sequence for this lane.
 done-when: routine ACTIVE (Created-by-Claude, 2-hourly) with the exact create_trigger call + outcome recorded in control/status.md — or the verbatim denial + manual-creation text recorded there; status acks 008.
+
+## ORDER 009 · 2026-07-10T15:33Z · status: new
+priority: P1
+do: FLAG-13 CORPUS-RED DISPOSITION RULING (owner delegation Q-0262.3, superbot router,
+2026-07-10; routed by the owner's dispatch session): your proposed disposition for the
+corpus-red classes (status ⚑ OWNER-ACTION 1) is **ACCEPTED** — proceed exactly as
+proposed; the call is reversible-on-paper (Q-0240 class) and reviewable at the parity
+gate. Apply it to the parity rows and clear OWNER-ACTION 1 from your status.
+why: OWNER-ACTION 1 gated the first parity pending→ported flip (ORDER-004 item 2); the
+owner delegated the round-3 recommended answers wholesale (Q-0262).
+done-when: disposition applied to the parity rows + OWNER-ACTION 1 cleared + status acks 009.
