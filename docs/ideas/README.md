@@ -44,6 +44,10 @@ frontmatter keeps the score.
 
 (Captured ideas, each with a state and a next destination — none left at `raw`.)
 
+- [`effect-leg-compensation-gaps-2026-07-10.md`](effect-leg-compensation-gaps-2026-07-10.md) —
+  `captured` → quick-win lane: two verified DB-commits-before-uncompensated-EFFECT ops
+  (`moderation.timeout`, `proof_channel.end_access`) + the invariant test that makes the
+  class unwritable; routed from superbot's verification of the external runtime review.
 - [`port-the-small-four-2026-07-10.md`](port-the-small-four-2026-07-10.md) — `captured` →
   quick-win lane: four verified-missing, decision-free subsystem ports (four_twenty →
   general → paragon → utility), each its own PR; parity rows already exist. Ideal
