@@ -15,11 +15,18 @@ Decision record: docs/parity/flag-13-disposition-2026-07-10.md.
 from __future__ import annotations
 
 import copy
+import json
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 __all__ = ["apply_dispositions", "load_dispositions"]
+
+#: run-minted symbolic message refs (parity/harness/capture.py `_sym`) —
+#: numbered by FIRST APPEARANCE at capture time, so a disposition-dropped
+#: surface that consumed a ref shifts every later number.
+_MSG_REF = re.compile(r"<msg:\d+>")
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _PARITY_YML = _REPO_ROOT / "parity" / "parity.yml"
@@ -85,6 +92,43 @@ def _drop_exempt_calls(doc: dict[str, Any], method: str,
         ]
 
 
+def _renumber_minted_refs(doc: dict[str, Any]) -> dict[str, Any]:
+    """Canonicalize ``<msg:N>`` refs by first appearance in the DISPOSED
+    document (deterministic sorted-key traversal), symmetric on both docs.
+
+    The capture Normalizer numbers run-minted ids in first-appearance order,
+    so a disposition-dropped surface that consumed a ref (the reason-less
+    invoking-message delete minted ``<msg:1>`` on every shipped command
+    golden; the kernel ``ai_decision_audit`` row consumed one too) shifts
+    every LATER ref's number. That shift is id-noise created by the ruled
+    drops themselves, not behavior — without this pass the accepted classes
+    would leak permanent red into every ref that follows one. Renumbering is
+    a per-document bijection over the symbolic refs: every non-disposed byte
+    around a ref still diffs."""
+    order: list[str] = []
+    seen: set[str] = set()
+    for match in _MSG_REF.finditer(json.dumps(doc, sort_keys=True,
+                                              ensure_ascii=False)):
+        ref = match.group(0)
+        if ref not in seen:
+            seen.add(ref)
+            order.append(ref)
+    mapping = {old: f"<msg:{i + 1}>" for i, old in enumerate(order)}
+    if all(old == new for old, new in mapping.items()):
+        return doc
+
+    def rewrite(value: Any) -> Any:
+        if isinstance(value, str):
+            return _MSG_REF.sub(lambda m: mapping[m.group(0)], value)
+        if isinstance(value, dict):
+            return {k: rewrite(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [rewrite(v) for v in value]
+        return value
+
+    return rewrite(doc)
+
+
 def apply_dispositions(doc: dict[str, Any]) -> dict[str, Any]:
     """Return a deep copy of a golden document with every ruled disposition
     applied. Call on BOTH expected and actual before diffing."""
@@ -102,4 +146,4 @@ def apply_dispositions(doc: dict[str, Any]) -> dict[str, Any]:
     if deletion and deletion.get("encoding") == "exemption":
         _drop_exempt_calls(out, str(deletion.get("method") or "delete_message"),
                            bool(deletion.get("reasonless_only", True)))
-    return out
+    return _renumber_minted_refs(out)
