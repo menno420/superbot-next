@@ -46,8 +46,8 @@ safety that isn't wired. **Add a unit invariant** (the
 `test_no_domain_module_redeclares_reply` pattern): every non-`optional`,
 non-`irreversible` EFFECT leg that follows a DB leg in a `CompoundOpSpec` must
 declare a `compensator`. This catches the class at authoring time; both
-instances above fail it today, and `KICK` (deliberately `irreversible` +
-typed-phrase confirmation, D-0029) passes it by design.
+instances above fail it today, and `KICK` (deliberately `irreversible` + typed-phrase confirmation —
+the kick-reversibility ruling stamped at its one home in `docs/decisions.md`) passes it by design.
 
 ## Route
 
