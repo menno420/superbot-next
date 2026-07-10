@@ -92,7 +92,7 @@ subsystems:
   ticket: pending
   treasury: pending
   utility: ported
-  ux_lab: pending
+  ux_lab: ported
   uxlab: pending
   welcome: pending
   xp: pending
@@ -205,3 +205,4 @@ depth:
     leaderboard: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 2, settings: 0}
     utility: {events: 1, tables: 2, settings: 0}
+    ux_lab: {events: 1, tables: 2, settings: 0}
