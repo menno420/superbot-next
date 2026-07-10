@@ -14,10 +14,13 @@ here (spec 05 §9).
 
 from __future__ import annotations
 
+import logging
 from urllib.parse import parse_qs, urlsplit
 
 from sb.kernel.config import Config, ConfigError, StartupError
 from sb.spec.config import DataPlane
+
+logger = logging.getLogger("sb.db.data_plane")
 
 PROD_SERVICE_NAME = "worker"  # the Railway-injected prod worker identity
 _TEST_PLANE_MARKER = "test"   # DSN query marker: ?sb_plane=test
@@ -29,8 +32,12 @@ def assert_data_plane(cfg: Config, *, _accrue: list[ConfigError] | None = None) 
     Rules:
       - cfg.data_plane is REQUIRED (SB_DATA_PLANE in {test,prod}; absence is
         already fail_fast in preflight's coercion step).
-      - TEST  => the DSN host must be in the declared allowlist
-        cfg.SB_TEST_DB_HOSTS OR the DSN carries the `?sb_plane=test` query
+      - TEST  => the DB-host allowlist is OPTIONAL (owner directive Q-0263.1).
+        When cfg.SB_TEST_DB_HOSTS is unset/empty, ANY host is accepted: boot
+        proceeds and the connected host is logged once, loudly, one line —
+        never a refusal, never an owner ask. The allowlist engages ONLY when
+        the variable is deliberately set non-empty: then the DSN host must be
+        in the allowlist OR the DSN carries the `?sb_plane=test` query
         marker; else RefuseBoot.
       - PROD  => requires cfg.SB_PROD_ATTEST PRESENT (presence IS the
         attestation; its value is never logged) AND the running image is the
@@ -48,17 +55,26 @@ def assert_data_plane(cfg: Config, *, _accrue: list[ConfigError] | None = None) 
 
     if plane is DataPlane.TEST:
         host = parts.hostname if parts else None
-        allowed = host is not None and host in cfg.SB_TEST_DB_HOSTS
-        marker = False
-        if parts is not None:
-            query = parse_qs(parts.query)
-            marker = query.get("sb_plane", []) == [_TEST_PLANE_MARKER]
-        if not (allowed or marker):
-            errors.append(ConfigError(
-                "DATABASE_URL",
-                f"test data plane refused: DSN host {host!r} not in SB_TEST_DB_HOSTS "
-                "and no ?sb_plane=test marker",
-            ))
+        if not cfg.SB_TEST_DB_HOSTS:
+            # Open mode (Q-0263.1): no allowlist deliberately set => any host
+            # is acceptable on the test plane. Never refuse, never ask — just
+            # announce the connected host once, loudly, one line.
+            logger.warning(
+                "test data plane: DB-host allowlist not set — accepting DSN host %r",
+                host,
+            )
+        else:
+            allowed = host is not None and host in cfg.SB_TEST_DB_HOSTS
+            marker = False
+            if parts is not None:
+                query = parse_qs(parts.query)
+                marker = query.get("sb_plane", []) == [_TEST_PLANE_MARKER]
+            if not (allowed or marker):
+                errors.append(ConfigError(
+                    "DATABASE_URL",
+                    f"test data plane refused: DSN host {host!r} not in "
+                    "SB_TEST_DB_HOSTS and no ?sb_plane=test marker",
+                ))
     elif plane is DataPlane.PROD:
         if not cfg.is_configured("SB_PROD_ATTEST"):
             errors.append(ConfigError(
