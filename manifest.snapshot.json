@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 42,
+  "manifest_count": 43,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -1692,6 +1692,14 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "generalmenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "surface": "prefix",
@@ -3041,6 +3049,46 @@
           "value": "world_card"
         },
         {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "fact"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "joke"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "quote"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "trivia"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "motivate"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "eightball"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "greet"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "general_overview"
+        },
+        {
           "source": "sb/manifest/inventory.py",
           "subsystem": "inventory",
           "value": "open_mining_materials"
@@ -3445,6 +3493,11 @@
           "value": "games.world"
         },
         {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "general.menu"
+        },
+        {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.sub_games"
@@ -3638,6 +3691,16 @@
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.cat_community"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_general"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_utility"
         },
         {
           "source": "sb/manifest/help.py",
@@ -4439,6 +4502,11 @@
           "value": "games"
         },
         {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "general"
+        },
+        {
           "source": "sb/manifest/governance.py",
           "subsystem": "governance",
           "value": "governance"
@@ -5192,6 +5260,30 @@
       "handler:games.world_card_view": {
         "module": "sb.domain.games.service"
       },
+      "handler:general.eightball_answer": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.fact_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.greet_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.joke_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.menu_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.motivate_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.quote_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.trivia_view": {
+        "module": "sb.domain.general.handlers"
+      },
       "handler:help.open_category": {
         "module": "sb.domain.help.service"
       },
@@ -5579,6 +5671,9 @@
       "panel:games.world": {
         "module": "sb.domain.games.panels"
       },
+      "panel:general.menu": {
+        "module": "sb.domain.general.panels"
+      },
       "panel:help.cat_admin": {
         "module": "sb.domain.help.service"
       },
@@ -5601,6 +5696,9 @@
         "module": "sb.domain.help.service"
       },
       "panel:help.cat_project_moon": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.cat_utility": {
         "module": "sb.domain.help.service"
       },
       "panel:help.home": {
@@ -5667,6 +5765,9 @@
         "module": "sb.domain.help.service"
       },
       "panel:help.sub_games": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_general": {
         "module": "sb.domain.help.service"
       },
       "panel:help.sub_hermes": {
@@ -5927,6 +6028,9 @@
       "provider:sb.panels.help_cat_project_moon": {
         "module": "sb.domain.help.service"
       },
+      "provider:sb.panels.help_cat_utility": {
+        "module": "sb.domain.help.service"
+      },
       "provider:sb.panels.help_cmds_admin_0": {
         "module": "sb.domain.help.service"
       },
@@ -5988,6 +6092,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_games_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_general_0": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_hermes_0": {
@@ -7192,7 +7299,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:f9dc7af2f8c96606947a1ef5b6865193093701f4d596a136e228798b4759e3d6",
+  "stable_hash": "sha256:ff8d5e6a2f41e474c0fb1634ab5ebe0e11c00ff245139fb87ea447294d487cff",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -16375,6 +16482,315 @@
       "version": 1,
       "wizard_sections": []
     },
+    "general": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "gmenu"
+          ],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "generalmenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.menu_view"
+          },
+          "slash_common": false,
+          "summary": "Open the General menu (facts, jokes, quotes, trivia, motivation, 8-ball, greetings).",
+          "usage": "!generalmenu",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "general",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "fact",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.fact_view"
+              },
+              "label": "💡 Fact",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "joke",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.joke_view"
+              },
+              "label": "😄 Joke",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "quote",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.quote_view"
+              },
+              "label": "💬 Quote",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "trivia",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.trivia_view"
+              },
+              "label": "🧠 Trivia",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "motivate",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.motivate_view"
+              },
+              "label": "💪 Motivate",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "eightball",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.eightball_answer"
+              },
+              "label": "🎱 8-Ball",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "question",
+                    "label": "Your yes/no question",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "e.g. Will it rain tomorrow?",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "general.eightball_form",
+                "on_submit": {
+                  "$ref": "handler:general.eightball_answer"
+                },
+                "title": "🎱 8-Ball"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "greet",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.greet_view"
+              },
+              "label": "👋 Greet",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "general_overview",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:general.menu"
+              },
+              "label": "↩ Overview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**💡 Fact** — random interesting fact\n**😄 Joke** — random joke\n**💬 Quote** — famous quote\n**🧠 Trivia** — trivia question with reveal\n**💪 Motivate** — motivational message\n**🎱 8-Ball** — yes/no question modal\n**👋 Greet** — random greeting"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fact",
+                    "joke",
+                    "quote"
+                  ],
+                  [
+                    "trivia",
+                    "motivate",
+                    "eightball"
+                  ],
+                  [
+                    "greet",
+                    "general_overview"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "general.menu",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "general",
+          "timeout_s": 180,
+          "title": "💬 General",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
     "governance": {
       "capabilities": [],
       "commands": [],
@@ -18880,6 +19296,129 @@
           "subsystem": "help",
           "timeout_s": 180,
           "title": "🌱 Community",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "1 command(s), generated from the `general` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_general_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_utility"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_general",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "💬 General — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Info, tools, and discovery commands."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_utility"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_utility",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "💬 General"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🧰 Utility",
           "usage_weight": 1.0
         },
         {

@@ -1721,6 +1721,85 @@
    },
    "value": 0
   },
+  "general:general.menu:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "fact",
+       "joke",
+       "quote"
+      ],
+      [
+       "trivia",
+       "motivate",
+       "eightball"
+      ],
+      [
+       "greet",
+       "general_overview"
+      ]
+     ]
+    }
+   ]
+  },
+  "general:general.menu:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "fact",
+     "joke",
+     "quote"
+    ],
+    [
+     "trivia",
+     "motivate",
+     "eightball"
+    ],
+    [
+     "greet",
+     "general_overview"
+    ]
+   ]
+  },
+  "general:general.menu:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "fact",
+        "joke",
+        "quote"
+       ],
+       [
+        "trivia",
+        "motivate",
+        "eightball"
+       ],
+       [
+        "greet",
+        "general_overview"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "general:generalmenu:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "help:help:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
