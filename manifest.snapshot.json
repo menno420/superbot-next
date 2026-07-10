@@ -7092,7 +7092,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:aafc805a68a715b7cf0bd4bc57f5b29b56eef98ca67d4d03af07f483b1d8d5be",
+  "stable_hash": "sha256:2e9a09334ad975eb8398dac19faad29bde2f0baa158156c0698eefcaba8d4255",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -20535,9 +20535,9 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blue",
             "thumbnail_ref": ""
           },
           "justification": "",
@@ -20556,11 +20556,9 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:community.hub"
-            },
-            "show_help": true,
-            "show_home": true,
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "leaderboard.board",
@@ -20587,7 +20585,7 @@
               "usage_weight": 1.0
             }
           ],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "leaderboard",
           "timeout_s": 180,
           "title": "📊 Leaderboards",

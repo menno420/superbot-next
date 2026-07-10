@@ -102,13 +102,13 @@ def register_game_providers() -> None:
         aliases=("farmlb", "farming", "chickenlb"))
     register_provider(RankProvider(
         name="gamexp", display_title="🌍 World Level Leaderboard",
-        select_label="World Level", select_emoji="🌍",
+        select_label="Game Level", select_emoji="🎮",
         empty_hint="No game XP yet — play any game!",
         top=_game_xp_top(None), member_rank=_simple("gamexp")),
         aliases=("gxp", "gamelevel", "game_xp"))
     register_provider(RankProvider(
         name="crafting", display_title="🔨 Crafting Leaderboard",
-        select_label="Crafting", select_emoji="🔨",
+        select_label="Crafting", select_emoji="🔧",
         empty_hint="No crafters yet.",
         top=_game_xp_top("crafting"), member_rank=_simple("crafting")),
         aliases=("crafting_top", "craftlb"))

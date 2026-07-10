@@ -54,6 +54,19 @@ class RankProvider:
 _PROVIDERS: dict[str, RankProvider] = {}
 _ALIASES: dict[str, str] = {}
 
+#: the shipped category order (services/rank_providers.py `_PROVIDERS` —
+#: one file, class-definition order; parity/goldens/leaderboard/
+#: sweep_leaderboard.json pins the selector rows in exactly this order).
+#: The new architecture registers providers from three lanes (band-4
+#: builtins here, the games band, the per-game slice-3 stores), so dict
+#: insertion order is import-order noise — provider_names() orders by the
+#: SHIPPED canon instead; categories the canon never knew append in
+#: registration order (visible, never shed).
+_SHIPPED_ORDER: tuple[str, ...] = (
+    "xp", "coins", "mining", "creatures", "fishing", "farm", "gamexp",
+    "crafting", "deathmatch", "rps", "counting", "karma",
+)
+
 
 def register_provider(provider: RankProvider,
                       aliases: tuple[str, ...] = ()) -> RankProvider:
@@ -64,7 +77,10 @@ def register_provider(provider: RankProvider,
 
 
 def provider_names() -> list[str]:
-    return list(_PROVIDERS)
+    """Canonical provider names in the SHIPPED order (unknown-to-the-canon
+    categories follow, in registration order)."""
+    shipped = [n for n in _SHIPPED_ORDER if n in _PROVIDERS]
+    return shipped + [n for n in _PROVIDERS if n not in _SHIPPED_ORDER]
 
 
 def get_provider(key: str | None) -> RankProvider | None:
