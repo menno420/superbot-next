@@ -61,6 +61,7 @@ why: OWNER-ACTION 1 gated the first parity pending→ported flip (ORDER-004 item
 owner delegated the round-3 recommended answers wholesale (Q-0262).
 done-when: disposition applied to the parity rows + OWNER-ACTION 1 cleared + status acks 009.
 
+
 ## ORDER 010 · 2026-07-10T15:52Z · status: new
 priority: P1
 do: STANDING @codex REVIEW ON SUBSTANTIVE BUILDER PRs (Q-0259 ruling 3, superbot
@@ -82,3 +83,21 @@ ruling never reached the Builder seat.
 done-when: the rule text lives in the repo's doctrine doc AND the first
 substantive Builder PR after this order carries the @codex review request on its
 final head; status acks 010.
+
+## ORDER 011 · 2026-07-10T16:55Z · status: new
+priority: P1
+do: MAKE SB_TEST_DB_HOSTS FULLY OPTIONAL AND SILENT (owner directive Q-0263.1, superbot
+router, 2026-07-10; routed by the owner's dispatch session). The test-plane DB-host
+allowlist must never ask for anything: when SB_TEST_DB_HOSTS is absent or empty, preflight
+accepts ANY host on the test plane, proceeds, and logs the connected host once (loud, one
+line). The allowlist check engages ONLY when the variable is deliberately set non-empty.
+No boot refusal, no error message naming the variable, no owner ask — ever. SB_DATA_PLANE
+stays required; SB_PROD_ATTEST and the prod-refusal rail are untouched. Update the spec
+registry comment + any doc describing the var as required-for-test-plane, and fix any test
+pinning the old refuse-when-unset behavior (pin the NEW behavior: unset ⇒ boot + loud log).
+Execute BEFORE the band-5 live-drive leg so the owner's env needs no such entry.
+why: the owner ruled the friction outweighs the guard on his own surfaces ("hobby
+project"); the ask also violated the fleet's paste-ready owner-action rule (kit ORDER 008
+class). The guard survives as opt-in for a future prod cutover.
+done-when: bot boots on the test plane with SB_TEST_DB_HOSTS unset (verified in the
+live-drive prep) + tests pin the new behavior + docs updated + status acks 011.
