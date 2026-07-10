@@ -93,7 +93,7 @@ subsystems:
   treasury: pending
   utility: ported
   ux_lab: ported
-  uxlab: pending
+  uxlab: ported
   welcome: pending
   xp: pending
 
@@ -206,3 +206,4 @@ depth:
     rps_tournament: {events: 1, tables: 2, settings: 0}
     utility: {events: 1, tables: 2, settings: 0}
     ux_lab: {events: 1, tables: 2, settings: 0}
+    uxlab: {events: 0, tables: 0, settings: 0}
