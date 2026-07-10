@@ -190,6 +190,56 @@ def test_warn_escalation_blocked_compensates(monkeypatch):
         "moderation.compensate_warn_escalation")
 
 
+def test_timeout_blocked_compensates(monkeypatch):
+    """ORACLE ALIGNMENT (disbot services/moderation_service.py timeout —
+    Discord call first, row only after success): a Discord-refused timeout
+    leaves NO history row claiming the member was timed out — the
+    compensator withdraws the committed row; the TIMEOUT op wires it
+    (fork E, same class as the warn-escalation fix)."""
+    import contextlib
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, store
+    from sb.kernel.db import pool
+    from sb.kernel.workflow.context import WorkflowContext
+    from sb.spec.refs import WorkflowRef
+
+    _register_declarations()
+    withdrawn: list[tuple] = []
+
+    async def fake_withdraw(conn, *, ids):
+        withdrawn.append(tuple(ids))
+        return len(ids)
+
+    @contextlib.asynccontextmanager
+    async def fake_txn():
+        yield None
+
+    monkeypatch.setattr(store, "withdraw_mod_log_rows", fake_withdraw)
+    monkeypatch.setattr(pool, "transaction", fake_txn)
+
+    ctx = WorkflowContext(
+        actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+        request_id="r4", confirmed=False,
+        params={"_timeout_row_id": 21, "_target_id": 900000000000000103})
+    out = asyncio.run(ops._compensate_timeout(None, ctx))
+    assert withdrawn == [(21,)]                       # phantom row gone
+    assert out.after["withdrawn_rows"] == 1
+
+    # no row handle => the compensator is a no-op
+    ctx2 = WorkflowContext(
+        actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+        request_id="r5", confirmed=False, params={})
+    out2 = asyncio.run(ops._compensate_timeout(None, ctx2))
+    assert out2.after == {"compensated": "nothing"}
+    assert withdrawn == [(21,)]
+
+    # the TIMEOUT op declares the compensator on its EFFECT leg
+    effect = [leg for leg in ops.TIMEOUT.legs if leg.leg_id == "apply"][0]
+    assert effect.reversibility == "compensatable"
+    assert effect.compensator == WorkflowRef("moderation.compensate_timeout")
+
+
 def test_timeout_record_leg_parses_duration(monkeypatch):
     """Shipped `!timeout @member <minutes>`: the duration is REQUIRED and,
     with no explicit reason, IS the reason ("N minutes" — shipped verbatim);

@@ -244,11 +244,16 @@ def test_proof_lock_legs(monkeypatch):
         rows.append(("deleted", guild_id, channel_id))
         return True
 
+    async def get_lock(guild_id, channel_id, conn=None):
+        return {"winner_id": 7,
+                "unlock_at": dt.datetime(2026, 7, 10, tzinfo=dt.timezone.utc)}
+
     async def bound(gid):
         return 55
 
     monkeypatch.setattr(store, "upsert_lock", upsert_lock)
     monkeypatch.setattr(store, "delete_lock", delete_lock)
+    monkeypatch.setattr(store, "get_lock", get_lock)
     monkeypatch.setattr(service, "bound_proof_channel", bound)
 
     # timed lock persists the deadline row (bug #8)
@@ -268,6 +273,60 @@ def test_proof_lock_legs(monkeypatch):
     assert actions.locked == [(1, 55, 7)]
     out = run(ops._record_unlock(None, _ctx({})))
     assert out.after["removed"] is True
+
+
+def test_end_access_blocked_compensates(monkeypatch):
+    """A Discord-refused unlock must not strand external state: record_unlock
+    stashes the deleted deadline row, and the compensator re-inserts it so
+    the sweep retries at the deadline (the DB never claims an unlock that
+    never happened). Permanent grants have no row — the compensator no-ops."""
+    from sb.domain.proof_channel import ops, service, store
+    from sb.spec.refs import WorkflowRef
+
+    deadline = dt.datetime(2026, 7, 10, 12, 0, tzinfo=UTC)
+    restored: list[dict] = []
+    deleted: list[tuple] = []
+
+    async def get_lock(guild_id, channel_id, conn=None):
+        return {"winner_id": 7, "unlock_at": deadline}
+
+    async def delete_lock(conn, *, guild_id, channel_id):
+        deleted.append((guild_id, channel_id))
+        return True
+
+    async def upsert_lock(conn, **kw):
+        restored.append(kw)
+
+    async def bound(gid):
+        return 55
+
+    monkeypatch.setattr(store, "get_lock", get_lock)
+    monkeypatch.setattr(store, "delete_lock", delete_lock)
+    monkeypatch.setattr(store, "upsert_lock", upsert_lock)
+    monkeypatch.setattr(service, "bound_proof_channel", bound)
+
+    # the DB leg stashes the compensation handle before deleting
+    ctx = _ctx({})
+    run(ops._record_unlock(None, ctx))
+    assert deleted == [(1, 55)]
+    assert ctx.params["_deleted_lock"] == {
+        "winner_id": 7, "unlock_at": deadline.isoformat()}
+
+    # the compensator re-inserts exactly what was deleted
+    out = run(ops._compensate_unlock(None, ctx))
+    assert restored == [{"guild_id": 1, "channel_id": 55,
+                         "winner_id": 7, "unlock_at": deadline}]
+    assert out.after["compensated"] == "unlock"
+
+    # no stashed row (permanent grant) => no-op
+    out2 = run(ops._compensate_unlock(None, _ctx({"channel_id": 55})))
+    assert out2.after == {"compensated": "nothing"}
+    assert len(restored) == 1
+
+    # END_PRIZE declares the compensator on its EFFECT leg (fork E wiring)
+    effect = [leg for leg in ops.END_PRIZE.legs if leg.leg_id == "apply"][0]
+    assert effect.reversibility == "compensatable"
+    assert effect.compensator == WorkflowRef("proof_channel.compensate_unlock")
 
 
 def test_proof_reconcile_defers_without_port(monkeypatch):

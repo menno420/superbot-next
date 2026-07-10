@@ -155,5 +155,11 @@ async def replay_case(harness: Harness, case: GoldenCase,
         return False, [f"golden missing: {path}"]
     expected = json.loads(path.read_text())
     actual = await capture_case(harness, case)
-    problems = _diff_docs(expected, actual)
+    # flag-13 dispositions (ORDER 009 / Q-0262.3): the three owner-accepted
+    # corpus-red classes are dropped from BOTH docs, symmetrically, before
+    # the diff — every other byte still diffs.
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    problems = _diff_docs(apply_dispositions(expected),
+                          apply_dispositions(actual))
     return (not problems), problems
