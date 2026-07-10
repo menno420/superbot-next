@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 43,
+  "manifest_count": 44,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -2628,6 +2628,62 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "utilitymenu"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "slash",
+          "value": "utility"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "ping"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "avatar"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "serverinfo"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "myprofile"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "slash",
+          "value": "myprofile"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/welcome.py",
           "subsystem": "welcome",
           "surface": "prefix",
@@ -3269,6 +3325,51 @@
           "value": "refresh"
         },
         {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "server_info"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "user_info"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "avatar"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "poll"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "remind"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "invite"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility_overview"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "open_general"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "open_four_twenty"
+        },
+        {
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "rank"
@@ -3700,6 +3801,11 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_utility"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.sub_general"
         },
         {
@@ -3886,6 +3992,36 @@
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "treasury.hub"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.panel"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.pong"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.avatar_card"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.server_info"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.user_info"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.profile_card"
         },
         {
           "source": "sb/manifest/welcome.py",
@@ -4615,6 +4751,11 @@
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "treasury"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility"
         },
         {
           "source": "sb/manifest/welcome.py",
@@ -5600,6 +5741,54 @@
       "handler:spotlight.xp_leaders": {
         "module": "sb.domain.community.handlers"
       },
+      "handler:utility.avatar_card_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.avatar_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.four_twenty_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:utility.invite_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:utility.menu_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.myprofile_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.ping_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.poll_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:utility.pong_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.profile_card_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.remind_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:utility.render_panel": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.server_info_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.server_info_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.user_info_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.user_info_view": {
+        "module": "sb.domain.utility.handlers"
+      },
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
       },
@@ -5849,6 +6038,9 @@
       "panel:help.sub_treasury": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.sub_utility": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.sub_welcome": {
         "module": "sb.domain.help.service"
       },
@@ -5929,6 +6121,24 @@
       },
       "panel:treasury.hub": {
         "module": "sb.domain.treasury.panels"
+      },
+      "panel:utility.avatar_card": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.panel": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.pong": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.profile_card": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.server_info": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.user_info": {
+        "module": "sb.domain.utility.panels"
       },
       "panel:welcome.hub": {
         "module": "sb.domain.operator_spine"
@@ -6179,6 +6389,9 @@
       "provider:sb.panels.help_cmds_treasury_0": {
         "module": "sb.domain.help.service"
       },
+      "provider:sb.panels.help_cmds_utility_0": {
+        "module": "sb.domain.help.service"
+      },
       "provider:sb.panels.help_cmds_welcome_0": {
         "module": "sb.domain.help.service"
       },
@@ -6211,6 +6424,9 @@
       },
       "provider:treasury.hub_overview": {
         "module": "sb.domain.treasury.panels"
+      },
+      "provider:utility.children_field": {
+        "module": "sb.domain.utility.panels"
       },
       "provider:welcome.hub_settings": {
         "module": "sb.domain.operator_spine"
@@ -7327,7 +7543,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:04708e0e8d8ab0cb5b1806adda8a88b3ac001d3fa24da285ac311b125455c3a5",
+  "stable_hash": "sha256:e53023aed4538bdcc6a0d18281f6f8a8c69e22473b2a4483428e35f9238387e3",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19374,6 +19590,53 @@
           "audience": "public",
           "body": [
             {
+              "text": "6 command(s), generated from the `utility` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_utility_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_utility"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_utility",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🔧 Utility — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
               "text": "1 command(s), generated from the `general` manifest."
             },
             {
@@ -19476,6 +19739,7 @@
                 "$ref": "handler:help.open_subsystem"
               },
               "options_source": [
+                "🔧 Utility",
                 "💬 General"
               ],
               "page_size": 25,
@@ -27759,6 +28023,638 @@
           "version_policy": "reject_and_preserve"
         }
       ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "utility": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "utilitymenu",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.menu_view"
+          },
+          "slash_common": false,
+          "summary": "Open the interactive utility panel.",
+          "usage": "!utilitymenu",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "name": "utility",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.menu_view"
+          },
+          "slash_common": false,
+          "summary": "Open the interactive utility panel.",
+          "usage": "/utility",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ping",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.ping_view"
+          },
+          "slash_common": false,
+          "summary": "Check the bot's gateway and round-trip latency.",
+          "usage": "!ping",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "avatar",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.avatar_view"
+          },
+          "slash_common": false,
+          "summary": "Display a user's avatar.",
+          "usage": "!avatar [@member]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "serverinfo",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.server_info_view"
+          },
+          "slash_common": false,
+          "summary": "Show server information.",
+          "usage": "!serverinfo",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 15,
+            "rate": 3,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "myprofile",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.myprofile_view"
+          },
+          "slash_common": false,
+          "summary": "View your per-server profile card.",
+          "usage": "!myprofile",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "utility",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "server_info",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "utility.info.server",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.server_info_view"
+              },
+              "label": "🖥️ Server Info",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "user_info",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "utility.info.user",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.user_info_view"
+              },
+              "label": "👤 User Info",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "avatar",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.avatar_view"
+              },
+              "label": "🖼️ Avatar",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poll",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.poll_pending"
+              },
+              "label": "📊 Poll",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "remind",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.remind_pending"
+              },
+              "label": "🔔 Remind Me",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "invite",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.invite_pending"
+              },
+              "label": "🔗 Invite",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "utility_overview",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:utility.panel"
+              },
+              "label": "↩ Overview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_general",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "utility:open:general",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:general.menu"
+              },
+              "label": "💬 General",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "open_four_twenty",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "utility:open:four_twenty",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:utility.four_twenty_pending"
+              },
+              "label": "🍃 420",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**🖥️ Server Info** — server statistics\n**👤 User Info** — your profile details\n**🖼️ Avatar** — display your avatar\n**📊 Poll** — create a reaction poll\n**🔔 Remind Me** — set a timed reminder\n**🔗 Invite** — generate a one-use server invite"
+            },
+            {
+              "provider": {
+                "$ref": "provider:utility.children_field"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped panel footer is the literal 'Click an action below.' — outside FooterMode's none/subsystem/provenance vocabulary (goldens/utility pin the byte). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "server_info",
+                    "user_info",
+                    "avatar"
+                  ],
+                  [
+                    "poll",
+                    "remind",
+                    "invite"
+                  ],
+                  [
+                    "utility_overview"
+                  ],
+                  [
+                    "open_general",
+                    "open_four_twenty"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.panel",
+          "renderer_override": {
+            "$ref": "handler:utility.render_panel"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "🔧 Utility Panel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.pong",
+          "renderer_override": {
+            "$ref": "handler:utility.pong_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "🏓 Pong!",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.avatar_card",
+          "renderer_override": {
+            "$ref": "handler:utility.avatar_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.server_info",
+          "renderer_override": {
+            "$ref": "handler:utility.server_info_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.user_info",
+          "renderer_override": {
+            "$ref": "handler:utility.user_info_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.profile_card",
+          "renderer_override": {
+            "$ref": "handler:utility.profile_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
       "version": 1,
       "wizard_sections": []
     },

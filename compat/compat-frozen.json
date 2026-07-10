@@ -1632,6 +1632,38 @@
     "name": "treasury"
    }
   ],
+  "utility": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "avatar"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "myprofile"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ping"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "serverinfo"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "utility"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "utilitymenu"
+   }
+  ],
   "welcome": [
    {
     "aliases": [],
@@ -1822,6 +1854,8 @@
   "role:time",
   "role:xp",
   "treasury.contribute_form",
+  "utility:open:four_twenty",
+  "utility:open:general",
   "xp.givexp_form",
   "xp.resetxp_form"
  ],
@@ -1868,6 +1902,7 @@
   "settings",
   "setup",
   "treasury",
+  "utility",
   "welcome",
   "xp"
  ]

@@ -98,6 +98,72 @@ def _member_for(persona_key: str) -> SimpleNamespace:
     )
 
 
+class _WorldGuildDirectory:
+    """The utility guild-directory port over the capture world — the same
+    guild state the old harness's real ConnectionState held when the
+    goldens were captured (parity/harness/world.py's GUILD_CREATE payload
+    plus the shipped bot's own boot-time channel provisioning)."""
+
+    #: world._guild_payload constants (verbatim).
+    _GUILD_NAME = "Parity Test Guild"
+    _PREMIUM_TIER = 0
+    #: The shipped bot ensured its resource channels at boot (counting_cog
+    #: / guild_resources.ensure_channel and friends fed discord.py's
+    #: "temporarily add to the cache" path), so every capture-time guild
+    #: read saw the 4 world channels PLUS 4 bot-created text channels —
+    #: every Server Information golden pins "Text Channels: 8"
+    #: (utility/sweep_serverinfo, _unmapped/sweep_info). The new bot's
+    #: channel-provisioning bands are pending; until they port, the fixture
+    #: carries the capture-time count.
+    _SHIPPED_BOOT_TEXT_CHANNELS = 4
+    _DISCORD_EPOCH_MS = 1_420_070_400_000
+
+    def __init__(self, world: Any) -> None:
+        self._world = world
+
+    def _snowflake_time(self, snowflake: int):
+        from datetime import datetime, timezone
+
+        ms = (snowflake >> 22) + self._DISCORD_EPOCH_MS
+        return datetime.fromtimestamp(ms / 1000, tz=timezone.utc)
+
+    async def guild_info(self, guild_id: int):
+        from sb.domain.utility.service import GuildInfo
+
+        return GuildInfo(
+            name=self._GUILD_NAME,
+            owner_id=int(DEFAULT_PERSONAS["admin"]["id"]),
+            member_count=len(DEFAULT_PERSONAS) + 1,      # personas + the bot
+            premium_tier=self._PREMIUM_TIER,
+            created_at=self._snowflake_time(int(guild_id or self._world.guild_id)),
+            text_channels=(len(self._world.channels)
+                           + self._SHIPPED_BOOT_TEXT_CHANNELS),
+            voice_channels=0,
+        )
+
+    async def member_info(self, guild_id: int, user_id: int):
+        from datetime import datetime, timezone
+
+        from sb.domain.utility.service import MemberInfo
+
+        del guild_id
+        name = "GalaxyBotParity" if int(user_id) == World.BOT_USER_ID else next(
+            (p["name"] for p in DEFAULT_PERSONAS.values()
+             if int(p["id"]) == int(user_id)), f"User{user_id}")
+        # avatar=None personas → discord.py's default avatar
+        # ((id >> 22) % 6 — the display_avatar the capture recorded:
+        # goldens/utility/sweep_avatar pins .../embed/avatars/1.png).
+        index = (int(user_id) >> 22) % 6
+        return MemberInfo(
+            user_id=int(user_id),
+            tag=f"{name}#0000",                    # str(member), world payloads
+            display_avatar_url=(
+                f"https://cdn.discordapp.com/embed/avatars/{index}.png"),
+            created_at=self._snowflake_time(int(user_id)),
+            joined_at=datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+        )
+
+
 class Harness:
     """A booted, gateway-free NEW bot plus its capture channels."""
 
@@ -262,6 +328,16 @@ class Harness:
         # replays PARTIAL with a not-installed finding: a harness gap).
         install_moderation_actions(
             ParityModerationActions(self.http, self.world.clock))
+        # the utility read ports: the capture-world guild directory + the
+        # no-heartbeat gateway probe (the old harness's bot.latency was nan
+        # — goldens/utility/sweep_ping pins "nan ms").
+        from sb.domain.utility.service import (
+            install_gateway_probe,
+            install_guild_directory,
+        )
+
+        install_guild_directory(_WorldGuildDirectory(self.world))
+        install_gateway_probe(lambda: float("nan"))
 
     # ------------------------------------------------------- per-case resets
 
@@ -427,6 +503,7 @@ class Harness:
         # release the process-global seams we armed (same-process test hygiene)
         try:
             from sb.domain.moderation.service import reset_moderation_ports_for_tests
+            from sb.domain.utility.service import reset_utility_ports_for_tests
             from sb.kernel import lifecycle
             from sb.kernel.interaction import cooldown as cooldown_mod
             from sb.kernel.interaction.adapters import reset_adapter_ports_for_tests
@@ -439,6 +516,7 @@ class Harness:
             reset_adapter_ports_for_tests()
             reset_channel_emitter_for_tests()
             reset_moderation_ports_for_tests()
+            reset_utility_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
         except Exception:  # noqa: BLE001 — close is best-effort

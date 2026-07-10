@@ -111,6 +111,10 @@ def _embed_payload(embed: Any) -> dict[str, Any]:
         out["fields"] = fields
     if getattr(embed, "footer", ""):
         out["footer"] = {"text": embed.footer}
+    if getattr(embed, "image_url", ""):
+        # discord.py Embed.set_image — the shipped avatar card's wire shape
+        # (goldens/utility/sweep_avatar).
+        out["image"] = {"url": embed.image_url}
     return out
 
 
@@ -162,7 +166,17 @@ def _component_payload(component: Any) -> dict[str, Any]:
 
 
 def rendered_panel_payload(rendered: Any) -> dict[str, Any]:
-    """The message payload a RenderedPanel sends (embeds + component rows)."""
+    """The message payload a RenderedPanel sends (embeds + component rows).
+
+    Attachment-bearing panels collapse to the ``{"_files": [...]}`` shape:
+    discord.py moves the whole JSON body onto the multipart wire when files
+    ride along (``MultipartParameters.payload`` is None), so fake_http's
+    ``_params_payload`` captured ONLY the filenames — the goldens' shape for
+    every shipped file send (utility/sweep_myprofile, xp/xp_chat_award).
+    The capture twin must lose exactly the same information."""
+    attachments = getattr(rendered, "attachments", ()) or ()
+    if attachments:
+        return {"_files": [a.filename for a in attachments]}
     rows: dict[int, list[dict[str, Any]]] = {}
     for component in getattr(rendered, "components", ()) or ():
         rows.setdefault(int(component.row), []).append(_component_payload(component))
@@ -265,7 +279,22 @@ class ParityResponder:
         from parity.harness.world import World
 
         if self.surface not in _INTERACTION_SURFACES:
-            self._transport.gap("ParityResponder.edit_panel: message surface")
+            # message-surface edit — discord.py Message.edit through the
+            # HTTP layer (fake_http.edit_message): channel+message args, the
+            # edit body without the send-only keys. The shipped !ping
+            # round-trip edit pins the shape (goldens/utility/sweep_ping:
+            # embeds + flags + tts, no content, no empty components).
+            if message_ref is None:
+                self._transport.gap("ParityResponder.edit_panel: no message ref")
+                return
+            body = {k: v for k, v in payload.items()
+                    if k != "content" and not (k == "components" and not v)}
+            body.setdefault("flags", 0)
+            self._transport.record(
+                "edit_message",
+                {"channel_id": self._channel_id,
+                 "message_id": int(str(message_ref))},
+                body)
             return
         if not self._acked:
             self._acked = True
@@ -289,6 +318,19 @@ class ParityResponder:
         ``ephemeral`` applies only on interaction surfaces (the live
         presenter's ``audience == "invoker"`` rule, mirrored)."""
         if self.surface in _INTERACTION_SURFACES:
+            if "_files" in payload:
+                # multipart response: discord.py moved the whole {type, data}
+                # envelope onto the multipart wire, so fake_http captured the
+                # bare filename list (goldens/utility/sweep_slash_myprofile).
+                self._acked = True
+                if self._committed is None:
+                    self._committed = (ReplyVisibility.EPHEMERAL if ephemeral
+                                       else ReplyVisibility.PUBLIC)
+                self._transport.record(
+                    "interaction_response",
+                    {"interaction_id": self._interaction_id},
+                    dict(payload))
+                return None
             data = dict(payload)
             if ephemeral:
                 data["flags"] = _EPHEMERAL_FLAG

@@ -233,14 +233,19 @@ def _mint_ephemeral(spec: PanelSpec, rendered: RenderedPanel,
                     req: ResolveRequest) -> RenderedPanel:
     """Rewrite a session-lifecycle panel's DECLARED components onto minted
     32-hex ids and store their bindings; engine-injected nav slots (if any)
-    keep their static ids."""
+    keep their static ids. A ``custom_id_override`` component keeps its
+    VERBATIM id too — the legacy pin survives even inside a session view
+    (the shipped timeout views mixed auto-ids with explicit persistent
+    child-forwarding ids, e.g. utility_cog's ``utility:open:<child>``
+    buttons — goldens/utility/sweep_utilitymenu pins the mix); it stays
+    routable through the ONE static table."""
     by_canonical: dict[str, tuple[str, object]] = {}
     for comp in tuple(spec.actions) + tuple(spec.selectors):
+        if getattr(comp, "custom_id_override", ""):
+            continue                       # verbatim pin — never re-minted
         comp_id = (getattr(comp, "action_id", "")
                    or getattr(comp, "selector_id", ""))
-        cid = (getattr(comp, "custom_id_override", "")
-               or f"{spec.panel_id}.{comp_id}")
-        by_canonical[cid] = (comp_id, comp)
+        by_canonical[f"{spec.panel_id}.{comp_id}"] = (comp_id, comp)
     out = []
     for component in rendered.components:
         bound = by_canonical.get(component.custom_id)
@@ -278,7 +283,7 @@ def _context_from_request(spec: PanelSpec, req: ResolveRequest) -> PanelContext:
 
 
 async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
-                              page: int = 0) -> None:
+                              page: int = 0) -> str:
     ctx = _context_from_request(spec, req)
     if spec.renderer_override is not None:
         # tier-2 escape hatch: a registered renderer produces the RenderedPanel.
@@ -287,7 +292,7 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
         # tier-3 contingency lane: the re-homed view renders itself through
         # the presenter-native path; the registered callable owns the send.
         await resolve_ref(spec.legacy_view)(spec, ctx, req)
-        return
+        return req.request_id
     else:
         rendered = await render_panel(spec, ctx, page=page)
     minted_ids: dict[str, str] = {}
@@ -306,12 +311,17 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
         # session views are never anchored — no refreshable channel panel
         # exists (the shipped game views were not in panel_anchors).
         await _record_anchor(spec, req, message_ref)
+    return key
 
 
-async def open_panel(ref: PanelRef, req: ResolveRequest) -> None:
-    """THE `install_panel_engine` target — resolve()'s OPEN_PANEL terminal."""
+async def open_panel(ref: PanelRef, req: ResolveRequest) -> str:
+    """THE `install_panel_engine` target — resolve()'s OPEN_PANEL terminal.
+    Returns the stored session's message key so an opening handler can drive
+    a follow-up ``refresh_session_view`` (the shipped send-then-edit flows,
+    e.g. utility_cog's ``!ping`` round-trip edit); terminal callers ignore
+    it."""
     spec = get_panel(ref.name)
-    await _render_and_present(spec, req)
+    return await _render_and_present(spec, req)
 
 
 async def refresh_session_view(req: ResolveRequest, *, message_key: str,
