@@ -294,15 +294,16 @@ def test_end_access_blocked_compensates(monkeypatch):
         deleted.append((guild_id, channel_id))
         return True
 
-    async def upsert_lock(conn, **kw):
+    async def insert_lock_if_absent(conn, **kw):
         restored.append(kw)
+        return True
 
     async def bound(gid):
         return 55
 
     monkeypatch.setattr(store, "get_lock", get_lock)
     monkeypatch.setattr(store, "delete_lock", delete_lock)
-    monkeypatch.setattr(store, "upsert_lock", upsert_lock)
+    monkeypatch.setattr(store, "insert_lock_if_absent", insert_lock_if_absent)
     monkeypatch.setattr(service, "bound_proof_channel", bound)
 
     # the DB leg stashes the compensation handle before deleting
@@ -327,6 +328,67 @@ def test_end_access_blocked_compensates(monkeypatch):
     effect = [leg for leg in ops.END_PRIZE.legs if leg.leg_id == "apply"][0]
     assert effect.reversibility == "compensatable"
     assert effect.compensator == WorkflowRef("proof_channel.compensate_unlock")
+
+
+def test_end_access_compensation_yields_to_concurrent_regrant(monkeypatch):
+    """The compensator race (codex 4673572674): record_unlock's delete
+    COMMITS before the unlock EFFECT runs, and grant_access is NATURAL_KEY
+    (nothing serializes it against end_access) — so a re-grant can land a
+    NEWER deadline row in the window before a refused unlock compensates.
+    The compensation must be insert-only: the newer grant's row survives
+    untouched, the stale stash is discarded. (Symmetric follow-up:
+    GRANT_PRIZE's _compensate_lock plain-deletes — same class.)"""
+    from sb.domain.proof_channel import ops, service, store
+
+    old_deadline = dt.datetime(2026, 7, 10, 12, 0, tzinfo=UTC)
+    new_deadline = dt.datetime(2026, 7, 11, 18, 0, tzinfo=UTC)
+    # the table, keyed by the (guild_id, channel_id) natural key
+    table: dict[tuple, dict] = {(1, 55): {"winner_id": 7,
+                                          "unlock_at": old_deadline}}
+
+    async def get_lock(guild_id, channel_id, conn=None):
+        return table.get((guild_id, channel_id))
+
+    async def delete_lock(conn, *, guild_id, channel_id):
+        return table.pop((guild_id, channel_id), None) is not None
+
+    async def insert_lock_if_absent(conn, *, guild_id, channel_id,
+                                    winner_id, unlock_at):
+        # ON CONFLICT (guild_id, channel_id) DO NOTHING semantics
+        if (guild_id, channel_id) in table:
+            return False
+        table[(guild_id, channel_id)] = {"winner_id": winner_id,
+                                         "unlock_at": unlock_at}
+        return True
+
+    async def bound(gid):
+        return 55
+
+    monkeypatch.setattr(store, "get_lock", get_lock)
+    monkeypatch.setattr(store, "delete_lock", delete_lock)
+    monkeypatch.setattr(store, "insert_lock_if_absent", insert_lock_if_absent)
+    monkeypatch.setattr(service, "bound_proof_channel", bound)
+
+    # 1. end_access's DB leg: stash + delete, committed with the txn
+    ctx = _ctx({})
+    run(ops._record_unlock(None, ctx))
+    assert (1, 55) not in table
+    assert ctx.params["_deleted_lock"] == {
+        "winner_id": 7, "unlock_at": old_deadline.isoformat()}
+
+    # 2. a concurrent grant_access lands a NEWER row in the window
+    table[(1, 55)] = {"winner_id": 9, "unlock_at": new_deadline}
+
+    # 3. apply_unlock refused => the compensator fires — and must yield
+    out = run(ops._compensate_unlock(None, ctx))
+    assert out.after["restored"] is False
+    assert table[(1, 55)] == {"winner_id": 9, "unlock_at": new_deadline}
+
+    # empty slot control: with no concurrent grant, the row IS restored
+    del table[(1, 55)]
+    out2 = run(ops._compensate_unlock(None, ctx))
+    assert out2.after["restored"] is True
+    assert table[(1, 55)] == {"winner_id": 7, "unlock_at": old_deadline}
 
 
 def test_proof_reconcile_defers_without_port(monkeypatch):

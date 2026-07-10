@@ -47,6 +47,22 @@ async def upsert_lock(conn: Any, *, guild_id: int, channel_id: int,
         (guild_id, channel_id, winner_id, unlock_at), conn=conn)
 
 
+async def insert_lock_if_absent(conn: Any, *, guild_id: int, channel_id: int,
+                                winner_id: int, unlock_at: datetime) -> bool:
+    """Compensation-only insert (codex 4673572674): restore a deleted
+    deadline row ONLY while the slot is still empty. end_access commits its
+    delete before the unlock EFFECT runs, so a concurrent grant_access can
+    land a NEWER row before the compensator fires — an upsert here would
+    clobber that grant with the stale stash (lost update). ON CONFLICT DO
+    NOTHING lets the newer row win. Returns True iff the row was restored."""
+    rows = await fetchall(
+        "INSERT INTO proof_channel_locks (guild_id, channel_id, winner_id, "
+        "unlock_at) VALUES ($1,$2,$3,$4) "
+        "ON CONFLICT (guild_id, channel_id) DO NOTHING RETURNING winner_id",
+        (guild_id, channel_id, winner_id, unlock_at), conn=conn)
+    return bool(rows)
+
+
 async def get_lock(guild_id: int, channel_id: int,
                    conn: Any = None) -> dict | None:
     return await fetchone(

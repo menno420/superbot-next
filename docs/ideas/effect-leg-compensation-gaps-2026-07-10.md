@@ -1,10 +1,10 @@
 ---
-state: captured
+state: promoted
 origin: consumer:menno420/superbot
-shipped_pr: null
-shipped_repo: null
-merged_date: null
-outcome: open
+shipped_pr: 105
+shipped_repo: menno420/superbot-next
+merged_date: 2026-07-10
+outcome: shipped
 ---
 
 # Effect-leg compensation gaps: timeout + end_access, plus the invariant that prevents the class (2026-07-10)
