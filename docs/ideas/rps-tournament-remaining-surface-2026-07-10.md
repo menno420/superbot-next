@@ -18,9 +18,10 @@ outcome: open
 
 **One line:** solo quick-play is playable end-to-end (picker → invoker-locked
 click → audited `rps.solo_play` → result + money row); **the PvP button
-surface shipped in the band-6 PvP-on-the-wire PR** (item 1 below, kept for
-the record); the tournament orchestration and four `_unmapped` rps sweeps
-remain.
+surface shipped in the band-6 PvP-on-the-wire PR** (item 1); **the
+tournament orchestration core + the reaction seam shipped in the band-6
+tournament-orchestration PR** (item 3 below, deviations recorded); the
+`!rpsbot` bot-match flow and the `rpssettings` copy decision remain.
 
 ## Shipped in the flip PR (context)
 
@@ -57,27 +58,68 @@ remain.
 2. **Solo result view edit-in-place**: the shipped view EDITED the picker
    message into the result embed + a "play again" view; v1 sends a follow-up
    text. Needs a message-edit presenter seam.
-3. **Tournament orchestration** (`!rpsregister`/`!rpsstart`/`!rpsbot`/
-   `!rpsmatchup` — honest pending terminals today): reaction sign-up,
-   stage loops, match channels, no-prefix move parsing. Blocked on the live
-   adapter / message band / reaction seam
-   (`reaction-adapter-seam-2026-07-10.md`).
+3. **Tournament orchestration** — ✅ SHIPPED (band-6
+   tournament-orchestration PR): `!rpsregister` sends the golden-pinned
+   registration embed + green **Join Tournament** button (run-minted
+   session id) + the shipped ✅ self-reaction primer, writes the shipped
+   `guild_settings` `active_tournament=rps` flag row (audited op,
+   migration 0027 imports the shipped table NAME_STABLE); sign-up rides
+   BOTH the button and the ✅ reaction (the new kernel reaction seam —
+   `sb/kernel/interaction/reactions.py` + the live
+   `sb/adapters/discord/reaction_feed.py`, the seam
+   `reaction-adapter-seam-2026-07-10.md` named); entry fees debit through
+   `rps.tournament_enter` (reason `rps:entry_fee`, refund-on-boot via the
+   escrow recovery roster); `!rpsstart` runs the shipped guards verbatim,
+   shuffles, pairs, runs best-of rounds, byes advance; the champion settles
+   through `rps.tournament_payout` (`rps:tournament_win` pot /
+   `rps:tournament_free_reward` 100 🪙 consolation, flag cleared in the
+   SAME txn) with the shipped champion copy. Match stats land through the
+   audited `rps.tournament_result` op. `!rpsmatchup` creates manual
+   matches (shipped guards verbatim). **Deliberate deviations, ledgered:**
+   (a) matches are BUTTON views in the tournament's home channel (the #124
+   PvP seam) instead of the shipped private match channels + no-prefix
+   message parsing — channel provisioning rides the resource-provision
+   port (the counting-band precedent); per-throw moves reveal on the one
+   match message with a score line; (b) the 10-minute close is LAZY
+   (checked when `!rpsstart` runs — the shipped background sleep task and
+   the 5-minute role-ping reminder loop are time-driven class); the
+   close-collect of reaction users is replaced by live incremental
+   sign-up through the reaction feed (same roster, no batch read);
+   (c) orchestration state stays in memory like the shipped cog — a
+   restart forfeits the bracket and boot REFUNDS every entry row
+   (`rps_tournament_entry` joined ESCROW_RECOVERY_SUBSYSTEMS); (d) the
+   round/bye/champion announce lines ride the RC-21 channel emitter
+   (plain sends), copy adapted where the oracle's was channel-scoped.
+   **Corpus-order note (honesty):** `sweep.rpsstart`'s golden captured the
+   oracle's in-memory cross-case leak (registration was still open when
+   the sweep recorded); the replay reproduces it identically in corpus
+   order (`sweep.rpsregister` precedes it in the sorted case list) and is
+   RED in isolation by construction — same class as the recorded oracle.
 4. **`!rpssettings` oracle copy**: shipped bare `!rpssettings` answered
    "Invalid setting. Available settings: default_mode, default_best_of";
    v1 shows a read view. Decide verbatim-copy vs deliberate deviation when
    its golden re-homes.
+5. **`!rpsbot` bot-match flow**: the mode guard now answers the shipped
+   copy verbatim (its sweep is green); a VALID mode still gets the honest
+   pending terminal — the shipped bot match ran in a private match channel
+   with no-prefix typed moves (message band + channel provisioning). A
+   bounded successor could ride the quickplay button view per opponent.
+6. **Tournament depth not carried (time-driven class)**: the 5-minute
+   registration reminder loop (role ping), the timed auto-close announce,
+   and the shipped `end_registration` batch collection of reaction users
+   (replaced by live incremental reaction sign-up).
 
 ## Classify-or-fix — the band's red goldens (ORDER 004 binding, this flip)
 
-Gating dir `parity/goldens/rps_tournament/`: 1/1 GREEN (`sweep.rps`).
-The six rps-family sweeps still live in `_unmapped` (non-gating; re-home as
-they green):
+Gating dir `parity/goldens/rps_tournament/` (after the tournament-
+orchestration PR re-homed the four newly-green sweeps): 5/5 GREEN.
 
 | golden | state | class |
 | --- | --- | --- |
-| `sweep.rpshelp` | GREEN | — (verbatim `_HELP_TEXT`) |
-| `sweep.rpsbot` | RED | `pending-terminal-copy` — oracle answered its own guard ("Invalid game mode…"); v1 answers the honest pending terminal (item 3 above) |
-| `sweep.rpsstart` | RED | `pending-terminal-copy` (oracle: "Cannot start the tournament while registration is still active.") |
-| `sweep.rpsmatchup` | RED | `pending-terminal-copy` (oracle: "Tournament is not active.") |
-| `sweep.rpsregister` | RED | `tournament-orchestration-missing` — oracle opened reaction sign-up + wrote `guild_settings`; v1 answers the pending terminal (item 3) |
-| `sweep.rpssettings` | RED | `settings-view-copy-deviation` (item 4 above) |
+| `sweep.rps` | GREEN | — (quick-play flip) |
+| `sweep.rpshelp` | GREEN | — (verbatim `_HELP_TEXT`; lives in goldens/help) |
+| `sweep.rpsbot` | GREEN (re-homed) | fixed — the shipped "Invalid game mode…" guard is real behavior; the deeper bot-match flow stays an honest pending terminal (item 5 below) |
+| `sweep.rpsstart` | GREEN (re-homed) | fixed in corpus order — the shipped registration-active guard verbatim; isolated replay is red by construction (the golden itself captured the oracle's in-memory cross-case leak — see item 3's corpus-order note) |
+| `sweep.rpsmatchup` | GREEN (re-homed) | fixed — the shipped "Tournament is not active." guard verbatim |
+| `sweep.rpsregister` | GREEN (re-homed) | fixed — the golden-pinned registration embed + Join button + ✅ primer + the `guild_settings` flag row, byte-for-byte |
+| `sweep.rpssettings` | RED (stays `_unmapped`) | `settings-view-copy-deviation` (item 4 above, unchanged) |

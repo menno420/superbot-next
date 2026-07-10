@@ -83,9 +83,16 @@ orchestration and two `_unmapped` sweeps remain.
 2. **PvP double-down** stays disabled (the ledgered deviation in
    `sb/domain/blackjack/ops.py`'s docstring: it needs mid-match re-escrow).
 3. **Tournament orchestration** (`!bjtournament`/`!bjstart` pending
-   terminals): private round channels + reaction sign-up — blocked on the
-   reaction/live-adapter seams (see
-   [`reaction-adapter-seam-2026-07-10.md`](reaction-adapter-seam-2026-07-10.md)).
+   terminals): NO LONGER SEAM-BLOCKED — the reaction seam + the
+   registration-panel/self-reaction/flag-row/tournament-flag mechanisms
+   shipped with the band-6 RPS tournament-orchestration PR
+   (`sb/kernel/interaction/reactions.py`, `RenderedPanel.self_reactions`,
+   `guild_settings` migration 0027, `sb/domain/games/tournament_flag.py` —
+   the shipped shared-write is intentional). The blackjack successor is
+   pure-domain: the `sweep.bjtournament` golden pins its registration
+   embed (🃏 Join button + ✅ primer + `active_tournament=blackjack`);
+   rounds ride the solo-table seam per entrant instead of the shipped
+   private round channels (ledger the deviation, the RPS precedent).
    The entry/payout money legs are already live and tested.
 4. **Natural-at-deal shape decision**: v1 renders the terminal table (all
    buttons disabled, result field) for a dealt natural; the shipped cog's

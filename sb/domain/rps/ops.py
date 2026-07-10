@@ -313,6 +313,48 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
 # --- tournament money legs ---------------------------------------------------------------
 
 
+@workflow("rps.record_tournament_open")
+async def _record_tournament_open(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Registration opens: write the shipped ACTIVE_TOURNAMENT runtime flag
+    (guild_settings {key: active_tournament, value: rps} — the
+    tournament_state_service.set_active row the rpsregister golden pins).
+    The registration window itself is in-memory orchestration state
+    (sb/domain/rps/tournament.py), exactly the shipped cog's posture."""
+    from sb.domain.games import tournament_flag
+
+    uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
+    await tournament_flag.set_active(conn, guild_id=gid, game="rps")
+    ctx.params["_balance_changes"] = []
+    return LegOutcome(step=StepResult(uid, "tournament_open", True),
+                      before={}, after={"flag": "rps"})
+
+
+@workflow("rps.record_tournament_abort")
+async def _record_tournament_abort(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Registration closed with too few players (the shipped
+    ``if len(self.players) < 2: tournament_state_service.clear_active``):
+    clear the runtime flag and refund every entry row atomically."""
+    from sb.domain.games import tournament_flag
+
+    uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
+    await tournament_flag.clear_active(conn, guild_id=gid)
+    rows = await games_store.lock_rows_for_settlement(
+        conn, guild_id=gid, subsystem=TOURNAMENT_SUBSYSTEM)
+    changes: list[tuple[int, int, int, str]] = []
+    for row in rows:
+        stake = int((row.get("state") or {}).get("bet", 0) or 0)
+        entrant = int(row["user_id"])
+        await games_store.delete_checkpoint_by_id(conn, row_id=row["id"])
+        if stake > 0:
+            balance = await wager.credit_in_txn(
+                conn, guild_id=gid, user_id=entrant, amount=stake,
+                reason="rps:entry_refund", actor_id=entrant)
+            changes.append((entrant, stake, balance, "rps:entry_refund"))
+    ctx.params["_balance_changes"] = changes
+    return LegOutcome(step=StepResult(uid, "tournament_abort", True),
+                      before={}, after={"refunded": len(changes)})
+
+
 @workflow("rps.record_tournament_enter")
 async def _record_tournament_enter(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
@@ -320,26 +362,61 @@ async def _record_tournament_enter(conn, ctx: WorkflowContext) -> LegOutcome:
     balance = await wager.enter_tournament_in_txn(
         conn, guild_id=gid, user_id=uid, channel_id=0,
         subsystem=TOURNAMENT_SUBSYSTEM, version=TOURNAMENT_VERSION,
-        fee=fee, reason="tournament:entry_fee", now=_now(ctx))
+        fee=fee, reason="rps:entry_fee", now=_now(ctx))
     ctx.params["_balance_changes"] = (
-        [(uid, -fee, balance, "tournament:entry_fee")] if fee > 0 else [])
+        [(uid, -fee, balance, "rps:entry_fee")] if fee > 0 else [])
     return LegOutcome(step=StepResult(uid, "tournament_enter", True),
                       before={}, after={"fee": fee, "balance": balance})
 
 
+@workflow("rps.record_tournament_result")
+async def _record_tournament_result(conn, ctx: WorkflowContext) -> LegOutcome:
+    """One completed tournament match: the shipped update_player_stats
+    site (winner +1 win, loser +1 loss) — money never moves here (the pot
+    was collected at entry; the champion leg pays it)."""
+    from sb.domain.rps import stats as rps_stats
+
+    gid = int(ctx.guild_id or 0)
+    winner = int(ctx.params["winner_id"])
+    loser = int(ctx.params["loser_id"])
+    names = dict(ctx.params.get("names") or {})
+    await rps_stats.record_result(
+        conn, user_id=winner, guild_id=gid,
+        name=str(names.get(str(winner)) or f"<@{winner}>"), result="win")
+    await rps_stats.record_result(
+        conn, user_id=loser, guild_id=gid,
+        name=str(names.get(str(loser)) or f"<@{loser}>"), result="loss")
+    ctx.params["_balance_changes"] = []
+    return LegOutcome(step=StepResult(winner, "tournament_result", True),
+                      before={}, after={"winner": winner, "loser": loser})
+
+
 @workflow("rps.record_tournament_payout")
 async def _record_tournament_payout(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The champion settle — shipped call site verbatim
+    (reason ``rps:tournament_win``, ``free_reward=100`` consolation on free
+    tournaments under ``rps:tournament_free_reward``) + the shipped
+    end-of-tournament ``clear_active`` in the SAME txn."""
+    from sb.domain.games import tournament_flag
+
     gid = int(ctx.guild_id or 0)
     winner = ctx.params.get("winner_id")
     winner = int(winner) if winner is not None else None
     settle = await wager.payout_tournament_in_txn(
         conn, guild_id=gid, subsystem=TOURNAMENT_SUBSYSTEM,
-        winner_id=winner, reason="tournament:winner_pot",
+        winner_id=winner, reason="rps:tournament_win",
         free_reward=int(ctx.params.get("free_reward", 0) or 0),
-        free_reason="tournament:winner_reward")
+        free_reason="rps:tournament_free_reward")
+    await tournament_flag.clear_active(conn, guild_id=gid)
+    # paid-entry tournaments settle the pot (rps:tournament_win); free ones
+    # pay the fixed consolation (rps:tournament_free_reward) — the handler
+    # passes the tournament's entry fee so the emitted reason matches the
+    # ledger row the wager layer wrote.
+    reason = ("rps:tournament_win"
+              if int(ctx.params.get("entry_fee", 0) or 0) > 0
+              else "rps:tournament_free_reward")
     ctx.params["_balance_changes"] = [
-        (u, d, b, "tournament:winner_pot")
-        for (u, d, b) in settle.balance_changes]
+        (u, d, b, reason) for (u, d, b) in settle.balance_changes]
     return LegOutcome(step=StepResult(winner or 0, "tournament_payout",
                                       settle.paid),
                       before={}, after={"paid": settle.paid,
@@ -376,13 +453,19 @@ PVP_ACCEPT = _op("rps.pvp_accept", "rps_pvp_escrowed",
 PVP_DECLINE = _op("rps.pvp_decline", "rps_pvp_declined",
                   "rps.record_pvp_decline")
 PVP_MOVE = _op("rps.pvp_move", "rps_pvp_move", "rps.record_pvp_move")
+TOURN_OPEN = _op("rps.tournament_open", "tournament_opened",
+                 "rps.record_tournament_open")
+TOURN_ABORT = _op("rps.tournament_abort", "tournament_aborted",
+                  "rps.record_tournament_abort")
 TOURN_ENTER = _op("rps.tournament_enter", "tournament_entered",
                   "rps.record_tournament_enter")
+TOURN_RESULT = _op("rps.tournament_result", "tournament_match_recorded",
+                   "rps.record_tournament_result")
 TOURN_PAYOUT = _op("rps.tournament_payout", "tournament_paid",
                    "rps.record_tournament_payout")
 
 _OPS = (SOLO_PLAY, PVP_CHALLENGE, PVP_ACCEPT, PVP_DECLINE, PVP_MOVE,
-        TOURN_ENTER, TOURN_PAYOUT)
+        TOURN_OPEN, TOURN_ABORT, TOURN_ENTER, TOURN_RESULT, TOURN_PAYOUT)
 
 @workflow("rps.erase_subject_stats")
 async def _erase_subject_stats(conn, ctx: WorkflowContext) -> LegOutcome:
@@ -403,7 +486,10 @@ _REF_TABLE = (
     ("rps.record_pvp_accept", _record_pvp_accept),
     ("rps.record_pvp_decline", _record_pvp_decline),
     ("rps.record_pvp_move", _record_pvp_move),
+    ("rps.record_tournament_open", _record_tournament_open),
+    ("rps.record_tournament_abort", _record_tournament_abort),
     ("rps.record_tournament_enter", _record_tournament_enter),
+    ("rps.record_tournament_result", _record_tournament_result),
     ("rps.record_tournament_payout", _record_tournament_payout),
 )
 

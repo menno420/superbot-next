@@ -63,6 +63,10 @@ DRAIN_GRACE_S = 10.0
 ESCROW_RECOVERY_SUBSYSTEMS: tuple[str, ...] = (
     "blackjack_pvp_escrow",
     "rps_pvp_escrow",
+    # tournament entry fees (the shipped _recover_rps_tournament refund-on-
+    # recovery posture: a restart mid-registration/bracket refunds every
+    # entry row through the audited lane — orchestration state is memory).
+    "rps_tournament_entry",
 )
 
 #: The band-2..band-5 fan-out roster: every domain module exposing the
@@ -468,6 +472,21 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                         "+ passive XP chat award (bot/self messages "
                         "ignored; fuzzy/NL/counting/chain feeds stay "
                         "dormant)", str(cfg.BOT_PREFIX or "!"))
+
+        # 14c. the reaction feed — raw reaction add/remove → the kernel
+        #      reaction seam (band 6; the tournament sign-up consumer rides
+        #      it, starboard/reaction-roles/AI-review 👎 are named
+        #      successors). The reactions intent is non-privileged
+        #      (Intents.default() carries it) — no degrade marker gates it.
+        from sb.adapters.discord.reaction_feed import arm_reaction_feed
+        from sb.kernel.interaction.reactions import (
+            registered_reaction_consumers,
+        )
+
+        arm_reaction_feed(bot)
+        logger.info("reaction feed armed: %d consumer(s): %s",
+                    len(registered_reaction_consumers()),
+                    ", ".join(registered_reaction_consumers()) or "—")
 
         # 15. the ONE PollSupervisor (outbox relay/reaper + durability lanes).
         from sb.app.poll_host import build_poll_supervisor

@@ -160,6 +160,12 @@ class RenderedPanel:
     # the presenter EDITS this message instead of sending a new one (the
     # component ack becomes a deferred UPDATE — discord type 6).
     edit_message_ref: object | None = None
+    # self-reactions: emoji the BOT adds to its own message right after the
+    # send (the shipped `reg_msg.add_reaction("✅")` primer on tournament
+    # registration messages — goldens pin the add_reaction egress call).
+    # Presenters apply these on channel sends only; interaction responses
+    # have no reactable message.
+    self_reactions: tuple[str, ...] = ()
 
 
 # FOLLOW_PARENT resolution port: subsystem -> its CURRENT parent_hub key (the

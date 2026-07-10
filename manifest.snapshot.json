@@ -3331,6 +3331,66 @@
           "value": "scissors"
         },
         {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "join"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_rock"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_paper"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_scissors"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_lizard"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_spock"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_pawn"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_knight"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_queen"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_fire"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_water"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "move_grass"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -4033,6 +4093,16 @@
           "source": "sb/manifest/rps_tournament.py",
           "subsystem": "rps_tournament",
           "value": "rps_tournament.pvp"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament.registration"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament.match"
         },
         {
           "source": "sb/manifest/security.py",
@@ -4936,6 +5006,11 @@
           "value": "game_xp"
         },
         {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "guild_settings"
+        },
+        {
           "source": "sb/manifest/governance.py",
           "subsystem": "governance",
           "value": "subsystem_visibility"
@@ -5105,6 +5180,9 @@
       },
       "engine:games.store": {
         "module": "sb.domain.games.store"
+      },
+      "engine:games.tournament_flag": {
+        "module": "sb.domain.games.tournament_flag"
       },
       "engine:governance.store": {
         "module": "sb.domain.governance.store"
@@ -5784,11 +5862,17 @@
       "handler:rps.bot_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:rps.bot_route": {
+        "module": "sb.domain.rps.handlers"
+      },
       "handler:rps.help_view": {
         "module": "sb.domain.rps.handlers"
       },
       "handler:rps.matchup_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:rps.matchup_route": {
+        "module": "sb.domain.rps.handlers"
       },
       "handler:rps.play": {
         "module": "sb.domain.rps.handlers"
@@ -5799,10 +5883,19 @@
       "handler:rps.register_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:rps.register_route": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.render_match": {
+        "module": "sb.domain.rps.panels"
+      },
       "handler:rps.render_pvp": {
         "module": "sb.domain.rps.panels"
       },
       "handler:rps.render_quickplay": {
+        "module": "sb.domain.rps.panels"
+      },
+      "handler:rps.render_registration": {
         "module": "sb.domain.rps.panels"
       },
       "handler:rps.settings_view": {
@@ -5810,6 +5903,15 @@
       },
       "handler:rps.start_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:rps.start_route": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.tournament_join": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.tournament_move": {
+        "module": "sb.domain.rps.handlers"
       },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
@@ -6213,10 +6315,16 @@
       "panel:rps_tournament.hub": {
         "module": "sb.domain.rps.panels"
       },
+      "panel:rps_tournament.match": {
+        "module": "sb.domain.rps.panels"
+      },
       "panel:rps_tournament.pvp": {
         "module": "sb.domain.rps.panels"
       },
       "panel:rps_tournament.quickplay": {
+        "module": "sb.domain.rps.panels"
+      },
+      "panel:rps_tournament.registration": {
         "module": "sb.domain.rps.panels"
       },
       "panel:security.hub": {
@@ -7215,19 +7323,37 @@
       "workflow:rps.record_solo_play": {
         "module": "sb.domain.rps.ops"
       },
+      "workflow:rps.record_tournament_abort": {
+        "module": "sb.domain.rps.ops"
+      },
       "workflow:rps.record_tournament_enter": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_tournament_open": {
         "module": "sb.domain.rps.ops"
       },
       "workflow:rps.record_tournament_payout": {
         "module": "sb.domain.rps.ops"
       },
+      "workflow:rps.record_tournament_result": {
+        "module": "sb.domain.rps.ops"
+      },
       "workflow:rps.solo_play": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.tournament_abort": {
         "module": "sb.domain.rps.ops"
       },
       "workflow:rps.tournament_enter": {
         "module": "sb.domain.rps.ops"
       },
+      "workflow:rps.tournament_open": {
+        "module": "sb.domain.rps.ops"
+      },
       "workflow:rps.tournament_payout": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.tournament_result": {
         "module": "sb.domain.rps.ops"
       },
       "workflow:settings.changed_payload": {
@@ -7469,6 +7595,14 @@
         },
         "subsystem": "platform"
       },
+      "guild_settings": {
+        "checkpoint_class": "session",
+        "invariant_tag": "guild_settings",
+        "sole_writer": {
+          "$ref": "engine:games.tournament_flag"
+        },
+        "subsystem": "games"
+      },
       "guild_treasury": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "guild_treasury",
@@ -7664,7 +7798,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:73574aa50b6d56c1ceb9d309a483ef71ff02e27845cf0147f94dca97f855c084",
+  "stable_hash": "sha256:3fa7463cca747bc6163d9edeb0fb0d9790c66b1af87a6fef3ff3d3ce2dd59b93",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -16882,6 +17016,34 @@
             "$ref": "engine:games.store"
           },
           "table": "game_xp",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "session",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "guild_settings",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "games",
+            "rps_tournament",
+            "blackjack",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "runtime flag (cleared at tournament end / stale-sweep)",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:games.tournament_flag"
+          },
+          "table": "guild_settings",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
@@ -26550,10 +26712,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:rps.register_pending"
+            "$ref": "handler:rps.register_route"
           },
           "slash_common": false,
-          "summary": "Start tournament registration (reaction sign-up, optional role ping).",
+          "summary": "Start tournament registration (button + reaction sign-up).",
           "usage": "!rpsregister [@role] [entry_fee]",
           "usage_weight": 1.0
         },
@@ -26575,7 +26737,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:rps.start_pending"
+            "$ref": "handler:rps.start_route"
           },
           "slash_common": false,
           "summary": "Start the registered RPS tournament.",
@@ -26598,7 +26760,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:rps.bot_pending"
+            "$ref": "handler:rps.bot_route"
           },
           "slash_common": false,
           "summary": "Start matches against the bot.",
@@ -26621,7 +26783,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:rps.matchup_pending"
+            "$ref": "handler:rps.matchup_route"
           },
           "slash_common": false,
           "summary": "Manually create a tournament match between two members.",
@@ -26964,6 +27126,402 @@
           "subsystem": "rps_tournament",
           "timeout_s": 180,
           "title": "✂️ RPS Challenge!",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "join",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_join"
+              },
+              "label": "Join Tournament",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped registration embed's Entry Fee / Game Mode field values are request-parameterized copy (fee argument + the default_mode setting — cogs/rps_tournament_cog.rps_register); grammar TextBlocks are static. The Join button and its authority stay declared on the spec; the renderer composes the embed + the declared button and asks for the shipped ✅ self-reaction primer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "join"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "rps_tournament.registration",
+          "renderer_override": {
+            "$ref": "handler:rps.render_registration"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "rps_tournament",
+          "timeout_s": 600,
+          "title": "🎮 Rock Paper Scissors Tournament Registration 🎮",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "move_rock",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🪨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Rock",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_paper",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "📄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Paper",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_scissors",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✂️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Scissors",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_lizard",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🦎",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Lizard",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_spock",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🖖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Spock",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_pawn",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "♟️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Pawn",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_knight",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "♞",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Knight",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_queen",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "♛",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Queen",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_fire",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🔥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Fire",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_water",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "💧",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Water",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_grass",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🌿",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.tournament_move"
+              },
+              "label": "Grass",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "every line of the match view is match-parameterized copy (player mentions, mode/best-of, per-throw score reveals — the shipped match-channel sends); grammar TextBlocks are static. The mode decides WHICH declared move buttons render (classic 3 / lizard_spock 5 / chess 3 / elemental 3) — declared actions and authority stay on the spec; the renderer only composes the staged embed + the mode's declared subset.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "move_rock",
+                    "move_paper",
+                    "move_scissors",
+                    "move_lizard",
+                    "move_spock"
+                  ],
+                  [
+                    "move_pawn",
+                    "move_knight",
+                    "move_queen"
+                  ],
+                  [
+                    "move_fire",
+                    "move_water",
+                    "move_grass"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "rps_tournament.match",
+          "renderer_override": {
+            "$ref": "handler:rps.render_match"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "rps_tournament",
+          "timeout_s": 600,
+          "title": "✂️ RPS Tournament Match",
           "usage_weight": 1.0
         }
       ],

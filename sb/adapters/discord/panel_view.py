@@ -166,15 +166,29 @@ class DiscordPanelPresenter:
         files = build_files(rendered)
         if files:
             file_kwargs["files"] = files
-        if interaction_response is not None and not interaction_response.is_done():
+        if (rendered.anchor_policy == "channel_anchor"
+                and getattr(origin, "channel", None) is not None):
+            # CHANNEL_ANCHOR: always a fresh channel message, even when a
+            # component click drives the open (tournament round views) — an
+            # already-acked interaction must not edit its original response.
+            message = await origin.channel.send(embed=embed, view=view,
+                                                **file_kwargs)
+        elif interaction_response is not None and not interaction_response.is_done():
             await interaction_response.send_message(
                 embed=embed, view=view, ephemeral=ephemeral, **file_kwargs)
             message = await origin.original_response()
         elif hasattr(origin, "edit_original_response"):
             message = await origin.edit_original_response(embed=embed, view=view)
-        elif hasattr(origin, "channel") and rendered.anchor_policy == "channel_anchor":
-            message = await origin.channel.send(embed=embed, view=view, **file_kwargs)
         elif hasattr(origin, "reply"):
             message = await origin.reply(embed=embed, view=view, **file_kwargs)
         view.message = message
+        for emoji in (getattr(rendered, "self_reactions", ()) or ()
+                      if message is not None else ()):
+            # the shipped `reg_msg.add_reaction("✅")` primer — best-effort
+            # (a missing add-reactions permission never takes the panel down).
+            try:
+                await message.add_reaction(emoji)
+            except Exception:  # noqa: BLE001
+                logger.warning("self-reaction %r failed on %s", emoji,
+                               rendered.panel_id, exc_info=True)
         return getattr(message, "id", None)

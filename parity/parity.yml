@@ -203,7 +203,7 @@ depth:
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
-    rps_tournament: {events: 1, tables: 2, settings: 0}
+    rps_tournament: {events: 1, tables: 3, settings: 1}
     utility: {events: 1, tables: 2, settings: 0}
     ux_lab: {events: 1, tables: 2, settings: 0}
     uxlab: {events: 0, tables: 0, settings: 0}

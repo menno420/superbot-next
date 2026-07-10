@@ -12,6 +12,7 @@ from sb.domain.games.ops import register_ops
 from sb.domain.games.providers import register_game_providers
 from sb.domain.games.session import install_games_dispatcher
 from sb.domain.games.store import GAME_STATE_STORE, GAME_XP_STORE
+from sb.domain.games.tournament_flag import TOURNAMENT_FLAG_STORE
 from sb.domain.games.xp import EVT_GAME_LEVEL_UP, EVT_GAME_XP_AWARDED
 from sb.kernel.scheduler.due_queue import declare_task
 from sb.spec.commands import CommandKind, CommandSpec
@@ -88,7 +89,7 @@ MANIFEST = SubsystemManifest(
     ),
     panels=_panels.install_games_panels(),
     settings=(),
-    stores=(GAME_STATE_STORE, GAME_XP_STORE),
+    stores=(GAME_STATE_STORE, GAME_XP_STORE, TOURNAMENT_FLAG_STORE),
     events=_EVENTS,
     capabilities=(),
 )
@@ -102,8 +103,10 @@ register_game_providers()
 def _ensure_refs() -> None:
     from sb.domain.games import ops as _ops
     from sb.domain.games import store as _store
+    from sb.domain.games import tournament_flag as _flag
 
     _store.ensure_refs()
+    _flag.ensure_flag_refs()
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
     _service.ensure_service_refs()
