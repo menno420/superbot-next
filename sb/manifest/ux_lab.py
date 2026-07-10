@@ -6,8 +6,8 @@ opens the shipped ``UxLabHomeView`` Home card. Admin-gated
 never touches the database. The wing browsers (buttons/selects/modals/
 embeds/CV2/PIL/mock-studio/probe-bench/compare — disbot/views/ux_lab/)
 join when their exhibit slice ports; the subsystem's single golden drives
-the home entry point only. The slash twin (``/uxlab``) is the sibling
-``uxlab`` parity row's flip.
+the home entry point only. The slash twin (``/uxlab``) shares the one
+front-door handler and carries the sibling ``uxlab`` parity row.
 
 No stores, no events, no settings: the shipped lab was CI-fenced
 zero-write (AST fence, "the lab never writes to the database").
@@ -19,6 +19,7 @@ from sb.domain.ux_lab import handlers as _handlers
 from sb.domain.ux_lab import panels as _panels
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
+from sb.spec.outcomes import DeferMode
 from sb.spec.refs import HandlerRef
 
 MANIFEST = SubsystemManifest(
@@ -32,6 +33,18 @@ MANIFEST = SubsystemManifest(
                     summary="Open the UX Lab — the interface gallery + "
                             "limit probe bench.",
                     usage="!uxlab"),
+        # the shipped slash front door ("one door, not one per action" —
+        # ux_lab_cog.uxlab_slash) answered DIRECTLY (type-4 message, no
+        # defer — goldens/uxlab/sweep_slash_uxlab pins the bare type-4)
+        # then bound its view to interaction.original_response() (the
+        # golden's second call; the handler's responder hook mirrors it).
+        CommandSpec(name="uxlab", kind=CommandKind.SLASH,
+                    route=HandlerRef("ux_lab.home_view"),
+                    defer_mode=DeferMode.NONE,
+                    audience_tier="administrator", capability="ux_lab",
+                    summary="Open the UX Lab — the interface gallery + "
+                            "limit probe bench.",
+                    usage="/uxlab"),
     ),
     panels=(_panels.ux_lab_home_spec(),),
     settings=(),

@@ -151,22 +151,60 @@ def test_panel_and_handler_refs_registered():
         assert is_registered(HandlerRef(name)), name
 
 
-def test_manifest_declares_the_home_entry_point():
+def test_manifest_declares_the_home_entry_points():
     from sb.manifest.ux_lab import MANIFEST
+    from sb.spec.commands import CommandKind
+    from sb.spec.outcomes import DeferMode
     from sb.spec.refs import HandlerRef
 
     assert MANIFEST.key == "ux_lab"
-    (cmd,) = MANIFEST.commands
+    (cmd, slash) = MANIFEST.commands
     assert cmd.name == "uxlab"
+    assert cmd.kind is CommandKind.PREFIX
     assert cmd.aliases == ("interfacelab",)
     assert cmd.route == HandlerRef("ux_lab.home_view")
     # the shipped admin_or_owner() gate — administrator tier.
     assert cmd.audience_tier == "administrator"
+    # the shipped slash front door: same one handler, DIRECT type-4 answer
+    # (no defer — goldens/uxlab/sweep_slash_uxlab pins the bare type-4).
+    assert slash.name == "uxlab"
+    assert slash.kind is CommandKind.SLASH
+    assert slash.route == HandlerRef("ux_lab.home_view")
+    assert slash.defer_mode is DeferMode.NONE
+    assert slash.audience_tier == "administrator"
     (spec,) = MANIFEST.panels
     assert spec.panel_id == "ux_lab.home"
     # R2 stays vacuous for ux_lab: the shipped lab is zero-write.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()
+
+
+def test_responder_records_the_original_response_fetch():
+    """The shipped `view.message = await interaction.original_response()`
+    (ux_lab_cog.uxlab_slash) — the capture twin records the GET verbatim
+    AFTER the type-4 response; message surfaces never fetch."""
+    from types import SimpleNamespace
+
+    from sb.adapters.parity.transport import ParityResponder, ParityTransport
+    from sb.kernel.interaction.request import Surface
+
+    transport = ParityTransport(ids=SimpleNamespace(allocate=lambda: 1),
+                                clock=SimpleNamespace())
+    responder = ParityResponder(transport, surface=Surface.SLASH,
+                                channel_id=2, interaction_id=3)
+    # before any response exists there is nothing to fetch.
+    run(responder.fetch_original_response())
+    assert [c.method for c in transport.calls] == []
+    responder.present_panel({"content": None})
+    run(responder.fetch_original_response())
+    assert [c.method for c in transport.calls] == [
+        "interaction_response", "get_original_response"]
+    assert transport.calls[1].args == {}
+
+    prefix = ParityResponder(transport, surface=Surface.PREFIX, channel_id=2)
+    run(prefix.fetch_original_response())    # message surface: no-op
+    assert [c.method for c in transport.calls] == [
+        "interaction_response", "get_original_response"]
 
 
 def test_wing_clicks_land_on_the_polite_pending_terminal():
