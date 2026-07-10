@@ -42,6 +42,8 @@ sharing it**:
   "Claiming an order" below). An order's `do:` is a pointer to
   a committed doc — read it. If an order is ambiguous or you disagree, do NOT guess: write it in
   your status under `⚑ needs-owner` and proceed with the rest.
+- **Substantive PRs:** post the standing @codex review question on the PR's final head before
+  merging on green — rule text: `docs/collaboration-model.md` § Standing @codex review (ORDER 010).
 - **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current
   phase, health (green / red-by-design+why / broken+what), kit self-report, last-shipped PR,
   blockers, orders acked/done (with any active claim), `⚑ needs-owner`. You report order
