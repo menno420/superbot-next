@@ -3165,6 +3165,21 @@
           "value": "rps_settings_view"
         },
         {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rock"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "paper"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "scissors"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -3712,6 +3727,11 @@
           "source": "sb/manifest/rps_tournament.py",
           "subsystem": "rps_tournament",
           "value": "rps_tournament.hub"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament.quickplay"
         },
         {
           "source": "sb/manifest/security.py",
@@ -5372,6 +5392,9 @@
       "handler:rps.register_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:rps.render_quickplay": {
+        "module": "sb.domain.rps.panels"
+      },
       "handler:rps.settings_view": {
         "module": "sb.domain.rps.handlers"
       },
@@ -5664,6 +5687,9 @@
         "module": "sb.domain.role.panels"
       },
       "panel:rps_tournament.hub": {
+        "module": "sb.domain.rps.panels"
+      },
+      "panel:rps_tournament.quickplay": {
         "module": "sb.domain.rps.panels"
       },
       "panel:security.hub": {
@@ -7066,7 +7092,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:6f9e7df2b8aae3feea01fb59a3ed6e124af586a88dfaa364fac14fe04f31efbf",
+  "stable_hash": "sha256:aafc805a68a715b7cf0bd4bc57f5b29b56eef98ca67d4d03af07f483b1d8d5be",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -25249,6 +25275,127 @@
           "subsystem": "rps_tournament",
           "timeout_s": 180,
           "title": "✂️ Rock Paper Scissors",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "rock",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:rps.solo_play"
+              },
+              "label": "Rock",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "paper",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:rps.solo_play"
+              },
+              "label": "Paper",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "scissors",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✂️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:rps.solo_play"
+              },
+              "label": "Scissors",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped quick-play view's bet line is request-parameterized copy (Bet: **N** 🪙 / free play — views/rps/solo_play.py); grammar TextBlocks are static. Buttons and authority stay declared on the spec; the renderer only composes the embed + declared components.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rock",
+                    "paper",
+                    "scissors"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "rps_tournament.quickplay",
+          "renderer_override": {
+            "$ref": "handler:rps.render_quickplay"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "rps_tournament",
+          "timeout_s": 180,
+          "title": "✂️ Rock · Paper · Scissors",
           "usage_weight": 1.0
         }
       ],

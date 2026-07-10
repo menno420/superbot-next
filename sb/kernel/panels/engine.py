@@ -18,8 +18,9 @@ still enter through this engine (the audited seam), never around it.
 from __future__ import annotations
 
 import logging
+import secrets
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace as _dc_replace
 from typing import Awaitable, Callable
 
 from sb.kernel.interaction.locale import LocaleContext
@@ -33,8 +34,10 @@ from sb.spec.refs import PanelRef, resolve as resolve_ref
 logger = logging.getLogger("sb.kernel.panels.engine")
 
 __all__ = [
+    "EphemeralComponent",
     "PanelPresenterNotInstalled",
     "PanelSession",
+    "ephemeral_route",
     "handle_nav",
     "install_panel_anchor_store",
     "install_panel_presenter",
@@ -168,11 +171,89 @@ def may_interact(session: PanelSession | None, user_id: int | None) -> bool:
     return session.invoker_id == user_id
 
 
+# --- session-lifecycle game views (the shipped discord.py view semantics) -------
+#
+# A ``session_lifecycle=True`` panel is the shipped ephemeral game VIEW made
+# declarative: its components get RUN-MINTED custom ids (32-hex — byte-for-
+# byte the auto-id shape discord.py minted for the shipped views, which the
+# parity Normalizer symbolizes as <cid:N>), bound IN MEMORY to the declared
+# component spec plus the opening request's args. The binding dies with the
+# process/timeout — a stale click falls through to the §3.4 polite-expiry
+# terminal, exactly the shipped views' after-restart behavior. Session views
+# are never anchored (panel_anchors is the refreshable-panel registry; the
+# shipped game views were not in it).
+
+@dataclass(frozen=True)
+class EphemeralComponent:
+    """One minted session-view component binding."""
+
+    panel_id: str
+    component_id: str
+    spec: object                      # the declared PanelActionSpec | SelectorSpec
+    args: dict
+    invoker_id: int | None
+    opened_at: float = field(default_factory=time.monotonic)
+    timeout_s: int | None = 180
+
+    @property
+    def expired(self) -> bool:
+        if self.timeout_s is None:
+            return False
+        return (time.monotonic() - self.opened_at) > self.timeout_s
+
+
+_ephemeral: dict[str, EphemeralComponent] = {}
+_EPHEMERAL_MAX = 4096
+
+
+def ephemeral_route(custom_id: str) -> EphemeralComponent | None:
+    """The component adapter's session-view lookup — None for unknown or
+    expired ids (the caller falls through to the polite-expiry terminal)."""
+    binding = _ephemeral.get(custom_id)
+    if binding is None:
+        return None
+    if binding.expired:
+        _ephemeral.pop(custom_id, None)
+        return None
+    return binding
+
+
+def _mint_ephemeral(spec: PanelSpec, rendered: RenderedPanel,
+                    req: ResolveRequest) -> RenderedPanel:
+    """Rewrite a session-lifecycle panel's DECLARED components onto minted
+    32-hex ids and store their bindings; engine-injected nav slots (if any)
+    keep their static ids."""
+    by_canonical: dict[str, tuple[str, object]] = {}
+    for comp in tuple(spec.actions) + tuple(spec.selectors):
+        comp_id = (getattr(comp, "action_id", "")
+                   or getattr(comp, "selector_id", ""))
+        cid = (getattr(comp, "custom_id_override", "")
+               or f"{spec.panel_id}.{comp_id}")
+        by_canonical[cid] = (comp_id, comp)
+    out = []
+    for component in rendered.components:
+        bound = by_canonical.get(component.custom_id)
+        if bound is None:
+            out.append(component)
+            continue
+        comp_id, cspec = bound
+        minted = secrets.token_hex(16)
+        _ephemeral[minted] = EphemeralComponent(
+            panel_id=spec.panel_id, component_id=comp_id, spec=cspec,
+            args={**dict(req.args), "session_action": comp_id},
+            invoker_id=rendered.invoker_lock, timeout_s=rendered.timeout_s)
+        out.append(_dc_replace(component, custom_id=minted))
+    while len(_ephemeral) > _EPHEMERAL_MAX:
+        _ephemeral.pop(next(iter(_ephemeral)))
+    return _dc_replace(rendered, components=tuple(out))
+
+
 def reset_panel_engine_for_tests() -> None:
     global _presenter, _anchor_store
     _presenter = _no_presenter
     _anchor_store = None
     _sessions.clear()
+    _ephemeral.clear()
 
 
 # --- the engine entrypoints -----------------------------------------------------
@@ -181,7 +262,8 @@ def _context_from_request(spec: PanelSpec, req: ResolveRequest) -> PanelContext:
     return PanelContext(
         bot=None, guild_id=req.guild_id, actor=req.actor,
         channel_id=req.channel_id, origin=PanelOrigin.INTERACTION,
-        audience=spec.audience, locale=LocaleContext())
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(req.args or {}))
 
 
 async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
@@ -197,13 +279,18 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
         return
     else:
         rendered = await render_panel(spec, ctx, page=page)
+    if spec.session_lifecycle:
+        rendered = _mint_ephemeral(spec, rendered, req)
     message_ref = await _presenter(rendered, req)
     key = str(message_ref) if message_ref is not None else req.request_id
     _store_session(key, PanelSession(
         panel_id=spec.panel_id, invoker_id=rendered.invoker_lock,
         audience=rendered.audience, page=page, timeout_s=rendered.timeout_s,
         message_ref=message_ref))
-    await _record_anchor(spec, req, message_ref)
+    if not spec.session_lifecycle:
+        # session views are never anchored — no refreshable channel panel
+        # exists (the shipped game views were not in panel_anchors).
+        await _record_anchor(spec, req, message_ref)
 
 
 async def open_panel(ref: PanelRef, req: ResolveRequest) -> None:

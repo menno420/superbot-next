@@ -7,7 +7,8 @@ Carries the L-24 ``LocaleContext`` for the render/copy seam.
 from __future__ import annotations
 
 import enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Mapping
 
 from sb.kernel.interaction.locale import LocaleContext
 from sb.kernel.interaction.request import ActorRef
@@ -30,3 +31,7 @@ class PanelContext:
     origin: PanelOrigin
     audience: Audience
     locale: LocaleContext = LocaleContext()
+    #: the opening request's args (read-only) — session-lifecycle game
+    #: views render request-parameterized copy (the shipped quick-play
+    #: bet line); grammar panels may ignore it.
+    params: Mapping[str, object] = field(default_factory=dict)

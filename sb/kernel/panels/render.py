@@ -54,6 +54,8 @@ __all__ = [
 # bands add their tokens as their goldens pin them.
 STYLE_TOKEN_COLORS: dict[str, int] = {
     "blue": 3447003,          # discord.Color.blue() — the shipped help hub
+    "purple": 10181046,       # discord.Color.purple() — the shipped GAME_COLOR
+                              # (views/rps/_helpers.py; goldens/rps_tournament)
 }
 
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).

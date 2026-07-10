@@ -131,11 +131,39 @@ async def dispatch_component(interaction: object, *, responder) -> object | None
     if req is not None:
         return await resolve(req)
 
-    # not a target-index or panel-component id: nav slot, dynamic session,
-    # or the polite-expiry terminal (§3.4 precedence, in order).
+    # not a target-index or panel-component id: session-lifecycle game view,
+    # nav slot, dynamic session, or the polite-expiry terminal (§3.4
+    # precedence — the minted 32-hex session-view family is disjoint from
+    # every static and scheme-token id by construction).
     data = getattr(interaction, "data", None) or {}
     custom_id = str(data.get("custom_id", "") if isinstance(data, dict)
                     else getattr(data, "custom_id", ""))
+    binding = panel_engine.ephemeral_route(custom_id)
+    if binding is not None:
+        user = getattr(interaction, "user", None)
+        if (binding.invoker_id is not None
+                and getattr(user, "id", None) != binding.invoker_id):
+            # the shipped views' interaction_check (views/rps/solo_play.py)
+            await responder.deny("This game isn't yours.", ephemeral=True)
+            return None
+        guild = getattr(interaction, "guild", None)
+        args = dict(binding.args)
+        args["interaction_id"] = getattr(interaction, "id", None)
+        values = data.get("values") if isinstance(data, dict) else None
+        if values is not None:
+            args["values"] = tuple(values)
+        session_req = ResolveRequest(
+            surface=Surface.COMPONENT,
+            target=TargetRef(key=f"{binding.panel_id}.{binding.component_id}",
+                             spec=binding.spec),
+            actor=actor_from_member(user,
+                                    guild_owner_id=getattr(guild, "owner_id", None),
+                                    is_dm=guild is None),
+            guild_id=getattr(guild, "id", None),
+            channel_id=getattr(interaction, "channel_id", None),
+            args=args, responder=responder, origin=interaction,
+        )
+        return await resolve(session_req)
     routed = route_custom_id(custom_id)
     if isinstance(routed, NavBinding):
         guild = getattr(interaction, "guild", None)

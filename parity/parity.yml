@@ -83,7 +83,7 @@ subsystems:
   proof_channel: pending
   quicksetup: pending
   role: pending
-  rps_tournament: pending
+  rps_tournament: ported
   security: pending
   server_management: pending
   servermanagement: pending
@@ -163,7 +163,15 @@ depth:
   #   <subsystem>:
   #     - surface: "event:xp.level_up" | "table:xp" | "setting:xp.enabled"
   #       reason: "<reason-class>: <specifics>"
-  exemptions: {}
+  exemptions:
+    rps_tournament:
+      - surface: "table:rps_players"
+        reason: "time-driven: rps_players stats rows are written at match
+          completion inside the shipped tournament/bot-match orchestration
+          (reaction sign-up + stage loops + no-prefix moves in match
+          channels) — out of capture scope for the sweep corpus; the
+          subsystem's only golden opens the quick-play picker and finishes
+          no match"
 
   # ratchet:
   #   <subsystem>: {events: N, tables: N, settings: N}
@@ -172,3 +180,4 @@ depth:
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
     help: {events: 1, tables: 3, settings: 0}
+    rps_tournament: {events: 1, tables: 2, settings: 0}

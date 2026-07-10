@@ -140,7 +140,12 @@ async def _record_solo_play(conn, ctx: WorkflowContext) -> LegOutcome:
              "emoji": _EMOJI.get(move, ""),
              "bot_emoji": _EMOJI.get(bot_move, ""), "terminal": True}
     return LegOutcome(step=StepResult(uid, "solo_play", True), before={},
-                      after=after)
+                      after=after,
+                      # the success copy line — quick-play picker clicks
+                      # dispatch this op directly (no handler composes a
+                      # Reply), so the leg speaks its own result.
+                      user_message=(f"{after['emoji']} vs "
+                                    f"{after['bot_emoji']} (bot)\n{text}"))
 
 
 # --- PvP (challenge → accept escrow → simultaneous throws → settle) --------------------
