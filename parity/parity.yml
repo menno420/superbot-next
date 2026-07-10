@@ -116,6 +116,35 @@ kernel:
     - sb_credential_rotation
     - ai_decision_audit
 
+# Corpus-red dispositions (flag 13; ruled ACCEPTED by ORDER 009 / owner
+# delegation Q-0262.3, 2026-07-10 — "reversible-on-paper", Q-0240 class).
+# Applied at replay-diff time by sb/adapters/parity/dispositions.py to BOTH
+# the golden and the fresh capture, symmetrically — every other byte still
+# diffs. Decision record: docs/parity/flag-13-disposition-2026-07-10.md.
+dispositions:
+  kernel-surface-drift:
+    encoding: normalizer
+    # kernel-owned audit/event surfaces (the `kernel:` coverage home above)
+    # are dropped from both docs: the old bot never had them; their coverage
+    # obligation lives in the kernel section, not in every band's goldens.
+    tables: kernel      # resolve against kernel.tables above
+    events: kernel      # resolve against kernel.events above
+  xp-coins-alias:
+    encoding: normalizer
+    # the old `xp.coins` alias column (coins split to economy_balances at
+    # the ledgered coins boundary) — the alias column is dropped from xp
+    # rows in both docs.
+    table: xp
+    column: coins
+  invoking-message-deletion:
+    encoding: exemption
+    # the shipped bot deleted the invoking message after every command
+    # (reason-less delete_message); v1 deliberately does not. Reason-less
+    # delete_message calls are exempt from the replay diff in both docs —
+    # reasoned deletes (real moderation/cleanup behavior) still diff.
+    method: delete_message
+    reasonless_only: true
+
 depth:
   # Closed reason-class vocabulary for exemptions (COVERAGE.md-style; the
   # _sweep_skips honesty pattern). Growing this list is a reviewed schema

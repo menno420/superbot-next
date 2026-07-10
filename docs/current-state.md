@@ -25,8 +25,8 @@ named gates green on main. The `golden-parity` **report** leg is red-by-design
 (Verify against live source control — this section is a dated snapshot,
 2026-07-10.) Band-5 build + replay legs are landed (#95, #97); the current
 lane is band-5 **live-drive** (testing ladder step 7's live leg), then band-6.
-First `ported` flip ⚑ gated on the owner's flag-13 ruling (`control/status.md`
-OWNER-ACTION 1).
+The flag-13 ruling landed (ORDER 009): the corpus-red dispositions are
+applied at replay-diff time per `docs/parity/flag-13-disposition-2026-07-10.md`.
 
 ## Recently shipped (newest first)
 

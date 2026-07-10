@@ -1,0 +1,127 @@
+"""Flag-13 corpus-red dispositions (ORDER 009 / Q-0262.3) — the three
+owner-accepted classes are applied at replay-diff time, symmetrically, and
+NOTHING else changes: goldens stay byte-identical on disk, the imported
+harness stays verbatim, and every non-disposed byte still diffs."""
+
+from __future__ import annotations
+
+import copy
+
+
+def _doc():
+    return {
+        "harness_version": 1,
+        "case_id": "sweep.example",
+        "db_delta": {
+            "audit_log": {"added": [{"mutation_id": "<uuid>", "verb": "x"}]},
+            "event_outbox": {"added": [{"event": "audit.action_recorded"}]},
+            "xp": {"added": [{"user_id": "<@admin>", "xp": 25, "coins": 0}]},
+            "warnings": {"added": [{"user_id": "<@admin>", "count": 1}]},
+        },
+        "steps": [
+            {
+                "input": {"kind": "command", "content": "!warn"},
+                "calls": [
+                    {"method": "send_message",
+                     "args": {"channel_id": "<#general>"}, "payload": {}},
+                    {"method": "delete_message",
+                     "args": {"channel_id": "<#general>",
+                              "message_id": "<msg:1>", "reason": None}},
+                    {"method": "delete_message",
+                     "args": {"channel_id": "<#general>",
+                              "message_id": "<msg:2>",
+                              "reason": "cleanup purge"}},
+                ],
+                "events": [
+                    {"event": "command.dispatched", "payload": {}},
+                    {"event": "moderation.action_taken", "payload": {}},
+                ],
+            },
+        ],
+    }
+
+
+def test_kernel_surfaces_dropped_from_both_tables_and_events():
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    out = apply_dispositions(_doc())
+    assert "audit_log" not in out["db_delta"]
+    assert "event_outbox" not in out["db_delta"]
+    # domain surfaces stay
+    assert "warnings" in out["db_delta"]
+    events = out["steps"][0]["events"]
+    assert [e["event"] for e in events] == ["moderation.action_taken"]
+
+
+def test_events_key_dropped_when_only_kernel_events_remain():
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    doc = _doc()
+    doc["steps"][0]["events"] = [{"event": "command.dispatched", "payload": {}}]
+    out = apply_dispositions(doc)
+    assert "events" not in out["steps"][0]
+
+
+def test_xp_coins_alias_column_dropped():
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    out = apply_dispositions(_doc())
+    rows = out["db_delta"]["xp"]["added"]
+    assert rows == [{"user_id": "<@admin>", "xp": 25}]
+
+
+def test_reasonless_invoking_delete_exempt_but_reasoned_delete_diffs():
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    out = apply_dispositions(_doc())
+    methods = [c["method"] for c in out["steps"][0]["calls"]]
+    # the reason-less invoking-message delete is gone; the reasoned
+    # (real-behavior) delete survives and still diffs
+    assert methods == ["send_message", "delete_message"]
+    kept = [c for c in out["steps"][0]["calls"]
+            if c["method"] == "delete_message"]
+    assert kept[0]["args"]["reason"] == "cleanup purge"
+
+
+def test_apply_is_pure_and_symmetric():
+    from parity.harness.runner import _diff_docs
+
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    original = _doc()
+    frozen = copy.deepcopy(original)
+    out = apply_dispositions(original)
+    assert original == frozen                # never mutates the input
+    assert out is not original
+    # symmetric application: two docs differing ONLY in disposed surfaces
+    # diff clean; a non-disposed difference still reds
+    other = _doc()
+    other["db_delta"].pop("audit_log")
+    other["db_delta"]["xp"]["added"][0]["coins"] = 999
+    other["steps"][0]["calls"] = [
+        c for c in other["steps"][0]["calls"]
+        if not (c["method"] == "delete_message"
+                and c["args"]["reason"] is None)]
+    assert _diff_docs(apply_dispositions(original),
+                      apply_dispositions(other)) == []
+    other["db_delta"]["warnings"]["added"][0]["count"] = 2
+    assert _diff_docs(apply_dispositions(original),
+                      apply_dispositions(other)) != []
+
+
+def test_dispositions_load_from_parity_yml():
+    from sb.adapters.parity.dispositions import load_dispositions
+
+    d = load_dispositions()
+    assert set(d) == {"kernel-surface-drift", "xp-coins-alias",
+                      "invoking-message-deletion"}
+    drift = d["kernel-surface-drift"]
+    assert drift["encoding"] == "normalizer"
+    # kernel indirection resolved against the kernel coverage home
+    assert "audit_log" in drift["tables"]
+    assert "command.dispatched" in drift["events"]
+    assert d["xp-coins-alias"] == {"encoding": "normalizer",
+                                   "table": "xp", "column": "coins"}
+    deletion = d["invoking-message-deletion"]
+    assert deletion["encoding"] == "exemption"
+    assert deletion["reasonless_only"] is True
