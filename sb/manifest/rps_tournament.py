@@ -96,7 +96,7 @@ MANIFEST = SubsystemManifest(
                             "settings hub).",
                     usage="!rpssettings"),
     ),
-    panels=(_panels.rps_hub_spec(),),
+    panels=(_panels.rps_hub_spec(), _panels.rps_quickplay_spec()),
     settings=_SETTINGS,
     stores=(RPS_PLAYERS_STORE,),  # + checkpoint rows on the games manifest
     events=(),          # emits economy.balance_changed (owner: economy)

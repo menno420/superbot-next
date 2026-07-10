@@ -51,7 +51,6 @@ def _register() -> None:
     @handler("rps.play")
     async def play(req) -> Reply:
         """!rps [bet] or !rps @player [bet] — quick play / challenge."""
-        from sb.domain.rps.ops import FREE_WIN
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
 
@@ -89,19 +88,28 @@ def _register() -> None:
             if result.outcome != SUCCESS:
                 return Reply(result.outcome,
                              result.user_message or "Could not play.")
-            after = (result.after or {}).get("solo_play", {})
-            return Reply(SUCCESS,
-                         f"{after.get('emoji', '')} vs "
-                         f"{after.get('bot_emoji', '')} (bot)\n"
-                         f"{after.get('result', '')}")
+            # the leg speaks its own result copy (one source for the
+            # prefix path AND the picker-click path).
+            return Reply(SUCCESS, result.user_message or "")
+        # bare / bet-only !rps: the shipped quick-play view (embed + move
+        # buttons — views/rps/solo_play._RpsView) as a session-lifecycle
+        # panel. Balance-gate the bet BEFORE the view opens (the shipped
+        # construction-site check); no state is written until a move runs
+        # the audited rps.solo_play op.
         bet_tokens = [t for t in argv if str(t).isdigit()]
         bet = int(bet_tokens[0]) if bet_tokens else 0
-        bet_str = (f"**{bet}** 🪙" if bet
-                   else f"Free play (win = +{FREE_WIN} 🪙)")
-        return Reply(SUCCESS,
-                     f"✂️ Rock · Paper · Scissors\nBet: {bet_str}\n"
-                     "Choose your move — `!rps rock|paper|scissors "
-                     "[bet]`, or use the picker on the RPS panel.")
+        if bet > 0:
+            from sb.domain.economy.store import get_coins
+
+            held = await get_coins(uid, int(req.guild_id or 0))
+            if bet > held:
+                return Reply(BLOCKED, f"❌ You only have **{held}** 🪙.")
+        from sb.domain.rps.panels import QUICKPLAY_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(QUICKPLAY_PANEL_ID), req)
+        return Reply(SUCCESS, None)
 
     @handler("rps.help_view")
     async def help_view(req) -> Reply:

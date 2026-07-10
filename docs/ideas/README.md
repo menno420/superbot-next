@@ -61,3 +61,8 @@ frontmatter keeps the score.
   `captured` → structured-plan lane: the missing reaction feed adapter (verified absent),
   the one seam blocking starboard / reaction-roles / AI-review listeners; build the seam
   first, consumers as separate PRs.
+- [`rps-tournament-remaining-surface-2026-07-10.md`](rps-tournament-remaining-surface-2026-07-10.md) —
+  `captured` → quick-win lane first item: after the rps_tournament flip (solo quick-play
+  playable end-to-end), what remains — PvP buttons on the wire (blackjack has the same
+  gap), result edit-in-place, tournament orchestration (blocked on the reaction/message
+  seams), and the named classes for the band's four red `_unmapped` sweeps.
