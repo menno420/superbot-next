@@ -123,12 +123,42 @@ def test_config_is_frozen():
 
 # --- data-plane rail (spec 05 §3.5) -------------------------------------------
 
-def test_test_plane_requires_marker_or_allowlist():
+def test_test_plane_unset_allowlist_boots_any_host_and_logs_loud(caplog):
+    """Q-0263.1 (ORDER 011): SB_TEST_DB_HOSTS unset/empty => open mode.
+    Preflight accepts ANY host on the test plane, never refuses, never emits
+    an error naming the variable — it logs the connected host once, loudly,
+    one line."""
     env = dict(MINIMAL_TEST_ENV, DATABASE_URL="postgres://u:p@prod-db.example.com:5432/sb")
+    assert "SB_TEST_DB_HOSTS" not in env
+    with caplog.at_level("WARNING", logger="sb.db.data_plane"):
+        cfg = preflight(env)  # boots — no StartupError
+    assert cfg.data_plane is DataPlane.TEST
+    loud = [r for r in caplog.records if r.name == "sb.db.data_plane"]
+    assert len(loud) == 1                      # once, one line
+    assert loud[0].levelname == "WARNING"      # loud
+    assert "prod-db.example.com" in loud[0].getMessage()  # names the connected host
+    assert "SB_TEST_DB_HOSTS" not in loud[0].getMessage()  # never names the variable
+    # empty string is the same as unset
+    env["SB_TEST_DB_HOSTS"] = ""
+    assert preflight(env).data_plane is DataPlane.TEST
+
+
+def test_test_plane_allowlist_enforced_only_when_set(caplog):
+    """The allowlist check engages ONLY when deliberately set non-empty:
+    a non-allowlisted host without the ?sb_plane=test marker still refuses."""
+    env = dict(MINIMAL_TEST_ENV,
+               DATABASE_URL="postgres://u:p@prod-db.example.com:5432/sb",
+               SB_TEST_DB_HOSTS="db.test.internal")
     with pytest.raises(StartupError):
         preflight(env)
-    # allowlisted host passes
+    # allowlisted host passes, silently (no open-mode log)
     env["SB_TEST_DB_HOSTS"] = "prod-db.example.com"
+    with caplog.at_level("WARNING", logger="sb.db.data_plane"):
+        assert preflight(env).data_plane is DataPlane.TEST
+    assert not [r for r in caplog.records if r.name == "sb.db.data_plane"]
+    # the ?sb_plane=test marker still passes even when the host is off-list
+    env["SB_TEST_DB_HOSTS"] = "db.test.internal"
+    env["DATABASE_URL"] = "postgres://u:p@prod-db.example.com:5432/sb?sb_plane=test"
     assert preflight(env).data_plane is DataPlane.TEST
 
 

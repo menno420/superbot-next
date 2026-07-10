@@ -211,7 +211,10 @@ CONFIG_FIELDS: tuple[ConfigSpec, ...] = (
     ConfigSpec("DB_IDLE_LIFETIME_S", ConfigType.FLOAT, default=300.0, min=0.0,
                owner_subsystem="ops"),  # §3.4 — max_inactive_connection_lifetime
     ConfigSpec("SB_TEST_DB_HOSTS", ConfigType.CSV, default=(),
-               owner_subsystem="ops"),  # §3.5 — test-plane DSN host allowlist
+               owner_subsystem="ops"),  # §3.5 — OPTIONAL test-plane DSN host allowlist
+    # ^ Q-0263.1: unset/empty => open mode — ANY host accepted on the test
+    #   plane (connected host logged loud, once, one line); the allowlist
+    #   engages only when deliberately set non-empty. Never refuses boot.
     SecretSpec("SB_PROD_ATTEST", ConfigType.SECRET, default=None,
                owner_subsystem="ops"),  # §3.5 — opaque human-set prod token; PRESENCE => attested
     ConfigSpec("RAILWAY_SERVICE_NAME", ConfigType.STR, default=None,
