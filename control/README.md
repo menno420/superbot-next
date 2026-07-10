@@ -44,6 +44,13 @@ sharing it**:
   your status under `⚑ needs-owner` and proceed with the rest.
 - **Substantive PRs:** post the standing @codex review question on the PR's final head before
   merging on green — rule text: `docs/collaboration-model.md` § Standing @codex review (ORDER 010).
+- **Continuous mode (Q-0265, 2026-07-10):** the loop runs continuously — slices ship one after
+  another until backpressure (queue saturation) or an empty queue, NOT one slice per wake; each
+  slice is still its own merged-on-green PR. Honesty guard: out of useful work → say so and idle
+  until the failsafe. Continuation chain: the coordinator re-arms a one-shot trigger into its own
+  session each turn (~15 min), backed by the 2-hourly "Builder failsafe wake" cron (`send_later`
+  cannot target another session, so one-shot `create_trigger` calls carry the chain). Rule text:
+  `docs/collaboration-model.md` § Continuous mode (Q-0265).
 - **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current
   phase, health (green / red-by-design+why / broken+what), kit self-report, last-shipped PR,
   blockers, orders acked/done (with any active claim), `⚑ needs-owner`. You report order
