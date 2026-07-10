@@ -19,12 +19,23 @@ def _register() -> None:
 
     @handler("ux_lab.home_view")
     async def home_view(req):
-        """!uxlab (alias !interfacelab) — the shipped UX Lab home panel
-        (UxLabHomeView; goldens/ux_lab/sweep_uxlab.json)."""
+        """!uxlab (alias !interfacelab) / /uxlab — the shipped UX Lab home
+        panel (UxLabHomeView; goldens/ux_lab/sweep_uxlab.json +
+        goldens/uxlab/sweep_slash_uxlab.json)."""
         from sb.kernel.panels.engine import open_panel
         from sb.spec.refs import PanelRef
 
         await open_panel(PanelRef("ux_lab.home"), req)
+        # the shipped slash path bound its view to the interaction's
+        # original response AFTER the send (`view.message = await
+        # interaction.original_response()` — ux_lab_cog.uxlab_slash; the
+        # slash golden pins the GET as its second call). Optional duck-
+        # typed responder port: the parity capture twin records the wire
+        # verb; the live discord presenter already performs this fetch
+        # inside its own send path, so the live responders don't carry it.
+        fetch = getattr(req.responder, "fetch_original_response", None)
+        if fetch is not None:
+            await fetch()
         return None
 
 

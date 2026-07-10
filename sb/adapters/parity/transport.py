@@ -268,6 +268,16 @@ class ParityResponder:
             return
         self._reply(str(message), ephemeral=visibility is ReplyVisibility.EPHEMERAL)
 
+    async def fetch_original_response(self) -> None:
+        """The shipped ``await interaction.original_response()`` fetch —
+        fake_http captured the HTTP GET verbatim as a bare
+        ``get_original_response`` call (goldens/uxlab/sweep_slash_uxlab
+        pins it as the response's follow-up call). Only meaningful after
+        an interaction response exists; message surfaces have a real
+        channel message and never fetch."""
+        if self.surface in _INTERACTION_SURFACES and self._acked:
+            self._transport.record("get_original_response", {})
+
     # -- panel presentation (called by ParityPresenter) ---------------------
 
     def edit_panel(self, payload: dict[str, Any], message_ref: object) -> None:

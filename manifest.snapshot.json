@@ -2692,6 +2692,14 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/ux_lab.py",
+          "subsystem": "ux_lab",
+          "surface": "slash",
+          "value": "uxlab"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/welcome.py",
           "subsystem": "welcome",
           "surface": "prefix",
@@ -7656,7 +7664,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b317c1ee46e3df8fdddcde0c77ad75d4b569ff9eac293b657a59bfa0073679fc",
+  "stable_hash": "sha256:73574aa50b6d56c1ceb9d309a483ef71ff02e27845cf0147f94dca97f855c084",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19921,7 +19929,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "1 command(s), generated from the `ux_lab` manifest."
+              "text": "2 command(s), generated from the `ux_lab` manifest."
             },
             {
               "provider": {
@@ -28845,6 +28853,29 @@
           "slash_common": false,
           "summary": "Open the UX Lab — the interface gallery + limit probe bench.",
           "usage": "!uxlab",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "ux_lab",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "name": "uxlab",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ux_lab.home_view"
+          },
+          "slash_common": false,
+          "summary": "Open the UX Lab — the interface gallery + limit probe bench.",
+          "usage": "/uxlab",
           "usage_weight": 1.0
         }
       ],
