@@ -43,3 +43,12 @@ frontmatter keeps the score.
 ## Backlog
 
 (Captured ideas, each with a state and a next destination — none left at `raw`.)
+
+- [`port-the-small-four-2026-07-10.md`](port-the-small-four-2026-07-10.md) — `captured` →
+  quick-win lane: four verified-missing, decision-free subsystem ports (four_twenty →
+  general → paragon → utility), each its own PR; parity rows already exist. Ideal
+  overnight work once band-5 live-drive is done.
+- [`reaction-adapter-seam-2026-07-10.md`](reaction-adapter-seam-2026-07-10.md) —
+  `captured` → structured-plan lane: the missing reaction feed adapter (verified absent),
+  the one seam blocking starboard / reaction-roles / AI-review listeners; build the seam
+  first, consumers as separate PRs.
