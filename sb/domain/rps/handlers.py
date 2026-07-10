@@ -123,8 +123,15 @@ def _register() -> None:
                      f"default_entry_fee: `{getattr(fee, 'value', fee)}`")
 
 
-def ensure_handler_refs() -> None:
-    _register()
+def _register_pending() -> None:
+    """The polite pending terminals. Registered at MODULE IMPORT
+    (declaring IS reserving) — the live root imports and dispatches
+    without ever running the manifest ENSURE_REFS hooks when zero
+    plugins are admitted, so an ensure-only registration leaves
+    `!rpsregister`/`!rpsstart`/`!rpsbot` and the tournament matchup
+    click dying in RefUnresolved BUG envelopes live (BUG A class,
+    band-5 live-drive ledger bug 1 — same fix as
+    sb/domain/role/handlers.py)."""
     from sb.domain.operator_spine import pending_handler
 
     pending_handler(
@@ -147,4 +154,10 @@ def ensure_handler_refs() -> None:
         "(arms with the live adapter).")
 
 
+def ensure_handler_refs() -> None:
+    _register()
+    _register_pending()
+
+
 _register()
+_register_pending()
