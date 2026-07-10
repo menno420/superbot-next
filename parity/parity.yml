@@ -91,7 +91,7 @@ subsystems:
   setup: pending
   ticket: pending
   treasury: pending
-  utility: pending
+  utility: ported
   ux_lab: pending
   uxlab: pending
   welcome: pending
@@ -204,3 +204,4 @@ depth:
     hermes: {events: 0, tables: 0, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 2, settings: 0}
+    utility: {events: 1, tables: 2, settings: 0}
