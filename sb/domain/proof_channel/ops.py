@@ -90,12 +90,29 @@ async def _apply_lock(conn, ctx: WorkflowContext) -> LegOutcome:
 
 @workflow("proof_channel.compensate_lock")
 async def _compensate_lock(conn, ctx: WorkflowContext) -> LegOutcome:
-    """Lock's compensator: drop the deadline row (pure DB)."""
-    await store.delete_lock(conn, guild_id=int(ctx.guild_id or 0),
-                            channel_id=int(ctx.params.get("channel_id", 0)
-                                           or 0))
+    """Lock's compensator (fork E; conn=None): withdraw the deadline row
+    record_lock wrote, so the DB stops promising an auto-unlock for access
+    Discord never granted. A PERMANENT grant (minutes == 0) wrote NO row —
+    no-op, never touch whatever timed row may exist for the slot.
+
+    DELETE-IF-MATCH (the compensate_unlock insert-only fix's symmetric
+    twin, codex 4673572674): record_lock's upsert commits before apply_lock
+    runs and grant_access is NATURAL_KEY, so a concurrent re-grant can land
+    a NEWER row for the same guild+channel before this compensator fires —
+    a key-only delete would destroy that legitimate grant. Only the exact
+    row this grant wrote (winner_id + unlock_at match) is withdrawn."""
+    unlock_iso = ctx.params.get("_unlock_at")
+    if not unlock_iso:
+        return LegOutcome(step=StepResult(0, "compensate_lock", True),
+                          before={}, after={"compensated": "nothing"})
+    removed = await store.delete_lock_if_match(
+        conn, guild_id=int(ctx.guild_id or 0),
+        channel_id=int(ctx.params.get("channel_id", 0) or 0),
+        winner_id=int(ctx.params.get("winner_id", 0) or 0),
+        unlock_at=datetime.fromisoformat(str(unlock_iso)))
     return LegOutcome(step=StepResult(0, "compensate_lock", True),
-                      before={}, after={"compensated": "lock"})
+                      before={}, after={"compensated": "lock",
+                                        "removed": removed})
 
 
 @workflow("proof_channel.record_unlock")
@@ -144,9 +161,8 @@ async def _compensate_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
     guild+channel before this compensator fires — the stale stash must not
     clobber it. insert_lock_if_absent restores the row only while the slot
     is empty; otherwise the newer grant wins and its own deadline governs.
-    Follow-up (same class): GRANT_PRIZE's _compensate_lock is a plain
-    delete_lock — a concurrent re-grant between apply_lock's refusal and
-    the compensation would be deleted symmetrically."""
+    (GRANT_PRIZE's _compensate_lock is the delete-if-match twin of this
+    same class.)"""
     deleted = ctx.params.get("_deleted_lock")
     if not deleted:
         return LegOutcome(step=StepResult(0, "compensate_unlock", True),

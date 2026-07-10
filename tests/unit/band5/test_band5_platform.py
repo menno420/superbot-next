@@ -391,6 +391,101 @@ def test_end_access_compensation_yields_to_concurrent_regrant(monkeypatch):
     assert table[(1, 55)] == {"winner_id": 7, "unlock_at": old_deadline}
 
 
+def test_grant_access_compensation_yields_to_concurrent_regrant(monkeypatch):
+    """The SYMMETRIC compensator race (codex 4673572674's named follow-up):
+    record_lock's upsert COMMITS before apply_lock runs and grant_access is
+    NATURAL_KEY, so a concurrent re-grant can own the (guild_id, channel_id)
+    slot by the time a refused lock compensates. The compensation must be
+    delete-if-match: only the exact row THIS grant wrote is withdrawn — a
+    newer grant's row survives untouched."""
+    from sb.domain.proof_channel import ops, service, store
+
+    table: dict[tuple, dict] = {}
+
+    async def upsert_lock(conn, *, guild_id, channel_id, winner_id, unlock_at):
+        table[(guild_id, channel_id)] = {"winner_id": winner_id,
+                                         "unlock_at": unlock_at}
+
+    async def delete_lock_if_match(conn, *, guild_id, channel_id,
+                                   winner_id, unlock_at):
+        # DELETE ... WHERE guild+channel+winner_id+unlock_at match semantics
+        row = table.get((guild_id, channel_id))
+        if row == {"winner_id": winner_id, "unlock_at": unlock_at}:
+            del table[(guild_id, channel_id)]
+            return True
+        return False
+
+    async def bound(gid):
+        return 55
+
+    monkeypatch.setattr(store, "upsert_lock", upsert_lock)
+    monkeypatch.setattr(store, "delete_lock_if_match", delete_lock_if_match)
+    monkeypatch.setattr(service, "bound_proof_channel", bound)
+
+    # 1. grant A's DB leg writes its timed row (committed with the txn)
+    ctx = _ctx({"winner_id": 7, "duration_minutes": 30})
+    run(ops._record_lock(None, ctx))
+    row_a = dict(table[(1, 55)])
+
+    # 2. a concurrent grant B upserts a NEWER row in the window
+    new_deadline = dt.datetime(2026, 7, 11, 18, 0, tzinfo=UTC)
+    table[(1, 55)] = {"winner_id": 9, "unlock_at": new_deadline}
+
+    # 3. apply_lock refused => A's compensator fires — and must yield
+    out = run(ops._compensate_lock(None, ctx))
+    assert out.after["removed"] is False
+    assert table[(1, 55)] == {"winner_id": 9, "unlock_at": new_deadline}
+
+    # own-row control: with no concurrent grant, A withdraws its OWN row
+    table[(1, 55)] = row_a
+    out2 = run(ops._compensate_lock(None, ctx))
+    assert out2.after["removed"] is True
+    assert (1, 55) not in table
+
+
+def test_grant_access_permanent_grant_compensates_nothing(monkeypatch):
+    """The aggravator: a PERMANENT grant (minutes == 0) writes NO deadline
+    row, yet the old compensator plain-deleted whatever timed row existed
+    for the slot. It must no-op."""
+    from sb.domain.proof_channel import ops, service, store
+
+    deadline = dt.datetime(2026, 7, 10, 12, 0, tzinfo=UTC)
+    table: dict[tuple, dict] = {(1, 55): {"winner_id": 7,
+                                          "unlock_at": deadline}}
+    deletes: list = []
+
+    async def delete_lock_if_match(conn, **kw):
+        deletes.append(kw)
+        return False
+
+    async def delete_lock(conn, **kw):
+        deletes.append(kw)
+        return True
+
+    async def bound(gid):
+        return 55
+
+    monkeypatch.setattr(store, "delete_lock_if_match", delete_lock_if_match)
+    monkeypatch.setattr(store, "delete_lock", delete_lock)
+    monkeypatch.setattr(service, "bound_proof_channel", bound)
+
+    # permanent grant: record_lock writes nothing (no duration)
+    ctx = _ctx({"winner_id": 9})
+    run(ops._record_lock(None, ctx))
+    assert table == {(1, 55): {"winner_id": 7, "unlock_at": deadline}}
+
+    out = run(ops._compensate_lock(None, ctx))
+    assert out.after == {"compensated": "nothing"}
+    assert deletes == []          # no delete of ANY kind was attempted
+    assert table == {(1, 55): {"winner_id": 7, "unlock_at": deadline}}
+
+    # GRANT_PRIZE still declares the compensator on its EFFECT leg
+    from sb.spec.refs import WorkflowRef
+
+    effect = [leg for leg in ops.GRANT_PRIZE.legs if leg.leg_id == "apply"][0]
+    assert effect.compensator == WorkflowRef("proof_channel.compensate_lock")
+
+
 def test_proof_reconcile_defers_without_port(monkeypatch):
     from sb.domain.proof_channel import service, store
 

@@ -23,6 +23,16 @@ def _int_token(argv, index: int = 0) -> int | None:
     return int(picked[index]) if len(picked) > index else None
 
 
+def _leg_after(result, step_name: str) -> dict:
+    """One leg's ``after`` payload out of a WorkflowResult. The engine's
+    rollup keys ``result.after`` by each step's ``target_name`` (there is
+    no "record" key — reading one ackked over correct writes with None/
+    miss copy, the band-5 live-drive bug 2)."""
+    after = result.after if isinstance(result.after, dict) else {}
+    leg = after.get(step_name)
+    return leg if isinstance(leg, dict) else {}
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
@@ -164,8 +174,11 @@ def _register() -> None:
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not unbind.")
-        removed = (result.after or {}).get("record", {}).get("removed")
-        return Reply(SUCCESS, "🗑️ Binding removed." if removed
+        removed = _leg_after(result, "unbind_reaction").get("removed")
+        # removed copy = the shipped ack verbatim (role_cog.py:705)
+        return Reply(SUCCESS,
+                     f"✅ Reaction role for {argv[1]} on that message "
+                     "removed." if removed
                      else "That binding did not exist.")
 
     @handler("role.setrole")
@@ -185,9 +198,12 @@ def _register() -> None:
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not set the tier.")
-        after = (result.after or {}).get("record", {})
-        return Reply(SUCCESS, f"✅ **{after.get('role_name')}** auto-assigns "
-                              f"at {after.get('days_required')} day(s).")
+        after = _leg_after(result, "set_threshold")
+        # the shipped ack verbatim (role_cog.py:534 / sweep_setrole golden)
+        return Reply(SUCCESS,
+                     f"✅ Role **{after.get('role_name')}** will be "
+                     f"assigned after **{after.get('days_required')}** "
+                     "day(s).")
 
     @handler("role.unsetrole")
     async def unsetrole(req) -> Reply:
@@ -205,8 +221,12 @@ def _register() -> None:
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not remove the tier.")
-        removed = (result.after or {}).get("record", {}).get("removed")
-        return Reply(SUCCESS, "🗑️ Tier removed." if removed
+        after = _leg_after(result, "remove_threshold")
+        # removed copy = the shipped ack verbatim (role_cog.py:565 /
+        # sweep_unsetrole golden)
+        return Reply(SUCCESS,
+                     f"✅ Removed **{after.get('role_name')}** from "
+                     "time-based assignment." if after.get("removed")
                      else "No such tier was configured.")
 
     @handler("role.temprole")
@@ -286,9 +306,13 @@ def _parse_duration(token: str) -> int | None:
     return value if value > 0 else None
 
 
-def ensure_handler_refs() -> None:
-    _register()
-    _register_task_fire()
+def _register_pending() -> None:
+    """The four polite pending terminals. Registered at MODULE IMPORT
+    (declaring IS reserving) — the live root imports and dispatches without
+    ever running the manifest ENSURE_REFS hooks when zero plugins are
+    admitted, so an ensure-only registration left `!roleinfo`/`!createrole`/
+    `!assignroles`/`!debugroles` and the role:create click dying in
+    RefUnresolved BUG envelopes live (band-5 live-drive ledger, bug 1)."""
     from sb.domain.operator_spine import pending_handler
 
     pending_handler("role.create_pending",
@@ -305,5 +329,12 @@ def ensure_handler_refs() -> None:
                     "(arms with the live adapter).")
 
 
+def ensure_handler_refs() -> None:
+    _register()
+    _register_task_fire()
+    _register_pending()
+
+
 _register()
 _register_task_fire()
+_register_pending()

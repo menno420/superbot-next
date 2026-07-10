@@ -84,6 +84,36 @@ def test_effect_leg_after_db_leg_declares_its_recovery_posture():
         f"confirm posture, or optional: {violations}")
 
 
+def test_declared_compensators_resolve_to_registered_legs():
+    """A compensator that never registers is the same defect one layer
+    down: the engine's fork E does ``resolve(leg.compensator)`` at failure
+    time, and an unresolvable ref degrades to a finding — the label
+    promised recovery that cannot run. Each spec module's registration
+    surface (import-time decorators + its ensure_ops_refs re-arm seam)
+    must cover every compensator it declares."""
+    from sb.spec.refs import is_registered
+
+    # re-arm first: other suites legitimately wipe the global ref table
+    # (clear_ref_table is a sanctioned seam) — the invariant is about the
+    # module's own registration surface, not suite ordering
+    for module_name in _domain_spec_modules():
+        rearm = getattr(importlib.import_module(module_name),
+                        "ensure_ops_refs", None)
+        if callable(rearm):
+            rearm()
+
+    missing: list[str] = []
+    for op_key, spec in sorted(_collect_specs().items()):
+        for leg in spec.legs:
+            comp = leg.compensator
+            if comp is None:
+                continue
+            if not is_registered(comp):
+                missing.append(f"{op_key}/{leg.leg_id} -> {comp}")
+    assert missing == [], (
+        f"compensator refs with no registered callable: {missing}")
+
+
 def test_allowlist_entries_are_still_real_ops():
     """A stale allowlist row outlives its defect — prune on fix."""
     specs = _collect_specs()
