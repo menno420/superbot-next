@@ -17,8 +17,10 @@ outcome: open
 > the classify-or-fix classes for the band's red goldens).
 
 **One line:** solo quick-play is playable end-to-end (picker → invoker-locked
-click → audited `rps.solo_play` → result + money row); the PvP button surface,
-the tournament orchestration, and four `_unmapped` rps sweeps remain.
+click → audited `rps.solo_play` → result + money row); **the PvP button
+surface shipped in the band-6 PvP-on-the-wire PR** (item 1 below, kept for
+the record); the tournament orchestration and four `_unmapped` rps sweeps
+remain.
 
 ## Shipped in the flip PR (context)
 
@@ -32,14 +34,26 @@ the tournament orchestration, and four `_unmapped` rps sweeps remain.
 
 ## Remaining, in rough pull order
 
-1. **PvP challenge buttons on the wire** (quick-win): `rps.pvp_challenge`
-   already mints g1 Accept/Decline ids into `after["components"]` but the
-   challenge reply is text-only — no button ever renders. Re-shape the
-   challenge as a session-lifecycle panel (audience PUBLIC — the ops enforce
-   the peer lock) or teach the presenter to render g1 components; the
-   post-accept move buttons need the same treatment from inside a workflow
-   result (needs a "workflow result presents components" decision).
-   Blackjack has the identical gap (`blackjack.solo_start` components).
+1. **PvP challenge buttons on the wire** — ✅ SHIPPED (band-6
+   PvP-on-the-wire PR): `!rps @player [bet]` now opens the
+   `rps_tournament.pvp` session panel (audience PUBLIC — the ops enforce
+   the peer/turn locks) whose Accept/Decline and post-accept move buttons
+   carry the restart-safe `g1:` ids; every stage EDITS the one challenge
+   message via `refresh_session_view` (challenge → accepted → the shipped
+   `✂️ RPS PvP Result` embed). Deliberate deviations from the shipped
+   multi-message shape, ledgered here: (a) the shipped bot EDITED the
+   challenge message and then SENT a separate `_RpsPvpPlayView` message
+   ("Pick your move" → an EPHEMERAL `_RpsMovePickerView` per player);
+   v1 stages the whole loop on the challenge message with three public
+   move buttons — move secrecy is preserved (a click's identity is never
+   broadcast; moves stay hidden until both are in), and the ephemeral
+   picker hop disappears. (b) The shipped terminal posted a result view
+   with a back-to-hub button; v1 disables the move buttons in place
+   (hub re-entry stays one `!rps` away). Copy is otherwise
+   oracle-verbatim (challenge embed, "✅ Challenge accepted — both
+   players, choose your move!", "❌ <player> declined the challenge.",
+   "🎉 <winner> wins!" / "🤝 Tie! No coins exchanged.",
+   SUCCESS_COLOR/GAME_COLOR accents).
 2. **Solo result view edit-in-place**: the shipped view EDITED the picker
    message into the result embed + a "play again" view; v1 sends a follow-up
    text. Needs a message-edit presenter seam.

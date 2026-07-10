@@ -3388,6 +3388,11 @@
           "value": "blackjack.table"
         },
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack.pvp"
+        },
+        {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6.hub"
@@ -3851,6 +3856,11 @@
           "source": "sb/manifest/rps_tournament.py",
           "subsystem": "rps_tournament",
           "value": "rps_tournament.quickplay"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament.pvp"
         },
         {
           "source": "sb/manifest/security.py",
@@ -4990,6 +5000,12 @@
       "handler:blackjack.play": {
         "module": "sb.domain.blackjack.handlers"
       },
+      "handler:blackjack.pvp_click": {
+        "module": "sb.domain.blackjack.handlers"
+      },
+      "handler:blackjack.render_pvp": {
+        "module": "sb.domain.blackjack.panels"
+      },
       "handler:blackjack.render_table": {
         "module": "sb.domain.blackjack.panels"
       },
@@ -5560,8 +5576,14 @@
       "handler:rps.play": {
         "module": "sb.domain.rps.handlers"
       },
+      "handler:rps.pvp_click": {
+        "module": "sb.domain.rps.handlers"
+      },
       "handler:rps.register_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:rps.render_pvp": {
+        "module": "sb.domain.rps.panels"
       },
       "handler:rps.render_quickplay": {
         "module": "sb.domain.rps.panels"
@@ -5603,6 +5625,9 @@
         "module": "sb.domain.operator_spine"
       },
       "panel:blackjack.hub": {
+        "module": "sb.domain.blackjack.panels"
+      },
+      "panel:blackjack.pvp": {
         "module": "sb.domain.blackjack.panels"
       },
       "panel:blackjack.table": {
@@ -5882,6 +5907,9 @@
         "module": "sb.domain.role.panels"
       },
       "panel:rps_tournament.hub": {
+        "module": "sb.domain.rps.panels"
+      },
+      "panel:rps_tournament.pvp": {
         "module": "sb.domain.rps.panels"
       },
       "panel:rps_tournament.quickplay": {
@@ -7299,7 +7327,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:ff8d5e6a2f41e474c0fb1634ab5ebe0e11c00ff245139fb87ea447294d487cff",
+  "stable_hash": "sha256:04708e0e8d8ab0cb5b1806adda8a88b3ac001d3fa24da285ac311b125455c3a5",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9512,6 +9540,48 @@
           "subsystem": "blackjack",
           "timeout_s": 180,
           "title": "🃏 Blackjack",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped challenge/match/result embeds are match-parameterized copy on every line (challenger/target mentions, bet line, per-player card reveals — views/blackjack/pvp_view.py); grammar TextBlocks are static, and the buttons are g1: dynamic-session components minted from the match's session id (never static panel ids). Authority stays on the g1 dispatcher table's declared specs; the renderer only composes the staged embed + buttons.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "blackjack.pvp",
+          "renderer_override": {
+            "$ref": "handler:blackjack.render_pvp"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "blackjack",
+          "timeout_s": 180,
+          "title": "🃏 Blackjack Challenge!",
           "usage_weight": 1.0
         }
       ],
@@ -26419,6 +26489,48 @@
           "subsystem": "rps_tournament",
           "timeout_s": 180,
           "title": "✂️ Rock · Paper · Scissors",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped challenge/result embeds are match-parameterized copy on every line (challenger/target mentions, bet line, per-player move reveals — views/rps/pvp_challenge.py + pvp_play.py); grammar TextBlocks are static, and the buttons are g1: dynamic-session components minted from the match's session id (never static panel ids). Authority stays on the g1 dispatcher table's declared specs; the renderer only composes the staged embed + buttons.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "rps_tournament.pvp",
+          "renderer_override": {
+            "$ref": "handler:rps.render_pvp"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "rps_tournament",
+          "timeout_s": 180,
+          "title": "✂️ RPS Challenge!",
           "usage_weight": 1.0
         }
       ],

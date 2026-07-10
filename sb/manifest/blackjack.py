@@ -53,7 +53,8 @@ MANIFEST = SubsystemManifest(
                     summary="Show the current tournament status.",
                     usage="!bjstatus"),
     ),
-    panels=(_panels.blackjack_hub_spec(), _panels.blackjack_table_spec()),
+    panels=(_panels.blackjack_hub_spec(), _panels.blackjack_table_spec(),
+            _panels.blackjack_pvp_spec()),
     settings=_SETTINGS,
     stores=(),          # checkpoint rows ride the games manifest's stores
     events=(),          # emits economy.balance_changed (owner: economy)
