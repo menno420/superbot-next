@@ -35,6 +35,10 @@ sharing it**:
   Stop hook's overwrite reminder clears when any lane's heartbeat is fresh (it cannot know which
   lane a session belongs to). An empty list falls back to the default — misconfiguration never
   silently disables the gate.
+- **One command, not hand-edits** — a Project joining a SHARED repo runs
+  `bootstrap adopt --lane <name>`: it plants `control/status-<name>.md` (skip-if-exists),
+  declares it in `heartbeat_files`, and leaves `inbox.md`/`README.md` single — a second lane
+  never re-plants the first Project's files (the double-adoption fix).
 
 ## Per-session ritual (every session, and every routine wake)
 - **FIRST:** git pull (a stale clone reads stale orders); read `control/inbox.md`; execute any
