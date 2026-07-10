@@ -39,6 +39,7 @@ from sb.spec.refs import RefUnresolved, resolve as resolve_ref
 logger = logging.getLogger("sb.kernel.panels.render")
 
 __all__ = [
+    "RenderedAttachment",
     "RenderedComponent",
     "RenderedEmbed",
     "RenderedPanel",
@@ -110,6 +111,22 @@ class RenderedEmbed:
     # per-member result cards, e.g. the Daily Reward embed).
     author_name: str = ""
     author_icon: str = ""
+    # embed hero image (the shipped set_image(url=...) on the avatar card —
+    # goldens/utility/sweep_avatar pins the wire shape). Grammar renders
+    # never set it; renderer_override panels carry it for the shipped
+    # image-bearing cards.
+    image_url: str = ""
+
+
+@dataclass(frozen=True)
+class RenderedAttachment:
+    """One message attachment (the shipped ``discord.File`` send — e.g. the
+    ``/myprofile`` hero card ``profile.png``). The presenter materializes it
+    (the discord adapter builds ``discord.File``; the parity capture twin
+    records the multipart shape fake_http captured: filenames only)."""
+
+    filename: str
+    data: bytes = b""
 
 
 @dataclass(frozen=True)
@@ -117,6 +134,9 @@ class RenderedPanel:
     panel_id: str
     embed: RenderedEmbed
     components: tuple[RenderedComponent, ...] = ()
+    # message attachments (discord.File sends) — the shipped card sends put
+    # the whole payload on the multipart wire; presenters own the mapping.
+    attachments: tuple[RenderedAttachment, ...] = ()
     page: int = 0
     page_count: int = 1
     invoker_lock: int | None = None    # audience=invoker ⇒ the invoker's user_id

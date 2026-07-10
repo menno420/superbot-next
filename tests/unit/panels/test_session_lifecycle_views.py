@@ -185,3 +185,49 @@ def test_unknown_32hex_id_gets_polite_expiry():
                            responder=responder))
     assert responder.denials == [
         "This session has expired — start a new one."]
+
+
+def test_session_view_override_ids_stay_verbatim():
+    """A custom_id_override component keeps its VERBATIM id inside a session
+    view (the shipped timeout views mixed auto-ids with explicit persistent
+    child-forwarding ids — utility_cog's `utility:open:<child>` buttons;
+    goldens/utility/sweep_utilitymenu pins the mix). It stays routable
+    through the ONE static table, never the ephemeral bindings."""
+    from sb.kernel.panels.registry import static_route
+    from sb.spec.panels import LayoutSpec, PageSpec
+
+    minted = make_action(action_id="go",
+                         handler=HandlerRef("test.session_click"))
+    pinned = make_action(action_id="open_child", label="💬 Child",
+                         handler=HandlerRef("test.session_click"),
+                         custom_id_override="utility_test:open:child")
+    spec = make_panel(
+        panel_id="game.mixed", subsystem="games",
+        actions=(minted, pinned),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("go",), ("open_child",))),)),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True)
+    rendered = _open(spec, FakePresenter())
+    by_id = {c.custom_id: c for c in rendered.components}
+    assert "utility_test:open:child" in by_id          # verbatim on the wire
+    (minted_id,) = [cid for cid in by_id if cid != "utility_test:open:child"]
+    assert _HEX32.match(minted_id), minted_id          # sibling still minted
+    assert panel_engine.ephemeral_route("utility_test:open:child") is None
+    binding = static_route("utility_test:open:child")
+    assert binding is not None and binding.component_id == "open_child"
+
+
+def test_open_panel_returns_session_message_key():
+    """open_panel returns the stored session's key so an opening handler can
+    drive a follow-up refresh (the shipped send-then-edit !ping flow)."""
+    presenter = FakePresenter()
+    spec = _session_panel()
+    register_panel(spec)
+    panel_engine.install_panel_presenter(presenter)
+    req = ResolveRequest(
+        surface=Surface.PREFIX, target=TargetRef(key="games.x", spec=object()),
+        actor=make_actor(), guild_id=42, channel_id=7, args={},
+        responder=FakeResponder(), origin=object())
+    key = run(panel_engine.open_panel(PanelRef(spec.panel_id), req))
+    assert key == "501"                        # FakePresenter's minted id
+    assert panel_engine.session_for(key) is not None

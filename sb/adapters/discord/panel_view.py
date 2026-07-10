@@ -27,7 +27,7 @@ except ImportError:  # noqa: SIM105
     discord = None          # type: ignore[assignment]
     discord_ui = None       # type: ignore[assignment]
 
-__all__ = ["DiscordPanelPresenter", "build_embed", "build_view"]
+__all__ = ["DiscordPanelPresenter", "build_embed", "build_files", "build_view"]
 
 _STYLE_MAP = {
     "primary": "primary", "secondary": "secondary", "success": "success",
@@ -66,7 +66,20 @@ def build_embed(rendered: RenderedPanel):
         embed.set_footer(text=e.footer)
     if e.thumbnail_ref:
         embed.set_thumbnail(url=e.thumbnail_ref)
+    if getattr(e, "image_url", ""):
+        embed.set_image(url=e.image_url)
     return embed
+
+
+def build_files(rendered: RenderedPanel):
+    """RenderedAttachment tuple → discord.File list (the shipped card sends,
+    e.g. the /myprofile ``profile.png`` hero card)."""
+    if discord is None:
+        raise RuntimeError("discord is not installed")
+    import io
+
+    return [discord.File(io.BytesIO(a.data), filename=a.filename)
+            for a in getattr(rendered, "attachments", ()) or ()]
 
 
 def build_view(rendered: RenderedPanel):
@@ -149,15 +162,19 @@ class DiscordPanelPresenter:
                 await message.edit(embed=embed, view=view)
                 view.message = message
             return rendered.edit_message_ref
+        file_kwargs = {}
+        files = build_files(rendered)
+        if files:
+            file_kwargs["files"] = files
         if interaction_response is not None and not interaction_response.is_done():
             await interaction_response.send_message(
-                embed=embed, view=view, ephemeral=ephemeral)
+                embed=embed, view=view, ephemeral=ephemeral, **file_kwargs)
             message = await origin.original_response()
         elif hasattr(origin, "edit_original_response"):
             message = await origin.edit_original_response(embed=embed, view=view)
         elif hasattr(origin, "channel") and rendered.anchor_policy == "channel_anchor":
-            message = await origin.channel.send(embed=embed, view=view)
+            message = await origin.channel.send(embed=embed, view=view, **file_kwargs)
         elif hasattr(origin, "reply"):
-            message = await origin.reply(embed=embed, view=view)
+            message = await origin.reply(embed=embed, view=view, **file_kwargs)
         view.message = message
         return getattr(message, "id", None)
