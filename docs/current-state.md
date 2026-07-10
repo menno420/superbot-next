@@ -23,17 +23,18 @@ named gates green on main. The `golden-parity` **report** leg is red-by-design
 ## In flight
 
 (Verify against live source control — this section is a dated snapshot,
-2026-07-09.) Band-5 (governance/roles/platform) live-testing is the current
-lane; PR #95 (band-5 replay/live seams, D-0062) open at snapshot time. First
-`ported` flip ⚑ gated on the owner's flag-13 ruling (`control/status.md`
+2026-07-10.) Band-5 build + replay legs are landed (#95, #97); the current
+lane is band-5 **live-drive** (testing ladder step 7's live leg), then band-6.
+First `ported` flip ⚑ gated on the owner's flag-13 ruling (`control/status.md`
 OWNER-ACTION 1).
 
 ## Recently shipped (newest first)
 
-- 2026-07-09 — worldcard Reply-shape fix + red-orientation docs (this session).
+- 2026-07-09 (late) — band-5 seams (#95) + worldcard Reply-shape fix and
+  red-orientation docs (#97).
 - 2026-07-09 — kit v1.6.0 upgrade (#96); gen-1 retro pair complete (#87
   self-review, #92 project review); band-4 live-tested complete (#88, #94).
-- Full history: the append-only decision ledger (`docs/decisions.md`, 61
+- Full history: the append-only decision ledger (`docs/decisions.md`, 62
   entries) and merged PRs are the record — this list stays shallow by design.
 
 ## Review rhythm
