@@ -147,9 +147,14 @@ async def _record_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
     minutes = max(1, min(int(minutes), policy.max_timeout_minutes))
     explicit_reason = str(ctx.params.get("reason", "") or "") or " ".join(rest)
     reason = explicit_reason.strip() or f"{minutes} minutes"
-    await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
-                               action="timeout", target_id=target_id,
-                               moderator_id=_actor_id(ctx), reason=reason)
+    row_id = await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
+                                        action="timeout", target_id=target_id,
+                                        moderator_id=_actor_id(ctx),
+                                        reason=reason)
+    # compensation handle: a Discord-refused timeout must not leave a
+    # history row claiming the member was timed out (the oracle's
+    # call-Discord-first sequencing writes no row on refusal).
+    ctx.params["_timeout_row_id"] = int(row_id or 0)
     ctx.params["_target_id"] = target_id
     ctx.params["_reason"] = reason
     ctx.params["_minutes"] = minutes
@@ -340,6 +345,38 @@ async def _compensate_warn_escalation(conn, ctx: WorkflowContext) -> LegOutcome:
                              "escalation_blocked": escalation})
 
 
+@workflow("moderation.compensate_timeout")
+async def _compensate_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Timeout's compensator (fork E; conn=None — opens its own txn): a
+    Discord-refused timeout withdraws the committed history row so the DB
+    matches the oracle (disbot moderation_service.timeout: Discord call
+    first, row only after success — a refused timeout writes NO row). An
+    operator finding reports the blocked action."""
+    from sb.kernel.db import pool
+
+    row_id = int(ctx.params.get("_timeout_row_id", 0) or 0)
+    if not row_id:
+        return LegOutcome(step=StepResult(0, "compensate_timeout", True),
+                          before={}, after={"compensated": "nothing"})
+    target_id = int(ctx.params.get("_target_id", 0))
+    async with pool.transaction() as txn:
+        withdrawn = await store.withdraw_mod_log_rows(txn, ids=(row_id,))
+    try:
+        from sb.kernel.observability.findings import record_operator_finding
+
+        record_operator_finding(
+            source="workflow:moderation.timeout", severity="warning",
+            summary=(f"timeout of <@{target_id}> blocked by Discord — "
+                     f"{withdrawn} history row(s) withdrawn"),
+            detail="", correlation_id=None)
+    except Exception:  # noqa: BLE001 — findings are observability only
+        pass
+    return LegOutcome(step=StepResult(0, "compensate_timeout", True),
+                      before={},
+                      after={"withdrawn_rows": withdrawn,
+                             "timeout_blocked": target_id})
+
+
 @workflow("moderation.action_payload")
 def _action_payload(ctx: WorkflowContext, result) -> dict:
     return {
@@ -394,7 +431,11 @@ WARN = _op("moderation.warn", "member_warned",
            # escalation_blocked semantics; ORDER 004 item 1)
 TIMEOUT = _op("moderation.timeout", "member_timed_out",
               "moderation.record_timeout", "moderation.apply_timeout",
-              effect_reversibility="reversible")
+              effect_reversibility="compensatable",
+              compensator="moderation.compensate_timeout")
+              # a refused timeout withdraws the committed history row (the
+              # oracle writes no row when Discord refuses — same class as
+              # the warn-escalation fix, ORDER 004 item 1)
 KICK = _op("moderation.kick", "member_kicked",
            "moderation.record_kick", "moderation.apply_kick",
            effect_reversibility="irreversible",
@@ -430,6 +471,7 @@ _REF_TABLE = (
     ("moderation.compensate_ban", _compensate_ban),
     ("moderation.compensate_unban", _compensate_unban),
     ("moderation.compensate_warn_escalation", _compensate_warn_escalation),
+    ("moderation.compensate_timeout", _compensate_timeout),
     ("moderation.action_payload", _action_payload),
 )
 

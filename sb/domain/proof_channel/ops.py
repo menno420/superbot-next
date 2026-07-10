@@ -102,6 +102,15 @@ async def _compensate_lock(conn, ctx: WorkflowContext) -> LegOutcome:
 async def _record_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
     gid = int(ctx.guild_id or 0)
     cid = await _resolve_channel(ctx)
+    # compensation handle: stash the deadline row BEFORE deleting it so a
+    # Discord-refused unlock can re-insert it (the sweep then retries the
+    # unlock instead of stranding a locked channel with no deadline row).
+    prior = await store.get_lock(gid, cid, conn=conn)
+    if prior:
+        ctx.params["_deleted_lock"] = {
+            "winner_id": int(prior["winner_id"]),
+            "unlock_at": prior["unlock_at"].isoformat(),
+        }
     removed = await store.delete_lock(conn, guild_id=gid, channel_id=cid)
     return LegOutcome(
         step=StepResult(gid, "record_unlock", True),
@@ -120,6 +129,37 @@ async def _apply_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
         int(ctx.guild_id or 0), int(ctx.params.get("channel_id", 0) or 0))
     return LegOutcome(step=StepResult(0, "apply_unlock", True),
                       before={}, after={"applied": "unlock"})
+
+
+@workflow("proof_channel.compensate_unlock")
+async def _compensate_unlock(conn, ctx: WorkflowContext) -> LegOutcome:
+    """end_access's compensator (fork E; conn=None): a Discord-refused
+    unlock re-inserts the deadline row record_unlock deleted, so the DB
+    stops claiming the channel is open and the sweep retries the unlock at
+    the deadline. A permanent grant has no row to restore — no-op."""
+    deleted = ctx.params.get("_deleted_lock")
+    if not deleted:
+        return LegOutcome(step=StepResult(0, "compensate_unlock", True),
+                          before={}, after={"compensated": "nothing"})
+    gid = int(ctx.guild_id or 0)
+    cid = int(ctx.params.get("channel_id", 0) or 0)
+    await store.upsert_lock(
+        None, guild_id=gid, channel_id=cid,
+        winner_id=int(deleted["winner_id"]),
+        unlock_at=datetime.fromisoformat(str(deleted["unlock_at"])))
+    try:
+        from sb.kernel.observability.findings import record_operator_finding
+
+        record_operator_finding(
+            source="workflow:proof_channel.end_access", severity="warning",
+            summary=(f"unlock of channel {cid} blocked by Discord — "
+                     f"deadline row restored, sweep will retry"),
+            detail="", correlation_id=None)
+    except Exception:  # noqa: BLE001 — findings are observability only
+        pass
+    return LegOutcome(step=StepResult(0, "compensate_unlock", True),
+                      before={}, after={"compensated": "unlock",
+                                        "restored_channel_id": cid})
 
 
 @workflow("proof_channel.erase_subject_locks")
@@ -158,7 +198,10 @@ END_PRIZE = CompoundOpSpec(
         LegSpec("record", LegKind.DB,
                 WorkflowRef("proof_channel.record_unlock"), "reversible"),
         LegSpec("apply", LegKind.EFFECT,
-                WorkflowRef("proof_channel.apply_unlock"), "reversible"),
+                WorkflowRef("proof_channel.apply_unlock"), "compensatable",
+                compensator=WorkflowRef("proof_channel.compensate_unlock")),
+        # a refused unlock re-inserts the deadline row record_unlock
+        # deleted (same class as GRANT_PRIZE's compensate_lock)
     ),
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="proof_access_revoked", emits=())
@@ -171,6 +214,7 @@ _REF_TABLE = (
     ("proof_channel.compensate_lock", _compensate_lock),
     ("proof_channel.record_unlock", _record_unlock),
     ("proof_channel.apply_unlock", _apply_unlock),
+    ("proof_channel.compensate_unlock", _compensate_unlock),
     ("proof_channel.erase_subject_locks", _erase_subject_locks),
 )
 

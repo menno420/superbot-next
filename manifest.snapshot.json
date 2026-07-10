@@ -6419,6 +6419,9 @@
       "workflow:moderation.compensate_ban": {
         "module": "sb.domain.moderation.ops"
       },
+      "workflow:moderation.compensate_timeout": {
+        "module": "sb.domain.moderation.ops"
+      },
       "workflow:moderation.compensate_unban": {
         "module": "sb.domain.moderation.ops"
       },
@@ -6477,6 +6480,9 @@
         "module": "sb.domain.proof_channel.ops"
       },
       "workflow:proof_channel.compensate_lock": {
+        "module": "sb.domain.proof_channel.ops"
+      },
+      "workflow:proof_channel.compensate_unlock": {
         "module": "sb.domain.proof_channel.ops"
       },
       "workflow:proof_channel.end_access": {
@@ -7057,7 +7063,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:21721a74b00922f481b84fc076d65e3148dd489979575fb087989a9949d676f8",
+  "stable_hash": "sha256:72af65e2b088a8e5e5908fa1cf060240cf85a4c041e0b974db3762619c0f7768",
   "subsystems": {
     "admin": {
       "capabilities": [],

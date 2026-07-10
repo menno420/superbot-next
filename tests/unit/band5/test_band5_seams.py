@@ -144,11 +144,15 @@ def test_proof_lock_and_unlock_legs_carry_acks(monkeypatch):
     async def delete_lock(conn, *, guild_id, channel_id):
         return True
 
+    async def get_lock(guild_id, channel_id, conn=None):
+        return None                       # no deadline row to stash
+
     async def bound(gid):
         return 55
 
     monkeypatch.setattr(store, "upsert_lock", upsert_lock)
     monkeypatch.setattr(store, "delete_lock", delete_lock)
+    monkeypatch.setattr(store, "get_lock", get_lock)
     monkeypatch.setattr(service, "bound_proof_channel", bound)
 
     out = run(ops._record_lock(None, _ctx(
