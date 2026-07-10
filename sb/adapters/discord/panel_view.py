@@ -56,8 +56,12 @@ def build_embed(rendered: RenderedPanel):
     e = rendered.embed
     embed = discord.Embed(title=e.title or None, description=e.description or None,
                           color=STYLE_TOKEN_COLORS.get(e.style_token))
-    for name, value in e.fields:
-        embed.add_field(name=name, value=value, inline=False)
+    if getattr(e, "author_name", ""):
+        embed.set_author(name=e.author_name,
+                         icon_url=getattr(e, "author_icon", "") or None)
+    for field in e.fields:
+        embed.add_field(name=field[0], value=field[1],
+                        inline=bool(field[2]) if len(field) > 2 else False)
     if e.footer:
         embed.set_footer(text=e.footer)
     if e.thumbnail_ref:
@@ -134,6 +138,17 @@ class DiscordPanelPresenter:
         interaction_response = getattr(origin, "response", None)
         ephemeral = rendered.audience == "invoker"
         message = None
+        if getattr(rendered, "edit_message_ref", None) is not None:
+            # session-view refresh: deferred-update ack, then edit the
+            # ORIGINAL message in place (the shipped safe_defer + safe_edit
+            # loop of the game views).
+            if interaction_response is not None and not interaction_response.is_done():
+                await interaction_response.defer()
+            message = getattr(origin, "message", None)
+            if message is not None:
+                await message.edit(embed=embed, view=view)
+                view.message = message
+            return rendered.edit_message_ref
         if interaction_response is not None and not interaction_response.is_done():
             await interaction_response.send_message(
                 embed=embed, view=view, ephemeral=ephemeral)

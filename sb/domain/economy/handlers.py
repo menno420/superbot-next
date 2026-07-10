@@ -29,6 +29,25 @@ def _target_id(req) -> int:
     return int(getattr(req.actor, "user_id", 0) or 0)
 
 
+def _author_display(req) -> tuple[str, str]:
+    """(display name, avatar url) for the invoking member — the shipped
+    ``set_author(ctx.author.display_name, ctx.author.display_avatar.url)``
+    line, duck-typed over the surface origin. Members without a custom
+    avatar get discord's default-avatar URL (index ``(id >> 22) % 6``)."""
+    origin = getattr(req, "origin", None)
+    member = (getattr(origin, "author", None)
+              or getattr(origin, "user", None))
+    uid = int(getattr(member, "id", 0) or getattr(req.actor, "user_id", 0)
+              or 0)
+    name = (str(getattr(member, "display_name", "") or "")
+            or str(getattr(member, "name", "") or "") or f"<@{uid}>")
+    icon = str(getattr(getattr(member, "display_avatar", None), "url", "")
+               or "")
+    if not icon:
+        icon = f"https://cdn.discordapp.com/embed/avatars/{(uid >> 22) % 6}.png"
+    return name, icon
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
@@ -43,6 +62,35 @@ def _register() -> None:
         coins = await store.get_coins(target, int(req.guild_id or 0))
         return Reply(SUCCESS,
                      f"💰 <@{target}>'s wallet: **{coins:,}** 🪙")
+
+    @handler("economy.daily_view")
+    async def daily_view(req) -> Reply:
+        """!daily — run the audited K7 claim, then send the shipped Daily
+        Reward embed (cogs/economy_cog.py: author line + gold accent + four
+        inline fields + the odds footer). Refusals (cooldown) keep their
+        verbatim domain copy as a plain reply."""
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        result = await engine.run(
+            WorkflowRef("economy.daily"),
+            _ctx_from_req(req, dict(req.args)))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Could not claim today.")
+        after = (result.after or {}).get("daily", {})
+        from sb.domain.economy.panels import DAILY_CARD_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        import dataclasses
+
+        name, icon = _author_display(req)
+        card_req = dataclasses.replace(
+            req, args={**dict(req.args), **after,
+                       "author_name": name, "author_icon": icon})
+        await open_panel(PanelRef(DAILY_CARD_PANEL_ID), card_req)
+        return Reply(SUCCESS, None)
 
     @handler("economy.joblist_view")
     async def joblist_view(req) -> Reply:

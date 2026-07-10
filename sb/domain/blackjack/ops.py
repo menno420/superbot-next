@@ -72,7 +72,10 @@ PVP_PENDING_VERSION = 1
 TOURNAMENT_SUBSYSTEM = "blackjack_tournament"
 TOURNAMENT_VERSION = 1
 
-_rng: random.Random = random.Random()
+# None ⇒ the GLOBAL random stream (the shipped bot shuffled through
+# `random.shuffle`; the parity harness seeds `random.seed(case.seed)`, so
+# only the module-global stream reproduces the goldens' decks).
+_rng: random.Random | None = None
 
 
 def set_rng_for_tests(rng: random.Random) -> None:
@@ -138,9 +141,8 @@ async def _settle_solo(conn, ctx: WorkflowContext, state: dict,
         from sb.domain.economy.store import get_coins
 
         balance = await get_coins(uid, gid, conn=conn)
-    await games_store.delete_checkpoint(
-        conn, guild_id=gid, user_id=uid, channel_id=0,
-        subsystem=SOLO_SUBSYSTEM)
+    await games_store.delete_user_checkpoint(
+        conn, guild_id=gid, user_id=uid, subsystem=SOLO_SUBSYSTEM)
     ctx.params["_balance_changes"] = changes
     return {"result": result, "delta": delta, "balance": balance,
             **_hand_payload(state, reveal=True), "terminal": True}
@@ -163,13 +165,15 @@ def _resolve_solo_result(state: dict) -> tuple[str, int]:
     return "😞 Dealer wins.", (-effective if effective else 0)
 
 
-async def _load_solo(conn, ctx: WorkflowContext) -> dict:
+async def _load_solo(conn, ctx: WorkflowContext) -> tuple[dict, int]:
+    """(state, channel_id) — the solo game is keyed (user, guild) like the
+    shipped `_active` dict; the row remembers the channel it was dealt in."""
     uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
-    state = await games_store.fetch_checkpoint(gid, uid, 0, SOLO_SUBSYSTEM,
-                                               conn=conn)
-    if state is None:
+    row = await games_store.fetch_user_checkpoint(gid, uid, SOLO_SUBSYSTEM,
+                                                  conn=conn)
+    if row is None:
         raise ValidatorError(games_session.EXPIRED_MESSAGE)
-    return state
+    return row["state"], int(row["channel_id"] or 0)
 
 
 # --- solo legs ---------------------------------------------------------------------------
@@ -178,10 +182,11 @@ async def _load_solo(conn, ctx: WorkflowContext) -> dict:
 @workflow("blackjack.record_solo_start")
 async def _record_solo_start(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
+    cid = int(ctx.params.get("channel_id") or 0)
     bet = _bet_from(ctx)
     now = _now(ctx)
-    if await games_store.fetch_checkpoint(gid, uid, 0, SOLO_SUBSYSTEM,
-                                          conn=conn) is not None:
+    if await games_store.fetch_user_checkpoint(gid, uid, SOLO_SUBSYSTEM,
+                                               conn=conn) is not None:
         raise ValidatorError("You already have a game running!")
     if bet > 0:
         from sb.domain.economy.store import get_coins
@@ -208,14 +213,11 @@ async def _record_solo_start(conn, ctx: WorkflowContext) -> LegOutcome:
         return LegOutcome(step=StepResult(uid, "solo_start", True),
                           before={}, after=dict(payload, natural=True))
     await games_store.upsert_checkpoint(
-        conn, guild_id=gid, user_id=uid, channel_id=0,
+        conn, guild_id=gid, user_id=uid, channel_id=cid,
         subsystem=SOLO_SUBSYSTEM, state=state, version=SOLO_VERSION,
         now=now)
     ctx.params["_balance_changes"] = changes
-    sid = games_session.mint_session_id(gid, uid, 0)
-    payload = {**_hand_payload(state, reveal=False), "terminal": False,
-               "components": _components(sid, "hit", "stand",
-                                         *(("double",) if bet else ()))}
+    payload = {**_hand_payload(state, reveal=False), "terminal": False}
     return LegOutcome(step=StepResult(uid, "solo_start", True), before={},
                       after=payload)
 
@@ -223,7 +225,7 @@ async def _record_solo_start(conn, ctx: WorkflowContext) -> LegOutcome:
 @workflow("blackjack.record_solo_hit")
 async def _record_solo_hit(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
-    state = await _load_solo(conn, ctx)
+    state, cid = await _load_solo(conn, ctx)
     state["player"].append(state["deck"].pop())
     if bj.hand_value(state["player"]) > 21:
         effective = (state["bet"] * 2 if state.get("doubled")
@@ -234,13 +236,11 @@ async def _record_solo_hit(conn, ctx: WorkflowContext) -> LegOutcome:
         return LegOutcome(step=StepResult(uid, "solo_hit", True), before={},
                           after=payload)
     await games_store.upsert_checkpoint(
-        conn, guild_id=gid, user_id=uid, channel_id=0,
+        conn, guild_id=gid, user_id=uid, channel_id=cid,
         subsystem=SOLO_SUBSYSTEM, state=state, version=SOLO_VERSION,
         now=_now(ctx))
     ctx.params["_balance_changes"] = []
-    sid = games_session.mint_session_id(gid, uid, 0)
-    payload = {**_hand_payload(state, reveal=False), "terminal": False,
-               "components": _components(sid, "hit", "stand")}
+    payload = {**_hand_payload(state, reveal=False), "terminal": False}
     return LegOutcome(step=StepResult(uid, "solo_hit", True), before={},
                       after=payload)
 
@@ -248,7 +248,7 @@ async def _record_solo_hit(conn, ctx: WorkflowContext) -> LegOutcome:
 @workflow("blackjack.record_solo_stand")
 async def _record_solo_stand(conn, ctx: WorkflowContext) -> LegOutcome:
     uid = _actor_id(ctx)
-    state = await _load_solo(conn, ctx)
+    state, _ = await _load_solo(conn, ctx)
     bj.dealer_play(state["deck"], state["dealer"])
     result, delta = _resolve_solo_result(state)
     payload = await _settle_solo(conn, ctx, state, result, delta)
@@ -259,7 +259,7 @@ async def _record_solo_stand(conn, ctx: WorkflowContext) -> LegOutcome:
 @workflow("blackjack.record_solo_double")
 async def _record_solo_double(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
-    state = await _load_solo(conn, ctx)
+    state, _ = await _load_solo(conn, ctx)
     if not state["bet"]:
         raise ValidatorError("Double down needs a bet on the table.")
     from sb.domain.economy.store import get_coins

@@ -23,5 +23,6 @@
  "0022_pvp_stats.sql": "sha256:290f608b97468c7b46b540ccf432f7397587b194edd2991eb6af33143c635f84",
  "0023_btd6_strategies.sql": "sha256:ba6e174b92c70027859f01f2a7da9d344d370aa4c5c47c4532a0de2cf15e0520",
  "0024_ai_review_presets.sql": "sha256:3a7bcfb659d58c603bceb4d868ace8aacaa0a7aad4dd7ea771e8b2782249c0f8",
- "0025_panel_anchors.sql": "sha256:7d734ae331ccc1ed1a4436db3c19102d7542108f53df8c5eb342783e6d18e9c0"
+ "0025_panel_anchors.sql": "sha256:7d734ae331ccc1ed1a4436db3c19102d7542108f53df8c5eb342783e6d18e9c0",
+ "0026_game_state_timestamps.sql": "sha256:b2faf8d6b57ebd95f6c70823ec88f605821fb8cc334e21ed0bb09f1d06db66b1"
 }

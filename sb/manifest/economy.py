@@ -87,7 +87,10 @@ MANIFEST = SubsystemManifest(
         _cmd("economy", PanelRef("economy.hub"), kind=CommandKind.SLASH,
              summary="Open the Economy hub (daily, work, shop, balance).",
              usage="/economy"),
-        _cmd("daily", WorkflowRef("economy.daily"),
+        # the shipped Daily Reward EMBED rides the handler (runs the same
+        # audited economy.daily op, then opens the daily-card panel —
+        # goldens/blackjack + goldens/economy pin the wire shape).
+        _cmd("daily", HandlerRef("economy.daily_view"),
              cooldown=CooldownSpec(rate=2, per_s=5),
              summary="Claim your daily reward. Higher streaks unlock "
                      "better odds!",
@@ -118,7 +121,7 @@ MANIFEST = SubsystemManifest(
              usage="!joblist"),
     ),
     panels=(_panels.economy_hub_spec(), _panels.jobcenter_spec(),
-            _panels.shop_panel_spec()),
+            _panels.shop_panel_spec(), _panels.daily_card_spec()),
     settings=_SETTINGS,
     stores=(ECONOMY_BALANCES_STORE, ECONOMY_AUDIT_STORE, ECONOMY_TRACK_STORE,
             JOB_PROGRESS_STORE, INVENTORY_STORE),

@@ -16,6 +16,12 @@ def _doc():
             "audit_log": {"added": [{"mutation_id": "<uuid>", "verb": "x"}]},
             "event_outbox": {"added": [{"event": "audit.action_recorded"}]},
             "xp": {"added": [{"user_id": "<@admin>", "xp": 25, "coins": 0}]},
+            "economy_audit_log": {"added": [{"user_id": "<@admin>",
+                                             "delta": 10, "new_balance": 10,
+                                             "reason": "daily",
+                                             "mutation_id": "<uuid>"}]},
+            "economy_balances": {"added": [{"user_id": "<@admin>",
+                                            "coins": 10}]},
             "warnings": {"added": [{"user_id": "<@admin>", "count": 1}]},
         },
         "steps": [
@@ -68,6 +74,36 @@ def test_xp_coins_alias_column_dropped():
     out = apply_dispositions(_doc())
     rows = out["db_delta"]["xp"]["added"]
     assert rows == [{"user_id": "<@admin>", "xp": 25}]
+
+
+def test_ledgered_coins_boundary_new_home_dropped_but_ledger_diffs():
+    """Encoding completion (2026-07-10, blackjack flip PR): the boundary's
+    NEW home (economy_balances — rows no old-bot golden can contain) is
+    dropped from both docs; balance BEHAVIOR stays pinned through the
+    economy_audit_log delta/new_balance bytes, which still diff."""
+    from parity.harness.runner import _diff_docs
+
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    out = apply_dispositions(_doc())
+    assert "economy_balances" not in out["db_delta"]
+    assert "economy_audit_log" in out["db_delta"]
+    other = _doc()
+    other["db_delta"]["economy_audit_log"]["added"][0]["new_balance"] = 999
+    assert _diff_docs(apply_dispositions(_doc()),
+                      apply_dispositions(other)) != []
+
+
+def test_kernel_mutation_id_column_dropped_from_domain_ledger_rows():
+    """Encoding completion (2026-07-10): the kernel idempotency stamp on
+    the DOMAIN ledger row (economy_audit_log.mutation_id) is the accepted
+    kernel-drift class in column form; every domain byte still diffs."""
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    out = apply_dispositions(_doc())
+    row = out["db_delta"]["economy_audit_log"]["added"][0]
+    assert "mutation_id" not in row
+    assert row["new_balance"] == 10 and row["reason"] == "daily"
 
 
 def test_reasonless_invoking_delete_exempt_but_reasoned_delete_diffs():
@@ -147,8 +183,10 @@ def test_dispositions_load_from_parity_yml():
     # kernel indirection resolved against the kernel coverage home
     assert "audit_log" in drift["tables"]
     assert "command.dispatched" in drift["events"]
+    assert drift["columns"] == ["economy_audit_log.mutation_id"]
     assert d["xp-coins-alias"] == {"encoding": "normalizer",
-                                   "table": "xp", "column": "coins"}
+                                   "table": "xp", "column": "coins",
+                                   "new_home_table": "economy_balances"}
     deletion = d["invoking-message-deletion"]
     assert deletion["encoding"] == "exemption"
     assert deletion["reasonless_only"] is True

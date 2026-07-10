@@ -2721,6 +2721,21 @@
           "value": "bj_status"
         },
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "hit"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "stand"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "double"
+        },
+        {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6_tower"
@@ -3320,6 +3335,11 @@
           "value": "blackjack.hub"
         },
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack.table"
+        },
+        {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6.hub"
@@ -3398,6 +3418,11 @@
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.shop_panel"
+        },
+        {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.daily_card"
         },
         {
           "source": "sb/manifest/farm.py",
@@ -4897,7 +4922,13 @@
       "handler:blackjack.play": {
         "module": "sb.domain.blackjack.handlers"
       },
+      "handler:blackjack.render_table": {
+        "module": "sb.domain.blackjack.panels"
+      },
       "handler:blackjack.status_view": {
+        "module": "sb.domain.blackjack.handlers"
+      },
+      "handler:blackjack.table_click": {
         "module": "sb.domain.blackjack.handlers"
       },
       "handler:blackjack.tournament_open_pending": {
@@ -5077,8 +5108,14 @@
       "handler:economy.balance_view": {
         "module": "sb.domain.economy.handlers"
       },
+      "handler:economy.daily_view": {
+        "module": "sb.domain.economy.handlers"
+      },
       "handler:economy.joblist_view": {
         "module": "sb.domain.economy.handlers"
+      },
+      "handler:economy.render_daily_card": {
+        "module": "sb.domain.economy.panels"
       },
       "handler:economy.setlogchannel": {
         "module": "sb.domain.economy.handlers"
@@ -5476,6 +5513,9 @@
       "panel:blackjack.hub": {
         "module": "sb.domain.blackjack.panels"
       },
+      "panel:blackjack.table": {
+        "module": "sb.domain.blackjack.panels"
+      },
       "panel:btd6.hub": {
         "module": "sb.domain.btd6.panels"
       },
@@ -5514,6 +5554,9 @@
       },
       "panel:diagnostic.hub": {
         "module": "sb.domain.diagnostic.panels"
+      },
+      "panel:economy.daily_card": {
+        "module": "sb.domain.economy.panels"
       },
       "panel:economy.hub": {
         "module": "sb.domain.economy.panels"
@@ -7149,7 +7192,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:f76cdb82bed719f0a0c1c8ab4829aeab1680264ff5bcfece289e813bba506ecc",
+  "stable_hash": "sha256:f9dc7af2f8c96606947a1ef5b6865193093701f4d596a136e228798b4759e3d6",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9238,6 +9281,127 @@
           "renderer_override": null,
           "selectors": [],
           "session_lifecycle": false,
+          "subsystem": "blackjack",
+          "timeout_s": 180,
+          "title": "🃏 Blackjack",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "hit",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "👊",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.table_click"
+              },
+              "label": "Hit",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "stand",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.table_click"
+              },
+              "label": "Stand",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "double",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✌️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.table_click"
+              },
+              "label": "Double Down",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped table embed is game-state-parameterized copy (Dealer (N+?)/Your hand (N)/Bet fields with a mixed inline layout and a result-keyed accent color — views/blackjack/embeds._game_embed); grammar TextBlocks are static. Buttons and authority stay declared on the spec; the renderer only composes the embed + declared components with their state-derived disabled flags.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "hit",
+                    "stand",
+                    "double"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "blackjack.table",
+          "renderer_override": {
+            "$ref": "handler:blackjack.render_table"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
           "subsystem": "blackjack",
           "timeout_s": 180,
           "title": "🃏 Blackjack",
@@ -13846,7 +14010,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "workflow:economy.daily"
+            "$ref": "handler:economy.daily_view"
           },
           "slash_common": false,
           "summary": "Claim your daily reward. Higher streaks unlock better odds!",
@@ -14483,6 +14647,48 @@
           "subsystem": "economy",
           "timeout_s": 180,
           "title": "🛒 Item Shop",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Daily Reward embed is claim-parameterized copy on every line (tier description, four inline stat fields, the streak-derived odds footer, the invoker author line — cogs/economy_cog.py); grammar TextBlocks are static. The card declares no components; the renderer only composes the embed.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "economy.daily_card",
+          "renderer_override": {
+            "$ref": "handler:economy.render_daily_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "economy",
+          "timeout_s": 180,
+          "title": "🎁 Daily Reward",
           "usage_weight": 1.0
         }
       ],

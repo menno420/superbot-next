@@ -20,8 +20,10 @@ accepted-forever red. The least-destructive encoding was chosen per class:
    section (A-16 clause 3), not in every band's goldens.
 2. **The old `xp.coins` alias column** (coins split to `economy_balances`
    at the ledgered coins boundary) — **normalizer scope.** The `coins` key
-   is dropped from `xp`-table rows in both docs. The economy_balances rows
-   themselves still diff (they are real domain surfaces).
+   is dropped from `xp`-table rows in both docs. ~~The economy_balances
+   rows themselves still diff (they are real domain surfaces).~~ *Superseded
+   by the encoding completion below: the new home is dropped from both docs
+   too; balance behavior stays pinned through the ledger bytes.*
 3. **The shipped invoking-message deletion** (the old bot deleted the
    invoking message after every command — a reason-less trailing
    `delete_message` wire call on virtually every golden; v1 deliberately
@@ -56,6 +58,41 @@ bijection). This accepts NO new byte differences beyond the three ruled
 classes — it stops the ruled drops from leaking id-noise, exactly the
 Normalizer's own "one extra embed must not cascade id-noise" rule. Pinned
 by `test_minted_refs_renumber_after_drops`.
+
+## Encoding completion (2026-07-10, blackjack flip PR) — ⚑ owner-reviewable
+
+The first MONEY-mutating gating golden (`goldens/blackjack/
+blackjack_solo_round_hit.json`, whose `!daily` step funds the bet) exposed
+two places where the first encoding under-implemented the accepted classes.
+Both completions were made under the same Q-0262.3 delegation the original
+encodings were chosen under ("the least-destructive encoding was chosen per
+class" — session-chosen, owner-delegated), are data-only (`parity/
+parity.yml`), reversible on paper (Q-0240), and pinned by new tests:
+
+1. **Class 1, column form** — the kernel idempotency stamp
+   (`economy_audit_log.mutation_id`) leaks the kernel spine INTO a domain
+   ledger row. The accepted classifications (band-3/4 testing-report red
+   decompositions, which the ruled proposal points at as "already
+   classified") explicitly list "`mutation_id` rows" under kernel-surface
+   drift; the table-list encoding missed the column form. New
+   `kernel-surface-drift.columns` entry drops the ONE column from both
+   docs; every domain byte of the ledger row (delta / new_balance /
+   reason / actor_id) still diffs.
+2. **Class 2, the boundary's NEW home** — goldens are old-bot captures, so
+   no golden can ever contain an `economy_balances` row; keeping the new
+   home in the diff made the accepted class self-defeating for every
+   money-mutating golden (the old home dropped, the new home permanently
+   red — no money subsystem could ever flip). New
+   `xp-coins-alias.new_home_table` entry drops `economy_balances` rows
+   from both docs. Balance BEHAVIOR stays fully pinned: every wallet
+   mutation still diffs through `economy_audit_log`'s `delta`/`new_balance`
+   bytes (a per-mutation pin, strictly stronger than the aggregate row),
+   and INV-F reconciles the aggregate against the ledger continuously.
+
+If the owner rejects either completion, revert the two `parity.yml` entries
+and their mechanism lines in `sb/adapters/parity/dispositions.py`; the
+blackjack subsystem row must then flip back `ported -> pending` (its gating
+golden re-reds on exactly these two lines).
 
 ## Why symmetric-drop, not expected-side-only
 

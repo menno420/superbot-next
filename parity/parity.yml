@@ -51,7 +51,7 @@ subsystems:
   admin: pending
   ai: pending
   automod: pending
-  blackjack: pending
+  blackjack: ported
   btd6: pending
   casino: pending
   chain: pending
@@ -129,6 +129,16 @@ dispositions:
     # obligation lives in the kernel section, not in every band's goldens.
     tables: kernel      # resolve against kernel.tables above
     events: kernel      # resolve against kernel.events above
+    # kernel spine columns stamped onto DOMAIN rows — the K idempotency
+    # `mutation_id` on the economy ledger row. Same accepted class (the
+    # band-3/4 classifications the ruling accepted name "`mutation_id`
+    # rows" under kernel drift); the first table-list encoding missed the
+    # column form. Every domain byte of the row (delta / new_balance /
+    # reason / actor_id) still diffs. Encoding completion 2026-07-10
+    # (blackjack flip PR) under the Q-0262.3 delegation — reversible on
+    # paper (Q-0240), reviewable at the parity gate.
+    columns:
+      - economy_audit_log.mutation_id
   xp-coins-alias:
     encoding: normalizer
     # the old `xp.coins` alias column (coins split to economy_balances at
@@ -136,6 +146,15 @@ dispositions:
     # rows in both docs.
     table: xp
     column: coins
+    # the boundary's NEW home: goldens are old-bot captures, so they can
+    # never contain an economy_balances row — leaving the new home in the
+    # diff made the accepted class self-defeating for every money-mutating
+    # golden (first confronted by goldens/blackjack's !daily funding
+    # step). Balance BEHAVIOR stays fully pinned: every wallet mutation
+    # still diffs through economy_audit_log's delta/new_balance bytes.
+    # Encoding completion 2026-07-10 (blackjack flip PR) under the
+    # Q-0262.3 delegation — reversible on paper (Q-0240).
+    new_home_table: economy_balances
   invoking-message-deletion:
     encoding: exemption
     # the shipped bot deleted the invoking message after every command
@@ -179,6 +198,7 @@ depth:
   # subsystem MUST have a row; regenerate with
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
+    blackjack: {events: 2, tables: 5, settings: 0}
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}

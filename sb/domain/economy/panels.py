@@ -34,18 +34,23 @@ from sb.spec.refs import (
     PanelRef,
     ProviderRef,
     WorkflowRef,
+    handler,
     is_registered,
     panel,
     provider,
 )
 
 __all__ = [
+    "DAILY_CARD_PANEL_ID",
+    "daily_card_spec",
     "economy_hub_spec",
     "ensure_panel_refs",
     "install_economy_panels",
     "jobcenter_spec",
     "shop_panel_spec",
 ]
+
+DAILY_CARD_PANEL_ID = "economy.daily_card"
 
 _HUB_PROVIDER = "economy.hub_overview"
 _JOBCENTER_PROVIDER = "economy.jobcenter_overview"
@@ -264,6 +269,67 @@ def shop_panel_spec() -> PanelSpec:
     )
 
 
+def daily_card_spec() -> PanelSpec:
+    """The shipped Daily Reward embed (cogs/economy_cog.py `daily`) — a
+    component-less per-claim result card. ``session_lifecycle=True`` because
+    the shipped send was a transient result message, never a refreshable
+    panel_anchors panel (and it has no components to re-bind anyway)."""
+    return PanelSpec(
+        panel_id=DAILY_CARD_PANEL_ID,
+        subsystem="economy",
+        title="🎁 Daily Reward",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("economy.render_daily_card"),
+        justification=(
+            "the shipped Daily Reward embed is claim-parameterized copy on "
+            "every line (tier description, four inline stat fields, the "
+            "streak-derived odds footer, the invoker author line — "
+            "cogs/economy_cog.py); grammar TextBlocks are static. The card "
+            "declares no components; the renderer only composes the embed."),
+        session_lifecycle=True,
+    )
+
+
+async def _render_daily_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the shipped daily embed verbatim: author line,
+    gold accent, tier description, the four inline fields, the odds
+    footer (`Current odds → <label>: <w:.1f>% · …`)."""
+    from sb.domain.economy import catalogue
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    amount = int(params.get("amount", 0) or 0)
+    balance = int(params.get("coins", 0) or 0)
+    streak = int(params.get("streak", 0) or 0)
+    claims = int(params.get("claims", 0) or 0)
+    weights = catalogue.daily_weights(streak)
+    odds = " · ".join(
+        f"{tier[0]}: {weight:.1f}%"
+        for tier, weight in zip(catalogue.DAILY_TIERS, weights, strict=True))
+    embed = RenderedEmbed(
+        title=spec.title,
+        description=(f"{params.get('tier_emoji', '')} "
+                     f"**{params.get('tier', '')}** reward!"),
+        fields=(
+            ("Coins earned", f"**+{amount}** 🪙", True),
+            ("Balance", f"**{balance}** 🪙", True),
+            ("Streak", f"🔥 **{streak}** days", True),
+            ("Total claims", str(claims), True),
+        ),
+        footer=f"Current odds → {odds}",
+        style_token=spec.frame.style_token,
+        author_name=str(params.get("author_name", "") or ""),
+        author_icon=str(params.get("author_icon", "") or ""))
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 @panel("economy.hub")
 def _hub_factory() -> PanelSpec:
     return economy_hub_spec()
@@ -279,8 +345,17 @@ def _shop_factory() -> PanelSpec:
     return shop_panel_spec()
 
 
+@panel(DAILY_CARD_PANEL_ID)
+def _daily_card_factory() -> PanelSpec:
+    return daily_card_spec()
+
+
+handler("economy.render_daily_card")(_render_daily_card)
+
+
 def install_economy_panels() -> tuple[PanelSpec, ...]:
-    specs = (economy_hub_spec(), jobcenter_spec(), shop_panel_spec())
+    specs = (economy_hub_spec(), jobcenter_spec(), shop_panel_spec(),
+             daily_card_spec())
     out = []
     for spec in specs:
         try:
@@ -302,6 +377,9 @@ def ensure_panel_refs() -> None:
     _ensure_shop_provider()
     for pid, factory in (("economy.hub", _hub_factory),
                          ("economy.jobcenter", _jobcenter_factory),
-                         ("economy.shop_panel", _shop_factory)):
+                         ("economy.shop_panel", _shop_factory),
+                         (DAILY_CARD_PANEL_ID, _daily_card_factory)):
         if not _is(_P(pid)):
             _panel(pid)(factory)
+    if not is_registered(HandlerRef("economy.render_daily_card")):
+        handler("economy.render_daily_card")(_render_daily_card)
