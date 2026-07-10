@@ -13,6 +13,11 @@
 # `paths-ignore`: a required context that never reports stays
 # pending and blocks auto-merge.
 #
+# NOTE: the INSTALLED .github/workflows/substrate-gate.yml is
+# KIT-OWNED — adopt/upgrade regenerates it in place and hand edits
+# are overwritten. Host-specific CI belongs in a separate workflow
+# (a copy of this example is a good home).
+#
 # name: substrate-quality
 # on:
 #   pull_request:

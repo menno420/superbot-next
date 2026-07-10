@@ -37,7 +37,7 @@
   ],
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
-  "kit_version": "1.7.0",
+  "kit_version": "1.7.1",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",
