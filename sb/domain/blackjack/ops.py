@@ -109,6 +109,18 @@ def _components(session_id: str, *actions: str) -> list[str]:
             for a in actions]
 
 
+def _hands_view(match: dict) -> dict:
+    """Deck-free render view of a PvP match (both hands are PUBLIC — the
+    shipped per-player tables were plain channel messages)."""
+    hands = {}
+    for uid_s, h in match["hands"].items():
+        hands[uid_s] = {"cards": [str(c) for c in h["hand"]],
+                        "value": bj.hand_value(h["hand"]),
+                        "done": bool(h["done"])}
+    return {"p1": int(match["p1"]), "p2": int(match["p2"]),
+            "bet": int(match.get("bet", 0) or 0), "hands": hands}
+
+
 def _hand_payload(state: dict, *, reveal: bool) -> dict:
     return {
         "player": list(state["player"]),
@@ -315,6 +327,7 @@ async def _record_pvp_challenge(conn, ctx: WorkflowContext) -> LegOutcome:
     ctx.params["_balance_changes"] = []
     sid = games_session.mint_session_id(gid, uid, cid)
     payload = {"challenger": uid, "target": target, "bet": bet,
+               "session_id": sid,
                "components": _components(sid, "accept", "decline")}
     return LegOutcome(step=StepResult(uid, "pvp_challenge", True),
                       before={}, after=payload)
@@ -359,13 +372,26 @@ async def _record_pvp_accept(conn, ctx: WorkflowContext) -> LegOutcome:
     await games_store.delete_checkpoint(
         conn, guild_id=gid, user_id=challenger, channel_id=cid,
         subsystem=PVP_PENDING_SUBSYSTEM)
+    escrow_changes = [(u, d, b, "blackjack:pvp_escrow")
+                      for (u, d, b) in escrow.balance_changes]
+    if all(h["done"] for h in hands.values()):
+        # both dealt naturals — settle in the SAME txn (the shipped
+        # ``_resolve_pvp`` "or both natural-blackjack out" branch); no
+        # match row is ever written, so no move could get stuck on two
+        # finished hands.
+        settled = await _maybe_settle_pvp(conn, ctx, gid, cid, match)
+        ctx.params["_balance_changes"] = (
+            escrow_changes + list(ctx.params.get("_balance_changes") or ()))
+        payload = {**(settled or {}), "session_id": sid,
+                   "escrowed": escrow.escrowed, **_hands_view(match)}
+        return LegOutcome(step=StepResult(uid, "pvp_accept", True),
+                          before={}, after=payload)
     await games_store.upsert_checkpoint(
         conn, guild_id=gid, user_id=challenger, channel_id=cid,
         subsystem=PVP_SUBSYSTEM, state=match, version=PVP_VERSION, now=now)
-    ctx.params["_balance_changes"] = [
-        (u, d, b, "blackjack:pvp_escrow")
-        for (u, d, b) in escrow.balance_changes]
-    payload = {"match": match, "escrowed": escrow.escrowed,
+    ctx.params["_balance_changes"] = escrow_changes
+    payload = {"session_id": sid, "escrowed": escrow.escrowed,
+               **_hands_view(match),
                "components": _components(sid, "hit", "stand"),
                "terminal": False}
     return LegOutcome(step=StepResult(uid, "pvp_accept", True), before={},
@@ -442,7 +468,8 @@ async def _maybe_settle_pvp(conn, ctx: WorkflowContext, gid: int, cid: int,
         subsystem=PVP_SUBSYSTEM)
     ctx.params["_balance_changes"] = changes
     return {"result": text, "winner": winner,
-            "values": {str(p1): v1, str(p2): v2}, "terminal": True}
+            "values": {str(p1): v1, str(p2): v2}, "terminal": True,
+            **_hands_view(match)}
 
 
 @workflow("blackjack.record_pvp_move")
@@ -479,6 +506,7 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
     payload = {"hand": list(hand["hand"]),
                "hand_value": bj.hand_value(hand["hand"]),
                "done": hand["done"], "terminal": False,
+               "session_id": sid, **_hands_view(match),
                "components": _components(sid, "hit", "stand")}
     return LegOutcome(step=StepResult(uid, "pvp_move", True), before={},
                       after=payload)

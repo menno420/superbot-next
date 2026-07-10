@@ -178,6 +178,7 @@ async def _record_pvp_challenge(conn, ctx: WorkflowContext) -> LegOutcome:
     ctx.params["_balance_changes"] = []
     sid = games_session.mint_session_id(gid, uid, cid)
     after = {"challenger": uid, "target": target, "bet": bet,
+             "session_id": sid,
              "components": [games_session.mint_custom_id(
                  "rps_tournament", sid, a) for a in ("accept", "decline")]}
     return LegOutcome(step=StepResult(uid, "pvp_challenge", True),
@@ -224,8 +225,8 @@ async def _record_pvp_accept(conn, ctx: WorkflowContext) -> LegOutcome:
                                           f"move_{m}")
              for m in rules.GAME_MODES[QUICKPLAY_MODE]]
     return LegOutcome(step=StepResult(uid, "pvp_accept", True), before={},
-                      after={"bet": bet, "components": moves,
-                             "terminal": False})
+                      after={"bet": bet, "session_id": sid,
+                             "components": moves, "terminal": False})
 
 
 @workflow("rps.record_pvp_decline")
@@ -254,14 +255,14 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
     challenger, cid, state = await _load_pending(conn, gid, sid)
     p1, p2 = challenger, int(state.get("peer", 0))
     if uid not in (p1, p2):
-        raise ValidatorError("This match isn't yours.")
+        # shipped views/rps/pvp_play.py interaction_check copy
+        raise ValidatorError("You're not part of this match.")
     if not state.get("accepted"):
         raise ValidatorError("The challenge hasn't been accepted yet.")
     move = _move_from(ctx)
     moves: dict = state.setdefault("moves", {})
     if str(uid) in moves:
-        raise ValidatorError("You already picked — waiting for your "
-                             "opponent.")
+        raise ValidatorError("You already picked!")   # shipped copy
     moves[str(uid)] = move
     if len(moves) < 2:
         await games_store.upsert_checkpoint(
@@ -278,8 +279,9 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
     changes: list[tuple[int, int, int, str]] = []
     if outcome == 0:
         winner = None
-        text = (f"🤝 Tie — both threw {_EMOJI.get(m1, m1)}. "
-                "Stakes returned.")
+        # the shipped result line (views/rps/pvp_play.py) — the escrow IS
+        # refunded below; net coins exchanged: zero.
+        text = "🤝 Tie! No coins exchanged."
         if bet > 0:
             refund = await wager.refund_pvp_in_txn(
                 conn, guild_id=gid, channel_id=cid,
@@ -289,8 +291,7 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
                        for (u, d, b) in refund.balance_changes]
     else:
         winner = p1 if outcome == 1 else p2
-        text = (f"{_EMOJI.get(m1, m1)} vs {_EMOJI.get(m2, m2)} — "
-                f"<@{winner}> wins!")
+        text = f"🎉 <@{winner}> wins!"      # shipped pvp_play.py copy
         if bet > 0:
             settle = await wager.settle_pvp_in_txn(
                 conn, guild_id=gid, channel_id=cid,
@@ -304,6 +305,7 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
     ctx.params["_balance_changes"] = changes
     return LegOutcome(step=StepResult(uid, "pvp_move", True), before={},
                       after={"result": text, "winner": winner,
+                             "challenger": p1, "peer": p2,
                              "moves": {str(p1): m1, str(p2): m2},
                              "terminal": True})
 

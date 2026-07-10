@@ -67,12 +67,23 @@ def _register() -> None:
                 return Reply(result.outcome,
                              result.user_message or "Could not challenge.")
             after = (result.after or {}).get("pvp_challenge", {})
-            bet = int(after.get("bet", 0) or 0)
-            bet_str = f"**{bet}** 🪙" if bet else "free play"
-            return Reply(SUCCESS,
-                         f"🃏 Blackjack Challenge! <@{uid}> challenges "
-                         f"<@{int(target)}> ({bet_str}). "
-                         f"<@{int(target)}>, do you accept?")
+            # the shipped challenge embed + Accept/Decline buttons
+            # (views/blackjack/pvp_view._ChallengeView) — the PvP session
+            # panel opens on the challenge stage; every later stage EDITS
+            # this message.
+            import dataclasses
+
+            from sb.domain.blackjack.panels import PVP_PANEL_ID
+            from sb.kernel.panels.engine import open_panel
+            from sb.spec.refs import PanelRef
+
+            pvp_req = dataclasses.replace(req, args={
+                **dict(req.args), "stage": "challenge",
+                "session_id": str(after.get("session_id") or ""),
+                "challenger": uid, "target": int(target),
+                "bet": int(after.get("bet", 0) or 0)})
+            await open_panel(PanelRef(PVP_PANEL_ID), pvp_req)
+            return Reply(SUCCESS, None)
         result = await engine.run(
             WorkflowRef("blackjack.solo_start"),
             _ctx_from_req(req, {"argv": argv,
@@ -130,6 +141,70 @@ def _register() -> None:
             # authoritative — degrade to the text result.
             return Reply(SUCCESS,
                          "🃏 **Blackjack**\n" + "\n".join(_hand_lines(after)))
+        return Reply(SUCCESS, None)
+
+    @handler("blackjack.pvp_click")
+    async def pvp_click(req) -> Reply:
+        """A PvP g1 button (challenge Accept/Decline or the clicker's own
+        Hit/Stand) — run the audited op, then EDIT the match message onto
+        the next stage. The ops own every lock (peer, own-hand,
+        hand-finished); a vanished live session (restart/eviction)
+        degrades to the text result — the checkpoint row stayed
+        authoritative."""
+        from sb.domain.games.session import EXPIRED_MESSAGE
+        from sb.kernel.panels.engine import refresh_session_view
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        action = str(req.args.get("session_action") or "")
+        sid = str(req.args.get("session_id") or "")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        op_key = {"accept": "blackjack.pvp_accept",
+                  "decline": "blackjack.pvp_decline",
+                  "hit": "blackjack.pvp_move",
+                  "stand": "blackjack.pvp_move"}.get(action)
+        if op_key is None:
+            return Reply(BLOCKED, EXPIRED_MESSAGE)
+        leg = op_key.rsplit(".", 1)[1]
+        result = await engine.run(WorkflowRef(op_key),
+                                  _ctx_from_req(req, dict(req.args)))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Couldn't do that.")
+        after = (result.after or {}).get(leg, {})
+        hands_params = {k: after.get(k)
+                        for k in ("p1", "p2", "bet", "hands")}
+        if action == "decline":
+            params = {"stage": "declined", "session_id": sid,
+                      "decliner": uid}
+            fallback = f"❌ <@{uid}> declined the challenge."
+            expire = True
+        elif after.get("terminal"):
+            # a terminal accept (both dealt naturals) or the final move.
+            params = {"stage": "result", "session_id": sid,
+                      **hands_params,
+                      "winner": after.get("winner"),
+                      "result": after.get("result") or ""}
+            fallback = str(after.get("result") or "")
+            expire = True
+        elif action == "accept":
+            params = {"stage": "match", "session_id": sid, **hands_params}
+            fallback = "✅ Challenge accepted — dealing hands…"
+            expire = False
+        else:
+            params = {"stage": "match", "session_id": sid, **hands_params}
+            fallback = (f"✋ Locked in at **{after.get('hand_value')}** — "
+                        "waiting for your opponent."
+                        if after.get("done") else
+                        f"👊 {'  '.join(after.get('hand') or ())} "
+                        f"(**{after.get('hand_value')}**)")
+            expire = False
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params=params, expire=expire)
+        if not refreshed:
+            return Reply(SUCCESS, fallback)
         return Reply(SUCCESS, None)
 
     @handler("blackjack.status_view")

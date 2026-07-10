@@ -67,12 +67,22 @@ def _register() -> None:
                 return Reply(result.outcome,
                              result.user_message or "Could not challenge.")
             after = (result.after or {}).get("pvp_challenge", {})
-            bet = int(after.get("bet", 0) or 0)
-            bet_str = f"**{bet}** 🪙" if bet else "free play"
-            return Reply(SUCCESS,
-                         f"✂️ RPS Challenge! <@{uid}> challenges "
-                         f"<@{int(target)}> ({bet_str}). "
-                         f"<@{int(target)}>, do you accept?")
+            # the shipped challenge embed + Accept/Decline buttons
+            # (views/rps/pvp_challenge) — the PvP session panel opens on
+            # the challenge stage; every later stage EDITS this message.
+            import dataclasses
+
+            from sb.domain.rps.panels import PVP_PANEL_ID
+            from sb.kernel.panels.engine import open_panel
+            from sb.spec.refs import PanelRef
+
+            pvp_req = dataclasses.replace(req, args={
+                **dict(req.args), "stage": "challenge",
+                "session_id": str(after.get("session_id") or ""),
+                "challenger": uid, "target": int(target),
+                "bet": int(after.get("bet", 0) or 0)})
+            await open_panel(PanelRef(PVP_PANEL_ID), pvp_req)
+            return Reply(SUCCESS, None)
         # solo: a move token plays immediately (`!rps rock 25`); a bare
         # !rps surfaces the move picker (the hub panel's selector runs
         # the same op with args["values"]).
@@ -109,6 +119,67 @@ def _register() -> None:
         from sb.spec.refs import PanelRef
 
         await open_panel(PanelRef(QUICKPLAY_PANEL_ID), req)
+        return Reply(SUCCESS, None)
+
+    @handler("rps.pvp_click")
+    async def pvp_click(req) -> Reply:
+        """A PvP g1 button (challenge Accept/Decline or a move) — run the
+        audited op, then EDIT the challenge message onto the next stage
+        (the shipped safe_edit loop). The ops own every lock (peer,
+        already-accepted, already-picked); a vanished live session
+        (restart/eviction) degrades to the text result — the checkpoint
+        row stayed authoritative."""
+        from sb.domain.games.session import EXPIRED_MESSAGE
+        from sb.kernel.panels.engine import refresh_session_view
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        action = str(req.args.get("session_action") or "")
+        sid = str(req.args.get("session_id") or "")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        op_key = {"accept": "rps.pvp_accept",
+                  "decline": "rps.pvp_decline"}.get(action)
+        if op_key is None and action.startswith("move_"):
+            op_key = "rps.pvp_move"
+        if op_key is None:
+            return Reply(BLOCKED, EXPIRED_MESSAGE)
+        leg = op_key.rsplit(".", 1)[1]
+        result = await engine.run(WorkflowRef(op_key),
+                                  _ctx_from_req(req, dict(req.args)))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Couldn't do that.")
+        after = (result.after or {}).get(leg, {})
+        if action == "accept":
+            params = {"stage": "match", "session_id": sid}
+            fallback = ("✅ Challenge accepted — both players, choose "
+                        "your move!")
+            expire = False
+        elif action == "decline":
+            params = {"stage": "declined", "session_id": sid,
+                      "decliner": uid}
+            fallback = f"❌ <@{uid}> declined the challenge."
+            expire = True
+        elif after.get("terminal"):
+            params = {"stage": "result", "session_id": sid,
+                      "p1": after.get("challenger"),
+                      "p2": after.get("peer"),
+                      "moves": after.get("moves") or {},
+                      "winner": after.get("winner"),
+                      "result": after.get("result") or ""}
+            fallback = str(after.get("result") or "")
+            expire = True
+        else:
+            params = {"stage": "match", "session_id": sid,
+                      "waiting": True}
+            fallback = "✅ Move locked in — waiting for your opponent."
+            expire = False
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params=params, expire=expire)
+        if not refreshed:
+            return Reply(SUCCESS, fallback)
         return Reply(SUCCESS, None)
 
     @handler("rps.help_view")

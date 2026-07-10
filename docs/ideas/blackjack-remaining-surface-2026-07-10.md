@@ -19,8 +19,9 @@ outcome: open
 **One line:** solo blackjack is playable end-to-end (`!blackjack [bet]` →
 the shipped green table embed + Hit/Stand/Double on minted ids →
 invoker-locked clicks run the audited move ops and EDIT the table in place →
-settle writes the ledger); PvP buttons, the tournament orchestration, and
-two `_unmapped` sweeps remain.
+settle writes the ledger); **the PvP button surface shipped in the band-6
+PvP-on-the-wire PR** (item 1 below, kept for the record); the tournament
+orchestration and two `_unmapped` sweeps remain.
 
 ## Shipped in the flip PR (context)
 
@@ -55,13 +56,30 @@ two `_unmapped` sweeps remain.
 
 ## Remaining, in rough pull order
 
-1. **PvP challenge/accept/move buttons on the wire** (quick-win, shared
-   with rps): `blackjack.record_pvp_challenge`/`_accept` still mint g1
-   Accept/Decline/Hit/Stand ids into `after["components"]` that no
-   presenter renders — the challenge reply is text-only. Same fix shape as
-   the solo table: a session-lifecycle panel per challenge (audience
-   PUBLIC — the ops enforce the peer lock) or a presenter lane for
-   g1 components. The refresh seam shipped here does the in-hand edits.
+1. **PvP challenge/accept/move buttons on the wire** — ✅ SHIPPED (band-6
+   PvP-on-the-wire PR): `!blackjack @player [bet]` now opens the
+   `blackjack.pvp` session panel (audience PUBLIC — the ops enforce the
+   peer/own-hand locks) whose Accept/Decline and post-deal Hit/Stand
+   buttons carry the restart-safe `g1:` ids; every stage EDITS the one
+   challenge message via `refresh_session_view` (challenge → the dealt
+   match → the shipped `🃏 Blackjack PvP Result` embed, ECONOMY_COLOR on
+   a win / GAME_COLOR on a tie). Deliberate deviations from the shipped
+   shape, ledgered here: (a) the shipped `_start_pvp` sent one PUBLIC
+   channel table PER PLAYER (`channel.send(content=player.mention,
+   embed=_game_embed(...))`) and edited each separately; v1 stages the
+   whole match on ONE shared message showing both public hands (the
+   clicker's buttons play the clicker's OWN hand — same information
+   surface, one message instead of three). (b) Both-dealt-naturals now
+   settle INSIDE the accept txn (the shipped `_resolve_pvp` "or both
+   natural-blackjack out" branch) — without it the on-the-wire match
+   would strand two finished hands; when that branch fires, the four
+   balance changes (2× escrow + 2× refund) exceed the op's two
+   `economy.balance_changed` emit slots, so two best-effort events are
+   skipped (ledger rows are complete — the emit budget is telemetry
+   only). (c) The challenge-accept edit skips the transient
+   "✅ Challenge accepted — dealing hands…" frame (deal happens in the
+   same txn; the match view IS the ack). PvP double-down stays disabled
+   (item 2).
 2. **PvP double-down** stays disabled (the ledgered deviation in
    `sb/domain/blackjack/ops.py`'s docstring: it needs mid-match re-escrow).
 3. **Tournament orchestration** (`!bjtournament`/`!bjstart` pending
