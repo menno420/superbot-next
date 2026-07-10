@@ -43,6 +43,7 @@ __all__ = [
     "install_panel_presenter",
     "may_interact",
     "open_panel",
+    "refresh_session_view",
     "register_confirm_session",
     "reset_panel_engine_for_tests",
     "session_for",
@@ -133,6 +134,10 @@ class PanelSession:
     opened_at: float = field(default_factory=time.monotonic)
     timeout_s: int | None = 180
     message_ref: object = None        # opaque adapter handle
+    # session-lifecycle panels: component_id -> the minted 32-hex custom_id
+    # (a refresh re-renders onto the SAME wire ids — the shipped views kept
+    # their auto-ids across edits).
+    component_ids: dict = field(default_factory=dict)
 
     @property
     def expired(self) -> bool:
@@ -285,14 +290,18 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
         return
     else:
         rendered = await render_panel(spec, ctx, page=page)
+    minted_ids: dict[str, str] = {}
     if spec.session_lifecycle:
         rendered = _mint_ephemeral(spec, rendered, req)
+        minted_ids = {
+            _ephemeral[c.custom_id].component_id: c.custom_id
+            for c in rendered.components if c.custom_id in _ephemeral}
     message_ref = await _presenter(rendered, req)
     key = str(message_ref) if message_ref is not None else req.request_id
     _store_session(key, PanelSession(
         panel_id=spec.panel_id, invoker_id=rendered.invoker_lock,
         audience=rendered.audience, page=page, timeout_s=rendered.timeout_s,
-        message_ref=message_ref))
+        message_ref=message_ref, component_ids=minted_ids))
     if not spec.session_lifecycle:
         # session views are never anchored — no refreshable channel panel
         # exists (the shipped game views were not in panel_anchors).
@@ -303,6 +312,48 @@ async def open_panel(ref: PanelRef, req: ResolveRequest) -> None:
     """THE `install_panel_engine` target — resolve()'s OPEN_PANEL terminal."""
     spec = get_panel(ref.name)
     await _render_and_present(spec, req)
+
+
+async def refresh_session_view(req: ResolveRequest, *, message_key: str,
+                               params: dict, expire: bool = False) -> bool:
+    """Re-render a live session view IN PLACE (the shipped game views'
+    ``interaction.response.defer()`` + ``message.edit`` loop): render the
+    session's panel with *params*, rewrite the declared components back
+    onto the ORIGINAL minted ids (never re-mint — the wire ids are stable
+    across edits), and present with ``edit_message_ref`` set so the
+    presenter edits instead of sending. ``expire=True`` tears the session
+    down after the edit (terminal result: the shipped ``view.stop()`` —
+    later clicks fall to the polite-expiry terminal).
+
+    Returns False when no live session exists for *message_key* (process
+    restart / eviction) — the caller degrades to its text reply."""
+    session = _sessions.get(message_key)
+    if session is None or session.expired:
+        return False
+    spec = get_panel(session.panel_id)
+    ctx = _context_from_request(spec, req)
+    ctx.params.clear()
+    ctx.params.update(params)
+    if spec.renderer_override is not None:
+        rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
+    else:
+        rendered = await render_panel(spec, ctx, page=session.page)
+    remapped = []
+    for component in rendered.components:
+        for comp_id, minted in session.component_ids.items():
+            if component.custom_id == f"{spec.panel_id}.{comp_id}":
+                component = _dc_replace(component, custom_id=minted)
+                break
+        remapped.append(component)
+    rendered = _dc_replace(
+        rendered, components=tuple(remapped),
+        edit_message_ref=session.message_ref)
+    await _presenter(rendered, req)
+    if expire:
+        for minted in session.component_ids.values():
+            _ephemeral.pop(minted, None)
+        _sessions.pop(message_key, None)
+    return True
 
 
 async def handle_nav(binding: NavBinding, req: ResolveRequest) -> None:

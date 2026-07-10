@@ -356,7 +356,8 @@ def test_shop_command_now_opens_the_panel():
     shop = next(c for c in m.MANIFEST.commands if c.name == "shop")
     assert shop.route == PanelRef("economy.shop_panel")
     panel_ids = {p.panel_id for p in m.MANIFEST.panels}
-    assert panel_ids == {"economy.hub", "economy.jobcenter", "economy.shop_panel"}
+    assert panel_ids == {"economy.hub", "economy.jobcenter",
+                         "economy.shop_panel", "economy.daily_card"}
 
 
 def test_inventory_manifest_declares_detail_panels():

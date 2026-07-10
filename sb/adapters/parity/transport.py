@@ -95,12 +95,18 @@ def _embed_payload(embed: Any) -> dict[str, Any]:
     color = STYLE_TOKEN_COLORS.get(getattr(embed, "style_token", "") or "")
     if color is not None:
         out["color"] = color
+    if getattr(embed, "author_name", ""):
+        author: dict[str, Any] = {"name": embed.author_name}
+        if getattr(embed, "author_icon", ""):
+            author["icon_url"] = embed.author_icon
+        out["author"] = author
     if getattr(embed, "title", ""):
         out["title"] = embed.title
     if getattr(embed, "description", ""):
         out["description"] = embed.description
-    fields = [{"name": name, "value": value, "inline": False}
-              for name, value in getattr(embed, "fields", ()) or ()]
+    fields = [{"name": f[0], "value": f[1],
+               "inline": bool(f[2]) if len(f) > 2 else False}
+              for f in getattr(embed, "fields", ()) or ()]
     if fields:
         out["fields"] = fields
     if getattr(embed, "footer", ""):
@@ -250,6 +256,31 @@ class ParityResponder:
 
     # -- panel presentation (called by ParityPresenter) ---------------------
 
+    def edit_panel(self, payload: dict[str, Any], message_ref: object) -> None:
+        """Session-view refresh — the shipped component-click edit loop as
+        discord.py's HTTP layer captured it (parity/harness/fake_http.py):
+        a DEFERRED UPDATE ack (interaction response type 6, bare payload)
+        followed by the webhook message edit (``edit_followup`` keyed on
+        the application id). Edit payloads carry no ``content`` key."""
+        from parity.harness.world import World
+
+        if self.surface not in _INTERACTION_SURFACES:
+            self._transport.gap("ParityResponder.edit_panel: message surface")
+            return
+        if not self._acked:
+            self._acked = True
+            self._committed = ReplyVisibility.PUBLIC
+            self._transport.record(
+                "interaction_response",
+                {"interaction_id": self._interaction_id},
+                {"type": 6})
+        body = {k: v for k, v in payload.items() if k != "content"}
+        self._transport.record(
+            "edit_followup",
+            {"webhook_id": World.BOT_USER_ID,
+             "message_id": int(str(message_ref))},
+            body)
+
     def present_panel(self, payload: dict[str, Any], *,
                       ephemeral: bool = False) -> int | None:
         """Send a rendered panel on this responder's surface; returns the
@@ -317,7 +348,11 @@ class ParityPresenter:
         # panels are ephemeral on interaction surfaces.
         ephemeral = getattr(rendered, "audience", "") == "invoker"
         responder = getattr(req, "responder", None)
+        edit_ref = getattr(rendered, "edit_message_ref", None)
         if isinstance(responder, ParityResponder):
+            if edit_ref is not None:
+                responder.edit_panel(payload, edit_ref)
+                return edit_ref
             return responder.present_panel(payload, ephemeral=ephemeral)
         channel_id = getattr(req, "channel_id", None)
         if channel_id is None:

@@ -56,8 +56,14 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
     "blue": 3447003,          # discord.Color.blue() — the shipped help hub
     "purple": 10181046,       # discord.Color.purple() — the shipped GAME_COLOR
                               # (views/rps/_helpers.py; goldens/rps_tournament)
-    "red": 15158332,          # discord.Color.red() — the shipped error cards
-                              # (cogs/hermes_cog.py missing-config; goldens/hermes)
+    "green": 3066993,         # discord.Color.green() — the shipped
+                              # SUCCESS_COLOR (utils/ui_constants.py; the
+                              # blackjack table embed, goldens/blackjack)
+    "red": 15158332,          # discord.Color.red() — the shipped ERROR_COLOR
+                              # (cogs/hermes_cog.py missing-config cards,
+                              # goldens/hermes; blackjack loss/bust terminals)
+    "gold": 15844367,         # discord.Color.gold() — the shipped Daily
+                              # Reward embed (cogs/economy_cog.py)
 }
 
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).
@@ -92,11 +98,18 @@ class RenderedComponent:
 class RenderedEmbed:
     title: str
     description: str
-    fields: tuple[tuple[str, str], ...] = ()
+    # (name, value) or (name, value, inline) — the optional third element is
+    # the discord inline flag (shipped embeds mix inline fields, e.g. the
+    # blackjack table's "Bet"; 2-tuples render inline=False).
+    fields: tuple[tuple, ...] = ()
     footer: str = ""
     thumbnail_ref: str = ""
     alt_text: str = ""           # L-24 rider 1 — carried to the adapter's discord.File
     style_token: str = ""
+    # embed author line (the shipped set_author(display_name, avatar) on
+    # per-member result cards, e.g. the Daily Reward embed).
+    author_name: str = ""
+    author_icon: str = ""
 
 
 @dataclass(frozen=True)
@@ -110,6 +123,10 @@ class RenderedPanel:
     timeout_s: int | None = 180
     audience: str = "invoker"
     anchor_policy: str = "reply"
+    # session-view refresh (the shipped in-place game-view edit): when set,
+    # the presenter EDITS this message instead of sending a new one (the
+    # component ack becomes a deferred UPDATE — discord type 6).
+    edit_message_ref: object | None = None
 
 
 # FOLLOW_PARENT resolution port: subsystem -> its CURRENT parent_hub key (the

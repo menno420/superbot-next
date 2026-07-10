@@ -61,6 +61,11 @@ frontmatter keeps the score.
   `captured` → structured-plan lane: the missing reaction feed adapter (verified absent),
   the one seam blocking starboard / reaction-roles / AI-review listeners; build the seam
   first, consumers as separate PRs.
+- [`blackjack-remaining-surface-2026-07-10.md`](blackjack-remaining-surface-2026-07-10.md) —
+  `captured` → quick-win lane: after the blackjack flip (solo table playable end-to-end
+  with in-place refresh), what remains — PvP buttons on the wire (shared gap with rps),
+  tournament orchestration (blocked on the reaction seam), the natural-at-deal shape
+  decision, and the named classes for the two red blackjack sweeps.
 - [`rps-tournament-remaining-surface-2026-07-10.md`](rps-tournament-remaining-surface-2026-07-10.md) —
   `captured` → quick-win lane first item: after the rps_tournament flip (solo quick-play
   playable end-to-end), what remains — PvP buttons on the wire (blackjack has the same

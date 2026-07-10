@@ -73,14 +73,64 @@ def _register() -> None:
                          f"🃏 Blackjack Challenge! <@{uid}> challenges "
                          f"<@{int(target)}> ({bet_str}). "
                          f"<@{int(target)}>, do you accept?")
-        result = await engine.run(WorkflowRef("blackjack.solo_start"),
-                                  _ctx_from_req(req, {"argv": argv}))
+        result = await engine.run(
+            WorkflowRef("blackjack.solo_start"),
+            _ctx_from_req(req, {"argv": argv,
+                                "channel_id": int(req.channel_id or 0)}))
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not deal.")
         after = (result.after or {}).get("solo_start", {})
-        return Reply(SUCCESS, "🃏 **Blackjack**\n" +
-                     "\n".join(_hand_lines(after)))
+        # the shipped solo table view (embed + Hit/Stand/Double) as a
+        # session-lifecycle panel rendered from the deal payload; a
+        # natural at deal renders the terminal shape (all buttons
+        # disabled — the shipped _finish look).
+        import dataclasses
+
+        from sb.domain.blackjack.panels import TABLE_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        table_req = dataclasses.replace(
+            req, args={**dict(req.args), **after})
+        await open_panel(PanelRef(TABLE_PANEL_ID), table_req)
+        return Reply(SUCCESS, None)
+
+    @handler("blackjack.table_click")
+    async def table_click(req) -> Reply:
+        """A solo-table button (session-lifecycle binding → resolve() →
+        here): run the audited move op, then refresh the table message IN
+        PLACE (the shipped safe_defer + safe_edit loop). Terminal results
+        expire the session (the shipped ``view.stop()``)."""
+        from sb.kernel.panels.engine import refresh_session_view
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        action = str(req.args.get("session_action") or "")
+        op_key = {"hit": "blackjack.solo_hit",
+                  "stand": "blackjack.solo_stand",
+                  "double": "blackjack.solo_double"}.get(action)
+        if op_key is None:
+            from sb.domain.games.session import EXPIRED_MESSAGE
+
+            return Reply(BLOCKED, EXPIRED_MESSAGE)
+        result = await engine.run(WorkflowRef(op_key),
+                                  _ctx_from_req(req, dict(req.args)))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Couldn't play that move.")
+        after = (result.after or {}).get(f"solo_{action}", {})
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params=after,
+            expire=bool(after.get("terminal")))
+        if not refreshed:
+            # session evicted/restarted mid-game: the state row is still
+            # authoritative — degrade to the text result.
+            return Reply(SUCCESS,
+                         "🃏 **Blackjack**\n" + "\n".join(_hand_lines(after)))
+        return Reply(SUCCESS, None)
 
     @handler("blackjack.status_view")
     async def status_view(req) -> Reply:

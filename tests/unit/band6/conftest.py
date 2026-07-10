@@ -85,6 +85,26 @@ class FakeGamesStore:
             return 1 if self.rows.pop(
                 _key(guild_id, user_id, channel_id, subsystem), None) else 0
 
+        async def fetch_user_checkpoint(guild_id, user_id, subsystem,
+                                        conn=None):
+            for row in self.rows.values():
+                if (row["guild_id"] == guild_id
+                        and row["user_id"] == user_id
+                        and row["subsystem"] == subsystem):
+                    return dict(row, state=dict(row["state"]))
+            return None
+
+        async def delete_user_checkpoint(conn, *, guild_id, user_id,
+                                         subsystem):
+            removed = 0
+            for key, row in list(self.rows.items()):
+                if (row["guild_id"] == guild_id
+                        and row["user_id"] == user_id
+                        and row["subsystem"] == subsystem):
+                    del self.rows[key]
+                    removed += 1
+            return removed
+
         async def delete_checkpoint_by_id(conn, *, row_id):
             for key, row in list(self.rows.items()):
                 if row["id"] == row_id:

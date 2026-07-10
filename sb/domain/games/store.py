@@ -40,9 +40,11 @@ __all__ = [
     "add_game_xp",
     "delete_checkpoint",
     "delete_checkpoint_by_id",
+    "delete_user_checkpoint",
     "erase_subject_game_state",
     "erase_subject_game_xp",
     "fetch_checkpoint",
+    "fetch_user_checkpoint",
     "game_xp_rows",
     "list_active",
     "list_stale",
@@ -103,13 +105,14 @@ async def upsert_checkpoint(conn: Any, *, guild_id: int, user_id: int,
                             version: int, now: int) -> None:
     """Atomic upsert — the latest checkpoint wins (shipped verbatim).
     ALWAYS conn-threaded: every write composes inside its owning K7 leg
-    (the P0-1 escrow lesson made structural)."""
+    (the P0-1 escrow lesson made structural). `now` stays an epoch int at
+    the API; the columns are TIMESTAMPTZ (0026 — the shipped types)."""
     await execute(
         "INSERT INTO game_state (guild_id, user_id, channel_id, subsystem, "
         "state, version, created_at, updated_at) "
-        "VALUES ($1,$2,$3,$4,$5,$6,$7,$7) "
+        "VALUES ($1,$2,$3,$4,$5,$6,to_timestamp($7),to_timestamp($7)) "
         "ON CONFLICT ON CONSTRAINT uq_game_state DO UPDATE SET "
-        "state=$5, version=$6, updated_at=$7",
+        "state=$5, version=$6, updated_at=to_timestamp($7)",
         (guild_id, user_id, channel_id, subsystem, json.dumps(state),
          version, now), conn=conn)
 
@@ -123,6 +126,31 @@ async def fetch_checkpoint(guild_id: int, user_id: int, channel_id: int,
     if row is None:
         return None
     return _decode(row["state"])
+
+
+async def fetch_user_checkpoint(guild_id: int, user_id: int, subsystem: str,
+                                conn: Any = None) -> dict | None:
+    """The user's checkpoint for *subsystem* in ANY channel — the shipped
+    one-game-per-(user, guild) key (blackjack `_active[(uid, gid)]`): the
+    row itself stores the channel the game was dealt in. Returns the whole
+    row (channel_id + decoded state), or None."""
+    row = await fetchone(
+        "SELECT id, guild_id, user_id, channel_id, state, version "
+        "FROM game_state WHERE guild_id=$1 AND user_id=$2 AND subsystem=$3",
+        (guild_id, user_id, subsystem), conn=conn)
+    if row is None:
+        return None
+    return dict(row, state=_decode(row["state"]))
+
+
+async def delete_user_checkpoint(conn: Any, *, guild_id: int, user_id: int,
+                                 subsystem: str) -> int:
+    """Delete the user's *subsystem* checkpoint regardless of channel —
+    the settle twin of :func:`fetch_user_checkpoint`."""
+    result = await execute(
+        "DELETE FROM game_state WHERE guild_id=$1 AND user_id=$2 AND "
+        "subsystem=$3", (guild_id, user_id, subsystem), conn=conn)
+    return _rowcount(result)
 
 
 async def delete_checkpoint(conn: Any, *, guild_id: int, user_id: int,
@@ -183,7 +211,8 @@ async def list_stale(*, now: int, cutoff_hours: int = GAME_STATE_TTL_HOURS,
     cutoff = now - cutoff_hours * 3600
     rows = await fetchall(
         "SELECT id, guild_id, user_id, channel_id, subsystem, state "
-        "FROM game_state WHERE updated_at < $1", (cutoff,), conn=conn)
+        "FROM game_state WHERE updated_at < to_timestamp($1)",
+        (cutoff,), conn=conn)
     return [dict(r, state=_decode(r["state"])) for r in rows]
 
 

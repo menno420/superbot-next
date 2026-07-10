@@ -70,7 +70,10 @@ def test_solo_start_deals_and_checkpoints(fake_economy, fake_games_store):
     out = run(ops._record_solo_start(None, _ctx({"bet": 25})))
     after = out.after
     assert after["bet"] == 25 and not after["terminal"]
-    assert any(c.startswith("g1:blackjack:") for c in after["components"])
+    # the solo buttons ride the session-lifecycle table panel (engine-minted
+    # ids) — the leg payload carries the hands, never component ids.
+    assert "components" not in after
+    assert len(after["player"]) == 2 and after["dealer"][1] == "?"
     assert len(fake_games_store.rows) == 1
     # second start refused while a game is live
     from sb.kernel.interaction.errors import ValidatorError

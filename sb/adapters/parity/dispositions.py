@@ -138,10 +138,24 @@ def apply_dispositions(doc: dict[str, Any]) -> dict[str, Any]:
     if drift and drift.get("encoding") == "normalizer":
         _drop_kernel_surfaces(out, list(drift.get("tables") or []),
                               list(drift.get("events") or []))
+        # kernel spine columns stamped onto domain rows (encoding
+        # completion 2026-07-10 — `<table>.<column>` entries).
+        for entry in drift.get("columns") or []:
+            table, _, column = str(entry).partition(".")
+            if table and column:
+                _drop_alias_column(out, table, column)
     alias = dispositions.get("xp-coins-alias")
     if alias and alias.get("encoding") == "normalizer":
         _drop_alias_column(out, str(alias.get("table") or "xp"),
                            str(alias.get("column") or "coins"))
+        # the ledgered-coins boundary's NEW home (encoding completion
+        # 2026-07-10): goldens are old-bot captures and can never contain
+        # these rows; balance behavior stays pinned via the ledger bytes.
+        new_home = alias.get("new_home_table")
+        if new_home:
+            delta = out.get("db_delta")
+            if isinstance(delta, dict):
+                delta.pop(str(new_home), None)
     deletion = dispositions.get("invoking-message-deletion")
     if deletion and deletion.get("encoding") == "exemption":
         _drop_exempt_calls(out, str(deletion.get("method") or "delete_message"),
