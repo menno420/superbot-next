@@ -47,6 +47,15 @@ __all__ = [
     "reset_render_ports_for_tests",
 ]
 
+# EmbedFrameSpec.style_token → the shipped embed accent color (both
+# presenters — the discord adapter and the parity capture twin — read this
+# ONE map, so live and captured colors can never drift apart). Tokens are
+# named for the shipped discord.Color constants the old bot used; ported
+# bands add their tokens as their goldens pin them.
+STYLE_TOKEN_COLORS: dict[str, int] = {
+    "blue": 3447003,          # discord.Color.blue() — the shipped help hub
+}
+
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).
 TITLE_LIMIT = 256
 DESCRIPTION_LIMIT = 4096
@@ -68,7 +77,11 @@ class RenderedComponent:
     placeholder: str = ""        # selectors
     min_values: int = 1
     max_values: int = 1
-    options: tuple[str, ...] = ()   # static selector options ("" source = provider-fed)
+    # selector options: plain strings (label == value, the render grammar's
+    # compact form) OR mappings with label/value(/description/emoji/default)
+    # — the shipped rich-option shape, provider-fed (goldens pin it byte-
+    # for-byte, e.g. the help category select).
+    options: tuple[object, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -266,7 +279,10 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                         cspec.placeholder if options else cspec.empty_state, locale=loc),
                     disabled=not options,
                     min_values=cspec.min_values, max_values=cspec.max_values,
-                    options=tuple(str(o) for o in options)))
+                    # mappings (rich options) pass through verbatim; anything
+                    # else keeps the compact label==value string form.
+                    options=tuple(o if isinstance(o, dict) else str(o)
+                                  for o in options)))
             else:
                 components.append(RenderedComponent(
                     kind="button", custom_id=custom_id,

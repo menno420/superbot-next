@@ -67,7 +67,14 @@ class ParityTransport:
 # --- wire mapping (RenderedPanel → discord payload shapes) --------------------
 
 def _embed_payload(embed: Any) -> dict[str, Any]:
-    out: dict[str, Any] = {"type": "rich"}
+    # discord.py's Embed.to_dict() always carries "flags": 0 — the goldens'
+    # wire shape for every embed the old bot sent.
+    out: dict[str, Any] = {"type": "rich", "flags": 0}
+    from sb.kernel.panels.render import STYLE_TOKEN_COLORS
+
+    color = STYLE_TOKEN_COLORS.get(getattr(embed, "style_token", "") or "")
+    if color is not None:
+        out["color"] = color
     if getattr(embed, "title", ""):
         out["title"] = embed.title
     if getattr(embed, "description", ""):
@@ -81,6 +88,24 @@ def _embed_payload(embed: Any) -> dict[str, Any]:
     return out
 
 
+def _option_payload(option: Any) -> dict[str, Any]:
+    """One select option, discord.py SelectOption.to_dict()-shaped: rich
+    mappings carry label/value/description/emoji; plain strings keep the
+    compact label==value form."""
+    if isinstance(option, dict):
+        out: dict[str, Any] = {
+            "label": str(option.get("label", "")),
+            "value": str(option.get("value", option.get("label", ""))),
+            "default": bool(option.get("default", False)),
+        }
+        if option.get("description"):
+            out["description"] = str(option["description"])
+        if option.get("emoji"):
+            out["emoji"] = {"id": None, "name": str(option["emoji"])}
+        return out
+    return {"label": str(option), "value": str(option), "default": False}
+
+
 def _component_payload(component: Any) -> dict[str, Any]:
     if component.kind == "selector":
         out: dict[str, Any] = {
@@ -89,8 +114,11 @@ def _component_payload(component: Any) -> dict[str, Any]:
             "min_values": component.min_values,
             "max_values": component.max_values,
             "disabled": bool(component.disabled),
-            "options": [{"label": o, "value": o, "default": False}
-                        for o in component.options],
+            # discord.py's Select.to_component_dict() always emits
+            # "required" (true at min_values >= 1) — the goldens carry it
+            # on every select the old bot sent.
+            "required": component.min_values >= 1,
+            "options": [_option_payload(o) for o in component.options],
         }
         if component.placeholder:
             out["placeholder"] = component.placeholder
@@ -202,20 +230,26 @@ class ParityResponder:
 
     # -- panel presentation (called by ParityPresenter) ---------------------
 
-    def present_panel(self, payload: dict[str, Any]) -> int | None:
+    def present_panel(self, payload: dict[str, Any], *,
+                      ephemeral: bool = False) -> int | None:
         """Send a rendered panel on this responder's surface; returns the
         minted message id for channel sends (None on interaction paths —
-        the old capture never minted ids for interaction responses)."""
+        the old capture never minted ids for interaction responses).
+        ``ephemeral`` applies only on interaction surfaces (the live
+        presenter's ``audience == "invoker"`` rule, mirrored)."""
         if self.surface in _INTERACTION_SURFACES:
+            data = dict(payload)
+            if ephemeral:
+                data["flags"] = _EPHEMERAL_FLAG
             if not self._acked:
                 self._acked = True
                 self._transport.record(
                     "interaction_response",
                     {"interaction_id": self._interaction_id},
-                    {"type": 4, "data": payload})
+                    {"type": 4, "data": data})
                 return None
             self._transport.record(
-                "followup_send", {"webhook_id": self._interaction_id}, payload)
+                "followup_send", {"webhook_id": self._interaction_id}, data)
             return None
         if self._channel_id is None:
             self._transport.gap("ParityResponder.present_panel: no channel")
@@ -259,9 +293,12 @@ class ParityPresenter:
 
     async def __call__(self, rendered: Any, req: Any) -> object:
         payload = rendered_panel_payload(rendered)
+        # the live DiscordPanelPresenter's rule, mirrored: invoker-audience
+        # panels are ephemeral on interaction surfaces.
+        ephemeral = getattr(rendered, "audience", "") == "invoker"
         responder = getattr(req, "responder", None)
         if isinstance(responder, ParityResponder):
-            return responder.present_panel(payload)
+            return responder.present_panel(payload, ephemeral=ephemeral)
         channel_id = getattr(req, "channel_id", None)
         if channel_id is None:
             self._transport.gap("ParityPresenter: no responder and no channel")

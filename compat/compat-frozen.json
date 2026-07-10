@@ -1788,6 +1788,7 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
+  "help_categories:select",
   "projmoon.lookup_form",
   "proof_channel.grant_form",
   "proof_channel.timed_form",

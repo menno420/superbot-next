@@ -5927,6 +5927,9 @@
       "provider:sb.panels.help_home_categories": {
         "module": "sb.domain.help.service"
       },
+      "provider:sb.panels.help_home_options": {
+        "module": "sb.domain.help.service"
+      },
       "provider:security.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
@@ -7063,7 +7066,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:72af65e2b088a8e5e5908fa1cf060240cf85a4c041e0b974db3762619c0f7768",
+  "stable_hash": "sha256:6f9e7df2b8aae3feea01fb59a3ed6e124af586a88dfaa364fac14fe04f31efbf",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19004,10 +19007,10 @@
         {
           "actions": [],
           "anchor_policy": "reply",
-          "audience": "public",
+          "audience": "invoker",
           "body": [
             {
-              "text": "Pick a category below — every entry is generated from the bot's own manifests."
+              "text": "Pick a category from the dropdown below."
             },
             {
               "provider": {
@@ -19021,7 +19024,7 @@
             "field_budget_chars": 1024,
             "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blue",
             "thumbnail_ref": ""
           },
           "justification": "",
@@ -19051,7 +19054,7 @@
             {
               "audience_tier": "user",
               "capability_required": "",
-              "custom_id_override": "",
+              "custom_id_override": "help_categories:select",
               "empty_state": "No categories available.",
               "kind": "entity",
               "max_values": 1,
@@ -19059,15 +19062,9 @@
               "on_select": {
                 "$ref": "handler:help.open_category"
               },
-              "options_source": [
-                "🎮 Games",
-                "🐵 BTD6 Assistant",
-                "🌑 Project Moon",
-                "💰 Economy",
-                "🛡️ Moderation & Safety",
-                "🌱 Community",
-                "⚙️ Server & Admin"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_home_options"
+              },
               "page_size": 25,
               "placeholder": "Pick a category…",
               "selector_id": "category_select",
@@ -19078,7 +19075,7 @@
           "session_lifecycle": false,
           "subsystem": "help",
           "timeout_s": 180,
-          "title": "📚 Help",
+          "title": "📚 Help Menu",
           "usage_weight": 1.0
         }
       ],
