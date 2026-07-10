@@ -258,7 +258,15 @@ async def grant_temp_role(ctx, *, member_id: int, role_id: int,
                        "expires_at_iso": expires_at.isoformat()})
     result = await engine.run(GRANT_TEMP_ROLE, ctx)
     if getattr(result, "outcome", None) != "success":
-        raise RuntimeError(f"temp-role grant failed: {result!r}")
+        # honest user copy only — the caller sends this message to the
+        # channel; the full result (the diagnostic detail) stays in the log
+        # + the engine's operator finding (band-5 live-drive ledger, bug 3:
+        # the raw WorkflowResult repr leaked to the channel).
+        logger.warning("role: temp-role grant did not complete: %r", result)
+        raise RuntimeError(
+            getattr(result, "user_message", None)
+            or "The temporary role was not granted — the Discord role "
+               "update did not complete, so nothing was kept.")
     return expires_at
 
 

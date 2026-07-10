@@ -78,6 +78,22 @@ async def list_due_locks(now: datetime, conn: Any = None) -> list[dict]:
         (now,), conn=conn)
 
 
+async def delete_lock_if_match(conn: Any, *, guild_id: int, channel_id: int,
+                               winner_id: int, unlock_at: datetime) -> bool:
+    """Compensation-only delete (the insert_lock_if_absent twin, same codex
+    4673572674 class): withdraw a deadline row ONLY while it is still
+    exactly the row this grant wrote. grant_access's upsert commits before
+    the lock EFFECT runs and nothing serializes concurrent grants, so a
+    re-grant can own the (guild_id, channel_id) slot by the time a refused
+    lock compensates — a key-only DELETE would destroy the newer grant.
+    Returns True iff the row was removed."""
+    rows = await fetchall(
+        "DELETE FROM proof_channel_locks WHERE guild_id=$1 AND channel_id=$2 "
+        "AND winner_id=$3 AND unlock_at=$4 RETURNING winner_id",
+        (guild_id, channel_id, winner_id, unlock_at), conn=conn)
+    return bool(rows)
+
+
 async def delete_lock(conn: Any, *, guild_id: int, channel_id: int) -> bool:
     rows = await fetchall(
         "DELETE FROM proof_channel_locks WHERE guild_id=$1 AND channel_id=$2 "

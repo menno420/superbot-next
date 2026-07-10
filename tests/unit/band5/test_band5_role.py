@@ -499,6 +499,171 @@ def test_erasure_body(monkeypatch):
     assert out.after["rows"] == 2
 
 
+# --- the live-drive fix lane (testing-report 2026-07-09, band-5 row: 3 live bugs) --
+
+
+class FakeReq:
+    def __init__(self, argv=(), invoked="", gid=1, uid=42):
+        self.args = {"argv": tuple(argv), "invoked_with": invoked}
+        self.guild_id = gid
+        self.request_id = "r1"
+        self.confirmed = False
+        self.actor = SimpleNamespace(user_id=uid, actor_type="user")
+
+
+def test_pending_terminals_registered_at_module_import():
+    """Live bug 1 (ledger row 7): the live root imports the handlers module
+    and dispatches — it never calls ENSURE_REFS when zero plugins are
+    admitted, so the four polite pending terminals must register at IMPORT
+    (declaring IS reserving), not only inside ensure_handler_refs()."""
+    import importlib
+    import sys
+
+    from sb.spec.refs import HandlerRef, clear_ref_table, is_registered
+
+    # clear_ref_table PURGES sb.manifest.* from sys.modules — snapshot the
+    # imported set so the teardown can restore it for the rest of the suite
+    manifest_names = [n for n in sys.modules if n.startswith("sb.manifest.")]
+    clear_ref_table()
+    sys.modules.pop("sb.domain.role.handlers", None)
+    try:
+        importlib.import_module("sb.domain.role.handlers")
+        for name in ("role.create_pending", "role.roleinfo_pending",
+                     "role.assignroles_pending", "role.debug_pending",
+                     "role.time_roles_view", "role.setrole"):
+            assert is_registered(HandlerRef(name)), name
+    finally:
+        # re-import + re-arm the purged manifests (the compiler P1 posture:
+        # domain modules stay cached so ENSURE_REFS restores their refs)
+        for n in manifest_names:
+            mod = importlib.import_module(n)
+            hook = getattr(mod, "ENSURE_REFS", None)
+            if callable(hook):
+                hook()
+
+
+def _fake_engine_run(monkeypatch, leg):
+    """engine.run stand-in that runs the REAL leg and rolls its LegOutcome
+    up EXACTLY like the engine does (_rollup keys after by the step's
+    target_name — there is no \"record\" key; live bug 2's root cause)."""
+    from sb.kernel.workflow import engine
+    from sb.kernel.workflow.result import WorkflowResult
+
+    async def fake_run(target, ctx):
+        out = await leg(None, ctx)
+        before, after = engine._rollup([out])
+        return WorkflowResult(
+            mutation_id="m1", guild_id=int(ctx.guild_id or 0), domain="role",
+            operation=str(getattr(target, "op_key", target)),
+            outcome="success", reversibility="reversible",
+            steps=(out.step,), before=before, after=after)
+
+    monkeypatch.setattr(engine, "run", fake_run)
+
+
+def test_setrole_ack_speaks_the_written_tier(monkeypatch):
+    """Live bug 2: the ack read result.after["record"] (nonexistent) and
+    said "✅ **None** auto-assigns at None day(s)." over a CORRECT write.
+    Copy pinned to the oracle (disbot/cogs/role_cog.py:534 /
+    parity/goldens/_unmapped/sweep_setrole.json)."""
+    from sb.domain.role import handlers, ops
+    from sb.spec.refs import HandlerRef, resolve
+
+    FakeRoleStore().install(monkeypatch)
+    _fake_engine_run(monkeypatch, ops._record_set_threshold)
+    handlers.ensure_handler_refs()
+    setrole = resolve(HandlerRef("role.setrole"))
+    out = run(setrole(FakeReq(argv=("3", "test"))))
+    assert out.outcome == "success"
+    assert out.user_message == \
+        "✅ Role **test** will be assigned after **3** day(s)."
+
+
+def test_unsetrole_ack_admits_the_deletion(monkeypatch):
+    """Live bug 2: "No such tier was configured." spoken over a deleted row
+    + written audit. Copy pinned to the oracle (role_cog.py:565 /
+    sweep_unsetrole.json); the genuine-miss branch keeps its honest copy."""
+    from sb.domain.role import handlers, ops
+    from sb.domain.role import store as store_mod
+    from sb.spec.refs import HandlerRef, resolve
+
+    FakeRoleStore().install(monkeypatch)
+    _fake_engine_run(monkeypatch, ops._record_remove_threshold)
+    handlers.ensure_handler_refs()
+    unsetrole = resolve(HandlerRef("role.unsetrole"))
+    out = run(unsetrole(FakeReq(argv=("test",))))
+    assert out.user_message == \
+        "✅ Removed **test** from time-based assignment."
+
+    async def delete_threshold_miss(conn, *, guild_id, role_name):
+        return False
+
+    monkeypatch.setattr(store_mod, "delete_threshold", delete_threshold_miss)
+    out = run(unsetrole(FakeReq(argv=("ghost",))))
+    assert out.user_message == "No such tier was configured."
+
+
+def test_removereactrole_ack_admits_the_deletion(monkeypatch):
+    """Live bug 2: "That binding did not exist." spoken over a deleted row.
+    Copy pinned to the oracle (role_cog.py:705)."""
+    from sb.domain.role import handlers, ops
+    from sb.domain.role import store as store_mod
+    from sb.spec.refs import HandlerRef, resolve
+
+    async def unbind_reaction(conn, *, guild_id, message_id, emoji):
+        return True
+
+    monkeypatch.setattr(store_mod, "unbind_reaction", unbind_reaction)
+    _fake_engine_run(monkeypatch, ops._record_unbind_reaction)
+    handlers.ensure_handler_refs()
+    unbind = resolve(HandlerRef("role.reactroles_unbind"))
+    out = run(unbind(FakeReq(argv=("123", "😀"))))
+    assert out.user_message == \
+        "✅ Reaction role for 😀 on that message removed."
+
+    async def unbind_reaction_miss(conn, *, guild_id, message_id, emoji):
+        return False
+
+    monkeypatch.setattr(store_mod, "unbind_reaction", unbind_reaction_miss)
+    out = run(unbind(FakeReq(argv=("123", "😀"))))
+    assert out.user_message == "That binding did not exist."
+
+
+def test_temprole_failure_copy_never_leaks_the_result_repr(monkeypatch):
+    """Live bug 3: a non-success grant raised
+    RuntimeError(f"... {result!r}") and the handler sent "⚠️ {exc}" — the
+    raw WorkflowResult repr in the channel. The live outcome was an honest
+    PARTIAL (GuildRoleActions not installed); the copy must be honest user
+    copy, the diagnostics stay in the log (no oracle surface for the
+    unarmed port — the oracle always had Discord; ledger-pinned)."""
+    from sb.domain.role import handlers
+    from sb.kernel.workflow import engine
+    from sb.kernel.workflow.result import StepResult, WorkflowResult
+    from sb.spec.refs import HandlerRef, resolve
+
+    async def fake_run(target, ctx):
+        return WorkflowResult(
+            mutation_id="m1", guild_id=1, domain="role",
+            operation="role.grant_temp_role", outcome="partial",
+            reversibility="reversible",
+            steps=(StepResult(7, "record_grant_temp", True),
+                   StepResult(0, "apply", False,
+                              "GuildRoleActions not installed — the "
+                              "composition root must install the discord "
+                              "adapter's implementation")))
+
+    monkeypatch.setattr(engine, "run", fake_run)
+    handlers.ensure_handler_refs()
+    temprole = resolve(HandlerRef("role.temprole"))
+    out = run(temprole(FakeReq(argv=("<@7>", "2h", "<@&5>"))))
+    assert out.outcome == "blocked"
+    assert "WorkflowResult" not in out.user_message
+    assert "mutation_id" not in out.user_message
+    assert out.user_message == (
+        "⚠️ The temporary role was not granted — the Discord role update "
+        "did not complete, so nothing was kept.")
+
+
 def test_role_manifest_in_snapshot():
     import json
 
