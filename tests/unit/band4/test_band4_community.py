@@ -123,15 +123,21 @@ class FakeReq:
 
 def test_board_view_resolves_alias_then_argv(monkeypatch):
     from sb.domain.community import handlers, spotlight
+    from sb.kernel.panels import engine as panel_engine
     from sb.spec.refs import HandlerRef, resolve
 
     seen = []
+    opened = []
 
     async def fake_board(name, gid):
         seen.append(name)
         return f"board:{name}"
 
+    async def fake_open(ref, req):
+        opened.append(ref.name)
+
     monkeypatch.setattr(spotlight, "provider_board_text", fake_board)
+    monkeypatch.setattr(panel_engine, "open_panel", fake_open)
     handlers.ensure_handler_refs()
     board_view = resolve(HandlerRef("leaderboard.board_view"))
 
@@ -141,8 +147,10 @@ def test_board_view_resolves_alias_then_argv(monkeypatch):
     out = run(board_view(FakeReq(argv=("karma",), invoked="leaderboard")))
     assert seen[-1] == "karma"
 
+    # no category → the shipped overview PANEL opens (embed + category
+    # selector — the sweep_leaderboard.json shape), not a text reply.
     out = run(board_view(FakeReq(invoked="leaderboard")))
-    assert "Leaderboards" in out.user_message      # overview fallback
+    assert out is None and opened == ["leaderboard.board"]
 
 
 # --- panels + manifests -----------------------------------------------------------------------

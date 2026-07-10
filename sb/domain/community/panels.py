@@ -71,9 +71,25 @@ def _ensure_category_options() -> ProviderRef:
     if not is_registered(ref):
         @provider(_CATEGORY_OPTIONS)
         async def category_options(ctx: object):
-            from sb.domain.community.rank_providers import provider_names
+            # the shipped rich select options (_select_options in
+            # cogs/leaderboard_cog.py: label/emoji from the provider's own
+            # select_label/select_emoji, value = the canonical name), in
+            # provider_names() registration order.
+            from sb.domain.community.rank_providers import (
+                get_provider,
+                provider_names,
+            )
 
-            return tuple(provider_names())
+            options = []
+            for name in provider_names():
+                p = get_provider(name)
+                if p is None:
+                    continue
+                option = {"label": p.select_label, "value": p.name}
+                if p.select_emoji:
+                    option["emoji"] = p.select_emoji
+                options.append(option)
+            return tuple(options)
     return ref
 
 
@@ -147,7 +163,11 @@ def leaderboard_board_spec() -> PanelSpec:
         subsystem="leaderboard",
         title="📊 Leaderboards",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        # the shipped overview embed (cogs/leaderboard_cog.py
+        # `_build_overview_embed`): UTILITY_COLOR blue, no footer —
+        # parity/goldens/leaderboard/sweep_leaderboard.json pins the bytes.
+        frame=EmbedFrameSpec(style_token="blue",
+                             footer_mode=FooterMode.NONE),
         body=(
             TextBlock("Select a category below to view the leaderboard."),
         ),
@@ -160,7 +180,12 @@ def leaderboard_board_spec() -> PanelSpec:
                 empty_state="No leaderboard categories registered.",
                 audience_tier="user"),
         ),
-        navigation=NavigationSpec(parent=PanelRef("community.hub")),
+        # the shipped LeaderboardView carried ONLY the selector (no nav
+        # buttons; timeout=120 session view) — the golden pins exactly one
+        # component row, so the never-strand fence takes the session-view
+        # exemption the shipped view actually was.
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(("category_select",),)),)),
     )
 

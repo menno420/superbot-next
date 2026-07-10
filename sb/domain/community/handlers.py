@@ -34,19 +34,22 @@ def _register() -> None:
         return
 
     @handler("leaderboard.board_view")
-    async def board_view(req) -> Reply:
-        """!leaderboard [category] (+ the shipped per-game aliases)."""
-        from sb.domain.community.rank_providers import provider_names
+    async def board_view(req):
+        """!leaderboard [category] (+ the shipped per-game aliases).
+
+        No category → the shipped overview panel (embed + category
+        selector — cogs/leaderboard_cog.py `_build_overview_embed` +
+        `LeaderboardView`); a category argument or per-game alias
+        pre-renders that board directly (the shipped route)."""
         from sb.domain.community.spotlight import provider_board_text
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
 
         gid = int(req.guild_id or 0)
         category = _category_from(req)
         if category is None:
-            names = " · ".join(f"`{n}`" for n in provider_names())
-            return Reply(SUCCESS,
-                         "📊 **Leaderboards** — pick a category: "
-                         f"{names}\n(or open the panel via the Community "
-                         "hub — `!community`)")
+            await open_panel(PanelRef("leaderboard.board"), req)
+            return None
         return Reply(SUCCESS, await provider_board_text(category, gid))
 
     @handler("leaderboard.category_view")

@@ -101,6 +101,12 @@ async def _record_anchor(spec: PanelSpec, req: ResolveRequest,
         return
     if req.surface in _INTERACTION_SURFACES:
         return
+    if spec.session_lifecycle:
+        # the shipped registry (utils/db/anchors.py) held panel-MANAGER
+        # panels only; timeout-bound session views (the shipped
+        # LeaderboardView class) were never anchored — the leaderboard
+        # golden pins the no-anchor-row delta.
+        return
     try:
         message_id = int(str(message_ref))
     except (TypeError, ValueError):
