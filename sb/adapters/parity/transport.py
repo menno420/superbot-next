@@ -33,6 +33,26 @@ __all__ = [
 
 _EPHEMERAL_FLAG = 64
 
+
+def _followup_payload(data: dict[str, Any]) -> dict[str, Any]:
+    """discord.py's ``Webhook.send`` wire shape: unlike the interaction
+    type-4 response (which always carries ``content``/``components``), a
+    followup omits ``content`` when None and ``components`` when no view
+    was passed — the goldens' shape for every ``followup_send`` the old
+    bot made (goldens/hermes, goldens/karma: embeds+flags+tts only)."""
+    return {k: v for k, v in data.items()
+            if not (k == "content" and v is None)
+            and not (k == "components" and not v)}
+
+
+def _followup_args() -> dict[str, Any]:
+    """``interaction.followup`` is the application's webhook — fake_http
+    captured its id as the BOT user (every corpus followup_send carries
+    ``webhook_id: <@bot>``), never the interaction id."""
+    from parity.harness.world import World
+
+    return {"webhook_id": World.BOT_USER_ID}
+
 #: RenderedComponent.style token → discord button style int.
 _BUTTON_STYLES = {"primary": 1, "secondary": 2, "success": 3, "danger": 4, "link": 5}
 
@@ -249,7 +269,7 @@ class ParityResponder:
                     {"type": 4, "data": data})
                 return None
             self._transport.record(
-                "followup_send", {"webhook_id": self._interaction_id}, data)
+                "followup_send", _followup_args(), _followup_payload(data))
             return None
         if self._channel_id is None:
             self._transport.gap("ParityResponder.present_panel: no channel")
@@ -271,7 +291,7 @@ class ParityResponder:
                     {"type": 4, "data": data})
             else:
                 self._transport.record(
-                    "followup_send", {"webhook_id": self._interaction_id}, data)
+                    "followup_send", _followup_args(), _followup_payload(data))
             return
         if self._channel_id is None:
             self._transport.gap("ParityResponder._reply: no channel")

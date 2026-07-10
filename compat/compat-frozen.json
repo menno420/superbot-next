@@ -964,6 +964,18 @@
     "name": "help"
    }
   ],
+  "hermes": [
+   {
+    "aliases": [],
+    "group": "",
+    "name": "bugreport"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "dispatch"
+   }
+  ],
   "image_moderation": [
    {
     "aliases": [],
@@ -1827,6 +1839,7 @@
   "games",
   "governance",
   "help",
+  "hermes",
   "image_moderation",
   "inventory",
   "karma",

@@ -56,6 +56,8 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
     "blue": 3447003,          # discord.Color.blue() — the shipped help hub
     "purple": 10181046,       # discord.Color.purple() — the shipped GAME_COLOR
                               # (views/rps/_helpers.py; goldens/rps_tournament)
+    "red": 15158332,          # discord.Color.red() — the shipped error cards
+                              # (cogs/hermes_cog.py missing-config; goldens/hermes)
 }
 
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).

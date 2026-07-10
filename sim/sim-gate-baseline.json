@@ -1727,6 +1727,18 @@
    },
    "value": 0
   },
+  "hermes:bugreport:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: hermes parity port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "hermes:dispatch:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: hermes parity port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
   "image_moderation:image_moderation_enabled:SettingSpec.advanced": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

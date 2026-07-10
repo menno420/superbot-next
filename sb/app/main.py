@@ -209,6 +209,7 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
     # 2. the K0 installs (owner identity, secret presence, AI config+platform).
     from sb.domain.ai.readers import install_ai_platform
+    from sb.domain.hermes.service import install_hermes_bridge_config
     from sb.kernel.ai import flags as ai_flags
     from sb.kernel.authority.owner import install_owner_config
     from sb.kernel.settings import install_secret_presence
@@ -217,6 +218,7 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
     install_secret_presence(cfg)
     ai_flags.install_ai_config(cfg)
     install_ai_platform()
+    install_hermes_bridge_config(cfg)  # DORMANT family: presence only
 
     # 3. boot-gate leg A — recompile parity against the committed snapshot.
     from sb.app.boot_gate import gate_recompile, run_boot_gate

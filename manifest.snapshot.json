@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 41,
+  "manifest_count": 42,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -1704,6 +1704,22 @@
           "subsystem": "help",
           "surface": "slash",
           "value": "help"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/hermes.py",
+          "subsystem": "hermes",
+          "surface": "slash",
+          "value": "bugreport"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/hermes.py",
+          "subsystem": "hermes",
+          "surface": "slash",
+          "value": "dispatch"
         },
         {
           "kind": "command",
@@ -3641,7 +3657,22 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_hermes"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.cat_other"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.home"
+        },
+        {
+          "source": "sb/manifest/hermes.py",
+          "subsystem": "hermes",
+          "value": "hermes.bridge_unconfigured"
         },
         {
           "source": "sb/manifest/image_moderation.py",
@@ -4393,6 +4424,11 @@
           "value": "help"
         },
         {
+          "source": "sb/manifest/hermes.py",
+          "subsystem": "hermes",
+          "value": "hermes"
+        },
+        {
           "source": "sb/manifest/image_moderation.py",
           "subsystem": "image_moderation",
           "value": "image_moderation"
@@ -5125,6 +5161,12 @@
       "handler:help.open_subsystem": {
         "module": "sb.domain.help.service"
       },
+      "handler:hermes.bugreport": {
+        "module": "sb.domain.hermes.handlers"
+      },
+      "handler:hermes.dispatch": {
+        "module": "sb.domain.hermes.handlers"
+      },
       "handler:inventory.render_line": {
         "module": "sb.domain.inventory.panels"
       },
@@ -5512,6 +5554,9 @@
       "panel:help.cat_moderation": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.cat_other": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.cat_project_moon": {
         "module": "sb.domain.help.service"
       },
@@ -5581,6 +5626,9 @@
       "panel:help.sub_games": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.sub_hermes": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.sub_image_moderation": {
         "module": "sb.domain.help.service"
       },
@@ -5637,6 +5685,9 @@
       },
       "panel:help.sub_xp": {
         "module": "sb.domain.help.service"
+      },
+      "panel:hermes.bridge_unconfigured": {
+        "module": "sb.domain.hermes.panels"
       },
       "panel:image_moderation.hub": {
         "module": "sb.domain.operator_spine"
@@ -5827,6 +5878,9 @@
       "provider:sb.panels.help_cat_moderation": {
         "module": "sb.domain.help.service"
       },
+      "provider:sb.panels.help_cat_other": {
+        "module": "sb.domain.help.service"
+      },
       "provider:sb.panels.help_cat_project_moon": {
         "module": "sb.domain.help.service"
       },
@@ -5891,6 +5945,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_games_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_hermes_0": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_image_moderation_0": {
@@ -7092,7 +7149,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:2e9a09334ad975eb8398dac19faad29bde2f0baa158156c0698eefcaba8d4255",
+  "stable_hash": "sha256:f76cdb82bed719f0a0c1c8ab4829aeab1680264ff5bcfece289e813bba506ecc",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19033,6 +19090,129 @@
         {
           "actions": [],
           "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "2 command(s), generated from the `hermes` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_hermes_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_other"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_hermes",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🔹 hermes — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Everything not yet homed under a category."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cat_other"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "feature_select"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.cat_other",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No features in this category yet.",
+              "kind": "subsystem",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.open_subsystem"
+              },
+              "options_source": [
+                "🔹 hermes"
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a feature for its full command list…",
+              "selector_id": "feature_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "📦 Other",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
@@ -19102,6 +19282,106 @@
           "subsystem": "help",
           "timeout_s": 180,
           "title": "📚 Help Menu",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "hermes": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "hermes",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "name": "bugreport",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:hermes.bugreport"
+          },
+          "slash_common": false,
+          "summary": "Report a bug — Hermes dispatches a Claude Code session to fix it automatically.",
+          "usage": "/bugreport <title> <description> [notes]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "",
+          "capability": "hermes",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "name": "dispatch",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:hermes.dispatch"
+          },
+          "slash_common": false,
+          "summary": "Send a raw Hermes work order to the Claude Code Routine (owner only).",
+          "usage": "/dispatch <work_order>",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "hermes",
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "The Hermes→Claude dispatch bridge is not configured.\n\nSet these env vars on Railway (or in `.env` locally):\n```\nCLAUDE_ROUTINE_FIRE_URL=https://api.anthropic.com/v1/claude_code/routines/<id>/fire\nCLAUDE_ROUTINE_TOKEN=sk-ant-oat01-…\nCLAUDE_ROUTINE_BETA=experimental-cc-routine-2026-04-01\nCLAUDE_ROUTINE_VERSION=2023-06-01\n```\nSee `docs/operations/hermes-dispatch-bridge.md` for the full setup runbook."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "hermes.bridge_unconfigured",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "hermes",
+          "timeout_s": 180,
+          "title": "Hermes bridge not configured",
           "usage_weight": 1.0
         }
       ],
