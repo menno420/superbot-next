@@ -7,11 +7,9 @@
 
 ## Start every session
 
-1. `.claude/CLAUDE.md` — the working agreement.
-2. `docs/current-state.md` — the living status ledger.
-3. `docs/CAPABILITIES.md` — verified session capabilities & walls (the
-   discovery rule lives there; append what you learn).
-4. This file — task-specific reading routes.
+The boot set lives in `.claude/CLAUDE.md` § "Orientation — read first" (one
+list, one home). This file is not boot reading — open it when a task needs
+a route into the deeper docs.
 
 ## Binding contracts
 
@@ -33,6 +31,4 @@ The planted doc set (this router reaches every live doc — keep it that way):
 
 ## Verifying any change
 
-```
-python3 -m pytest
-```
+See `.claude/CLAUDE.md` § "Verifying a change" (one home, never two copies).
