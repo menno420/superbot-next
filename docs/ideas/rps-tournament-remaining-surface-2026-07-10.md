@@ -73,7 +73,13 @@ tournament-orchestration PR** (item 3 below, deviations recorded); the
    shuffles, pairs, runs best-of rounds, byes advance; the champion settles
    through `rps.tournament_payout` (`rps:tournament_win` pot /
    `rps:tournament_free_reward` 100 🪙 consolation, flag cleared in the
-   SAME txn) with the shipped champion copy. Match stats land through the
+   SAME txn) with the shipped champion copy. HARDENED (blackjack
+   tournament PR, closing the #130 review's free-branch race): the
+   payout leg's `active_tournament` flag-row delete now runs FIRST as a
+   check-and-set — the free branch has no escrow rows to consume, so
+   two racing champion resolutions could both have paid the 100 🪙
+   consolation; keying settle on the atomic row-deletion count makes it
+   fire exactly once. Match stats land through the
    audited `rps.tournament_result` op. `!rpsmatchup` creates manual
    matches (shipped guards verbatim). **Deliberate deviations, ledgered:**
    (a) matches are BUTTON views in the tournament's home channel (the #124

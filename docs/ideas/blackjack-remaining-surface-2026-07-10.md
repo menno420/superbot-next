@@ -82,18 +82,49 @@ orchestration and two `_unmapped` sweeps remain.
    (item 2).
 2. **PvP double-down** stays disabled (the ledgered deviation in
    `sb/domain/blackjack/ops.py`'s docstring: it needs mid-match re-escrow).
-3. **Tournament orchestration** (`!bjtournament`/`!bjstart` pending
-   terminals): NO LONGER SEAM-BLOCKED — the reaction seam + the
-   registration-panel/self-reaction/flag-row/tournament-flag mechanisms
-   shipped with the band-6 RPS tournament-orchestration PR
-   (`sb/kernel/interaction/reactions.py`, `RenderedPanel.self_reactions`,
-   `guild_settings` migration 0027, `sb/domain/games/tournament_flag.py` —
-   the shipped shared-write is intentional). The blackjack successor is
-   pure-domain: the `sweep.bjtournament` golden pins its registration
-   embed (🃏 Join button + ✅ primer + `active_tournament=blackjack`);
-   rounds ride the solo-table seam per entrant instead of the shipped
-   private round channels (ledger the deviation, the RPS precedent).
-   The entry/payout money legs are already live and tested.
+3. **Tournament orchestration** (`!bjtournament`/`!bjstart`): ✅ SHIPPED
+   (band-6 blackjack tournament-orchestration PR): `!bjtournament
+   [entry_fee] [rounds] [mins]` opens the golden-pinned registration
+   embed (five inline fields + `React ✅ or click Join to register.`
+   footer + green 🃏 Join button + the ✅ self-reaction primer) and
+   writes the shipped `active_tournament=blackjack` flag row (audited
+   `blackjack.tournament_open`); sign-up rides the Join button AND the
+   kernel reaction seam (`blackjack.tournament_signup` consumer — the
+   shipped `on_raw_reaction_add` twin), guards/copy from the shared
+   `utils/tournaments.try_join` verbatim. `!bjstart` launches: per-player
+   fee debits on the audited lane at LAUNCH (shipped `_launch_tournament`
+   posture — reason `tournament:entry_fee` verbatim, a broke player is
+   silently skipped, both cancel branches' copy verbatim), then each
+   entrant plays `rounds` chips-space hands vs the dealer (start 1000,
+   flat 200/round, floor 0 — `TOURN_START_CHIPS`/`TOURN_BET_PER_ROUND`)
+   on Hit/Stand round views edited in place; every finished entrant gets
+   the shipped `✅ You finished the tournament with **N** chips!` line,
+   and the last one triggers the ranked results embed (`🏆 Blackjack
+   Tournament Results`, medal lines, `Winner's payout` field) + the
+   audited champion payout (`blackjack:tournament_win` pot /
+   free_reward=200 under `blackjack:tournament_free_reward`, flag row
+   cleared in the SAME txn). Entry rows joined
+   `ESCROW_RECOVERY_SUBSYSTEMS` (`blackjack_tournament` — the shipped
+   PR G5 refund-on-recovery). **Settle-once by construction**: the
+   payout leg's flag-row delete is a check-and-set — the free branch can
+   never re-fire on a racing double resolution (the same guard was
+   retrofit onto `rps.tournament_payout`, closing the #130 review's
+   free-branch race). Deliberate deviations, ledgered here: (a) rounds
+   run in the tournament's HOME channel (one view per entrant per round)
+   instead of the shipped private per-player channels under the "BJ
+   Tournament" category (channel provisioning rides the
+   resource-provision port — the rps precedent); (b) the `duration_mins`
+   autostart timer is not carried (time-driven class) — `!bjstart` is
+   the start path; (c) the registration embed is NOT live-edited as
+   players join (the shipped `_update_tourn_embed` Players/Pot refresh)
+   — the Join reply carries the count; (d) `!bjstatus` with a live
+   tournament answers a text card with the `_tourn_embed` field values
+   instead of the embed (the golden pins only the no-tournament copy);
+   (e) a natural at deal is not auto-resolved — Stand settles it through
+   the same table (unpinned shape, see item 4); (f) a stale
+   `active_tournament=blackjack` flag row (crash before settle) is
+   reclaimable by the next `!bjtournament` — the shipped boot flag-sweep
+   made the same call.
 4. **Natural-at-deal shape decision**: v1 renders the terminal table (all
    buttons disabled, result field) for a dealt natural; the shipped cog's
    exact natural-at-deal wire shape is unpinned by any golden — capture one
@@ -107,8 +138,8 @@ orchestration and two `_unmapped` sweeps remain.
 
 | sweep | replay | class |
 |---|---|---|
-| `sweep.bjstatus` | **GREEN** (this PR) | — (the shipped "No active tournament." copy was already ported; the daily-embed + disposition work removed the residual noise) |
-| `sweep.bjstart` | RED | `pending-terminal-copy` — golden says "No pending tournament."; v1 answers the honest pending terminal (tournament orchestration successor) |
-| `sweep.bjtournament` | RED | `tournament-orchestration-missing` — golden is the registration announce embed + `add_reaction` sign-up; needs the reaction seam (item 3) |
+| `sweep.bjstatus` | **GREEN** (solo-flip PR; re-homed `_unmapped`→`blackjack` by the tournament PR) | — (the shipped "No active tournament." copy — now answered from the in-memory tournament state, same bytes) |
+| `sweep.bjstart` | **GREEN** (tournament PR) | — was `pending-terminal-copy`; the shipped "No pending tournament." guard is now real behavior, re-homed into the gating dir |
+| `sweep.bjtournament` | **GREEN** (tournament PR) | — was `tournament-orchestration-missing`; the registration embed + 🃏 Join + ✅ primer + `active_tournament=blackjack` flag row are real behavior, re-homed into the gating dir |
 
-(Classes named per the phase-2 rps precedent; both reds resolve with item 3.)
+(Classes named per the phase-2 rps precedent; both reds resolved with item 3.)

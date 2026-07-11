@@ -2816,6 +2816,21 @@
           "value": "double"
         },
         {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "bj_join"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "tourn_hit"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "tourn_stand"
+        },
+        {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6_tower"
@@ -3683,6 +3698,21 @@
           "source": "sb/manifest/blackjack.py",
           "subsystem": "blackjack",
           "value": "blackjack.pvp"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack.registration"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack.tournament_table"
+        },
+        {
+          "source": "sb/manifest/blackjack.py",
+          "subsystem": "blackjack",
+          "value": "blackjack.tournament_results"
         },
         {
           "source": "sb/manifest/btd6.py",
@@ -5371,7 +5401,16 @@
       "handler:blackjack.render_pvp": {
         "module": "sb.domain.blackjack.panels"
       },
+      "handler:blackjack.render_registration": {
+        "module": "sb.domain.blackjack.panels"
+      },
+      "handler:blackjack.render_results": {
+        "module": "sb.domain.blackjack.panels"
+      },
       "handler:blackjack.render_table": {
+        "module": "sb.domain.blackjack.panels"
+      },
+      "handler:blackjack.render_tournament_table": {
         "module": "sb.domain.blackjack.panels"
       },
       "handler:blackjack.status_view": {
@@ -5380,11 +5419,23 @@
       "handler:blackjack.table_click": {
         "module": "sb.domain.blackjack.handlers"
       },
+      "handler:blackjack.tournament_click": {
+        "module": "sb.domain.blackjack.handlers"
+      },
+      "handler:blackjack.tournament_join": {
+        "module": "sb.domain.blackjack.handlers"
+      },
       "handler:blackjack.tournament_open_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:blackjack.tournament_open_route": {
+        "module": "sb.domain.blackjack.handlers"
+      },
       "handler:blackjack.tournament_start_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:blackjack.tournament_start_route": {
+        "module": "sb.domain.blackjack.handlers"
       },
       "handler:btd6.events_grounding_view": {
         "module": "sb.domain.btd6.service"
@@ -6139,7 +6190,16 @@
       "panel:blackjack.pvp": {
         "module": "sb.domain.blackjack.panels"
       },
+      "panel:blackjack.registration": {
+        "module": "sb.domain.blackjack.panels"
+      },
       "panel:blackjack.table": {
+        "module": "sb.domain.blackjack.panels"
+      },
+      "panel:blackjack.tournament_results": {
+        "module": "sb.domain.blackjack.panels"
+      },
+      "panel:blackjack.tournament_table": {
         "module": "sb.domain.blackjack.panels"
       },
       "panel:btd6.hub": {
@@ -6835,7 +6895,13 @@
       "workflow:blackjack.record_solo_start": {
         "module": "sb.domain.blackjack.ops"
       },
+      "workflow:blackjack.record_tournament_abort": {
+        "module": "sb.domain.blackjack.ops"
+      },
       "workflow:blackjack.record_tournament_enter": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.record_tournament_open": {
         "module": "sb.domain.blackjack.ops"
       },
       "workflow:blackjack.record_tournament_payout": {
@@ -6853,7 +6919,13 @@
       "workflow:blackjack.solo_start": {
         "module": "sb.domain.blackjack.ops"
       },
+      "workflow:blackjack.tournament_abort": {
+        "module": "sb.domain.blackjack.ops"
+      },
       "workflow:blackjack.tournament_enter": {
+        "module": "sb.domain.blackjack.ops"
+      },
+      "workflow:blackjack.tournament_open": {
         "module": "sb.domain.blackjack.ops"
       },
       "workflow:blackjack.tournament_payout": {
@@ -7904,7 +7976,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:03447c44728cb845dd0e41081d41cd0c8d655aac82947543b758e1c05686f71b",
+  "stable_hash": "sha256:213b14eef577d333f22ce95c81fc80f7ba824275b34b3a94a209ba81c5e1fcb9",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9799,10 +9871,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:blackjack.tournament_open_pending"
+            "$ref": "handler:blackjack.tournament_open_route"
           },
           "slash_common": false,
-          "summary": "Start a Blackjack tournament (registration + private round channels).",
+          "summary": "Start a Blackjack tournament (button + reaction registration).",
           "usage": "!bjtournament [entry_fee] [rounds] [mins]",
           "usage_weight": 1.0
         },
@@ -9822,7 +9894,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:blackjack.tournament_start_pending"
+            "$ref": "handler:blackjack.tournament_start_route"
           },
           "slash_common": false,
           "summary": "Manually start a pending Blackjack tournament early.",
@@ -10159,6 +10231,215 @@
           "subsystem": "blackjack",
           "timeout_s": 180,
           "title": "🃏 Blackjack Challenge!",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "bj_join",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🃏",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.tournament_join"
+              },
+              "label": "Join Tournament",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped registration embed's five field values are request-parameterized copy (fee/rounds/mins arguments + the live player count and pot — views/blackjack/embeds._tourn_embed); grammar TextBlocks are static. The Join button and its authority stay declared on the spec; the renderer composes the embed + the declared button and asks for the shipped ✅ self-reaction primer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bj_join"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "blackjack.registration",
+          "renderer_override": {
+            "$ref": "handler:blackjack.render_registration"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "blackjack",
+          "timeout_s": 310,
+          "title": "🃏 Blackjack Tournament — Registration Open",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "tourn_hit",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "👊",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.tournament_click"
+              },
+              "label": "Hit",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "tourn_stand",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:blackjack.tournament_click"
+              },
+              "label": "Stand",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped tournament round embed is game-state-parameterized copy (the _game_embed card fields plus the _finish_round `Chips: **N** | Rounds left: **N**` result field); grammar TextBlocks are static. Buttons and authority stay declared on the spec; the renderer only composes the embed + declared components with their state-derived disabled flags and the entrant's invoker lock.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tourn_hit",
+                    "tourn_stand"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "blackjack.tournament_table",
+          "renderer_override": {
+            "$ref": "handler:blackjack.render_tournament_table"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "blackjack",
+          "timeout_s": 180,
+          "title": "🃏 Blackjack Tournament",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "channel_anchor",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "every line of the shipped results embed is tournament-parameterized copy (medal icons, member names, chip counts, the payout amount/balance field — views/blackjack/tournament_views._check_tourn_done); grammar TextBlocks are static, and the frame carries zero components.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "blackjack.tournament_results",
+          "renderer_override": {
+            "$ref": "handler:blackjack.render_results"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "blackjack",
+          "timeout_s": 180,
+          "title": "🏆 Blackjack Tournament Results",
           "usage_weight": 1.0
         }
       ],
