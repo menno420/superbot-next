@@ -1,8 +1,492 @@
 {
  "entries": {
+  "diagnostic:access:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:anchors:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:automation:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:backfill:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:bindings:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:caches:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:cleanup-preview:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:command-access:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:consistency:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:counting-health:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:customization:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:diagnostic.automation_panel:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "pf_auto_rule"
+      ],
+      [
+       "pf_auto_enable",
+       "pf_auto_disable",
+       "pf_auto_delete",
+       "pf_auto_refresh"
+      ]
+     ]
+    }
+   ]
+  },
+  "diagnostic:diagnostic.automation_panel:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "pf_auto_rule"
+    ],
+    [
+     "pf_auto_enable",
+     "pf_auto_disable",
+     "pf_auto_delete",
+     "pf_auto_refresh"
+    ]
+   ]
+  },
+  "diagnostic:diagnostic.automation_panel:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "pf_auto_rule"
+       ],
+       [
+        "pf_auto_enable",
+        "pf_auto_disable",
+        "pf_auto_delete",
+        "pf_auto_refresh"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "diagnostic:diagnostic.flag_manager:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "pf_flag_pick"
+      ],
+      [
+       "pf_flag_enable",
+       "pf_flag_disable",
+       "pf_flag_refresh"
+      ],
+      [
+       "pf_flag_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "diagnostic:diagnostic.flag_manager:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "pf_flag_pick"
+    ],
+    [
+     "pf_flag_enable",
+     "pf_flag_disable",
+     "pf_flag_refresh"
+    ],
+    [
+     "pf_flag_back"
+    ]
+   ]
+  },
+  "diagnostic:diagnostic.flag_manager:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "pf_flag_pick"
+       ],
+       [
+        "pf_flag_enable",
+        "pf_flag_disable",
+        "pf_flag_refresh"
+       ],
+       [
+        "pf_flag_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "diagnostic:diagnostic.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "diag_status",
+       "diag_latency",
+       "diag_sysinfo"
+      ],
+      [
+       "diag_database",
+       "diag_json",
+       "diag_commands"
+      ],
+      [
+       "diag_errors",
+       "diag_notify"
+      ]
+     ]
+    }
+   ]
+  },
+  "diagnostic:diagnostic.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "diag_status",
+     "diag_latency",
+     "diag_sysinfo"
+    ],
+    [
+     "diag_database",
+     "diag_json",
+     "diag_commands"
+    ],
+    [
+     "diag_errors",
+     "diag_notify"
+    ]
+   ]
+  },
+  "diagnostic:diagnostic.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "diag_status",
+        "diag_latency",
+        "diag_sysinfo"
+       ],
+       [
+        "diag_database",
+        "diag_json",
+        "diag_commands"
+       ],
+       [
+        "diag_errors",
+        "diag_notify"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "diagnostic:diagnostic.platform_hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "pf_runtime"
+      ],
+      [
+       "pf_catalogues"
+      ],
+      [
+       "pf_resources"
+      ],
+      [
+       "pf_validation"
+      ],
+      [
+       "pf_overview",
+       "pf_flag_manager"
+      ]
+     ]
+    }
+   ]
+  },
+  "diagnostic:diagnostic.platform_hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "pf_runtime"
+    ],
+    [
+     "pf_catalogues"
+    ],
+    [
+     "pf_resources"
+    ],
+    [
+     "pf_validation"
+    ],
+    [
+     "pf_overview",
+     "pf_flag_manager"
+    ]
+   ]
+  },
+  "diagnostic:diagnostic.platform_hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "pf_runtime"
+       ],
+       [
+        "pf_catalogues"
+       ],
+       [
+        "pf_resources"
+       ],
+       [
+        "pf_validation"
+       ],
+       [
+        "pf_overview",
+        "pf_flag_manager"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "diagnostic:diagnostics:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:economy:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:economytrend:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:finding:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:findings:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:flag:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:flags:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:identity:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:latency:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:lifecycle:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:locks:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:media:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:migrations:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:participation-schemas:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:platform:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:provisioning:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:resource-requirements:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:resources:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:schemas:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:sessions:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:setting:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:settings-registry:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:setup-readiness:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:tasks:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:views:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   }

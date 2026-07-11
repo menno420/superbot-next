@@ -919,8 +919,183 @@
   "diagnostic": [
    {
     "aliases": [],
+    "group": "platform",
+    "name": "access"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "anchors"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "automation"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "backfill"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "bindings"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "caches"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "cleanup-preview"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "command-access"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "consistency"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "counting-health"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "customization"
+   },
+   {
+    "aliases": [],
     "group": "",
     "name": "diagnostics"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "economy"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "economytrend"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "finding"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "findings"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "flag"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "flags"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "identity"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "latency"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "lifecycle"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "locks"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "media"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "migrations"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "participation-schemas"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "platform"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "provisioning"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "resource-requirements"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "resources"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "schemas"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "sessions"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "setting"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "settings-registry"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "setup-readiness"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "tasks"
+   },
+   {
+    "aliases": [],
+    "group": "platform",
+    "name": "views"
    }
   ],
   "economy": [
@@ -2125,6 +2300,11 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
+  "flag_manager:back",
+  "flag_manager:disable",
+  "flag_manager:enable",
+  "flag_manager:refresh",
+  "flag_manager:select",
   "general.eightball_form",
   "help:back",
   "help_categories:select",
@@ -2155,6 +2335,12 @@
   "moderation.timeout_form",
   "moderation.unban_form",
   "moderation.warn_form",
+  "platform_hub.catalogues",
+  "platform_hub.flag_manager",
+  "platform_hub.overview",
+  "platform_hub.resources",
+  "platform_hub.runtime",
+  "platform_hub.validation",
   "proof_channel.grant_form",
   "proof_channel.timed_form",
   "role:create",

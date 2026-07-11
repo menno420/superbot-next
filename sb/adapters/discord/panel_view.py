@@ -71,6 +71,16 @@ def build_embed(rendered: RenderedPanel):
         embed.set_thumbnail(url=e.thumbnail_ref)
     if getattr(e, "image_url", ""):
         embed.set_image(url=e.image_url)
+    if getattr(e, "timestamp", ""):
+        # the ISO-8601 string the kernel carries (RenderedEmbed.timestamp) —
+        # the parity twin serializes it verbatim; here it becomes the native
+        # datetime discord.py stamps on the wire.
+        import datetime as _dt
+
+        try:
+            embed.timestamp = _dt.datetime.fromisoformat(e.timestamp)
+        except ValueError:
+            pass  # a malformed stamp degrades to no timestamp, never a crash
     return embed
 
 
