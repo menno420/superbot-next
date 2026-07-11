@@ -89,6 +89,17 @@ def _register() -> None:
         return Reply(BLOCKED, "Server stats need the live gateway cache — "
                               "not armed in this build yet.")
 
+    # the shipped Reload All button reloaded every discord.py extension
+    # in-process — deploy-ops (the _sweep_skips unloadall class), so the
+    # hub click lands on the declared + honest pending terminal (the
+    # server_management precedent; no golden drives the click).
+    from sb.domain.operator_spine import pending_handler
+
+    pending_handler("admin.reload_all_pending",
+                    "🔄 Reload All is deploy-ops in the compiled "
+                    "architecture — subsystems recompile at boot, not "
+                    "in-process.")
+
 
 _register()
 

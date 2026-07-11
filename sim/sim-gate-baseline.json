@@ -1,5 +1,105 @@
 {
  "assignments": {
+  "admin:admin.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: admin parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "server_stats",
+       "cog_list",
+       "reload_all",
+       "log_level"
+      ],
+      [
+       "admin_settings",
+       "admin_sm",
+       "admin_channels",
+       "admin_ai"
+      ],
+      [
+       "admin_platform",
+       "admin_diagnostics",
+       "admin_uxlab",
+       "admin_logging",
+       "admin_cleanup"
+      ],
+      [
+       "admin_help",
+       "admin_overview"
+      ]
+     ]
+    }
+   ]
+  },
+  "admin:admin.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: admin parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "server_stats",
+     "cog_list",
+     "reload_all",
+     "log_level"
+    ],
+    [
+     "admin_settings",
+     "admin_sm",
+     "admin_channels",
+     "admin_ai"
+    ],
+    [
+     "admin_platform",
+     "admin_diagnostics",
+     "admin_uxlab",
+     "admin_logging",
+     "admin_cleanup"
+    ],
+    [
+     "admin_help",
+     "admin_overview"
+    ]
+   ]
+  },
+  "admin:admin.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: admin parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "server_stats",
+        "cog_list",
+        "reload_all",
+        "log_level"
+       ],
+       [
+        "admin_settings",
+        "admin_sm",
+        "admin_channels",
+        "admin_ai"
+       ],
+       [
+        "admin_platform",
+        "admin_diagnostics",
+        "admin_uxlab",
+        "admin_logging",
+        "admin_cleanup"
+       ],
+       [
+        "admin_help",
+        "admin_overview"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "admin:admin:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
