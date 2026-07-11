@@ -298,6 +298,33 @@ depth:
           runtime ingress (command/slash/click/modal, ported or shipped)
           writes the table; the row dies when a guild-authored
           profile-mutation lane ships (D-0071)"
+      # the tool-orchestration advisory events (the orchestration-mutation
+      # slice, D-0072): the shipped writes sit behind run-minted PROFILE
+      # select picks (views/ai/tools/scope_view.py _ProfileSelect — the
+      # tools chooser exposed NO command twin), and D-0064's
+      # structural-unreachability test is re-argued per row: a session
+      # select pick carries the profile-key VALUE the imported click
+      # schema does not (cases reconstruct static custom_ids only) and
+      # the run-minted select ids normalize to <cid:N> at import, so no
+      # golden can drive the write. The tables the channel/category
+      # writes land on (ai_channel_policy / ai_category_policy) are
+      # already exempted above; the guild write's KV home rides the
+      # kernel-owned guild_settings coverage.
+      - surface: "event:ai.orchestration.guild_changed"
+        reason: "select-driven: emitted only by the
+          ai.set_guild_orchestration op the tools guild-picker's
+          run-minted profile-select PICK runs (D-0064 re-argued; no
+          command twin shipped)"
+      - surface: "event:ai.orchestration.channel_changed"
+        reason: "select-driven: emitted only by the
+          ai.set_channel_orchestration op the tools profile-select PICK
+          runs behind the channel scope pick (D-0064 re-argued; no
+          command twin shipped)"
+      - surface: "event:ai.orchestration.category_changed"
+        reason: "select-driven: emitted only by the
+          ai.set_category_orchestration op the tools profile-select PICK
+          runs behind the category scope pick (D-0064 re-argued; no
+          command twin shipped)"
     btd6:
       - surface: "table:btd6_strategies"
         reason: "modal-driven: the shipped strategy write flow is the

@@ -2124,6 +2124,18 @@
   ]
  },
  "event_payloads": {
+  "ai.orchestration.category_changed": [
+   "guild_id",
+   "mutation_id"
+  ],
+  "ai.orchestration.channel_changed": [
+   "guild_id",
+   "mutation_id"
+  ],
+  "ai.orchestration.guild_changed": [
+   "guild_id",
+   "mutation_id"
+  ],
   "ai.policy.category_changed": [
    "guild_id",
    "mutation_id"

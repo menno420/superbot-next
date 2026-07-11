@@ -28,13 +28,23 @@
   "Administrator-only · ephemeral follow-up." footer) over the shipped
   button rows; the Behavior "Advanced" button routes to the policy
   chooser (the shipped punt) and every ↩ AI home back-route rebuilds the
-  hub fresh. The POLICY chooser's scope pickers are LIVE (below), and so
-  are the BEHAVIOR preset pickers (the behavior-preset slice, D-0071 —
-  channel/category/preview + the preset picker below); the behavior
-  ROUTING-MATRIX picker (views/ai/routing/matrix.py) and the tools
-  profile pickers are the routing-matrix / orchestration-mutation
-  slices' ports — honest pending terminals meanwhile
+  hub fresh. The POLICY chooser's scope pickers are LIVE (below), the
+  BEHAVIOR preset pickers too (the behavior-preset slice, D-0071 —
+  channel/category/preview + the preset picker below), and so are the
+  TOOLS profile pickers (the orchestration-mutation slice, D-0072 —
+  guild/channel/category/preview below); the behavior ROUTING-MATRIX
+  picker (views/ai/routing/matrix.py) is the routing-matrix follow-up
+  slice's port — an honest pending terminal meanwhile
   (settings_widgets.py `chooser_scope_pending`).
+* ``ai.tools_guild_picker`` / ``ai.tools_channel_picker`` /
+  ``ai.tools_category_picker`` / ``ai.tools_profile_picker`` /
+  ``ai.tools_preview_picker`` — the shipped TOOLS profile pickers
+  (views/ai/tools/{scope_view,preview_view}.py, the
+  orchestration-mutation slice): guild picks a profile directly, channel/
+  category pick a target then a profile (Clear (inherit) included), every
+  write ONE audited ``ai.set_*_orchestration`` op, and the preview is the
+  shipped dry-run analyzer (sb/domain/ai/orchestration_widgets.py owns
+  the routes; D-0072 ledgers the engine-shape deviations).
 * ``ai.policy_channel_picker`` / ``ai.policy_category_picker`` /
   ``ai.policy_role_picker`` / ``ai.policy_preview_picker`` /
   ``ai.policy_scope_edit`` / ``ai.policy_role_edit`` /
@@ -118,7 +128,12 @@ __all__ = [
     "ai_settings_edit_presets_spec",
     "ai_settings_edit_text_spec",
     "ai_settings_spec",
+    "ai_tools_category_picker_spec",
+    "ai_tools_channel_picker_spec",
     "ai_tools_chooser_spec",
+    "ai_tools_guild_picker_spec",
+    "ai_tools_preview_picker_spec",
+    "ai_tools_profile_picker_spec",
     "ensure_panel_refs",
     "install_ai_panels",
 ]
@@ -384,10 +399,12 @@ def ai_behavior_chooser_spec() -> PanelSpec:
 async def _tools_chooser_fields(ctx):
     """The shipped build_tools_embed field rows + the best-effort
     "Current" decoration (the shipped panel entry read the
-    ai_config_projection snapshot best-effort; the KV port's guild
-    orchestration key rides the SAME seam the K10 profile-key reader
-    serves — typed channel/category overlays are a later slice, so the
-    counts are the shipped fresh-guild zeros)."""
+    ai_config_projection snapshot best-effort:
+    ``orchestration.guild_profile_key`` + the channel/category override
+    COUNTS — here the orchestration-mutation slice's real stores, the
+    guild KV row + the typed columns' non-NULL counts; each read is
+    per-part fail-soft so a DB-free root keeps the shipped fresh-guild
+    bytes)."""
     fields = [
         ("Guild / Channel / Category",
          "Bind a built-in orchestration profile at a scope. Channel wins "
@@ -397,18 +414,25 @@ async def _tools_chooser_fields(ctx):
          "withheld tools (with reason codes), and the loop budget — no "
          "provider call."),
     ]
-    try:
-        from sb.kernel import settings as ksettings
+    from sb.domain.ai import policy_store, readers
 
-        guild_key = await ksettings.resolve(
-            int(ctx.guild_id or 0), "ai", "guild_instruction_profile")
-        key = str(guild_key) if guild_key else "compatible_default (today)"
-        fields.append((
-            "Current",
-            f"guild default: `{key}`\n"
-            "overrides: 0 channel · 0 category"))
-    except Exception:  # noqa: BLE001 — the shipped chooser renders its
-        pass           # static intro when the snapshot read fails
+    # the guild default EXACTLY as the K10 reader serves it (KV row when
+    # ever written, band-1 fallback otherwise — the codex #187 P2: the
+    # decoration must mirror the resolver, the shipped single-source
+    # posture); the helper is fail-safe (None on any miss).
+    guild_key = await readers.guild_orchestration_default(
+        int(ctx.guild_id or 0))
+    channels, categories = {}, {}
+    try:
+        channels, categories = await policy_store.load_orchestration_overlays(
+            int(ctx.guild_id or 0))
+    except Exception:  # noqa: BLE001 — a count miss keeps the shipped
+        pass           # fresh-guild zeros
+    key = str(guild_key) if guild_key else "compatible_default (today)"
+    fields.append((
+        "Current",
+        f"guild default: `{key}`\n"
+        f"overrides: {len(channels)} channel · {len(categories)} category"))
     return tuple(fields)
 
 
@@ -431,12 +455,18 @@ def ai_tools_chooser_spec() -> PanelSpec:
                   "inherits today's behaviour until you set a profile."),
               FieldsBlock(provider=ProviderRef("ai.tools_chooser_fields"))),
         actions=(
-            _scope_action("tools_guild", "Guild", ActionStyle.PRIMARY),
-            _scope_action("tools_channel", "Channel", ActionStyle.PRIMARY),
+            # the orchestration-mutation slice: every scope button opens
+            # its shipped picker page (the shipped edit_message swap).
+            _scope_action("tools_guild", "Guild", ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.tools_guild_picker")),
+            _scope_action("tools_channel", "Channel", ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.tools_channel_picker")),
             _scope_action("tools_category", "Category",
-                          ActionStyle.PRIMARY),
+                          ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.tools_category_picker")),
             _scope_action("tools_preview", "Preview (dry-run)",
-                          ActionStyle.SECONDARY),
+                          ActionStyle.SECONDARY,
+                          handler=PanelRef("ai.tools_preview_picker")),
         ),
         navigation=NavigationSpec(
             show_help=False, show_home=False,
@@ -809,6 +839,119 @@ def ai_behavior_preset_picker_spec() -> PanelSpec:
             "replaces ONLY description + fields."),
         layout=LayoutSpec(pages=(PageSpec(
             rows=(("behavior_preset_pick",),)),)),
+    )
+
+
+# --- the TOOLS PROFILE PICKER pages (views/ai/tools/* — the
+# --- orchestration-mutation slice; sb/domain/ai/orchestration_widgets.py
+# --- owns the routes; the shipped _tools_page_embed footer byte is the
+# --- SAME 'Administrator-only · in-place navigation.' literal, so the
+# --- pages ride ai.render_policy_picker) --------------------------------------
+
+#: every tools page's shipped "↩ AI Tools" back-route
+#: (chooser.py _add_back_to_tools, label verbatim).
+_BACK_TO_TOOLS = NavigationSpec(
+    show_help=False, show_home=False,
+    extra_routes=(NavRouteSpec(label="↩ AI Tools",
+                               route=PanelRef("ai.tools_chooser")),))
+
+
+def ai_tools_guild_picker_spec() -> PanelSpec:
+    """The shipped GuildToolsProfileView page ("Tools · guild default"):
+    the page IS the profile select — no target pick, NO clear option
+    (the shipped ``_profile_options(include_clear=scope != "guild")``);
+    the pick handler defaults to scope=guild / label "the guild"."""
+    return _policy_picker_spec(
+        "ai.tools_guild_picker",
+        title="Tools · guild default",
+        instruction="Pick the guild-default orchestration profile.",
+        kind=SelectorKind.ENUM,
+        provider_name="ai.orchestration_profile_options",
+        placeholder="Pick an orchestration profile…",
+        on_select="ai.tools_profile_pick",
+        selector_id="tools_guild_profile_pick",
+        navigation=_BACK_TO_TOOLS)
+
+
+def ai_tools_channel_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.tools_channel_picker",
+        title="Tools · channel",
+        instruction="Pick a channel — the next step lists the "
+                    "orchestration profiles.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel to configure…",
+        on_select="ai.tools_channel_pick",
+        selector_id="tools_channel_scope_pick",
+        navigation=_BACK_TO_TOOLS)
+
+
+def ai_tools_category_picker_spec() -> PanelSpec:
+    """The shipped _CategoryPickSelect was a native category-typed
+    ChannelSelect — the D-0070(a) ledgered engine lane renders it as the
+    roster-fed string select capped at 25 (the policy/behavior category
+    pickers' exact deviation)."""
+    return _policy_picker_spec(
+        "ai.tools_category_picker",
+        title="Tools · category",
+        instruction="Pick a category — the next step lists the "
+                    "orchestration profiles.",
+        kind=SelectorKind.ENTITY,
+        provider_name="ai.policy_category_options",
+        placeholder="Pick a category to configure…",
+        on_select="ai.tools_category_pick",
+        selector_id="tools_category_scope_pick",
+        navigation=_BACK_TO_TOOLS)
+
+
+def ai_tools_preview_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.tools_preview_picker",
+        title="Tools · preview (dry-run)",
+        instruction="Pick a channel to preview the resolved AI tool "
+                    "orchestration.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel to preview…",
+        on_select="ai.tools_preview_pick",
+        selector_id="tools_preview_pick",
+        navigation=_BACK_TO_TOOLS)
+
+
+def ai_tools_profile_picker_spec() -> PanelSpec:
+    """The channel/category step-2 profile choice — the shipped
+    _ProfileChoiceView was a plain ephemeral CONTENT message ("Pick an
+    orchestration profile for {label}.") over the one select; the page's
+    per-open prompt rides the renderer override (the D-0066 class) and
+    the roster carries the shipped Clear (inherit) option."""
+    return PanelSpec(
+        panel_id="ai.tools_profile_picker",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="tools_profile_pick",
+                kind=SelectorKind.ENUM,
+                options_source=ProviderRef(
+                    "ai.orchestration_profile_options_clear"),
+                placeholder="Pick an orchestration profile…",
+                audience_tier="staff",
+                on_select=HandlerRef("ai.tools_profile_pick")),
+        ),
+        navigation=_BACK_TO_TOOLS,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_tools_profile"),
+        justification=(
+            "the shipped profile choice carried a PER-OPEN prompt with "
+            "the picked target ('Pick an orchestration profile for "
+            "{label}.' — views/ai/tools/scope_view.py's send_message "
+            "content) — per-render copy outside the static grammar. The "
+            "override delegates to the grammar renderer and supplies "
+            "ONLY the description + the shipped tools-page footer."),
+        layout=LayoutSpec(pages=(PageSpec(
+            rows=(("tools_profile_pick",),)),)),
     )
 
 
@@ -1249,6 +1392,22 @@ async def _render_policy_picker(spec: PanelSpec, ctx) -> object:
                                          footer=_POLICY_PAGE_FOOTER))
 
 
+async def _render_tools_profile(spec: PanelSpec, ctx) -> object:
+    """The tools profile-choice page: the shipped per-open prompt ('Pick
+    an orchestration profile for {label}.' — the _ProfileChoiceView
+    content byte) + the shipped tools-page footer."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    label = str((ctx.params or {}).get("tools_target_label")
+                or "the picked scope")
+    description = f"Pick an orchestration profile for {label}."
+    return _dc_replace(
+        rendered,
+        embed=_dc_replace(rendered.embed, description=description,
+                          footer=_POLICY_PAGE_FOOTER))
+
+
 async def _render_behavior_preset(spec: PanelSpec, ctx) -> object:
     """The shipped build_preset_picker_embed page: the scope_label
     description + one catalog field per preset (name='`{key}` ·
@@ -1380,6 +1539,14 @@ _SPECS = {
     "ai.behavior_category_picker": ai_behavior_category_picker_spec,
     "ai.behavior_preview_picker": ai_behavior_preview_picker_spec,
     "ai.behavior_preset_picker": ai_behavior_preset_picker_spec,
+    # the orchestration-mutation slice (D-0072): the shipped tools scope
+    # pickers, the step-2 profile choice and the dry-run preview
+    # (views/ai/tools/*).
+    "ai.tools_guild_picker": ai_tools_guild_picker_spec,
+    "ai.tools_channel_picker": ai_tools_channel_picker_spec,
+    "ai.tools_category_picker": ai_tools_category_picker_spec,
+    "ai.tools_profile_picker": ai_tools_profile_picker_spec,
+    "ai.tools_preview_picker": ai_tools_preview_picker_spec,
 }
 
 _RENDERERS = {
@@ -1394,6 +1561,7 @@ _RENDERERS = {
     "ai.render_policy_edit": _render_policy_edit,
     "ai.render_policy_list": _render_policy_list,
     "ai.render_behavior_preset": _render_behavior_preset,
+    "ai.render_tools_profile": _render_tools_profile,
 }
 
 _PROVIDERS = {
