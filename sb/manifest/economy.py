@@ -21,6 +21,7 @@ from sb.domain.economy.store import (
     JOB_PROGRESS_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec, CooldownSpec
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.events import DeliveryClass, EventSpec, FieldSpec, register_event_specs
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef, WorkflowRef
@@ -70,10 +71,13 @@ _SETTINGS = (
 
 def _cmd(name: str, route, *, kind: CommandKind = CommandKind.PREFIX,
          aliases: tuple[str, ...] = (), cooldown: CooldownSpec | None = None,
-         tier: str = "user", summary: str = "", usage: str = "") -> CommandSpec:
+         tier: str = "user", summary: str = "", usage: str = "",
+         defer_mode: DeferMode | None = None,
+         reply_visibility: ReplyVisibility | None = None) -> CommandSpec:
     return CommandSpec(name=name, kind=kind, route=route, aliases=aliases,
                        cooldown=cooldown, audience_tier=tier, summary=summary,
-                       usage=usage, capability="economy")
+                       usage=usage, capability="economy",
+                       defer_mode=defer_mode, reply_visibility=reply_visibility)
 
 
 MANIFEST = SubsystemManifest(
@@ -84,7 +88,14 @@ MANIFEST = SubsystemManifest(
              cooldown=CooldownSpec(rate=3, per_s=10),
              summary="Open the interactive economy control panel.",
              usage="!economymenu"),
+        # the shipped slash front door DEFERRED ephemeral then followed up
+        # (economy_cog.economy_slash: safe_defer + safe_followup —
+        # goldens/economy/sweep_slash_economy pins the type-5 flags-64 ack
+        # + the flags-64 followup), hence AUTO + EPHEMERAL instead of the
+        # slash-panel type-4 default.
         _cmd("economy", PanelRef("economy.hub"), kind=CommandKind.SLASH,
+             defer_mode=DeferMode.AUTO,
+             reply_visibility=ReplyVisibility.EPHEMERAL,
              summary="Open the Economy hub (daily, work, shop, balance).",
              usage="/economy"),
         # the shipped Daily Reward EMBED rides the handler (runs the same
@@ -95,10 +106,12 @@ MANIFEST = SubsystemManifest(
              summary="Claim your daily reward. Higher streaks unlock "
                      "better odds!",
              usage="!daily"),
+        # shipped economy_cog.work took NO argument — the job pick is the
+        # Job Center dropdown only.
         _cmd("work", HandlerRef("economy.work_view"),
              cooldown=CooldownSpec(rate=2, per_s=5),
              summary="Work a job and earn coins + XP (1 h cooldown).",
-             usage="!work [job]"),
+             usage="!work"),
         # panel-action slice: !shop opens the interactive shop panel (the
         # shipped _ShopView flow); the economy.shop_view text handler stays
         # registered as the NL/read fallback.
@@ -121,7 +134,8 @@ MANIFEST = SubsystemManifest(
              usage="!joblist"),
     ),
     panels=(_panels.economy_hub_spec(), _panels.jobcenter_spec(),
-            _panels.shop_panel_spec(), _panels.daily_card_spec()),
+            _panels.shop_panel_spec(), _panels.daily_card_spec(),
+            _panels.wallet_card_spec()),
     settings=_SETTINGS,
     stores=(ECONOMY_BALANCES_STORE, ECONOMY_AUDIT_STORE, ECONOMY_TRACK_STORE,
             JOB_PROGRESS_STORE, INVENTORY_STORE),

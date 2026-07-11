@@ -4296,6 +4296,11 @@
           "value": "economy.daily_card"
         },
         {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.wallet_card"
+        },
+        {
           "source": "sb/manifest/farm.py",
           "subsystem": "farm",
           "value": "farm.hub"
@@ -6322,6 +6327,15 @@
       "handler:economy.render_daily_card": {
         "module": "sb.domain.economy.panels"
       },
+      "handler:economy.render_hub": {
+        "module": "sb.domain.economy.panels"
+      },
+      "handler:economy.render_jobcenter": {
+        "module": "sb.domain.economy.panels"
+      },
+      "handler:economy.render_wallet_card": {
+        "module": "sb.domain.economy.panels"
+      },
       "handler:economy.setlogchannel": {
         "module": "sb.domain.economy.handlers"
       },
@@ -7010,6 +7024,9 @@
         "module": "sb.domain.economy.panels"
       },
       "panel:economy.shop_panel": {
+        "module": "sb.domain.economy.panels"
+      },
+      "panel:economy.wallet_card": {
         "module": "sb.domain.economy.panels"
       },
       "panel:farm.hub": {
@@ -8762,7 +8779,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:216a6105f69bb01b2e9e045aba010dc26ac163a1bf7cad79f3d6e129a6c726a7",
+  "stable_hash": "sha256:062089ad38460b95dc37b5da8bb1858245feb39465fc2ec0179d83bf425c50fa",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -17650,14 +17667,14 @@
           "capability_required": "",
           "cooldown": null,
           "cost_posture": "free",
-          "defer_mode": null,
+          "defer_mode": "auto",
           "enabled_when": "",
           "group": "",
           "help_section_order": 0,
           "kind": "slash",
           "name": "economy",
           "quota_ref": "",
-          "reply_visibility": null,
+          "reply_visibility": "ephemeral",
           "route": {
             "$ref": "panel:economy.hub"
           },
@@ -17717,7 +17734,7 @@
           },
           "slash_common": false,
           "summary": "Work a job and earn coins + XP (1 h cooldown).",
-          "usage": "!work [job]",
+          "usage": "!work",
           "usage_weight": 1.0
         },
         {
@@ -17926,12 +17943,12 @@
               "custom_id_override": "economy:daily",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🎁",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "workflow:economy.daily"
               },
-              "label": "Daily",
+              "label": "🎁 Daily",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -17950,12 +17967,12 @@
               "custom_id_override": "economy:work",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "💼",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:economy.jobcenter"
               },
-              "label": "Work",
+              "label": "💼 Work",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -17974,12 +17991,12 @@
               "custom_id_override": "economy:shop",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🛒",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:economy.shop_panel"
               },
-              "label": "Shop",
+              "label": "🛒 Shop",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -17998,12 +18015,12 @@
               "custom_id_override": "economy:balance",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "💰",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:economy.balance_view"
               },
-              "label": "Balance",
+              "label": "💰 Balance",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18022,12 +18039,12 @@
               "custom_id_override": "economy:inventory",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🎒",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:inventory.hub"
               },
-              "label": "Inventory",
+              "label": "🎒 Inventory",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18046,12 +18063,12 @@
               "custom_id_override": "economy:jobs",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "📋",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:economy.joblist_view"
               },
-              "label": "Jobs",
+              "label": "📋 Jobs",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18070,12 +18087,12 @@
               "custom_id_override": "economy:treasury",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🏛️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:treasury.hub"
               },
-              "label": "Treasury",
+              "label": "🏛️ Treasury",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18094,12 +18111,12 @@
               "custom_id_override": "economy:overview",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "↩",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:economy.hub"
               },
-              "label": "Overview",
+              "label": "↩ Overview",
               "modal": null,
               "result_card": null,
               "result_render": "refresh_panel",
@@ -18125,12 +18142,12 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "gold",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped Economy Panel embed (services/economy_helpers.py _build_economy_embed) is state-dependent copy the grammar cannot express; the override delegates the COMPONENTS to render_panel (declared actions/nav untouched) and adjusts the EMBED surfaces only: the invoker author line (set_author(display_name, avatar)), the five INLINE stat fields (🪙 Coins / 🏆 Level / 🔥 Daily Streak and the cooldown-derived 🎁 Daily / 💼 Work '✅ Available!'-or-⏰ values), the footer literal ('Use the buttons below to take actions.'), and drops the grammar description (the shipped embed had none). The open ALSO runs the shipped ensure_and_get_economy read-that-writes (the goldens pin the zero-row economy db_delta on every hub open).",
           "layout": {
             "pages": [
               {
@@ -18163,12 +18180,14 @@
             "show_rules": false
           },
           "panel_id": "economy.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:economy.render_hub"
+          },
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "economy",
           "timeout_s": 180,
-          "title": "Economy",
+          "title": "💰 Economy Panel",
           "usage_weight": 1.0
         },
         {
@@ -18189,12 +18208,12 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blue",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped Job Center embed (economy_cog.work) mixes grammar and non-grammar surfaces; the override delegates the COMPONENTS to render_panel (the declared selector, options provider untouched) and adjusts the EMBED only: the two INLINE stat fields (Level / Coins — grammar fields render non-inline), the footer literal ('Pick a job from the dropdown.'), keeping the grammar TextBlock description verbatim.",
           "layout": {
             "pages": [
               {
@@ -18210,15 +18229,15 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:economy.hub"
-            },
-            "show_help": true,
-            "show_home": true,
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "economy.jobcenter",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:economy.render_jobcenter"
+          },
           "selectors": [
             {
               "audience_tier": "user",
@@ -18241,7 +18260,7 @@
               "usage_weight": 1.0
             }
           ],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "economy",
           "timeout_s": 180,
           "title": "💼 Job Center",
@@ -18365,6 +18384,48 @@
           "subsystem": "economy",
           "timeout_s": 180,
           "title": "🎁 Daily Reward",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Wallet embed is read-parameterized on every surface (the target-member title '💰 <name>'s Wallet', the avatar thumbnail, two INLINE stat fields with the bolded coin count — cogs/economy_cog.py balance); grammar TextBlocks are static and grammar fields render non-inline. The card declares no components; the renderer only composes the embed.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "economy.wallet_card",
+          "renderer_override": {
+            "$ref": "handler:economy.render_wallet_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "economy",
+          "timeout_s": 180,
+          "title": "💰 Wallet",
           "usage_weight": 1.0
         }
       ],
