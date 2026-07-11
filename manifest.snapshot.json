@@ -8573,6 +8573,9 @@
       "handler:ticket.ticketlimit": {
         "module": "sb.domain.ticket.handlers"
       },
+      "handler:treasury.render_hub": {
+        "module": "sb.domain.treasury.panels"
+      },
       "handler:utility.avatar_card_render": {
         "module": "sb.domain.utility.panels"
       },
@@ -10917,7 +10920,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:bb94c587fc6c64c52afaae5ca6728e19f48747338da5fbd5fe9a7577a71e315d",
+  "stable_hash": "sha256:90f3cce2137fb813a617140a7fb48c659b0ec8d6bd58ab51925a3fbdbbf54a25",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -42753,12 +42756,12 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "gold",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped panel footer is the literal '➕ Contribute · 🔄 Refresh' (disbot/cogs/treasury_cog.py TreasuryView set_footer) — outside FooterMode's none/subsystem/provenance vocabulary — and both fields render inline=True (the shipped add_field calls) — outside the grammar's vocabulary (2-tuple fields render inline=False). parity/goldens/treasury/sweep_treasury.json pins both bytes (the cleanup-hub precedent). The override delegates to the grammar renderer and adjusts ONLY those two surfaces; body, fields, actions and layout stay declared.",
           "layout": {
             "pages": [
               {
@@ -42776,14 +42779,16 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "treasury.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:treasury.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "treasury",
           "timeout_s": 180,
           "title": "🏛️ Server Treasury",

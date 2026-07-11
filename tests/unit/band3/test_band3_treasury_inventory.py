@@ -245,3 +245,67 @@ def test_manifests_validate():
     assert by_name["contribute"].qualified_name == "treasury contribute"
     assert by_name["grant"].audience_tier == "staff"
     assert {s.table for s in m_tre.MANIFEST.stores} == {"guild_treasury"}
+
+
+# --- treasury.hub panel: golden-pinned bytes (parity/goldens/treasury/
+# sweep_treasury.json) -------------------------------------------------------------
+
+
+def test_treasury_hub_spec_shape_matches_the_golden():
+    from sb.domain.treasury.panels import treasury_hub_spec
+    from sb.kernel.panels.compile import check_panel
+    from sb.spec.panels import ActionStyle, Audience, FooterMode
+
+    spec = treasury_hub_spec()
+    check_panel(spec)                              # the compile fences hold
+    assert spec.panel_id == "treasury.hub"
+    assert spec.title == "🏛️ Server Treasury"
+    assert spec.audience is Audience.INVOKER
+    assert spec.frame.style_token == "gold"         # the shipped ECONOMY_COLOR
+    assert spec.frame.footer_mode is FooterMode.NONE
+    # run-minted ids, no nav row, no panel_anchors row (the shipped
+    # ctx-bound TreasuryView carried only its own two buttons).
+    assert spec.session_lifecycle is True
+    assert spec.navigation.show_help is False
+    assert spec.navigation.show_home is False
+
+    by_id = {a.action_id: a for a in spec.actions}
+    assert set(by_id) == {"contribute", "refresh"}
+    assert (by_id["contribute"].label, by_id["contribute"].emoji,
+            by_id["contribute"].style) == ("Contribute", "➕",
+                                           ActionStyle.SUCCESS)
+    assert (by_id["refresh"].label, by_id["refresh"].emoji) == (
+        "Refresh", "🔄")
+    assert by_id["contribute"].custom_id_override == ""
+    assert by_id["refresh"].custom_id_override == ""
+    assert spec.layout.pages[0].rows == (("contribute", "refresh"),)
+
+
+def test_treasury_hub_renders_the_golden_bytes(monkeypatch):
+    """The renderer_override's two adjustments (see justification): the
+    footer literal and both fields rendered inline — an empty pool/wallet
+    matches sweep_treasury.json's captured (0, 0) state byte-for-byte."""
+    from sb.domain.treasury.panels import treasury_hub_spec
+    from sb.kernel.panels.context import PanelContext, PanelOrigin
+    from sb.spec.panels import Audience
+    from sb.spec.refs import resolve as resolve_ref
+
+    FakeMoney(coins=0, pool=0).install(monkeypatch)
+
+    spec = treasury_hub_spec()
+    ctx = PanelContext(
+        bot=None, guild_id=1, actor=SimpleNamespace(user_id=42), channel_id=2,
+        origin=PanelOrigin.INTERACTION, audience=Audience.INVOKER)
+    rendered = asyncio.run(resolve_ref(spec.renderer_override)(spec, ctx))
+
+    assert rendered.embed.footer == "➕ Contribute · 🔄 Refresh"
+    fields = rendered.embed.fields
+    assert fields[0][:2] == ("Treasury", "🏛️ **0** 🪙 in the pool")
+    assert fields[0][2] is True                     # inline (the shipped shape)
+    assert fields[1][:2] == ("Your wallet", "🪙 **0** 🪙")
+    assert fields[1][2] is True                     # inline (the shipped shape)
+    assert len(fields) == 2                         # no "Disburse" field
+
+    labels = [c.label for c in rendered.components]
+    assert labels == ["Contribute", "Refresh"]
+    assert all(c.row == 0 for c in rendered.components)   # ONE row, no nav

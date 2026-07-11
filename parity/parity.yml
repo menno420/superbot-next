@@ -102,7 +102,7 @@ subsystems:
   setup: pending
   starboard: ported
   ticket: ported
-  treasury: pending
+  treasury: ported
   utility: ported
   ux_lab: ported
   uxlab: ported
@@ -563,6 +563,24 @@ depth:
           channel-pick configure + threshold modal, D-0064/D-0063's
           ingresses) and the table's first row-bearing golden lands
           with an argful capture (decision record D-0069)"
+    treasury:
+      # treasury's two goldens are the panel open (sweep_treasury, an empty
+      # pool) and the contribute command (sweep_treasury_contribute) — the
+      # capture-world admin persona held 0 coins, so the ONLY captured
+      # `!treasury contribute` invocation hit the insufficient-funds guard
+      # before ever touching the store; no imported golden corpus-wide
+      # carries a guild_treasury row (the `!treasury grant` disburse lane
+      # is staff-tier and outside the sweep's member/admin persona pair
+      # entirely).
+      - surface: "table:guild_treasury"
+        reason: "guard-only-capture: the writing command is
+          corpus-expressible (`!treasury contribute <amount>`,
+          goldens/treasury/sweep_treasury_contribute.json) but the
+          imported sweep's admin persona held 0 🪙, so the captured case
+          pins the insufficient-funds guard byte ('🏛️ Contributing **3**
+          🪙 is more than your **0** 🪙.') and no imported golden can carry
+          the row; the first row-bearing golden lands with a
+          funded-persona capture"
     xp:
       # the xp-admin re-home moved the reset lane's own oracle
       # (sweep_resetxp — the xp.reset event verbatim) onto this row, so
@@ -618,6 +636,7 @@ depth:
     settings: {events: 1, tables: 2, settings: 0}
     starboard: {events: 2, tables: 3, settings: 0}
     ticket: {events: 2, tables: 4, settings: 0}
+    treasury: {events: 1, tables: 2, settings: 0}
     utility: {events: 1, tables: 2, settings: 0}
     ux_lab: {events: 1, tables: 2, settings: 0}
     uxlab: {events: 0, tables: 0, settings: 0}
