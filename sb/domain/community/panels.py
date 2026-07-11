@@ -57,7 +57,6 @@ from sb.spec.panels import (
     ActionStyle,
     Audience,
     EmbedFrameSpec,
-    FieldsBlock,
     FooterMode,
     LayoutSpec,
     NavigationSpec,
@@ -306,17 +305,29 @@ def leaderboard_board_spec() -> PanelSpec:
 
 
 def spotlight_hub_spec() -> PanelSpec:
+    """The SHIPPED SpotlightView main embed + button row (parity flip —
+    cogs/community_spotlight_cog.py ``build_spotlight_embed`` +
+    ``SpotlightView``): the 🌟 title carries the LIVE guild name, the
+    four shipped fields ride explicit inline flags (three inline `true`
+    + the Level-Ups row `false`) and the footer interpolates the
+    shipped ``%H:%M UTC`` clock read — all outside the grammar's
+    static-TextBlock / 2-tuple-FieldsBlock vocabulary, hence the
+    renderer_override (delegation recipe: grammar components, replaced
+    embed). ``parity/goldens/community_spotlight/sweep_spotlight.json``
+    pins every byte: run-minted ``<cid:N>`` button ids (timeout session
+    view ⇒ ``session_lifecycle=True``, no ``panel_anchors`` row), the
+    emoji as SEPARATE wire fields next to the labels (trap 15a), no nav
+    row."""
     return PanelSpec(
         panel_id="community_spotlight.hub",
         subsystem="community_spotlight",
         title="🌟 Community Spotlight",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(
-            TextBlock("Live server activity — leaders, level-ups, and "
-                      "game stats."),
-            FieldsBlock(provider=_ensure_spotlight_overview()),
-        ),
+        # GENERAL_COLOR green; footer + fields + title live in the
+        # override (see docstring/justification).
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        body=(),
         actions=(
             PanelActionSpec(
                 action_id="xp_leaders", label="XP Leaders", emoji="🏆",
@@ -338,11 +349,69 @@ def spotlight_hub_spec() -> PanelSpec:
                 handler=PanelRef("community_spotlight.hub"),
                 result_render=ResultRender.REFRESH_PANEL),
         ),
-        navigation=NavigationSpec(),
+        # the shipped SpotlightView carried ONLY its four buttons (no
+        # nav slots; timeout session view) — the golden pins exactly one
+        # component row (session-view exemption, general.menu
+        # precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("community_spotlight.render_hub"),
+        justification=(
+            "the shipped spotlight embed is live-parameterized beyond "
+            "the grammar's vocabulary on THREE named embed surfaces "
+            "(goldens/community_spotlight/sweep_spotlight pins the "
+            "bytes): the TITLE interpolates the live guild name "
+            "('🌟 Community Spotlight — <guild>'), the FIELDS carry "
+            "explicit inline flags (three true + Level-Ups false — "
+            "grammar FieldsBlock 2-tuples serialize inline=false), and "
+            "the FOOTER interpolates the shipped %H:%M UTC clock read "
+            "('Updated {now} • Use the buttons to explore "
+            "leaderboards'). The override delegates to the grammar "
+            "renderer for every component and replaces only the embed "
+            "(the economy delegation recipe)."),
+        session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("xp_leaders", "richest", "games", "spotlight_refresh"),
         )),)),
     )
+
+
+async def _render_spotlight_hub(spec: PanelSpec, ctx) -> object:
+    """renderer_override — cogs/community_spotlight_cog.py
+    ``build_spotlight_embed`` verbatim: the guild-named title, the four
+    shipped fields (👥 members line through the guild-directory read —
+    the welcome posture: degrade, never invent), the ``Updated %H:%M
+    UTC`` footer (the capture Normalizer maps any clock read to
+    ``<hh:mm>``), GENERAL_COLOR green."""
+    import datetime as _dt
+
+    from sb.domain.community.spotlight import overview_fields
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    guild_name, member_count = "", None
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        info = await guild_directory().guild_info(guild_id)
+        guild_name = info.name
+        member_count = int(info.member_count or 0)
+    except Exception:  # noqa: BLE001 — headless ⇒ degraded header
+        pass
+
+    rows = await overview_fields(guild_id, member_count=member_count)
+    # the shipped inline flags: Server at a Glance / XP Leaders /
+    # Richest inline, Recent Level-Ups full-width.
+    fields = tuple((name, value, i < 3)
+                   for i, (name, value) in enumerate(rows))
+    now = _dt.datetime.now(_dt.timezone.utc).strftime("%H:%M UTC")
+    rendered = await render_panel(spec, ctx)
+    embed = RenderedEmbed(
+        title=f"🌟 Community Spotlight — {guild_name}",
+        description="",
+        fields=fields,
+        footer=f"Updated {now} • Use the buttons to explore leaderboards",
+        style_token=spec.frame.style_token)
+    return _dc_replace(rendered, embed=embed)
 
 
 def spotlight_games_spec() -> PanelSpec:
@@ -410,9 +479,15 @@ def _register_hub_render() -> None:
 
     if not is_registered(HandlerRef("community.render_hub")):
         handler("community.render_hub")(_render_hub)
+    if not is_registered(HandlerRef("community_spotlight.render_hub")):
+        handler("community_spotlight.render_hub")(_render_spotlight_hub)
 
 
 _register_hub_render()
+# the overview provider left the spotlight hub spec at the parity flip
+# (the shipped embed is override-composed) but stays a registered read
+# surface — at MODULE IMPORT, the composition-parity doctrine (#111).
+_ensure_spotlight_overview()
 
 
 def ensure_panel_refs() -> None:

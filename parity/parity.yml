@@ -58,7 +58,7 @@ subsystems:
   channel: ported
   cleanup: ported
   community: ported
-  community_spotlight: pending
+  community_spotlight: ported
   counters: ported
   counting: ported
   creature: pending
@@ -502,6 +502,7 @@ depth:
     channel: {events: 1, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 2, settings: 0}
     community: {events: 1, tables: 2, settings: 0}
+    community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
     counting: {events: 1, tables: 2, settings: 0}
     diagnostic: {events: 1, tables: 3, settings: 0}

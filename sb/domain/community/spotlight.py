@@ -55,10 +55,16 @@ def _medal(i: int) -> str:
     return MEDALS[i] if i < 3 else f"`#{i + 1}`"
 
 
-async def overview_fields(guild_id: int) -> tuple[tuple[str, str], ...]:
+async def overview_fields(
+        guild_id: int,
+        member_count: int | None = None) -> tuple[tuple[str, str], ...]:
     """The shipped main-embed field set (server at a glance / XP leaders /
-    richest / recent level-ups). member_count needs the gateway cache —
-    the live adapter may prepend it (deviation ledgered)."""
+    richest / recent level-ups — cogs/community_spotlight_cog.py
+    verbatim, incl. the per-field empty states the golden pins:
+    XP Leaders → "*No activity yet*", Richest → "*No coins earned yet*").
+    ``member_count`` prepends the shipped 👥 line when the caller has a
+    guild-directory read (the panel renderer does; a headless caller
+    omits it)."""
     from sb.domain.community.rank_providers import get_provider
     from sb.domain.xp.store import get_guild_xp_totals
     from sb.kernel.db.pool import fetchone
@@ -69,20 +75,23 @@ async def overview_fields(guild_id: int) -> tuple[tuple[str, str], ...]:
         "FROM economy_balances WHERE guild_id=$1", (guild_id,))
     total_coins = int(row["total"]) if row else 0
 
-    fields = [("📊 Server at a Glance",
-               f"⭐ **{total_xp:,}** XP earned\n"
-               f"🪙 **{total_coins:,}** coins in circulation")]
+    glance_lines = []
+    if member_count is not None:
+        glance_lines.append(f"👥 **{member_count:,}** members")
+    glance_lines += [f"⭐ **{total_xp:,}** XP earned",
+                     f"🪙 **{total_coins:,}** coins in circulation"]
+    fields = [("📊 Server at a Glance", "\n".join(glance_lines))]
 
-    for provider_name, title in (("xp", "🏆 XP Leaders"),
-                                 ("coins", "💰 Richest Members")):
+    for provider_name, title, empty in (
+            ("xp", "🏆 XP Leaders", "*No activity yet*"),
+            ("coins", "💰 Richest Members", "*No coins earned yet*")):
         provider = get_provider(provider_name)
         lines: list[str] = []
         if provider is not None:
             entries = await provider.top(guild_id)
             lines = [f"{_medal(i)} {e.label}"
                      for i, e in enumerate(entries[:3])]
-        fields.append((title, "\n".join(lines) if lines
-                       else "*No activity yet*"))
+        fields.append((title, "\n".join(lines) if lines else empty))
 
     feed = levelup_feed(guild_id)
     feed_text = ("\n".join(f"• {entry}" for entry in reversed(feed[-5:]))
