@@ -100,6 +100,23 @@ async def handle_prefix_message(message: object, *, prefix: str) -> object | Non
     content = str(getattr(message, "content", "") or "")
     match = match_prefix_target(content, prefix=prefix)
     if match is None:
+        # the shipped CommandNotFound typo ladder (bot1.py:541-586 —
+        # exact-synonym → edit-distance → did-you-mean; goldens/moderation/
+        # moderation_warn_flow step 2 pins the SUGGEST copy). Dormant until
+        # the composition root installs its corpus; the shipped reply was
+        # a public delete_after=15 send.
+        if content.startswith(prefix):
+            from sb.kernel.interaction.adapters.fuzzy import prefix_typo_reply
+
+            tokens = content[len(prefix):].split()
+            copy = (prefix_typo_reply(tokens[0], prefix=prefix)
+                    if tokens else None)
+            if copy:
+                try:
+                    await message.channel.send(copy, delete_after=15)
+                except Exception:  # noqa: BLE001 — the feed never breaks the loop
+                    logger.warning("prefix feed: typo-suggest send failed",
+                                   exc_info=True)
         return None
     target_key, rest = match
     ctx = _PrefixContext(message, target_key=target_key, rest=rest)

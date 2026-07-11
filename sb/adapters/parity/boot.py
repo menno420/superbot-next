@@ -238,6 +238,7 @@ class Harness:
         from sb.kernel.settings import register_manifest_settings
 
         install_target_index(self._lookup)
+        self._install_typo_corpus()
         for manifest in manifests:
             try:
                 register_manifest_settings(manifest)
@@ -317,6 +318,24 @@ class Harness:
     def _lookup(self, key: str, surface: Surface) -> TargetRef | None:
         return self._index.get((key, surface))
 
+    def _install_typo_corpus(self) -> None:
+        """Arm the shipped CommandNotFound typo ladder over this index —
+        the mirror of build_runtime._install_prefix_typo_corpus (one code
+        path per root; goldens/moderation/moderation_warn_flow step 2 pins
+        the SUGGEST byte)."""
+        from sb.kernel.interaction.adapters.fuzzy import install_prefix_typo_corpus
+        from sb.spec.refs import PanelRef
+
+        corpus = frozenset(key for (key, surface) in self._index
+                           if surface is Surface.PREFIX and " " not in key)
+
+        def _is_read(canonical: str) -> bool:
+            target = self._index.get((canonical, Surface.PREFIX))
+            route = getattr(getattr(target, "spec", None), "route", None)
+            return isinstance(route, PanelRef)
+
+        install_prefix_typo_corpus(lambda: (corpus, _is_read))
+
     def _arm_capture_ports(self) -> None:
         """(Re-)install the capture seams — also the post-reset re-arm."""
         from sb.domain.moderation.service import install_moderation_actions
@@ -340,6 +359,23 @@ class Harness:
         # replays PARTIAL with a not-installed finding: a harness gap).
         install_moderation_actions(
             ParityModerationActions(self.http, self.world.clock))
+        # the modmenu 🤖 Bot readiness read seam — the capture world's own
+        # guild.me truth (parity/harness/world.py: the bot member carries
+        # the "Admin" role, position 1 over @everyone, admin permissions),
+        # exactly what evaluate_moderation_readiness saw at capture time
+        # (goldens/moderation/sweep_modmenu pins the rendered line).
+        from sb.domain.moderation.service import (
+            ModerationReadiness,
+            install_moderation_readiness,
+        )
+
+        async def _world_readiness(guild_id: int) -> ModerationReadiness:
+            del guild_id
+            return ModerationReadiness(
+                can_ban=True, can_kick=True, can_timeout=True,
+                top_role_name="Admin", top_role_is_lowest=False)
+
+        install_moderation_readiness(_world_readiness)
         # the cleanup channel-history read port — the goldens' `logs_from`
         # wire verb (goldens/cleanup/sweep_cleanuphistory.json); without it
         # the scan degrades to the not-armed refusal: a harness gap, not
@@ -422,6 +458,7 @@ class Harness:
         message_id = self.world.ids.allocate()
         target_key = None
         rest: list[str] = []
+        typo_reply: str | None = None
         if content.startswith(PREFIX):
             tokens = content[len(PREFIX):].split()
             for n in range(min(3, len(tokens)), 0, -1):
@@ -429,8 +466,19 @@ class Harness:
                 if self._lookup(candidate, Surface.PREFIX) is not None:
                     target_key, rest = candidate, tokens[n:]
                     break
-            # unknown command: the old bot's typo re-dispatch is the fuzzy
-            # adapter's surface — not driven until its band ports the corpus.
+            else:
+                # unknown command: the shipped bot1.py CommandNotFound
+                # ladder's SUGGEST half (exact-synonym → edit-distance →
+                # did-you-mean; goldens/moderation/moderation_warn_flow
+                # step 2 pins `!warnings` → "Did you mean `!warn`?"). The
+                # AUTO re-dispatch half stays a named successor — no
+                # golden pins it.
+                if tokens:
+                    from sb.kernel.interaction.adapters.fuzzy import (
+                        prefix_typo_reply,
+                    )
+
+                    typo_reply = prefix_typo_reply(tokens[0], prefix=PREFIX)
         member = _member_for(persona)
         channel_id = self.world.channels[channel]
         # the K10 chat-memory bystander record — the live feed's leg
@@ -468,6 +516,14 @@ class Harness:
             from sb.kernel.interaction.adapters.prefix import dispatch_prefix
 
             await dispatch_prefix(ctx, responder=responder)
+        elif typo_reply is not None:
+            # the live twin sends this via message_feed's typo branch
+            # (message.channel.send(copy, delete_after=15)); the capture
+            # recorded the plain-content wire shape — delete_after is a
+            # client-side timer fake_http never saw inside a case window.
+            self.http.record_send(
+                channel_id,
+                {"components": [], "content": typo_reply, "tts": False})
         if self.db_ready:
             # the DB-backed passive award (cooldown row + settings reads);
             # the db-free contract harness stays award-silent by design.
@@ -588,6 +644,9 @@ class Harness:
             from sb.kernel import lifecycle
             from sb.kernel.interaction import cooldown as cooldown_mod
             from sb.kernel.interaction.adapters import reset_adapter_ports_for_tests
+            from sb.kernel.interaction.adapters.fuzzy import (
+                reset_prefix_typo_corpus_for_tests,
+            )
             from sb.kernel.interaction.egress import reset_channel_emitter_for_tests
             from sb.kernel.interaction.resolve import reset_resolver_ports_for_tests
             from sb.kernel.panels import engine as panel_engine
@@ -596,6 +655,7 @@ class Harness:
             panel_engine.reset_panel_engine_for_tests()
             reset_adapter_ports_for_tests()
             reset_channel_emitter_for_tests()
+            reset_prefix_typo_corpus_for_tests()
             reset_moderation_ports_for_tests()
             reset_utility_ports_for_tests()
             reset_cleanup_ports_for_tests()

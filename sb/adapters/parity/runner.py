@@ -24,6 +24,20 @@ from sb.adapters.parity.boot import Harness
 
 __all__ = ["capture_case", "replay_case", "golden_path"]
 
+#: CAPTURE-WORLD GUILD CONFIG, reconstructed (world state, like
+#: parity/harness/world.py's channels/personas — seeded BEFORE the
+#: before-snapshot so it never appears in any db_delta). The capture
+#: guild ran with `ban_delete_message_days` SET to 1: goldens/moderation/
+#: sweep_ban pins `delete_message_seconds: 86400` on the ban wire call,
+#: while the shipped default is 0 and the shipped kwarg contract only
+#: passes the field when a purge window is configured (D-0029's own
+#: diagnosis: "capture-world config the reconstruction cannot reseed" —
+#: it can: this is the reseed). Keys are the persisted settings
+#: vocabulary (SettingSpec.settings_key).
+CAPTURE_WORLD_SETTINGS: tuple[tuple[str, str], ...] = (
+    ("moderation_ban_delete_message_days", "1"),
+)
+
 
 def _flatten_components(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
     flat: list[dict[str, Any]] = []
@@ -89,6 +103,12 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
 
         pool = pool_mod
         await reset_database(pool)
+        for key, value in CAPTURE_WORLD_SETTINGS:
+            await pool.execute(
+                "INSERT INTO settings (guild_id, key, value) "
+                "VALUES ($1, $2, $3) ON CONFLICT (guild_id, key) "
+                "DO UPDATE SET value = EXCLUDED.value",
+                (harness.world.guild_id, key, value))
         for statement in case.fixture_sql:
             await pool.execute(statement)
         before = await snapshot(pool)

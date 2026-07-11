@@ -32,7 +32,7 @@ from sb.kernel.workflow.spec import (
     LegSpec,
     WorkflowLane,
 )
-from sb.spec.confirmation import Challenge, ConfirmationSpec
+from sb.spec.confirmation import ConfirmationSpec
 from sb.spec.events import DeliveryClass
 from sb.spec.refs import WorkflowRef, workflow
 
@@ -113,9 +113,12 @@ def _record_action_leg(name: str, action: str):
     @workflow(name)
     async def _leg(conn, ctx: WorkflowContext) -> LegOutcome:
         _policy, target_id, reason = await _policy_and_target(ctx, action)
-        await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
-                                   action=action, target_id=target_id,
-                                   moderator_id=_actor_id(ctx), reason=reason)
+        row_id = await store.log_mod_action(
+            conn, guild_id=int(ctx.guild_id or 0), action=action,
+            target_id=target_id, moderator_id=_actor_id(ctx), reason=reason)
+        # compensation handle: the effect leg's compensator withdraws this
+        # row when Discord refuses the action (kick's row-withdraw twin).
+        ctx.params[f"_{action}_row_id"] = int(row_id or 0)
         ctx.params["_target_id"] = target_id
         ctx.params["_reason"] = reason
         ctx.params["_event_action"] = action
@@ -130,7 +133,19 @@ async def _record_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
     """Timeout carries a REQUIRED duration (shipped `!timeout @member
     <minutes>`); when no explicit reason is supplied the reason IS the
     duration (`"N minutes"`, shipped verbatim — timeout is the one action
-    exempt from require_reason for exactly that reason)."""
+    exempt from require_reason for exactly that reason).
+
+    ORACLE SEQUENCING (disbot services/moderation_service.py `timeout`,
+    the moderation-flip review 2026-07-11): the Discord state mutation runs
+    FIRST and the history row + `moderation.action_taken` event exist ONLY
+    after it succeeds — a failed/refused timeout leaves NO row and NO event
+    (the failing leg aborts the txn, so step 4e's emit batch dies with it).
+    goldens/moderation/sweep_timeout pins exactly this half-applied capture
+    shape: the `edit_member` wire call, then the shipped global-error reply,
+    zero `mod_logs` delta, zero `moderation.action_taken`. The former
+    post-commit EFFECT leg + row-withdrawing compensator could not reproduce
+    it (a post-commit effect failure cannot un-emit the already-batched
+    event), and the oracle never had that window in the first place."""
     from sb.kernel.interaction.errors import ValidatorError
 
     policy = await service.load_policy(int(ctx.guild_id or 0))
@@ -147,14 +162,32 @@ async def _record_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
     minutes = max(1, min(int(minutes), policy.max_timeout_minutes))
     explicit_reason = str(ctx.params.get("reason", "") or "") or " ".join(rest)
     reason = explicit_reason.strip() or f"{minutes} minutes"
-    row_id = await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
-                                        action="timeout", target_id=target_id,
-                                        moderator_id=_actor_id(ctx),
-                                        reason=reason)
-    # compensation handle: a Discord-refused timeout must not leave a
-    # history row claiming the member was timed out (the oracle's
-    # call-Discord-first sequencing writes no row on refusal).
-    ctx.params["_timeout_row_id"] = int(row_id or 0)
+    try:
+        await service.active_actions().timeout_member(
+            int(ctx.guild_id or 0), target_id, minutes=minutes, reason=reason)
+    except Exception as exc:
+        # the ctx.params side-channel (the karma `_karma_refusal` lane):
+        # the K7 engine classifies leg exceptions into frozen-five results,
+        # so the handler learns "the Discord call itself failed" only
+        # through the shared params dict — it answers with the shipped
+        # bot1.py on_command_error generic copy (goldens/moderation/
+        # sweep_timeout pins the byte).
+        ctx.params["_moderation_generic_error"] = True
+        try:
+            from sb.kernel.observability.findings import record_operator_finding
+
+            record_operator_finding(
+                source="workflow:moderation.timeout", severity="warning",
+                summary=(f"timeout of <@{target_id}> refused by the "
+                         f"guild-action port: {exc}"),
+                detail="", correlation_id=None)
+        except Exception:  # noqa: BLE001 — findings are observability only
+            pass
+        raise
+    await store.log_mod_action(conn, guild_id=int(ctx.guild_id or 0),
+                               action="timeout", target_id=target_id,
+                               moderator_id=_actor_id(ctx),
+                               reason=reason)
     ctx.params["_target_id"] = target_id
     ctx.params["_reason"] = reason
     ctx.params["_minutes"] = minutes
@@ -162,7 +195,10 @@ async def _record_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
     return LegOutcome(step=StepResult(0, "record_timeout", True),
                       before={}, after={"action": "timeout",
                                         "target_id": target_id,
-                                        "minutes": minutes})
+                                        "minutes": minutes},
+                      # shipped operator ack, verbatim (cogs/moderation_cog.py)
+                      user_message=(f"⏳ <@{target_id}> timed out for "
+                                    f"{minutes} minute(s)."))
 
 
 _record_kick = _record_action_leg("moderation.record_kick", "kick")
@@ -249,12 +285,7 @@ def _apply_action_leg(name: str, action: str):
         reason = str(ctx.params.get("_reason", service.DEFAULT_REASON))
         actions = service.active_actions()
         copy = None                  # shipped operator acks, verbatim
-        if action == "timeout":
-            minutes = int(ctx.params.get("_minutes", 0)) or 10
-            await actions.timeout_member(int(ctx.guild_id or 0), target_id,
-                                         minutes=minutes, reason=reason)
-            copy = f"⏳ <@{target_id}> timed out for {minutes} minute(s)."
-        elif action == "kick":
+        if action == "kick":
             await actions.kick_member(int(ctx.guild_id or 0), target_id,
                                       reason=reason)
             copy = f"👢 <@{target_id}> kicked. Reason: {reason}"
@@ -265,6 +296,12 @@ def _apply_action_leg(name: str, action: str):
                 delete_message_days=policy.ban_delete_message_days)
             copy = f"🚫 <@{target_id}> banned. Reason: {reason}"
         elif action == "unban":
+            # shipped cog sequencing (cogs/moderation_cog.py unban): the
+            # bot fetch_user()s the banned id FIRST — a user object a ban
+            # target can never be resolved to from the guild cache — then
+            # unbans; the capture recorded both wire calls in that order
+            # (goldens/moderation/sweep_unban pins get_user then unban).
+            await actions.fetch_user(target_id)
             await actions.unban_member(int(ctx.guild_id or 0), target_id,
                                        reason=reason)
             copy = f"✅ <@{target_id}> unbanned."
@@ -274,7 +311,6 @@ def _apply_action_leg(name: str, action: str):
     return _leg
 
 
-_apply_timeout = _apply_action_leg("moderation.apply_timeout", "timeout")
 _apply_kick = _apply_action_leg("moderation.apply_kick", "kick")
 _apply_ban = _apply_action_leg("moderation.apply_ban", "ban")
 _apply_unban = _apply_action_leg("moderation.apply_unban", "unban")
@@ -345,18 +381,21 @@ async def _compensate_warn_escalation(conn, ctx: WorkflowContext) -> LegOutcome:
                              "escalation_blocked": escalation})
 
 
-@workflow("moderation.compensate_timeout")
-async def _compensate_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
-    """Timeout's compensator (fork E; conn=None — opens its own txn): a
-    Discord-refused timeout withdraws the committed history row so the DB
-    matches the oracle (disbot moderation_service.timeout: Discord call
-    first, row only after success — a refused timeout writes NO row). An
-    operator finding reports the blocked action."""
+@workflow("moderation.compensate_kick")
+async def _compensate_kick(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Kick's compensator (fork E; conn=None — opens its own txn): a
+    Discord-refused kick withdraws the committed history row so the DB
+    matches the oracle (disbot moderation_service.kick: Discord call first,
+    row only after success — a refused kick writes NO row). Nothing
+    re-invites the member — there is no member state to restore, only the
+    false durable CLAIM to un-write (the ORDER 004 item 1 class; the
+    former compensate_timeout's exact shape, re-homed when timeout moved
+    to oracle call-first sequencing at the moderation flip)."""
     from sb.kernel.db import pool
 
-    row_id = int(ctx.params.get("_timeout_row_id", 0) or 0)
+    row_id = int(ctx.params.get("_kick_row_id", 0) or 0)
     if not row_id:
-        return LegOutcome(step=StepResult(0, "compensate_timeout", True),
+        return LegOutcome(step=StepResult(0, "compensate_kick", True),
                           before={}, after={"compensated": "nothing"})
     target_id = int(ctx.params.get("_target_id", 0))
     async with pool.transaction() as txn:
@@ -365,16 +404,16 @@ async def _compensate_timeout(conn, ctx: WorkflowContext) -> LegOutcome:
         from sb.kernel.observability.findings import record_operator_finding
 
         record_operator_finding(
-            source="workflow:moderation.timeout", severity="warning",
-            summary=(f"timeout of <@{target_id}> blocked by Discord — "
+            source="workflow:moderation.kick", severity="warning",
+            summary=(f"kick of <@{target_id}> blocked by Discord — "
                      f"{withdrawn} history row(s) withdrawn"),
             detail="", correlation_id=None)
     except Exception:  # noqa: BLE001 — findings are observability only
         pass
-    return LegOutcome(step=StepResult(0, "compensate_timeout", True),
+    return LegOutcome(step=StepResult(0, "compensate_kick", True),
                       before={},
                       after={"withdrawn_rows": withdrawn,
-                             "timeout_blocked": target_id})
+                             "kick_blocked": target_id})
 
 
 @workflow("moderation.action_payload")
@@ -385,6 +424,12 @@ def _action_payload(ctx: WorkflowContext, result) -> dict:
         "target_id": int(ctx.params.get("_target_id", 0)),
         "actor_id": _actor_id(ctx),
         "reason": str(ctx.params.get("_reason", "")),
+        # the shipped payload carried the service-minted mutation uuid
+        # (disbot services/moderation_service.py _record_action:
+        # `mutation_id = str(uuid.uuid4())`); here the K7 result's own
+        # mutation_id IS that uuid — every moderation golden pins the
+        # normalized `<uuid>` byte in the moderation.action_taken payload.
+        "mutation_id": str(getattr(result, "mutation_id", "") or ""),
     }
 
 
@@ -396,11 +441,16 @@ def _op(op_key: str, verb: str, db_ref: str, effect_ref: str | None, *,
         effect_reversibility: str = "reversible",
         compensator: str | None = None,
         confirmation: ConfirmationSpec | None = None) -> CompoundOpSpec:
-    """Per-leg reversibility is an HONEST author declaration: timeouts are
-    liftable (reversible), ban/unban compensate each other (compensatable),
-    kick has no compensator (irreversible => ConfirmationSpec, the frozen
-    §2.7 fence — a deliberate deviation from the shipped no-confirm !kick,
-    ledgered in D-0029)."""
+    """Per-leg reversibility is an HONEST author declaration: ban/unban
+    compensate each other, kick's compensator withdraws the false history
+    claim (nothing restores membership — the compensated thing is the DB
+    row, the compensate_timeout precedent re-homed). Timeout has no effect
+    leg at all: its record leg runs the oracle's call-Discord-first
+    sequencing. D-0029's kick ConfirmationSpec deviation was RESOLVED
+    ORACLE-WINS at the moderation parity flip (2026-07-11, the flip review
+    D-0029 itself scheduled): goldens/moderation/sweep_kick pins the
+    shipped no-confirm immediate kick, and the A-16 door admits no
+    per-golden exemption."""
     legs = [LegSpec("record", LegKind.DB, WorkflowRef(db_ref), "reversible")]
     if effect_ref:
         legs.append(LegSpec(
@@ -430,17 +480,21 @@ WARN = _op("moderation.warn", "member_warned",
            # (count kept, phantom rows withdrawn — the oracle's
            # escalation_blocked semantics; ORDER 004 item 1)
 TIMEOUT = _op("moderation.timeout", "member_timed_out",
-              "moderation.record_timeout", "moderation.apply_timeout",
-              effect_reversibility="compensatable",
-              compensator="moderation.compensate_timeout")
-              # a refused timeout withdraws the committed history row (the
-              # oracle writes no row when Discord refuses — same class as
-              # the warn-escalation fix, ORDER 004 item 1)
+              "moderation.record_timeout", None)
+              # NO effect leg: the record leg runs the oracle's
+              # call-Discord-first sequencing (a refused timeout aborts the
+              # txn — no row, no event; goldens/moderation/sweep_timeout
+              # pins the half-applied capture shape a post-commit effect
+              # leg could never reproduce)
 KICK = _op("moderation.kick", "member_kicked",
            "moderation.record_kick", "moderation.apply_kick",
-           effect_reversibility="irreversible",
-           confirmation=ConfirmationSpec(reversibility="irreversible",
-                                         challenge=Challenge.TYPED_PHRASE))
+           effect_reversibility="compensatable",
+           compensator="moderation.compensate_kick")
+           # a refused kick withdraws the committed history row (the
+           # oracle writes no row when Discord refuses — the ORDER 004
+           # item 1 class); the D-0029 typed-challenge ConfirmationSpec
+           # came OFF at the flip review — the oracle's !kick is
+           # no-confirm and goldens/moderation/sweep_kick pins the bytes
 BAN = _op("moderation.ban", "member_banned",
           "moderation.record_ban", "moderation.apply_ban",
           effect_reversibility="compensatable",
@@ -464,14 +518,13 @@ _REF_TABLE = (
     ("moderation.tombstone_subject", _tombstone_subject),
     ("moderation.clear_subject_warnings", _clear_subject_warnings),
     ("moderation.apply_warn_effects", _apply_warn_effects),
-    ("moderation.apply_timeout", _apply_timeout),
     ("moderation.apply_kick", _apply_kick),
     ("moderation.apply_ban", _apply_ban),
     ("moderation.apply_unban", _apply_unban),
     ("moderation.compensate_ban", _compensate_ban),
     ("moderation.compensate_unban", _compensate_unban),
     ("moderation.compensate_warn_escalation", _compensate_warn_escalation),
-    ("moderation.compensate_timeout", _compensate_timeout),
+    ("moderation.compensate_kick", _compensate_kick),
     ("moderation.action_payload", _action_payload),
 )
 

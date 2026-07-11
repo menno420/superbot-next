@@ -1528,11 +1528,6 @@
     "aliases": [],
     "group": "",
     "name": "warn"
-   },
-   {
-    "aliases": [],
-    "group": "",
-    "name": "warnings"
    }
   ],
   "projmoon": [
@@ -2034,6 +2029,7 @@
    "action",
    "actor_id",
    "guild_id",
+   "mutation_id",
    "reason",
    "target_id"
   ],
@@ -2125,6 +2121,20 @@
   "economy:work",
   "general.eightball_form",
   "help_categories:select",
+  "mod:ban",
+  "mod:clearwarn",
+  "mod:kick",
+  "mod:logs",
+  "mod:timeout",
+  "mod:unban",
+  "mod:warn",
+  "moderation.ban_form",
+  "moderation.clearwarnings_form",
+  "moderation.kick_form",
+  "moderation.modlogs_form",
+  "moderation.timeout_form",
+  "moderation.unban_form",
+  "moderation.warn_form",
   "proof_channel.grant_form",
   "proof_channel.timed_form",
   "role:create",

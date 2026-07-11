@@ -167,6 +167,7 @@ class GuildModerationActions(Protocol):
                          delete_message_days: int) -> None: ...
     async def unban_member(self, guild_id: int, user_id: int, *,
                            reason: str) -> None: ...
+    async def fetch_user(self, user_id: int) -> None: ...
     async def dm_member(self, user_id: int, text: str) -> None: ...
 
 
@@ -178,7 +179,7 @@ class _NoActions:
             "(sb/domain/moderation/service.install_moderation_actions)")
 
     timeout_member = kick_member = ban_member = _refuse
-    unban_member = dm_member = _refuse
+    unban_member = fetch_user = dm_member = _refuse
 
 
 _actions: GuildModerationActions = _NoActions()  # type: ignore[assignment]
@@ -194,8 +195,78 @@ def active_actions() -> GuildModerationActions:
 
 
 def reset_moderation_ports_for_tests() -> None:
-    global _actions
+    global _actions, _readiness_reader
     _actions = _NoActions()  # type: ignore[assignment]
+    _readiness_reader = None
+
+
+# --- the bot-readiness read seam (disbot utils/moderation_feasibility.py) --------
+
+@dataclass(frozen=True)
+class ModerationReadiness:
+    """Shipped shape, verbatim (disbot utils/moderation_feasibility.py
+    ModerationReadiness): the bot's own moderation capability in a guild,
+    read from guild.me by whatever adapter arms the port."""
+
+    can_ban: bool
+    can_kick: bool
+    can_timeout: bool
+    top_role_name: str
+    top_role_is_lowest: bool
+
+    def missing_permissions(self) -> tuple[str, ...]:
+        """Human-readable names of the moderation permissions the bot
+        lacks (shipped verbatim)."""
+        missing: list[str] = []
+        if not self.can_ban:
+            missing.append("Ban Members")
+        if not self.can_kick:
+            missing.append("Kick Members")
+        if not self.can_timeout:
+            missing.append("Timeout Members")
+        return tuple(missing)
+
+
+def render_readiness_line(readiness: ModerationReadiness) -> str:
+    """The shipped 🤖 Bot readiness field value, byte-for-byte (disbot
+    utils/moderation_feasibility.py render_readiness_line — goldens/
+    moderation/sweep_modmenu + sweep_slash_moderation pin the bytes)."""
+    missing = readiness.missing_permissions()
+    if missing:
+        lines = ["⚠️ Missing permission(s): " + ", ".join(missing) + "."]
+    else:
+        lines = ["🟢 I can warn, timeout, kick, and ban."]
+    if readiness.top_role_is_lowest:
+        lines.append(
+            "⚠️ My top role is at the bottom of the list — I can't action "
+            "anyone until it is moved up.",
+        )
+    else:
+        lines.append(
+            f"I can only action members below my top role "
+            f"(**{readiness.top_role_name}**).",
+        )
+    return "\n".join(lines)
+
+
+#: guild_id -> ModerationReadiness | None. None (or an uninstalled port)
+#: means "no guild view available" — the shipped embed DROPPED the field
+#: then (moderation_helpers._build_mod_panel_embed only adds it "when
+#: guild is supplied"), so the render degrades the same way. The live
+#: root's guild.me reader is D-0049-family successor wiring alongside the
+#: rest of the live guild-action adapter.
+_readiness_reader = None
+
+
+def install_moderation_readiness(reader) -> None:
+    global _readiness_reader
+    _readiness_reader = reader
+
+
+async def read_moderation_readiness(guild_id: int) -> ModerationReadiness | None:
+    if _readiness_reader is None:
+        return None
+    return await _readiness_reader(int(guild_id))
 
 
 # --- read handlers (HandlerRef routes) --------------------------------------------
@@ -203,7 +274,7 @@ def reset_moderation_ports_for_tests() -> None:
 
 def _register_handlers() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
-    from sb.spec.outcomes import SUCCESS
+    from sb.spec.outcomes import BLOCKED, SUCCESS
 
     if is_registered(HandlerRef("moderation.modlogs_view")):
         return
@@ -225,17 +296,41 @@ def _register_handlers() -> None:
         return Reply(SUCCESS, f"Moderation history for <@{target_id}>:\n"
                               + "\n".join(lines))
 
-    @handler("moderation.warnings_view")
-    async def warnings_view(req) -> Reply:
-        from sb.domain.moderation.store import get_warnings
-        from sb.domain.moderation.service import parse_target_and_reason
+    # NOTE (flip review 2026-07-11): the invented `moderation.warnings_view`
+    # handler and its `!warnings` command are GONE — the oracle never
+    # shipped a warnings command (goldens/moderation/moderation_warn_flow
+    # step 2 pins the shipped bot1.py did-you-mean reply for `!warnings`);
+    # warning counts read through !modlogs / the shipped surfaces only.
 
-        try:
-            target_id, _ = parse_target_and_reason(dict(req.args))
-        except ValueError:
-            target_id = int(getattr(req.actor, "user_id", 0) or 0)
-        count = await get_warnings(target_id, int(req.guild_id or 0))
-        return Reply(SUCCESS, f"<@{target_id}> has {count} warning(s).")
+    @handler("moderation.timeout_command")
+    async def timeout_command(req) -> Reply:
+        """!timeout @member <minutes> — runs the audited moderation.timeout
+        op. The handler exists (vs the plain WorkflowRef route every other
+        moderation command keeps) ONLY for the failure copy: the engine
+        classifies leg exceptions into frozen-five results, so the "the
+        Discord call itself failed" fact crosses as the ctx.params
+        side-channel marker (the karma `_karma_refusal` lane) and the
+        handler answers with the shipped bot1.py on_command_error generic
+        fallback — the capture world's edit_member response was unparseable
+        to discord.py AFTER the wire call was recorded, so the shipped
+        timeout always died there and goldens/moderation/sweep_timeout pins
+        this exact copy (the goldens/xp/sweep_rank precedent)."""
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+        from sb.kernel.interaction.handler_kit import ctx_from_request
+
+        ctx = ctx_from_request(req, {"argv": tuple(req.args.get("argv", ())
+                                                   or ()),
+                                     **{k: v for k, v in dict(req.args).items()
+                                        if k != "argv"}})
+        result = await engine.run(WorkflowRef("moderation.timeout"), ctx)
+        if ctx.params.get("_moderation_generic_error"):
+            # bot1.py on_command_error's generic fallback, verbatim —
+            # handler-owned golden-pinned literal (NEVER the new kernel's
+            # own error-envelope copy).
+            return Reply(BLOCKED,
+                         "⚠️ An unexpected error occurred. Please try again.")
+        return Reply(result.outcome, result.user_message)
 
 
 _register_handlers()

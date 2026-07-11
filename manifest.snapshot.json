@@ -2543,14 +2543,6 @@
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "surface": "prefix",
-          "value": "warnings"
-        },
-        {
-          "kind": "command",
-          "parent_group": null,
-          "source": "sb/manifest/moderation.py",
-          "subsystem": "moderation",
-          "surface": "prefix",
           "value": "modlogs"
         },
         {
@@ -3828,6 +3820,41 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining_sell_all"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "warn"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "timeout"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "kick"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "ban"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "unban"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "logs"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "clearwarn"
         },
         {
           "source": "sb/manifest/projmoon.py",
@@ -6842,7 +6869,10 @@
       "handler:moderation.modlogs_view": {
         "module": "sb.domain.moderation.service"
       },
-      "handler:moderation.warnings_view": {
+      "handler:moderation.render_hub": {
+        "module": "sb.domain.moderation.panels"
+      },
+      "handler:moderation.timeout_command": {
         "module": "sb.domain.moderation.service"
       },
       "handler:projmoon.damage_view": {
@@ -7724,9 +7754,6 @@
       "provider:logging.hub_status": {
         "module": "sb.domain.server_logging.panels"
       },
-      "provider:moderation.hub_policy": {
-        "module": "sb.domain.moderation.panels"
-      },
       "provider:role.hub_overview": {
         "module": "sb.domain.role.panels"
       },
@@ -8405,9 +8432,6 @@
       "workflow:moderation.apply_kick": {
         "module": "sb.domain.moderation.ops"
       },
-      "workflow:moderation.apply_timeout": {
-        "module": "sb.domain.moderation.ops"
-      },
       "workflow:moderation.apply_unban": {
         "module": "sb.domain.moderation.ops"
       },
@@ -8426,7 +8450,7 @@
       "workflow:moderation.compensate_ban": {
         "module": "sb.domain.moderation.ops"
       },
-      "workflow:moderation.compensate_timeout": {
+      "workflow:moderation.compensate_kick": {
         "module": "sb.domain.moderation.ops"
       },
       "workflow:moderation.compensate_unban": {
@@ -9096,7 +9120,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:9b2dbbcccd1236c08a257f6e96d864898ff3bf8d4d3337b599fb4e512a4ae563",
+  "stable_hash": "sha256:51e3c2821fc2699517d08fc72a83be3f5ca731999af20678fb4735c41738679a",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -23391,7 +23415,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "10 command(s), generated from the `moderation` manifest."
+              "text": "9 command(s), generated from the `moderation` manifest."
             },
             {
               "provider": {
@@ -28578,7 +28602,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "workflow:moderation.timeout"
+            "$ref": "handler:moderation.timeout_command"
           },
           "slash_common": false,
           "summary": "Timeout a member.",
@@ -28689,29 +28713,6 @@
           "group": "",
           "help_section_order": 0,
           "kind": "prefix",
-          "name": "warnings",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:moderation.warnings_view"
-          },
-          "slash_common": false,
-          "summary": "Show a member's warning count.",
-          "usage": "!warnings @member",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [],
-          "audience_tier": "",
-          "capability": "moderation",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
           "name": "modlogs",
           "quota_ref": "",
           "reply_visibility": null,
@@ -28758,6 +28759,11 @@
               "name": "reason",
               "required": false,
               "type": "str"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
             }
           ],
           "redaction_ref": null
@@ -28766,31 +28772,399 @@
       "key": "moderation",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "warn",
+              "audience_tier": "",
+              "audit": "moderation.action_taken",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:warn",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:moderation.warn"
+              },
+              "label": "⚠️ Warn",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User (mention, ID, or name)",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "@member or 123456789",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "reason",
+                    "label": "Reason",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.warn_form",
+                "on_submit": {
+                  "$ref": "workflow:moderation.warn"
+                },
+                "title": "Warn Member"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "timeout",
+              "audience_tier": "",
+              "audit": "moderation.action_taken",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:timeout",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:moderation.timeout_command"
+              },
+              "label": "⏳ Timeout",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User (mention, ID, or name)",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "@member or 123456789",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "minutes",
+                    "label": "Duration (minutes)",
+                    "max_length": 10,
+                    "min_length": null,
+                    "placeholder": "e.g. 30",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "reason",
+                    "label": "Reason",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.timeout_form",
+                "on_submit": {
+                  "$ref": "handler:moderation.timeout_command"
+                },
+                "title": "Timeout Member"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "kick",
+              "audience_tier": "",
+              "audit": "moderation.action_taken",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:kick",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:moderation.kick"
+              },
+              "label": "👢 Kick",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User (mention, ID, or name)",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "@member or 123456789",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "reason",
+                    "label": "Reason",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.kick_form",
+                "on_submit": {
+                  "$ref": "workflow:moderation.kick"
+                },
+                "title": "Kick Member"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ban",
+              "audience_tier": "",
+              "audit": "moderation.action_taken",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:ban",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:moderation.ban"
+              },
+              "label": "🚫 Ban",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User (mention, ID, or name)",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "@member or 123456789",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "reason",
+                    "label": "Reason",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.ban_form",
+                "on_submit": {
+                  "$ref": "workflow:moderation.ban"
+                },
+                "title": "Ban Member"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "unban",
+              "audience_tier": "",
+              "audit": "moderation.action_taken",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:unban",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:moderation.unban"
+              },
+              "label": "✅ Unban",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User ID",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "123456789",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "reason",
+                    "label": "Reason",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.unban_form",
+                "on_submit": {
+                  "$ref": "workflow:moderation.unban"
+                },
+                "title": "Unban User"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logs",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:logs",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:moderation.modlogs_view"
+              },
+              "label": "📋 Mod Logs",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User (mention, ID, or name)",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "@member or 123456789",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.modlogs_form",
+                "on_submit": {
+                  "$ref": "handler:moderation.modlogs_view"
+                },
+                "title": "Mod Logs"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "clearwarn",
+              "audience_tier": "",
+              "audit": "moderation.action_taken",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mod:clearwarn",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:moderation.clearwarnings"
+              },
+              "label": "⬛ Clear Warnings",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "user",
+                    "label": "User (mention, ID, or name)",
+                    "max_length": 40,
+                    "min_length": null,
+                    "placeholder": "@member or 123456789",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "moderation.clearwarnings_form",
+                "on_submit": {
+                  "$ref": "workflow:moderation.clearwarnings"
+                },
+                "title": "Clear Warnings"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Warn / timeout / kick / ban lanes run through the audited seam; policy below resolves per-guild → global → shipped defaults."
-            },
-            {
-              "provider": {
-                "$ref": "provider:moderation.hub_policy"
-              }
+              "text": "Click a button to take a moderation action.\nYou'll be prompted to enter the user and reason."
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "orange",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped Moderation Panel embed (services/moderation_helpers.py _build_mod_panel_embed) carries state-dependent copy the grammar cannot express; the override delegates the COMPONENTS to render_panel (declared actions/nav untouched, the pinned mod:* ids come from the spec) and composes the EMBED surfaces only: the seven INLINE button-glossary fields (shipped literals), the dynamic non-inline '🤖 Bot readiness' field (render_readiness_line over the guild.me read port; dropped when no guild view is available — the shipped no-guild posture), and the footer literal ('Any staff member with Moderate Members permission may use this panel.'). Title, orange accent, and the two-line description stay the grammar's own bytes.",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "warn",
+                    "timeout",
+                    "kick"
+                  ],
+                  [
+                    "ban",
+                    "unban",
+                    "logs"
+                  ],
+                  [
+                    "clearwarn"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
@@ -28802,12 +29176,14 @@
             "show_rules": false
           },
           "panel_id": "moderation.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:moderation.render_hub"
+          },
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "moderation",
           "timeout_s": 180,
-          "title": "Moderation",
+          "title": "🔨 Moderation Panel",
           "usage_weight": 1.0
         }
       ],
