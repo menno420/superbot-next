@@ -1,4 +1,4 @@
-# substrate-kit upgrade report — v1.9.0 → v1.10.0
+# substrate-kit upgrade report — v1.10.0 → v1.10.1
 
 > Generated 2026-07-11 by `bootstrap.py upgrade`. Rollback: `python3 bootstrap.py upgrade --rollback`.
 

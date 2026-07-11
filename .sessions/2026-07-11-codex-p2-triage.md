@@ -66,3 +66,14 @@ fixes, zero golden-byte movement.
 No new exemption/disposition classes; compensator allowlist EMPTY;
 band-6 game subsystems, sb/domain/role pending terminals,
 control/status.md, parity.yml untouched.
+
+## 💡 Session idea
+
+(Backfilled 2026-07-11 in kit-upgrade PR #166, grammar-only: the original
+session recorded no idea. Backfill exists so the strict session-gate's
+newest-card-by-mtime pick cannot red CI on this card — see PR #166's card.)
+
+## ⟲ Previous-session review
+
+(Backfilled 2026-07-11 in kit-upgrade PR #166, grammar-only: the original
+session recorded no previous-session review.)
