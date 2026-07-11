@@ -74,6 +74,7 @@ ESCROW_RECOVERY_SUBSYSTEMS: tuple[str, ...] = (
 #: The band-2..band-5 fan-out roster: every domain module exposing the
 #: ``subscribe(bus)`` composition-root obligation.
 SUBSCRIBE_ROSTER: tuple[str, ...] = (
+    "sb.domain.channel.service",
     "sb.domain.community.spotlight",
     "sb.domain.economy.service",
     "sb.domain.role.service",

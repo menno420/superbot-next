@@ -26,6 +26,7 @@ from sb.spec.outcomes import ReplyVisibility
 __all__ = [
     "ParityAvatarFetcher",
     "ParityChannelEmitter",
+    "ParityChannelStateActions",
     "ParityHistoryReader",
     "ParityModerationActions",
     "ParityPresenter",
@@ -664,6 +665,41 @@ class ParityRoleMessageOps:
             "add_reaction",
             {"channel_id": int(channel_id), "emoji": str(emoji),
              "message_id": int(message_id)})
+
+
+class ParityChannelStateActions:
+    """The ChannelStateActions capture twin — the shipped
+    ChannelLifecycleService Discord edits, recorded in the goldens' wire
+    verbs (fake_http captured discord.py's HTTP layer: a slowmode change
+    is an ``edit_channel`` PATCH carrying ``rate_limit_per_user``, a
+    permission overwrite an ``edit_channel_permissions`` PUT with
+    stringified allow/deny bitmasks — goldens/channel/sweep_slowmode +
+    sweep_lock + sweep_unlock pin the shapes verbatim). Without this the
+    replay composition root leaves the not-installed port raising, so
+    every channel-state op degrades to the honest refusal — a harness
+    gap, not bot behavior."""
+
+    def __init__(self, transport: ParityTransport) -> None:
+        self._transport = transport
+
+    async def set_slowmode(self, channel_id: int, *, seconds: int,
+                           reason: str | None) -> None:
+        self._transport.record(
+            "edit_channel",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"rate_limit_per_user": int(seconds)})
+
+    async def set_overwrite(self, channel_id: int, *, target_id: int,
+                            allow: int, deny: int, target_type: int,
+                            reason: str | None) -> None:
+        # fake_http.edit_channel_permissions arg shape verbatim —
+        # allow/deny ride as STRINGS, type as int (discord.py's HTTP
+        # layer stringifies the Permissions values).
+        self._transport.record(
+            "edit_channel_permissions",
+            {"channel_id": int(channel_id), "target_id": int(target_id),
+             "allow": str(int(allow)), "deny": str(int(deny)),
+             "type": int(target_type), "reason": reason})
 
 
 class CaptureMemberEditParseError(RuntimeError):

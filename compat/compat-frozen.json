@@ -2178,6 +2178,15 @@
    "guild_id",
    "mutation_id"
   ],
+  "channel.lifecycle_changed": [
+   "applied",
+   "failed",
+   "guild_id",
+   "mutation_id",
+   "occurred_at",
+   "operation",
+   "outcome"
+  ],
   "economy.balance_changed": [
    "delta",
    "guild_id",

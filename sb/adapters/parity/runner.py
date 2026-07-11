@@ -119,6 +119,16 @@ CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
 #: at every case head (trap 20: runner-seeded, never accumulated).
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     "sweep.xpimport": {"test": 700_000_000_000_000_901},
+    # the channel-state sweeps target the SAME leaked `test` channel
+    # (goldens/channel/sweep_slowmode `!slowmode test 3`, sweep_lock
+    # `!lock test`, sweep_unlock `!unlock test` — each channel id
+    # renders `<msg:1>`, the reply message `<msg:2>`); unlike the setup
+    # wall the edits are RECORDED calls on an already-cached channel, so
+    # only the name lookup is world state (trap 17 READ-only extended to
+    # golden-pinned EDIT verbs — the create stays with sweep.create).
+    "sweep.slowmode": {"test": 700_000_000_000_000_901},
+    "sweep.lock": {"test": 700_000_000_000_000_901},
+    "sweep.unlock": {"test": 700_000_000_000_000_901},
 }
 
 

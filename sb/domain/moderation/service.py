@@ -280,21 +280,24 @@ def _register_handlers() -> None:
         return
 
     @handler("moderation.modlogs_view")
-    async def modlogs_view(req) -> Reply:
-        from sb.domain.moderation.store import get_mod_logs
-        from sb.domain.moderation.service import parse_target_and_reason
+    async def modlogs_view(req) -> None | Reply:
+        """!modlogs @member (and the hub's 📋 Mod Logs modal) — resolve
+        the target, open the shipped history card
+        (cogs/moderation_cog.py `modlogs`; goldens/moderation/
+        sweep_modlogs pins the embed — the pre-flip plain-text reply was
+        a port invention, reshaped at the strays re-home)."""
+        import dataclasses
 
-        try:
-            target_id, _ = parse_target_and_reason(dict(req.args))
-        except ValueError:
-            target_id = int(getattr(req.actor, "user_id", 0) or 0)
-        rows = await get_mod_logs(target_id, int(req.guild_id or 0), limit=10)
-        if not rows:
-            return Reply(SUCCESS, f"No moderation history for <@{target_id}>.")
-        lines = [f"• {r['action']} — {r['reason']} (by <@{r['moderator_id']}>)"
-                 for r in rows]
-        return Reply(SUCCESS, f"Moderation history for <@{target_id}>:\n"
-                              + "\n".join(lines))
+        from sb.domain.moderation.service import parse_target_and_reason
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        target_id, _ = parse_target_and_reason(dict(req.args))
+        await open_panel(
+            PanelRef("moderation.modlogs_card"),
+            dataclasses.replace(req, args={
+                **dict(req.args), "modlogs_target_id": int(target_id)}))
+        return None
 
     # NOTE (flip review 2026-07-11): the invented `moderation.warnings_view`
     # handler and its `!warnings` command are GONE — the oracle never
