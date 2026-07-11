@@ -28,6 +28,7 @@
 - `control/status.md` — the live status ledger (blockers, owner actions, next lane).
 - `docs/status/testing-report-2026-07-09.md` — the live-testing ledger (what has
   actually been driven in a real guild, band by band).
+- `docs/status/games-ai-cutover-risk-review-2026-07-11.md` — current cutover-risk review for games money races, golden-parity false-green risk, and AI operator-surface inertness.
 - `parity/parity.yml` — the port dashboard (49 subsystem rows).
 - `docs/decisions.md` — append-only decision ledger (D-entries).
 
