@@ -382,7 +382,13 @@ class ParityResponder:
                     {"interaction_id": self._interaction_id},
                     dict(payload))
                 return None
-            data = dict(payload)
+            # discord.py's InteractionResponse.send_message omits the
+            # ``components`` key when no view rides along — a
+            # component-less panel's type-4 carries content/embeds/flags
+            # only (goldens/counters/sweep_slash_counters pins it; no
+            # golden corpus-wide pins an EMPTY components key on type-4).
+            data = {k: v for k, v in payload.items()
+                    if not (k == "components" and not v)}
             if ephemeral:
                 data["flags"] = _EPHEMERAL_FLAG
             if not self._acked:

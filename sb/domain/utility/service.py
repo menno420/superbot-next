@@ -38,7 +38,14 @@ __all__ = [
 
 @dataclass(frozen=True)
 class GuildInfo:
-    """The ``!serverinfo`` read set (utility_cog's `!info server` embed)."""
+    """The ``!serverinfo`` read set (utility_cog's `!info server` embed).
+
+    ``bots`` joined at the counters flip — the shipped
+    ``counter_service.compute_counts`` read the SAME gateway guild cache
+    (``guild.member_count`` + per-member bot flags), so the split rides
+    this port rather than a new seam (humans = member_count - bots).
+    Defaulted for directories that predate the field.
+    """
 
     name: str
     owner_id: int
@@ -47,6 +54,7 @@ class GuildInfo:
     created_at: datetime
     text_channels: int
     voice_channels: int
+    bots: int = 0
 
 
 @dataclass(frozen=True)

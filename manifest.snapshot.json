@@ -4530,6 +4530,11 @@
           "value": "counters.hub"
         },
         {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters.status"
+        },
+        {
           "source": "sb/manifest/counting.py",
           "subsystem": "counting",
           "value": "counting.hub"
@@ -6614,6 +6619,9 @@
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:counters.status_render": {
+        "module": "sb.domain.counters.panels"
+      },
       "handler:counting.enable_here_route": {
         "module": "sb.domain.counting.service"
       },
@@ -7486,6 +7494,9 @@
       },
       "panel:counters.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:counters.status": {
+        "module": "sb.domain.counters.panels"
       },
       "panel:counting.hub": {
         "module": "sb.domain.counting.panels"
@@ -9309,7 +9320,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b5172b3f1ff7f612eba931e9c6db32a1376538bc665e1663d6ad8fca05aee41e",
+  "stable_hash": "sha256:b6ffda5ff158556612780ffa9f15ef10ee1c8e0d20be2586a331a4aaa5bbb9af",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -17665,10 +17676,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "panel:counters.hub"
+            "$ref": "panel:counters.status"
           },
           "slash_common": false,
-          "summary": "Open the counters menu.",
+          "summary": "Show the current server-counters policy for this server.",
           "usage": "",
           "usage_weight": 1.0
         },
@@ -17743,6 +17754,48 @@
           "subsystem": "counters",
           "timeout_s": 180,
           "title": "Server counters",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped status embed is state-parameterized end to end (the Master flag, each counter row's live channel binding AND its live rendered name preview over the live member counts) — grammar TextBlocks are static. The card declares no components; the renderer only composes the embed (goldens/counters/sweep_counters + sweep_slash_counters pin the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "counters.status",
+          "renderer_override": {
+            "$ref": "handler:counters.status_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "counters",
+          "timeout_s": 180,
+          "title": "📊 Server counters",
           "usage_weight": 1.0
         }
       ],
