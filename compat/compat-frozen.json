@@ -206,6 +206,11 @@
    },
    {
     "aliases": [],
+    "group": "btd6ops",
+    "name": "announcechannel"
+   },
+   {
+    "aliases": [],
     "group": "btd6",
     "name": "ask"
    },
