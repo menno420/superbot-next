@@ -4921,6 +4921,26 @@
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "resetxp"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp_range"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp_cooldown"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp_levelup_channel"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp_import"
         }
       ],
       "event": [
@@ -5910,6 +5930,16 @@
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "xp.rank_card"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp.config"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp.import_scan"
         }
       ],
       "setting_key": [
@@ -8476,8 +8506,20 @@
       "handler:welcome.status_render": {
         "module": "sb.domain.welcome.panels"
       },
+      "handler:xp.config_channel_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:xp.config_cooldown_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:xp.config_range_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
+      },
+      "handler:xp.import_setup_pending": {
+        "module": "sb.domain.operator_spine"
       },
       "handler:xp.rank_card_render": {
         "module": "sb.domain.xp.panels"
@@ -8485,7 +8527,13 @@
       "handler:xp.rank_view": {
         "module": "sb.domain.xp.handlers"
       },
+      "handler:xp.render_config": {
+        "module": "sb.domain.xp.panels"
+      },
       "handler:xp.render_hub": {
+        "module": "sb.domain.xp.panels"
+      },
+      "handler:xp.render_import_scan": {
         "module": "sb.domain.xp.panels"
       },
       "handler:xp.resetxp": {
@@ -9019,7 +9067,13 @@
       "panel:welcome.status": {
         "module": "sb.domain.welcome.panels"
       },
+      "panel:xp.config": {
+        "module": "sb.domain.xp.panels"
+      },
       "panel:xp.hub": {
+        "module": "sb.domain.xp.panels"
+      },
+      "panel:xp.import_scan": {
         "module": "sb.domain.xp.panels"
       },
       "panel:xp.rank_card": {
@@ -9366,6 +9420,9 @@
       },
       "provider:xp.check_level_consistency": {
         "module": "sb.domain.xp.invariants"
+      },
+      "provider:xp.config_overview": {
+        "module": "sb.domain.xp.panels"
       },
       "provider:xp.hub_overview": {
         "module": "sb.domain.xp.panels"
@@ -10651,7 +10708,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:07237dcedf3f1574ae40d23c3d06e58d2335d721e70ad72dd889cd70bd3eb5d6",
+  "stable_hash": "sha256:57e1b556c3e82f415e8f6c1a07b090925e1de4748adffd6b6d6dc933ac356efb",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -43994,6 +44051,202 @@
           "subsystem": "xp",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "xp_range",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:xp.config_range_pending"
+              },
+              "label": "XP Range",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "xp_cooldown",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:xp.config_cooldown_pending"
+              },
+              "label": "Cooldown",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "xp_levelup_channel",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:xp.config_channel_pending"
+              },
+              "label": "Level-up Channel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "xp_import",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:xp.import_setup_pending"
+              },
+              "label": "📥 Import from another bot",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "provider": {
+                "$ref": "provider:xp.config_overview"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped build_embed renders its three config fields INLINE and a literal footer (\"Click a button below to change a setting.\" — disbot/views/xp/config_panel.py); the grammar's FieldsBlock renders block fields non-inline and FooterMode has no literal form. The override delegates to the grammar renderer for every component byte and replaces ONLY the embed (title/color kept, fields re-rendered inline, the footer literal added) — the economy wallet-card delegation shape (#152). goldens/xp/sweep_xpconfig.json pins the bytes.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "xp_range",
+                    "xp_cooldown",
+                    "xp_levelup_channel"
+                  ],
+                  [
+                    "xp_import"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "xp.config",
+          "renderer_override": {
+            "$ref": "handler:xp.render_config"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "xp",
+          "timeout_s": 180,
+          "title": "⚙️ XP Configuration",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scan status embed is STATE-DEPENDENT (the scanning line, then the nothing-to-import / preview result written over it by status.edit — disbot/cogs/xp_cog.py); grammar TextBlocks are static, so the override renders the phase-keyed title/description (the cleanup/proof_channel state-dependent-description precedent, #145 12c). Zero components; goldens/xp/sweep_xpimport.json pins both phases' bytes.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "xp.import_scan",
+          "renderer_override": {
+            "$ref": "handler:xp.render_import_scan"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "xp",
+          "timeout_s": 180,
+          "title": "📥 Scanning…",
           "usage_weight": 1.0
         }
       ],

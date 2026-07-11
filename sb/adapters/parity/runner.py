@@ -105,6 +105,22 @@ CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
     "sweep.word_list": ("test",),
 }
 
+#: CAPTURE-WORLD LEAKED CHANNELS, reconstructed (world state — the
+#: gateway-cache flavor of the reseed lane, trap 17 READ-only): channels
+#: an alphabetically-earlier capture case CREATED lived on in discord.py's
+#: guild cache across the per-case DB truncate, so a later case's
+#: TextChannelConverter name lookup found them. goldens/xp/
+#: sweep_xpimport.json (`!xpimport test`) reads history from the `test`
+#: channel minted by `_unmapped` sweep.create's `!create test …`
+#: create_channel call — the scan is a pure READ (logs_from → empty), so
+#: unlike the setup wall (playbook trap 17) no create twin is needed.
+#: Name → constant snowflake; the Normalizer knows neither name nor id,
+#: so the id renders `<msg:N>` exactly like the golden's. Seeded/CLEARED
+#: at every case head (trap 20: runner-seeded, never accumulated).
+CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
+    "sweep.xpimport": {"test": 700_000_000_000_000_901},
+}
+
 
 def _flatten_components(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
     flat: list[dict[str, Any]] = []
@@ -197,6 +213,11 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
 
     seed_word_cache_for_replay(harness.world.guild_id,
                                CAPTURE_WORLD_WORD_CACHE.get(case.id))
+
+    # capture-world GATEWAY-CACHE state (CAPTURE_WORLD_CHANNELS above) —
+    # reset_case_state() cleared the map; seed only what this case's
+    # capture saw. In-memory, so it never appears in any db_delta.
+    harness.leaked_channels.update(CAPTURE_WORLD_CHANNELS.get(case.id, {}))
 
     before: dict[str, Any] = {}
     pool = None

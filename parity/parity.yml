@@ -542,25 +542,20 @@ depth:
           so no imported golden can carry the event — its first live
           golden lands with the first config-write flip (logging)"
     xp:
-      # xp's three goldens exercise the chat-award lane (xp table rows +
-      # the xp.awarded event) and the rank/hub card sends — the reset and
-      # level-up legs of the ONE audited xp.award/xp.reset op seam are
-      # driven by sibling sweeps that live in _unmapped until re-homing.
-      - surface: "event:xp.reset"
-        reason: "covered-elsewhere: the reset lane's bytes are pinned by
-          the sibling oracle goldens/_unmapped/sweep_resetxp.json — it
-          carries the xp.reset event itself (payload verbatim) plus the
-          `!resetxp` K7 write's reply bytes; the xp directory's goldens
-          are award/read surfaces only"
+      # the xp-admin re-home moved the reset lane's own oracle
+      # (sweep_resetxp — the xp.reset event verbatim) onto this row, so
+      # the former event:xp.reset covered-elsewhere exemption is RETIRED:
+      # coverage is first-class now. level_up stays exempt below.
       - surface: "event:xp.level_up"
         reason: "covered-elsewhere: the event fires only from the audited
           xp.award op when the derived level crosses a threshold — the
           op's write bytes are pinned by goldens/xp/xp_chat_award.json
-          and the sibling oracle goldens/_unmapped/sweep_givexp.json, but
-          every capture awarded <100 XP at level 0 (level 1 needs 100 —
-          the shipped curve, sb/domain/xp/levels.py), so no imported
-          golden can carry the event; its first live golden lands with a
-          threshold-crossing capture (the settings.changed precedent)"
+          and goldens/xp/sweep_givexp.json (the re-homed admin-grant
+          sibling), but every capture awarded <100 XP at level 0 (level 1
+          needs 100 — the shipped curve, sb/domain/xp/levels.py), so no
+          imported golden can carry the event; its first live golden
+          lands with a threshold-crossing capture (the settings.changed
+          precedent)"
 
   # ratchet:
   #   <subsystem>: {events: N, tables: N, settings: N}
@@ -604,4 +599,4 @@ depth:
     ux_lab: {events: 1, tables: 2, settings: 0}
     uxlab: {events: 0, tables: 0, settings: 0}
     welcome: {events: 1, tables: 2, settings: 0}
-    xp: {events: 1, tables: 2, settings: 0}
+    xp: {events: 3, tables: 2, settings: 0}
