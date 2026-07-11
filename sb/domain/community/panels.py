@@ -484,6 +484,10 @@ def _register_hub_render() -> None:
 
 
 _register_hub_render()
+# the overview provider left the spotlight hub spec at the parity flip
+# (the shipped embed is override-composed) but stays a registered read
+# surface — at MODULE IMPORT, the composition-parity doctrine (#111).
+_ensure_spotlight_overview()
 
 
 def ensure_panel_refs() -> None:
