@@ -6089,6 +6089,9 @@
       "handler:proof_channel.lock_reconcile_fire": {
         "module": "sb.domain.proof_channel.handlers"
       },
+      "handler:proof_channel.render_hub": {
+        "module": "sb.domain.proof_channel.handlers"
+      },
       "handler:proof_channel.status": {
         "module": "sb.domain.proof_channel.handlers"
       },
@@ -6832,9 +6835,6 @@
       },
       "provider:moderation.hub_policy": {
         "module": "sb.domain.moderation.panels"
-      },
-      "provider:proof_channel.status_overview": {
-        "module": "sb.domain.proof_channel.handlers"
       },
       "provider:role.hub_overview": {
         "module": "sb.domain.role.panels"
@@ -8187,7 +8187,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:cae98a447c37fcc44401f5be87db4bd02820928ef63893d8b57e2aab8318175b",
+  "stable_hash": "sha256:19a1c24444b080325976c9c804e3862c6e9f328817a190d71c2db0cbfc58ccb5",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -26529,12 +26529,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🎁",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "workflow:proof_channel.grant_access"
               },
-              "label": "Grant",
+              "label": "🏆 Grant Access",
               "modal": {
                 "fields": [
                   {
@@ -26569,12 +26569,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⏱️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "workflow:proof_channel.grant_access"
               },
-              "label": "Timed",
+              "label": "⏱️ Timed Access",
               "modal": {
                 "fields": [
                   {
@@ -26619,12 +26619,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🔒",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "workflow:proof_channel.end_access"
               },
-              "label": "End",
+              "label": "🔒 End Session",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -26643,12 +26643,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🔄",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:proof_channel.hub"
               },
-              "label": "Refresh",
+              "label": "🔄 Refresh Status",
               "modal": null,
               "result_card": null,
               "result_render": "refresh_panel",
@@ -26660,26 +26660,17 @@
           ],
           "anchor_policy": "reply",
           "audience": "invoker",
-          "body": [
-            {
-              "text": "Grant winners exclusive proof-channel access — manual or timed (auto-unlock survives restarts)."
-            },
-            {
-              "provider": {
-                "$ref": "provider:proof_channel.status_overview"
-              }
-            }
-          ],
+          "body": [],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "gold",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub embed's description is STATE-dependent (proof_channel_cog.py build_embed: 'Managing {ch.mention}' when the proof channel resolves, the '⚠️ No `#proof` channel found. Create one first.' warning otherwise) and its footer is the literal 'Use buttons below to manage prize access.' (set_footer) — both outside the grammar's static-TextBlock/FooterMode vocabulary; goldens/proof_channel/sweep_prizemenu.json pins both bytes (the cleanup-hub precedent). The override delegates to the grammar renderer and adjusts ONLY those two surfaces (description + footer); actions, layout and frame stay declared. The shipped bound-branch 'Current Permissions' field renders LIVE channel overwrites (_format_overwrites(ch.overwrites)) — a Discord read with no capture twin and no pinning golden; it lands with the channel-ops slice (under-port note).",
           "layout": {
             "pages": [
               {
@@ -26687,7 +26678,9 @@
                   [
                     "prize_grant",
                     "prize_timed",
-                    "prize_end",
+                    "prize_end"
+                  ],
+                  [
                     "prize_refresh"
                   ]
                 ]
@@ -26699,14 +26692,16 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "proof_channel.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:proof_channel.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "proof_channel",
           "timeout_s": 180,
           "title": "🏆 Prize Channel Manager",

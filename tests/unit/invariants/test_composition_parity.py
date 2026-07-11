@@ -130,7 +130,6 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     "handler:projmoon.sin_view",
     "handler:projmoon.sinner_view",
     "handler:projmoon.status_view",
-    "panel:proof_channel.hub",
     "panel:role.hub",
 })
 
