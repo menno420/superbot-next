@@ -1253,16 +1253,6 @@
    },
    {
     "aliases": [],
-    "group": "logging",
-    "name": "disable"
-   },
-   {
-    "aliases": [],
-    "group": "logging",
-    "name": "enable"
-   },
-   {
-    "aliases": [],
     "group": "",
     "name": "logging"
    },
@@ -2121,6 +2111,19 @@
   "economy:work",
   "general.eightball_form",
   "help_categories:select",
+  "logging_panel.create_cleanup",
+  "logging_panel.create_mod",
+  "logging_panel.overview",
+  "logging_panel.routes",
+  "logging_panel.set_cleanup",
+  "logging_panel.set_mod",
+  "logging_panel.status",
+  "logging_panel.test",
+  "logging_routes.back",
+  "logging_routes.create",
+  "logging_routes.refresh",
+  "logging_routes.select",
+  "logging_routes.set",
   "mod:ban",
   "mod:clearwarn",
   "mod:kick",

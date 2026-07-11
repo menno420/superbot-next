@@ -2127,22 +2127,6 @@
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "surface": "prefix",
-          "value": "enable"
-        },
-        {
-          "kind": "command",
-          "parent_group": "logging",
-          "source": "sb/manifest/logging.py",
-          "subsystem": "logging",
-          "surface": "prefix",
-          "value": "disable"
-        },
-        {
-          "kind": "command",
-          "parent_group": "logging",
-          "source": "sb/manifest/logging.py",
-          "subsystem": "logging",
-          "surface": "prefix",
           "value": "set"
         },
         {
@@ -3802,6 +3786,71 @@
           "value": "open_other"
         },
         {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "refresh_status"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "set_mod"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "set_cleanup"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "create_mod"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "create_cleanup"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "test"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "routes"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "hub_overview"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "routes_bind"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "routes_create"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "routes_refresh"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "routes_back"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "clear"
+        },
+        {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining_mine"
@@ -4894,6 +4943,21 @@
           "source": "sb/manifest/logging.py",
           "subsystem": "logging",
           "value": "logging.hub"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging.status_card"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging.routes"
+        },
+        {
+          "source": "sb/manifest/logging.py",
+          "subsystem": "logging",
+          "value": "logging.bind_picker"
         },
         {
           "source": "sb/manifest/mining.py",
@@ -6734,22 +6798,55 @@
       "handler:leaderboard.category_view": {
         "module": "sb.domain.community.handlers"
       },
+      "handler:logging.bind_clear": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.bind_pick": {
+        "module": "sb.domain.server_logging.handlers"
+      },
       "handler:logging.create_channels": {
         "module": "sb.domain.server_logging.handlers"
       },
-      "handler:logging.disable": {
+      "handler:logging.panel_create": {
         "module": "sb.domain.server_logging.handlers"
       },
-      "handler:logging.enable": {
+      "handler:logging.panel_open": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.panel_routes": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.panel_set_cleanup": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.panel_set_mod": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.panel_status": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.panel_test": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.render_bind_picker": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "handler:logging.render_routes": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "handler:logging.render_status": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "handler:logging.routes_pick": {
+        "module": "sb.domain.server_logging.handlers"
+      },
+      "handler:logging.routes_set": {
         "module": "sb.domain.server_logging.handlers"
       },
       "handler:logging.routes_view": {
         "module": "sb.domain.server_logging.handlers"
       },
       "handler:logging.set_channel": {
-        "module": "sb.domain.server_logging.handlers"
-      },
-      "handler:logging.status_view": {
         "module": "sb.domain.server_logging.handlers"
       },
       "handler:logging.test_send": {
@@ -7565,7 +7662,16 @@
       "panel:leaderboard.board": {
         "module": "sb.domain.community.panels"
       },
+      "panel:logging.bind_picker": {
+        "module": "sb.domain.server_logging.panels"
+      },
       "panel:logging.hub": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "panel:logging.routes": {
+        "module": "sb.domain.server_logging.panels"
+      },
+      "panel:logging.status_card": {
         "module": "sb.domain.server_logging.panels"
       },
       "panel:mining.hub": {
@@ -7750,9 +7856,6 @@
       },
       "provider:leaderboard.category_options": {
         "module": "sb.domain.community.panels"
-      },
-      "provider:logging.hub_status": {
-        "module": "sb.domain.server_logging.panels"
       },
       "provider:role.hub_overview": {
         "module": "sb.domain.role.panels"
@@ -9120,7 +9223,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:51e3c2821fc2699517d08fc72a83be3f5ca731999af20678fb4735c41738679a",
+  "stable_hash": "sha256:f9ff36221e210db5c7c30fe3cf41da8e1879e6af59e21935c09c3b613fff3e81",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -23603,7 +23706,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "8 command(s), generated from the `logging` manifest."
+              "text": "6 command(s), generated from the `logging` manifest."
             },
             {
               "provider": {
@@ -26806,7 +26909,7 @@
             "$ref": "panel:logging.hub"
           },
           "slash_common": false,
-          "summary": "Open the server-logging menu.",
+          "summary": "Open the server-logging panel.",
           "usage": "!logging",
           "usage_weight": 1.0
         },
@@ -26826,57 +26929,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:logging.status_view"
+            "$ref": "panel:logging.status_card"
           },
           "slash_common": false,
           "summary": "Show the logging config + counters.",
           "usage": "!logging status",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [],
-          "audience_tier": "",
-          "capability": "logging",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "logging",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "name": "enable",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:logging.enable"
-          },
-          "slash_common": false,
-          "summary": "Enable server logging.",
-          "usage": "!logging enable",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [],
-          "audience_tier": "",
-          "capability": "logging",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "logging",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "name": "disable",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:logging.disable"
-          },
-          "slash_common": false,
-          "summary": "Disable server logging.",
-          "usage": "!logging disable",
           "usage_weight": 1.0
         },
         {
@@ -26898,8 +26955,8 @@
             "$ref": "handler:logging.set_channel"
           },
           "slash_common": false,
-          "summary": "Bind a log slot to a channel.",
-          "usage": "!logging set",
+          "summary": "Open the channel selector for a log binding.",
+          "usage": "!logging set <route>",
           "usage_weight": 1.0
         },
         {
@@ -26921,8 +26978,8 @@
             "$ref": "handler:logging.create_channels"
           },
           "slash_common": false,
-          "summary": "Provision missing log channels.",
-          "usage": "!logging create",
+          "summary": "Provision a missing log channel.",
+          "usage": "!logging create <route>",
           "usage_weight": 1.0
         },
         {
@@ -26944,7 +27001,7 @@
             "$ref": "handler:logging.routes_view"
           },
           "slash_common": false,
-          "summary": "Show per-category routing.",
+          "summary": "Show per-route bindings + fallbacks.",
           "usage": "!logging routes",
           "usage_weight": 1.0
         },
@@ -26977,29 +27034,282 @@
       "key": "logging",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "refresh_status",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.status",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_status"
+              },
+              "label": "📝 Refresh Status",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "set_mod",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.set_mod",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_set_mod"
+              },
+              "label": "🔗 Set Mod Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "set_cleanup",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.set_cleanup",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_set_cleanup"
+              },
+              "label": "🔗 Set Cleanup Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "create_mod",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.create_mod",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_create"
+              },
+              "label": "🆕 Create Mod Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "create_cleanup",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.create_cleanup",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_create"
+              },
+              "label": "🆕 Create Cleanup Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "test",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.test",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_test"
+              },
+              "label": "🔔 Test",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "routes",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.routes",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_routes"
+              },
+              "label": "🗺️ Routes",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "hub_overview",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_panel.overview",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_status"
+              },
+              "label": "↩ Overview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Operator log routing: `!logging status` / `enable` / `set <slot> #channel` / `routes` / `test`."
-            },
-            {
-              "provider": {
-                "$ref": "provider:logging.hub_status"
-              }
+              "text": ""
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blue",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped LoggingPanelView carried the status embed built by logging_cog.py's module-level builder — channel mentions, the live process-local counter block, and the enabled-keyed color are state-dependent copy the grammar cannot express; the override delegates the COMPONENTS to render_panel (the pinned logging_panel.* ids come from the spec) and composes the EMBED only (title, the six shipped fields, the SUCCESS/INFO color key). goldens/logging/sweep_logging + logging_enable_and_bind pin every off-state byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "refresh_status"
+                  ],
+                  [
+                    "set_mod",
+                    "set_cleanup"
+                  ],
+                  [
+                    "create_mod",
+                    "create_cleanup"
+                  ],
+                  [
+                    "test",
+                    "routes"
+                  ],
+                  [
+                    "hub_overview"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "moderation",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "logging.hub",
+          "renderer_override": {
+            "$ref": "handler:logging.render_status"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "logging",
+          "timeout_s": 180,
+          "title": "📝 Server logging — status",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": ""
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!logging status` reply is the SAME state-dependent status embed with zero components (goldens/logging/sweep_logging_status pins content:null + components:[]) — the karma.error_card zero-component session-panel lane.",
           "layout": {
             "pages": []
           },
@@ -27008,17 +27318,302 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
-          "panel_id": "logging.hub",
-          "renderer_override": null,
+          "panel_id": "logging.status_card",
+          "renderer_override": {
+            "$ref": "handler:logging.render_status"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "logging",
           "timeout_s": 180,
-          "title": "Server logging",
+          "title": "📝 Server logging — status",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "routes_bind",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_routes.set",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.routes_set"
+              },
+              "label": "🔗 Set Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "routes_create",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_routes.create",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_create"
+              },
+              "label": "🆕 Create Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "routes_refresh",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_routes.refresh",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_routes"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "routes_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "logging_routes.back",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.panel_open"
+              },
+              "label": "↩ Back to Logging",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": ""
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Routes embed (cogs/logging/routes_panel.py build_routes_embed) walks every route's live resolution (own binding → fallback chain → unset marker) — state-dependent copy the grammar cannot express; the override delegates the COMPONENTS to render_panel (the pinned logging_routes.* ids come from the spec) and composes the EMBED only (title, quick-start description, the Routes field, the fallback-chain footer, ERROR red). goldens/logging/sweep_logging_routes pins every byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "select"
+                  ],
+                  [
+                    "routes_bind",
+                    "routes_create",
+                    "routes_refresh"
+                  ],
+                  [
+                    "routes_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "logging.routes",
+          "renderer_override": {
+            "$ref": "handler:logging.render_routes"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "logging_routes.select",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:logging.routes_pick"
+              },
+              "options_source": [
+                "mod",
+                "events",
+                "cleanup",
+                "debug",
+                "info",
+                "warning",
+                "error",
+                "audit",
+                "message_log",
+                "member_log",
+                "role_log"
+              ],
+              "page_size": 25,
+              "placeholder": "Choose a route…",
+              "selector_id": "select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "logging",
+          "timeout_s": 180,
+          "title": "🗺️ Logging Routes",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "clear",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:logging.bind_clear"
+              },
+              "label": "Clear binding",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": ""
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped LogChannelSelectView message is a plain-text send (no embed) whose content and select placeholder name the route being bound — per-invocation copy the grammar cannot express; the override delegates the COMPONENTS to render_panel (session-minted ids — the goldens' <cid:N> shape) and replaces embed→None + content + the per-route placeholder only. goldens/logging/logging_enable_and_bind step 3 pins the wire.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pick"
+                  ],
+                  [
+                    "clear"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "logging.bind_picker",
+          "renderer_override": {
+            "$ref": "handler:logging.render_bind_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:logging.bind_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick the log channel…",
+              "selector_id": "pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "logging",
+          "timeout_s": 180,
+          "title": "",
           "usage_weight": 1.0
         }
       ],
@@ -27360,7 +27955,19 @@
             "logging_mod_channel"
           ],
           "multiplicity": 1,
-          "name": "mod",
+          "name": "mod_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Combined event-log channel (default bot-event-log).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "events_channel",
           "required": false,
           "resource_link": ""
         },
@@ -27374,7 +27981,7 @@
             "logging_cleanup_channel"
           ],
           "multiplicity": 1,
-          "name": "cleanup",
+          "name": "cleanup_channel",
           "required": false,
           "resource_link": ""
         },
@@ -27382,11 +27989,11 @@
           "bind_weight": 1.0,
           "capability_required": "",
           "group": "",
-          "hint": "Combined event-log channel.",
+          "hint": "Debug severity route (falls back to mod).",
           "kind": "channel",
           "legacy_settings_key_aliases": [],
           "multiplicity": 1,
-          "name": "events",
+          "name": "debug_channel",
           "required": false,
           "resource_link": ""
         },
@@ -27394,11 +28001,11 @@
           "bind_weight": 1.0,
           "capability_required": "",
           "group": "",
-          "hint": "Per-category: message events.",
+          "hint": "Info severity route (falls back to mod).",
           "kind": "channel",
           "legacy_settings_key_aliases": [],
           "multiplicity": 1,
-          "name": "messages",
+          "name": "info_channel",
           "required": false,
           "resource_link": ""
         },
@@ -27406,11 +28013,11 @@
           "bind_weight": 1.0,
           "capability_required": "",
           "group": "",
-          "hint": "Per-category: member events.",
+          "hint": "Warning severity route (falls back to mod).",
           "kind": "channel",
           "legacy_settings_key_aliases": [],
           "multiplicity": 1,
-          "name": "members",
+          "name": "warning_channel",
           "required": false,
           "resource_link": ""
         },
@@ -27418,11 +28025,59 @@
           "bind_weight": 1.0,
           "capability_required": "",
           "group": "",
-          "hint": "Per-category: role events.",
+          "hint": "Error severity route (falls back to mod).",
           "kind": "channel",
           "legacy_settings_key_aliases": [],
           "multiplicity": 1,
-          "name": "roles",
+          "name": "error_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Audit-feed route (falls back to mod).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "audit_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Per-category: message events (falls back to events).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "message_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Per-category: member events (falls back to events).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "member_channel",
+          "required": false,
+          "resource_link": ""
+        },
+        {
+          "bind_weight": 1.0,
+          "capability_required": "",
+          "group": "",
+          "hint": "Per-category: role events (falls back to events).",
+          "kind": "channel",
+          "legacy_settings_key_aliases": [],
+          "multiplicity": 1,
+          "name": "role_channel",
           "required": false,
           "resource_link": ""
         }

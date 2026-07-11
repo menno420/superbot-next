@@ -75,7 +75,7 @@ subsystems:
   inventory: pending
   karma: ported
   leaderboard: ported
-  logging: pending
+  logging: ported
   mining: pending
   moderation: ported
   project_moon: ported
@@ -387,6 +387,7 @@ depth:
     hermes: {events: 0, tables: 0, settings: 0}
     karma: {events: 2, tables: 4, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
+    logging: {events: 1, tables: 2, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}

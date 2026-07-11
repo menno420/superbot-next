@@ -461,7 +461,8 @@ def test_moderation_fanout_routes_to_bound_channel(monkeypatch):
             enabled=True, category_enabled={"moderation": True})
 
     async def fake_bound(guild_id, name):
-        return 555 if name == "mod" else None
+        # the flip carries the shipped binding names (mod_channel/…)
+        return 555 if name == "mod_channel" else None
 
     monkeypatch.setattr(service, "load_config", fake_config)
     monkeypatch.setattr(service, "bound_channel", fake_bound)
@@ -471,10 +472,14 @@ def test_moderation_fanout_routes_to_bound_channel(monkeypatch):
     delivered = asyncio.run(bus.emit(
         "moderation.action_taken", guild_id=1, action="warn",
         target_id=2, actor_id=3, reason="spam"))
-    assert delivered == 1
+    # the shipped subscriber PAIR rides moderation.action_taken: the staff
+    # mod-log feed delivers, the public-log twin pre-filters + counts
+    # (default policy "none" ⇒ mod_public_skipped).
+    assert delivered == 2
     assert sent and sent[0][0] == 555
     assert "warn" in sent[0][1]
     assert service.counters().get("sent_total") == 1
+    assert service.counters().get("mod_public_skipped") == 1
     egress.reset_channel_emitter_for_tests()
 
 
@@ -513,3 +518,96 @@ def test_qualified_name_and_group_field():
     assert spec.qualified_name == "logging status"
     bare = CommandSpec(name="warn", kind=CommandKind.PREFIX)
     assert bare.qualified_name == "warn"
+
+
+# --- the logging flip (pending→ported) --------------------------------------------
+
+
+def test_logging_flip_shipped_command_surface():
+    """The shipped logging_cog surface: bare group → the panel; the five
+    real subcommands; the D-0029-era enable/disable NEVER shipped (zero
+    oracle hits, no sweep golden) and are retired at the flip."""
+    import sb.manifest.server_logging as m
+    from sb.spec.refs import PanelRef
+
+    names = [c.qualified_name for c in m.MANIFEST.commands]
+    assert names == ["logging", "logging status", "logging set",
+                     "logging create", "logging routes", "logging test"]
+    assert "logging enable" not in names and "logging disable" not in names
+    group = m.MANIFEST.commands[0]
+    assert isinstance(group.route, PanelRef)
+    assert group.route.name == "logging.hub"
+
+
+def test_logging_flip_route_table_and_bindings():
+    """The shipped 11-slot route table (select_view._ROUTE_BINDING) in the
+    shipped roots-first order, mirrored by the manifest BindingSpecs."""
+    import sb.manifest.server_logging as m
+    from sb.domain.server_logging import service
+
+    assert service.ROUTES == (
+        "mod", "events", "cleanup", "debug", "info", "warning", "error",
+        "audit", "message_log", "member_log", "role_log")
+    binding_names = [s.name for s in m.MANIFEST.settings
+                     if type(s).__name__ == "BindingSpec"]
+    assert sorted(binding_names) == sorted(service.ROUTE_BINDING.values())
+    # the shipped usage byte (goldens/logging/sweep_logging_set pins it)
+    from sb.domain.server_logging.handlers import SET_USAGE, _sorted_routes
+
+    assert SET_USAGE.format(routes=_sorted_routes()) == (
+        "Usage: `!logging set <audit|cleanup|debug|error|events|info|"
+        "member_log|message_log|mod|role_log|warning>` — opens the channel "
+        "selector for the requested log binding.")
+
+
+def test_logging_counter_vocabulary_full_block():
+    """The shipped 16-name counter vocabulary renders in FULL, zeros
+    included, alphabetically (goldens/logging/sweep_logging_status)."""
+    from sb.domain.server_logging import service
+
+    service.reset_counters_for_tests()
+    snap = service.counters()
+    assert len(snap) == 16
+    assert list(snap) == sorted(snap)
+    assert set(snap) == set(service.COUNTER_NAMES)
+    assert all(v == 0 for v in snap.values())
+
+
+def test_logging_capture_counter_reconstruction():
+    """The parity runner's CAPTURE_WORLD_COUNTERS trajectory: the values
+    the goldens pin (1 at the curated case; 18/3 at the sweeps) — the
+    derivation lives on the constant."""
+    from sb.adapters.parity.runner import CAPTURE_WORLD_COUNTERS
+    from sb.domain.server_logging import service
+
+    assert CAPTURE_WORLD_COUNTERS["logging.enable_and_bind"] == {
+        "skipped_disabled": 1}
+    for case_id in ("sweep.logging", "sweep.logging_status",
+                    "sweep.logging_test"):
+        assert CAPTURE_WORLD_COUNTERS[case_id] == {
+            "skipped_disabled": 18, "mod_public_skipped": 3}
+    service.seed_counters_for_replay(
+        CAPTURE_WORLD_COUNTERS["sweep.logging_status"])
+    snap = service.counters()
+    assert snap["skipped_disabled"] == 18
+    assert snap["mod_public_skipped"] == 3
+    assert snap["sent_total"] == 0
+    service.reset_counters_for_tests()
+
+
+def test_logging_public_log_prefilter():
+    """The shipped disciplinary pre-filter: warn/timeout/kick/ban are
+    counted skips under the default 'none' selector; unban/clearwarnings
+    never reach the counter (skipped BEFORE any config read)."""
+    from sb.domain.server_logging import service
+    from sb.kernel.events_bus import EventBus
+
+    service.reset_counters_for_tests()
+    bus = EventBus()
+    service.subscribe(bus)
+    for action in ("warn", "ban", "kick", "unban", "clearwarnings"):
+        asyncio.run(bus.emit("moderation.action_taken", guild_id=1,
+                             action=action, target_id=2, actor_id=3,
+                             reason=""))
+    assert service.counters()["mod_public_skipped"] == 3
+    service.reset_counters_for_tests()

@@ -287,6 +287,17 @@ class Harness:
         for event_name in sorted(KNOWN_EVENTS):
             bus.on(event_name, _make_tap(event_name))
 
+        # the server-logging fan-out rode the shipped harness for real
+        # (parity/harness/boot.py: `server_logging.setup(bot)`), and its
+        # process-local counters are golden-rendered state — arm the same
+        # subscriber trio here. With the capture guild's logging disabled
+        # it only counts skips (no sends, no events); the runner reseeds
+        # the CAPTURE trajectory at each observing case
+        # (runner.CAPTURE_WORLD_COUNTERS).
+        from sb.domain.server_logging import service as _server_logging
+
+        _server_logging.subscribe(bus)
+
         from sb.kernel import lifecycle
 
         lifecycle.set_phase(lifecycle.Phase.RUNNING, reason="parity harness boot")

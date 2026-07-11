@@ -134,6 +134,12 @@ class RenderedComponent:
     # — the shipped rich-option shape, provider-fed (goldens pin it byte-
     # for-byte, e.g. the help category select).
     options: tuple[object, ...] = ()
+    # SelectorKind.CHANNEL selectors are Discord-native pickers (wire
+    # component type 8): Discord supplies the option list, so no options
+    # materialize and the tuple names the allowed channel types ((0,) =
+    # text channels — the shipped LogChannelSelectView shape,
+    # goldens/logging/logging_enable_and_bind pins the wire bytes).
+    channel_types: tuple[int, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -173,8 +179,12 @@ class RenderedAttachment:
 @dataclass(frozen=True)
 class RenderedPanel:
     panel_id: str
-    embed: RenderedEmbed
+    # ``embed=None`` + ``content`` = a CONTENT-only panel message (the
+    # shipped plain-text send carrying a component View — logging's
+    # channel-binding picker, goldens/logging/logging_enable_and_bind).
+    embed: RenderedEmbed | None
     components: tuple[RenderedComponent, ...] = ()
+    content: str | None = None
     # message attachments (discord.File sends) — the shipped card sends put
     # the whole payload on the multipart wire; presenters own the mapping.
     attachments: tuple[RenderedAttachment, ...] = ()
@@ -350,6 +360,22 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                 continue
             custom_id = getattr(cspec, "custom_id_override", "") or f"{spec.panel_id}.{comp_id}"
             if hasattr(cspec, "selector_id"):
+                from sb.spec.panels import SelectorKind as _SK
+
+                if cspec.kind is _SK.CHANNEL:
+                    # Discord-native channel picker (wire type 8): the
+                    # client supplies the options, so nothing materializes
+                    # and the component can never be empty-disabled.
+                    components.append(RenderedComponent(
+                        kind="selector", custom_id=custom_id,
+                        label=resolver.resolve(cspec.placeholder, locale=loc),
+                        row=row_idx,
+                        placeholder=resolver.resolve(cspec.placeholder,
+                                                     locale=loc),
+                        min_values=cspec.min_values,
+                        max_values=cspec.max_values,
+                        channel_types=(0,)))
+                    continue
                 if isinstance(cspec.options_source, tuple):
                     options = cspec.options_source
                 else:
