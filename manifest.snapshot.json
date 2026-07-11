@@ -5958,6 +5958,9 @@
       "handler:ai.preset_remove_route": {
         "module": "sb.domain.ai.service"
       },
+      "handler:ai.preset_usage_view": {
+        "module": "sb.domain.ai.service"
+      },
       "handler:ai.providers_view": {
         "module": "sb.domain.ai.service"
       },
@@ -5973,13 +5976,16 @@
       "handler:ai.render_settings": {
         "module": "sb.domain.ai.panels"
       },
-      "handler:ai.review_channel_view": {
+      "handler:ai.review_channel_route": {
         "module": "sb.domain.ai.service"
       },
       "handler:ai.review_export_view": {
         "module": "sb.domain.ai.service"
       },
       "handler:ai.review_list_view": {
+        "module": "sb.domain.ai.service"
+      },
+      "handler:ai.review_off_route": {
         "module": "sb.domain.ai.service"
       },
       "handler:ai.review_resolve_route": {
@@ -7749,6 +7755,9 @@
       "workflow:ai.record_resolve_entry": {
         "module": "sb.domain.ai.ops"
       },
+      "workflow:ai.record_review_channel": {
+        "module": "sb.domain.ai.ops"
+      },
       "workflow:ai.record_review_entry": {
         "module": "sb.domain.ai.ops"
       },
@@ -7768,6 +7777,9 @@
         "module": "sb.domain.ai.ops"
       },
       "workflow:ai.set_preset": {
+        "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.set_review_channel": {
         "module": "sb.domain.ai.ops"
       },
       "workflow:blackjack.pvp_accept": {
@@ -8893,7 +8905,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:8eae6e7fd0bad30b29d14a061933b166bea1e6a58392235f67d3a6c9980253fb",
+  "stable_hash": "sha256:ff4827edac3a91c847f10f68db34b97e04a9c905316d1c58c9ce77c7c3ed8334",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9511,7 +9523,7 @@
             "$ref": "handler:ai.review_export_view"
           },
           "slash_common": false,
-          "summary": "Export the unreviewed backlog.",
+          "summary": "Export the unreviewed backlog as a JSON file.",
           "usage": "!aireview export",
           "usage_weight": 1.0
         },
@@ -9531,10 +9543,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:ai.review_channel_view"
+            "$ref": "handler:ai.review_channel_route"
           },
           "slash_common": false,
-          "summary": "Where the review feed channel is configured.",
+          "summary": "Set the review feed channel.",
           "usage": "!aireview channel",
           "usage_weight": 1.0
         },
@@ -9554,10 +9566,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:ai.review_channel_view"
+            "$ref": "handler:ai.review_off_route"
           },
           "slash_common": false,
-          "summary": "Turn the review feed off (ai.review_channel = 0).",
+          "summary": "Clear the review feed channel (entries still recorded).",
           "usage": "!aireview off",
           "usage_weight": 1.0
         },
@@ -9577,7 +9589,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:ai.preset_list_view"
+            "$ref": "handler:ai.preset_usage_view"
           },
           "slash_common": false,
           "summary": "Vetted answer presets (served with zero model call).",
@@ -9603,8 +9615,8 @@
             "$ref": "handler:ai.preset_add_route"
           },
           "slash_common": false,
-          "summary": "Store a vetted answer: question | answer.",
-          "usage": "!aireview preset add <q> | <a>",
+          "summary": "Store a vetted answer for an exact question.",
+          "usage": "!aireview preset add \"<question>\" <answer>",
           "usage_weight": 1.0
         },
         {
@@ -9672,8 +9684,8 @@
             "$ref": "handler:ai.preset_remove_route"
           },
           "slash_common": false,
-          "summary": "Remove a stored preset.",
-          "usage": "!aireview preset remove <question>",
+          "summary": "Remove a stored preset by id.",
+          "usage": "!aireview preset remove <id>",
           "usage_weight": 1.0
         }
       ],

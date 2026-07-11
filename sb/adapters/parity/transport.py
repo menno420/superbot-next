@@ -273,7 +273,14 @@ class ParityResponder:
         visibility = getattr(result, "reply_visibility", ReplyVisibility.EPHEMERAL)
         if message is None or visibility is ReplyVisibility.SILENT:
             return
-        self._reply(str(message), ephemeral=visibility is ReplyVisibility.EPHEMERAL)
+        # the shipped ``allowed_mentions=AllowedMentions.none()`` send kwarg,
+        # threaded as reply data (Result.workflow carries the handler Reply —
+        # goldens/ai/sweep_aireview_preset_add pins the wire shape).
+        suppress = bool(getattr(getattr(result, "workflow", None),
+                                "suppress_mentions", False))
+        self._reply(str(message),
+                    ephemeral=visibility is ReplyVisibility.EPHEMERAL,
+                    suppress_mentions=suppress)
 
     async def fetch_original_response(self) -> None:
         """The shipped ``await interaction.original_response()`` fetch —
@@ -368,9 +375,12 @@ class ParityResponder:
 
     # -- internals -----------------------------------------------------------
 
-    def _reply(self, message: str, *, ephemeral: bool) -> None:
+    def _reply(self, message: str, *, ephemeral: bool,
+               suppress_mentions: bool = False) -> None:
         if self.surface in _INTERACTION_SURFACES:
             data: dict[str, Any] = {"content": message}
+            if suppress_mentions:
+                data["allowed_mentions"] = {"parse": []}
             if ephemeral:
                 data["flags"] = _EPHEMERAL_FLAG
             if not self._acked:
@@ -387,10 +397,15 @@ class ParityResponder:
             self._transport.gap("ParityResponder._reply: no channel")
             return
         # discord.py's HTTP send always carries components ([] when no
-        # view) — the goldens' wire shape for every plain-content send.
-        self._transport.record_send(
-            self._channel_id,
-            {"components": [], "content": message, "tts": False})
+        # view) — the goldens' wire shape for every plain-content send;
+        # an explicit AllowedMentions.none() rides as the shipped
+        # ``allowed_mentions: {"parse": []}`` body key (fake_http captured
+        # the HTTP payload verbatim — goldens/ai/sweep_aireview_preset_add).
+        payload: dict[str, Any] = {"components": [], "content": message,
+                                   "tts": False}
+        if suppress_mentions:
+            payload["allowed_mentions"] = {"parse": []}
+        self._transport.record_send(self._channel_id, payload)
 
 
 class ParityPresenter:

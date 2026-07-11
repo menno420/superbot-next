@@ -19,10 +19,14 @@ from sb.spec.versioning import (
 
 __all__ = [
     "AI_ANSWER_PRESETS_STORE",
+    "AI_REVIEW_CHANNEL_KEY",
     "AI_REVIEW_LOG_STORE",
     "count_unreviewed",
     "erase_subject",
+    "export_entries",
     "get_entry",
+    "get_preset",
+    "get_review_channel_value",
     "insert_entry",
     "list_presets",
     "lookup_preset",
@@ -92,6 +96,8 @@ async def insert_entry(conn: Any, *, guild_id: int, channel_id: int,
 async def query_entries(guild_id: int, *, kind: str | None = None,
                         unreviewed_only: bool = False, limit: int = 10,
                         conn: Any = None) -> list[dict]:
+    """Recent entries, newest first (shipped utils/db/ai_review.py
+    query_review_entries: ORDER BY created_at DESC)."""
     clauses = ["guild_id=$1"]
     params: list[Any] = [guild_id]
     if kind:
@@ -99,10 +105,33 @@ async def query_entries(guild_id: int, *, kind: str | None = None,
         clauses.append(f"kind=${len(params)}")
     if unreviewed_only:
         clauses.append("reviewed=FALSE")
-    params.append(max(1, min(int(limit), 25)))
+    params.append(max(1, min(int(limit), 100)))
     rows = await fetchall(
         f"SELECT * FROM ai_review_log WHERE {' AND '.join(clauses)} "  # noqa: S608
-        f"ORDER BY id DESC LIMIT ${len(params)}",
+        f"ORDER BY created_at DESC LIMIT ${len(params)}",
+        tuple(params), conn=conn)
+    return [dict(r) for r in rows]
+
+
+async def export_entries(guild_id: int, *, kind: str | None = None,
+                         include_reviewed: bool = True, limit: int = 1000,
+                         conn: Any = None) -> list[dict]:
+    """The operator-export read (shipped export_review_entries verbatim):
+    triage-relevant columns only, oldest-first so the dump reads
+    chronologically; ``id`` included so entries stay resolvable."""
+    clauses = ["guild_id=$1"]
+    params: list[Any] = [guild_id]
+    if kind:
+        params.append(kind)
+        clauses.append(f"kind=${len(params)}")
+    if not include_reviewed:
+        clauses.append("reviewed=FALSE")
+    params.append(max(1, min(int(limit), 5000)))
+    rows = await fetchall(
+        "SELECT id, created_at, kind, reason_code, task, route, question, "
+        "answer, correction, provider, model, reviewed FROM ai_review_log "
+        f"WHERE {' AND '.join(clauses)} "  # noqa: S608
+        f"ORDER BY created_at ASC LIMIT ${len(params)}",
         tuple(params), conn=conn)
     return [dict(r) for r in rows]
 
@@ -123,11 +152,20 @@ async def mark_reviewed(conn: Any, *, guild_id: int, entry_id: int) -> bool:
     return "1" in str(result)
 
 
-async def count_unreviewed(guild_id: int, conn: Any = None) -> int:
-    row = await fetchone(
-        "SELECT COUNT(*) AS n FROM ai_review_log "
-        "WHERE guild_id=$1 AND reviewed=FALSE",
-        (guild_id,), conn=conn)
+async def count_unreviewed(guild_id: int, *, kind: str | None = None,
+                           conn: Any = None) -> int:
+    """Unreviewed count, optionally by kind (the shipped per-kind reads
+    behind the bare ``!aireview`` status embed)."""
+    if kind:
+        row = await fetchone(
+            "SELECT COUNT(*) AS n FROM ai_review_log "
+            "WHERE guild_id=$1 AND reviewed=FALSE AND kind=$2",
+            (guild_id, kind), conn=conn)
+    else:
+        row = await fetchone(
+            "SELECT COUNT(*) AS n FROM ai_review_log "
+            "WHERE guild_id=$1 AND reviewed=FALSE",
+            (guild_id,), conn=conn)
     return int(row["n"]) if row else 0
 
 
@@ -150,12 +188,22 @@ async def upsert_preset(conn: Any, *, guild_id: int, question_key: str,
 
 
 async def remove_preset(conn: Any, *, guild_id: int,
-                        question_key: str) -> bool:
+                        preset_id: int) -> bool:
+    """Delete one preset BY ID (the shipped ``!aireview preset remove
+    <id>`` semantics — utils/db/ai_presets.delete)."""
     result = await execute(
-        "DELETE FROM ai_answer_presets "
-        "WHERE guild_id=$1 AND question_key=$2",
-        (guild_id, question_key), conn=conn)
+        "DELETE FROM ai_answer_presets WHERE guild_id=$1 AND id=$2",
+        (guild_id, preset_id), conn=conn)
     return "1" in str(result)
+
+
+async def get_preset(guild_id: int, preset_id: int,
+                     conn: Any = None) -> dict | None:
+    """One full preset row by id (shipped get_by_id), or None."""
+    row = await fetchone(
+        "SELECT * FROM ai_answer_presets WHERE guild_id=$1 AND id=$2",
+        (guild_id, preset_id), conn=conn)
+    return dict(row) if row else None
 
 
 async def lookup_preset(guild_id: int, question_key: str,
@@ -169,11 +217,35 @@ async def lookup_preset(guild_id: int, question_key: str,
 
 async def list_presets(guild_id: int, *, limit: int = 20,
                        conn: Any = None) -> list[dict]:
+    """A guild's presets, newest first, DISABLED ROWS INCLUDED (the
+    shipped list_for_guild — the ``!aireview preset list`` embed marks
+    disabled rows instead of hiding them)."""
     rows = await fetchall(
-        "SELECT id, question, answer, task, source FROM ai_answer_presets "
-        "WHERE guild_id=$1 AND enabled=TRUE ORDER BY id DESC LIMIT $2",
-        (guild_id, max(1, min(int(limit), 25))), conn=conn)
+        "SELECT id, question_key, question, answer, task, source, enabled, "
+        "created_by, created_at, updated_at FROM ai_answer_presets "
+        "WHERE guild_id=$1 ORDER BY created_at DESC LIMIT $2",
+        (guild_id, max(1, min(int(limit), 100))), conn=conn)
     return [dict(r) for r in rows]
+
+
+# --- review-channel pointer (shipped legacy-KV read) ------------------------------------
+
+#: the shipped utils/settings_keys/ai.py AI_REVIEW_CHANNEL key string,
+#: verbatim (sb/domain/settings/keys.py carries the vocabulary).
+AI_REVIEW_CHANNEL_KEY = "ai_review_channel"
+
+
+async def get_review_channel_value(guild_id: int,
+                                   conn: Any = None) -> str | None:
+    """READ-ONLY over the shipped legacy-KV ``guild_settings`` table — the
+    review-feed channel pointer the shipped ``resolve_settings_channel``
+    read (goldens/ai/sweep_aireview_off pins the row's write home; the
+    write is the audited ``ai.set_review_channel`` op leg, the
+    btd6.set_announce_channel precedent)."""
+    row = await fetchone(
+        "SELECT value FROM guild_settings WHERE guild_id=$1 AND key=$2",
+        (guild_id, AI_REVIEW_CHANNEL_KEY), conn=conn)
+    return None if row is None else str(row["value"])
 
 
 # --- erasure ---------------------------------------------------------------------------

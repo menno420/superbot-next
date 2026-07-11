@@ -16,9 +16,27 @@ from sb.spec.outcomes import ReplyVisibility
 
 logger = logging.getLogger("sb.adapters.discord.responders")
 
+try:  # pragma: no cover — discord is absent in CI containers by design
+    import discord as _discord
+except ImportError:
+    _discord = None  # type: ignore[assignment]
+
 __all__ = ["InteractionResponder", "MessageResponder"]
 
 _CONTENT_LIMIT = 2000                       # Discord hard cap per message
+
+
+def _mention_kwargs(result: object) -> dict:
+    """The shipped ``allowed_mentions=AllowedMentions.none()`` send kwarg,
+    carried as reply data (``Result.workflow`` is the handler's Reply; the
+    ``!aireview preset add`` confirmation echoes member text — the shipped
+    cog suppressed pings on it)."""
+    if _discord is None:
+        return {}
+    if bool(getattr(getattr(result, "workflow", None),
+                    "suppress_mentions", False)):
+        return {"allowed_mentions": _discord.AllowedMentions.none()}
+    return {}
 
 
 def _content_chunks(text: str, limit: int = _CONTENT_LIMIT) -> list[str]:
@@ -122,13 +140,16 @@ class InteractionResponder:
         if message is None or visibility is ReplyVisibility.SILENT:
             return
         ephemeral = visibility is ReplyVisibility.EPHEMERAL
+        mention_kwargs = _mention_kwargs(result)
         response = getattr(self._interaction, "response", None)
         chunks = _content_chunks(str(message))
         if response is not None and not response.is_done():
-            await response.send_message(chunks[0], ephemeral=ephemeral)
+            await response.send_message(chunks[0], ephemeral=ephemeral,
+                                        **mention_kwargs)
             chunks = chunks[1:]
         for chunk in chunks:
-            await self._interaction.followup.send(chunk, ephemeral=ephemeral)
+            await self._interaction.followup.send(chunk, ephemeral=ephemeral,
+                                                  **mention_kwargs)
 
 
 class MessageResponder:
@@ -180,5 +201,6 @@ class MessageResponder:
         visibility = getattr(result, "reply_visibility", None)
         if message is None or visibility is ReplyVisibility.SILENT:
             return
+        mention_kwargs = _mention_kwargs(result)
         for chunk in _content_chunks(str(message)):
-            await self._ctx.reply(chunk)
+            await self._ctx.reply(chunk, **mention_kwargs)

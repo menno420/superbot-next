@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.aireview_preset_list",
+ "case_id": "sweep.aireview",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1770429508,
+     "last_xp": 1860784779,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,19 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "No vetted presets yet. Add one with `!aireview preset add \"<question>\" <answer>`.",
+      "content": null,
+      "embeds": [
+       {
+        "color": 10038562,
+        "description": "Review channel: *(not set)*\nUnreviewed — **0** didn't-know · **0** corrections",
+        "flags": 0,
+        "footer": {
+         "text": "!aireview channel #chan · !aireview list [unknown|correction] · !aireview export · !aireview resolve <id> · !aireview off"
+        },
+        "title": "🔎 AI answer review log",
+        "type": "rich"
+       }
+      ],
       "tts": false
      }
     },
@@ -77,11 +89,11 @@
     }
    ],
    "input": {
-    "content": "!aireview preset list",
+    "content": "!aireview",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "ai"
 }
