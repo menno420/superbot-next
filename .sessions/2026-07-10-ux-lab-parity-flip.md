@@ -69,3 +69,14 @@ green (of 465). Full suite 1219 passed.
   (`register_hub("admin", ...)`) — the shipped behavior for a
   not-yet-registered hub id is the polite fallthrough; the golden pins
   the render only.
+
+## 💡 Session idea
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no idea. Backfill exists so the strict session-gate's
+newest-card-by-mtime pick cannot red CI on this card — see PR #159's card.)
+
+## ⟲ Previous-session review
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no previous-session review.)
