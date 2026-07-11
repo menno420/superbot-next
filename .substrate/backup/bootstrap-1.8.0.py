@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.9.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.8.0 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -87,7 +87,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.9.0"
+KIT_VERSION = "1.8.0"
 
 
 def _new_project_id() -> str:
@@ -1749,50 +1749,6 @@ def status_in_progress(text: str) -> bool:
             lowered = line.lower()
             return any(token in lowered for token in IN_PROGRESS_TOKENS)
     return False
-
-
-def has_status_badge(text: str) -> bool:
-    """True when the log carries any Status badge line at all."""
-    return any("**status:**" in line.lower() for line in text.splitlines())
-
-
-def check_added_card(path: Path, markers: Sequence[Mapping[str, str]]) -> list[str]:
-    """Grammar-lint a card newly ADDED by a PR (the gate's advisory lane).
-
-    The venture-lab #15 false-green class: the generated gate exempts an
-    ADDED card from the locked door so a born-red heartbeat can merge — but
-    the old exemption skipped the card ENTIRELY, so a card that declared
-    itself ``complete`` while missing its grammar tokens (💡 / ``📊 Model:``)
-    merged green and pre-reddened every later bare ``check --strict`` run
-    via the newest-by-mtime fallback (fixed only by the next upgrade wave).
-
-    The middle tier (idea recorded on venture-lab PR #17's session card):
-    judge the added card by what it *declares*, never by mid-flight
-    completeness —
-
-    - **no Status badge at all** → a grammar finding: every session card
-      carries a parseable ``> **Status:**`` badge from its first commit
-      (the born-red convention *requires* the badge; it exempts the VALUE).
-    - **badge declares in-progress/drafted** → no findings: born-red
-      incompleteness is the designed state and stays fully exempt.
-    - **badge declares anything else** (``complete`` & co.) → the card
-      claims to be a finished close-out, so it gets the full
-      :func:`check_log` completeness check — missing markers and unresolved
-      ``[[fill:]]`` slots red exactly as they would on a MODIFIED card.
-    """
-    try:
-        text = path.read_text(encoding="utf-8")
-    except OSError:
-        return ["an unreadable added card (cannot grammar-check)"]
-    if not has_status_badge(text):
-        return [
-            "a Status badge line (expected `> **Status:**`) — a session card "
-            "carries one from its first commit; born-red exempts the badge's "
-            "VALUE, never its presence",
-        ]
-    if status_in_progress(text):
-        return []
-    return check_log(path, markers)
 
 
 def check_log(path: Path, markers: Sequence[Mapping[str, str]]) -> list[str]:
@@ -8100,14 +8056,10 @@ learned lessons, fired triggers, and pending questions. The composition is
 **mode-aware** — ``orientation_depth`` (observe → minimal, guided → standard,
 active → full) decides which sections render and how hard they cap.
 
-Section order (the plan's fixed sequence, plus the handoff push at slot 2):
-status header → **handoff push** (newest session card + unresolved slots +
-the previous session's resolved handoff pointer — the B1 run-4/run-5
-continuity-null fix: cold sessions never PULL the card, so the kit pushes
-it) → stance briefing → user-style block → learned lessons (AFTER
-user-style) → trigger block → guided-practices line → economy-gauges
-advisory (over-cap only) → pending questions (quota view) → observe-mode
-workflow proposal.
+Section order (the plan's fixed sequence): status header → stance briefing →
+user-style block → learned lessons (AFTER user-style) → trigger block →
+guided-practices line → economy-gauges advisory (over-cap only) → pending
+questions (quota view) → observe-mode workflow proposal.
 
 Every section is defensive: a failure inside one section drops that section,
 never the whole composition — orientation must never crash a session. This is
@@ -8121,17 +8073,9 @@ the stance guard).
 # Depth "standard" caps the learned-lessons section at this many entries.
 _ORI_STANDARD_LESSON_CAP = 3
 # Depth "minimal" (observe) renders only these section numbers: the status
-# header (1), the handoff push (2 — a pointer informs, it imposes nothing;
-# continuity is the kit's core promise at every depth), the trigger block as
-# an advisory (6), and the workflow proposal (10) — observe imposes nothing
-# else.
-_ORI_MINIMAL_SECTIONS = frozenset({1, 2, 6, 10})
-# Cap on the pushed handoff-pointer excerpt — the push must stay terse (the
-# B1 M1 lesson: ON already pays a footprint premium; a fat banner makes the
-# regression worse, not better).
-_ORI_HANDOFF_EXCERPT_CAP = 300
-# The drafted close-out's handoff field (engine.loop.handoff draft text).
-_ORI_HANDOFF_NEEDLE = "next session should know"
+# header (1), the trigger block as an advisory (5), and the workflow proposal
+# (9) — observe imposes nothing else.
+_ORI_MINIMAL_SECTIONS = frozenset({1, 5, 9})
 
 
 def _ori_status_header(state: dict[str, Any], config: Config) -> str:
@@ -8145,69 +8089,8 @@ def _ori_status_header(state: dict[str, Any], config: Config) -> str:
     )
 
 
-def _ori_handoff_pointer(text: str) -> str:
-    """Extract the newest RESOLVED handoff pointer from a session card.
-
-    The auto-draft writes ``- Next session should know: [[fill: …]]`` and a
-    closing session resolves the slot in place, so the pointer is a line
-    match, not structure. The LAST resolved match wins (drafted close-outs
-    append, so the newest section sits at the bottom); a line still carrying
-    an unresolved ``[[fill:`` slot is skipped — pushing a template slot at a
-    cold session would be noise, not handoff.
-    """
-    pointer = ""
-    for line in text.splitlines():
-        lowered = line.lower()
-        index = lowered.find(_ORI_HANDOFF_NEEDLE)
-        if index < 0:
-            continue
-        rest = line[index + len(_ORI_HANDOFF_NEEDLE) :].lstrip(" :**").strip()
-        if not rest or DRAFT_FILL_TOKEN in rest:
-            continue
-        pointer = rest
-    if len(pointer) > _ORI_HANDOFF_EXCERPT_CAP:
-        pointer = pointer[: _ORI_HANDOFF_EXCERPT_CAP - 1].rstrip() + "…"
-    return pointer
-
-
-def _ori_handoff(root: Path, config: Config) -> str:
-    """Render section 2 — the handoff push ('' when no session card exists).
-
-    The B1 run-4/run-5 continuity-null fix: both hook-live bench runs showed
-    cold sessions re-deriving history via ``git show`` while the newest
-    session card sat unopened — the continuity surface was PULL-only. This
-    section PUSHES it: the newest card's path, its completion state, its
-    unresolved auto-draft slot count, and the previous session's resolved
-    "Next session should know" pointer, capped terse (the M1 budget).
-    """
-    card = latest_session_log(root / config.sessions_dir)
-    if card is None:
-        return ""
-    text = card.read_text(encoding="utf-8", errors="replace")
-    try:
-        rel = card.relative_to(root)
-    except ValueError:
-        rel = card
-    status = "in-progress/drafted" if status_in_progress(text) else "complete"
-    slots = unresolved_fill_count(text)
-    slot_note = f", {slots} unresolved [[fill:]] slot(s)" if slots else ""
-    lines = [
-        "## Handoff — the previous session's trail (pushed; read before re-deriving)",
-        "",
-        f"- Newest session card: `{rel}` — status: {status}{slot_note}.",
-    ]
-    pointer = _ori_handoff_pointer(text)
-    if pointer:
-        lines.append(f"- Next session should know: {pointer}")
-    lines.append(
-        "- Open that card FIRST — it is the last session's record; prefer it "
-        "over re-deriving history from `git log`/`git show`.",
-    )
-    return "\n".join(lines)
-
-
 def _ori_stance(state: dict[str, Any]) -> str:
-    """Render section 3 — the active stance briefing ('' when no stance set)."""
+    """Render section 2 — the active stance briefing ('' when no stance set)."""
     stance = state.get("stance")
     if not stance:
         return ""
@@ -8215,7 +8098,7 @@ def _ori_stance(state: dict[str, Any]) -> str:
 
 
 def _ori_user_style(state: dict[str, Any]) -> str:
-    """Render section 4 — the owner_profile user-style block ('' when unfilled)."""
+    """Render section 3 — the owner_profile user-style block ('' when unfilled)."""
     entry = state.get("slot_values", {}).get("owner_profile")
     value = entry.get("value") if isinstance(entry, dict) else entry
     text = str(value).strip() if value else ""
@@ -8225,21 +8108,21 @@ def _ori_user_style(state: dict[str, Any]) -> str:
 
 
 def _ori_lessons(root: Path, config: Config, depth: str) -> str:
-    """Render section 5 — learned lessons (standard caps at 3, full uncapped)."""
+    """Render section 4 — learned lessons (standard caps at 3, full uncapped)."""
     entries = load_reflections(root / config.state_dir / REFLECTIONS_FILENAME)
     cap = _ORI_STANDARD_LESSON_CAP if depth == "standard" else len(entries)
     return lessons_block(active_lessons(entries, cap))
 
 
 def _ori_triggers(root: Path, config: Config, state: dict[str, Any]) -> str:
-    """Render section 6 — the trigger block (mandate flag per the mode policy)."""
+    """Render section 5 — the trigger block (mandate flag per the mode policy)."""
     triggers = check_triggers(root, config, state)
     questions = mandatory_questions(triggers)
     return trigger_block(triggers, questions, mandate=triggers_mandate(state))
 
 
 def _ori_practices(state: dict[str, Any], config: Config) -> str:
-    """Render section 7 — the one-line guided-practices block ('' when empty)."""
+    """Render section 6 — the one-line guided-practices block ('' when empty)."""
     practices = active_practices(state, dict(config.cadence or {}))
     if not practices:
         return ""
@@ -8247,7 +8130,7 @@ def _ori_practices(state: dict[str, Any], config: Config) -> str:
 
 
 def _ori_gauges(root: Path, config: Config) -> str:
-    """Render section 8 — economy advisory listing ONLY over-cap gauges."""
+    """Render section 7 — economy advisory listing ONLY over-cap gauges."""
     over = [g for g in economy_gauges(root, config) if g.get("over")]
     if not over:
         return ""
@@ -8260,7 +8143,7 @@ def _ori_gauges(root: Path, config: Config) -> str:
 
 
 def _ori_questions(state: dict[str, Any]) -> str:
-    """Render section 9 — the quota-capped ask list with a '+N more' suffix."""
+    """Render section 8 — the quota-capped ask list with a '+N more' suffix."""
     asks = session_questions(state)
     if not asks:
         return ""
@@ -8275,7 +8158,7 @@ def _ori_questions(state: dict[str, Any]) -> str:
 
 
 def _ori_proposal(state: dict[str, Any]) -> str:
-    """Render section 10 — observe mode's workflow proposal when it is due."""
+    """Render section 9 — observe mode's workflow proposal when it is due."""
     if state.get("mode") != "observe" or not workflow_proposal_due(state):
         return ""
     return (
@@ -8304,9 +8187,9 @@ def _ori_safe(build: Any) -> str:
 def compose_orientation(root: Path, config: Config, backend: Any) -> str:
     """Compose the mode-aware SessionStart orientation injection.
 
-    Assembles the ten sections (the nine plan sections plus the handoff push) in fixed order, gated by
+    Assembles the nine plan sections in fixed order, gated by
     ``orientation_depth``: ``minimal`` renders only the status header, the
-    handoff push, the trigger advisory, and the observe-mode proposal; ``standard`` renders all
+    trigger advisory, and the observe-mode proposal; ``standard`` renders all
     sections but caps lessons at 3; ``full`` renders everything uncapped.
     Every section builder runs inside its own guard — a bad state document or
     an unreadable file drops that one section, never the whole composition
@@ -8322,15 +8205,14 @@ def compose_orientation(root: Path, config: Config, backend: Any) -> str:
         depth = "standard"
     builders = (
         (1, lambda: _ori_status_header(state, config)),
-        (2, lambda: _ori_handoff(root, config)),
-        (3, lambda: _ori_stance(state)),
-        (4, lambda: _ori_user_style(state)),
-        (5, lambda: _ori_lessons(root, config, depth)),
-        (6, lambda: _ori_triggers(root, config, state)),
-        (7, lambda: _ori_practices(state, config)),
-        (8, lambda: _ori_gauges(root, config)),
-        (9, lambda: _ori_questions(state)),
-        (10, lambda: _ori_proposal(state)),
+        (2, lambda: _ori_stance(state)),
+        (3, lambda: _ori_user_style(state)),
+        (4, lambda: _ori_lessons(root, config, depth)),
+        (5, lambda: _ori_triggers(root, config, state)),
+        (6, lambda: _ori_practices(state, config)),
+        (7, lambda: _ori_gauges(root, config)),
+        (8, lambda: _ori_questions(state)),
+        (9, lambda: _ori_proposal(state)),
     )
     sections: list[str] = []
     for number, build in builders:
@@ -9556,22 +9438,6 @@ def _adopt_sessions_readme(markers: list[dict[str, str]]) -> str:
         if m.get("label")
     )
     pairs = pairs or "(no markers configured)"
-    # Attribution ground truth (fleet standing rule, ORDER 012 / fm model
-    # matrix 2026-07): the model segment is the FAMILY-LEVEL name the
-    # session's own harness reports — self-report in the committed card is
-    # the only reliable attribution surface. Rendered only when the host's
-    # markers actually require the Model line.
-    model_doctrine = ""
-    if any(m.get("needle") == MODEL_LINE_NEEDLE for m in markers):
-        model_doctrine = (
-            f" The `{MODEL_LINE_NEEDLE}` model segment is the **family-level "
-            "model name your own harness/environment reports this session** "
-            "(e.g. `fable-5`, `opus-4.8`, `sonnet-5`) — the committed card's "
-            "self-report is the attribution ground truth. Never copy it from "
-            "an external surface (schedule/Routines screens are evidenced to "
-            "misattribute), and never record a full dated model ID — "
-            "family-level names only."
-        )
     return (
         "# Session logs\n\n"
         "Per-session logs live here as `<date>-<slug>.md`, newest first. "
@@ -9581,7 +9447,7 @@ def _adopt_sessions_readme(markers: list[dict[str, str]]) -> str:
         "step once the close-out is written — a half-done session never reads "
         "as finished. Before it counts as complete, a log must carry these "
         "markers, each written with its exact backticked byte-form: "
-        f"{pairs}.{model_doctrine}\n\n"
+        f"{pairs}.\n\n"
         "If the card is missing at session end, the kit **auto-drafts** one "
         "from evidence (files touched, git HEAD movement, the verify "
         "command); an in-progress card missing its close-out gets the "
@@ -9849,13 +9715,6 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         "        # session (venture-lab #14). Hold semantics may only\n"
         "        # tighten, never loosen, inside the PR that changes them;\n"
         "        # the escape is the normal one — flip the card complete.\n"
-        "        # The advisory lane is NOT a full exemption: --added-card\n"
-        "        # grammar-lints the added card (a missing Status badge, or\n"
-        "        # a card declaring itself complete while missing its\n"
-        "        # markers, reds) while born-red incompleteness stays\n"
-        "        # exempt — the venture-lab #15 class, where an ADDED card\n"
-        "        # merged green with malformed grammar and pre-reddened\n"
-        "        # every later bare `check --strict` run.\n"
         "        run: |\n"
         '          if [ -n "${{ github.base_ref }}" ]; then\n'
         '            range="origin/${{ github.base_ref }}...HEAD"\n'
@@ -9882,10 +9741,9 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         ' --session-log "$card"\n'
         "          elif [ -n \"$card\" ]; then\n"
         '            echo "card $card is newly ADDED by this PR (born-red heartbeat)'
-        ' — advisory sentinel gate (card grammar still checked)"\n'
+        ' — advisory sentinel gate"\n'
         f"            {interpreter} bootstrap.py check --strict --session-log "
-        f"{sessions_dir}/__born-red-card-added__.md"
-        ' --added-card "$card"\n'
+        f"{sessions_dir}/__born-red-card-added__.md\n"
         "          else\n"
         f"            {interpreter} bootstrap.py check --strict --session-log "
         f"{sessions_dir}/__no-card-in-diff__.md\n"
@@ -10253,83 +10111,6 @@ def _automerge_params(config: Config) -> tuple[list[str], str]:
     return [str(p) for p in patterns], context
 
 
-def _workflow_context_names(root: Path) -> set[str]:
-    """Collect plausible required-check context names from live workflows.
-
-    A workflow job's status-check context is its display ``name:`` when set,
-    else its job id — so both are collected, from every workflow under
-    ``.github/workflows/``. Line-based like :func:`_workflow_outline`
-    (stdlib-only, no YAML parser) and best-effort by design: the result only
-    ever decides whether to *emit an advisory report line*, never a gate.
-    Empty set = nothing judgeable (no workflows dir / no parseable jobs).
-    """
-    names: set[str] = set()
-    wf_dir = root / ".github" / "workflows"
-    if not wf_dir.is_dir():
-        return names
-    for wf_path in sorted(wf_dir.glob("*.yml")) + sorted(wf_dir.glob("*.yaml")):
-        try:
-            text = wf_path.read_text(encoding="utf-8")
-        except OSError:
-            continue
-        in_jobs = False
-        current: str | None = None
-        for raw in text.split("\n"):
-            line = raw.rstrip()
-            stripped = line.strip()
-            if not stripped or stripped.startswith("#"):
-                continue
-            indent = len(line) - len(line.lstrip(" "))
-            if indent == 0:
-                in_jobs = stripped == "jobs:"
-                current = None
-                continue
-            if not in_jobs:
-                continue
-            if (
-                indent == 2
-                and stripped.endswith(":")
-                and not stripped.startswith("-")
-            ):
-                current = stripped[:-1]
-                names.add(current)
-                continue
-            if current is not None and indent == 4:
-                match = re.match(r"name:\s*(.+)$", stripped)
-                if match is not None:
-                    names.add(match.group(1).strip().strip("'\""))
-    return names
-
-
-def _required_context_advisory(root: Path, required_context: str) -> str | None:
-    """One advisory line when ``automerge.required_context`` looks wrong.
-
-    The websites class (queued kit fix 3): the planted config defaulted
-    ``required_context`` to ``substrate-gate`` while that repo's actual
-    required check is ``quality`` — a value the kit cannot *derive* at plant
-    time (which check is REQUIRED lives in the branch ruleset, owner-UI,
-    invisible in-tree), but can *validate* against what is visible: the job
-    names the repo's own workflows produce. Mismatch → one report line
-    naming the exact config override; nothing judgeable → silence (a fresh
-    adopt with no CI must not nag about a gate that isn't installed yet).
-    The knob stays informational-only either way — the enabler's
-    refuse-to-arm guard counts required contexts generically.
-    """
-    names = _workflow_context_names(root)
-    if not names or required_context in names:
-        return None
-    listed = ", ".join(f"'{name}'" for name in sorted(names))
-    return (
-        f"automerge.required_context '{required_context}' matches no job in "
-        f".github/workflows/ (contexts found: {listed}) — if this repo's "
-        "REQUIRED check has a different name, set substrate.config.json -> "
-        'automerge."required_context" to that exact context. The value '
-        "labels the repo-settings checklist + enabler log lines "
-        "(informational; the refuse-to-arm guard counts required contexts "
-        "generically)."
-    )
-
-
 def _repo_settings_checklist(required_context: str) -> list[str]:
     """Return the one-time repo-settings checklist (EAP §6.10, second half).
 
@@ -10346,117 +10127,11 @@ def _repo_settings_checklist(required_context: str) -> list[str]:
         "(a workflow cannot flip repo settings).",
         f"  2. Require the '{required_context}' status check on the default "
         "branch (Settings → Rules) — with NO required check, arming "
-        "auto-merge merges a PR instantly. (If this repo's required check "
-        "has a different name, pin it via substrate.config.json -> "
-        'automerge."required_context" so this checklist and the enabler '
-        "logs name the right context.)",
+        "auto-merge merges a PR instantly.",
         '  3. Optional: "Automatically delete head branches" + auto-update '
         "of PR branches (closes the merged-branch clutter and the "
         "green-behind stall classes).",
     ]
-
-
-# Search-hygiene plant (queued kit fix 5 — bench run-5 judge limitation 5):
-# the ~12k-line vendored bootstrap.py + the <state_dir>/backup/ dist copies
-# dominate repo-wide search in adopter repos (a code grep surfaces hundreds
-# of engine hits before the repo's own sources). The guidance half shipped
-# with the planted CLAUDE.md search-hygiene note (#165); this is the
-# mechanical half: `.ignore` removes both from ripgrep-family tools by
-# default (`rg -u`/`--no-ignore` still reaches them deliberately; plain
-# `grep -r` has no ignore protocol and stays guidance-only), and
-# `.gitattributes` linguist-generated hints collapse them in GitHub diffs
-# and language stats. Both surfaces are MERGED, never clobbered: the kit
-# only ever appends entries that are missing, under one marker comment.
-SEARCH_HYGIENE_MARKER = (
-    "# substrate-kit search hygiene (planted by adopt/upgrade; the kit only "
-    "ever APPENDS missing entries — existing content above is host-owned)"
-)
-
-
-def _search_hygiene_surfaces(
-    config: Config,
-    vendored_relpath: str,
-) -> tuple[tuple[str, tuple[str, ...]], ...]:
-    """Return the (file, entries) plan for the search-hygiene plant.
-
-    Entries are root-anchored (leading ``/``) so only the vendored file and
-    the state-dir backup bank match — never a same-named file deeper in the
-    host tree. An absolute ``vendored_relpath`` (the no-vendored-copy
-    fallback shapes) contributes no bootstrap entry: there is nothing
-    in-repo to hide.
-    """
-    state_dir = config.state_dir.strip("/")
-    bootstrap_entry = None
-    if vendored_relpath and not Path(vendored_relpath).is_absolute():
-        bootstrap_entry = "/" + vendored_relpath.lstrip("/")
-    ignore_entries = tuple(
-        entry
-        for entry in (bootstrap_entry, f"/{state_dir}/backup/")
-        if entry is not None
-    )
-    attr_entries = tuple(
-        f"{pattern} linguist-generated=true"
-        for pattern in (bootstrap_entry, f"/{state_dir}/backup/**")
-        if pattern is not None
-    )
-    return ((".ignore", ignore_entries), (".gitattributes", attr_entries))
-
-
-def _plant_search_hygiene(
-    root: Path,
-    config: Config,
-    vendored_relpath: str,
-    report: list[str],
-) -> None:
-    """Merge the search-hygiene entries into ``.ignore``/``.gitattributes``.
-
-    Append-only merge (the clobber hazard is real: a host `.gitattributes`
-    or `.ignore` carries host policy): existing lines are preserved
-    byte-for-byte, already-present entries are never duplicated (idempotent
-    across adopt/upgrade passes), and appended entries sit under one marker
-    comment naming their provenance. Unreadable file → skip + report,
-    never destroy.
-    """
-    for relpath, entries in _search_hygiene_surfaces(config, vendored_relpath):
-        if not entries:
-            continue
-        path = root / relpath
-        existing = ""
-        if path.is_file():
-            try:
-                existing = path.read_text(encoding="utf-8")
-            except OSError:
-                report.append(
-                    f"skipped: {relpath} (unreadable — left untouched; "
-                    "search-hygiene entries not merged)",
-                )
-                continue
-        present = {line.strip() for line in existing.splitlines()}
-        missing = [entry for entry in entries if entry not in present]
-        if not missing:
-            report.append(
-                f"kept: {relpath} (search-hygiene entries already present)",
-            )
-            continue
-        chunk = ""
-        if existing:
-            if not existing.endswith("\n"):
-                chunk += "\n"
-            chunk += "\n"
-        if SEARCH_HYGIENE_MARKER not in present:
-            chunk += SEARCH_HYGIENE_MARKER + "\n"
-        chunk += "\n".join(missing) + "\n"
-        atomic_write_text(path, existing + chunk)
-        noun = "entry" if len(missing) == 1 else "entries"
-        if existing:
-            report.append(
-                f"merged: {relpath} ({len(missing)} search-hygiene {noun} "
-                "appended; existing content preserved)",
-            )
-        else:
-            report.append(
-                f"planted: {relpath} ({len(missing)} search-hygiene {noun})",
-            )
 
 
 def adopt(
@@ -10566,10 +10241,6 @@ def adopt(
     project_name = context.get("project_name") or root.name
     skeleton = pack_index_skeleton(project_name)
     _adopt_plant(root / "project.index.json", "project.index.json", skeleton, report)
-
-    # (3b) Search hygiene (queued kit fix 5): keep the vendored dist + the
-    # backup bank out of repo-wide search — merged, never clobbered.
-    _plant_search_hygiene(root, config, bootstrap_path, report)
 
     # (4) Stage the .claude material under <state_dir> (regenerated each run).
     state_base = root / config.state_dir
@@ -10701,12 +10372,6 @@ def adopt(
         # repo settings exist — say so in the adopt output itself, every
         # pass (the checklist is idempotent guidance, not a nag).
         report.extend(_repo_settings_checklist(enabler_context))
-    # required_context sanity (queued kit fix 3, the websites class): after
-    # the gate/enabler regens above so a just-installed live gate counts as
-    # a matching context. Advisory line only — see the helper's docstring.
-    context_advisory = _required_context_advisory(root, enabler_context)
-    if context_advisory is not None:
-        report.append(context_advisory)
 
     # (6b2) Lane-aware adopt: declare the just-planted lane heartbeat so the
     # status gate validates it (config mutated in place — cmd_adopt's
@@ -12702,21 +12367,10 @@ def cmd_check(
     *,
     require_session_log: bool = False,
     session_log: Path | None = None,
-    added_card: Path | None = None,
     status_only: bool = False,
     inbox_base: Path | None = None,
 ) -> int:
     """Run every hygiene checker against ``target``.
-
-    ``added_card`` (CLI ``--added-card``) names a session card the PR's diff
-    ADDS — the generated gate's advisory sentinel lane passes it so a
-    born-red heartbeat is still *grammar*-checked instead of exempted
-    entirely (the venture-lab #15 false-green class; see
-    :func:`engine.checks.check_session_log.check_added_card` for the
-    declared-status tiering). Findings ride the strict loop like any doc
-    finding and are never allowlistable (they are the session-gate seam);
-    a named file that does not exist is advisory-only — the gate derives
-    the path from the diff, so absence means nothing to judge.
 
     ``inbox_base`` (CLI ``--inbox-base``) names the merge-base version of
     ``control/inbox.md`` — extracted by CI in bash, because engine code never
@@ -12865,28 +12519,6 @@ def cmd_check(
     entries, allow_findings = load_allowlist(target, config.state_dir)
     doc_findings, suppressed = apply_allowlist(doc_findings, entries)
     doc_findings += allow_findings
-    # Added-card grammar lint (queued kit fix 1, the venture-lab #15
-    # false-green class): appended AFTER the allowlist pass on purpose —
-    # like the session-log gate it extends, it is never allowlistable.
-    if added_card is not None and not status_only:
-        card_path = (
-            added_card if added_card.is_absolute() else target / added_card
-        )
-        if card_path.is_file():
-            card_rel = (
-                str(card_path.relative_to(target))
-                if card_path.is_relative_to(target)
-                else str(card_path)
-            )
-            doc_findings += [
-                Finding(card_rel, "session-card-grammar", miss)
-                for miss in check_added_card(card_path, config.session_markers)
-            ]
-        else:
-            _emit(
-                f"check: --added-card {added_card} does not exist "
-                "(advisory — nothing to grammar-check).",
-            )
     if suppressed:
         _emit(
             f"check: {len(suppressed)} finding(s) suppressed by allowlist "
@@ -13097,58 +12729,10 @@ def cmd_check(
             findings=[gate_finding],
         )
 
-    # Designed-hold signal (queued kit fix 4, the PL-006 observer-noise
-    # class): with parallel sessions, every born-red PR's mid-flight red CI
-    # draws "investigate this failure" pings from coordinators/observers —
-    # three live occurrences (#140/#144/#147 class, again on #153). When the
-    # ONLY thing holding the run red is a session card that itself DECLARES
-    # an in-progress/drafted Status, the red is the born-red discipline
-    # working as designed — say so, unmissably, in the failing output (and
-    # as a GitHub annotation when running in Actions) so an observer can
-    # tell a designed hold from a real defect without opening the job log's
-    # fine print. Any other finding alongside suppresses the banner: a
-    # partially-real failure must never be labelled "by design".
-    hold_is_designed = (
-        strict
-        and not doc_findings
-        and not log_absent_fails
-        and log is not None
-        and bool(log_missing)
-        and _card_declares_in_progress(log)
-    )
-    if hold_is_designed:
-        hold_rel = log.relative_to(target) if log.is_relative_to(target) else log
-        _emit(
-            f"check: HOLD (by design): session card {hold_rel} declares an "
-            "in-progress Status — the born-red session gate holds the merge "
-            "red until the card flips complete. This red is the designed "
-            "hold, not a defect; nothing to investigate.",
-        )
-        if os.environ.get("GITHUB_ACTIONS"):
-            _emit(
-                "::notice title=HOLD: session card in-progress (by design)::"
-                f"The born-red session gate is holding this red until {hold_rel} "
-                "flips complete. Designed hold — not a CI failure to "
-                "investigate.",
-            )
     if not doc_findings and not log_missing and not log_absent_fails:
         _emit("check: all checks passed.")
         return 0
     return 1 if strict else 0
-
-
-def _card_declares_in_progress(log: Path) -> bool:
-    """True when ``log``'s own Status badge carries an in-progress value.
-
-    The designed-hold banner's honesty condition (fix 4): the card must SAY
-    it is mid-flight — a card that claims ``complete`` but still reds is a
-    real defect and never gets the "by design" label. Unreadable → False
-    (never claim design intent on evidence that cannot be read).
-    """
-    try:
-        return status_in_progress(log.read_text(encoding="utf-8"))
-    except OSError:
-        return False
 
 
 def _require_state(
@@ -14182,18 +13766,6 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     check.add_argument(
-        "--added-card",
-        type=Path,
-        default=None,
-        help=(
-            "grammar-lint this session card as one newly ADDED by the PR "
-            "(the gate's advisory sentinel lane): born-red incompleteness "
-            "stays exempt, but a missing Status badge — or a card that "
-            "declares itself complete while missing its markers — reds "
-            "(the venture-lab #15 false-green class)"
-        ),
-    )
-    check.add_argument(
         "--status-only",
         action="store_true",
         help=(
@@ -14256,7 +13828,6 @@ def main(argv: list[str] | None = None) -> int:
                 args.strict,
                 require_session_log=args.require_session_log,
                 session_log=args.session_log,
-                added_card=args.added_card,
                 status_only=args.status_only,
                 inbox_base=args.inbox_base,
             )
@@ -14345,7 +13916,7 @@ def main(argv: list[str] | None = None) -> int:
 _TEMPLATES = {
     'AGENT_ORIENTATION.md.tmpl': '# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\n1. `.claude/CLAUDE.md` — the working agreement.\n2. `docs/current-state.md` — the living status ledger.\n3. `docs/CAPABILITIES.md` — verified session capabilities & walls (the\n   discovery rule lives there; append what you learn).\n4. This file — task-specific reading routes.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/ideas/README.md` — plus the root\n`CONSTITUTION.md` (the working agreement) and `.session-journal.md`.\n\n## Verifying any change\n\n```\n${verify_command}\n```\n',
     'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/capabilities.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   evidence (exact error, or proof it worked) and the workaround if one was\n   found. An unrecorded discovery is re-paid by every future session.\n\n## Capabilities — verified working\n\n- **Media is readable**: a video is never "unviewable" — extract frames\n  (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images; same\n  idea for audio (transcribe) and PDFs (render pages). Try the recipe before\n  reporting a format wall.\n- **Provisioned credentials**: the environment often carries tokens/keys as\n  env vars — `printenv` first; a missing-looking credential is usually a\n  missing *look*.\n- **Release cutting despite the tag wall**: `workflow_dispatch` on the\n  release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- **Tag push / release create via git**: HTTP 403 from the environment\'s git\n  proxy → use the workflow_dispatch release path.\n- **Branch deletion**: 403 on every path (git push `:branch` and API) →\n  owner deletes by hand / enables "Automatically delete head branches".\n- **`api.github.com` direct HTTP**: blocked → GitHub access is MCP-tools-only.\n- **Environment / routine / Project creation**: owner-click actions in the\n  console — queue them under `⚑ needs-owner`, never wait silently.\n- **Self-merge classifier**: sessions can be refused merging owner-gated PRs\n  while their other capabilities work — and the boundary differs by session\n  kind (a child session was refused where a coordinator was not). Record\n  which kind of session hit which boundary.\n- **GraphQL API quota**: tight — batch queries and prefer the REST-backed\n  MCP tools for bulk reads.\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.\n\n(Hand-filled by sessions, per the discovery rule. Seed walls/capabilities\nabove came from the fleet\'s lived 2026-07 findings; local ones go here.)\n',
-    'CLAUDE.md.tmpl': "# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `docs/current-state.md` — what is true right now.\n3. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).\n   Never declare a wall or a missing credential without its discovery rule:\n   check the file → check the env → attempt once + capture the exact error →\n   append the finding same session.\n4. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g '!bootstrap.py' -g\n'!.substrate' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n",
+    'CLAUDE.md.tmpl': '# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `docs/current-state.md` — what is true right now.\n3. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).\n   Never declare a wall or a missing credential without its discovery rule:\n   check the file → check the env → attempt once + capture the exact error →\n   append the finding same session.\n4. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n',
     'CONSTITUTION.md.tmpl': "# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session's goal end-to-end; don't ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner often hands over a rough fragment, not\n  a full spec — and sometimes doesn't know yet if the idea is even possible.\n  Before substantive work, restate the fuller picture built from the ask —\n  the specs it implied but didn't state, and, when feasibility is uncertain,\n  the possibility space — inline in the first substantive response, never as\n  a separate blocking question. Two payoffs, not one: it catches a misread\n  before work happens, and the filled-in picture is itself new material the\n  owner reasons against and redirects.\n- **Capabilities are discovered, never assumed.** `docs/CAPABILITIES.md` is\n  the verified ledger of what sessions here can and cannot do — read it at\n  session start. Before declaring a wall or a missing credential: check that\n  file → check the environment (`printenv`, tool lists) → attempt once and\n  capture the exact error → append the finding same session. An imagined\n  wall stalls the session; an unrecorded real one taxes every later session.\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall (the\n  `docs/CAPABILITIES.md` discipline) — assumption-based asks are banned.\n  Every ask carries the OWNER-ACTION fields — WHAT / WHERE / HOW /\n  WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act on it\n  directly. Expire stale asks; fewer, clearer asks beat complete lists.\n\n## Changing the rules — propose, don't apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md):\nPL-001 decide-and-flag · PL-002 never-wait rebuild autonomy · PL-003\nrail-before-scale · PL-004 empirical model allocation · PL-005 observe-first\nbudgets · PL-006 source-wins / false-green · PL-007 enforce-don't-exhort ·\nPL-008 adopt-freely with a kill-switch · PL-009 the kit-lab's rails.\n**Cite PL-IDs — never copy ruling bodies into this repo.** The register is\nthe one home; a local copy is drift by construction. Repo-local rulings stay\nin `docs/decisions.md` / `docs/question-router.md`; a local ruling promoted\nprogram-wide becomes a PL-block there and a pointer here.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project's own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n",
     'ai-project-workflow.md.tmpl': "# ${project_name} — AI project workflow\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The multi-agent pipeline: how ideas become work\n> and how sessions run. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Idea lifecycle\n\n```\ncaptured -> classified -> planned -> built -> verified\n```\n\nEvery idea ends implemented, planned, in discussion, or explicitly rejected —\nnever orphaned. Backlog + routing: `docs/ideas/README.md`.\n\n## Session workflow\n\n```\norient -> claim -> born-red card -> build -> verify -> close\n```\n\n1. **Orient** — working agreement, current state, task-specific reading route.\n2. **Claim** — declare your lane so parallel sessions don't collide.\n3. **Born-red card** — open the session record first, marked in-progress, so\n   the work is visible while it is still incomplete.\n4. **Build** — the goal, end-to-end.\n5. **Verify** — run `${verify_command}` before shipping.\n6. **Close** — flip the card complete; log the session, groom one idea, hand\n   off.\n\n## Handoff template\n\n(What the next session needs, four lines: state of the work · what is\nverified · what is still open · the first next step.)\n\n## Adoption pace\n\nCurrent substrate-workflow adoption: **${integration_mode}**.\n",
     'architecture.md.tmpl': '# ${project_name} — architecture\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Layering, invariants, and decomposition rules.\n> **NOT SOURCE OF TRUTH** for code — source files always win.\n\n## Layers & import rules\n\n${architecture_layers}\n\n| Layer | May import | Must NOT import |\n|---|---|---|\n| (one row per layer, expanded from the summary above) | | |\n\n## Invariants\n\n(The rules that must survive every refactor — write each one as a testable\nstatement, and name the check that enforces it where one exists.)\n\n## Namespace protection — two mechanisms, both required\n\nTwo separate mechanisms guard the namespace, and they catch different\nfailure classes:\n\n1. **A registry for runtime string identities** — event names, command\n   names, settings keys, and any other string that selects behavior at\n   runtime. Collisions here are invisible to static analysis.\n2. **A static AST pass for Python symbol shadowing** — a later top-level\n   `def` / `class` with the same name silently shadows the earlier one, and\n   no import fails.\n\nNeither mechanism subsumes the other. The registry cannot see symbol\nshadowing; the AST pass cannot see string-keyed dispatch. Do not delete one\nbelieving the other covers it.\n\n## Verifying a change\n\n```\n${verify_command}\n```\n',
