@@ -55,12 +55,17 @@ def request_from_modal(interaction: object, *, responder) -> ResolveRequest | No
         # kernel-owned at the modal-issue branch of resolve()): a
         # parameterized session panel's form carries static wire bytes, so
         # its session params (e.g. the ai widgets' `setting`) ride kernel
-        # memory. Submitted field values win ties; a stash miss leaves the
-        # fields alone (the handler's own guards answer).
+        # memory — keyed per (form, user, originating message): the submit
+        # interaction's `message` IS the message the opening component sat
+        # on, so a user's concurrent opens of the same form from different
+        # panel pages stay isolated (codex P2 on the arming PR). Submitted
+        # field values win ties; a stash miss leaves the fields alone (the
+        # handler's own guards answer).
         from sb.kernel.interaction.resolve import pop_modal_args
 
         stashed = pop_modal_args(
-            custom_id, getattr(getattr(interaction, "user", None), "id", None))
+            custom_id, getattr(getattr(interaction, "user", None), "id", None),
+            getattr(interaction, "message", None))
         if stashed:
             args = {**stashed, **args}
             args["interaction_id"] = getattr(interaction, "id", None)

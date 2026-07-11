@@ -259,16 +259,62 @@ def test_submit_authority_re_resolves_on_the_modal_surface(skeleton,
 # --- the kernel stash (the confirm-args-stash twin, pure) --------------------------
 
 
-def test_modal_args_stash_pops_once_per_user():
+def test_modal_args_stash_pops_once_per_user_and_origin():
     from sb.kernel.interaction.resolve import (
         _pending_modal_args,
         pop_modal_args,
     )
 
-    _pending_modal_args[("ai.settings_number_form", 7)] = {"setting": "x"}
-    assert pop_modal_args("ai.settings_number_form", 7) == {"setting": "x"}
-    assert pop_modal_args("ai.settings_number_form", 7) == {}   # popped
-    assert pop_modal_args("ai.settings_number_form", None) == {}
+    _pending_modal_args[("ai.settings_number_form", 7, "901")] = {
+        "setting": "x"}
+    # keyed per originating message: another message's submit misses.
+    assert pop_modal_args("ai.settings_number_form", 7, "902") == {}
+    assert pop_modal_args("ai.settings_number_form", 7,
+                          "901") == {"setting": "x"}
+    assert pop_modal_args("ai.settings_number_form", 7, "901") == {}  # popped
+    assert pop_modal_args("ai.settings_number_form", None, "901") == {}
+
+
+def test_two_concurrent_opens_stay_isolated(skeleton, engine_recorder):
+    """codex P2 on this PR (verified real): the same user with the SAME
+    static form open from TWO panel pages (two clients / two channels) —
+    submitting the OLDER form must write ITS setting, never the newer
+    open's (the shipped per-instance modal custom_ids carried per-open
+    closure state; the stash's originating-message key is the twin)."""
+    # open 1: Override… on the ai_cooldown_seconds presets page.
+    _, edit_cid, _ = _open_settings(skeleton)
+    run(skeleton.click(message_id=930, custom_id=edit_cid, component_type=3,
+                       values=["ai_cooldown_seconds"], persona="admin"))
+    page_a = _panel_payload(skeleton.take_calls())
+    run(skeleton.click(message_id=931,
+                       custom_id=_button(page_a, "Override…"),
+                       persona="admin"))
+    skeleton.take_calls()
+    # open 2 (same user, same form id): Override… on the
+    # ai_minimum_level_default presets page — must NOT clobber open 1.
+    run(skeleton.click(message_id=932, custom_id=edit_cid, component_type=3,
+                       values=["ai_minimum_level_default"], persona="admin"))
+    page_b = _panel_payload(skeleton.take_calls())
+    run(skeleton.click(message_id=933,
+                       custom_id=_button(page_b, "Override…"),
+                       persona="admin"))
+    skeleton.take_calls()
+    # submit the OLDER form (message 931) — writes ai_cooldown_seconds.
+    run(skeleton.modal_submit(message_id=931,
+                              custom_id="ai.settings_number_form",
+                              fields={"new_value": "60"}, persona="admin"))
+    calls = skeleton.take_calls()
+    assert calls[-1].payload["content"].startswith(
+        "✅ Updated `ai.ai_cooldown_seconds` = `60`")
+    # the newer open's stash is untouched — its submit still writes ITS key.
+    run(skeleton.modal_submit(message_id=933,
+                              custom_id="ai.settings_number_form",
+                              fields={"new_value": "3"}, persona="admin"))
+    calls = skeleton.take_calls()
+    assert calls[-1].payload["content"].startswith(
+        "✅ Updated `ai.ai_minimum_level_default` = `3`")
+    assert [(params["key"]) for _, params in engine_recorder.calls] == [
+        "ai_cooldown_seconds", "ai_minimum_level_default"]
 
 
 def test_failed_form_open_never_dispatches():

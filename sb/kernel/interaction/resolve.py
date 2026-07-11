@@ -98,15 +98,23 @@ _seen_request_ids: dict[str, None] = {}   # confirm re-entry dedup (in-memory, �
 _pending_confirm_args: dict[str, dict] = {}   # request_id -> original args
                                               # (v1 confirm re-entry carry)
 _cancelled_request_ids: dict[str, None] = {}  # confirm-cancel terminal (S9b view)
-# (modal_id, user_id) -> the OPENING request's args (the confirm-stash twin,
-# D-0052/D-0054's "the resolver restores the stashed args" pattern applied to
-# G-10 forms): a session-parameterized panel action that issues a modal (e.g.
-# the ai widgets' `setting` param) carries STATIC wire bytes only (the
-# modal_id is the custom-id root), so without this stash the submit re-entry
-# lost the opening click's session args. Keyed per invoker — one pending form
-# per (form, user), last-open-wins (the shipped views held the context in the
-# per-open Modal object's closure; a re-open replaced it the same way).
-_pending_modal_args: dict[tuple[str, int | None], dict] = {}
+# (modal_id, user_id, origin_message) -> the OPENING request's args (the
+# confirm-stash twin, D-0052/D-0054's "the resolver restores the stashed
+# args" pattern applied to G-10 forms): a session-parameterized panel action
+# that issues a modal (e.g. the ai widgets' `setting` param) carries STATIC
+# wire bytes only (the modal_id is the custom-id root), so without this
+# stash the submit re-entry lost the opening click's session args. Keyed per
+# invoker AND per originating message (the message hosting the opening
+# component — the submit interaction carries the same message, so both sides
+# derive the key with zero wire change): the shipped views minted a RANDOM
+# custom_id per Modal instance (discord.py's auto-id) so every open had its
+# own closure state — without the message component, a second open of the
+# same form from ANOTHER panel page (two clients / two channels) overwrote
+# the first's args and the older submit wrote the newer `setting` (codex P2
+# on the arming PR, verified real). Same-message re-opens still collide,
+# but a minted component's binding args are fixed per page — identical
+# stashes, no mis-parameterization.
+_pending_modal_args: dict[tuple[str, int | None, str | None], dict] = {}
 _SEEN_MAX = 4096
 
 
@@ -142,13 +150,18 @@ def reset_resolver_ports_for_tests() -> None:
     _pending_modal_args.clear()
 
 
-def pop_modal_args(modal_id: str, user_id: int | None) -> dict:
+def pop_modal_args(modal_id: str, user_id: int | None,
+                   origin_message: object = None) -> dict:
     """Take (and clear) the args stashed when *user_id*'s *modal_id* form
-    was issued — the MODAL adapter's re-entry restore. Empty for a stash
-    miss (restart / eviction / a form the kernel never issued): the submit
-    then carries only its own field values, and the handler's own guards
-    answer (the §3.4 polite-expiry posture for forms)."""
-    return _pending_modal_args.pop((modal_id, _stash_uid(user_id)), None) or {}
+    was issued from *origin_message* (the message hosting the opening
+    component; the submit interaction carries the same one) — the MODAL
+    adapter's re-entry restore. Empty for a stash miss (restart / eviction /
+    a form the kernel never issued / a submit from a different opening
+    message than any pending form): the submit then carries only its own
+    field values, and the handler's own guards answer (the §3.4
+    polite-expiry posture for forms)."""
+    key = (modal_id, _stash_uid(user_id), _stash_message(origin_message))
+    return _pending_modal_args.pop(key, None) or {}
 
 
 def _stash_uid(user_id: object) -> int | None:
@@ -156,6 +169,14 @@ def _stash_uid(user_id: object) -> int | None:
         return int(user_id)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         return None
+
+
+def _stash_message(message: object) -> str | None:
+    """The originating message's key: the message OBJECT on the opening
+    side (req.origin.message), the submit interaction's own message on the
+    re-entry side, or an already-extracted id — normalized to one string."""
+    mid = getattr(message, "id", message)
+    return str(mid) if mid is not None else None
 
 
 def cancel_pending_confirm(request_id: str) -> bool:
@@ -365,9 +386,13 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
                 if modal_spec is not None:
                     # stash the opening args for the submit re-entry (the
                     # confirm-stash twin): the form's wire bytes are static,
-                    # so session params ride kernel memory, not the wire.
+                    # so session params ride kernel memory, not the wire —
+                    # keyed per (form, user, originating message), the
+                    # per-open isolation the shipped per-instance modal
+                    # custom_ids carried (codex P2 on the arming PR).
                     _pending_modal_args[
-                        (modal_spec.modal_id, _stash_uid(actor.user_id))
+                        (modal_spec.modal_id, _stash_uid(actor.user_id),
+                         _stash_message(getattr(req.origin, "message", None)))
                     ] = dict(req.args)
                     while len(_pending_modal_args) > _SEEN_MAX:
                         _pending_modal_args.pop(next(iter(_pending_modal_args)))
