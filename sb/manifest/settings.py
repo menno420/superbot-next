@@ -15,13 +15,15 @@ sb/domain/settings/keys.py)."""
 
 from __future__ import annotations
 
+from sb.domain.settings import handlers as _handlers
 from sb.domain.settings import panels as _panels
 from sb.domain.settings.ops import EVT_SETTINGS_CHANGED, register_ops
 from sb.kernel.db.settings import BINDINGS_STORE, SETTINGS_STORE
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.events import DeliveryClass, EventSpec, FieldSpec, register_event_specs
 from sb.spec.manifest import SubsystemManifest
-from sb.spec.refs import PanelRef
+from sb.spec.outcomes import DeferMode
+from sb.spec.refs import HandlerRef, PanelRef
 
 SETTINGS_CHANGED_EVENT = EventSpec(
     name=EVT_SETTINGS_CHANGED,               # shipped verbatim ("settings.changed")
@@ -42,13 +44,33 @@ MANIFEST = SubsystemManifest(
             name="settings",
             kind=CommandKind.BOTH,           # shipped: prefix + slash surfaces
             route=PanelRef("settings.hub"),
+            # the shipped slash surface answered DIRECTLY with the
+            # ephemeral hub (type-4, flags 64 — goldens/settings/
+            # sweep_slash_settings; no defer), hence DeferMode.NONE.
+            defer_mode=DeferMode.NONE,
+            audience_tier="administrator",   # the shipped operator gate
             summary="Open the settings hub (per-subsystem configuration).",
             usage="/settings",
             capability="settings",
             slash_common=True,               # D-5: essential platform surface
         ),
+        # the shipped `!settings access` subcommand (dispatched
+        # independently of the bare-!settings gate — settings_cog.py) —
+        # opens the read-only Access Policy Explorer
+        # (goldens/settings/sweep_settings_access pins the panel bytes).
+        CommandSpec(
+            name="access",
+            kind=CommandKind.PREFIX,         # shipped: prefix-only surface
+            group="settings",
+            route=HandlerRef("settings.access_view"),
+            audience_tier="administrator",
+            summary="Explain the effective command-access policy "
+                    "(read-only governance diagnostic).",
+            usage="!settings access",
+            capability="settings",
+        ),
     ),
-    panels=(_panels.settings_hub_spec(),),
+    panels=(_panels.settings_hub_spec(), _panels.settings_access_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE),
     events=(SETTINGS_CHANGED_EVENT,),
@@ -71,6 +93,7 @@ def _ensure_refs() -> None:
     _db.ensure_refs()
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
+    _handlers.ensure_handler_refs()
     register_ops()
     register_event_specs([SETTINGS_CHANGED_EVENT])
 
