@@ -24,6 +24,7 @@ from sb.kernel.interaction.request import ConfirmPrompt, Surface
 from sb.spec.outcomes import ReplyVisibility
 
 __all__ = [
+    "ParityAvatarFetcher",
     "ParityChannelEmitter",
     "ParityHistoryReader",
     "ParityModerationActions",
@@ -482,6 +483,34 @@ class ParityHistoryReader:
         self._transport.record(
             "logs_from", {"channel_id": int(channel_id), "limit": int(limit)})
         return ()
+
+
+#: fake_http.get_from_cdn's deterministic 1×1 PNG, verbatim — what the old
+#: harness fed the shipped card pipeline's avatar read.
+_CDN_PNG = bytes.fromhex(
+    "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489"
+    "0000000d49444154789c626001000000ffff03000006000557bfabd4000000004945"
+    "4e44ae426082",
+)
+
+
+class ParityAvatarFetcher:
+    """The rank-card avatar-read capture twin — the shipped
+    ``services/xp_helpers.fetch_avatar_png`` CDN asset fetch that
+    discord.py's HTTP layer performed as ``get_from_cdn``
+    (parity/harness/fake_http.py records the ALIAS literal
+    ``{"url": "<cdn>"}`` and answers a deterministic 1×1 PNG;
+    goldens/xp/xp_chat_award.json + sweep_xpmenu.json pin the call).
+    The twin loses exactly the same information — the alias literal,
+    never the concrete URL."""
+
+    def __init__(self, transport: ParityTransport) -> None:
+        self._transport = transport
+
+    async def __call__(self, user_id: int, guild_id: int) -> bytes | None:
+        del user_id, guild_id
+        self._transport.record("get_from_cdn", {"url": "<cdn>"})
+        return _CDN_PNG
 
 
 class ParityModerationActions:

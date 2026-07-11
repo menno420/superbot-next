@@ -152,7 +152,7 @@ MANIFEST = SubsystemManifest(
                      "channel (raise-only, preview first).",
              usage="!xpimport [source] [#channel] [limit]"),
     ),
-    panels=(_panels.xp_hub_spec(),),
+    panels=(_panels.xp_hub_spec(), _panels.rank_card_spec()),
     settings=_SETTINGS,
     stores=(XP_STORE,),
     events=_EVENTS,
