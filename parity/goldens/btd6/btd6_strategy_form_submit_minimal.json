@@ -1,0 +1,83 @@
+{
+ "case_id": "btd6.strategy_form_submit_minimal",
+ "db_delta": {
+  "btd6_strategies": {
+   "added": [
+    {
+     "approval_model": null,
+     "approval_provider": null,
+     "approval_status": "pending",
+     "approved_by": null,
+     "approved_by_id": null,
+     "common_failures": [],
+     "created_at": "<ts>",
+     "current_guild_id": "<guild>",
+     "difficulty": null,
+     "hero": null,
+     "id": 1,
+     "map": null,
+     "mode": null,
+     "origin_guild_id": "<guild>",
+     "origin_metadata": {},
+     "round_range": null,
+     "source_links": [],
+     "steps": [],
+     "submitted_by": "<@member>",
+     "submitter_display_snapshot": "MemberActor",
+     "submitter_identity_state": "present",
+     "summary": "Early game economy, then boat spam.",
+     "title": "Logs half cash boat spam",
+     "towers": [],
+     "updated_at": "<ts>",
+     "upgrade_paths": [],
+     "version": 1,
+     "visibility": "guild"
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "curated modal-submit case (D-0073): required fields only — the optional map/mode/hero inputs submit empty and land NULL (the shipped strip-or-None contract)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "✅ Submitted as strategy `#1` (`submitted`). Staff can review with `!btd6 pending`.",
+      "flags": 64
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "btd6.strategy_form",
+    "fields": {
+     "hero": "",
+     "map": "",
+     "mode": "",
+     "summary": "Early game economy, then boat spam.",
+     "title": "Logs half cash boat spam"
+    },
+    "kind": "modal",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "btd6"
+}

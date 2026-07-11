@@ -727,10 +727,11 @@ class Harness:
                            channel: str = "general") -> None:
         """One wire-type-5 MODAL SUBMIT through the real pipeline
         (``dispatch_modal`` — the seam the live component feed's armed
-        modal lane drives; the ``click`` twin for G-10 forms). CURATED
-        driving only: golden reconstruction still carries no modal step
-        kind (D-0063 — the imported corpus schema is command/slash/click),
-        so no golden reaches this method; the walking-skeleton suites do."""
+        modal lane drives; the ``click`` twin for G-10 forms). Driven by
+        the walking-skeleton suites AND, since the D-0073 corpus-schema
+        growth, by ``modal``-kind golden steps (goldens/btd6/
+        btd6_strategy_form_*) — the D-0063 deletion clause's replay-case
+        vocabulary."""
         if self.world is None:
             raise RuntimeError("harness not started")
         self.world.clock.advance()

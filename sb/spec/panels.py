@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from sb.spec.confirmation import ConfirmationSpec
-from sb.spec.outcomes import DeferMode
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.refs import HandlerRef, PanelRef, ProviderRef, ViewRef, WorkflowRef
 from sb.spec.roles import register_field_roles
 
@@ -298,6 +298,9 @@ class PanelActionSpec:
     capability_required: str = ""               # [S] config/governance lane (empty ⇒ ADMIN floor)
     audience_tier: str = ""                     # [S] domain lane
     defer_mode: DeferMode = DeferMode.AUTO      # [S]
+    reply_visibility: ReplyVisibility | None = None  # [S] None => lane default (§3.4);
+    #     the CommandSpec Group-1 field-3 twin — resolve()'s ack duck-reads it,
+    #     so a G-10 form's submit re-entry can commit the shipped EPHEMERAL flag
     handler: WorkflowRef | HandlerRef | PanelRef | None = None  # [S] PanelRef = open-child (OPEN_PANEL terminal)
     modal: ModalSpec | None = None              # [S] G-10: defer_mode==MODAL ⇒ modal is not None
     confirm: ConfirmationSpec | None = None     # [S] compile rule: irreversible workflow ⇒ required
@@ -411,7 +414,8 @@ register_field_roles("ResultCardSpec", frame="S")
 register_field_roles(
     "PanelActionSpec",
     action_id="S", label="S", emoji="S", style="S", capability_required="S",
-    audience_tier="S", defer_mode="S", handler="S", modal="S", confirm="S",
+    audience_tier="S", defer_mode="S", reply_visibility="S", handler="S",
+    modal="S", confirm="S",
     result_render="S", result_card="S", audit="S", visible_when="S",
     custom_id_override="S", slash_common="S", destructive="O", usage_weight="O",
     co_use_group="O", flow_stage="O",
