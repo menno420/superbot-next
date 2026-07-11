@@ -365,27 +365,96 @@ def test_nl_shell_history_scanner(monkeypatch):
 
 def test_ai_manifest_imports_and_registers():
     import sb.manifest.ai as manifest
+    from sb.spec.settings import BindingSpec, SettingSpec
 
     names = [c.qualified_name for c in manifest.MANIFEST.commands]
     assert "ai" in names and "ai status" in names
     assert "aireview preset add" in names
-    assert len(manifest.MANIFEST.settings) == 11
-    keys = {s.settings_key for s in manifest.MANIFEST.settings}
+    assert names.count("aimenu") == 2          # the shipped prefix + slash twin
+    scalars = [s for s in manifest.MANIFEST.settings
+               if isinstance(s, SettingSpec)]
+    bindings = [s for s in manifest.MANIFEST.settings
+                if isinstance(s, BindingSpec)]
+    # the shipped schema roster (10) + the KV-only ai_review_channel; the
+    # shipped audit_log_channel binding rides along (cogs/ai/schemas.py).
+    assert len(scalars) == 11 and len(bindings) == 1
+    keys = {s.settings_key for s in scalars}
     assert "ai_enabled" in keys and "ai_review_channel" in keys
+    assert bindings[0].name == "audit_log_channel"
+    # the shipped defaults, verbatim (goldens/ai/sweep_ai_settings pins
+    # them: default='deterministic', min level 2, cooldown 30, allowance 1).
+    by_name = {s.name: s for s in scalars}
+    assert by_name["default_provider"].default == "deterministic"
+    assert by_name["minimum_level_default"].default == 2
+    assert by_name["cooldown_seconds"].default == 30
+    assert by_name["fresh_user_mention_allowance"].default == 1
     tables = {s.table for s in manifest.MANIFEST.stores}
     assert tables == {"ai_review_log", "ai_answer_presets"}
+    panel_ids = {p.panel_id for p in manifest.MANIFEST.panels}
+    assert panel_ids == {"ai.hub", "ai.settings", "ai.card"}
     manifest.ENSURE_REFS()
 
 
-def test_ai_views_run():
-    from sb.domain.ai import service
+def test_ai_operator_cards_shipped_bytes():
+    """The shipped embed builders (goldens/ai pin these bytes; the replay
+    corpus is the full check — this is the fast in-suite pin)."""
+    from sb.domain.ai import operator_cards as cards
 
+    embed = cards.build_panel_embed()
+    assert embed.title == "💤 AI Platform"          # disabled state
+    assert embed.footer == ("!ai status / !ai diagnostics / !ai providers "
+                            "/ !ai routing")
+    assert [f[0] for f in embed.fields] == [
+        "Enabled", "Default provider", "Setup advisor provider",
+        "Active provider (last call)", "Requests / failures", "Redaction"]
+
+    diag = cards.build_diagnostics_embed()
+    assert diag.title == "AI Gateway — Diagnostics"
+    assert [f[0] for f in diag.fields][:4] == [
+        "enabled", "default provider", "setup advisor provider",
+        "provider active"]
+
+    routing = cards.build_routing_embed()
+    assert routing.title == "AI Gateway — Routing"
+    assert [f[0] for f in routing.fields] == list(cards.SHIPPED_TASK_ORDER)
+    assert routing.fields[0][1] == ("provider: `deterministic`\n"
+                                    "model: `gpt-4o-mini`\n"
+                                    "timeout: `20.0s`\nenabled: `False`")
+
+    providers = cards.build_providers_embed()
+    assert [f[1] for f in providers.fields] == ["deterministic"] * 3
+
+
+def test_ai_policy_card_unconfigured_guild():
+    """No policy reader armed → the shipped GUILD_NOT_CONFIGURED dry-run
+    trace (goldens/ai/sweep_ai_policy pins the copy)."""
+    from sb.domain.ai import operator_cards as cards
+
+    embed = run(cards.build_policy_embed(
+        guild_id=1, channel_id=5, user_id=42, user_role_ids=(9,)))
+    assert embed.title == "AI Effective Policy"
+    assert embed.footer == "dry_run=True · administrator-only"
+    body = dict((f[0], f[1]) for f in embed.fields)
+    assert body["Without mention"].startswith(
+        "⛔ **hard-disabled** · `guild_not_configured`")
+    assert ("guild_ai_gate: no ai_guild_policy row → deny "
+            "GUILD_NOT_CONFIGURED") in body["Without mention"]
+    assert "min_level=`2` · cooldown=`30s`" in body["Without mention"]
+    assert body["Context"] == ("Overrides: 0 channel · 0 category · 0 role\n"
+                               "Provider: `deterministic` · model: `—`")
+
+
+def test_ai_forget_view_clears_channel_buffer():
+    from sb.domain.ai import service
+    from sb.kernel.ai import conversation
+
+    conversation.reset_conversation_for_tests()
     req = SimpleNamespace(args={"argv": ()}, guild_id=1, channel_id=5,
                           request_id="r1", confirmed=True,
                           actor=SimpleNamespace(user_id=42))
-    out = run(service.readiness_view(req))
-    assert "legacy ids claimed" in out.user_message
-    out = run(service.routing_view(req))
-    assert "general.nl_answer" in out.user_message
-    out = run(service.providers_view(req))
-    assert "deterministic" in out.user_message
+    out = run(service.forget_view(req))
+    assert out.user_message == "No chat memory cached for <#5>."
+    conversation.append(1, 5, user_id=42, role="user", text="hello")
+    out = run(service.forget_view(req))
+    assert out.user_message == "✅ Cleared chat memory for <#5>."
+    conversation.reset_conversation_for_tests()

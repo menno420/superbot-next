@@ -205,8 +205,12 @@ def test_manifest_compiles_in_isolation():
 def test_ai_readers_fail_closed_without_declarations():
     from sb.domain.settings.ai_readers import _memory_settings, _policy_bundle
 
+    # undeclared / never-written ai.* keys → the shipped
+    # GUILD_NOT_CONFIGURED posture: NO policy row (band-7 parity — the
+    # resolver denies with the shipped reason code, not
+    # AI_GLOBALLY_DISABLED; goldens/ai/sweep_ai_policy pins the trace).
     bundle = asyncio.run(_policy_bundle(1))
-    assert bundle.policy["enabled"] is False
+    assert bundle.policy is None
     assert bundle.channel == {} and bundle.role == {}
     assert asyncio.run(_memory_settings(1)) == (0, False)
 

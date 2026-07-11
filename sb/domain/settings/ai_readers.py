@@ -56,22 +56,56 @@ def _to_bool(value: object, fallback: bool) -> bool:
     return fallback
 
 
+#: the declared ai.* names whose EXPLICIT presence means "this guild has
+#: been configured" — the shipped semantics minted the typed
+#: ``ai_guild_policy`` row on the first ai.* settings write; the KV port's
+#: equivalent is any explicit row under a policy-shaped key.
+_POLICY_KEYS = (
+    "enabled", "natural_language_enabled", "minimum_level_default",
+    "cooldown_seconds", "fresh_user_mention_allowance",
+    "guild_instruction_profile",
+)
+
+
+async def _guild_configured(guild_id: int) -> bool:
+    for name in _POLICY_KEYS:
+        try:
+            if await ksettings.is_explicitly_set(guild_id, _SUBSYSTEM, name):
+                return True
+        except LookupError:
+            return False        # undeclared → band 7 not armed → unconfigured
+    return False
+
+
 async def _policy_bundle(guild_id: int):
     from sb.kernel.ai.policy import PolicyBundle
+
+    # The shipped GUILD_NOT_CONFIGURED gate: no ai_guild_policy row →
+    # policy=None → the resolver denies with GUILD_NOT_CONFIGURED
+    # (goldens/ai/sweep_ai_policy + sweep_ai_readiness pin the trace).
+    # Serving a defaults-built dict here instead made every unconfigured
+    # guild resolve AI_GLOBALLY_DISABLED — a different reason code than
+    # the shipped bot ever emitted for a fresh guild.
+    if not await _guild_configured(guild_id):
+        return PolicyBundle(policy=None)
 
     enabled = _to_bool(await _resolve(guild_id, "enabled", False), False)
     nl = _to_bool(await _resolve(guild_id, "natural_language_enabled", False), False)
     policy = {
         "enabled": enabled,
         "natural_language_enabled": nl,
+        # fallbacks mirror the DECLARED shipped defaults (schemas.py
+        # @7f7628e1: min level 2, cooldown 30, allowance 1) — resolve()
+        # already answers the declared default; the literals only catch
+        # the undeclared/malformed edge.
         "minimum_level_default": _to_int(
-            await _resolve(guild_id, "minimum_level_default", 0), 0),
+            await _resolve(guild_id, "minimum_level_default", 2), 2),
         "cooldown_seconds": _to_int(
-            await _resolve(guild_id, "cooldown_seconds", 60), 60),
+            await _resolve(guild_id, "cooldown_seconds", 30), 30),
         "guild_instruction_profile_id": await _resolve(
             guild_id, "guild_instruction_profile", None) or None,
         "fresh_user_mention_allowance": _to_int(
-            await _resolve(guild_id, "fresh_user_mention_allowance", 0), 0),
+            await _resolve(guild_id, "fresh_user_mention_allowance", 1), 1),
         "generation": 0,
     }
     # channel/category/role overlays ride the typed-table follow-up slice.

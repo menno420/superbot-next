@@ -80,8 +80,16 @@ def reconstruct_case(golden: dict) -> GoldenCase | None:
 
 
 def load_replay_cases(goldens_root: Path) -> list[GoldenCase]:
-    """Typed curated cases first, then golden-reconstructed cases for every
-    remaining golden on disk — the full replayable denominator."""
+    """Typed curated cases first (their declared order), then
+    golden-reconstructed cases path-sorted — the full replayable
+    denominator IN THE CAPTURE POSTURE: the old driver ran
+    ``CURATED_CASES`` before the sweep (parity/run.py ``_all_cases``), and
+    process-lifetime in-memory state (the K10 conversation buffer — its
+    isolation registry row was deliberately per-file, never global) rides
+    across cases exactly as it did at capture time. A final id-sort here
+    used to replay the curated plain-chat case (``xp.chat_award``) AFTER
+    the ai sweeps, starving ``sweep.ai_forget`` of the buffer its golden
+    cleared (the ✅ byte)."""
     from parity.cases import CURATED_CASES
 
     cases: dict[str, GoldenCase] = {c.id: c for c in CURATED_CASES}
@@ -93,4 +101,4 @@ def load_replay_cases(goldens_root: Path) -> list[GoldenCase]:
         case = reconstruct_case(golden)
         if case is not None:
             cases[str(case_id)] = case
-    return sorted(cases.values(), key=lambda c: c.id)
+    return list(cases.values())

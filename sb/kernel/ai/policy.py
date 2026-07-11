@@ -216,7 +216,9 @@ async def resolve_policy(ctx: MessageContext, *, dry_run: bool = False) -> Polic
     if not bundle.policy:
         if trace is not None:
             trace.append(
-                "guild_ai_gate: no policy row → deny GUILD_NOT_CONFIGURED",
+                # the shipped trace byte verbatim (ai_natural_language_policy
+                # @7f7628e1:211) — goldens/ai/sweep_ai_policy pins it.
+                "guild_ai_gate: no ai_guild_policy row → deny GUILD_NOT_CONFIGURED",
             )
         return PolicyDecision(
             allowed=False,

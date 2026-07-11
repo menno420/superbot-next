@@ -1,9 +1,22 @@
-"""AI-surface handlers (band 7) — the shipped !ai + !aireview groups as
-typed routes/views over K10 diagnostics, the decision audit, the review
-log, and the preset lanes."""
+"""AI-surface handlers (band 7) — the shipped ``!ai`` + ``!aireview``
+groups: the ``!ai`` operator views render the SHIPPED embeds
+(sb/domain/ai/operator_cards.py — goldens/ai pin the bytes) presented
+through the generic ``ai.card`` panel (the projmoon.card pattern);
+``forget`` / ``why-no-response`` keep their shipped plain-text replies.
+
+Registered at MODULE IMPORT (declaring IS reserving — the BUG A rule,
+sb/domain/role/handlers.py pattern): the live root imports and dispatches
+without ever running the manifest ENSURE_REFS hooks. This pruned all 20
+``handler:ai.*`` rows from the composition-parity burn-down list.
+
+The ``!aireview`` lanes (review log + vetted presets) keep their
+band-7 typed-op routes — their goldens live in ``_unmapped`` until that
+sweep family re-homes.
+"""
 
 from __future__ import annotations
 
+import dataclasses
 
 from sb.spec.outcomes import SUCCESS
 from sb.kernel.interaction.handler_kit import (
@@ -22,160 +35,158 @@ def _argv(req) -> list[str]:
     return [str(a) for a in tuple(req.args.get("argv", ()) or ())]
 
 
+async def _card(req, embed) -> None:
+    """Present one operator card as the shipped public embed reply."""
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef("ai.card"),
+                     dataclasses.replace(
+                         req, args={**dict(req.args), "_card": embed}))
+
+
 # --- !ai group -------------------------------------------------------------------
 
 
-async def ai_usage_view(req) -> Reply:
-    return _ok(
-        "**!ai** — AI platform operator views.\n"
-        "`status` · `readiness` · `settings` · `policy` · `diagnostics` · "
-        "`providers` · `routing` · `why-no-response` · `forget` · "
-        "`support-report`")
+async def status_view(req) -> None:
+    """``!ai status`` — the compact gateway status embed + the one-line
+    readiness summary (goldens/ai/sweep_ai_status)."""
+    from sb.domain.ai import operator_cards as cards
+
+    await _card(req, await cards.build_status_embed(
+        int(req.guild_id or 0), req.channel_id))
+    return None
 
 
-async def status_view(req) -> Reply:
-    from sb.kernel.ai import flags
-    from sb.kernel.ai.diagnostics import get_default_collector
+async def readiness_view(req) -> None:
+    """``!ai readiness`` — the 7-link chain scan embed
+    (goldens/ai/sweep_ai_readiness)."""
+    from sb.domain.ai import operator_cards as cards
 
-    snap = get_default_collector().snapshot()
-    lines = ["**AI gateway status**"]
-    try:
-        lines.append(f"Enabled: {'yes' if flags.ai_enabled() else 'no'}")
-        lines.append(f"Default provider: {flags.default_provider()}")
-    except Exception:  # noqa: BLE001 — config not installed yet
-        lines.append("Enabled: no (AI config not installed)")
-    for key in ("provider_active", "requests_observed", "failures_observed"):
-        if key in snap:
-            lines.append(f"{key}: {snap[key]}")
-    return _ok("\n".join(lines))
+    report = await cards.scan_readiness(int(req.guild_id or 0),
+                                        channel_id=req.channel_id)
+    await _card(req, cards.build_readiness_embed(report))
+    return None
 
 
-async def readiness_view(req) -> Reply:
-    from sb.kernel.ai import flags, tasks
-    from sb.kernel.ai.grounding import verify
+async def settings_view(req) -> None:
+    """``!ai settings`` — the shipped SubsystemSettingsView page for the
+    ai schema (goldens/ai/sweep_ai_settings pins the embed + the two
+    selects + the Back-to-Hub/Open-Panel row)."""
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
 
-    lines = ["**AI readiness**"]
-    try:
-        enabled = flags.ai_enabled()
-    except Exception:  # noqa: BLE001
-        enabled = False
-    state = ("ENABLED" if enabled
-             else "disabled (AI_ENABLED off or config uninstalled)")
-    lines.append(f"- platform: {state}")
-    lines.append(f"- registered tasks: {len(tasks.registered_task_ids())}"
-                 f"/{len(tasks.LEGACY_TASK_IDS)} legacy ids claimed")
-    lines.append(f"- grounding verifiers: "
-                 f"{', '.join(verify.registered_verifier_tasks()) or 'none'}")
-    from sb.kernel.ai import evals
-
-    suites = [s.suite_id for s in evals.registered_suites()]
-    lines.append(f"- eval suites: {', '.join(suites) or 'none'}")
-    return _ok("\n".join(lines))
+    await open_panel(PanelRef("ai.settings"), req)
+    return None
 
 
-async def settings_view(req) -> Reply:
-    return _ok(
-        "AI settings ride the declared `ai.*` settings (band-1 rails): "
-        "`!settings` → AI group — enabled, natural_language_enabled, "
-        "default_provider/model, minimum_level_default, cooldown_seconds, "
-        "fresh_user_mention_allowance, guild_instruction_profile, "
-        "memory_window_minutes, memory_channel_scan_enabled, "
-        "review_channel. One write path — no separate AI mutator.")
+async def policy_view(req) -> None:
+    """``!ai policy`` — the dual dry-run effective-policy embed
+    (goldens/ai/sweep_ai_policy)."""
+    from sb.domain.ai import operator_cards as cards
+
+    await _card(req, await cards.build_policy_embed(
+        guild_id=int(req.guild_id or 0),
+        channel_id=int(req.channel_id or 0),
+        user_id=int(getattr(req.actor, "user_id", 0) or 0),
+        user_role_ids=tuple(getattr(req.actor, "role_ids", ()) or ())))
+    return None
 
 
-async def policy_view(req) -> Reply:
-    from sb.kernel.ai import policy as kpolicy
-
-    try:
-        bundle = await kpolicy._load_bundle(int(req.guild_id or 0))  # noqa: SLF001
-    except Exception:  # noqa: BLE001 — no reader armed → fail-closed copy
-        bundle = None
-    if bundle is None:
-        return _ok(
-            "No AI policy resolves for this server yet (reader not armed "
-            "or ai.* settings undeclared) — the NL path fails CLOSED.")
-    return _ok(f"**Resolved NL policy:** {bundle}")
-
-
-async def why_view(req) -> Reply:
+async def why_view(req) -> Reply | None:
+    """``!ai why-no-response`` — recent denials/skips (shipped
+    ai_why_no_response: plain reply when empty, the orange audit embed
+    otherwise; goldens/ai/sweep_ai_why-no-response pins the empty byte)."""
+    from sb.domain.ai import operator_cards as cards
     from sb.kernel.ai import decision_audit
+    from sb.kernel.panels.render import RenderedEmbed
 
+    argv = [a for a in _argv(req) if a.isdigit()]
+    limit = max(1, min(50, int(argv[0]) if argv else 10))
     try:
-        rows = await decision_audit.query(int(req.guild_id or 0), limit=5)
-    except Exception:  # noqa: BLE001
+        rows = await decision_audit.query(int(req.guild_id or 0), limit=limit)
+    except Exception:  # noqa: BLE001 — audit store unreachable → empty
         rows = []
-    if not rows:
-        return _ok("No NL decisions on record for this server yet.")
-    lines = ["Recent NL decisions (newest first):"]
-    for row in rows:
-        r = dict(row) if not isinstance(row, dict) else row
-        lines.append(f"- {r.get('task', '?')}: {r.get('decision', '?')} "
-                     f"({r.get('reason_code', '?')})")
-    return _ok("\n".join(lines))
+    denials = [r for r in rows
+               if str(r.get("decision")) in ("denied", "skipped", "errored",
+                                             "degraded")][:25]
+    if not denials:
+        return _ok("No recent denials or skips for this guild.")
+    lines = [cards.format_audit_row(dict(r)) for r in denials]
+    oldest = dict(denials[-1]).get("created_at")
+    footer = (f"Showing {len(denials)} most recent · "
+              f"oldest: {oldest.isoformat()}"
+              if hasattr(oldest, "isoformat")
+              else f"Showing {len(denials)} most recent")
+    await _card(req, RenderedEmbed(
+        title="AI — why no response", description="\n".join(lines),
+        footer=footer, style_token="orange"))
+    return None
 
 
-async def diagnostics_view(req) -> Reply:
-    from sb.kernel.ai.diagnostics import get_default_collector
+async def diagnostics_view(req) -> None:
+    from sb.domain.ai import operator_cards as cards
 
-    snap = get_default_collector().snapshot()
-    if not snap:
-        return _ok("No AI diagnostics recorded yet this process.")
-    return _ok("\n".join(f"- {k}: {v}" for k, v in sorted(snap.items())))
+    await _card(req, cards.build_diagnostics_embed())
+    return None
 
 
-async def providers_view(req) -> Reply:
-    from sb.kernel.ai import flags
+async def providers_view(req) -> None:
+    from sb.domain.ai import operator_cards as cards
 
-    try:
-        default = flags.default_provider()
-    except Exception:  # noqa: BLE001
-        default = "(config uninstalled)"
-    return _ok(
-        f"Providers: anthropic · openai · deterministic (CI/eval). "
-        f"Default: {default}. Keys arm via ANTHROPIC_API_KEY / "
-        "OPENAI_API_KEY (flag 29); per-guild overlay via "
-        "ai.default_provider/ai.default_model settings.")
+    await _card(req, cards.build_providers_embed())
+    return None
 
 
-async def routing_view(req) -> Reply:
-    from sb.kernel.ai import routing, tasks
+async def routing_view(req) -> None:
+    from sb.domain.ai import operator_cards as cards
 
-    lines = ["**Task routing (anthropic defaults; K10(b) ruling):**"]
-    for task_id in tasks.registered_task_ids():
-        lines.append(
-            f"- {task_id} → {routing.default_model_for('anthropic', task_id)}")
-    return _ok("\n".join(lines))
+    argv = _argv(req)
+    await _card(req, cards.build_routing_embed(argv[0] if argv else None))
+    return None
 
 
 async def forget_view(req) -> Reply:
-    from sb.kernel.ai import conversation, policy
+    """``!ai forget`` — flush the chat-memory cache for THIS channel
+    (shipped ai_forget; goldens/ai/sweep_ai_forget pins the ✅ byte)."""
+    from sb.kernel.ai import conversation
 
     gid = int(req.guild_id or 0)
-    try:
-        conversation.reset_conversation_for_tests()
-        policy.forget_guild_throttles(gid)
-    except Exception:  # noqa: BLE001
-        pass
-    return _ok(
-        "🧹 In-process conversation memory + cooldown bookkeeping cleared "
-        "for this process. (Durable rows — decision audit / review log — "
-        "are erasure-workflow territory, not `forget`.)")
+    channel_id = int(req.channel_id or 0)
+    dropped = conversation.forget_channel(gid, channel_id)
+    if dropped:
+        return _ok(f"✅ Cleared chat memory for <#{channel_id}>.")
+    return _ok(f"No chat memory cached for <#{channel_id}>.")
 
 
-async def support_report_view(req) -> Reply:
-    from sb.domain.ai import store as ai_store
-    from sb.kernel.ai import tasks
+async def support_report_view(req) -> None:
+    from sb.domain.ai import operator_cards as cards
 
-    gid = int(req.guild_id or 0)
-    try:
-        unreviewed = await ai_store.count_unreviewed(gid)
-    except Exception:  # noqa: BLE001
-        unreviewed = 0
-    return _ok(
-        "**AI support report**\n"
-        f"- registered tasks: {len(tasks.registered_task_ids())}\n"
-        f"- unreviewed review-log entries here: {unreviewed}\n"
-        "- export the backlog with `!aireview export`.")
+    await _card(req, await cards.build_support_report_embed(
+        int(req.guild_id or 0)))
+    return None
+
+
+# --- panel-only pending terminals (the shipped chooser pages port with the
+# --- policy/behavior/tools panel slices; clicks are golden-unpinned) --------------
+
+
+async def policy_chooser_pending(req) -> Reply:
+    return _ok("The AI policy chooser (per-channel/category/role scopes) "
+               "ports with the policy-mutation slice — use `!ai policy` "
+               "for the read-only dry-run meanwhile.")
+
+
+async def behavior_chooser_pending(req) -> Reply:
+    return _ok("The AI Behavior presets page ports with the "
+               "policy-mutation slice — the declared `ai.*` settings are "
+               "editable through `!settings` meanwhile.")
+
+
+async def tools_chooser_pending(req) -> Reply:
+    return _ok("The AI Tools & Workflows chooser ports with the "
+               "orchestration-mutation slice — profiles are read-only "
+               "meanwhile.")
 
 
 # --- !aireview group ---------------------------------------------------------------
@@ -307,7 +318,6 @@ preset_remove_route = _run_op("ai.remove_preset", _preset_remove_params)
 
 
 _HANDLERS = (
-    ("ai.usage_view", ai_usage_view),
     ("ai.status_view", status_view),
     ("ai.readiness_view", readiness_view),
     ("ai.settings_view", settings_view),
@@ -318,6 +328,9 @@ _HANDLERS = (
     ("ai.routing_view", routing_view),
     ("ai.forget_view", forget_view),
     ("ai.support_report_view", support_report_view),
+    ("ai.policy_chooser_pending", policy_chooser_pending),
+    ("ai.behavior_chooser_pending", behavior_chooser_pending),
+    ("ai.tools_chooser_pending", tools_chooser_pending),
     ("ai.review_usage_view", aireview_usage_view),
     ("ai.review_list_view", review_list_view),
     ("ai.review_export_view", review_export_view),
@@ -330,9 +343,16 @@ _HANDLERS = (
 )
 
 
-def ensure_handler_refs() -> None:
+def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
     for name, fn in _HANDLERS:
         if not is_registered(HandlerRef(name)):
             handler(name)(fn)
+
+
+_register()   # MODULE IMPORT — the BUG A rule (role/handlers.py pattern)
+
+
+def ensure_handler_refs() -> None:
+    _register()
