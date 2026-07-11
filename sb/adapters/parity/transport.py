@@ -25,6 +25,7 @@ from sb.spec.outcomes import ReplyVisibility
 
 __all__ = [
     "ParityChannelEmitter",
+    "ParityHistoryReader",
     "ParityModerationActions",
     "ParityPresenter",
     "ParityResponder",
@@ -463,6 +464,24 @@ class ParityChannelEmitter:
             int(channel_id),
             {"components": [], "content": body, "tts": False})
         return EmitResult(sent=True, message_id=message_id)
+
+
+class ParityHistoryReader:
+    """The cleanup history-reader capture twin — the shipped
+    ``ctx.channel.history(limit=...)`` read that discord.py's HTTP layer
+    performed as ``logs_from`` (parity/harness/fake_http.py records
+    ``{"channel_id", "limit"}``; goldens/cleanup/sweep_cleanuphistory.json
+    pins the call). The capture world holds no channel messages, exactly
+    like the old harness (its ``logs_from`` returned the world's empty
+    backlog), so the read yields the goldens' 0-scanned shape."""
+
+    def __init__(self, transport: ParityTransport) -> None:
+        self._transport = transport
+
+    async def __call__(self, channel_id: int, *, limit: int) -> tuple:
+        self._transport.record(
+            "logs_from", {"channel_id": int(channel_id), "limit": int(limit)})
+        return ()
 
 
 class ParityModerationActions:

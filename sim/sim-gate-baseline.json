@@ -1150,6 +1150,122 @@
    },
    "value": 0
   },
+  "cleanup:cleanup.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "words",
+       "logging",
+       "settings",
+       "policies"
+      ],
+      [
+       "cl_refresh"
+      ]
+     ]
+    }
+   ]
+  },
+  "cleanup:cleanup.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "words",
+     "logging",
+     "settings",
+     "policies"
+    ],
+    [
+     "cl_refresh"
+    ]
+   ]
+  },
+  "cleanup:cleanup.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "words",
+        "logging",
+        "settings",
+        "policies"
+       ],
+       [
+        "cl_refresh"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "cleanup:cleanup.words:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "word_add",
+       "word_remove",
+       "word_refresh"
+      ],
+      [
+       "scan_history",
+       "anti_evasion"
+      ]
+     ]
+    }
+   ]
+  },
+  "cleanup:cleanup.words:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "word_add",
+     "word_remove",
+     "word_refresh"
+    ],
+    [
+     "scan_history",
+     "anti_evasion"
+    ]
+   ]
+  },
+  "cleanup:cleanup.words:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "word_add",
+        "word_remove",
+        "word_refresh"
+       ],
+       [
+        "scan_history",
+        "anti_evasion"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "cleanup:cleanup:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

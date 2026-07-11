@@ -56,7 +56,7 @@ subsystems:
   casino: pending
   chain: pending
   channel: ported
-  cleanup: pending
+  cleanup: ported
   community: pending
   community_spotlight: pending
   counters: pending
@@ -183,6 +183,19 @@ depth:
   #     - surface: "event:xp.level_up" | "table:xp" | "setting:xp.enabled"
   #       reason: "<reason-class>: <specifics>"
   exemptions:
+    cleanup:
+      # cleanup's three goldens are read-only surfaces (two panel opens
+      # + the 0-match history scan) — the word-filter K7 write lane is
+      # driven by the `!word add/remove` commands, whose sweep goldens
+      # live in _unmapped until re-homing.
+      - surface: "table:prohibited_words"
+        reason: "covered-elsewhere: the word lane's write bytes are
+          pinned by the sibling oracle goldens/_unmapped/
+          sweep_word_add.json (the shipped `!word add test` write's
+          prohibited_words row); the cleanup goldens are read-only —
+          the hub open renders the LIVE word count over this store, and
+          the words manager's live read lands with the word-mutation
+          panel slice"
     rps_tournament:
       - surface: "table:rps_players"
         reason: "time-driven: rps_players stats rows are written at match
@@ -226,6 +239,7 @@ depth:
   ratchet:
     blackjack: {events: 2, tables: 6, settings: 1}
     channel: {events: 1, tables: 2, settings: 0}
+    cleanup: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
