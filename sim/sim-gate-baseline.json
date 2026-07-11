@@ -4310,7 +4310,7 @@
   },
   "role:role.hub:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: band-5 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: role parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry); goldens/role/sweep_rolemenu pins the 3/3/1 split"
    },
    "value": [
     {
@@ -4322,10 +4322,10 @@
       ],
       [
        "role_xp",
-       "role_reaction"
+       "role_reaction",
+       "role_diagnostics"
       ],
       [
-       "role_diagnostics",
        "role_exemptions"
       ]
      ]
@@ -4334,7 +4334,7 @@
   },
   "role:role.hub:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: band-5 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: role parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry); goldens/role/sweep_rolemenu pins the 3/3/1 split"
    },
    "value": [
     [
@@ -4344,17 +4344,17 @@
     ],
     [
      "role_xp",
-     "role_reaction"
+     "role_reaction",
+     "role_diagnostics"
     ],
     [
-     "role_diagnostics",
      "role_exemptions"
     ]
    ]
   },
   "role:role.hub:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: band-5 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: role parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry); goldens/role/sweep_rolemenu pins the 3/3/1 split"
    },
    "value": {
     "pages": [
@@ -4367,10 +4367,10 @@
        ],
        [
         "role_xp",
-        "role_reaction"
+        "role_reaction",
+        "role_diagnostics"
        ],
        [
-        "role_diagnostics",
         "role_exemptions"
        ]
       ]
