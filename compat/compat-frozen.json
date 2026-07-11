@@ -196,8 +196,28 @@
   "btd6": [
    {
     "aliases": [],
+    "group": "btd6.ops",
+    "name": "announcechannel"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "ask"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.strat",
+    "name": "browse"
+   },
+   {
+    "aliases": [],
     "group": "btd6strat",
     "name": "browse"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "btd6"
    },
    {
     "aliases": [],
@@ -226,8 +246,33 @@
    },
    {
     "aliases": [],
+    "group": "btd6",
+    "name": "ct"
+   },
+   {
+    "aliases": [],
     "group": "btd6ref",
     "name": "ct"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "ctteam"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "diagnostics"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "estimate"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.events",
+    "name": "event"
    },
    {
     "aliases": [],
@@ -236,8 +281,23 @@
    },
    {
     "aliases": [],
+    "group": "btd6",
+    "name": "events"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.events",
+    "name": "grounding"
+   },
+   {
+    "aliases": [],
     "group": "btd6events",
     "name": "grounding"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "hero"
    },
    {
     "aliases": [],
@@ -246,8 +306,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6",
+    "name": "income"
+   },
+   {
+    "aliases": [],
     "group": "btd6ref",
     "name": "income"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.events",
+    "name": "latest-data"
    },
    {
     "aliases": [],
@@ -256,8 +326,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6.events",
+    "name": "leaderboard"
+   },
+   {
+    "aliases": [],
     "group": "btd6events",
     "name": "leaderboard"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.events",
+    "name": "live"
    },
    {
     "aliases": [],
@@ -266,8 +346,23 @@
    },
    {
     "aliases": [],
+    "group": "btd6.strat",
+    "name": "mine"
+   },
+   {
+    "aliases": [],
     "group": "btd6strat",
     "name": "mine"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "ops"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.strat",
+    "name": "pending"
    },
    {
     "aliases": [],
@@ -276,8 +371,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6",
+    "name": "rbe"
+   },
+   {
+    "aliases": [],
     "group": "btd6ref",
     "name": "rbe"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.ops",
+    "name": "readiness"
    },
    {
     "aliases": [],
@@ -286,8 +391,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6.events",
+    "name": "refresh-source"
+   },
+   {
+    "aliases": [],
     "group": "btd6events",
     "name": "refresh-source"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "relic"
    },
    {
     "aliases": [],
@@ -296,8 +411,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6",
+    "name": "round"
+   },
+   {
+    "aliases": [],
     "group": "btd6ref",
     "name": "round"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.ops",
+    "name": "runs"
    },
    {
     "aliases": [],
@@ -306,8 +431,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6.ops",
+    "name": "seed-data"
+   },
+   {
+    "aliases": [],
     "group": "btd6ops",
     "name": "seed-data"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.events",
+    "name": "source-health"
    },
    {
     "aliases": [],
@@ -316,8 +451,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6.ops",
+    "name": "source_disable"
+   },
+   {
+    "aliases": [],
     "group": "btd6ops",
     "name": "source_disable"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.ops",
+    "name": "source_enable"
    },
    {
     "aliases": [],
@@ -326,8 +471,28 @@
    },
    {
     "aliases": [],
+    "group": "btd6.events",
+    "name": "sources"
+   },
+   {
+    "aliases": [],
     "group": "btd6events",
     "name": "sources"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "status"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "strat"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.strat",
+    "name": "strategies"
    },
    {
     "aliases": [],
@@ -336,8 +501,18 @@
    },
    {
     "aliases": [],
+    "group": "btd6.strat",
+    "name": "strategy"
+   },
+   {
+    "aliases": [],
     "group": "btd6strat",
     "name": "strategy"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.strat",
+    "name": "strategy-audit"
    },
    {
     "aliases": [],
@@ -346,13 +521,33 @@
    },
    {
     "aliases": [],
+    "group": "btd6.strat",
+    "name": "submit"
+   },
+   {
+    "aliases": [],
     "group": "btd6strat",
     "name": "submit"
    },
    {
     "aliases": [],
+    "group": "btd6",
+    "name": "test-intent"
+   },
+   {
+    "aliases": [],
+    "group": "btd6",
+    "name": "tower"
+   },
+   {
+    "aliases": [],
     "group": "btd6ref",
     "name": "tower"
+   },
+   {
+    "aliases": [],
+    "group": "btd6.strat",
+    "name": "why-no-response"
    },
    {
     "aliases": [],
@@ -1847,10 +2042,17 @@
   "access:reset",
   "access:select_scope",
   "blackjack.solo_bet_form",
-  "btd6.grounding_form",
-  "btd6.hero_form",
+  "btd6.ask_form",
   "btd6.round_form",
   "btd6.tower_form",
+  "btd6:admin",
+  "btd6:ask",
+  "btd6:events",
+  "btd6:maps",
+  "btd6:rounds",
+  "btd6:status",
+  "btd6:strategy",
+  "btd6:units",
   "chain.clear_limit_form",
   "chain.create_form",
   "chain.delete_form",
