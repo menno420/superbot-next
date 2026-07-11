@@ -94,6 +94,64 @@ def test_lock_rows_for_settlement_still_locks_the_row():
     assert "FOR UPDATE" in conn.queries[0]
 
 
+# --- the farm/mining siblings of the same fence (F-001/F-002 class) --------------------
+#
+# Same fast DB-free pin: the real races are proven on live Postgres in
+# tests/integration/test_farm_mining_money_race.py; these guard the SQL
+# text against an accidental revert in environments without asyncpg.
+
+
+def test_get_farm_for_update_locks_slot_then_row():
+    from sb.domain.farm import store
+
+    conn = _RecordingConn(row=None)
+    run(store.get_farm(P1, GID, conn=conn, for_update=True))
+    # advisory slot lock FIRST (fences the no-row-yet first-insert race
+    # FOR UPDATE cannot), then the locking row read.
+    assert "pg_advisory_xact_lock" in conn.queries[0]
+    assert "FOR UPDATE" in conn.queries[1]
+
+
+def test_get_farm_plain_read_stays_unlocked():
+    from sb.domain.farm import store
+
+    conn = _RecordingConn(row=None)
+    run(store.get_farm(P1, GID, conn=conn))
+    assert len(conn.queries) == 1
+    assert "FOR UPDATE" not in conn.queries[0]
+
+
+def test_get_mining_inventory_for_update_locks_deterministically():
+    from sb.domain.mining import store
+
+    conn = _RecordingConn()
+    run(store.get_mining_inventory(P1, GID, conn=conn, for_update=True))
+    assert "FOR UPDATE" in conn.queries[0]
+    # deterministic lock-acquisition order — no deadlock between two
+    # concurrent multi-row sell_alls.
+    assert "ORDER BY item_name" in conn.queries[0]
+
+
+def test_get_mining_inventory_plain_read_stays_unlocked():
+    from sb.domain.mining import store
+
+    conn = _RecordingConn()
+    run(store.get_mining_inventory(P1, GID, conn=conn))
+    assert "FOR UPDATE" not in conn.queries[0]
+
+
+def test_locking_reads_refuse_to_run_without_a_conn():
+    """A locking read outside the caller's leg transaction fences nothing
+    — both stores refuse loudly instead of silently not locking."""
+    from sb.domain.farm import store as farm_store
+    from sb.domain.mining import store as mining_store
+
+    with pytest.raises(ValueError):
+        run(farm_store.get_farm(P1, GID, for_update=True))
+    with pytest.raises(ValueError):
+        run(mining_store.get_mining_inventory(P1, GID, for_update=True))
+
+
 # --- wager primitives ------------------------------------------------------------------
 
 
