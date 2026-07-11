@@ -66,3 +66,14 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
+
+- 2026-07-11 · wall · repo Settings/Rulesets are admin-only for agent tokens —
+  agents can READ rulesets but every modify path is refused, so the
+  require-up-to-date rule cannot be relaxed and the merge queue cannot be
+  enabled from a session · evidence: PRs #86/#87 stranded on the manual
+  "update branch" dance (captured in docs/retro/project-review-2026-07-09.md
+  §2), and an agent re-verified it could not edit the ruleset while
+  un-stranding them · workaround: forward-merge main into the PR branch and
+  re-push (costs one CI round); the real fix is owner-side (OWNER-ACTION 3 in
+  control/status.md — enable merge queue or drop require-up-to-date for
+  `docs/**` + `control/**`).

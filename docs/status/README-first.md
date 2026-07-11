@@ -26,6 +26,9 @@
 ## Where live truth lives
 
 - `control/status.md` — the live status ledger (blockers, owner actions, next lane).
+- `docs/retro/archive-ready-2026-07-11.md` — the 2026-07-11 close-out's resume-here
+  note (verified state snapshot, owner-actions, PR/branch sweep, re-arm recipe
+  pointers) — start THERE when un-archiving.
 - `docs/status/testing-report-2026-07-09.md` — the live-testing ledger (what has
   actually been driven in a real guild, band by band).
 - `parity/parity.yml` — the port dashboard (49 subsystem rows).
