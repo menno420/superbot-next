@@ -1,0 +1,42 @@
+{
+ "entries": {
+  "ticket:ticket:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:new:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:add:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:remove:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:claim:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:close:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  }
+ },
+ "schema_version": 1,
+ "subsystem": "ticket"
+}
