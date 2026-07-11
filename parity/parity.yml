@@ -55,7 +55,7 @@ subsystems:
   btd6: pending
   casino: pending
   chain: pending
-  channel: pending
+  channel: ported
   cleanup: pending
   community: pending
   community_spotlight: pending
@@ -199,6 +199,7 @@ depth:
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
     blackjack: {events: 2, tables: 5, settings: 0}
+    channel: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
