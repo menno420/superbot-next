@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from sb.domain.ai import behavior_widgets as _behavior_widgets
 from sb.domain.ai import orchestration_presets as _presets
+from sb.domain.ai import orchestration_widgets as _orchestration_widgets
 from sb.domain.ai import panels as _panels
 from sb.domain.ai import policy_widgets as _policy_widgets
 from sb.domain.ai import readers as _readers
@@ -27,6 +28,12 @@ from sb.domain.ai import service as _service
 from sb.domain.ai import settings_widgets as _widgets
 from sb.domain.ai import tools as _tools
 from sb.domain.ai.ops import register_ops
+from sb.domain.ai.orchestration_ops import (
+    EVT_ORCH_CATEGORY_CHANGED,
+    EVT_ORCH_CHANNEL_CHANGED,
+    EVT_ORCH_GUILD_CHANGED,
+    register_orchestration_ops,
+)
 from sb.domain.ai.policy_ops import (
     EVT_POLICY_CATEGORY_CHANGED,
     EVT_POLICY_CHANNEL_CHANGED,
@@ -74,6 +81,16 @@ AI_POLICY_EVENTS = (
     _policy_event(EVT_POLICY_CHANNEL_CHANGED),
     _policy_event(EVT_POLICY_CATEGORY_CHANGED),
     _policy_event(EVT_POLICY_ROLE_CHANGED),
+)
+
+#: the shipped ai.orchestration.*_changed advisories carry the SAME emit
+#: kwargs (events_catalogue.py: "Payload: guild_id, mutation_id. Same
+#: swallow-on-subscriber-failure contract as ai.policy.*") — the
+#: orchestration-mutation slice, D-0072.
+AI_ORCHESTRATION_EVENTS = (
+    _policy_event(EVT_ORCH_GUILD_CHANGED),
+    _policy_event(EVT_ORCH_CHANNEL_CHANGED),
+    _policy_event(EVT_ORCH_CATEGORY_CHANGED),
 )
 
 
@@ -214,18 +231,27 @@ MANIFEST = SubsystemManifest(
             _panels.ai_behavior_channel_picker_spec(),
             _panels.ai_behavior_category_picker_spec(),
             _panels.ai_behavior_preview_picker_spec(),
-            _panels.ai_behavior_preset_picker_spec()),
+            _panels.ai_behavior_preset_picker_spec(),
+            # the orchestration-mutation slice (D-0072): the shipped
+            # tools scope pickers, the step-2 profile choice and the
+            # dry-run preview.
+            _panels.ai_tools_guild_picker_spec(),
+            _panels.ai_tools_channel_picker_spec(),
+            _panels.ai_tools_category_picker_spec(),
+            _panels.ai_tools_profile_picker_spec(),
+            _panels.ai_tools_preview_picker_spec()),
     settings=_SETTINGS,
     stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE,
             AI_CHANNEL_POLICY_STORE, AI_CATEGORY_POLICY_STORE,
             AI_ROLE_POLICY_STORE, AI_INSTRUCTION_PROFILE_STORE),
-    events=AI_POLICY_EVENTS,
+    events=AI_POLICY_EVENTS + AI_ORCHESTRATION_EVENTS,
     capabilities=(),
 )
 
 register_ops()
 register_policy_ops()
-register_event_specs(AI_POLICY_EVENTS)
+register_orchestration_ops()
+register_event_specs(AI_POLICY_EVENTS + AI_ORCHESTRATION_EVENTS)
 _presets.register_domain_profiles()
 _round_cash.register_round_cash_workflow()
 _tools.register_btd6_tools()
@@ -233,6 +259,7 @@ _tools.register_btd6_tools()
 
 def _ensure_refs() -> None:
     from sb.domain.ai import ops as _ops_mod
+    from sb.domain.ai import orchestration_ops as _orch_ops_mod
     from sb.domain.ai import policy_ops as _policy_ops_mod
     from sb.domain.ai import policy_store as _policy_store_mod
     from sb.domain.ai import store as _store
@@ -241,14 +268,17 @@ def _ensure_refs() -> None:
     _policy_store_mod.ensure_policy_store_refs()
     _ops_mod.ensure_ops_refs()
     _policy_ops_mod.ensure_policy_ops_refs()
+    _orch_ops_mod.ensure_orchestration_ops_refs()
     _panels.ensure_panel_refs()
     _service.ensure_handler_refs()
     _widgets.ensure_widget_refs()
     _policy_widgets.ensure_policy_widget_refs()
     _behavior_widgets.ensure_behavior_widget_refs()
+    _orchestration_widgets.ensure_orchestration_widget_refs()
     register_ops()
     register_policy_ops()
-    register_event_specs(AI_POLICY_EVENTS)
+    register_orchestration_ops()
+    register_event_specs(AI_POLICY_EVENTS + AI_ORCHESTRATION_EVENTS)
     _presets.register_domain_profiles()
     _round_cash.register_round_cash_workflow()
     _tools.register_btd6_tools()

@@ -427,7 +427,12 @@ def test_ai_manifest_imports_and_registers():
     events = {e.name for e in manifest.MANIFEST.events}
     assert events == {"ai.policy.channel_changed",
                       "ai.policy.category_changed",
-                      "ai.policy.role_changed"}
+                      "ai.policy.role_changed",
+                      # the orchestration-mutation slice (D-0072): the
+                      # shipped ai.orchestration.*_changed advisories.
+                      "ai.orchestration.guild_changed",
+                      "ai.orchestration.channel_changed",
+                      "ai.orchestration.category_changed"}
     panel_ids = {p.panel_id for p in manifest.MANIFEST.panels}
     assert panel_ids == {
         "ai.hub", "ai.settings", "ai.card",
@@ -445,7 +450,12 @@ def test_ai_manifest_imports_and_registers():
         # the behavior-preset slice (D-0071): the shipped behavior scope
         # pickers, the preview reuse and the preset picker.
         "ai.behavior_channel_picker", "ai.behavior_category_picker",
-        "ai.behavior_preview_picker", "ai.behavior_preset_picker"}
+        "ai.behavior_preview_picker", "ai.behavior_preset_picker",
+        # the orchestration-mutation slice (D-0072): the shipped tools
+        # scope pickers, the step-2 profile choice and the preview.
+        "ai.tools_guild_picker", "ai.tools_channel_picker",
+        "ai.tools_category_picker", "ai.tools_profile_picker",
+        "ai.tools_preview_picker"}
     manifest.ENSURE_REFS()
 
 
