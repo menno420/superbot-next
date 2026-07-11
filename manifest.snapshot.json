@@ -1300,6 +1300,14 @@
         },
         {
           "kind": "command",
+          "parent_group": "btd6ops",
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
+          "value": "announcechannel"
+        },
+        {
+          "kind": "command",
           "parent_group": null,
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
@@ -5547,6 +5555,11 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_btd6_p4"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.cat_btd6"
         },
         {
@@ -8957,6 +8970,9 @@
       "panel:help.sub_btd6_p3": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.sub_btd6_p4": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.sub_casino": {
         "module": "sb.domain.help.service"
       },
@@ -9423,6 +9439,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_btd6_2": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_btd6_3": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_casino_0": {
@@ -10923,7 +10942,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:405099a30fa26152a739fd238f564d4327f35a8c36af140f439eae5d2727c9f8",
+  "stable_hash": "sha256:60301ce2297bf47e54a9a4e1060ca1d96add8efaa0d6f0970219d349cd1ce88b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -17874,7 +17893,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_usage_view"
+            "$ref": "handler:btd6.grp_bare"
           },
           "slash_common": false,
           "summary": "Deterministic BTD6 reference lookups.",
@@ -17897,7 +17916,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_tower_view"
+            "$ref": "handler:btd6.cmd_tower"
           },
           "slash_common": false,
           "summary": "Tower identity, costs (all difficulties), upgrades, paragon.",
@@ -17920,7 +17939,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_hero_view"
+            "$ref": "handler:btd6.cmd_hero"
           },
           "slash_common": false,
           "summary": "Hero identity, cost, and ability list.",
@@ -17943,7 +17962,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_round_view"
+            "$ref": "handler:btd6.cmd_round"
           },
           "slash_common": false,
           "summary": "Round composition, danger, RBE and cash.",
@@ -17966,7 +17985,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_income_view"
+            "$ref": "handler:btd6.cmd_income"
           },
           "slash_common": false,
           "summary": "Total round cash over an inclusive round range.",
@@ -17989,7 +18008,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_rbe_view"
+            "$ref": "handler:btd6.cmd_rbe"
           },
           "slash_common": false,
           "summary": "Red Bloon Equivalent for a round.",
@@ -18012,7 +18031,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_relic_view"
+            "$ref": "handler:btd6.cmd_relic"
           },
           "slash_common": false,
           "summary": "A Contested Territory relic's static effect.",
@@ -18035,10 +18054,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ref_ct_pending"
+            "$ref": "handler:btd6.cmd_ct"
           },
           "slash_common": false,
-          "summary": "Live Contested Territory status (ingestion successor).",
+          "summary": "Browse active Contested Territory events and relic tiles.",
           "usage": "!btd6ref ct",
           "usage_weight": 1.0
         },
@@ -18058,7 +18077,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_usage_view"
+            "$ref": "handler:btd6.grp_bare"
           },
           "slash_common": false,
           "summary": "BTD6 strategy memory — submit, browse, review.",
@@ -18081,7 +18100,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_browse_view"
+            "$ref": "handler:btd6.cmd_strat_browse"
           },
           "slash_common": false,
           "summary": "This server's strategies.",
@@ -18104,7 +18123,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_mine_view"
+            "$ref": "handler:btd6.cmd_strat_mine"
           },
           "slash_common": false,
           "summary": "Strategies you submitted here.",
@@ -18127,7 +18146,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_detail_view"
+            "$ref": "handler:btd6.cmd_strat_strategy"
           },
           "slash_common": false,
           "summary": "One strategy in full.",
@@ -18150,7 +18169,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_audit_view"
+            "$ref": "handler:btd6.cmd_strat_audit"
           },
           "slash_common": false,
           "summary": "Where a strategy's transition audit lives.",
@@ -18173,7 +18192,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_submit_route"
+            "$ref": "handler:btd6.cmd_strat_submit"
           },
           "slash_common": false,
           "summary": "Submit a strategy: title | summary.",
@@ -18196,7 +18215,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_pending_view"
+            "$ref": "handler:btd6.cmd_strat_pending"
           },
           "slash_common": false,
           "summary": "Strategies awaiting review.",
@@ -18219,7 +18238,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_published_view"
+            "$ref": "handler:btd6.cmd_strat_strategies"
           },
           "slash_common": false,
           "summary": "Published (cross-server) strategies.",
@@ -18242,7 +18261,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.strat_why_view"
+            "$ref": "handler:btd6.cmd_strat_why"
           },
           "slash_common": false,
           "summary": "Recent btd6.answer routing decisions for this server.",
@@ -18265,7 +18284,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_usage_view"
+            "$ref": "handler:btd6.grp_bare"
           },
           "slash_common": false,
           "summary": "BTD6 live-event views (+ grounding check).",
@@ -18288,10 +18307,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_live"
           },
           "slash_common": false,
-          "summary": "Current live events (ingestion successor).",
+          "summary": "Show recent live events (race/boss/ct/odyssey/event).",
           "usage": "!btd6events live",
           "usage_weight": 1.0
         },
@@ -18311,10 +18330,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_event"
           },
           "slash_common": false,
-          "summary": "One live event in detail (ingestion successor).",
+          "summary": "Show one specific BTD6 event with tower restrictions.",
           "usage": "!btd6events event",
           "usage_weight": 1.0
         },
@@ -18334,10 +18353,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_leaderboard"
           },
           "slash_common": false,
-          "summary": "Live event leaderboard (ingestion successor).",
+          "summary": "Top-N race or boss leaderboard.",
           "usage": "!btd6events leaderboard",
           "usage_weight": 1.0
         },
@@ -18357,10 +18376,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_sources"
           },
           "slash_common": false,
-          "summary": "Registered NK data sources (ingestion successor).",
+          "summary": "List BTD6 source registry rows.",
           "usage": "!btd6events sources",
           "usage_weight": 1.0
         },
@@ -18380,10 +18399,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_source_health"
           },
           "slash_common": false,
-          "summary": "Source freshness/health (ingestion successor).",
+          "summary": "Show source registry freshness.",
           "usage": "!btd6events source-health",
           "usage_weight": 1.0
         },
@@ -18403,10 +18422,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_latest"
           },
           "slash_common": false,
-          "summary": "Latest fetched envelopes (ingestion successor).",
+          "summary": "Show newest fact envelope per entity_kind.",
           "usage": "!btd6events latest-data",
           "usage_weight": 1.0
         },
@@ -18426,10 +18445,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_pending"
+            "$ref": "handler:btd6.cmd_events_refresh"
           },
           "slash_common": false,
-          "summary": "Force-refresh one source (ingestion successor).",
+          "summary": "Manually refresh one Ninja Kiwi source (staff-only).",
           "usage": "!btd6events refresh-source",
           "usage_weight": 1.0
         },
@@ -18449,10 +18468,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.events_grounding_view"
+            "$ref": "handler:btd6.cmd_events_grounding"
           },
           "slash_common": false,
-          "summary": "Show exactly what the retrieval grounds for a question.",
+          "summary": "Show the grounding facts that fed an AI response.",
           "usage": "!btd6events grounding",
           "usage_weight": 1.0
         },
@@ -18472,11 +18491,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ops_usage_view"
+            "$ref": "handler:btd6.grp_bare"
           },
           "slash_common": false,
-          "summary": "BTD6 ingestion operations (successor port).",
-          "usage": "!btd6ops <readiness|runs|source_enable|source_disable|seed-data>",
+          "summary": "BTD6 ingestion operations (staff readable; toggles are admin).",
+          "usage": "!btd6ops <readiness|runs|source_enable|source_disable|seed-data|announcechannel>",
           "usage_weight": 1.0
         },
         {
@@ -18495,10 +18514,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ops_pending"
+            "$ref": "handler:btd6.cmd_ops_readiness"
           },
           "slash_common": false,
-          "summary": "Ingestion readiness (successor port).",
+          "summary": "Show BTD6 ingestion readiness.",
           "usage": "!btd6ops readiness",
           "usage_weight": 1.0
         },
@@ -18518,10 +18537,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ops_pending"
+            "$ref": "handler:btd6.cmd_ops_runs"
           },
           "slash_common": false,
-          "summary": "Recent ingestion runs (successor port).",
+          "summary": "Show recent BTD6 ingestion runs.",
           "usage": "!btd6ops runs",
           "usage_weight": 1.0
         },
@@ -18541,10 +18560,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ops_pending"
+            "$ref": "handler:btd6.cmd_ops_source_enable"
           },
           "slash_common": false,
-          "summary": "Enable a data source (successor port).",
+          "summary": "Enable a BTD6 ingestion source (administrator only).",
           "usage": "!btd6ops source_enable",
           "usage_weight": 1.0
         },
@@ -18564,10 +18583,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ops_pending"
+            "$ref": "handler:btd6.cmd_ops_source_disable"
           },
           "slash_common": false,
-          "summary": "Disable a data source (successor port).",
+          "summary": "Disable a BTD6 ingestion source (administrator only).",
           "usage": "!btd6ops source_disable",
           "usage_weight": 1.0
         },
@@ -18587,11 +18606,34 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:btd6.ops_pending"
+            "$ref": "handler:btd6.cmd_ops_seed"
           },
           "slash_common": false,
-          "summary": "Seed the data store from files (successor port).",
+          "summary": "Seed the Postgres data store from the bundled files (admin).",
           "usage": "!btd6ops seed-data",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "btd6ops",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "announcechannel",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:btd6.cmd_ops_announcechannel"
+          },
+          "slash_common": false,
+          "summary": "Set/clear the BTD6 new-version announcement channel (admin).",
+          "usage": "!btd6ops announcechannel",
           "usage_weight": 1.0
         }
       ],
@@ -28932,7 +28974,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "72 command(s), generated from the `btd6` manifest."
+              "text": "73 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
@@ -28958,7 +29000,7 @@
             "extra_routes": [
               {
                 "emoji": "",
-                "label": "More (2/3) ▶",
+                "label": "More (2/4) ▶",
                 "route": {
                   "$ref": "panel:help.sub_btd6_p2"
                 }
@@ -28978,7 +29020,7 @@
           "session_lifecycle": false,
           "subsystem": "help",
           "timeout_s": 180,
-          "title": "🐵 BTD6 Assistant — commands · page 1/3",
+          "title": "🐵 BTD6 Assistant — commands · page 1/4",
           "usage_weight": 1.0
         },
         {
@@ -28987,7 +29029,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "72 command(s), generated from the `btd6` manifest."
+              "text": "73 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
@@ -29013,7 +29055,7 @@
             "extra_routes": [
               {
                 "emoji": "",
-                "label": "More (3/3) ▶",
+                "label": "More (3/4) ▶",
                 "route": {
                   "$ref": "panel:help.sub_btd6_p3"
                 }
@@ -29033,7 +29075,7 @@
           "session_lifecycle": false,
           "subsystem": "help",
           "timeout_s": 180,
-          "title": "🐵 BTD6 Assistant — commands · page 2/3",
+          "title": "🐵 BTD6 Assistant — commands · page 2/4",
           "usage_weight": 1.0
         },
         {
@@ -29042,11 +29084,66 @@
           "audience": "public",
           "body": [
             {
-              "text": "72 command(s), generated from the `btd6` manifest."
+              "text": "73 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
                 "$ref": "provider:sb.panels.help_cmds_btd6_2"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "More (4/4) ▶",
+                "route": {
+                  "$ref": "panel:help.sub_btd6_p4"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_btd6"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_btd6_p3",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🐵 BTD6 Assistant — commands · page 3/4",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "73 command(s), generated from the `btd6` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_btd6_3"
               }
             }
           ],
@@ -29082,13 +29179,13 @@
             "show_home": true,
             "show_rules": false
           },
-          "panel_id": "help.sub_btd6_p3",
+          "panel_id": "help.sub_btd6_p4",
           "renderer_override": null,
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "help",
           "timeout_s": 180,
-          "title": "🐵 BTD6 Assistant — commands · page 3/3",
+          "title": "🐵 BTD6 Assistant — commands · page 4/4",
           "usage_weight": 1.0
         },
         {
