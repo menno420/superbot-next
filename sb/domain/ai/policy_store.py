@@ -1,8 +1,12 @@
 """ai_channel_policy / ai_category_policy / ai_role_policy CRUD (band 7,
 the policy-mutation slice) — the shipped migration 039 override shapes
-(NAME_STABLE; migrations/0028_ai_policy.sql). Rows carry the mutating
-operator's id (``updated_by``) → MEMBER_ID; erasure = detach editorship
-(NULL the column), the ai_answer_presets authorship precedent.
+(NAME_STABLE; migrations/0028_ai_policy.sql) — plus the
+ai_instruction_profile preset-catalog reads (band 7, the behavior-preset
+slice — D-0071; migrations/0029_ai_instruction_profile.sql seeds the
+seven shipped system presets and no runtime lane writes the table). Rows
+carry the mutating operator's id (``updated_by`` / ``created_by``) →
+MEMBER_ID; erasure = detach editorship (NULL the column), the
+ai_answer_presets authorship precedent.
 
 The shipped per-guild policy GENERATION (ai_guild_policy.generation —
 bumped on every scoped write, ORACLE utils/db/ai.bump_generation) rides a
@@ -29,20 +33,36 @@ from sb.spec.versioning import (
 __all__ = [
     "AI_CATEGORY_POLICY_STORE",
     "AI_CHANNEL_POLICY_STORE",
+    "AI_INSTRUCTION_PROFILE_STORE",
     "AI_POLICY_GENERATION_KEY",
     "AI_ROLE_POLICY_STORE",
+    "UNCHANGED",
     "bump_generation",
     "detach_policy_editor",
     "ensure_policy_store_refs",
     "get_generation",
+    "get_preset_profile",
     "list_category_policies",
     "list_channel_policies",
+    "list_preset_profiles",
     "list_role_policies",
     "load_overlays",
     "upsert_category_policy",
     "upsert_channel_policy",
     "upsert_role_policy",
 ]
+
+
+class _Unchanged:
+    """The shipped ai_policy_mutation UNCHANGED sentinel (PR-C-pre): a
+    column the caller does not own is neither set on insert (NULL) nor
+    touched on conflict."""
+
+    def __repr__(self) -> str:  # pragma: no cover — debug aid
+        return "UNCHANGED"
+
+
+UNCHANGED = _Unchanged()
 
 
 def _policy_store_spec(table: str) -> StoreSpec:
@@ -64,6 +84,15 @@ AI_CHANNEL_POLICY_STORE = register_store(_policy_store_spec("ai_channel_policy")
 AI_CATEGORY_POLICY_STORE = register_store(_policy_store_spec("ai_category_policy"))
 AI_ROLE_POLICY_STORE = register_store(_policy_store_spec("ai_role_policy"))
 
+#: the shipped instruction-profile CATALOG (band 7, the behavior-preset
+#: slice — D-0071): migration 0029 seeds the seven system presets and no
+#: runtime lane writes the table (guild-authored profiles are the oracle
+#: ai_instruction_mutation surface, unported); ``created_by`` exists in
+#: the shipped shape (NULL on every seed row) so the store rides the same
+#: MEMBER_ID erasure lane as the override tables.
+AI_INSTRUCTION_PROFILE_STORE = register_store(
+    _policy_store_spec("ai_instruction_profile"))
+
 
 @engine("ai.policy_store")
 def _store_marker() -> str:
@@ -78,52 +107,77 @@ AI_POLICY_GENERATION_KEY = "ai_policy_generation"
 # --- writes (op legs only — the K7 sole-writer lane) ---------------------------------
 
 
-async def upsert_channel_policy(conn: Any, *, guild_id: int, channel_id: int,
-                                mode: str, min_level: int | None,
-                                cooldown_seconds: int | None,
+async def _upsert_scoped_policy(conn: Any, *, table: str, id_col: str,
+                                guild_id: int, target_id: int, mode: str,
+                                min_level, cooldown_seconds,
+                                instruction_profile_id,
                                 updated_by: int | None) -> dict | None:
-    """Upsert one channel override; returns the PRIOR row (or None).
-
-    ``instruction_profile_id`` is never in the conflict SET — the shipped
-    PR-C-pre UNCHANGED sentinel posture for the column this UI does not
-    own (profile binding belongs to the Behavior slice)."""
+    """Upsert one channel/category override; returns the PRIOR row (or
+    None). The three optional columns carry the shipped UNCHANGED
+    sentinel semantics (ai_policy_mutation PR-C-pre): an UNCHANGED column
+    is neither set on insert (stays NULL) nor touched on conflict — the
+    modal lane always passes min_level/cooldown explicitly (blank =
+    None = clear), the behavior-preset lane passes instruction_profile_id
+    and leaves min_level/cooldown UNCHANGED ('Existing min_level /
+    cooldown overrides for that scope are preserved', the shipped picker
+    copy)."""
     prior = await fetchone(
-        "SELECT mode, min_level, cooldown_seconds, instruction_profile_id "
-        "FROM ai_channel_policy WHERE guild_id=$1 AND channel_id=$2",
-        (guild_id, channel_id), conn=conn)
+        f"SELECT mode, min_level, cooldown_seconds, instruction_profile_id "  # noqa: S608
+        f"FROM {table} WHERE guild_id=$1 AND {id_col}=$2",
+        (guild_id, target_id), conn=conn)
+    dynamic = [(col, val) for col, val in (
+        ("min_level", min_level),
+        ("cooldown_seconds", cooldown_seconds),
+        ("instruction_profile_id", instruction_profile_id),
+    ) if not isinstance(val, _Unchanged)]
+    cols = ["guild_id", id_col, "mode",
+            *[col for col, _ in dynamic], "updated_at", "updated_by"]
+    params: list = [guild_id, target_id, mode,
+                    *[val for _, val in dynamic], updated_by]
+    placeholders, n = [], 0
+    for col in cols:
+        if col == "updated_at":
+            placeholders.append("NOW()")
+        else:
+            n += 1
+            placeholders.append(f"${n}")
+    sets = ["mode=EXCLUDED.mode",
+            *[f"{col}=EXCLUDED.{col}" for col, _ in dynamic],
+            "updated_at=NOW()", "updated_by=EXCLUDED.updated_by"]
     await execute(
-        "INSERT INTO ai_channel_policy (guild_id, channel_id, mode, "
-        "min_level, cooldown_seconds, instruction_profile_id, updated_at, "
-        "updated_by) VALUES ($1,$2,$3,$4,$5,NULL,NOW(),$6) "
-        "ON CONFLICT (guild_id, channel_id) DO UPDATE SET "
-        "mode=EXCLUDED.mode, min_level=EXCLUDED.min_level, "
-        "cooldown_seconds=EXCLUDED.cooldown_seconds, updated_at=NOW(), "
-        "updated_by=EXCLUDED.updated_by",
-        (guild_id, channel_id, mode, min_level, cooldown_seconds,
-         updated_by), conn=conn)
+        f"INSERT INTO {table} ({', '.join(cols)}) "  # noqa: S608
+        f"VALUES ({', '.join(placeholders)}) "
+        f"ON CONFLICT (guild_id, {id_col}) DO UPDATE SET {', '.join(sets)}",
+        tuple(params), conn=conn)
     return dict(prior) if prior else None
+
+
+async def upsert_channel_policy(conn: Any, *, guild_id: int, channel_id: int,
+                                mode: str,
+                                min_level: int | None | _Unchanged = UNCHANGED,
+                                cooldown_seconds: int | None | _Unchanged = UNCHANGED,
+                                instruction_profile_id: int | None | _Unchanged = UNCHANGED,
+                                updated_by: int | None) -> dict | None:
+    return await _upsert_scoped_policy(
+        conn, table="ai_channel_policy", id_col="channel_id",
+        guild_id=guild_id, target_id=channel_id, mode=mode,
+        min_level=min_level, cooldown_seconds=cooldown_seconds,
+        instruction_profile_id=instruction_profile_id,
+        updated_by=updated_by)
 
 
 async def upsert_category_policy(conn: Any, *, guild_id: int,
                                  category_id: int, mode: str,
-                                 min_level: int | None,
-                                 cooldown_seconds: int | None,
+                                 min_level: int | None | _Unchanged = UNCHANGED,
+                                 cooldown_seconds: int | None | _Unchanged = UNCHANGED,
+                                 instruction_profile_id: int | None | _Unchanged = UNCHANGED,
                                  updated_by: int | None) -> dict | None:
-    prior = await fetchone(
-        "SELECT mode, min_level, cooldown_seconds, instruction_profile_id "
-        "FROM ai_category_policy WHERE guild_id=$1 AND category_id=$2",
-        (guild_id, category_id), conn=conn)
-    await execute(
-        "INSERT INTO ai_category_policy (guild_id, category_id, mode, "
-        "min_level, cooldown_seconds, instruction_profile_id, updated_at, "
-        "updated_by) VALUES ($1,$2,$3,$4,$5,NULL,NOW(),$6) "
-        "ON CONFLICT (guild_id, category_id) DO UPDATE SET "
-        "mode=EXCLUDED.mode, min_level=EXCLUDED.min_level, "
-        "cooldown_seconds=EXCLUDED.cooldown_seconds, updated_at=NOW(), "
-        "updated_by=EXCLUDED.updated_by",
-        (guild_id, category_id, mode, min_level, cooldown_seconds,
-         updated_by), conn=conn)
-    return dict(prior) if prior else None
+    return await _upsert_scoped_policy(
+        conn, table="ai_category_policy", id_col="category_id",
+        guild_id=guild_id, target_id=category_id, mode=mode,
+        min_level=min_level, cooldown_seconds=cooldown_seconds,
+        instruction_profile_id=instruction_profile_id,
+        updated_by=updated_by)
 
 
 async def upsert_role_policy(conn: Any, *, guild_id: int, role_id: int,
@@ -208,6 +262,29 @@ async def list_role_policies(guild_id: int, conn: Any = None) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+async def list_preset_profiles(conn: Any = None) -> list[dict]:
+    """The shipped ai_db.list_preset_profiles: built-in presets, sorted
+    alphabetically — all rows with ``is_preset = TRUE`` (the migration
+    0029 seed, oracle 044)."""
+    rows = await fetchall(
+        "SELECT id, guild_id, name, body, scope, feature_key, is_preset "
+        "FROM ai_instruction_profile WHERE is_preset ORDER BY name",
+        (), conn=conn)
+    return [dict(r) for r in rows]
+
+
+async def get_preset_profile(preset_id: int,
+                             conn: Any = None) -> dict | None:
+    """One preset row by id — None when absent OR not flagged is_preset
+    (the shipped describe_preset 'rejects rows missing is_preset = True'
+    posture lives on this read)."""
+    row = await fetchone(
+        "SELECT id, guild_id, name, body, scope, feature_key, is_preset "
+        "FROM ai_instruction_profile WHERE id=$1 AND is_preset",
+        (preset_id,), conn=conn)
+    return dict(row) if row else None
+
+
 async def load_overlays(guild_id: int) -> tuple[
         dict[int, dict], dict[int, dict], dict[int, dict]]:
     """(channel, category, role) maps in the PolicyBundle row shapes the
@@ -238,10 +315,12 @@ async def detach_policy_editor(conn: Any, *, user_id: int) -> int:
     tables (the preset-authorship detach precedent — the rows themselves
     are guild config, not the subject's data)."""
     touched = 0
-    for table in ("ai_channel_policy", "ai_category_policy",
-                  "ai_role_policy"):
+    for table, column in (("ai_channel_policy", "updated_by"),
+                          ("ai_category_policy", "updated_by"),
+                          ("ai_role_policy", "updated_by"),
+                          ("ai_instruction_profile", "created_by")):
         result = await execute(
-            f"UPDATE {table} SET updated_by=NULL WHERE updated_by=$1",  # noqa: S608
+            f"UPDATE {table} SET {column}=NULL WHERE {column}=$1",  # noqa: S608
             (user_id,), conn=conn)
         digits = "".join(ch for ch in str(result) if ch.isdigit())
         touched += int(digits or 0)

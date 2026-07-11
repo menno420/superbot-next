@@ -420,7 +420,10 @@ def test_ai_manifest_imports_and_registers():
                       # the policy-mutation slice: the shipped migration
                       # 039 override shapes (migrations/0028_ai_policy).
                       "ai_channel_policy", "ai_category_policy",
-                      "ai_role_policy"}
+                      "ai_role_policy",
+                      # the behavior-preset slice (D-0071): the seeded
+                      # instruction-profile catalog (migrations/0029).
+                      "ai_instruction_profile"}
     events = {e.name for e in manifest.MANIFEST.events}
     assert events == {"ai.policy.channel_changed",
                       "ai.policy.category_changed",
@@ -438,7 +441,11 @@ def test_ai_manifest_imports_and_registers():
         # edit pages + the paged override list.
         "ai.policy_channel_picker", "ai.policy_category_picker",
         "ai.policy_role_picker", "ai.policy_preview_picker",
-        "ai.policy_scope_edit", "ai.policy_role_edit", "ai.policy_list"}
+        "ai.policy_scope_edit", "ai.policy_role_edit", "ai.policy_list",
+        # the behavior-preset slice (D-0071): the shipped behavior scope
+        # pickers, the preview reuse and the preset picker.
+        "ai.behavior_channel_picker", "ai.behavior_category_picker",
+        "ai.behavior_preview_picker", "ai.behavior_preset_picker"}
     manifest.ENSURE_REFS()
 
 
