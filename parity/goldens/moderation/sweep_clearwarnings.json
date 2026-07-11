@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.unlock",
+ "case_id": "sweep.clearwarnings",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:2>",
+     "message_id": "<msg:1>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -23,12 +23,25 @@
     }
    ]
   },
+  "mod_logs": {
+   "added": [
+    {
+     "action": "clearwarnings",
+     "guild_id": "<guild>",
+     "id": 1,
+     "moderator_id": "<@admin>",
+     "reason": "Warnings cleared",
+     "target_id": "<@second_member>",
+     "timestamp": "<ts>"
+    }
+   ]
+  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1982165610,
+     "last_xp": 1942115026,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,30 +58,19 @@
    "calls": [
     {
      "args": {
-      "allow": "2048",
-      "channel_id": "<msg:1>",
-      "deny": "0",
-      "reason": null,
-      "target_id": "<guild>",
-      "type": 0
-     },
-     "method": "edit_channel_permissions"
-    },
-    {
-     "args": {
       "channel_id": "<#general>"
      },
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "\"test\" unlocked.",
+      "content": "✅ Warnings cleared for <@<@second_member>>.",
       "tts": false
      }
     },
     {
      "args": {
       "channel_id": "<#general>",
-      "message_id": "<msg:2>",
+      "message_id": "<msg:1>",
       "reason": null
      },
      "method": "delete_message"
@@ -79,30 +81,27 @@
      "event": "audit.action_recorded",
      "payload": {
       "actor_id": "<@admin>",
-      "actor_type": "admin",
+      "actor_type": "moderator",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "channel_set_overwrite",
-      "new_value": "set overwrite [send_messages] on 1 channel(s) for role <guild> (1/1 applied)",
+      "mutation_type": "clearwarnings",
+      "new_value": "Warnings cleared",
       "occurred_at": "<ts>",
       "prev_value": null,
       "scope": "guild",
-      "subsystem": "channel",
-      "target": "channel:<msg:1>"
+      "subsystem": "moderation",
+      "target": "user:<@second_member>"
      }
     },
     {
-     "event": "channel.lifecycle_changed",
+     "event": "moderation.action_taken",
      "payload": {
-      "applied": [
-       "<msg:1>"
-      ],
-      "failed": [],
+      "action": "clearwarnings",
+      "actor_id": "<@admin>",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "occurred_at": "<ts>",
-      "operation": "set_overwrite",
-      "outcome": "success"
+      "reason": "Warnings cleared",
+      "target_id": "<@second_member>"
      }
     },
     {
@@ -118,11 +117,11 @@
     }
    ],
    "input": {
-    "content": "!unlock test",
+    "content": "!clearwarnings <@900000000000000103>",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "moderation"
 }

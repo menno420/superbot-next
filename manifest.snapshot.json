@@ -343,6 +343,11 @@
         "observability_only": false,
         "owner_subsystem": "ai"
       },
+      "channel.lifecycle_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "channel"
+      },
       "economy.balance_changed": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -4975,6 +4980,11 @@
           "value": "ai.orchestration.category_changed"
         },
         {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.lifecycle_changed"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.balance_changed"
@@ -5775,6 +5785,11 @@
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
+        },
+        {
+          "source": "sb/manifest/moderation.py",
+          "subsystem": "moderation",
+          "value": "moderation.modlogs_card"
         },
         {
           "source": "sb/manifest/projmoon.py",
@@ -7495,6 +7510,9 @@
       "handler:channel.delete_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:channel.lock": {
+        "module": "sb.domain.channel.handlers"
+      },
       "handler:channel.move_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -7506,6 +7524,12 @@
       },
       "handler:channel.restrict_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:channel.slowmode": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.unlock": {
+        "module": "sb.domain.channel.handlers"
       },
       "handler:channel.visibility_pending": {
         "module": "sb.domain.operator_spine"
@@ -8114,6 +8138,9 @@
         "module": "sb.domain.moderation.service"
       },
       "handler:moderation.render_hub": {
+        "module": "sb.domain.moderation.panels"
+      },
+      "handler:moderation.render_modlogs_card": {
         "module": "sb.domain.moderation.panels"
       },
       "handler:moderation.timeout_command": {
@@ -8978,6 +9005,9 @@
         "module": "sb.manifest.mining"
       },
       "panel:moderation.hub": {
+        "module": "sb.domain.moderation.panels"
+      },
+      "panel:moderation.modlogs_card": {
         "module": "sb.domain.moderation.panels"
       },
       "panel:projmoon.card": {
@@ -10708,7 +10738,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:57e1b556c3e82f415e8f6c1a07b090925e1de4748adffd6b6d6dc933ac356efb",
+  "stable_hash": "sha256:53dd670242f4d6a91d9631aefad3576c724803b5353db2c72cc5884a43ef5249",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19851,7 +19881,7 @@
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -19865,16 +19895,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.lock"
           },
           "slash_common": false,
-          "summary": "Channel op `lock` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `lock`.",
+          "usage": "!lock",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -19888,11 +19918,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.unlock"
           },
           "slash_common": false,
-          "summary": "Channel op `unlock` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `unlock`.",
+          "usage": "!unlock",
           "usage_weight": 1.0
         },
         {
@@ -19945,7 +19975,7 @@
           "aliases": [
             "slow"
           ],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -19959,11 +19989,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.slowmode"
           },
           "slash_common": false,
-          "summary": "Channel op `slowmode` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `slowmode`.",
+          "usage": "!slowmode",
           "usage_weight": 1.0
         },
         {
@@ -20039,7 +20069,54 @@
         }
       ],
       "data_invariants": [],
-      "events": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "channel.lifecycle_changed",
+          "observability_only": false,
+          "owner_subsystem": "channel",
+          "payload_schema": [
+            {
+              "name": "mutation_id",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "operation",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "outcome",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "applied",
+              "required": true,
+              "type": "list"
+            },
+            {
+              "name": "failed",
+              "required": true,
+              "type": "list"
+            },
+            {
+              "name": "occurred_at",
+              "required": true,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
       "key": "channel",
       "panels": [
         {
@@ -35758,6 +35835,48 @@
           "subsystem": "moderation",
           "timeout_s": 180,
           "title": "🔨 Moderation Panel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "orange",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed is state-parameterized end to end: the title interpolates the target member's display name (`📋 Mod Logs — {member.display_name}`), and the body is either the empty-state description ('No moderation history found.') or one non-inline field per history row (`{action.upper()} — {timestamp}` / `By <@moderator>` | reason) — grammar TextBlocks are static. The card declares no components; the renderer only composes the embed (goldens/moderation/sweep_modlogs pins the empty state).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "moderation.modlogs_card",
+          "renderer_override": {
+            "$ref": "handler:moderation.render_modlogs_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "moderation",
+          "timeout_s": 180,
+          "title": "📋 Mod Logs",
           "usage_weight": 1.0
         }
       ],

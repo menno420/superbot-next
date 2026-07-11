@@ -227,12 +227,93 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     return dataclasses.replace(base, embed=embed)
 
 
+MODLOGS_PANEL_ID = "moderation.modlogs_card"
+
+
+def modlogs_card_spec() -> PanelSpec:
+    """The shipped ``!modlogs`` history embed (cogs/moderation_cog.py
+    ``modlogs``) as a component-less session-lifecycle result card (the
+    karma.card / welcome status recipe: the shipped send was a plain
+    ``ctx.send(embed=...)`` — zero components, zero panel_anchors rows,
+    zero sim-gate rows; goldens/moderation/sweep_modlogs pins the empty
+    state's bytes)."""
+    return PanelSpec(
+        panel_id=MODLOGS_PANEL_ID,
+        subsystem="moderation",
+        title="📋 Mod Logs",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="orange",   # MOD_COLOR verbatim
+                             footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("moderation.render_modlogs_card"),
+        justification=(
+            "the shipped embed is state-parameterized end to end: the "
+            "title interpolates the target member's display name "
+            "(`📋 Mod Logs — {member.display_name}`), and the body is "
+            "either the empty-state description ('No moderation history "
+            "found.') or one non-inline field per history row "
+            "(`{action.upper()} — {timestamp}` / `By <@moderator>` | "
+            "reason) — grammar TextBlocks are static. The card declares "
+            "no components; the renderer only composes the embed "
+            "(goldens/moderation/sweep_modlogs pins the empty state)."),
+        session_lifecycle=True,
+    )
+
+
+async def _render_modlogs_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — cogs/moderation_cog.py ``modlogs`` verbatim:
+    the display-name title, MOD_COLOR orange, the empty-state
+    description, else one ``inline=False`` field per row
+    (``{action.upper()} — {timestamp}`` / ``By <@id> | {reason}``)."""
+    from sb.domain.moderation.store import get_mod_logs
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    target_id = int(params.get("modlogs_target_id", 0) or 0)
+    display_name = f"User{target_id}"
+    try:
+        # the utility guild-directory port (member_info tag →
+        # display name — the shipped member.display_name read; the
+        # capture personas carry no nick, so tag-minus-discriminator IS
+        # the display name the golden pins).
+        from sb.domain.utility.service import guild_directory
+
+        info = await guild_directory().member_info(guild_id, target_id)
+        display_name = str(info.tag).rsplit("#", 1)[0]
+    except Exception:  # noqa: BLE001 — headless ⇒ degraded name
+        pass
+    rows = await get_mod_logs(target_id, guild_id, limit=10)
+    description = "" if rows else "No moderation history found."
+    fields = tuple(
+        (f"{str(r['action']).upper()} — {r['timestamp']}",
+         f"By <@{r['moderator_id']}> | {r['reason']}", False)
+        for r in rows)
+    embed = RenderedEmbed(
+        title=f"📋 Mod Logs — {display_name}",
+        description=description,
+        fields=fields,
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 @panel("moderation.hub")
 def _hub_factory() -> PanelSpec:
     return moderation_hub_spec()
 
 
+@panel(MODLOGS_PANEL_ID)
+def _modlogs_card_factory() -> PanelSpec:
+    return modlogs_card_spec()
+
+
 handler("moderation.render_hub")(_render_hub)
+handler("moderation.render_modlogs_card")(_render_modlogs_card)
 
 
 def install_moderation_panels() -> PanelSpec:
@@ -250,5 +331,9 @@ def ensure_panel_refs() -> None:
 
     if not _is(PanelRef("moderation.hub")):
         _panel("moderation.hub")(_hub_factory)
+    if not _is(PanelRef(MODLOGS_PANEL_ID)):
+        _panel(MODLOGS_PANEL_ID)(_modlogs_card_factory)
     if not _is(HandlerRef("moderation.render_hub")):
         handler("moderation.render_hub")(_render_hub)
+    if not _is(HandlerRef("moderation.render_modlogs_card")):
+        handler("moderation.render_modlogs_card")(_render_modlogs_card)
