@@ -414,14 +414,14 @@ async def _tools_chooser_fields(ctx):
          "withheld tools (with reason codes), and the loop budget — no "
          "provider call."),
     ]
-    from sb.domain.ai import policy_store
+    from sb.domain.ai import policy_store, readers
 
-    guild_key = None
-    try:
-        guild_key = await policy_store.get_guild_orchestration_profile(
-            int(ctx.guild_id or 0))
-    except Exception:  # noqa: BLE001 — the shipped best-effort snapshot
-        pass           # read: a miss keeps the fallback key
+    # the guild default EXACTLY as the K10 reader serves it (KV row when
+    # ever written, band-1 fallback otherwise — the codex #187 P2: the
+    # decoration must mirror the resolver, the shipped single-source
+    # posture); the helper is fail-safe (None on any miss).
+    guild_key = await readers.guild_orchestration_default(
+        int(ctx.guild_id or 0))
     channels, categories = {}, {}
     try:
         channels, categories = await policy_store.load_orchestration_overlays(

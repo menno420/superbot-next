@@ -96,17 +96,23 @@ def _profiles_shipped_order():
 
 def _profile_option_rows(*, include_clear: bool):
     """The shipped SelectOption rows: label / value / truncated
-    description per preset (+ the optional clear/inherit option)."""
+    description per preset (+ the optional clear/inherit option). The
+    25-option Discord cap truncates PRESETS, never the clear option
+    (codex #187 P3: a 25th-slot clear must survive a grown registry —
+    the shipped roster was 5, uncapped)."""
+    profiles = _profiles_shipped_order()
+    if include_clear:
+        profiles = profiles[:24]
     options = [{"label": p.label[:100], "value": p.key,
                 "description": p.description[:100]}
-               for p in _profiles_shipped_order()]
+               for p in profiles[:25]]
     if include_clear:
         options.append({
             "label": "Clear (inherit)",
             "value": _CLEAR_VALUE,
             "description": "Remove this scope's profile; inherit the "
                            "next layer."})
-    return tuple(options[:25])
+    return tuple(options)
 
 
 async def orchestration_profile_options(ctx):
@@ -273,17 +279,12 @@ async def build_orchestration_preview_embed(*, guild_id: int,
         fields.append(("Precedence", trace[:1024], False))
 
     # the shipped best-effort guild-default footer decoration (the
-    # AIConfigSnapshot.orchestration.guild_profile_key read — here the
-    # KV twin; a read miss just drops the decoration).
-    guild_default = None
-    try:
-        from sb.domain.ai import policy_store
+    # AIConfigSnapshot.orchestration.guild_profile_key read — the SAME
+    # single source the resolver consumed, so the display mirrors the
+    # K10 reader here too; fail-safe None drops the decoration).
+    from sb.domain.ai import readers
 
-        guild_default = await policy_store.get_guild_orchestration_profile(
-            int(guild_id))
-    except Exception:  # noqa: BLE001 — DB-free replay drops the decoration
-        logger.debug("orchestration preview guild-default read failed",
-                     exc_info=True)
+    guild_default = await readers.guild_orchestration_default(int(guild_id))
     footer = "dry_run=True · administrator-only · tools shown at full scope"
     if guild_default:
         footer += f" · guild default: {guild_default}"

@@ -77,13 +77,49 @@ terminal (the routing-matrix follow-up slice, unchanged).
    event payload shape. Two sibling tests updated (test_band7_ai_surface
    store/event/panel rosters).
 
+## Codex triage (Q-0120 source-verified — 3 taken, 1 documented)
+
+Review 2026-07-11 on head `b943138` (2 P2 + 2 P3, all line-anchored):
+
+- **P2 TAKEN** — an explicit guild CLEAR (`profile_key=None` through
+  `ai.set_guild_orchestration`) stored the empty-string marker, read
+  back as "unset", and RESURRECTED the band-1
+  `guild_instruction_profile` fallback (the oracle's clear resolved
+  straight to the compatible default). Fixed:
+  `read_guild_orchestration_profile` now returns `(row_present, key)`
+  and a PRESENT row is authoritative (cleared included); band-1 serves
+  only while the row was never written. Regression-pinned.
+- **P2 TAKEN** — the tools chooser's "Current" field read ONLY the KV
+  row while the resolver also fell back to band-1: a legacy
+  `guild_instruction_profile` colliding with a preset key would show
+  `compatible_default (today)` while resolving differently. Fixed: a
+  shared `readers.guild_orchestration_default` helper mirrors the K10
+  reader exactly (the shipped single-source posture —
+  snapshot.orchestration.guild_profile_key fed both surfaces); the
+  preview footer rides it too. Regression-pinned.
+- **P3 TAKEN** — the `[:25]` roster cap could truncate the "Clear
+  (inherit)" option once the registry grows past 24 presets; the cap
+  now truncates PRESETS only (shipped roster was 5, uncapped).
+  Regression-pinned.
+- **P3 DOCUMENTED, NOT TAKEN (oracle-faithful)** — a tools-only write
+  mints a `mode='inherit'` policy row that the `ai.policy_list` page
+  then shows as a mode override. That IS the shipped behavior: the
+  oracle's column-only setter inserts `mode='inherit'` (utils/db/ai.py,
+  migration 062) and the oracle list_view's `_channel_entry_summary`
+  renders mode/min_level/cooldown with no orchestration awareness —
+  "fixing" it would diverge from the oracle. Cited on the PR.
+
 ## Verification (serial, local Postgres)
 
-- units: `pytest tests/ -q` → **1402 passed / 2 skipped**
-- gate: `run_golden_parity.py --gate` → **GREEN 212/212 across 33
+Final head (after the codex fixes + the #186 merge-forward):
+
+- units: `pytest tests/ -q` → **1405 passed / 2 skipped**
+- gate: `run_golden_parity.py --gate` → **GREEN 214/214 across 34
   ported** (migration 0031 applied by the harness boot)
-- report: `run_golden_parity.py --report` → **249/465 green, 465/465
-  replayable, 33/49 ported** (unchanged — no goldens move)
+- report: `run_golden_parity.py --report` → **251/465 green, 465/465
+  replayable, 34/49 ported** (unchanged by this slice — no goldens
+  move; the +2 green / +1 ported vs first push is main's admin flip
+  #186 merged forward)
 - named gates: manifest_compile (rewritten + verified green),
   check_parity_depth OK (49 subsystems, 465 goldens), check_namespace /
   check_sim_gate / check_compat_frozen / check_migrations (31) /

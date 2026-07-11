@@ -50,6 +50,7 @@ __all__ = [
     "list_role_policies",
     "load_orchestration_overlays",
     "load_overlays",
+    "read_guild_orchestration_profile",
     "set_guild_orchestration_profile",
     "upsert_category_orchestration",
     "upsert_category_policy",
@@ -386,16 +387,27 @@ async def load_overlays(guild_id: int) -> tuple[
     return channel, category, role
 
 
-async def get_guild_orchestration_profile(guild_id: int,
-                                          conn: Any = None) -> str | None:
-    """The guild-default orchestration key, or None while unset/cleared
-    (the shipped NULL column)."""
+async def read_guild_orchestration_profile(
+        guild_id: int, conn: Any = None) -> tuple[bool, str | None]:
+    """(row_present, key) — the KV twin keeps a distinction the shipped
+    single NULL column could not: a PRESENT row with the empty-string
+    marker is an EXPLICIT clear (reads as key=None), an ABSENT row means
+    the slice never wrote here (callers may fall back to the band-1
+    approximation). The codex #187 P2: without the distinction an
+    explicit guild clear resurrected the band-1 fallback."""
     row = await fetchone(
         "SELECT value FROM guild_settings WHERE guild_id=$1 AND key=$2",
         (guild_id, AI_ORCHESTRATION_PROFILE_KEY), conn=conn)
     if row is None:
-        return None
-    return str(row["value"]) or None
+        return False, None
+    return True, (str(row["value"]) or None)
+
+
+async def get_guild_orchestration_profile(guild_id: int,
+                                          conn: Any = None) -> str | None:
+    """The guild-default orchestration key, or None while unset/cleared
+    (the shipped NULL column)."""
+    return (await read_guild_orchestration_profile(guild_id, conn=conn))[1]
 
 
 async def load_orchestration_overlays(guild_id: int) -> tuple[

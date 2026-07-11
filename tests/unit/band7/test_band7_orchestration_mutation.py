@@ -417,11 +417,11 @@ def test_profile_key_reader_widened_with_overlays(monkeypatch):
         return {10: "no_tools"}, {20: "btd6_grounded"}
 
     async def _guild_key(guild_id, conn=None):
-        return "balanced_helper"
+        return True, "balanced_helper"
 
     monkeypatch.setattr(policy_store, "load_orchestration_overlays",
                         _overlays)
-    monkeypatch.setattr(policy_store, "get_guild_orchestration_profile",
+    monkeypatch.setattr(policy_store, "read_guild_orchestration_profile",
                         _guild_key)
     assert run(readers._profile_key_with_overlays(1, 10, 20)) == (
         "no_tools", "btd6_grounded", "balanced_helper")
@@ -436,6 +436,78 @@ def test_profile_key_reader_widened_with_overlays(monkeypatch):
     # the band-1 fallback: no overlays, the declared-settings guild read
     # (None in the DB-free root).
     assert base == (None, None, None)
+
+
+def test_explicit_guild_clear_suppresses_band1_fallback(monkeypatch):
+    """codex #187 P2: a PRESENT-but-cleared KV row is authoritative — the
+    band-1 guild_instruction_profile approximation serves ONLY while the
+    orchestration row was never written (the ORACLE's clear resolved
+    straight to the compatible default)."""
+    from sb.domain.ai import policy_store, readers
+    from sb.domain.settings import ai_readers as band1
+
+    async def _overlays(guild_id):
+        return {}, {}
+
+    async def _band1(guild_id, channel_id, category_id):
+        return None, None, "legacy_instruction_profile"
+
+    monkeypatch.setattr(policy_store, "load_orchestration_overlays",
+                        _overlays)
+    monkeypatch.setattr(band1, "_profile_key", _band1)
+
+    async def _cleared(guild_id, conn=None):
+        return True, None            # row present, explicit clear
+
+    monkeypatch.setattr(policy_store, "read_guild_orchestration_profile",
+                        _cleared)
+    assert run(readers._profile_key_with_overlays(1, 10, None)) == (
+        None, None, None)
+    assert run(readers.guild_orchestration_default(1)) is None
+
+    async def _absent(guild_id, conn=None):
+        return False, None           # never written → band-1 serves
+
+    monkeypatch.setattr(policy_store, "read_guild_orchestration_profile",
+                        _absent)
+    assert run(readers._profile_key_with_overlays(1, 10, None)) == (
+        None, None, "legacy_instruction_profile")
+    assert (run(readers.guild_orchestration_default(1))
+            == "legacy_instruction_profile")
+
+
+def test_clear_option_survives_a_grown_registry(monkeypatch):
+    """codex #187 P3: the 25-option cap truncates PRESETS, never the
+    clear option."""
+    from sb.domain.ai import orchestration_widgets as widgets
+
+    fakes = tuple(SimpleNamespace(key=f"p{i:02d}", label=f"P {i}",
+                                  description="d") for i in range(30))
+    monkeypatch.setattr(widgets, "_profiles_shipped_order", lambda: fakes)
+    rows = widgets._profile_option_rows(include_clear=True)
+    assert len(rows) == 25
+    assert rows[-1]["value"] == "__inherit__"
+    assert [r["value"] for r in rows[:-1]] == [f"p{i:02d}"
+                                               for i in range(24)]
+    rows = widgets._profile_option_rows(include_clear=False)
+    assert len(rows) == 25
+    assert all(r["value"] != "__inherit__" for r in rows)
+
+
+def test_chooser_current_mirrors_the_resolver(skeleton, monkeypatch):
+    """codex #187 P2 twin: the tools chooser's Current field shows the
+    SAME guild default the K10 reader serves (band-1 fallback included),
+    never a divergent read."""
+    from sb.domain.ai import readers
+
+    async def _default(guild_id):
+        return "no_tools"
+
+    monkeypatch.setattr(readers, "guild_orchestration_default", _default)
+    payload = _open_chooser(skeleton)
+    fields = {f["name"]: f["value"]
+              for f in payload["embeds"][0]["fields"]}
+    assert fields["Current"].startswith("guild default: `no_tools`")
 
 
 def test_orchestration_event_payload_shape():
