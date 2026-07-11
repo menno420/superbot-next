@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.word_list",
+ "case_id": "sweep.word",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1833220719,
+     "last_xp": 1906762387,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "Prohibited words: `test`",
+      "content": "No prohibited words are currently set.",
       "tts": false
      }
     },
@@ -85,11 +85,11 @@
     }
    ],
    "input": {
-    "content": "!word list",
+    "content": "!word",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "cleanup"
 }
