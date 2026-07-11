@@ -5,7 +5,11 @@ real installs behind :mod:`sb.domain.ai.operator_cards`'s two ports:
   ``# bot_user_id`` lines (the interpreter's own version/system plus the
   gateway bot id, available at READY);
 * channel permission probe — the readiness scan's ``bot_permissions``
-  link (the shipped ``channel.permissions_for(guild.me)`` read).
+  link (the shipped ``channel.permissions_for(guild.me)`` read);
+* guild scope roster — the policy scope pickers' channel/category/role
+  option rosters (the shipped native ChannelSelect/RoleSelect enumerated
+  these server-side; the engine's string selects enumerate through this
+  port — sb/domain/ai/policy_widgets.py).
 
 The parity harness installs its capture-world twins instead
 (sb/adapters/parity/boot.py). Duck-typed against discord.py like the
@@ -59,3 +63,28 @@ def install_ai_operator_ports(bot: object) -> None:
         return missing
 
     install_channel_permission_probe(_probe)
+
+    from sb.domain.ai.policy_widgets import (
+        GuildScopeRoster,
+        install_guild_scope_roster,
+    )
+
+    async def _scope_roster(guild_id: int) -> GuildScopeRoster | None:
+        guild = bot.get_guild(int(guild_id))
+        if guild is None:
+            return None
+        text_channels = tuple(
+            (int(c.id), str(c.name),
+             int(c.category_id) if getattr(c, "category_id", None) else None)
+            for c in (getattr(guild, "text_channels", ()) or ()))
+        categories = tuple(
+            (int(c.id), str(c.name))
+            for c in (getattr(guild, "categories", ()) or ()))
+        roles = tuple(
+            (int(r.id), str(r.name))
+            for r in (getattr(guild, "roles", ()) or ())
+            if int(r.id) != int(guild_id))          # skip @everyone
+        return GuildScopeRoster(text_channels=text_channels,
+                                categories=categories, roles=roles)
+
+    install_guild_scope_roster(_scope_roster)

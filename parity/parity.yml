@@ -233,6 +233,43 @@ depth:
           row; the read surfaces ARE golden-pinned empty-state reads
           (goldens/ai/sweep_aireview{,_list,_export,_resolve}), and the
           table's first row-bearing golden lands with an NL-armed capture"
+      # the three typed policy-override tables + their advisory events
+      # (the policy-mutation slice, D-0070): the shipped writes sit behind
+      # the ChannelPolicyModal/CategoryPolicyModal/RolePolicyModal submits
+      # reached ONLY through run-minted scope-picker select picks
+      # (views/ai/policy/{channel,category,role}_view.py @7f7628e1 — the
+      # views never exposed a command twin), so the corpus is doubly
+      # unable to express the ingress (D-0063 modal + D-0064 select); the
+      # D-0063 structural-unreachability test re-argued for THESE tables:
+      # no command/slash/click reconstruction can carry the upsert, and
+      # the events fire only on those writes. The read surfaces ARE
+      # golden-pinned (the sweep_ai_policy dual dry-run trace reads the
+      # resolver these rows feed; the chooser open is byte-pinned by the
+      # #160 skeleton).
+      - surface: "table:ai_channel_policy"
+        reason: "modal-driven: written only by the ai.policy_mode_form
+          submit behind the channel scope-picker pick (D-0063 re-argued;
+          no command twin shipped)"
+      - surface: "table:ai_category_policy"
+        reason: "modal-driven: written only by the ai.policy_mode_form
+          submit behind the category scope-picker pick (D-0063 re-argued;
+          no command twin shipped)"
+      - surface: "table:ai_role_policy"
+        reason: "modal-driven: written only by the ai.policy_role_form
+          submit behind the role scope-picker pick (D-0063 re-argued;
+          no command twin shipped)"
+      - surface: "event:ai.policy.channel_changed"
+        reason: "modal-driven: emitted only by the ai.set_channel_policy
+          op the ai.policy_mode_form submit runs (same ingress argument
+          as its table row)"
+      - surface: "event:ai.policy.category_changed"
+        reason: "modal-driven: emitted only by the ai.set_category_policy
+          op the ai.policy_mode_form submit runs (same ingress argument
+          as its table row)"
+      - surface: "event:ai.policy.role_changed"
+        reason: "modal-driven: emitted only by the ai.set_role_policy
+          op the ai.policy_role_form submit runs (same ingress argument
+          as its table row)"
     btd6:
       - surface: "table:btd6_strategies"
         reason: "modal-driven: the shipped strategy write flow is the

@@ -160,17 +160,19 @@ def test_tools_button_opens_shipped_tools_chooser_with_current(skeleton):
 
 
 def test_chooser_scope_buttons_answer_honest_pending(skeleton):
-    """Every scope picker is the policy/orchestration-mutation slices'
-    port — the pending terminal names the parked page."""
-    payload = _panel_payload(_click_hub(skeleton, "policy"))
+    """The still-parked scope pickers keep their honest pending terminal
+    (the POLICY pickers are live — the policy-mutation slice's own
+    skeleton drives them; behavior preset / tools profile pickers are the
+    behavior-preset / orchestration-mutation slices' ports)."""
+    payload = _panel_payload(_click_hub(skeleton, "behavior"))
     channel_btn = [c["custom_id"] for row in payload["components"]
                    for c in row["components"] if c.get("label") == "Channel"]
     run(skeleton.click(message_id=902, custom_id=channel_btn[0],
                        persona="admin"))
     calls = skeleton.take_calls()
-    assert calls[-1].payload["content"].startswith(
-        "The per-channel policy picker (mode inherit / always_reply / "
-        "mention_only / disabled) ports with the policy-mutation slice.")
+    assert calls[-1].payload["content"] == (
+        "The per-channel behavior preset picker ports with the "
+        "behavior-preset slice.")
 
 
 # --- the settings edit/reset dispatch (the shipped S6 routing) --------------------

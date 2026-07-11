@@ -28,10 +28,20 @@
   "Administrator-only · ephemeral follow-up." footer) over the shipped
   button rows; the Behavior "Advanced" button routes to the policy
   chooser (the shipped punt) and every ↩ AI home back-route rebuilds the
-  hub fresh. The SCOPE PICKERS each button opens (channel/category/role/
-  preview/list/preset/profile pages) are the policy/orchestration-
-  mutation slices' ports — honest pending terminals meanwhile
-  (sb/domain/ai/settings_widgets.py `chooser_scope_pending`).
+  hub fresh. The POLICY chooser's scope pickers are LIVE (below); the
+  behavior preset pickers and the tools profile pickers are the
+  behavior-preset / orchestration-mutation slices' ports — honest
+  pending terminals meanwhile (settings_widgets.py
+  `chooser_scope_pending`).
+* ``ai.policy_channel_picker`` / ``ai.policy_category_picker`` /
+  ``ai.policy_role_picker`` / ``ai.policy_preview_picker`` /
+  ``ai.policy_scope_edit`` / ``ai.policy_role_edit`` /
+  ``ai.policy_list`` — the shipped policy SCOPE PICKERS
+  (views/ai/policy/{channel,category,role,preview,list}_view.py
+  @7f7628e1, the policy-mutation slice): pick → Edit… → the shipped
+  scope modal → ONE audited ``ai.set_*_policy`` op; the dry-run preview
+  and the paged override list (sb/domain/ai/policy_widgets.py owns the
+  routes; D-0070 ledgers the engine-shape deviations).
 * ``ai.settings_edit_presets`` / ``ai.settings_edit_enum`` /
   ``ai.settings_edit_text`` — the shipped S6/S7 edit WIDGETS
   (views/settings/edit_number_presets.py / edit_enum.py / edit_text.py +
@@ -90,7 +100,14 @@ __all__ = [
     "ai_behavior_chooser_spec",
     "ai_card_spec",
     "ai_hub_spec",
+    "ai_policy_category_picker_spec",
+    "ai_policy_channel_picker_spec",
     "ai_policy_chooser_spec",
+    "ai_policy_list_spec",
+    "ai_policy_preview_picker_spec",
+    "ai_policy_role_edit_spec",
+    "ai_policy_role_picker_spec",
+    "ai_policy_scope_edit_spec",
     "ai_settings_edit_enum_spec",
     "ai_settings_edit_presets_spec",
     "ai_settings_edit_text_spec",
@@ -244,14 +261,21 @@ def ai_policy_chooser_spec() -> PanelSpec:
                   "rules on the next message."),
               FieldsBlock(provider=ProviderRef("ai.policy_chooser_fields"))),
         actions=(
-            _scope_action("policy_channel", "Channel", ActionStyle.PRIMARY),
+            # the policy-mutation slice: every scope button opens its
+            # shipped picker page (the shipped edit_message swap).
+            _scope_action("policy_channel", "Channel", ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.policy_channel_picker")),
             _scope_action("policy_category", "Category",
-                          ActionStyle.PRIMARY),
-            _scope_action("policy_role", "Role", ActionStyle.PRIMARY),
+                          ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.policy_category_picker")),
+            _scope_action("policy_role", "Role", ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.policy_role_picker")),
             _scope_action("policy_preview", "Effective policy",
-                          ActionStyle.SECONDARY),
+                          ActionStyle.SECONDARY,
+                          handler=PanelRef("ai.policy_preview_picker")),
             _scope_action("policy_list", "List overrides",
-                          ActionStyle.SECONDARY),
+                          ActionStyle.SECONDARY,
+                          handler=HandlerRef("ai.policy_list_open")),
         ),
         # the shipped "↩ AI home" back button (views/ai/_nav.py
         # add_back_button, row 4) — an engine back-route rebuilding the
@@ -416,6 +440,254 @@ def ai_tools_chooser_spec() -> PanelSpec:
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("tools_guild", "tools_channel", "tools_category"),
             ("tools_preview",),
+        )),)),
+    )
+
+
+# --- the POLICY SCOPE PICKER pages (views/ai/policy/* @7f7628e1 — the
+# --- policy-mutation slice; sb/domain/ai/policy_widgets.py owns the routes) -----
+
+#: the shipped scope-page footer byte (chooser.py _scope_page_embed).
+_POLICY_PAGE_FOOTER = "Administrator-only · in-place navigation."
+
+#: every scope page's shipped "↩ AI Policy" back-route (_add_back_to_policy).
+_BACK_TO_POLICY = NavigationSpec(
+    show_help=False, show_home=False,
+    extra_routes=(NavRouteSpec(label="↩ AI Policy",
+                               route=PanelRef("ai.policy_chooser")),))
+
+#: the shipped ChannelPolicyModal / CategoryPolicyModal (channel_view.py /
+#: category_view.py) as ONE G-10 declared form — identical field bytes;
+#: the scope/target ride the kernel modal-args stash (the shipped per-open
+#: dynamic title "AI policy · #<name>" is static-spec data here — the
+#: D-0066 static-title class; the edit page's prompt carries the target).
+_POLICY_MODE_MODAL = ModalSpec(
+    modal_id="ai.policy_mode_form",
+    title="AI policy",
+    fields=(
+        ModalFieldSpec(
+            field_id="mode", label="Mode",
+            placeholder="inherit | always_reply | mention_only | disabled",
+            required=True, min_length=4, max_length=20),
+        ModalFieldSpec(
+            field_id="min_level", label="Min level (blank = inherit)",
+            placeholder="0", required=False, max_length=4),
+        ModalFieldSpec(
+            field_id="cooldown_seconds",
+            label="Cooldown seconds (blank = inherit)",
+            placeholder="30", required=False, max_length=6),
+    ))
+
+#: the shipped RolePolicyModal (role_view.py) twin.
+_POLICY_ROLE_MODAL = ModalSpec(
+    modal_id="ai.policy_role_form",
+    title="AI policy",
+    fields=(
+        ModalFieldSpec(
+            field_id="decision", label="Decision",
+            placeholder="allow | deny | inherit",
+            required=True, min_length=4, max_length=10),
+        ModalFieldSpec(
+            field_id="min_level_override",
+            label="Min level override (blank = inherit)",
+            placeholder="0", required=False, max_length=4),
+        ModalFieldSpec(
+            field_id="bypass_cooldown", label="Bypass cooldown (yes/no)",
+            placeholder="no", required=False, max_length=5),
+    ))
+
+_POLICY_PICKER_JUSTIFICATION = (
+    "the shipped scope-page footer is the STATIC 'Administrator-only · "
+    "in-place navigation.' literal (views/ai/policy/chooser.py "
+    "_scope_page_embed set_footer) — copy outside FooterMode's "
+    "none/subsystem/provenance vocabulary; the override delegates to the "
+    "grammar renderer and replaces ONLY the footer (the ai.render_chooser "
+    "precedent).")
+
+
+def _policy_picker_spec(panel_id: str, *, title: str, instruction: str,
+                        kind: SelectorKind, placeholder: str,
+                        on_select: str, selector_id: str,
+                        provider_name: str = "") -> PanelSpec:
+    """One shipped scope-picker page: the chooser's _scope_page_embed
+    (title + instruction) over the scope's single pick-one select.
+    ``selector_id`` is per-picker unique — K1 leaf-id claims are
+    subsystem-wide (the ai_hub `ai_` prefix precedent). A CHANNEL-kind
+    selector rides the Discord-NATIVE channel picker (wire type 8, the
+    #167 LogChannelSelectView lane — the client supplies the options, the
+    SHIPPED ChannelSelect shape exactly); category/role selects are
+    roster-provider-fed string selects."""
+    return PanelSpec(
+        panel_id=panel_id,
+        subsystem="ai",
+        title=title,
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(instruction),),
+        selectors=(
+            SelectorSpec(
+                selector_id=selector_id, kind=kind,
+                options_source=(ProviderRef(provider_name)
+                                if provider_name else ()),
+                placeholder=placeholder,
+                audience_tier="staff",
+                on_select=HandlerRef(on_select)),
+        ),
+        navigation=_BACK_TO_POLICY,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_policy_picker"),
+        justification=_POLICY_PICKER_JUSTIFICATION,
+        layout=LayoutSpec(pages=(PageSpec(rows=((selector_id,),)),)),
+    )
+
+
+def ai_policy_channel_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.policy_channel_picker",
+        title="Channel AI policy",
+        instruction="Pick a channel to set its AI policy.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel to configure…",
+        on_select="ai.policy_channel_pick",
+        selector_id="policy_channel_pick")
+
+
+def ai_policy_category_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.policy_category_picker",
+        title="Category AI policy",
+        instruction="Pick a category to set its AI policy.",
+        kind=SelectorKind.ENTITY,
+        provider_name="ai.policy_category_options",
+        placeholder="Pick a category to configure…",
+        on_select="ai.policy_category_pick",
+        selector_id="policy_category_pick")
+
+
+def ai_policy_role_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.policy_role_picker",
+        title="Role AI policy",
+        instruction="Pick a role to set its AI policy.",
+        kind=SelectorKind.ROLE,
+        provider_name="ai.policy_role_options",
+        placeholder="Pick a role to configure…",
+        on_select="ai.policy_role_pick",
+        selector_id="policy_role_pick")
+
+
+def ai_policy_preview_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.policy_preview_picker",
+        title="Effective AI policy (dry-run)",
+        instruction="Pick a channel to see the effective AI policy as "
+                    "your user.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel to preview…",
+        on_select="ai.policy_preview_pick",
+        selector_id="policy_preview_pick")
+
+
+_POLICY_EDIT_JUSTIFICATION = (
+    "the shipped flow opened the scope modal DIRECTLY from the native "
+    "select pick (views/ai/policy/channel_view.py _ChannelPickSelect."
+    "callback response.send_modal) — a selector pick is AUTO-deferred on "
+    "this engine so a modal can no longer be its first response; the Edit… "
+    "button intermediates (the D-0054/D-0066 confirm-surface posture, "
+    "ledgered in D-0070) and the page's prompt carries the PICKED target "
+    "(per-open copy outside the static grammar). The override delegates "
+    "to the grammar renderer and supplies ONLY the description + the "
+    "shipped scope-page footer.")
+
+
+def ai_policy_scope_edit_spec() -> PanelSpec:
+    """The channel/category edit page — ONE page for the two scopes that
+    share the shipped mode/min_level/cooldown form (the picked scope +
+    target ride the session args)."""
+    return PanelSpec(
+        panel_id="ai.policy_scope_edit",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="edit_scope_policy", label="Edit…",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                defer_mode=DeferMode.MODAL, modal=_POLICY_MODE_MODAL,
+                handler=HandlerRef("ai.policy_mode_submit"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=_BACK_TO_POLICY,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_policy_edit"),
+        justification=_POLICY_EDIT_JUSTIFICATION,
+        layout=LayoutSpec(pages=(PageSpec(rows=(("edit_scope_policy",),)),)),
+    )
+
+
+def ai_policy_role_edit_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.policy_role_edit",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="edit_role_policy", label="Edit…",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                defer_mode=DeferMode.MODAL, modal=_POLICY_ROLE_MODAL,
+                handler=HandlerRef("ai.policy_role_submit"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=_BACK_TO_POLICY,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_policy_edit"),
+        justification=_POLICY_EDIT_JUSTIFICATION,
+        layout=LayoutSpec(pages=(PageSpec(rows=(("edit_role_policy",),)),)),
+    )
+
+
+def ai_policy_list_spec() -> PanelSpec:
+    """The shipped paged override list (views/ai/policy/list_view.py):
+    Prev/Next over the three typed tables, 10 per page."""
+    return PanelSpec(
+        panel_id="ai.policy_list",
+        subsystem="ai",
+        title="AI policy overrides",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="list_prev", label="Prev",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                handler=HandlerRef("ai.policy_list_page"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="list_next", label="Next",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                handler=HandlerRef("ai.policy_list_page"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=_BACK_TO_POLICY,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_policy_list"),
+        justification=(
+            "the shipped list embed is fully live-state-parameterized "
+            "(views/ai/policy/list_view.py build_list_embed: the total-"
+            "count description, one field per override row, the dynamic "
+            "'Page p / t · administrator-only' footer, Prev/Next disabled "
+            "at the edges) — per-render copy and component state outside "
+            "the static grammar. The override delegates to the grammar "
+            "renderer, replaces description/fields/footer from the typed-"
+            "table reads and flips the edge buttons' disabled flags."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("list_prev", "list_next"),
         )),)),
     )
 
@@ -847,6 +1119,67 @@ async def _render_enum_widget(spec: PanelSpec, ctx) -> object:
         embed=_dc_replace(rendered.embed, description=description))
 
 
+async def _render_policy_picker(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped static scope-page footer byte."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed,
+                                         footer=_POLICY_PAGE_FOOTER))
+
+
+async def _render_policy_edit(spec: PanelSpec, ctx) -> object:
+    """The scope edit page: the picked target's prompt (the shipped
+    modal-title readout riding the page — the D-0066 class) + the shipped
+    scope-page footer."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    params = ctx.params or {}
+    target = str(params.get("policy_target") or "")
+    label = str(params.get("policy_target_label") or target)
+    scope = ("role" if spec.panel_id == "ai.policy_role_edit"
+             else str(params.get("policy_scope") or "channel"))
+    subject = f"category **{label}**" if scope == "category" else label
+    description = (f"Edit AI policy for {subject} — "
+                   "**Edit…** opens the form.")
+    return _dc_replace(
+        rendered,
+        embed=_dc_replace(rendered.embed, description=description,
+                          footer=_POLICY_PAGE_FOOTER))
+
+
+async def _render_policy_list(spec: PanelSpec, ctx) -> object:
+    """The shipped build_list_embed page: total-count description, one
+    field per override row, the dynamic page footer, Prev/Next disabled
+    at the edges."""
+    from sb.domain.ai import policy_widgets as widgets
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    entries = await widgets.collect_entries(int(ctx.guild_id or 0))
+    try:
+        page = int((ctx.params or {}).get("policy_page") or 1)
+    except (TypeError, ValueError):
+        page = 1
+    fields, page, total_pages = widgets.build_list_fields(entries, page=page)
+    description = (f"{len(entries)} total override(s) across this guild "
+                   "(channel + category + role).")
+    footer = f"Page {page} / {total_pages} · administrator-only"
+    components = []
+    for comp in rendered.components:
+        if comp.custom_id == f"{spec.panel_id}.list_prev":
+            comp = _dc_replace(comp, disabled=page <= 1)
+        elif comp.custom_id == f"{spec.panel_id}.list_next":
+            comp = _dc_replace(comp, disabled=page >= total_pages)
+        components.append(comp)
+    return _dc_replace(
+        rendered, components=tuple(components),
+        embed=_dc_replace(rendered.embed, description=description,
+                          fields=fields, footer=footer))
+
+
 async def _enum_edit_options(ctx):
     """The shipped edit_enum option roster: one option per allowed value,
     the current value pre-marked (default=True + the 'current'
@@ -883,6 +1216,15 @@ _SPECS = {
     "ai.settings_edit_presets": ai_settings_edit_presets_spec,
     "ai.settings_edit_enum": ai_settings_edit_enum_spec,
     "ai.settings_edit_text": ai_settings_edit_text_spec,
+    # the policy-mutation slice: the shipped scope pickers + edit pages +
+    # the paged override list (views/ai/policy/* @7f7628e1).
+    "ai.policy_channel_picker": ai_policy_channel_picker_spec,
+    "ai.policy_category_picker": ai_policy_category_picker_spec,
+    "ai.policy_role_picker": ai_policy_role_picker_spec,
+    "ai.policy_preview_picker": ai_policy_preview_picker_spec,
+    "ai.policy_scope_edit": ai_policy_scope_edit_spec,
+    "ai.policy_role_edit": ai_policy_role_edit_spec,
+    "ai.policy_list": ai_policy_list_spec,
 }
 
 _RENDERERS = {
@@ -893,6 +1235,9 @@ _RENDERERS = {
     "ai.render_presets_widget": _render_presets_widget,
     "ai.render_enum_widget": _render_enum_widget,
     "ai.render_text_widget": _render_text_widget,
+    "ai.render_policy_picker": _render_policy_picker,
+    "ai.render_policy_edit": _render_policy_edit,
+    "ai.render_policy_list": _render_policy_list,
 }
 
 _PROVIDERS = {

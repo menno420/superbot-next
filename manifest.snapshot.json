@@ -312,6 +312,21 @@
   "manifest_count": 46,
   "projections": {
     "events": {
+      "ai.policy.category_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "ai"
+      },
+      "ai.policy.channel_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "ai"
+      },
+      "ai.policy.role_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "ai"
+      },
       "economy.balance_changed": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -3276,6 +3291,26 @@
           "value": "edit_value"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "edit_scope_policy"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "edit_role_policy"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "list_prev"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "list_next"
+        },
+        {
           "source": "sb/manifest/blackjack.py",
           "subsystem": "blackjack",
           "value": "bj_solo_free"
@@ -4313,6 +4348,21 @@
       ],
       "event": [
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy.channel_changed"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy.category_changed"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy.role_changed"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.balance_changed"
@@ -4433,6 +4483,41 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai.settings_edit_text"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_channel_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_category_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_role_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_preview_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_scope_edit"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_role_edit"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_list"
         },
         {
           "source": "sb/manifest/automod.py",
@@ -5886,6 +5971,21 @@
           "value": "ai_answer_presets"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_channel_policy"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_category_policy"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_role_policy"
+        },
+        {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6_strategies"
@@ -6108,6 +6208,9 @@
       ]
     },
     "refs": {
+      "engine:ai.policy_store": {
+        "module": "sb.domain.ai.policy_store"
+      },
       "engine:ai.store": {
         "module": "sb.domain.ai.store"
       },
@@ -6201,6 +6304,30 @@
       "handler:ai.forget_view": {
         "module": "sb.domain.ai.service"
       },
+      "handler:ai.policy_category_pick": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_channel_pick": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_list_open": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_list_page": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_mode_submit": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_preview_pick": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_role_pick": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
+      "handler:ai.policy_role_submit": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
       "handler:ai.policy_view": {
         "module": "sb.domain.ai.service"
       },
@@ -6235,6 +6362,15 @@
         "module": "sb.domain.ai.panels"
       },
       "handler:ai.render_hub": {
+        "module": "sb.domain.ai.panels"
+      },
+      "handler:ai.render_policy_edit": {
+        "module": "sb.domain.ai.panels"
+      },
+      "handler:ai.render_policy_list": {
+        "module": "sb.domain.ai.panels"
+      },
+      "handler:ai.render_policy_picker": {
         "module": "sb.domain.ai.panels"
       },
       "handler:ai.render_presets_widget": {
@@ -7422,7 +7558,28 @@
       "panel:ai.hub": {
         "module": "sb.domain.ai.panels"
       },
+      "panel:ai.policy_category_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.policy_channel_picker": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:ai.policy_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.policy_list": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.policy_preview_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.policy_role_edit": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.policy_role_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.policy_scope_edit": {
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.settings": {
@@ -7866,8 +8023,14 @@
       "provider:ai.enum_edit_options": {
         "module": "sb.domain.ai.panels"
       },
+      "provider:ai.policy_category_options": {
+        "module": "sb.domain.ai.policy_widgets"
+      },
       "provider:ai.policy_chooser_fields": {
         "module": "sb.domain.ai.panels"
+      },
+      "provider:ai.policy_role_options": {
+        "module": "sb.domain.ai.policy_widgets"
       },
       "provider:ai.settings_fields": {
         "module": "sb.domain.ai.panels"
@@ -8172,6 +8335,15 @@
       "provider:xp.hub_overview": {
         "module": "sb.domain.xp.panels"
       },
+      "workflow:ai.policy_changed_payload": {
+        "module": "sb.domain.ai.policy_ops"
+      },
+      "workflow:ai.record_category_policy": {
+        "module": "sb.domain.ai.policy_ops"
+      },
+      "workflow:ai.record_channel_policy": {
+        "module": "sb.domain.ai.policy_ops"
+      },
       "workflow:ai.record_remove_preset": {
         "module": "sb.domain.ai.ops"
       },
@@ -8187,6 +8359,9 @@
       "workflow:ai.record_review_entry_leg": {
         "module": "sb.domain.ai.ops"
       },
+      "workflow:ai.record_role_policy": {
+        "module": "sb.domain.ai.policy_ops"
+      },
       "workflow:ai.record_set_preset": {
         "module": "sb.domain.ai.ops"
       },
@@ -8196,14 +8371,26 @@
       "workflow:ai.resolve_review_entry": {
         "module": "sb.domain.ai.ops"
       },
+      "workflow:ai.scrub_policy_editor": {
+        "module": "sb.domain.ai.policy_ops"
+      },
       "workflow:ai.scrub_review_subject": {
         "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.set_category_policy": {
+        "module": "sb.domain.ai.policy_ops"
+      },
+      "workflow:ai.set_channel_policy": {
+        "module": "sb.domain.ai.policy_ops"
       },
       "workflow:ai.set_preset": {
         "module": "sb.domain.ai.ops"
       },
       "workflow:ai.set_review_channel": {
         "module": "sb.domain.ai.ops"
+      },
+      "workflow:ai.set_role_policy": {
+        "module": "sb.domain.ai.policy_ops"
       },
       "workflow:blackjack.pvp_accept": {
         "module": "sb.domain.blackjack.ops"
@@ -8962,11 +9149,35 @@
         },
         "subsystem": "ai"
       },
+      "ai_category_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "ai_category_policy",
+        "sole_writer": {
+          "$ref": "engine:ai.policy_store"
+        },
+        "subsystem": "ai"
+      },
+      "ai_channel_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "ai_channel_policy",
+        "sole_writer": {
+          "$ref": "engine:ai.policy_store"
+        },
+        "subsystem": "ai"
+      },
       "ai_review_log": {
         "checkpoint_class": "session",
         "invariant_tag": "ai_review_log",
         "sole_writer": {
           "$ref": "engine:ai.store"
+        },
+        "subsystem": "ai"
+      },
+      "ai_role_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "ai_role_policy",
+        "sole_writer": {
+          "$ref": "engine:ai.policy_store"
         },
         "subsystem": "ai"
       },
@@ -9325,7 +9536,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d807374f14199999ec1f5ed396b92eb5c17e47c032429dcd018d87636333677b",
+  "stable_hash": "sha256:02de291bca1474d8c1167d801f4a1783e91eca20c86c7f4de0b84bef101a88c1",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -10110,7 +10321,71 @@
         }
       ],
       "data_invariants": [],
-      "events": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "ai.policy.channel_changed",
+          "observability_only": false,
+          "owner_subsystem": "ai",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "ai.policy.category_changed",
+          "observability_only": false,
+          "owner_subsystem": "ai",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "ai.policy.role_changed",
+          "observability_only": false,
+          "owner_subsystem": "ai",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
       "key": "ai",
       "panels": [
         {
@@ -10664,7 +10939,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.policy_channel_picker"
               },
               "label": "Channel",
               "modal": null,
@@ -10688,7 +10963,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.policy_category_picker"
               },
               "label": "Category",
               "modal": null,
@@ -10712,7 +10987,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.policy_role_picker"
               },
               "label": "Role",
               "modal": null,
@@ -10736,7 +11011,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.policy_preview_picker"
               },
               "label": "Effective policy",
               "modal": null,
@@ -10760,7 +11035,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "handler:ai.policy_list_open"
               },
               "label": "List overrides",
               "modal": null,
@@ -11612,6 +11887,652 @@
           "timeout_s": 180,
           "title": "",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel to set its AI policy."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "policy_channel_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_channel_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.policy_channel_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel to configure…",
+              "selector_id": "policy_channel_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Channel AI policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a category to set its AI policy."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "policy_category_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_category_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.policy_category_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.policy_category_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a category to configure…",
+              "selector_id": "policy_category_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Category AI policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a role to set its AI policy."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "policy_role_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_role_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.policy_role_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.policy_role_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a role to configure…",
+              "selector_id": "policy_role_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Role AI policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel to see the effective AI policy as your user."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "policy_preview_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_preview_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.policy_preview_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel to preview…",
+              "selector_id": "policy_preview_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Effective AI policy (dry-run)",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "edit_scope_policy",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.policy_mode_submit"
+              },
+              "label": "Edit…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "mode",
+                    "label": "Mode",
+                    "max_length": 20,
+                    "min_length": 4,
+                    "placeholder": "inherit | always_reply | mention_only | disabled",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "min_level",
+                    "label": "Min level (blank = inherit)",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "0",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "cooldown_seconds",
+                    "label": "Cooldown seconds (blank = inherit)",
+                    "max_length": 6,
+                    "min_length": null,
+                    "placeholder": "30",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "ai.policy_mode_form",
+                "on_submit": null,
+                "title": "AI policy"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped flow opened the scope modal DIRECTLY from the native select pick (views/ai/policy/channel_view.py _ChannelPickSelect.callback response.send_modal) — a selector pick is AUTO-deferred on this engine so a modal can no longer be its first response; the Edit… button intermediates (the D-0054/D-0066 confirm-surface posture, ledgered in D-0070) and the page's prompt carries the PICKED target (per-open copy outside the static grammar). The override delegates to the grammar renderer and supplies ONLY the description + the shipped scope-page footer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "edit_scope_policy"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_scope_edit",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_edit"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "edit_role_policy",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.policy_role_submit"
+              },
+              "label": "Edit…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "decision",
+                    "label": "Decision",
+                    "max_length": 10,
+                    "min_length": 4,
+                    "placeholder": "allow | deny | inherit",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "min_level_override",
+                    "label": "Min level override (blank = inherit)",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "0",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "bypass_cooldown",
+                    "label": "Bypass cooldown (yes/no)",
+                    "max_length": 5,
+                    "min_length": null,
+                    "placeholder": "no",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "ai.policy_role_form",
+                "on_submit": null,
+                "title": "AI policy"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped flow opened the scope modal DIRECTLY from the native select pick (views/ai/policy/channel_view.py _ChannelPickSelect.callback response.send_modal) — a selector pick is AUTO-deferred on this engine so a modal can no longer be its first response; the Edit… button intermediates (the D-0054/D-0066 confirm-surface posture, ledgered in D-0070) and the page's prompt carries the PICKED target (per-open copy outside the static grammar). The override delegates to the grammar renderer and supplies ONLY the description + the shipped scope-page footer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "edit_role_policy"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_role_edit",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_edit"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "list_prev",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.policy_list_page"
+              },
+              "label": "Prev",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "list_next",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.policy_list_page"
+              },
+              "label": "Next",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped list embed is fully live-state-parameterized (views/ai/policy/list_view.py build_list_embed: the total-count description, one field per override row, the dynamic 'Page p / t · administrator-only' footer, Prev/Next disabled at the edges) — per-render copy and component state outside the static grammar. The override delegates to the grammar renderer, replaces description/fields/footer from the typed-table reads and flips the edge buttons' disabled flags.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "list_prev",
+                    "list_next"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Policy",
+                "route": {
+                  "$ref": "panel:ai.policy_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_list",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_list"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "AI policy overrides",
+          "usage_weight": 1.0
         }
       ],
       "settings": [
@@ -12022,6 +12943,87 @@
             "$ref": "engine:ai.store"
           },
           "table": "ai_answer_presets",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:ai.scrub_policy_editor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "ai_channel_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:ai.policy_store"
+          },
+          "table": "ai_channel_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:ai.scrub_policy_editor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "ai_category_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:ai.policy_store"
+          },
+          "table": "ai_category_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:ai.scrub_policy_editor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "ai_role_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:ai.policy_store"
+          },
+          "table": "ai_role_policy",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
