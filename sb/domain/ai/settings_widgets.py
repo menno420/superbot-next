@@ -355,31 +355,20 @@ async def settings_text_submit(req) -> Reply:
 # --- the chooser scope pickers (the NEXT slices' pending terminals) -----------------
 
 _SCOPE_COPY = {
-    # policy chooser (views/ai/policy/* — the channel/category/role scope
-    # pickers + the dry-run preview + the paged override list).
-    "policy_channel": ("The per-channel policy picker (mode inherit / "
-                       "always_reply / mention_only / disabled) ports with "
-                       "the policy-mutation slice."),
-    "policy_category": ("The per-category policy picker ports with the "
-                        "policy-mutation slice."),
-    "policy_role": ("The per-role policy picker (allow/deny/inherit + "
-                    "min-level) ports with the policy-mutation slice."),
-    "policy_preview": ("The dry-run effective-policy picker ports with the "
-                       "policy-mutation slice — `!ai policy` answers the "
-                       "dual dry-run trace for THIS channel meanwhile."),
-    "policy_list": ("The paged override list ports with the "
-                    "policy-mutation slice — no overrides exist until its "
-                    "writes land."),
-    # behavior chooser (views/ai/behavior/*).
+    # the policy chooser's five scope pickers are LIVE (the
+    # policy-mutation slice — sb/domain/ai/policy_widgets.py).
+    # behavior chooser (views/ai/behavior/* — the preset catalog +
+    # instruction-profile binding are their own slice).
     "behavior_channel": ("The per-channel behavior preset picker ports "
-                         "with the policy-mutation slice."),
+                         "with the behavior-preset slice."),
     "behavior_category": ("The per-category behavior preset picker ports "
-                          "with the policy-mutation slice."),
+                          "with the behavior-preset slice."),
     "behavior_preview": ("The dry-run preview picker ports with the "
-                         "policy-mutation slice — `!ai policy` answers the "
-                         "trace for THIS channel meanwhile."),
+                         "behavior-preset slice — the Policy chooser's "
+                         "Effective policy picker answers the dual "
+                         "dry-run trace meanwhile."),
     "behavior_matrix": ("The routing-matrix picker ports with the "
-                        "policy-mutation slice — `!ai routing` lists the "
+                        "behavior-preset slice — `!ai routing` lists the "
                         "task table meanwhile."),
     # tools chooser (views/ai/tools/*).
     "tools_guild": ("The guild-default orchestration profile picker ports "

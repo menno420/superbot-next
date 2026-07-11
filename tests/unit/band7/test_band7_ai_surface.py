@@ -416,7 +416,15 @@ def test_ai_manifest_imports_and_registers():
     assert by_name["cooldown_seconds"].default == 30
     assert by_name["fresh_user_mention_allowance"].default == 1
     tables = {s.table for s in manifest.MANIFEST.stores}
-    assert tables == {"ai_review_log", "ai_answer_presets"}
+    assert tables == {"ai_review_log", "ai_answer_presets",
+                      # the policy-mutation slice: the shipped migration
+                      # 039 override shapes (migrations/0028_ai_policy).
+                      "ai_channel_policy", "ai_category_policy",
+                      "ai_role_policy"}
+    events = {e.name for e in manifest.MANIFEST.events}
+    assert events == {"ai.policy.channel_changed",
+                      "ai.policy.category_changed",
+                      "ai.policy.role_changed"}
     panel_ids = {p.panel_id for p in manifest.MANIFEST.panels}
     assert panel_ids == {
         "ai.hub", "ai.settings", "ai.card",
@@ -425,7 +433,12 @@ def test_ai_manifest_imports_and_registers():
         # editor page).
         "ai.policy_chooser", "ai.behavior_chooser", "ai.tools_chooser",
         "ai.settings_edit_presets", "ai.settings_edit_enum",
-        "ai.settings_edit_text"}
+        "ai.settings_edit_text",
+        # the policy-mutation slice: the shipped scope pickers + the
+        # edit pages + the paged override list.
+        "ai.policy_channel_picker", "ai.policy_category_picker",
+        "ai.policy_role_picker", "ai.policy_preview_picker",
+        "ai.policy_scope_edit", "ai.policy_role_edit", "ai.policy_list"}
     manifest.ENSURE_REFS()
 
 

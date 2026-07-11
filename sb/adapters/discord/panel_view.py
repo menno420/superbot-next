@@ -115,6 +115,12 @@ def build_view(rendered: RenderedPanel):
                     item = discord_ui.Select(
                         custom_id=comp.custom_id, placeholder=comp.placeholder or None,
                         min_values=comp.min_values, max_values=comp.max_values,
+                        # an empty provider roster renders DISABLED with its
+                        # empty_state placeholder (the kernel already set
+                        # comp.disabled — codex P3 on the pickers PR: the
+                        # live materializer dropped the flag, so the "—"
+                        # filler option was clickable).
+                        disabled=bool(getattr(comp, "disabled", False)),
                         options=[_select_option(o) for o in comp.options] or
                                 [discord.SelectOption(label="—", value="")],
                         row=comp.row)

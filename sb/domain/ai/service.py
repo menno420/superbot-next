@@ -85,14 +85,24 @@ async def settings_view(req) -> None:
 
 async def policy_view(req) -> None:
     """``!ai policy`` — the dual dry-run effective-policy embed
-    (goldens/ai/sweep_ai_policy)."""
+    (goldens/ai/sweep_ai_policy). The shipped command dry-ran against the
+    REAL channel object (ai_cog.ai_policy → build_effective_policy_embed:
+    ``category_id = getattr(channel, "category_id", None)``), so the
+    invoking channel's category rides into the resolver — with the typed
+    category overlays live, a channel governed by a category override
+    must report it on the command path too (codex P2 on the pickers PR;
+    the capture-world channels carry no category, so the golden trace is
+    byte-unchanged)."""
     from sb.domain.ai import operator_cards as cards
 
+    origin_channel = getattr(req.origin, "channel", None)
+    category_id = getattr(origin_channel, "category_id", None)
     await _card(req, await cards.build_policy_embed(
         guild_id=int(req.guild_id or 0),
         channel_id=int(req.channel_id or 0),
         user_id=int(getattr(req.actor, "user_id", 0) or 0),
-        user_role_ids=tuple(getattr(req.actor, "role_ids", ()) or ())))
+        user_role_ids=tuple(getattr(req.actor, "role_ids", ()) or ()),
+        category_id=int(category_id) if category_id else None))
     return None
 
 

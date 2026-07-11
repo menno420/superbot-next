@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from sb.domain.ai import orchestration_presets as _presets
 from sb.domain.ai import panels as _panels
+from sb.domain.ai import policy_widgets as _policy_widgets
 from sb.domain.ai import readers as _readers
 from sb.domain.ai import review as _review
 from sb.domain.ai import round_cash as _round_cash
@@ -25,13 +26,53 @@ from sb.domain.ai import service as _service
 from sb.domain.ai import settings_widgets as _widgets
 from sb.domain.ai import tools as _tools
 from sb.domain.ai.ops import register_ops
+from sb.domain.ai.policy_ops import (
+    EVT_POLICY_CATEGORY_CHANGED,
+    EVT_POLICY_CHANNEL_CHANGED,
+    EVT_POLICY_ROLE_CHANGED,
+)
+from sb.domain.ai.policy_ops import register_policy_ops
+from sb.domain.ai.policy_store import (
+    AI_CATEGORY_POLICY_STORE,
+    AI_CHANNEL_POLICY_STORE,
+    AI_ROLE_POLICY_STORE,
+)
 from sb.domain.ai.store import AI_ANSWER_PRESETS_STORE, AI_REVIEW_LOG_STORE
 from sb.spec.commands import CommandKind, CommandSpec
+from sb.spec.events import (
+    DeliveryClass,
+    EventSpec,
+    FieldSpec,
+    register_event_specs,
+)
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
 from sb.domain.ai.settings_schema import AI_SETTINGS_FACETS
 
 _SETTINGS = AI_SETTINGS_FACETS
+
+
+def _policy_event(name: str) -> EventSpec:
+    """One shipped ai.policy.*_changed advisory (services/
+    ai_policy_mutation._emit kwargs verbatim: guild_id + mutation_id;
+    best-effort AFTER the committed write, subscriber-less by design —
+    the shipped bus rows had none either)."""
+    return EventSpec(
+        name=name,
+        payload_schema=(
+            FieldSpec("guild_id", "int"),
+            FieldSpec("mutation_id", "str", required=False),
+        ),
+        owner_subsystem="ai",
+        delivery=DeliveryClass.BEST_EFFORT,
+    )
+
+
+AI_POLICY_EVENTS = (
+    _policy_event(EVT_POLICY_CHANNEL_CHANGED),
+    _policy_event(EVT_POLICY_CATEGORY_CHANGED),
+    _policy_event(EVT_POLICY_ROLE_CHANGED),
+)
 
 
 def _ai(name: str, ref: str, summary: str) -> CommandSpec:
@@ -156,14 +197,27 @@ MANIFEST = SubsystemManifest(
             _panels.ai_settings_edit_enum_spec(),
             # the free-text editor page (the modal-arming slice — its
             # Edit… button issues the G-10 TextSettingModal twin).
-            _panels.ai_settings_edit_text_spec()),
+            _panels.ai_settings_edit_text_spec(),
+            # the policy-mutation slice: the shipped scope pickers, the
+            # shared/role edit pages, and the paged override list.
+            _panels.ai_policy_channel_picker_spec(),
+            _panels.ai_policy_category_picker_spec(),
+            _panels.ai_policy_role_picker_spec(),
+            _panels.ai_policy_preview_picker_spec(),
+            _panels.ai_policy_scope_edit_spec(),
+            _panels.ai_policy_role_edit_spec(),
+            _panels.ai_policy_list_spec()),
     settings=_SETTINGS,
-    stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE),
-    events=(),
+    stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE,
+            AI_CHANNEL_POLICY_STORE, AI_CATEGORY_POLICY_STORE,
+            AI_ROLE_POLICY_STORE),
+    events=AI_POLICY_EVENTS,
     capabilities=(),
 )
 
 register_ops()
+register_policy_ops()
+register_event_specs(AI_POLICY_EVENTS)
 _presets.register_domain_profiles()
 _round_cash.register_round_cash_workflow()
 _tools.register_btd6_tools()
@@ -171,14 +225,21 @@ _tools.register_btd6_tools()
 
 def _ensure_refs() -> None:
     from sb.domain.ai import ops as _ops_mod
+    from sb.domain.ai import policy_ops as _policy_ops_mod
+    from sb.domain.ai import policy_store as _policy_store_mod
     from sb.domain.ai import store as _store
 
     _store.ensure_refs()
+    _policy_store_mod.ensure_policy_store_refs()
     _ops_mod.ensure_ops_refs()
+    _policy_ops_mod.ensure_policy_ops_refs()
     _panels.ensure_panel_refs()
     _service.ensure_handler_refs()
     _widgets.ensure_widget_refs()
+    _policy_widgets.ensure_policy_widget_refs()
     register_ops()
+    register_policy_ops()
+    register_event_specs(AI_POLICY_EVENTS)
     _presets.register_domain_profiles()
     _round_cash.register_round_cash_workflow()
     _tools.register_btd6_tools()

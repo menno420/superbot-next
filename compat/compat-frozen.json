@@ -1949,6 +1949,18 @@
   ]
  },
  "event_payloads": {
+  "ai.policy.category_changed": [
+   "guild_id",
+   "mutation_id"
+  ],
+  "ai.policy.channel_changed": [
+   "guild_id",
+   "mutation_id"
+  ],
+  "ai.policy.role_changed": [
+   "guild_id",
+   "mutation_id"
+  ],
   "economy.balance_changed": [
    "delta",
    "guild_id",
@@ -2072,6 +2084,8 @@
   "access:explain",
   "access:reset",
   "access:select_scope",
+  "ai.policy_mode_form",
+  "ai.policy_role_form",
   "ai.settings_number_form",
   "ai.settings_text_form",
   "ai:behavior",

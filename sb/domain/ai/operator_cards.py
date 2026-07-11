@@ -617,10 +617,17 @@ def _render_effective_summary(decision) -> str:
 
 async def build_policy_embed(*, guild_id: int, channel_id: int,
                              user_id: int,
-                             user_role_ids: tuple[int, ...]) -> RenderedEmbed:
+                             user_role_ids: tuple[int, ...],
+                             title: str = "AI Effective Policy",
+                             category_id: int | None = None,
+                             include_context: bool = True) -> RenderedEmbed:
     """views/ai/policy/preview_view.build_effective_policy_embed with the
     ancillary Context field (the ``!ai policy`` prefix path always built
-    the snapshot), title ``AI Effective Policy``."""
+    the snapshot), title ``AI Effective Policy``. The policy chooser's
+    Preview picker passes the shipped chooser-path shape instead: title
+    ``AI policy preview``, the picked channel's category_id, and NO
+    Context field (the shipped chooser callback never built the
+    snapshot)."""
     from sb.kernel.ai import policy
 
     # member level + freshness — the shipped xp_service.get_user_record
@@ -642,7 +649,8 @@ async def build_policy_embed(*, guild_id: int, channel_id: int,
                               ("With @mention", True)):
         ctx = policy.MessageContext(
             guild_id=int(guild_id), channel_id=int(channel_id),
-            category_id=None, user_id=int(user_id), user_level=user_level,
+            category_id=category_id, user_id=int(user_id),
+            user_level=user_level,
             user_role_ids=role_ids, is_mention=is_mention,
             is_fresh_user=is_fresh_user)
         decision = await policy.resolve_policy(ctx, dry_run=True)
@@ -654,28 +662,30 @@ async def build_policy_embed(*, guild_id: int, channel_id: int,
             body = body[:1020] + "\n…"
         fields.append((label, body, False))
 
-    # the ancillary Context field — override counts (typed-table overlays
-    # port with their slice: the KV bundle carries none) + provider/model.
-    bundle = await policy._load_bundle(int(guild_id))  # noqa: SLF001
-    try:
-        from sb.domain.ai.readers import _guild_policy_overlay
+    # the ancillary Context field — override counts (the typed-table
+    # overlays the policy-mutation slice armed) + provider/model. The
+    # chooser Preview path skips it (shipped: snapshot=None).
+    if include_context:
+        bundle = await policy._load_bundle(int(guild_id))  # noqa: SLF001
+        try:
+            from sb.domain.ai.readers import _guild_policy_overlay
 
-        overlay = await _guild_policy_overlay(int(guild_id))
-    except Exception:  # noqa: BLE001 — overlay reader not armed
-        overlay = None
-    from sb.kernel.ai import flags
+            overlay = await _guild_policy_overlay(int(guild_id))
+        except Exception:  # noqa: BLE001 — overlay reader not armed
+            overlay = None
+        from sb.kernel.ai import flags
 
-    provider_name = (overlay or {}).get("default_provider") or \
-        flags.default_provider() or "—"
-    model = (overlay or {}).get("default_model") or "—"
-    fields.append((
-        "Context",
-        f"Overrides: {len(bundle.channel)} channel · "
-        f"{len(bundle.category)} category · {len(bundle.role)} role\n"
-        f"Provider: `{provider_name}` · model: `{model}`", False))
+        provider_name = (overlay or {}).get("default_provider") or \
+            flags.default_provider() or "—"
+        model = (overlay or {}).get("default_model") or "—"
+        fields.append((
+            "Context",
+            f"Overrides: {len(bundle.channel)} channel · "
+            f"{len(bundle.category)} category · {len(bundle.role)} role\n"
+            f"Provider: `{provider_name}` · model: `{model}`", False))
 
     return RenderedEmbed(
-        title="AI Effective Policy",
+        title=title,
         description=(
             f"Resolving for <#{channel_id}> as <@{user_id}> "
             f"(level `{user_level}`, {len(role_ids)} role(s)).\n"
