@@ -5025,6 +5025,11 @@
           "value": "security.hub"
         },
         {
+          "source": "sb/manifest/security.py",
+          "subsystem": "security",
+          "value": "security.status"
+        },
+        {
           "source": "sb/manifest/server_management.py",
           "subsystem": "server_management",
           "value": "server_management.hub"
@@ -7180,6 +7185,9 @@
       "handler:rps.tournament_move": {
         "module": "sb.domain.rps.handlers"
       },
+      "handler:security.status_render": {
+        "module": "sb.domain.security.panels"
+      },
       "handler:server_management.access_map_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -7767,6 +7775,9 @@
       },
       "panel:security.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:security.status": {
+        "module": "sb.domain.security.panels"
       },
       "panel:server_management.hub": {
         "module": "sb.domain.server_management.panels"
@@ -9287,7 +9298,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:bf00191e21c1cb196233ac9c7803ec10918fb4a2c0907de73721b44eb8faf57f",
+  "stable_hash": "sha256:ec0f25622dff7ec112a0377697b6bfde663f85ab29449ccc2d69165a36d154a4",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -33414,10 +33425,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "panel:security.hub"
+            "$ref": "panel:security.status"
           },
           "slash_common": false,
-          "summary": "Open the security menu.",
+          "summary": "Show the current security policy for this server.",
           "usage": "",
           "usage_weight": 1.0
         }
@@ -33469,6 +33480,48 @@
           "subsystem": "security",
           "timeout_s": 180,
           "title": "Security",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped status embed is state-parameterized end to end (the Master flag, the live alert-channel binding mention, and two per-tier fields whose NAMES carry live toggle flags and whose values carry live thresholds plus the slowmode-vs-alert-only lockdown branch keyed on the raid_slowmode_channel binding) — grammar TextBlocks are static and grammar field names cannot carry state. The card declares no components; the renderer only composes the embed (goldens/security/sweep_security pins the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "security.status",
+          "renderer_override": {
+            "$ref": "handler:security.status_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "security",
+          "timeout_s": 180,
+          "title": "🛡️ Server security",
           "usage_weight": 1.0
         }
       ],
