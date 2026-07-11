@@ -7970,6 +7970,9 @@
       "handler:role.reactroles_unbind": {
         "module": "sb.domain.role.handlers"
       },
+      "handler:role.render_hub": {
+        "module": "sb.domain.role.panels"
+      },
       "handler:role.roleinfo_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -10306,7 +10309,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:2db8d3d25f4a326204664213c5e3b8765aa9e4f3f1a1098c075b9606ef38b786",
+  "stable_hash": "sha256:4d49d1b247c7c4d5939a809564e153d8da36de835bc0622d94710cc9715ae5cf",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -36309,12 +36312,12 @@
               "custom_id_override": "role:create",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "📝",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.create_pending"
               },
-              "label": "Create",
+              "label": "📝 Create",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36333,12 +36336,12 @@
               "custom_id_override": "role:manage",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🗂️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.manage_view"
               },
-              "label": "Manage",
+              "label": "🗂️ Manage",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36357,17 +36360,17 @@
               "custom_id_override": "role:time",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⏱️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.time_roles_view"
               },
-              "label": "Time Roles",
+              "label": "⏱️ Time Roles",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -36381,17 +36384,17 @@
               "custom_id_override": "role:xp",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⚡",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.xp_roles_view"
               },
-              "label": "XP Roles",
+              "label": "⚡ XP Roles",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -36405,17 +36408,17 @@
               "custom_id_override": "role:reaction",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "💬",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.reaction_view"
               },
-              "label": "Reaction Roles",
+              "label": "💬 Reaction Roles",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -36429,12 +36432,12 @@
               "custom_id_override": "role:diagnostics",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🔧",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.diagnostics_view"
               },
-              "label": "Diagnostics",
+              "label": "🔧 Diagnostics",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36453,12 +36456,12 @@
               "custom_id_override": "role:exemptions",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🚫",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.exemptions_view"
               },
-              "label": "Exemptions",
+              "label": "🚫 Exemptions",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36470,26 +36473,17 @@
           ],
           "anchor_policy": "reply",
           "audience": "invoker",
-          "body": [
-            {
-              "text": "Create, manage, and automate server roles — time tiers, XP tiers, reaction roles, and exemptions."
-            },
-            {
-              "provider": {
-                "$ref": "provider:role.hub_overview"
-              }
-            }
-          ],
+          "body": [],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "teal",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub embed carries SEVEN static inline-true blurb fields and no description (role_cog.py's literal (name, value, True) add_field list — goldens/role/sweep_rolemenu pins every byte incl. the inline flags); the grammar's FieldsBlock serializes 2-tuples inline=false, so the override delegates to the grammar renderer for every component and replaces only the embed fields (the economy delegation recipe). Title, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
@@ -36501,10 +36495,10 @@
                   ],
                   [
                     "role_xp",
-                    "role_reaction"
+                    "role_reaction",
+                    "role_diagnostics"
                   ],
                   [
-                    "role_diagnostics",
                     "role_exemptions"
                   ]
                 ]
@@ -36514,14 +36508,16 @@
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
+            "home_hub": "community",
             "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "role.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:role.render_hub"
+          },
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "role",
