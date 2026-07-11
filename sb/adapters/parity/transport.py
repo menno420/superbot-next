@@ -117,6 +117,11 @@ def _embed_payload(embed: Any) -> dict[str, Any]:
         # discord.py Embed.set_image — the shipped avatar card's wire shape
         # (goldens/utility/sweep_avatar).
         out["image"] = {"url": embed.image_url}
+    if getattr(embed, "thumbnail_ref", ""):
+        # discord.py Embed.set_thumbnail — the live presenter reads the same
+        # field (sb/adapters/discord/panel_view.py); the shipped wallet card
+        # pins the shape (goldens/economy/sweep_balance).
+        out["thumbnail"] = {"url": embed.thumbnail_ref}
     return out
 
 

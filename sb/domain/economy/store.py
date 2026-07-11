@@ -39,6 +39,7 @@ __all__ = [
     "JOB_PROGRESS_STORE",
     "credit_coins",
     "ensure_and_get_economy",
+    "ensure_tracking_row",
     "get_coins",
     "get_inventory",
     "get_job_times",
@@ -195,6 +196,19 @@ async def ensure_and_get_economy(conn: Any, *, user_id: int,
     return dict(row) if row else {"user_id": user_id, "guild_id": guild_id,
                                   "last_daily": 0, "daily_streak": 0,
                                   "daily_count": 0, "last_worked": 0}
+
+
+async def ensure_tracking_row(user_id: int, guild_id: int) -> dict:
+    """The shipped ``ensure_and_get_economy`` READ SURFACE (utils/db/
+    economy.py): NOT a pure read — the name says so — a missing row is
+    INSERTed (column defaults) before the SELECT, exactly what the old
+    bot's hub/work opens did outside any transaction (the goldens pin the
+    zero-row db_delta on !economymenu / /economy / !work). No lock, no
+    txn: the K7 legs keep their own in-txn ``ensure_and_get_economy``."""
+    await execute(
+        "INSERT INTO economy (user_id, guild_id) VALUES ($1, $2) "
+        "ON CONFLICT DO NOTHING", (user_id, guild_id))
+    return await read_economy(user_id, guild_id)
 
 
 async def read_economy(user_id: int, guild_id: int) -> dict:

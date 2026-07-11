@@ -253,7 +253,12 @@ def test_jobcenter_selector_materializes_available_jobs(monkeypatch):
     monkeypatch.setattr(service, "available_jobs", fake_available)
     rendered = run(render_panel(jobcenter_spec(), _panel_ctx()))
     selector = next(c for c in rendered.components if c.kind == "selector")
-    assert selector.options == ("janitor", "cashier")
+    # rich options — the shipped _JobSelect rows (emoji+title label, the
+    # base-pay description; goldens/economy/sweep_work pins the bytes).
+    assert [o["value"] for o in selector.options] == ["janitor", "cashier"]
+    assert selector.options[0]["label"] == "🧹 Janitor"
+    assert selector.options[0]["description"] == (
+        "Base pay: 50 🪙  |  +10 XP  |  Tier 1")
     assert not selector.disabled
 
 
@@ -357,7 +362,8 @@ def test_shop_command_now_opens_the_panel():
     assert shop.route == PanelRef("economy.shop_panel")
     panel_ids = {p.panel_id for p in m.MANIFEST.panels}
     assert panel_ids == {"economy.hub", "economy.jobcenter",
-                         "economy.shop_panel", "economy.daily_card"}
+                         "economy.shop_panel", "economy.daily_card",
+                         "economy.wallet_card"}
 
 
 def test_inventory_manifest_declares_detail_panels():
