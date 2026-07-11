@@ -20,6 +20,7 @@ from sb.kernel.panels.registry import register_panel
 from sb.spec.outcomes import DeferMode
 from sb.spec.panels import (
     ActionStyle,
+    AnchorPolicy,
     Audience,
     EmbedFrameSpec,
     FooterMode,
@@ -37,10 +38,16 @@ from sb.spec.refs import HandlerRef, PanelRef, WorkflowRef, handler, is_register
 
 __all__ = [
     "PVP_PANEL_ID",
+    "REGISTRATION_PANEL_ID",
+    "RESULTS_PANEL_ID",
     "TABLE_PANEL_ID",
+    "TOURN_TABLE_PANEL_ID",
     "blackjack_hub_spec",
     "blackjack_pvp_spec",
+    "blackjack_registration_spec",
+    "blackjack_results_spec",
     "blackjack_table_spec",
+    "blackjack_tournament_table_spec",
     "ensure_panel_refs",
     "install_blackjack_panels",
     "register_blackjack_sessions",
@@ -48,6 +55,9 @@ __all__ = [
 
 TABLE_PANEL_ID = "blackjack.table"
 PVP_PANEL_ID = "blackjack.pvp"
+REGISTRATION_PANEL_ID = "blackjack.registration"
+TOURN_TABLE_PANEL_ID = "blackjack.tournament_table"
+RESULTS_PANEL_ID = "blackjack.tournament_results"
 
 SOLO_BET_MODAL = ModalSpec(
     modal_id="blackjack.solo_bet_form",
@@ -211,6 +221,117 @@ def blackjack_pvp_spec() -> PanelSpec:
     )
 
 
+def blackjack_registration_spec() -> PanelSpec:
+    """The shipped tournament-registration message (`!bjtournament` →
+    ``ctx.send(embed=_tourn_embed(tourn), view=_TournRegistrationView)`` +
+    the ✅ primer): the SUCCESS_COLOR embed with the Entry Fee / Rounds /
+    Duration / Players / Pot inline fields, the `React ✅ or click Join to
+    register.` footer, and the green 🃏 ``Join Tournament`` button —
+    pinned byte-for-byte by the bjtournament golden. PUBLIC (anyone may
+    join); session-lifecycle so the button rides a run-minted id, exactly
+    the shipped auto-id view."""
+    return PanelSpec(
+        panel_id=REGISTRATION_PANEL_ID,
+        subsystem="blackjack",
+        title="🃏 Blackjack Tournament — Registration Open",
+        audience=Audience.PUBLIC,
+        timeout_s=310,             # the shipped duration_mins*60 + 10 grace
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="bj_join", label="Join Tournament", emoji="🃏",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("blackjack.tournament_join"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("bj_join",),)),)),
+        renderer_override=HandlerRef("blackjack.render_registration"),
+        justification=(
+            "the shipped registration embed's five field values are "
+            "request-parameterized copy (fee/rounds/mins arguments + the "
+            "live player count and pot — views/blackjack/embeds."
+            "_tourn_embed); grammar TextBlocks are static. The Join "
+            "button and its authority stay declared on the spec; the "
+            "renderer composes the embed + the declared button and asks "
+            "for the shipped ✅ self-reaction primer."),
+        session_lifecycle=True,
+    )
+
+
+def blackjack_tournament_table_spec() -> PanelSpec:
+    """One entrant's tournament ROUND as a button view in the home channel
+    — the DELIBERATE deviation from the shipped private per-player
+    channels ("BJ Tournament" category; ledgered — the rps home-channel
+    precedent). Hit/Stand play the shipped ``_TournBlackjackView`` hand
+    for CHIPS (flat 200/round); the wallet never moves here.
+    CHANNEL_ANCHOR: round N+1's view opens off round N's final click and
+    must be a fresh channel message (the #130 presenter seam)."""
+    return PanelSpec(
+        panel_id=TOURN_TABLE_PANEL_ID,
+        subsystem="blackjack",
+        title="🃏 Blackjack Tournament",
+        audience=Audience.PUBLIC,
+        anchor_policy=AnchorPolicy.CHANNEL_ANCHOR,
+        timeout_s=180,
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="tourn_hit", label="Hit", emoji="👊",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                defer_mode=DeferMode.NONE,
+                handler=HandlerRef("blackjack.tournament_click")),
+            PanelActionSpec(
+                action_id="tourn_stand", label="Stand", emoji="✋",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                defer_mode=DeferMode.NONE,
+                handler=HandlerRef("blackjack.tournament_click")),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("tourn_hit", "tourn_stand"),)),)),
+        renderer_override=HandlerRef("blackjack.render_tournament_table"),
+        justification=(
+            "the shipped tournament round embed is game-state-"
+            "parameterized copy (the _game_embed card fields plus the "
+            "_finish_round `Chips: **N** | Rounds left: **N**` result "
+            "field); grammar TextBlocks are static. Buttons and "
+            "authority stay declared on the spec; the renderer only "
+            "composes the embed + declared components with their "
+            "state-derived disabled flags and the entrant's invoker "
+            "lock."),
+        session_lifecycle=True,
+    )
+
+
+def blackjack_results_spec() -> PanelSpec:
+    """The shipped end-of-tournament results embed (`🏆 Blackjack
+    Tournament Results`, ECONOMY_COLOR, medal-ranked chip lines, the
+    Winner's payout field on paid tournaments) — a render-only terminal
+    frame; CHANNEL_ANCHOR because it opens off the final round's click."""
+    return PanelSpec(
+        panel_id=RESULTS_PANEL_ID,
+        subsystem="blackjack",
+        title="🏆 Blackjack Tournament Results",
+        audience=Audience.PUBLIC,
+        anchor_policy=AnchorPolicy.CHANNEL_ANCHOR,
+        timeout_s=180,
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("blackjack.render_results"),
+        justification=(
+            "every line of the shipped results embed is tournament-"
+            "parameterized copy (medal icons, member names, chip counts, "
+            "the payout amount/balance field — views/blackjack/"
+            "tournament_views._check_tourn_done); grammar TextBlocks are "
+            "static, and the frame carries zero components."),
+        session_lifecycle=True,
+    )
+
+
 def _pvp_hand_line(uid_s: str, hand: dict) -> str:
     """One player's public hand line — cards, value, done marker."""
     value = int(hand.get("value") or 0)
@@ -366,6 +487,136 @@ async def _render_table(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+async def _render_registration(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the golden-pinned registration embed verbatim:
+    SUCCESS_COLOR, the five inline fields (Entry Fee / Rounds / Duration /
+    Players / Pot), the `React ✅ or click Join to register.` footer, the
+    green 🃏 Join button, and the shipped ✅ self-reaction primer."""
+    from sb.domain.blackjack.tournament import REGISTRATION_EMOJI
+    from sb.kernel.panels.render import (
+        RenderedComponent,
+        RenderedEmbed,
+        RenderedPanel,
+    )
+
+    params = getattr(ctx, "params", {}) or {}
+    fee = int(params.get("entry_fee", 0) or 0)
+    rounds = int(params.get("rounds", 5) or 5)
+    mins = int(params.get("duration_mins", 5) or 5)
+    players = int(params.get("players", 0) or 0)
+    # the shipped _tourn_embed field values, verbatim
+    fee_str = f"**{fee}** 🪙" if fee else "Free"
+    closed = bool(params.get("closed"))
+    embed = RenderedEmbed(
+        title=spec.title,
+        description="",
+        fields=(("Entry Fee", fee_str, True),
+                ("Rounds", str(rounds), True),
+                ("Duration", f"{mins} min", True),
+                ("Players", str(players), True),
+                ("Pot", f"{fee * players} 🪙", True)),
+        footer="React ✅ or click Join to register.",
+        style_token=spec.frame.style_token)
+    action = spec.actions[0]
+    components = (RenderedComponent(
+        kind="button", custom_id=f"{spec.panel_id}.{action.action_id}",
+        label=action.label, row=0, style=action.style.value,
+        emoji=action.emoji, disabled=closed),)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=components,
+        invoker_lock=None, timeout_s=spec.timeout_s,
+        audience=spec.audience.value, anchor_policy=spec.anchor_policy.value,
+        self_reactions=() if closed else (REGISTRATION_EMOJI,))
+
+
+async def _render_tournament_table(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the shipped ``_game_embed`` card frame in CHIPS
+    space over the declared Hit/Stand: Dealer/Your hand fields, the flat
+    200-chip bet line, and on a finished round the shipped
+    ``_finish_round`` result field (`Chips: **N** | Rounds left: **N**`).
+    The INVOKER LOCK is the entrant (params), never the opener — round
+    views open off the launch command or another player's click."""
+    from sb.domain.blackjack import engine as bj
+    from sb.domain.blackjack.ops import TOURN_BET_PER_ROUND
+    from sb.kernel.panels.render import (
+        RenderedComponent,
+        RenderedEmbed,
+        RenderedPanel,
+    )
+
+    params = getattr(ctx, "params", {}) or {}
+    uid = int(params.get("uid", 0) or 0)
+    player = [str(c) for c in (params.get("player") or ())]
+    dealer = [str(c) for c in (params.get("dealer") or ())]
+    terminal = bool(params.get("terminal"))
+    if terminal:
+        dealer_label = f"Dealer ({params.get('dealer_value')})"
+        dealer_str = "  ".join(dealer)
+    else:
+        dealer_label = f"Dealer ({bj.rank_value(dealer[0].split()[0])}+?)"
+        dealer_str = f"{dealer[0]}  ||?||"
+    round_no = int(params.get("round_no", 1) or 1)
+    fields = [
+        (dealer_label, dealer_str, False),
+        (f"Your hand ({params.get('player_value')})",
+         "  ".join(player), False),
+        ("Bet", f"**{TOURN_BET_PER_ROUND}** chips", True),
+    ]
+    style_token = "green"
+    if terminal:
+        result = str(params.get("result") or "")
+        # the shipped _finish_round field, verbatim bytes
+        fields.append((result,
+                       f"Chips: **{params.get('chips')}** | Rounds left: "
+                       f"**{params.get('rounds_left')}**", False))
+        style_token = ("green" if result.startswith("🎉")
+                       else "purple" if result.startswith("🤝") else "red")
+    embed = RenderedEmbed(
+        title=f"{spec.title} — <@{uid}> · Round {round_no}",
+        description="", fields=tuple(fields), style_token=style_token)
+    components = tuple(
+        RenderedComponent(
+            kind="button", custom_id=f"{spec.panel_id}.{action.action_id}",
+            label=action.label, row=0, style=action.style.value,
+            emoji=action.emoji, disabled=terminal)
+        for action in spec.actions)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=components,
+        invoker_lock=uid or None, timeout_s=spec.timeout_s,
+        audience=spec.audience.value, anchor_policy=spec.anchor_policy.value)
+
+
+async def _render_results(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the shipped ``_check_tourn_done`` results embed:
+    medal-ranked `{icon} **{name}** — {chips} chips` lines, ECONOMY_COLOR,
+    and the `Winner's payout` field when a paid pot settled."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    names = {str(k): str(v)
+             for k, v in dict(params.get("names") or {}).items()}
+    medals = ["🥇", "🥈", "🥉"]           # shipped, verbatim
+    lines = []
+    ranked = [(int(u), int(c)) for u, c in (params.get("ranking") or ())]
+    for i, (uid, chips) in enumerate(ranked):
+        icon = medals[i] if i < 3 else f"#{i + 1}"
+        name = names.get(str(uid)) or f"<@{uid}>"
+        lines.append(f"{icon} **{name}** — {chips} chips")
+    fields = ()
+    if params.get("paid") and int(params.get("entry_fee", 0) or 0) > 0:
+        winner = int(params.get("winner", 0) or 0)
+        fields = (("Winner's payout",
+                   f"<@{winner}> receives **{params.get('amount')}** 🪙 "
+                   f"(Balance: {params.get('balance')} 🪙)", True),)
+    embed = RenderedEmbed(title=spec.title, description="\n".join(lines),
+                          fields=fields,
+                          style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=None, timeout_s=spec.timeout_s,
+        audience=spec.audience.value, anchor_policy=spec.anchor_policy.value)
+
+
 @panel("blackjack.hub")
 def _hub_factory() -> PanelSpec:
     return blackjack_hub_spec()
@@ -381,13 +632,34 @@ def _pvp_factory() -> PanelSpec:
     return blackjack_pvp_spec()
 
 
+@panel(REGISTRATION_PANEL_ID)
+def _registration_factory() -> PanelSpec:
+    return blackjack_registration_spec()
+
+
+@panel(TOURN_TABLE_PANEL_ID)
+def _tournament_table_factory() -> PanelSpec:
+    return blackjack_tournament_table_spec()
+
+
+@panel(RESULTS_PANEL_ID)
+def _results_factory() -> PanelSpec:
+    return blackjack_results_spec()
+
+
 handler("blackjack.render_table")(_render_table)
 handler("blackjack.render_pvp")(_render_pvp)
+handler("blackjack.render_registration")(_render_registration)
+handler("blackjack.render_tournament_table")(_render_tournament_table)
+handler("blackjack.render_results")(_render_results)
 
 
 def install_blackjack_panels() -> PanelSpec:
     spec = blackjack_hub_spec()
-    for candidate in (spec, blackjack_table_spec(), blackjack_pvp_spec()):
+    for candidate in (spec, blackjack_table_spec(), blackjack_pvp_spec(),
+                      blackjack_registration_spec(),
+                      blackjack_tournament_table_spec(),
+                      blackjack_results_spec()):
         try:
             register_panel(candidate)
         except ValueError as exc:
@@ -406,8 +678,20 @@ def ensure_panel_refs() -> None:
         _panel(TABLE_PANEL_ID)(_table_factory)
     if not is_registered(_P(PVP_PANEL_ID)):
         _panel(PVP_PANEL_ID)(_pvp_factory)
+    if not is_registered(_P(REGISTRATION_PANEL_ID)):
+        _panel(REGISTRATION_PANEL_ID)(_registration_factory)
+    if not is_registered(_P(TOURN_TABLE_PANEL_ID)):
+        _panel(TOURN_TABLE_PANEL_ID)(_tournament_table_factory)
+    if not is_registered(_P(RESULTS_PANEL_ID)):
+        _panel(RESULTS_PANEL_ID)(_results_factory)
     if not is_registered(_H("blackjack.render_table")):
         handler("blackjack.render_table")(_render_table)
     if not is_registered(_H("blackjack.render_pvp")):
         handler("blackjack.render_pvp")(_render_pvp)
+    if not is_registered(_H("blackjack.render_registration")):
+        handler("blackjack.render_registration")(_render_registration)
+    if not is_registered(_H("blackjack.render_tournament_table")):
+        handler("blackjack.render_tournament_table")(_render_tournament_table)
+    if not is_registered(_H("blackjack.render_results")):
+        handler("blackjack.render_results")(_render_results)
     register_blackjack_sessions()

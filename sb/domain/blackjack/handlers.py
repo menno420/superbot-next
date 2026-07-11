@@ -1,8 +1,10 @@
 """Blackjack command handlers (band 6) — thin HandlerRef routes over the
 audited K7 lanes: !blackjack/!bj (solo deal or PvP challenge by mention),
-!bjstatus (tournament read), and honest pending terminals for the
-tournament orchestration (private round channels + reaction registration
-= live-adapter successor work; the money lanes are real and tested).
+!bjstatus (tournament read), and the tournament orchestration
+(!bjtournament registration on the reaction seam + Join button,
+!bjstart launch with per-player fee debits, chips-space round views,
+champion payout — the #130 rps shape; private round channels + the
+autostart timer are the ledgered deviations).
 """
 
 from __future__ import annotations
@@ -209,30 +211,299 @@ def _register() -> None:
 
     @handler("blackjack.status_view")
     async def status_view(req) -> Reply:
-        """!bjstatus — entered-players read over the tournament rows."""
-        from sb.domain.blackjack.ops import TOURNAMENT_SUBSYSTEM
-        from sb.domain.games import store
+        """!bjstatus — the shipped in-memory tournament read: none → the
+        pinned "No active tournament."; otherwise the _tourn_embed fields
+        as a text card (the embed shape is unpinned — ledgered)."""
+        from sb.domain.blackjack import tournament
 
-        rows = await store.list_active(TOURNAMENT_SUBSYSTEM,
-                                       guild_id=int(req.guild_id or 0))
-        if not rows:
+        state = tournament.state_or_none(int(req.guild_id or 0))
+        if state is None:
             return Reply(SUCCESS, "No active tournament.")
-        players = ", ".join(f"<@{r['user_id']}>" for r in rows)
-        pot = sum(int((r.get("state") or {}).get("bet", 0) or 0)
-                  for r in rows)
+        fee_str = f"**{state.entry_fee}** 🪙" if state.entry_fee else "Free"
+        phase = "running" if state.started else "registration open"
         return Reply(SUCCESS,
-                     f"🃏 **Blackjack Tournament** — {len(rows)} paid "
-                     f"entrant(s), pot **{pot}** 🪙.\nPlayers: {players}")
+                     f"🃏 **Blackjack Tournament** ({phase})\n"
+                     f"Entry Fee: {fee_str} · Rounds: {state.rounds} · "
+                     f"Duration: {state.duration_mins} min\n"
+                     f"Players: {len(state.players)} · Pot: "
+                     f"{state.pot} 🪙")
+
+    # --- tournament orchestration (band-6 slice 6) -------------------------
+
+    async def _fee_default(gid: int) -> int:
+        from sb.kernel.settings import resolve
+
+        value = await resolve(gid, "blackjack", "default_entry_fee")
+        try:
+            return int(getattr(value, "value", value) or 0)
+        except (TypeError, ValueError):
+            return 0
+
+    def _display_name(req) -> str | None:
+        user = getattr(req.origin, "user", None)
+        if user is None:
+            message = getattr(req.origin, "message", None)
+            user = getattr(message, "author", None)
+        name = (getattr(user, "display_name", None)
+                or getattr(user, "name", None))
+        return str(name) if name else None
+
+    async def _announce(req, text: str) -> None:
+        """A channel line from the orchestrator (the shipped ctx.send /
+        announce-channel sends) — rides the RC-21 emitter so live and
+        parity speak the same wire verb."""
+        from sb.kernel.interaction.egress import (
+            OutboundContent,
+            TrustLevel,
+            active_channel_emitter,
+        )
+
+        emitter = active_channel_emitter()
+        await emitter.send(int(req.channel_id or 0),
+                           OutboundContent(body=text,
+                                           trust=TrustLevel.TRUSTED),
+                           guild_id=int(req.guild_id or 0))
+
+    async def _run_op(op_key: str, req, params: dict, *,
+                      actor: object | None = None):
+        from sb.kernel.workflow import engine
+        from sb.kernel.workflow.context import WorkflowContext
+        from sb.spec.refs import WorkflowRef
+
+        if actor is None:
+            return await engine.run(WorkflowRef(op_key),
+                                    _ctx_from_req(req, params))
+        import uuid
+
+        ctx = WorkflowContext(actor=actor, guild_id=int(req.guild_id or 0),
+                              request_id=f"bj-tournament-{uuid.uuid4()}",
+                              params=params)
+        return await engine.run(WorkflowRef(op_key), ctx)
+
+    async def _open_round_view(req, state, uid: int) -> None:
+        """Deal the entrant's next round and open its table view (fresh
+        channel send — CHANNEL_ANCHOR, the #130 presenter seam)."""
+        import dataclasses
+
+        from sb.domain.blackjack import tournament
+        from sb.domain.blackjack.panels import TOURN_TABLE_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        view = tournament.deal_round(state, uid)
+        view["rounds"] = state.rounds
+        round_req = dataclasses.replace(req, args={**view,
+                                                   "terminal": False})
+        message_key = await open_panel(PanelRef(TOURN_TABLE_PANEL_ID),
+                                       round_req)
+        state.entrants[str(uid)].message_key = str(message_key or "")
+
+    async def _finish_tournament(req, state) -> None:
+        """Every entrant finished (the shipped ``_check_tourn_done``):
+        rank, pay the champion on the audited lane (settle-once by the
+        flag-row check-and-set inside the op), render the results embed,
+        drop the in-memory state."""
+        import dataclasses
+
+        from sb.domain.blackjack import tournament
+        from sb.domain.blackjack.panels import RESULTS_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        ranked = tournament.ranking(state)
+        winner = ranked[0][0] if ranked else None
+        result = await _run_op("blackjack.tournament_payout", req, {
+            "winner_id": winner, "entry_fee": int(state.entry_fee or 0),
+            "free_reward": tournament.FREE_TOURNAMENT_REWARD})
+        after = (result.after or {}).get("tournament_payout", {})
+        results_req = dataclasses.replace(req, args={
+            "ranking": [list(pair) for pair in ranked],
+            "names": dict(state.names), "winner": winner,
+            "entry_fee": int(state.entry_fee or 0),
+            "paid": bool(after.get("paid")),
+            "amount": after.get("amount"),
+            "balance": after.get("balance")})
+        await open_panel(PanelRef(RESULTS_PANEL_ID), results_req)
+        tournament.end_tournament(state.guild_id)
+
+    @handler("blackjack.tournament_open_route")
+    async def tournament_open_route(req) -> Reply:
+        """!bjtournament [entry_fee] [rounds] [mins] — the shipped
+        registration open: guards verbatim, the ACTIVE_TOURNAMENT flag row
+        (audited op), the pinned registration embed + 🃏 Join button + ✅
+        primer. (The shipped autostart timer is time-driven — ledgered;
+        `!bjstart` starts the pending tournament.)"""
+        from sb.domain.blackjack import tournament
+        from sb.domain.games.tournament_flag import get_active
+
+        gid, cid = int(req.guild_id or 0), int(req.channel_id or 0)
+        if tournament.state_or_none(gid) is not None:
+            # shipped copy, verbatim
+            return Reply(BLOCKED, "A tournament is already running.")
+        existing = await get_active(gid)
+        if existing and existing != "blackjack":
+            # shipped cross-game guard, verbatim; a stale "blackjack" flag
+            # (crash before settle — entries were refunded at boot) is
+            # reclaimable, the shipped boot flag-sweep posture.
+            return Reply(BLOCKED, f"A **{existing}** tournament is already "
+                                  "active in this server.")
+        argv = [str(a) for a in (req.args.get("argv", ()) or ())]
+        digits = [int(t) for t in argv if t.isdigit()]
+        fee = digits[0] if digits else await _fee_default(gid)
+        rounds = digits[1] if len(digits) > 1 else tournament.DEFAULT_ROUNDS
+        mins = (digits[2] if len(digits) > 2
+                else tournament.DEFAULT_DURATION_MINS)
+        result = await _run_op("blackjack.tournament_open", req, {})
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message
+                         or "Couldn't open registration.")
+        state = tournament.get_state(gid)
+        state.channel_id = cid
+        state.entry_fee = int(fee or 0)
+        state.rounds = max(1, int(rounds))
+        state.duration_mins = max(1, int(mins))
+        state.started = False
+        state.players = []
+        state.names = {}
+        import dataclasses
+
+        from sb.domain.blackjack.panels import REGISTRATION_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        reg_req = dataclasses.replace(req, args={
+            **dict(req.args), "entry_fee": state.entry_fee,
+            "rounds": state.rounds, "duration_mins": state.duration_mins,
+            "players": 0})
+        message_ref = await open_panel(PanelRef(REGISTRATION_PANEL_ID),
+                                       reg_req)
+        try:
+            state.reg_message_id = int(str(message_ref))
+        except (TypeError, ValueError):
+            state.reg_message_id = None
+        return Reply(SUCCESS, None)
+
+    @handler("blackjack.tournament_join")
+    async def tournament_join(req) -> Reply:
+        """The Join Tournament button — the shipped try_join body (guards
+        + copy verbatim; NO fee debit — fees collect at launch)."""
+        from sb.domain.blackjack import tournament
+
+        gid = int(req.guild_id or 0)
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        ok, detail = await tournament.register_player(
+            gid, uid, display_name=_display_name(req))
+        return Reply(SUCCESS if ok else BLOCKED, detail)
+
+    @handler("blackjack.tournament_start_route")
+    async def tournament_start_route(req) -> Reply:
+        """!bjstart — the shipped guard verbatim, then the launch: per-
+        player fee debits on the audited lane (a broke player is silently
+        skipped — shipped), the cancel branches, and each paid entrant's
+        first round view."""
+        from sb.domain.blackjack import tournament
+        from sb.domain.blackjack.ops import TOURN_START_CHIPS
+        from sb.kernel.interaction.request import ActorRef
+
+        gid = int(req.guild_id or 0)
+        state = tournament.state_or_none(gid)
+        if state is None or state.started:
+            # shipped copy, pinned by the bjstart sweep
+            return Reply(BLOCKED, "No pending tournament.")
+        state.started = True
+        if not state.players:
+            # shipped _launch_tournament copy, verbatim
+            await _announce(req, "❌ Tournament cancelled — no players "
+                                 "registered.")
+            await _run_op("blackjack.tournament_abort", req, {})
+            tournament.end_tournament(gid)
+            return Reply(SUCCESS, None)
+        fee = int(state.entry_fee or 0)
+        paid: list[int] = []
+        for uid in state.players:
+            if fee > 0:
+                actor = ActorRef(user_id=int(uid), is_guild_operator=False,
+                                 is_bot_owner=False, is_dm=False)
+                result = await _run_op(
+                    "blackjack.tournament_enter", req,
+                    {"fee": fee, "rounds": state.rounds}, actor=actor)
+                if result.outcome != SUCCESS:
+                    continue                    # shipped: skip a broke player
+            paid.append(int(uid))
+        if not paid:
+            # shipped _launch_tournament copy, verbatim
+            await _announce(req, "❌ Tournament cancelled — no players "
+                                 "could afford the entry fee.")
+            await _run_op("blackjack.tournament_abort", req, {})
+            tournament.end_tournament(gid)
+            return Reply(SUCCESS, None)
+        state.entrants = {
+            str(uid): tournament.TournPlayer(user_id=uid,
+                                             rounds_left=state.rounds)
+            for uid in paid}
+        for uid in paid:
+            # the shipped welcome line (home channel — the private round
+            # channels are the ledgered deviation)
+            await _announce(req, f"Welcome, <@{uid}>! You have "
+                                 f"**{state.rounds}** rounds and start "
+                                 f"with **{TOURN_START_CHIPS}** chips. "
+                                 "Good luck! 🃏")
+            await _open_round_view(req, state, uid)
+        return Reply(SUCCESS, None)
+
+    @handler("blackjack.tournament_click")
+    async def tournament_click(req) -> Reply:
+        """Hit/Stand on a tournament round view: in-memory chips move,
+        the view edits IN PLACE (type-6 ack + edit); a finished round
+        opens the next one (fresh CHANNEL_ANCHOR send) or — once every
+        entrant is done — pays the champion and renders the results."""
+        from sb.domain.blackjack import tournament
+        from sb.domain.games.session import EXPIRED_MESSAGE
+        from sb.kernel.panels.engine import refresh_session_view
+
+        gid = int(req.guild_id or 0)
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        state = tournament.state_or_none(gid)
+        if state is None or not state.started:
+            return Reply(BLOCKED, EXPIRED_MESSAGE)
+        action = str(req.args.get("session_action")
+                     or "").removeprefix("tourn_")
+        outcome = tournament.round_move(state, uid, action)
+        stage = outcome.pop("stage")
+        if stage == "expired":
+            return Reply(BLOCKED, EXPIRED_MESSAGE)
+        if stage == "not_yours":
+            return Reply(BLOCKED, "This isn't your table.")
+        if _display_name(req):
+            state.names[str(uid)] = _display_name(req)
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        outcome["rounds"] = state.rounds
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params=outcome,
+            expire=stage == "round_done")
+        if stage == "hand":
+            return Reply(SUCCESS, None if refreshed
+                         else "Move recorded — waiting for the table view.")
+        entrant = state.entrants[str(uid)]
+        if entrant.done:
+            # shipped end-of-run line, verbatim
+            await _announce(req, f"✅ You finished the tournament with "
+                                 f"**{entrant.chips}** chips!")
+            if tournament.all_done(state):
+                await _finish_tournament(req, state)
+        else:
+            await _open_round_view(req, state, uid)
+        return Reply(SUCCESS, None)
 
 
 def _register_pending() -> None:
-    """The polite pending terminals. Registered at MODULE IMPORT
-    (declaring IS reserving) — the live root imports and dispatches
-    without ever running the manifest ENSURE_REFS hooks when zero
-    plugins are admitted, so an ensure-only registration leaves
-    `!bjtournament`/`!bjstart` dying in RefUnresolved BUG envelopes
-    live (BUG A class, band-5 live-drive ledger bug 1 — same fix as
-    sb/domain/role/handlers.py)."""
+    """The (now unrouted) pending terminals. STILL registered at MODULE
+    IMPORT: tests/unit/invariants/test_composition_parity.py pins
+    ``handler:blackjack.tournament_open_pending`` in the import roster
+    (the rps precedent — #130 kept its 4 pending refs the same way);
+    the command table routes to the real tournament handlers now."""
     from sb.domain.operator_spine import pending_handler
 
     pending_handler(

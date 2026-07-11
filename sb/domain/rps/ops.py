@@ -396,18 +396,30 @@ async def _record_tournament_payout(conn, ctx: WorkflowContext) -> LegOutcome:
     """The champion settle — shipped call site verbatim
     (reason ``rps:tournament_win``, ``free_reward=100`` consolation on free
     tournaments under ``rps:tournament_free_reward``) + the shipped
-    end-of-tournament ``clear_active`` in the SAME txn."""
+    end-of-tournament ``clear_active`` in the SAME txn.
+
+    SETTLE-ONCE (the #130 review's free-branch race, closed by
+    construction): the flag-row delete runs FIRST and is the check-and-set
+    — the free branch has no escrow rows to consume, so two racing
+    champion resolutions could both re-pay the 100 🪙 consolation; keying
+    settle on the atomic row-deletion count makes it fire exactly once
+    (the race loser deletes zero rows and pays nothing)."""
     from sb.domain.games import tournament_flag
 
     gid = int(ctx.guild_id or 0)
     winner = ctx.params.get("winner_id")
     winner = int(winner) if winner is not None else None
+    cleared = await tournament_flag.clear_active(conn, guild_id=gid)
+    if not cleared:
+        ctx.params["_balance_changes"] = []
+        return LegOutcome(step=StepResult(winner or 0, "tournament_payout",
+                                          False),
+                          before={}, after={"paid": False, "amount": 0})
     settle = await wager.payout_tournament_in_txn(
         conn, guild_id=gid, subsystem=TOURNAMENT_SUBSYSTEM,
         winner_id=winner, reason="rps:tournament_win",
         free_reward=int(ctx.params.get("free_reward", 0) or 0),
         free_reason="rps:tournament_free_reward")
-    await tournament_flag.clear_active(conn, guild_id=gid)
     # paid-entry tournaments settle the pot (rps:tournament_win); free ones
     # pay the fixed consolation (rps:tournament_free_reward) — the handler
     # passes the tournament's entry fee so the emitted reason matches the

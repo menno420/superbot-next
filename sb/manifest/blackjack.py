@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from sb.domain.blackjack import handlers as _handlers
 from sb.domain.blackjack import panels as _panels
+from sb.domain.blackjack import tournament as _tournament
 from sb.domain.blackjack.ops import register_ops
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -36,13 +37,13 @@ MANIFEST = SubsystemManifest(
                     usage="!blackjack [bet] | !blackjack @player [bet]"),
         CommandSpec(name="bjtournament", kind=CommandKind.PREFIX,
                     aliases=("bjtourn",),
-                    route=HandlerRef("blackjack.tournament_open_pending"),
+                    route=HandlerRef("blackjack.tournament_open_route"),
                     audience_tier="staff", capability="blackjack",
-                    summary="Start a Blackjack tournament "
-                            "(registration + private round channels).",
+                    summary="Start a Blackjack tournament (button + "
+                            "reaction registration).",
                     usage="!bjtournament [entry_fee] [rounds] [mins]"),
         CommandSpec(name="bjstart", kind=CommandKind.PREFIX,
-                    route=HandlerRef("blackjack.tournament_start_pending"),
+                    route=HandlerRef("blackjack.tournament_start_route"),
                     audience_tier="staff", capability="blackjack",
                     summary="Manually start a pending Blackjack "
                             "tournament early.",
@@ -54,7 +55,10 @@ MANIFEST = SubsystemManifest(
                     usage="!bjstatus"),
     ),
     panels=(_panels.blackjack_hub_spec(), _panels.blackjack_table_spec(),
-            _panels.blackjack_pvp_spec()),
+            _panels.blackjack_pvp_spec(),
+            _panels.blackjack_registration_spec(),
+            _panels.blackjack_tournament_table_spec(),
+            _panels.blackjack_results_spec()),
     settings=_SETTINGS,
     stores=(),          # checkpoint rows ride the games manifest's stores
     events=(),          # emits economy.balance_changed (owner: economy)
@@ -71,6 +75,7 @@ def _ensure_refs() -> None:
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
+    _tournament.register_reaction_signup()
     register_ops()
 
 

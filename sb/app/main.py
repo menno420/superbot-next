@@ -63,10 +63,12 @@ DRAIN_GRACE_S = 10.0
 ESCROW_RECOVERY_SUBSYSTEMS: tuple[str, ...] = (
     "blackjack_pvp_escrow",
     "rps_pvp_escrow",
-    # tournament entry fees (the shipped _recover_rps_tournament refund-on-
-    # recovery posture: a restart mid-registration/bracket refunds every
-    # entry row through the audited lane — orchestration state is memory).
+    # tournament entry fees (the shipped _recover_rps_tournament / PR G5
+    # blackjack refund-on-recovery posture: a restart mid-registration/
+    # bracket refunds every entry row through the audited lane —
+    # orchestration state is memory).
     "rps_tournament_entry",
+    "blackjack_tournament",
 )
 
 #: The band-2..band-5 fan-out roster: every domain module exposing the

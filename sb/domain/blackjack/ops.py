@@ -512,11 +512,56 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
                       after=payload)
 
 
-# --- tournament money legs (orchestration = live-adapter successor work) -----------------
+# --- tournament money legs ----------------------------------------------------------------
+
+
+@workflow("blackjack.record_tournament_open")
+async def _record_tournament_open(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Registration opens: write the shipped ACTIVE_TOURNAMENT runtime flag
+    (guild_settings {key: active_tournament, value: blackjack} — the row
+    the bjtournament golden pins). The registration window itself is
+    in-memory orchestration state (sb/domain/blackjack/tournament.py),
+    exactly the shipped cog's posture."""
+    from sb.domain.games import tournament_flag
+
+    uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
+    await tournament_flag.set_active(conn, guild_id=gid, game="blackjack")
+    ctx.params["_balance_changes"] = []
+    return LegOutcome(step=StepResult(uid, "tournament_open", True),
+                      before={}, after={"flag": "blackjack"})
+
+
+@workflow("blackjack.record_tournament_abort")
+async def _record_tournament_abort(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Tournament cancelled (no players / nobody could afford the fee):
+    clear the runtime flag and refund any entry rows atomically (the
+    defensive twin of the boot escrow recovery)."""
+    from sb.domain.games import tournament_flag
+
+    uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
+    await tournament_flag.clear_active(conn, guild_id=gid)
+    rows = await games_store.lock_rows_for_settlement(
+        conn, guild_id=gid, subsystem=TOURNAMENT_SUBSYSTEM)
+    changes: list[tuple[int, int, int, str]] = []
+    for row in rows:
+        stake = int((row.get("state") or {}).get("bet", 0) or 0)
+        entrant = int(row["user_id"])
+        await games_store.delete_checkpoint_by_id(conn, row_id=row["id"])
+        if stake > 0:
+            balance = await wager.credit_in_txn(
+                conn, guild_id=gid, user_id=entrant, amount=stake,
+                reason="blackjack:entry_refund", actor_id=entrant)
+            changes.append((entrant, stake, balance,
+                            "blackjack:entry_refund"))
+    ctx.params["_balance_changes"] = changes
+    return LegOutcome(step=StepResult(uid, "tournament_abort", True),
+                      before={}, after={"refunded": len(changes)})
 
 
 @workflow("blackjack.record_tournament_enter")
 async def _record_tournament_enter(conn, ctx: WorkflowContext) -> LegOutcome:
+    """One paid entry at LAUNCH (the shipped ``_launch_tournament`` loop's
+    per-player ``enter_tournament`` call — reason string verbatim)."""
     uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
     fee = int(ctx.params.get("fee", 0) or 0)
     rounds = int(ctx.params.get("rounds", 5) or 5)
@@ -533,21 +578,43 @@ async def _record_tournament_enter(conn, ctx: WorkflowContext) -> LegOutcome:
 
 @workflow("blackjack.record_tournament_payout")
 async def _record_tournament_payout(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The champion settle — shipped call site verbatim
+    (``blackjack:tournament_win`` pot / ``free_reward=200`` under
+    ``blackjack:tournament_free_reward``) + the shipped end-of-tournament
+    ``clear_active`` in the SAME txn.
+
+    SETTLE-ONCE (the #130 free-branch race, closed by construction): the
+    flag-row delete runs FIRST and is the check-and-set — the free branch
+    has no escrow rows to consume, so a second racing payout would re-pay
+    the consolation; keying settle on the atomic row-deletion count makes
+    it fire exactly once (the loser of the race deletes zero rows and
+    pays nothing)."""
+    from sb.domain.games import tournament_flag
+
     gid = int(ctx.guild_id or 0)
     winner = ctx.params.get("winner_id")
     winner = int(winner) if winner is not None else None
+    cleared = await tournament_flag.clear_active(conn, guild_id=gid)
+    if not cleared:
+        ctx.params["_balance_changes"] = []
+        return LegOutcome(step=StepResult(winner or 0, "tournament_payout",
+                                          False),
+                          before={}, after={"paid": False, "amount": 0})
     settle = await wager.payout_tournament_in_txn(
         conn, guild_id=gid, subsystem=TOURNAMENT_SUBSYSTEM,
-        winner_id=winner, reason="tournament:winner_pot",
+        winner_id=winner, reason="blackjack:tournament_win",
         free_reward=int(ctx.params.get("free_reward", 0) or 0),
-        free_reason="tournament:winner_reward")
+        free_reason="blackjack:tournament_free_reward")
+    reason = ("blackjack:tournament_win"
+              if int(ctx.params.get("entry_fee", 0) or 0) > 0
+              else "blackjack:tournament_free_reward")
     ctx.params["_balance_changes"] = [
-        (u, d, b, "tournament:winner_pot")
-        for (u, d, b) in settle.balance_changes]
+        (u, d, b, reason) for (u, d, b) in settle.balance_changes]
     return LegOutcome(step=StepResult(winner or 0, "tournament_payout",
                                       settle.paid),
-                      before={}, after={"paid": settle.paid,
-                                        "amount": settle.amount})
+                      before={},
+                      after={"paid": settle.paid, "amount": settle.amount,
+                             "balance": settle.new_winner_balance})
 
 
 # --- op table ----------------------------------------------------------------------------
@@ -588,13 +655,18 @@ PVP_DECLINE = _op("blackjack.pvp_decline", "blackjack_pvp_declined",
                   "blackjack.record_pvp_decline")
 PVP_MOVE = _op("blackjack.pvp_move", "blackjack_pvp_move",
                "blackjack.record_pvp_move")
+TOURN_OPEN = _op("blackjack.tournament_open", "tournament_opened",
+                 "blackjack.record_tournament_open")
+TOURN_ABORT = _op("blackjack.tournament_abort", "tournament_aborted",
+                  "blackjack.record_tournament_abort")
 TOURN_ENTER = _op("blackjack.tournament_enter", "tournament_entered",
                   "blackjack.record_tournament_enter")
 TOURN_PAYOUT = _op("blackjack.tournament_payout", "tournament_paid",
                    "blackjack.record_tournament_payout")
 
 _OPS = (SOLO_START, SOLO_HIT, SOLO_STAND, SOLO_DOUBLE, PVP_CHALLENGE,
-        PVP_ACCEPT, PVP_DECLINE, PVP_MOVE, TOURN_ENTER, TOURN_PAYOUT)
+        PVP_ACCEPT, PVP_DECLINE, PVP_MOVE, TOURN_OPEN, TOURN_ABORT,
+        TOURN_ENTER, TOURN_PAYOUT)
 
 _REF_TABLE = (
     ("blackjack.record_solo_start", _record_solo_start),
@@ -605,6 +677,8 @@ _REF_TABLE = (
     ("blackjack.record_pvp_accept", _record_pvp_accept),
     ("blackjack.record_pvp_decline", _record_pvp_decline),
     ("blackjack.record_pvp_move", _record_pvp_move),
+    ("blackjack.record_tournament_open", _record_tournament_open),
+    ("blackjack.record_tournament_abort", _record_tournament_abort),
     ("blackjack.record_tournament_enter", _record_tournament_enter),
     ("blackjack.record_tournament_payout", _record_tournament_payout),
 )
