@@ -421,9 +421,11 @@ def test_ai_manifest_imports_and_registers():
     assert panel_ids == {
         "ai.hub", "ai.settings", "ai.card",
         # the settings-mutation slice: the shipped chooser PAGES + the
-        # S6/S7 edit widget pages.
+        # S6/S7 edit widget pages (+ the modal-arming slice's free-text
+        # editor page).
         "ai.policy_chooser", "ai.behavior_chooser", "ai.tools_chooser",
-        "ai.settings_edit_presets", "ai.settings_edit_enum"}
+        "ai.settings_edit_presets", "ai.settings_edit_enum",
+        "ai.settings_edit_text"}
     manifest.ENSURE_REFS()
 
 

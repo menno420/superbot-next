@@ -39,7 +39,7 @@ the #154 class).
    type 8, `channel_types: [0]`, `required: false`, no options;
    discord.ui.ChannelSelect live). logging_enable_and_bind step 3 pins
    both (select + Clear-binding button session-mint to `<cid:1>`/`<cid:2>`).
-3. **enable/disable RETIRED** (D-0066, the D-0065(3) precedent): the
+3. **enable/disable RETIRED** (D-0067, the D-0065(3) precedent): the
    shipped cog never had them — `!logging enable` fell through
    `invoke_without_command` to the panel, byte-identical to bare
    `!logging` with NO settings write (the golden pins Enabled: ⚪ off on
@@ -55,7 +55,7 @@ the #154 class).
    server_management successor); `logging set <route>` opens the picker;
    picker select/clear ride the band-1 `settings.bind`/`settings.unbind`
    ops (§4.1 — compensator allowlist stays EMPTY, no new compensators).
-5. **The shipped counter engine, real + reseeded** (D-0066(4)): the
+5. **The shipped counter engine, real + reseeded** (D-0067(4)): the
    16-name process-local counter vocabulary verbatim, bumped by the
    shipped subscriber trio armed on THE bus in BOTH roots — staff
    mod-log feed, public-log twin (disciplinary pre-filter
@@ -71,7 +71,7 @@ the #154 class).
 6. **parity.yml**: logging ported (24/49); ratchet
    `logging: {events: 1, tables: 2, settings: 0}` (raw covered-side:
    xp.awarded; ai_decision_audit + xp). **ZERO depth.exemptions rows**,
-   zero new exemption/disposition classes; decision record D-0066.
+   zero new exemption/disposition classes; decision record D-0067.
 
 ## Traps confirmed / new intel
 

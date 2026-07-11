@@ -90,6 +90,15 @@ class InteractionResponder:
         await self._interaction.response.send_message(message, ephemeral=ephemeral)
 
     async def open_modal(self, modal_ref: object) -> None:
+        # a declared ModalSpec materializes as the real discord.ui.Modal
+        # (the modal-arming slice); an already-sendable modal object (the
+        # hermetic/test contexts' fakes) passes through unchanged.
+        if (_discord is not None and modal_ref is not None
+                and hasattr(modal_ref, "modal_id")
+                and hasattr(modal_ref, "fields")):
+            from sb.adapters.discord.modal_view import build_modal
+
+            modal_ref = build_modal(modal_ref)
         await self._interaction.response.send_modal(modal_ref)
 
     async def open_confirm(self, prompt: ConfirmPrompt) -> None:
