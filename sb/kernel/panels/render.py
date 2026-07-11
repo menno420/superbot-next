@@ -85,6 +85,11 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # CT-relic detail card (cogs/btd6/_builders.py
                               # build_ct_relic_embed; unpinned found-relic
                               # path of the golden-pinned relic command)
+    "magenta": 15277667,      # discord.Color.magenta() — the shipped
+                              # _KARMA_COLOR standing card
+                              # (cogs/karma_cog.py _karma_card;
+                              # goldens/karma/sweep_karma +
+                              # karma_slash_card pin the accent)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

@@ -56,11 +56,29 @@ class KarmaDisabledError(_DomainRefusal):
 
 
 class KarmaCooldownError(_DomainRefusal):
-    """The giver already thanked this recipient within the window."""
+    """The giver already thanked this recipient within the window.
+
+    ``retry_after`` mirrors the shipped KarmaCooldownError attribute
+    (services/karma_service.py: the raise site passes the WHOLE cooldown
+    window — ``raise KarmaCooldownError(cooldown)`` — never a computed
+    remainder); ``target_id`` lets the command handler compose the
+    shipped display-name copy (the cog formatted ``recipient
+    .display_name`` cog-side, where the Member object lived)."""
+
+    def __init__(self, message: str, *, retry_after: int = 0,
+                 target_id: int = 0):
+        super().__init__(message)
+        self.retry_after = int(retry_after)
+        self.target_id = int(target_id)
 
 
 class KarmaDailyCapError(_DomainRefusal):
-    """The giver hit their per-day grant cap."""
+    """The giver hit their per-day grant cap. ``cap`` mirrors the shipped
+    attribute the cog's copy interpolates (``exc.cap``)."""
+
+    def __init__(self, message: str, *, cap: int = 0):
+        super().__init__(message)
+        self.cap = int(cap)
 
 
 def _actor_id(ctx: WorkflowContext) -> int:
@@ -105,16 +123,29 @@ async def _record_give(conn, ctx: WorkflowContext) -> LegOutcome:
     source = str(ctx.params.get("source", "") or "command")
     reason = _reason_from(ctx)
 
+    def _mark_refusal(kind: str, **data) -> None:
+        # the engine CLASSIFIES leg exceptions and returns a WorkflowResult
+        # (frozen-five, never re-raised), so the typed class identity does
+        # not cross engine.run — the marker carries the refusal
+        # STRUCTURALLY to the command handler, which composes the shipped
+        # cog-side copy (cogs/karma_cog.py's except arms) and sends the
+        # em.error red envelope (karma.error_card)
+        ctx.params["_karma_refusal"] = {"kind": kind, **data}
+
     if to_user is None:
         raise ValidatorError("member", "Usage: `!thanks @user [reason]`")
     if amount <= 0:
         raise ValidatorError("amount", "❌ Karma amount must be positive.")
     if from_user == to_user:
-        # shipped copy verbatim (golden karma.self_grant_rejected)
-        raise SelfKarmaError("❌ You can't give karma to yourself.")
+        # shipped copy verbatim (golden karma.self_grant_rejected); the
+        # ❌ prefix is the em.error ENVELOPE's byte (utils/embeds.py),
+        # composed by karma.error_card — not part of the sentence
+        _mark_refusal("self")
+        raise SelfKarmaError("You can't give karma to yourself.")
 
     policy = await load_policy(gid)
     if not policy.enabled:
+        _mark_refusal("disabled")
         raise KarmaDisabledError("Karma is disabled on this server.")
 
     now = ctx.clock()
@@ -125,20 +156,28 @@ async def _record_give(conn, ctx: WorkflowContext) -> LegOutcome:
         recent = await store.recent_grant_count(gid, from_user, to_user,
                                                 window_start, conn=conn)
         if recent > 0:
-            # shipped copy (golden karma.repeat_cooldown); mention instead
-            # of the display name — the headless leg has no member read
+            # the shipped raise passes the WHOLE window (karma_service.py
+            # `raise KarmaCooldownError(cooldown)`); the mention copy here
+            # is the headless fallback — the command handler re-composes
+            # the shipped display-name copy cog-side (karma.error_card,
+            # golden karma.repeat_cooldown)
+            _mark_refusal("cooldown",
+                          retry_after=policy.cooldown_seconds,
+                          target_id=to_user)
             raise KarmaCooldownError(
-                f"❌ You've already thanked <@{to_user}> recently — try "
-                f"again in {format_remaining(policy.cooldown_seconds)}.")
+                f"You've already thanked <@{to_user}> recently — try "
+                f"again in {format_remaining(policy.cooldown_seconds)}.",
+                retry_after=policy.cooldown_seconds, target_id=to_user)
 
     # Per-giver daily cap (rolling 24 h, shipped).
     day_start = now - timedelta(days=1)
     given_today = await store.grants_given_since(gid, from_user, day_start,
                                                  conn=conn)
     if given_today >= policy.daily_cap:
+        _mark_refusal("cap", cap=policy.daily_cap)
         raise KarmaDailyCapError(
             f"You've reached your daily limit of {policy.daily_cap} karma "
-            f"grants. Come back tomorrow!")
+            f"grants. Come back tomorrow!", cap=policy.daily_cap)
 
     # Row stamps ride ctx.clock() (NOT DB NOW()) so the cooldown/cap reads
     # above compare against the SAME clock they were written with — under
