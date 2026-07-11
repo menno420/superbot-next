@@ -437,13 +437,19 @@ class Harness:
         # capture carried this state cross-case (its curated plain-chat
         # case seeded the buffer the ai_forget sweep then cleared).
         from sb.adapters.discord.message_feed import observe_chat_message
+        from sb.domain.ai.review import observe_correction_reply
 
-        observe_chat_message(SimpleNamespace(
+        inbound = SimpleNamespace(
             author=SimpleNamespace(id=member.id, bot=False,
                                    display_name=member.name),
             guild=SimpleNamespace(id=self.world.guild_id),
             channel=SimpleNamespace(id=channel_id),
-            content=content))
+            content=content, reference=None)
+        observe_chat_message(inbound)
+        # the review-loop correction observer — the live on_message twin
+        # (corpus inputs carry no reply reference, so this is a fidelity
+        # no-op, mirrored so both roots run one code path).
+        await observe_correction_reply(inbound)
         if target_key is not None:
             ctx = SimpleNamespace(
                 command=SimpleNamespace(qualified_name=target_key),

@@ -93,16 +93,37 @@ class FakeAiStore:
 
         async def upsert_preset(conn, *, guild_id, question_key, question,
                                 answer, task, source, created_by):
-            self.presets[(guild_id, question_key)] = {
+            for pid, row in self.presets.items():
+                if (row["guild_id"], row["question_key"]) == (guild_id,
+                                                              question_key):
+                    row.update(answer=answer, question=question)
+                    return pid
+            pid = self.next_id
+            self.next_id += 1
+            self.presets[pid] = {
+                "id": pid, "guild_id": guild_id,
+                "question_key": question_key, "question": question,
                 "answer": answer, "created_by": created_by}
-            return len(self.presets)
+            return pid
 
-        async def remove_preset(conn, *, guild_id, question_key):
-            return self.presets.pop((guild_id, question_key), None) is not None
+        async def remove_preset(conn, *, guild_id, preset_id):
+            row = self.presets.get(preset_id)
+            if row is None or row["guild_id"] != guild_id:
+                return False
+            del self.presets[preset_id]
+            return True
+
+        async def get_preset(guild_id, preset_id, conn=None):
+            row = self.presets.get(preset_id)
+            return (dict(row) if row and row["guild_id"] == guild_id
+                    else None)
 
         async def lookup_preset(guild_id, question_key, conn=None):
-            row = self.presets.get((guild_id, question_key))
-            return row["answer"] if row else None
+            for row in self.presets.values():
+                if (row["guild_id"], row["question_key"]) == (guild_id,
+                                                              question_key):
+                    return row["answer"]
+            return None
 
         async def erase_subject(conn, *, user_id):
             touched = 0
@@ -122,6 +143,7 @@ class FakeAiStore:
                          ("mark_reviewed", mark_reviewed),
                          ("upsert_preset", upsert_preset),
                          ("remove_preset", remove_preset),
+                         ("get_preset", get_preset),
                          ("lookup_preset", lookup_preset),
                          ("erase_subject", erase_subject)):
             monkeypatch.setattr(st, name, fn)
@@ -144,12 +166,14 @@ def test_review_and_preset_legs(monkeypatch):
 
     out = run(ai_ops._resolve_entry(None, _ctx({"entry_id": 1})))
     assert fake.entries[1]["reviewed"] is True
+    assert out.after["message"] == "✅ Entry #1 marked reviewed."
     with pytest.raises(ValidatorError):
         run(ai_ops._resolve_entry(None, _ctx({"entry_id": 99})))
 
     out = run(ai_ops._set_preset(None, _ctx(
         {"question": "How much CASH?", "answer": "Lots."})))
-    assert "zero model call" in out.after["message"]
+    preset_id = out.after["preset_id"]
+    assert out.after["question"] == "How much CASH?"
     with pytest.raises(ValidatorError):
         run(ai_ops._set_preset(None, _ctx({"question": "x", "answer": " "})))
 
@@ -166,8 +190,11 @@ def test_review_and_preset_legs(monkeypatch):
     monkeypatch.undo()
 
     fake.install(monkeypatch)
-    out = run(ai_ops._remove_preset(None, _ctx({"question": "how much cash"})))
-    assert "removed" in out.after["message"].lower()
+    out = run(ai_ops._remove_preset(None, _ctx({"preset_id": preset_id})))
+    assert out.after["preset_id"] == preset_id
+    assert run(readers._preset_lookup(1, "how much cash")) is None
+    with pytest.raises(ValidatorError):
+        run(ai_ops._remove_preset(None, _ctx({"preset_id": 999})))
 
     run(ai_ops._set_preset(None, _ctx({"question": "q2", "answer": "a2"})))
     out = run(ai_ops._scrub_subject(None, _ctx({"subject_user_id": 42})))

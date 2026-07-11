@@ -25,10 +25,19 @@ __all__ = ["Reply", "ctx_from_request"]
 
 @dataclass(frozen=True)
 class Reply:
-    """The thin-handler reply duck-shape the resolver renders."""
+    """The thin-handler reply duck-shape the resolver renders.
+
+    ``suppress_mentions`` is the shipped ``allowed_mentions=
+    AllowedMentions.none()`` send kwarg as reply data: the resolver
+    threads the Reply through ``Result.workflow``, and the responders
+    (discord + parity capture twin) read the flag off it — the
+    ``!aireview preset add`` confirmation pins the wire byte
+    (goldens/ai/sweep_aireview_preset_add: ``allowed_mentions:
+    {"parse": []}``)."""
 
     outcome: str
     user_message: str
+    suppress_mentions: bool = False
 
 
 def ctx_from_request(req, params: dict) -> WorkflowContext:

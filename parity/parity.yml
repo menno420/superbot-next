@@ -207,28 +207,22 @@ depth:
   #       reason: "<reason-class>: <specifics>"
   exemptions:
     ai:
-      # ai's 20 goldens are the READ-ONLY !ai operator surface + the
-      # panel opens (no !aireview golden lives in this directory — the
-      # shipped review/preset write lanes' sweeps sit in _unmapped until
-      # re-homing).
+      # ai's 31 goldens are the READ-ONLY !ai operator surface + the
+      # panel opens + the re-homed !aireview review/preset family (the
+      # preset write and the review-channel KV write are golden-covered:
+      # sweep_aireview_preset_add / sweep_aireview_off).
       - surface: "table:ai_review_log"
         reason: "env-keyed-integration: review-log rows are minted only by
           the NL answer path's failure legs (nl_shell record_unknown on
           provider_unavailable/grounding_failed/no_route_matched outcomes)
-          and the 👎/correction reaction lane — the capture ran with AI
-          disabled and the deterministic provider (no NL reply was ever
-          attempted: every sweep's ai_decision_audit row is the
+          and the 👎/correction reaction lane over the in-memory answer
+          registry that only the NL answer path fills — the capture ran
+          with AI disabled and the deterministic provider (no NL reply was
+          ever attempted: every sweep's ai_decision_audit row is the
           guild_not_configured deny), so no imported golden can carry a
-          row; the read surfaces are golden-pinned empty-state reads and
-          the write lane's sibling sweeps (goldens/_unmapped/
-          sweep_aireview_*) re-home with the review slice"
-      - surface: "table:ai_answer_presets"
-        reason: "covered-elsewhere: the preset write's bytes are pinned by
-          the sibling oracle goldens/_unmapped/sweep_aireview_preset_add
-          .json (the shipped `!aireview preset add test test` insert's
-          ai_answer_presets row); the ai directory's goldens are the
-          read-only !ai operator views — the aireview sweep family
-          re-homes with the review slice"
+          row; the read surfaces ARE golden-pinned empty-state reads
+          (goldens/ai/sweep_aireview{,_list,_export,_resolve}), and the
+          table's first row-bearing golden lands with an NL-armed capture"
     btd6:
       - surface: "table:btd6_strategies"
         reason: "modal-driven: the shipped strategy write flow is the
@@ -382,7 +376,7 @@ depth:
   # subsystem MUST have a row; regenerate with
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
-    ai: {events: 1, tables: 2, settings: 0}
+    ai: {events: 2, tables: 4, settings: 1}
     blackjack: {events: 2, tables: 6, settings: 1}
     btd6: {events: 1, tables: 3, settings: 1}
     channel: {events: 1, tables: 2, settings: 0}

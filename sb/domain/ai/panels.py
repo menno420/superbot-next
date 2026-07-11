@@ -304,8 +304,12 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
     embed = (ctx.params or {}).get("_card")
     if not isinstance(embed, RenderedEmbed):  # defensive: never a crash
         embed = RenderedEmbed(title="", description="")
+    # message attachments (the shipped ``discord.File`` send — the
+    # ``!aireview export`` JSON dump rides this seam).
+    files = tuple(f for f in (ctx.params or {}).get("_card_files", ())
+                  if f is not None)
     return RenderedPanel(
-        panel_id=spec.panel_id, embed=embed,
+        panel_id=spec.panel_id, embed=embed, attachments=files,
         invoker_lock=getattr(ctx.actor, "user_id", None),
         timeout_s=spec.timeout_s, audience=spec.audience.value,
         anchor_policy=spec.anchor_policy.value)
