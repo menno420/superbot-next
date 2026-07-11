@@ -22,6 +22,7 @@ from sb.domain.ai import readers as _readers
 from sb.domain.ai import review as _review
 from sb.domain.ai import round_cash as _round_cash
 from sb.domain.ai import service as _service
+from sb.domain.ai import settings_widgets as _widgets
 from sb.domain.ai import tools as _tools
 from sb.domain.ai.ops import register_ops
 from sb.domain.ai.store import AI_ANSWER_PRESETS_STORE, AI_REVIEW_LOG_STORE
@@ -145,7 +146,14 @@ MANIFEST = SubsystemManifest(
                     usage="!aireview preset remove <id>"),
     ),
     panels=(_panels.ai_hub_spec(), _panels.ai_settings_spec(),
-            _panels.ai_card_spec()),
+            _panels.ai_card_spec(),
+            # the shipped chooser PAGES + the S6/S7 edit widget pages
+            # (the settings-mutation slice — clicks are golden-unpinned).
+            _panels.ai_policy_chooser_spec(),
+            _panels.ai_behavior_chooser_spec(),
+            _panels.ai_tools_chooser_spec(),
+            _panels.ai_settings_edit_presets_spec(),
+            _panels.ai_settings_edit_enum_spec()),
     settings=_SETTINGS,
     stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE),
     events=(),
@@ -166,6 +174,7 @@ def _ensure_refs() -> None:
     _ops_mod.ensure_ops_refs()
     _panels.ensure_panel_refs()
     _service.ensure_handler_refs()
+    _widgets.ensure_widget_refs()
     register_ops()
     _presets.register_domain_profiles()
     _round_cash.register_round_cash_workflow()

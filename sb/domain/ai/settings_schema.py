@@ -47,19 +47,28 @@ SHIPPED_SCHEMA_SETTINGS: tuple[SettingSpec, ...] = (
                 settings_key="ai_minimum_level_default",
                 capability_required=_CAPABILITY,
                 hint="Minimum member level for NL replies.",
-                bounds=(0, 1000)),
+                bounds=(0, 1000),
+                # the shipped edit-dispatch hint + preset roster VERBATIM
+                # (cogs/ai/schemas.py @7f7628e1) — the settings-mutation
+                # slice's widget routing keys off these.
+                input_hint="numeric_presets",
+                presets=(0, 1, 2, 3, 5, 10)),
     SettingSpec(name="cooldown_seconds", value_type=int, default=30,
                 settings_key="ai_cooldown_seconds",
                 capability_required=_CAPABILITY,
                 hint="Per-user NL reply cooldown in seconds (0 = none).",
-                bounds=(0, 86400)),
+                bounds=(0, 86400),
+                input_hint="numeric_presets",
+                presets=(0, 15, 30, 60, 120, 300)),
     SettingSpec(name="fresh_user_mention_allowance", value_type=int,
                 default=1,
                 settings_key="ai_fresh_user_mention_allowance",
                 capability_required=_CAPABILITY,
                 hint="Replies a below-level user may still get by "
                      "mentioning the bot (spent per delivered reply).",
-                bounds=(0, 100)),
+                bounds=(0, 100),
+                input_hint="numeric_presets",
+                presets=(0, 1, 3, 5, 10)),
     SettingSpec(name="guild_instruction_profile", value_type=str,
                 default="",
                 settings_key="ai_guild_instruction_profile",
@@ -71,7 +80,9 @@ SHIPPED_SCHEMA_SETTINGS: tuple[SettingSpec, ...] = (
                 capability_required=_CAPABILITY,
                 hint="Conversation-memory window (0/15/30/60/120; 0 = "
                      "floor-only memory).",
-                allowed_values=(0, 15, 30, 60, 120)),
+                allowed_values=(0, 15, 30, 60, 120),
+                input_hint="numeric_presets",
+                presets=(0, 15, 30, 60, 120)),
     _bool_setting("memory_channel_scan_enabled",
                   "ai_memory_channel_scan_enabled", False,
                   "Seed memory from recent channel history on a cold "

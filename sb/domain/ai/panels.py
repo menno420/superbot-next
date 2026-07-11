@@ -21,12 +21,29 @@
   eventually serve for every subsystem.
 * ``ai.card`` — the generic one-embed reply card every ``!ai <sub>``
   view presents through (the projmoon.card/btd6.card pattern).
+* ``ai.policy_chooser`` / ``ai.behavior_chooser`` / ``ai.tools_chooser``
+  — the shipped chooser PAGES (views/ai/policy/chooser.py,
+  views/ai/behavior/chooser.py, views/ai/tools/chooser.py @7f7628e1):
+  the intro embeds verbatim (title/description/fields + the
+  "Administrator-only · ephemeral follow-up." footer) over the shipped
+  button rows; the Behavior "Advanced" button routes to the policy
+  chooser (the shipped punt) and every ↩ AI home back-route rebuilds the
+  hub fresh. The SCOPE PICKERS each button opens (channel/category/role/
+  preview/list/preset/profile pages) are the policy/orchestration-
+  mutation slices' ports — honest pending terminals meanwhile
+  (sb/domain/ai/settings_widgets.py `chooser_scope_pending`).
+* ``ai.settings_edit_presets`` / ``ai.settings_edit_enum`` — the shipped
+  S6/S7 edit WIDGETS (views/settings/edit_number_presets.py /
+  edit_enum.py) as parameterized session pages: the settings page's
+  "Edit a setting…" pick opens the right widget for the picked
+  SettingSpec and each pick/click writes through the audited
+  ``settings.set_scalar`` op (sb/domain/ai/settings_widgets.py).
 
 Click routes are golden-UNPINNED (no ai golden drives a click): the
-shipped buttons EDITED the panel message in place; here each button opens
-its view through the result/open-panel lane, and the shipped
-policy/behavior/tools chooser PAGES land with their mutation slices
-(declared honest pending terminals meanwhile).
+shipped buttons EDITED the panel message in place; on the component
+surface these pages swap in place too (the presenter's deferred-update
+edit), while the shipped ephemeral follow-up widgets render as pages of
+the same anchor with a ↩ Back to Settings route (ledgered deviation).
 """
 
 from __future__ import annotations
@@ -41,6 +58,7 @@ from sb.spec.panels import (
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    NavRouteSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -60,12 +78,20 @@ from sb.spec.refs import (
 )
 
 __all__ = [
+    "ai_behavior_chooser_spec",
     "ai_card_spec",
     "ai_hub_spec",
+    "ai_policy_chooser_spec",
+    "ai_settings_edit_enum_spec",
+    "ai_settings_edit_presets_spec",
     "ai_settings_spec",
+    "ai_tools_chooser_spec",
     "ensure_panel_refs",
     "install_ai_panels",
 ]
+
+#: the shipped chooser footer byte (every views/ai/* chooser set it).
+_CHOOSER_FOOTER = "Administrator-only · ephemeral follow-up."
 
 
 def _hub_action(action_id: str, label: str, style: ActionStyle,
@@ -101,16 +127,18 @@ def ai_hub_spec() -> PanelSpec:
                         HandlerRef("ai.providers_view")),
             _hub_action("routing", "Routing", ActionStyle.PRIMARY,
                         HandlerRef("ai.routing_view")),
-            # row 1 — the shipped success (green) config quartet; the
-            # chooser PAGES port with their mutation slices.
+            # row 1 — the shipped success (green) config quartet; each
+            # opens its shipped page (the shipped edit_message swap — the
+            # component presenter's deferred-update edit is the same
+            # in-place navigation).
             _hub_action("settings", "Settings", ActionStyle.SUCCESS,
                         PanelRef("ai.settings")),
             _hub_action("policy", "Policy", ActionStyle.SUCCESS,
-                        HandlerRef("ai.policy_chooser_pending")),
+                        PanelRef("ai.policy_chooser")),
             _hub_action("behavior", "Behavior", ActionStyle.SUCCESS,
-                        HandlerRef("ai.behavior_chooser_pending")),
+                        PanelRef("ai.behavior_chooser")),
             _hub_action("tools", "Tools", ActionStyle.SUCCESS,
-                        HandlerRef("ai.tools_chooser_pending")),
+                        PanelRef("ai.tools_chooser")),
         ),
         # the shipped standard nav row (PersistentView.attach_standard_nav:
         # 📚 Help + the parent-hub home — subsystem_registry pins
@@ -154,6 +182,231 @@ def ai_card_spec() -> PanelSpec:
             "pins the bytes). Zero components; the renderer presents the "
             "handler-built RenderedEmbed verbatim (the projmoon.card "
             "precedent)."),
+    )
+
+
+# --- the shipped chooser PAGES (views/ai/{policy,behavior,tools} @7f7628e1) -----
+
+
+def _scope_action(action_id: str, label: str, style: ActionStyle,
+                  handler=None) -> PanelActionSpec:
+    """One chooser button — the shipped transient views carried NO
+    persistent custom_ids (created per click, timeout 180), so every id
+    is session-minted; scope pickers land on the shared pending terminal
+    until their mutation slices."""
+    return PanelActionSpec(
+        action_id=action_id, label=label, style=style,
+        audience_tier="staff",
+        handler=handler or HandlerRef("ai.chooser_scope_pending"),
+        result_render=ResultRender.RESULT_CARD)
+
+
+async def _policy_chooser_fields(ctx):
+    """The shipped build_chooser_embed field rows, verbatim."""
+    return (
+        ("Channel",
+         "Pick a channel and set its mode "
+         "(`inherit` / `always_reply` / `mention_only` / `disabled`)."),
+        ("Category",
+         "Same shape as channel; applies to every channel in the "
+         "category."),
+        ("Role",
+         "Allow / deny / inherit and optional min-level override per "
+         "role."),
+        ("List overrides",
+         "See every current override for this guild (paged)."),
+    )
+
+
+def ai_policy_chooser_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.policy_chooser",
+        subsystem="ai",
+        title="AI Policy",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(
+                  "Override the guild's AI policy for specific channels, "
+                  "categories, or roles. Writes flow through "
+                  "`services.ai_policy_mutation` and emit `ai.policy.*` "
+                  "events; the natural-language stage picks up the new "
+                  "rules on the next message."),
+              FieldsBlock(provider=ProviderRef("ai.policy_chooser_fields"))),
+        actions=(
+            _scope_action("policy_channel", "Channel", ActionStyle.PRIMARY),
+            _scope_action("policy_category", "Category",
+                          ActionStyle.PRIMARY),
+            _scope_action("policy_role", "Role", ActionStyle.PRIMARY),
+            _scope_action("policy_preview", "Effective policy",
+                          ActionStyle.SECONDARY),
+            _scope_action("policy_list", "List overrides",
+                          ActionStyle.SECONDARY),
+        ),
+        # the shipped "↩ AI home" back button (views/ai/_nav.py
+        # add_back_button, row 4) — an engine back-route rebuilding the
+        # hub FRESH at click time; no standard help/hub nav row existed.
+        navigation=NavigationSpec(
+            show_help=False, show_home=False,
+            extra_routes=(NavRouteSpec(label="↩ AI home",
+                                       route=PanelRef("ai.hub")),)),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_chooser"),
+        justification=(
+            "the shipped chooser footer is the STATIC 'Administrator-only "
+            "· ephemeral follow-up.' literal (views/ai/policy/chooser.py "
+            "build_chooser_embed set_footer) — copy outside FooterMode's "
+            "none/subsystem/provenance vocabulary. The override delegates "
+            "everything to the grammar renderer and replaces ONLY the "
+            "footer (the ai.settings precedent)."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("policy_channel", "policy_category", "policy_role"),
+            ("policy_preview", "policy_list"),
+        )),)),
+    )
+
+
+async def _behavior_chooser_fields(ctx):
+    """The shipped build_behavior_embed field rows, verbatim."""
+    return (
+        ("Channel", "Bind a preset to a single text channel."),
+        ("Category",
+         "Bind a preset to a category (applies to its channels)."),
+        ("Preview (dry-run)",
+         "See the precedence trace the resolver would produce for "
+         "your own user in a channel — no audit, no cooldown."),
+        ("Routing matrix",
+         "Read-only diagnostic showing the dry-run resolver "
+         "outcome for a channel — useful when an operator asks "
+         "*why* a channel allows or denies."),
+        ("Advanced",
+         "Open the raw policy editor (mode / min_level / cooldown / "
+         "profile). Sentinel-safe: untouched fields are preserved."),
+    )
+
+
+def ai_behavior_chooser_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.behavior_chooser",
+        subsystem="ai",
+        title="AI Behavior",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(
+                  "Pick **what the AI should do here**, then choose a "
+                  "scope. Presets bind together a channel mode plus an "
+                  "instruction profile. Use **Preview** to dry-run the "
+                  "resolver against your own user before saving. "
+                  "**Advanced** opens the raw policy editor."),
+              FieldsBlock(
+                  provider=ProviderRef("ai.behavior_chooser_fields"))),
+        actions=(
+            _scope_action("behavior_channel", "Channel",
+                          ActionStyle.PRIMARY),
+            _scope_action("behavior_category", "Category",
+                          ActionStyle.PRIMARY),
+            _scope_action("behavior_preview", "Preview (dry-run)",
+                          ActionStyle.SECONDARY),
+            _scope_action("behavior_matrix", "Routing matrix",
+                          ActionStyle.SECONDARY),
+            # the shipped Advanced punt — swap to the RAW policy chooser
+            # page (views/ai/behavior/chooser.py advanced_btn).
+            _scope_action("behavior_advanced", "Advanced",
+                          ActionStyle.SECONDARY,
+                          handler=PanelRef("ai.policy_chooser")),
+        ),
+        navigation=NavigationSpec(
+            show_help=False, show_home=False,
+            extra_routes=(NavRouteSpec(label="↩ AI home",
+                                       route=PanelRef("ai.hub")),)),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_chooser"),
+        justification=(
+            "the shipped chooser footer is the STATIC 'Administrator-only "
+            "· ephemeral follow-up.' literal (views/ai/behavior/chooser.py "
+            "build_behavior_embed set_footer) — copy outside FooterMode's "
+            "vocabulary; the override replaces ONLY the footer."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("behavior_channel", "behavior_category"),
+            ("behavior_preview", "behavior_matrix"),
+            ("behavior_advanced",),
+        )),)),
+    )
+
+
+async def _tools_chooser_fields(ctx):
+    """The shipped build_tools_embed field rows + the best-effort
+    "Current" decoration (the shipped panel entry read the
+    ai_config_projection snapshot best-effort; the KV port's guild
+    orchestration key rides the SAME seam the K10 profile-key reader
+    serves — typed channel/category overlays are a later slice, so the
+    counts are the shipped fresh-guild zeros)."""
+    fields = [
+        ("Guild / Channel / Category",
+         "Bind a built-in orchestration profile at a scope. Channel wins "
+         "over category, category over the guild default."),
+        ("Preview (dry-run)",
+         "Pick a channel to see the resolved profile, the offered vs "
+         "withheld tools (with reason codes), and the loop budget — no "
+         "provider call."),
+    ]
+    try:
+        from sb.kernel import settings as ksettings
+
+        guild_key = await ksettings.resolve(
+            int(ctx.guild_id or 0), "ai", "guild_instruction_profile")
+        key = str(guild_key) if guild_key else "compatible_default (today)"
+        fields.append((
+            "Current",
+            f"guild default: `{key}`\n"
+            "overrides: 0 channel · 0 category"))
+    except Exception:  # noqa: BLE001 — the shipped chooser renders its
+        pass           # static intro when the snapshot read fails
+    return tuple(fields)
+
+
+def ai_tools_chooser_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.tools_chooser",
+        subsystem="ai",
+        title="AI Tools & Workflows",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(
+                  "Choose **which tools the AI may use** here, "
+                  "independently of its reply tone (Behavior) and who may "
+                  "talk to it (Policy). A profile narrows the offered "
+                  "toolset, sets the tool-choice requirement, and caps "
+                  "the tool/loop budget. Writes flow through "
+                  "`services.ai_orchestration_mutation`; the next message "
+                  "picks up the new profile. Safe default: every scope "
+                  "inherits today's behaviour until you set a profile."),
+              FieldsBlock(provider=ProviderRef("ai.tools_chooser_fields"))),
+        actions=(
+            _scope_action("tools_guild", "Guild", ActionStyle.PRIMARY),
+            _scope_action("tools_channel", "Channel", ActionStyle.PRIMARY),
+            _scope_action("tools_category", "Category",
+                          ActionStyle.PRIMARY),
+            _scope_action("tools_preview", "Preview (dry-run)",
+                          ActionStyle.SECONDARY),
+        ),
+        navigation=NavigationSpec(
+            show_help=False, show_home=False,
+            extra_routes=(NavRouteSpec(label="↩ AI home",
+                                       route=PanelRef("ai.hub")),)),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_chooser"),
+        justification=(
+            "the shipped chooser footer is the STATIC 'Administrator-only "
+            "· ephemeral follow-up.' literal (views/ai/tools/chooser.py "
+            "build_tools_embed set_footer) — copy outside FooterMode's "
+            "vocabulary; the override replaces ONLY the footer."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("tools_guild", "tools_channel", "tools_category"),
+            ("tools_preview",),
+        )),)),
     )
 
 
@@ -248,20 +501,21 @@ def ai_settings_spec() -> PanelSpec:
         ),
         selectors=(
             # the shipped S6 windowed selects — RUN-MINTED session ids
-            # (the golden pins <cid:1>/<cid:2>); the edit/reset WIDGETS
-            # are the settings-mutation slice's port (pending terminals).
+            # (the golden pins <cid:1>/<cid:2>); picks dispatch through
+            # the shipped edit/reset routing (settings_widgets.py — the
+            # settings-mutation slice's port).
             SelectorSpec(
                 selector_id="edit_setting", kind=SelectorKind.ENUM,
                 options_source=_EDIT_OPTIONS,
                 placeholder="Edit a setting…",
                 audience_tier="staff",
-                on_select=HandlerRef("ai.settings_edit_pending")),
+                on_select=HandlerRef("ai.settings_edit_route")),
             SelectorSpec(
                 selector_id="reset_setting", kind=SelectorKind.ENUM,
                 options_source=_RESET_OPTIONS,
                 placeholder="Reset a setting to its default…",
                 audience_tier="staff",
-                on_select=HandlerRef("ai.settings_reset_pending")),
+                on_select=HandlerRef("ai.settings_reset_route")),
         ),
         # the shipped page carried NO standard nav row — the golden pins
         # exactly three component rows.
@@ -283,6 +537,95 @@ def ai_settings_spec() -> PanelSpec:
             ("edit_setting",),
             ("reset_setting",),
         )),)),
+    )
+
+
+# --- the shipped S6/S7 edit WIDGET pages -----------------------------------------
+
+#: the widget pages' shared back-route (the shipped
+#: attach_back_to_settings_button label, verbatim).
+_BACK_TO_SETTINGS = NavigationSpec(
+    show_help=False, show_home=False,
+    extra_routes=(NavRouteSpec(label="↩ Back to Settings",
+                               route=PanelRef("ai.settings")),))
+
+#: the widest shipped preset roster is 6 values (min-level / cooldown) —
+#: six declared slots; the renderer relabels the picked setting's roster
+#: onto them and DROPS the surplus (shipped: one button per preset,
+#: five per row, current value highlighted primary).
+_PRESET_SLOTS = 6
+
+
+def ai_settings_edit_presets_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.settings_edit_presets",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        actions=(
+            *(PanelActionSpec(
+                action_id=f"preset_{i}", label=str(i),
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                handler=HandlerRef("ai.settings_preset_pick"),
+                result_render=ResultRender.RESULT_CARD)
+              for i in range(_PRESET_SLOTS)),
+            # the shipped "Override…" free-form modal button — the modal
+            # lane is dormant by design, so it answers a declared pending
+            # terminal until the modal-arming slice.
+            PanelActionSpec(
+                action_id="override_btn", label="Override…",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                handler=HandlerRef("ai.settings_override_pending"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=_BACK_TO_SETTINGS,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_presets_widget"),
+        justification=(
+            "the shipped NumericPresetsView is fully runtime-"
+            "parameterized: one button PER DECLARED PRESET VALUE labeled "
+            "str(value) with the CURRENT value highlighted primary "
+            "(views/settings/edit_number_presets.py), and the shipped "
+            "dispatcher prompt carries the live current/default reprs — "
+            "labels, styles, slot count and copy all depend on the picked "
+            "SettingSpec at open time, outside the static grammar. The "
+            "override delegates to the grammar renderer, then relabels/"
+            "restyles the declared slots and drops the surplus."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("preset_0", "preset_1", "preset_2", "preset_3", "preset_4"),
+            ("preset_5", "override_btn"),
+        )),)),
+    )
+
+
+def ai_settings_edit_enum_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.settings_edit_enum",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="enum_value", kind=SelectorKind.ENUM,
+                options_source=ProviderRef("ai.enum_edit_options"),
+                placeholder="Pick a new value…",
+                audience_tier="staff",
+                on_select=HandlerRef("ai.settings_enum_pick")),
+        ),
+        navigation=_BACK_TO_SETTINGS,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_enum_widget"),
+        justification=(
+            "the shipped enum widget prompt + placeholder carry the picked "
+            "setting's name ('Pick a new value for `ai.<name>`:' / 'Pick "
+            "a new value for <name>…' — views/settings/subsystem_view.py "
+            "dispatch_edit_setting + edit_enum.build_enum_select_view) — "
+            "per-open copy outside the static grammar. The override "
+            "delegates to the grammar renderer and replaces ONLY the "
+            "description and the select placeholder."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("enum_value",),)),)),
     )
 
 
@@ -327,26 +670,93 @@ async def _render_settings(spec: PanelSpec, ctx) -> object:
                        embed=_dc_replace(rendered.embed, footer=footer))
 
 
-# --- pending select terminals -------------------------------------------------
+async def _render_chooser(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped static chooser footer byte."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed,
+                                         footer=_CHOOSER_FOOTER))
 
 
-async def _settings_edit_pending(req):
-    from sb.kernel.interaction.handler_kit import Reply
-    from sb.spec.outcomes import SUCCESS
+async def _render_presets_widget(spec: PanelSpec, ctx) -> object:
+    """The shipped NumericPresetsView page: the dispatcher prompt as the
+    description, the declared preset roster relabeled onto the slot
+    buttons (current value primary, the rest secondary), surplus slots
+    dropped."""
+    from sb.domain.ai import settings_widgets as widgets
+    from sb.kernel.panels.render import render_panel
 
-    return Reply(SUCCESS,
-                 "The scalar edit widgets (toggle/modal/preset buttons) "
-                 "port with the settings-mutation slice — the declared "
-                 "`ai.*` settings are readable here meanwhile.")
+    rendered = await render_panel(spec, ctx)
+    key = str((ctx.params or {}).get("setting") or "")
+    sspec = widgets.spec_for_key(key)
+    if sspec is None or not sspec.presets:   # defensive: never a crash
+        return _dc_replace(rendered, embed=_dc_replace(
+            rendered.embed, description=f"❌ Unknown setting `ai.{key}`."))
+    current = await widgets._current_value(int(ctx.guild_id or 0), sspec)
+    # the shipped dispatcher prompt byte (subsystem_view.py
+    # dispatch_edit_setting, the numeric_presets branch).
+    description = (f"Pick a value for `ai.{key}` "
+                   f"(current=`{current!r}`, default=`{sspec.default!r}`):")
+    presets = tuple(sspec.presets)
+    components = []
+    prefix = f"{spec.panel_id}.preset_"
+    for comp in rendered.components:
+        if comp.custom_id.startswith(prefix):
+            index = int(comp.custom_id[len(prefix):])
+            if index >= len(presets):
+                continue            # surplus slot — not rendered/minted
+            value = presets[index]
+            style = (ActionStyle.PRIMARY.value if value == current
+                     else ActionStyle.SECONDARY.value)
+            comp = _dc_replace(comp, label=str(value)[:80] or "(unset)",
+                               style=style)
+        components.append(comp)
+    return _dc_replace(
+        rendered, components=tuple(components),
+        embed=_dc_replace(rendered.embed, description=description))
 
 
-async def _settings_reset_pending(req):
-    from sb.kernel.interaction.handler_kit import Reply
-    from sb.spec.outcomes import SUCCESS
+async def _render_enum_widget(spec: PanelSpec, ctx) -> object:
+    """The shipped enum widget page: the dispatcher prompt as the
+    description + the shipped per-setting select placeholder."""
+    from sb.kernel.panels.render import render_panel
 
-    return Reply(SUCCESS,
-                 "The reset-to-default widget ports with the "
-                 "settings-mutation slice.")
+    rendered = await render_panel(spec, ctx)
+    key = str((ctx.params or {}).get("setting") or "")
+    description = f"Pick a new value for `ai.{key}`:"
+    placeholder = f"Pick a new value for {key}…"
+    components = tuple(
+        _dc_replace(comp, placeholder=placeholder)
+        if comp.custom_id == f"{spec.panel_id}.enum_value" else comp
+        for comp in rendered.components)
+    return _dc_replace(
+        rendered, components=components,
+        embed=_dc_replace(rendered.embed, description=description))
+
+
+async def _enum_edit_options(ctx):
+    """The shipped edit_enum option roster: one option per allowed value,
+    the current value pre-marked (default=True + the 'current'
+    description)."""
+    from sb.domain.ai import settings_widgets as widgets
+
+    key = str((ctx.params or {}).get("setting") or "")
+    sspec = widgets.spec_for_key(key)
+    if sspec is None or not sspec.allowed_values:
+        return ()
+    current = await widgets._current_value(int(ctx.guild_id or 0), sspec)
+    options = []
+    for value in sspec.allowed_values:
+        label = str(value)[:100]
+        is_current = value == current
+        options.append({
+            "label": label, "value": label,
+            "default": is_current,
+            "description": "current" if is_current else "",
+        })
+    return tuple(options)
 
 
 # --- registration — MODULE IMPORT (BUG A rule) --------------------------------
@@ -356,14 +766,28 @@ _SPECS = {
     "ai.hub": ai_hub_spec,
     "ai.card": ai_card_spec,
     "ai.settings": ai_settings_spec,
+    "ai.policy_chooser": ai_policy_chooser_spec,
+    "ai.behavior_chooser": ai_behavior_chooser_spec,
+    "ai.tools_chooser": ai_tools_chooser_spec,
+    "ai.settings_edit_presets": ai_settings_edit_presets_spec,
+    "ai.settings_edit_enum": ai_settings_edit_enum_spec,
 }
 
 _RENDERERS = {
     "ai.render_hub": _render_hub,
     "ai.render_card": _render_card,
     "ai.render_settings": _render_settings,
-    "ai.settings_edit_pending": _settings_edit_pending,
-    "ai.settings_reset_pending": _settings_reset_pending,
+    "ai.render_chooser": _render_chooser,
+    "ai.render_presets_widget": _render_presets_widget,
+    "ai.render_enum_widget": _render_enum_widget,
+}
+
+_PROVIDERS = {
+    "ai.settings_fields": _settings_fields,
+    "ai.policy_chooser_fields": _policy_chooser_fields,
+    "ai.behavior_chooser_fields": _behavior_chooser_fields,
+    "ai.tools_chooser_fields": _tools_chooser_fields,
+    "ai.enum_edit_options": _enum_edit_options,
 }
 
 
@@ -376,8 +800,9 @@ def _register_refs() -> None:
     for name, fn in _RENDERERS.items():
         if not is_registered(HandlerRef(name)):
             handler(name)(fn)
-    if not is_registered(ProviderRef("ai.settings_fields")):
-        provider("ai.settings_fields")(_settings_fields)
+    for name, fn in _PROVIDERS.items():
+        if not is_registered(ProviderRef(name)):
+            provider(name)(fn)
 
 
 _register_refs()

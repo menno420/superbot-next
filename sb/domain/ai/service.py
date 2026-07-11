@@ -170,28 +170,6 @@ async def support_report_view(req) -> None:
     return None
 
 
-# --- panel-only pending terminals (the shipped chooser pages port with the
-# --- policy/behavior/tools panel slices; clicks are golden-unpinned) --------------
-
-
-async def policy_chooser_pending(req) -> Reply:
-    return _ok("The AI policy chooser (per-channel/category/role scopes) "
-               "ports with the policy-mutation slice — use `!ai policy` "
-               "for the read-only dry-run meanwhile.")
-
-
-async def behavior_chooser_pending(req) -> Reply:
-    return _ok("The AI Behavior presets page ports with the "
-               "policy-mutation slice — the declared `ai.*` settings are "
-               "editable through `!settings` meanwhile.")
-
-
-async def tools_chooser_pending(req) -> Reply:
-    return _ok("The AI Tools & Workflows chooser ports with the "
-               "orchestration-mutation slice — profiles are read-only "
-               "meanwhile.")
-
-
 # --- !aireview group ---------------------------------------------------------------
 # The shipped cogs/ai_review_cog.py command surface, reply-for-reply (the
 # re-homed goldens/ai/sweep_aireview* family pins the bytes). Unparseable
@@ -650,9 +628,6 @@ _HANDLERS = (
     ("ai.routing_view", routing_view),
     ("ai.forget_view", forget_view),
     ("ai.support_report_view", support_report_view),
-    ("ai.policy_chooser_pending", policy_chooser_pending),
-    ("ai.behavior_chooser_pending", behavior_chooser_pending),
-    ("ai.tools_chooser_pending", tools_chooser_pending),
     ("ai.review_usage_view", aireview_usage_view),
     ("ai.review_list_view", review_list_view),
     ("ai.review_export_view", review_export_view),
