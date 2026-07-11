@@ -76,6 +76,11 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # ingestion-readiness "disabled" card
                               # (cogs/btd6/_builders.py;
                               # goldens/btd6/sweep_btd6_ops_readiness)
+    "orange": 15105570,       # discord.Color.orange() — the shipped
+                              # warn-state accent (the AI readiness card's
+                              # warns-only state; the same constant the
+                              # moderation cards pin —
+                              # goldens/moderation/sweep_modmenu)
     "teal": 1752220,          # discord.Color.teal() — the shipped BTD6
                               # CT-relic detail card (cogs/btd6/_builders.py
                               # build_ct_relic_embed; unpinned found-relic

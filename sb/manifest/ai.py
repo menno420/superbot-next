@@ -27,64 +27,9 @@ from sb.domain.ai.store import AI_ANSWER_PRESETS_STORE, AI_REVIEW_LOG_STORE
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
-from sb.spec.settings import Activation, SettingSpec
+from sb.domain.ai.settings_schema import AI_SETTINGS_FACETS
 
-
-def _bool_setting(name: str, key: str, default: bool, hint: str) -> SettingSpec:
-    return SettingSpec(name=name, value_type=bool, default=default,
-                       settings_key=key, hint=hint,
-                       activation=Activation.OFF_UNTIL_OPT_IN)
-
-
-_SETTINGS = (
-    _bool_setting("enabled", "ai_enabled", False,
-                  "Master switch for the AI platform in this server."),
-    _bool_setting("natural_language_enabled", "ai_natural_language_enabled",
-                  False,
-                  "Allow the bot to answer natural-language mentions."),
-    SettingSpec(name="default_provider", value_type=str, default="",
-                settings_key="ai_default_provider",
-                hint="Per-server provider overlay (anthropic/openai; empty "
-                     "= platform default).",
-                allowed_values=("", "anthropic", "openai")),
-    SettingSpec(name="default_model", value_type=str, default="",
-                settings_key="ai_default_model",
-                hint="Per-server model overlay (must match the provider "
-                     "family; empty = routing default)."),
-    SettingSpec(name="minimum_level_default", value_type=int, default=0,
-                settings_key="ai_minimum_level_default",
-                hint="Minimum member level for NL replies (0 = everyone).",
-                bounds=(0, 1000)),
-    SettingSpec(name="cooldown_seconds", value_type=int, default=0,
-                settings_key="ai_cooldown_seconds",
-                hint="Per-user NL reply cooldown in seconds (0 = none).",
-                bounds=(0, 86400)),
-    SettingSpec(name="fresh_user_mention_allowance", value_type=int,
-                default=0,
-                settings_key="ai_fresh_user_mention_allowance",
-                hint="Replies a below-level user may still get by "
-                     "mentioning the bot (spent per delivered reply).",
-                bounds=(0, 100)),
-    SettingSpec(name="guild_instruction_profile", value_type=str,
-                default="",
-                settings_key="ai_guild_instruction_profile",
-                hint="Named instruction/orchestration profile key for "
-                     "this server (empty = compatible default)."),
-    SettingSpec(name="memory_window_minutes", value_type=int, default=0,
-                settings_key="ai_memory_window_minutes",
-                hint="Conversation-memory window (0/15/30/60/120; 0 = "
-                     "floor-only memory).",
-                allowed_values=(0, 15, 30, 60, 120)),
-    _bool_setting("memory_channel_scan_enabled",
-                  "ai_memory_channel_scan_enabled", False,
-                  "Seed memory from recent channel history on a cold "
-                  "buffer (bodies are never persisted)."),
-    SettingSpec(name="review_channel", value_type=int, default=0,
-                settings_key="ai_review_channel",
-                hint="Channel the AI answer-review feed posts to "
-                     "(0 = off).",
-                input_hint="channel"),
-)
+_SETTINGS = AI_SETTINGS_FACETS
 
 
 def _ai(name: str, ref: str, summary: str) -> CommandSpec:
@@ -105,8 +50,11 @@ MANIFEST = SubsystemManifest(
     key="ai",
     version=1,
     commands=(
+        # the shipped bare `!ai` opened the AI Platform panel (ai_cog
+        # ai_group invoke_without_command → build_ai_panel_embed +
+        # AIPanelView) — goldens/ai/sweep_ai pins the panel bytes.
         CommandSpec(name="ai", kind=CommandKind.PREFIX,
-                    route=HandlerRef("ai.usage_view"),
+                    route=PanelRef("ai.hub"),
                     audience_tier="staff", capability="ai",
                     summary="AI platform operator views.",
                     usage="!ai <status|readiness|settings|policy|"
@@ -136,6 +84,16 @@ MANIFEST = SubsystemManifest(
                     capability="ai",
                     summary="Open the AI platform panel.",
                     usage="!aimenu"),
+        # the shipped `/aimenu` slash twin — the SAME panel, ephemeral via
+        # the panel's INVOKER audience (goldens/ai/sweep_slash_aimenu pins
+        # the type-4 + flags 64; the /pm precedent). The grouped `/ai …`
+        # app commands never resolved in the capture harness (their
+        # goldens are empty), so only the top-level twin lands.
+        CommandSpec(name="aimenu", kind=CommandKind.SLASH,
+                    route=PanelRef("ai.hub"), audience_tier="staff",
+                    capability="ai",
+                    summary="Open the AI Platform panel.",
+                    usage="/aimenu"),
         CommandSpec(name="aireview", kind=CommandKind.PREFIX,
                     route=HandlerRef("ai.review_usage_view"),
                     audience_tier="staff", capability="ai",
@@ -185,7 +143,8 @@ MANIFEST = SubsystemManifest(
                     summary="Remove a stored preset.",
                     usage="!aireview preset remove <question>"),
     ),
-    panels=(_panels.ai_hub_spec(),),
+    panels=(_panels.ai_hub_spec(), _panels.ai_settings_spec(),
+            _panels.ai_card_spec()),
     settings=_SETTINGS,
     stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE),
     events=(),

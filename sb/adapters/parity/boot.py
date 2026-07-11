@@ -201,6 +201,13 @@ class Harness:
         install_owner_config(cfg)
         install_secret_presence(cfg)
         ai_flags.install_ai_config(cfg)
+        # the K0 AI-platform arm (mirrors sb/app/main.py step 2): the
+        # policy-bundle/memory/preset readers — without them `!ai policy`
+        # replays the not-armed fallback instead of the shipped
+        # GUILD_NOT_CONFIGURED resolver trace the goldens pin.
+        from sb.domain.ai.readers import install_ai_platform
+
+        install_ai_platform()
 
         # --- the fake world (verbatim reuse: same ids, same clock) ----------
         world = World(SimpleNamespace(_connection=_StubState()))
@@ -355,6 +362,30 @@ class Harness:
 
         install_guild_directory(_WorldGuildDirectory(self.world))
         install_gateway_probe(lambda: float("nan"))
+        # the AI operator-surface environment ports — capture-world twins
+        # of the live root's installs (sb/adapters/discord/
+        # ai_operator_ports.py): the support report's runtime lines are the
+        # CAPTURE environment's (the corpus ran under python3.10.20 on the
+        # Linux sandbox — goldens/ai/sweep_ai_support-report pins the
+        # bytes), and the capture guild granted the bot every permission
+        # (world payload app_permissions), so the readiness probe answers
+        # "nothing missing".
+        from sb.domain.ai.operator_cards import (
+            RuntimeIdentity,
+            install_channel_permission_probe,
+            install_runtime_identity,
+        )
+
+        install_runtime_identity(RuntimeIdentity(
+            python_version="3.10.20", system="Linux",
+            bot_user_id=World.BOT_USER_ID))
+
+        async def _all_perms(guild_id: int, channel_id: int,
+                             scan_enabled: bool) -> list[str]:
+            del guild_id, channel_id, scan_enabled
+            return []
+
+        install_channel_permission_probe(_all_perms)
 
     # ------------------------------------------------------- per-case resets
 
@@ -399,6 +430,20 @@ class Harness:
             # adapter's surface — not driven until its band ports the corpus.
         member = _member_for(persona)
         channel_id = self.world.channels[channel]
+        # the K10 chat-memory bystander record — the live feed's leg
+        # (message_feed.observe_chat_message owns the shipped visibility
+        # rules: command-shaped content is skipped inside), run BEFORE
+        # dispatch exactly like arm_message_feed's on_message. The old
+        # capture carried this state cross-case (its curated plain-chat
+        # case seeded the buffer the ai_forget sweep then cleared).
+        from sb.adapters.discord.message_feed import observe_chat_message
+
+        observe_chat_message(SimpleNamespace(
+            author=SimpleNamespace(id=member.id, bot=False,
+                                   display_name=member.name),
+            guild=SimpleNamespace(id=self.world.guild_id),
+            channel=SimpleNamespace(id=channel_id),
+            content=content))
         if target_key is not None:
             ctx = SimpleNamespace(
                 command=SimpleNamespace(qualified_name=target_key),
@@ -431,6 +476,14 @@ class Harness:
             raise RuntimeError("harness not started")
         self.world.clock.advance()
         interaction_id = self.world.ids.allocate()
+        if self._lookup(name, Surface.SLASH) is None:
+            # the old harness's exact semantics: an interaction naming an
+            # app command the tree does not carry was DROPPED by
+            # discord.py's ConnectionState (no response, no capture) —
+            # every grouped `"ai forget"`-style sweep golden is empty for
+            # exactly this reason. The live twin: an unregistered slash
+            # command never reaches dispatch_interaction at all.
+            return
         member = _member_for(persona)
         channel_id = self.world.channels[channel]
         namespace = SimpleNamespace(
@@ -540,6 +593,17 @@ class Harness:
             reset_xp_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
+            # the AI seams this harness armed (K0 platform + operator ports
+            # + the process-lifetime conversation buffer).
+            from sb.domain.ai.operator_cards import (
+                reset_operator_ports_for_tests,
+            )
+            from sb.kernel.ai import conversation, memory, policy
+
+            reset_operator_ports_for_tests()
+            policy.reset_policy_for_tests()
+            memory.reset_memory_ports_for_tests()
+            conversation.reset_conversation_for_tests()
         except Exception:  # noqa: BLE001 — close is best-effort
             pass
 

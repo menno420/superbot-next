@@ -62,6 +62,11 @@
    {
     "aliases": [],
     "group": "",
+    "name": "aimenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
     "name": "aireview"
    },
    {
@@ -2046,6 +2051,14 @@
   "access:explain",
   "access:reset",
   "access:select_scope",
+  "ai:behavior",
+  "ai:diagnostics",
+  "ai:policy",
+  "ai:providers",
+  "ai:refresh",
+  "ai:routing",
+  "ai:settings",
+  "ai:tools",
   "blackjack.solo_bet_form",
   "btd6.ask_form",
   "btd6.round_form",
@@ -2101,6 +2114,8 @@
   "settings_hub.missing_bindings",
   "settings_hub.needs_setup",
   "settings_hub.subsystem_select",
+  "settings_subsystem.back_to_hub",
+  "settings_subsystem.open_panel",
   "treasury.contribute_form",
   "utility:open:four_twenty",
   "utility:open:general",

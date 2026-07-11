@@ -46,6 +46,7 @@ __all__ = [
     "install_binding_probe",
     "install_secret_presence",
     "install_settings_reader",
+    "is_explicitly_set",
     "iter_declarations",
     "register_manifest_settings",
     "register_setting",
@@ -169,6 +170,25 @@ async def resolve(guild_id: int, subsystem: str, name: str) -> object:
         return decl.keyed_secret in _present_secrets
     # ON_WHEN_BOUND — dynamic per read against the binding cache.
     return await _binding_probe(guild_id, decl.bound_binding or "")
+
+
+async def is_explicitly_set(guild_id: int, subsystem: str, name: str) -> bool:
+    """True iff a declared setting has an EXPLICIT stored row (per-guild or
+    global) — the tri-state's "not default" leg exposed read-only.
+
+    The shipped bot distinguished "operator configured this guild" from
+    "everything at declared defaults" by the presence of the typed
+    ``ai_guild_policy`` row; the KV port's equivalent is an explicit row
+    under the declared key (band-7 ai uses this for the shipped
+    GUILD_NOT_CONFIGURED semantics). Additive read helper — no write path,
+    no activation semantics.
+    """
+    key = f"{subsystem}.{name}"
+    if key not in _declarations:
+        raise LookupError(f"setting {key!r} is not declared (no raw-KV reads)")
+    if await _reader(guild_id, key) is not UNSET:
+        return True
+    return await _reader(None, key) is not UNSET
 
 
 # --- the band-1 manifest bridge (design-spec §4.1: ONE declaration path) ---------

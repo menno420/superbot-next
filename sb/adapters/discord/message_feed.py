@@ -43,7 +43,7 @@ from sb.kernel.interaction.request import Surface
 logger = logging.getLogger("sb.adapters.discord.message_feed")
 
 __all__ = ["arm_message_feed", "handle_chat_award", "handle_prefix_message",
-           "match_prefix_target"]
+           "match_prefix_target", "observe_chat_message"]
 
 #: The deepest qualified command path ("group sub sub") the matcher tries —
 #: the parity harness's exact bound.
@@ -117,6 +117,41 @@ async def handle_prefix_message(message: object, *, prefix: str) -> object | Non
         return None
 
 
+def observe_chat_message(message: object) -> bool:
+    """The K10 chat-memory bystander record (band 7) — the shipped
+    ``natural_language_stage._record_user_turn_if_visible`` visibility
+    rules VERBATIM: bot authors and command-shaped messages (``!``/``/``
+    prefixes, the shipped literals) are never recorded; everything else
+    lands in the in-process conversation buffer (bodies never persisted).
+    Runs BEFORE prefix dispatch (the shipped pipeline stage preceded
+    ``process_commands``). Returns True when a turn was appended.
+
+    This is the memory-observation leg only — the NL REPLY leg (nl_shell)
+    stays dormant until its arming slice; ``!ai forget`` and the readiness
+    memory link read this buffer (goldens/ai/sweep_ai_forget pins the
+    cleared-✅ byte downstream of exactly this record)."""
+    author = getattr(message, "author", None)
+    if author is None or bool(getattr(author, "bot", False)):
+        return False
+    guild = getattr(message, "guild", None)
+    if guild is None or getattr(guild, "id", None) is None:
+        return False
+    channel_id = getattr(getattr(message, "channel", None), "id", None)
+    if channel_id is None:
+        return False
+    content = str(getattr(message, "content", "") or "").strip()
+    if not content or content.startswith("!") or content.startswith("/"):
+        return False
+    from sb.kernel.ai import conversation
+
+    conversation.append(
+        int(guild.id), int(channel_id),
+        user_id=int(getattr(author, "id", 0) or 0), role="user",
+        text=content,
+        display_name=getattr(author, "display_name", None))
+    return True
+
+
 async def handle_chat_award(message: object) -> object | None:
     """The passive XP chat-award consumer (band 4): every human GUILD
     message earns the shipped cooldown/rng-gated award through the audited
@@ -149,6 +184,10 @@ def arm_message_feed(bot: object, *, prefix: str) -> None:
     chat award (command goldens carry karma.granted BEFORE xp.awarded)."""
 
     async def on_message(message: object) -> None:
+        # chat-memory bystander record FIRST (the shipped pipeline stage
+        # ran before process_commands); command-shaped content is skipped
+        # inside, so ordering only matters for plain messages.
+        observe_chat_message(message)
         await handle_prefix_message(message, prefix=prefix)
         await handle_chat_award(message)
 
