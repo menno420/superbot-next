@@ -42,6 +42,17 @@ source:
   # time (482 files: 465 goldens + _sweep_skips.json + 16 harness/docs files).
   tree_manifest_sha256: 2783d0032f90465fc378e77096284655babb3c8c6da449c30092791eaca14dcf
   imported: "2026-07-08"
+  # MINTED goldens (not part of the verbatim import above): documents added
+  # by explicit, reviewed PR under the integrity rule. D-0073 minted the
+  # first two — goldens/btd6/btd6_strategy_form_submit{,_minimal}.json, the
+  # wire-type-5 modal-submit cases (input kind `modal`, the D-0063 deletion
+  # clause's replay-case vocabulary), captured via sb/adapters/parity/
+  # runner.capture_case with the kernel-spine surfaces stripped (the
+  # kernel-surface-drift disposition's own vocabulary) and every user-facing
+  # byte verified against the ORACLE's StrategySubmitModal (views/btd6/
+  # strategy_submit.py, search_code reconstruction @8214200a — the default
+  # branch can be AHEAD of the corpus sha above; caveat ledgered in D-0073).
+  minted_goldens: 2
 
 # Every parity/goldens/<dir> has exactly one row here (checker-enforced both
 # directions). `_unmapped` holds the mechanical sweep cases not yet attributed
@@ -292,7 +303,7 @@ depth:
       # oracle ai_instruction_mutation surface) are unported. The read
       # surface is live (the preset picker options/fields).
       - surface: "table:ai_instruction_profile"
-        reason: "seeded-catalog: rows exist only as the migration-0029
+        reason: "seeded-catalog: rows exist only as the migration-0030
           system seed — they precede every case's before-snapshot, so a
           per-case db_delta structurally cannot carry them, and no
           runtime ingress (command/slash/click/modal, ported or shipped)
@@ -325,17 +336,13 @@ depth:
           ai.set_category_orchestration op the tools profile-select PICK
           runs behind the category scope pick (D-0064 re-argued; no
           command twin shipped)"
-    btd6:
-      - surface: "table:btd6_strategies"
-        reason: "modal-driven: the shipped strategy write flow is the
-          `/btd6 strat submit` Discord modal (views/btd6/strategy_submit.py
-          StrategySubmitModal) — the imported corpus schema has no modal
-          input kind (parity/harness reconstructs command/slash/click
-          only), so no golden can carry the insert; the prefix
-          `!btd6 strat submit` the sweep drives is the shipped
-          modal-pointer string (goldens/btd6/sweep_btd6_strat_submit),
-          and the read surfaces (browse/mine/strategy/pending/strategies)
-          are golden-pinned empty-state reads"
+    # btd6's `table:btd6_strategies` modal-driven row (the class's birth
+    # row, D-0063) was DELETED by its own deletion clause in the D-0073
+    # slice: the corpus schema grew the `modal` input kind, the shipped
+    # StrategySubmitModal twin went live (btd6.strategy_form), and the
+    # minted goldens/btd6/btd6_strategy_form_submit{,_minimal}.json now
+    # CARRY the insert — the ratchet climbed (btd6 tables 3 → 4). The
+    # `modal-driven` class itself stays (the ai rows above still ride it).
     chain:
       # chain's seven goldens are guard/usage bytes + the Chain Manager
       # empty-state open — the sweep drove every `!chain` subcommand
@@ -583,7 +590,7 @@ depth:
     ai: {events: 2, tables: 4, settings: 1}
     automod: {events: 1, tables: 2, settings: 0}
     blackjack: {events: 2, tables: 6, settings: 1}
-    btd6: {events: 1, tables: 3, settings: 1}
+    btd6: {events: 1, tables: 4, settings: 1}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 1, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 2, settings: 0}
