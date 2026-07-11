@@ -529,7 +529,12 @@ def register_ops() -> None:
         except ValueError as exc:
             if "duplicate CompoundOpSpec" not in str(exc):
                 raise
-    _register_op_markers()
+    # Full re-arm, not just the op markers: the manifest calls this at
+    # module import, and after the clear_ref_table() test seam (which
+    # purges sb.manifest.* but leaves THIS module cached, so the
+    # @workflow leg decorators never re-fire) the manifest re-import is
+    # the only registration pass the composition root runs.
+    ensure_ops_refs()
 
 
 def ensure_ops_refs() -> None:
