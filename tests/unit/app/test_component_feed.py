@@ -202,10 +202,16 @@ class TestConfirmModalSubmit:
     def test_only_confirm_modal_submits_are_recognized(self):
         assert component_feed.is_confirm_modal_submit(
             _modal_submit("sb.confirm:kick:rid-1", "kick"))
+        # a G-10 panel form is a modal submit but NOT a confirm capture —
+        # it rides handle_panel_modal_submit (the armed lane).
         assert not component_feed.is_confirm_modal_submit(
-            _modal_submit("treasury.contribute_form", "5"))   # G-10 stays dormant
+            _modal_submit("treasury.contribute_form", "5"))
+        assert component_feed.is_modal_submit(
+            _modal_submit("treasury.contribute_form", "5"))
         assert not component_feed.is_confirm_modal_submit(
             _interaction("sb.confirm:kick:rid-1"))            # wire 3 ≠ submit
+        assert not component_feed.is_modal_submit(
+            _interaction("sb.confirm:kick:rid-1"))
 
     def test_matching_phrase_dispatches_through_the_modal_adapter(self, monkeypatch):
         seen = {}
@@ -251,6 +257,46 @@ class TestConfirmModalSubmit:
         assert interaction.response.sent[0][1] is True
 
 
+class TestPanelModalSubmit:
+    """The ARMED G-10 lane (the modal-arming slice): every non-confirm
+    wire-type-5 submit dispatches through the frozen modal adapter."""
+
+    def test_panel_form_dispatches_through_the_modal_adapter(self, monkeypatch):
+        seen = {}
+
+        async def fake_dispatch(interaction, *, responder):
+            seen["interaction"] = interaction
+            seen["responder"] = responder
+            return "RESULT"
+
+        monkeypatch.setattr(component_feed, "dispatch_modal", fake_dispatch)
+        interaction = _modal_submit("treasury.contribute_form", None)
+        assert run(component_feed.handle_panel_modal_submit(
+            interaction)) == "RESULT"
+        assert seen["interaction"] is interaction
+        assert seen["responder"].surface is Surface.MODAL
+
+    def test_confirm_captures_are_never_consumed_here(self, monkeypatch):
+        called = []
+        monkeypatch.setattr(component_feed, "dispatch_modal",
+                            lambda *a, **k: called.append(1))
+        assert run(component_feed.handle_panel_modal_submit(
+            _modal_submit("sb.confirm:kick:rid-1", "kick"))) is None
+        assert run(component_feed.handle_panel_modal_submit(
+            _interaction("treasury.contribute_form"))) is None   # wire 3
+        assert not called
+
+    def test_dispatch_fault_renders_the_envelope(self, monkeypatch):
+        async def boom(interaction, *, responder):
+            raise RuntimeError("wiring fault")
+
+        monkeypatch.setattr(component_feed, "dispatch_modal", boom)
+        interaction = _modal_submit("treasury.contribute_form", None)
+        assert run(component_feed.handle_panel_modal_submit(interaction)) is None
+        assert len(interaction.response.sent) == 1
+        assert interaction.response.sent[0][1] is True           # ephemeral
+
+
 class TestArmComponentFeed:
     def test_registers_an_additive_on_interaction_listener(self):
         listeners: list[tuple[object, str]] = []
@@ -276,12 +322,20 @@ class TestArmComponentFeed:
         async def fake_component(interaction):
             routed["component"] = interaction
 
+        async def fake_panel_modal(interaction):
+            routed["panel_modal"] = interaction
+
         monkeypatch.setattr(component_feed, "handle_confirm_modal_submit",
                             fake_modal)
+        monkeypatch.setattr(component_feed, "handle_panel_modal_submit",
+                            fake_panel_modal)
         monkeypatch.setattr(component_feed, "handle_component_interaction",
                             fake_component)
         submit = _modal_submit("sb.confirm:kick:rid-1", "kick")
+        panel_submit = _modal_submit("treasury.contribute_form", None)
         click = _interaction()
         run(on_interaction(submit))
+        run(on_interaction(panel_submit))
         run(on_interaction(click))
-        assert routed == {"modal": submit, "component": click}
+        assert routed == {"modal": submit, "panel_modal": panel_submit,
+                          "component": click}

@@ -3287,6 +3287,11 @@
           "value": "override_btn"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "edit_value"
+        },
+        {
           "source": "sb/manifest/blackjack.py",
           "subsystem": "blackjack",
           "value": "bj_solo_free"
@@ -4379,6 +4384,11 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai.settings_edit_enum"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.settings_edit_text"
         },
         {
           "source": "sb/manifest/automod.py",
@@ -6149,6 +6159,9 @@
       "handler:ai.render_settings": {
         "module": "sb.domain.ai.panels"
       },
+      "handler:ai.render_text_widget": {
+        "module": "sb.domain.ai.panels"
+      },
       "handler:ai.review_channel_route": {
         "module": "sb.domain.ai.service"
       },
@@ -6176,13 +6189,16 @@
       "handler:ai.settings_enum_pick": {
         "module": "sb.domain.ai.settings_widgets"
       },
-      "handler:ai.settings_override_pending": {
+      "handler:ai.settings_number_submit": {
         "module": "sb.domain.ai.settings_widgets"
       },
       "handler:ai.settings_preset_pick": {
         "module": "sb.domain.ai.settings_widgets"
       },
       "handler:ai.settings_reset_route": {
+        "module": "sb.domain.ai.settings_widgets"
+      },
+      "handler:ai.settings_text_submit": {
         "module": "sb.domain.ai.settings_widgets"
       },
       "handler:ai.settings_view": {
@@ -7254,6 +7270,9 @@
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.settings_edit_presets": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.settings_edit_text": {
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.tools_chooser": {
@@ -9120,7 +9139,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:51e3c2821fc2699517d08fc72a83be3f5ca731999af20678fb4735c41738679a",
+  "stable_hash": "sha256:d6d8bf4764b8d750cec11669cfb9b8b69de5d8dfa9ba1ffdb520214f32f468ed",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -11145,15 +11164,31 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.settings_override_pending"
+                "$ref": "handler:ai.settings_number_submit"
               },
               "label": "Override…",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "new_value",
+                    "label": "New value (type: int)",
+                    "max_length": 64,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "ai.settings_number_form",
+                "on_submit": null,
+                "title": "Edit ai setting"
+              },
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -11291,6 +11326,101 @@
               "usage_weight": 1.0
             }
           ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "edit_value",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_text_submit"
+              },
+              "label": "Edit…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "new_value",
+                    "label": "New value (text)",
+                    "max_length": 2000,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "ai.settings_text_form",
+                "on_submit": null,
+                "title": "Edit ai setting"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped free-text edit had NO page: dispatch_edit_setting answered the select interaction with the TextSettingModal directly (views/settings/subsystem_view.py) — on this engine a selector pick is AUTO-deferred before its handler runs, so a modal can no longer be its first response; the Edit… button intermediates exactly like the D-0054 confirm surface's Confirm button (ledgered deviation). The prompt carries the picked setting's live current/default reprs (the shipped modal placeholder's readout) — per-open copy outside the static grammar; the override supplies ONLY the description.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "edit_value"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Settings",
+                "route": {
+                  "$ref": "panel:ai.settings"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.settings_edit_text",
+          "renderer_override": {
+            "$ref": "handler:ai.render_text_widget"
+          },
+          "selectors": [],
           "session_lifecycle": true,
           "subsystem": "ai",
           "timeout_s": 180,
