@@ -11,6 +11,7 @@ invariant. The settings slice claims the shipped karma keys
 from __future__ import annotations
 
 from sb.domain.karma import handlers as _handlers
+from sb.domain.karma import panels as _panels
 from sb.domain.karma.invariants import declare_karma_invariants
 from sb.domain.karma.ops import EVT_KARMA_GRANTED, register_ops
 from sb.domain.karma.policy import (
@@ -109,7 +110,10 @@ MANIFEST = SubsystemManifest(
                             "another member's.",
                     usage="/karma [member]"),
     ),
-    panels=(),
+    # the two shipped result cards (cogs/karma_cog.py _karma_card +
+    # utils/embeds.error) — component-less session cards, zero sim-gate
+    # rows (run-minted session panels are auto-exempt below the floor).
+    panels=(_panels.card_spec(), _panels.error_card_spec()),
     settings=_SETTINGS,
     stores=(KARMA_STORE, KARMA_AUDIT_STORE),
     events=(KARMA_GRANTED_EVENT,),
@@ -128,6 +132,7 @@ def _ensure_refs() -> None:
 
     _store.ensure_refs()
     _ops.ensure_ops_refs()
+    _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
     _inv.ensure_invariant_refs()
     register_ops()

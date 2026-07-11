@@ -183,7 +183,8 @@ def test_dispositions_load_from_parity_yml():
     # kernel indirection resolved against the kernel coverage home
     assert "audit_log" in drift["tables"]
     assert "command.dispatched" in drift["events"]
-    assert drift["columns"] == ["economy_audit_log.mutation_id"]
+    assert drift["columns"] == ["economy_audit_log.mutation_id",
+                                "karma_audit_log.mutation_id"]
     assert d["xp-coins-alias"] == {"encoding": "normalizer",
                                    "table": "xp", "column": "coins",
                                    "new_home_table": "economy_balances"}

@@ -89,6 +89,11 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # review-log cards (cogs/ai_review_cog.py
                               # _REVIEW_COLOR; goldens/ai/sweep_aireview
                               # pins the byte)
+    "magenta": 15277667,      # discord.Color.magenta() — the shipped
+                              # _KARMA_COLOR standing card
+                              # (cogs/karma_cog.py _karma_card;
+                              # goldens/karma/sweep_karma +
+                              # karma_slash_card pin the accent)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

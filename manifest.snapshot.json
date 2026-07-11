@@ -4719,6 +4719,16 @@
           "value": "inventory.cat_other"
         },
         {
+          "source": "sb/manifest/karma.py",
+          "subsystem": "karma",
+          "value": "karma.card"
+        },
+        {
+          "source": "sb/manifest/karma.py",
+          "subsystem": "karma",
+          "value": "karma.error_card"
+        },
+        {
           "source": "sb/manifest/leaderboard.py",
           "subsystem": "leaderboard",
           "value": "leaderboard.board"
@@ -6537,8 +6547,14 @@
       "handler:inventory.view": {
         "module": "sb.domain.inventory.handlers"
       },
+      "handler:karma.card_render": {
+        "module": "sb.domain.karma.panels"
+      },
       "handler:karma.card_view": {
         "module": "sb.domain.karma.handlers"
+      },
+      "handler:karma.error_render": {
+        "module": "sb.domain.karma.panels"
       },
       "handler:karma.thanks": {
         "module": "sb.domain.karma.handlers"
@@ -7352,6 +7368,12 @@
       },
       "panel:inventory.hub": {
         "module": "sb.domain.inventory.panels"
+      },
+      "panel:karma.card": {
+        "module": "sb.domain.karma.panels"
+      },
+      "panel:karma.error_card": {
+        "module": "sb.domain.karma.panels"
       },
       "panel:leaderboard.board": {
         "module": "sb.domain.community.panels"
@@ -8905,7 +8927,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:ff4827edac3a91c847f10f68db34b97e04a9c905316d1c58c9ce77c7c3ed8334",
+  "stable_hash": "sha256:5d3aad237b01e6ba3e9f380ba0d2e83ce76515e96c56daf20eaa6705d207d9e3",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -25295,7 +25317,92 @@
         }
       ],
       "key": "karma",
-      "panels": [],
+      "panels": [
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "magenta",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped karma card is read-parameterized on every surface (the target-member title '✨ Karma — {display_name}', the avatar thumbnail, the INLINE Karma/Rank field pair and the non-inline Activity field, the footer literal 'Thank helpful members with !thanks @user' — cogs/karma_cog.py _karma_card); grammar TextBlocks are static and grammar fields render non-inline. The card declares no components; the renderer only composes the embed (goldens/karma/sweep_karma + karma_slash_card pin the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "karma.card",
+          "renderer_override": {
+            "$ref": "handler:karma.card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "karma",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped refusal is the shared utils/embeds.error envelope: a bare description embed '❌ {message}' with the ERROR_COLOR red accent and no title/fields/footer (goldens/karma/karma_self_grant_rejected + karma_repeat_cooldown pin the bytes) — the description is run-parameterized refusal copy, outside the static grammar TextBlock vocabulary. Zero components; the renderer only composes the embed.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "karma.error_card",
+          "renderer_override": {
+            "$ref": "handler:karma.error_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "karma",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        }
+      ],
       "settings": [
         {
           "activation": "on_by_default",
