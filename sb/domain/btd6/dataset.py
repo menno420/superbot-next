@@ -1,14 +1,14 @@
 """BTD6 committed dataset loader (band 7) — the focused port of shipped
 ``services/btd6_data_service.py`` @7f7628e1 (3,463 lines): the typed
 entity accessors the grounding / resolution / reference layers consume
-(towers, heroes, bloons, bosses) plus the raw-blob seam every catalogue
-pass reads (``read_blob`` / ``list_blob_names``).
+(towers, heroes, bloons, bosses, maps, modes) plus the raw-blob seam
+every catalogue pass reads (``read_blob`` / ``list_blob_names``).
 
 The corpus itself is the committed L4 data (``sb/domain/btd6/data/`` —
 74 JSON files, copied file-for-file from ``disbot/data/btd6/``). What is
 NOT here (named successor ports, D-0046): the Postgres blob backend +
-seeding (``btd6_data_blobs``), the full 20-entity validating parser
-(maps/modes/rounds/relics/powers/MK/geraldo/income/round-xp typed
+seeding (``btd6_data_blobs``), the rest of the 20-entity validating
+parser (rounds/relics/powers/MK/geraldo/income/round-xp typed
 accessors — read via ``read_blob`` for now), crosspath cumulative-cost
 tables, and the live NK ingestion.
 
@@ -29,15 +29,21 @@ __all__ = [
     "BossEntry",
     "DATA_ROOT",
     "HeroEntry",
+    "MapEntry",
+    "ModeEntry",
     "TowerEntry",
     "bloons",
     "bosses",
     "game_version",
     "get_bloon",
     "get_hero",
+    "get_map",
+    "get_mode",
     "get_tower",
     "heroes",
     "list_blob_names",
+    "maps",
+    "modes",
     "read_blob",
     "reset_cache",
     "towers",
@@ -81,6 +87,41 @@ class BloonEntry:
     rbe_fortified: int | None = None
     speed: float | None = None
     description: str = ""
+
+
+@dataclass(frozen=True)
+class MapEntry:
+    """Shipped ``btd6_data_service.MapEntry`` (the fields the resolver /
+    response-builder consume; ``wiki_url`` is attribution-only in the
+    oracle and never surfaced, so it is not carried)."""
+
+    id: str
+    canonical: str
+    aliases: tuple[str, ...] = ()
+    difficulty: str = ""
+    description: str = ""
+    lines_of_sight_notes: str = ""
+    has_water: bool = False
+    # a blank "" means "no data on this map", never "this map has none"
+    # (the shipped bloonswiki-curated removables discipline).
+    removables: str = ""
+
+
+@dataclass(frozen=True)
+class ModeEntry:
+    """Shipped ``btd6_data_service.ModeEntry`` (resolver / response-
+    builder fields; the structured ``rules`` block rides the D-0046
+    successor with the rest of the validating parser)."""
+
+    id: str
+    canonical: str
+    aliases: tuple[str, ...] = ()
+    kind: str = ""
+    description: str = ""
+    restrictions: tuple[str, ...] = ()
+    # None for modifiers (relative effect, no fixed value) — shipped note.
+    starting_cash: int | None = None
+    starting_lives: int | None = None
 
 
 @dataclass(frozen=True)
@@ -236,6 +277,60 @@ def bosses() -> tuple[BossEntry, ...]:
     return _entity_cache["bosses"]
 
 
+def maps() -> tuple[MapEntry, ...]:
+    if "maps" not in _entity_cache:
+        raw = read_blob("maps.json") or {}
+        out = tuple(
+            MapEntry(
+                id=str(m["id"]),
+                canonical=str(m.get("canonical", m["id"])),
+                aliases=_aliases(m),
+                difficulty=str(m.get("difficulty", "") or ""),
+                description=str(m.get("description", "") or ""),
+                lines_of_sight_notes=str(
+                    m.get("lines_of_sight_notes", "") or ""
+                ),
+                has_water=bool(m.get("has_water", False)),
+                removables=str(m.get("removables", "") or ""),
+            )
+            for m in raw.get("maps", ())
+        )
+        with _lock:
+            _entity_cache["maps"] = out
+    return _entity_cache["maps"]
+
+
+def modes() -> tuple[ModeEntry, ...]:
+    if "modes" not in _entity_cache:
+        raw = read_blob("modes.json") or {}
+        out = tuple(
+            ModeEntry(
+                id=str(m["id"]),
+                canonical=str(m.get("canonical", m["id"])),
+                aliases=_aliases(m),
+                kind=str(m.get("kind", "") or ""),
+                description=str(m.get("description", "") or ""),
+                restrictions=tuple(
+                    str(r) for r in m.get("restrictions", ()) or ()
+                ),
+                starting_cash=(
+                    int(m["starting_cash"])
+                    if m.get("starting_cash") is not None
+                    else None
+                ),
+                starting_lives=(
+                    int(m["starting_lives"])
+                    if m.get("starting_lives") is not None
+                    else None
+                ),
+            )
+            for m in raw.get("modes", ())
+        )
+        with _lock:
+            _entity_cache["modes"] = out
+    return _entity_cache["modes"]
+
+
 def _by_id(entries: tuple, entity_id: str):
     for entry in entries:
         if entry.id == entity_id:
@@ -253,3 +348,14 @@ def get_hero(hero_id: str) -> HeroEntry | None:
 
 def get_bloon(bloon_id: str) -> BloonEntry | None:
     return _by_id(bloons(), bloon_id)
+
+
+def get_map(map_id: str) -> MapEntry | None:
+    """Shipped ``map_fact`` is exactly this lookup (knowledge_service
+    delegates to ``get_map``)."""
+    return _by_id(maps(), map_id)
+
+
+def get_mode(mode_id: str) -> ModeEntry | None:
+    """Shipped ``mode_fact`` is exactly this lookup."""
+    return _by_id(modes(), mode_id)

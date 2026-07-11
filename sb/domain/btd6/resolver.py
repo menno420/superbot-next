@@ -1,14 +1,20 @@
 """Deterministic NL → structured intent resolver for BTD6 — the focused
 port of shipped ``services/btd6_resolver_service.py`` @7f7628e1 over the
 entity families the grounding layer consumes (towers / heroes / bloons /
-bosses + round numbers). No AI, no DB; aliases come from the validated
-dataset.
+bosses / maps / modes + round numbers). No AI, no DB; aliases come from
+the validated dataset.
 
 Shipped matching semantics carried: multi-word aliases match as
 substrings; single-word aliases match whole-token, with the naive-plural
-fold (``alias + "s"`` — the BUG-0003 "despos" fix). Maps / modes / CT
-relics / live NK entity vocabulary ride the deep-reference successor
-port (D-0046)."""
+fold (``alias + "s"`` — the BUG-0003 "despos" fix). Maps and modes ride
+the SAME alias-map discipline (id + canonical + aliases, the shipped
+``for game_map in dataset.maps`` / ``for mode in dataset.modes`` loops)
+— including the shipped quirk that common-word mode names ("hard",
+"reverse", "standard") token-match inside ordinary sentences. CT relics
+/ live NK entity vocabulary ride the deep-reference successor port
+(D-0046); in the oracle, matched maps/modes ALSO feed the ``btd6_facts``
+DB grounding pass — that pass is the same D-0046 successor, so here they
+ground nothing and only drive answer/introspection surfaces."""
 
 from __future__ import annotations
 
@@ -33,6 +39,8 @@ class ResolvedIntent:
     confidence: float
     towers: tuple[dataset.TowerEntry, ...] = ()
     heroes: tuple[dataset.HeroEntry, ...] = ()
+    maps: tuple[dataset.MapEntry, ...] = ()
+    modes: tuple[dataset.ModeEntry, ...] = ()
     bloons: tuple[dataset.BloonEntry, ...] = ()
     bosses: tuple[dataset.BossEntry, ...] = ()
     candidate_round_numbers: tuple[int, ...] = ()
@@ -86,6 +94,8 @@ def resolve(text: str) -> ResolvedIntent:
 
     tower_ids = _match_terms(text, _alias_map(dataset.towers()))
     hero_ids = _match_terms(text, _alias_map(dataset.heroes()))
+    map_ids = _match_terms(text, _alias_map(dataset.maps()))
+    mode_ids = _match_terms(text, _alias_map(dataset.modes()))
     bloon_ids = _match_terms(text, _alias_map(dataset.bloons()))
     boss_ids = _match_terms(text, _boss_alias_map())
 
@@ -102,6 +112,8 @@ def resolve(text: str) -> ResolvedIntent:
     matched_count = (
         len(tower_ids)
         + len(hero_ids)
+        + len(map_ids)
+        + len(mode_ids)
         + len(bloon_ids)
         + len(boss_ids)
         + len(candidate_rounds)
@@ -113,6 +125,8 @@ def resolve(text: str) -> ResolvedIntent:
         confidence=confidence,
         towers=tuple(t for t in dataset.towers() if t.id in tower_ids),
         heroes=tuple(h for h in dataset.heroes() if h.id in hero_ids),
+        maps=tuple(m for m in dataset.maps() if m.id in map_ids),
+        modes=tuple(m for m in dataset.modes() if m.id in mode_ids),
         bloons=tuple(b for b in dataset.bloons() if b.id in bloon_ids),
         bosses=tuple(b for b in dataset.bosses() if b.id in boss_ids),
         candidate_round_numbers=tuple(candidate_rounds),
