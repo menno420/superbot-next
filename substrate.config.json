@@ -1,4 +1,10 @@
 {
+  "automerge": {
+    "branch_patterns": [
+      "claude/*"
+    ],
+    "required_context": "substrate-gate"
+  },
   "badge_tokens": [
     "binding",
     "living-ledger",
@@ -18,6 +24,7 @@
     "reconciliation_sessions": 20,
     "staleness_days": 14
   },
+  "claims_dir": "control/claims",
   "docs_root": "docs",
   "economy": {
     "classes": [],
@@ -37,7 +44,7 @@
   ],
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
-  "kit_version": "1.7.1",
+  "kit_version": "1.8.0",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",

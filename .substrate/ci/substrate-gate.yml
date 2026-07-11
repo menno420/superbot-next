@@ -102,7 +102,15 @@ jobs:
         # judged on completeness); a card MODIFIED by the PR (every
         # session close-out flips one) keeps the full locked-door
         # gate, so a close-out that forgot to flip `complete` still
-        # reds.
+        # reds. EXCEPT: when this same PR also touches THIS gate
+        # workflow file (an upgrade PR regenerating the kit-owned
+        # gate), an ADDED card keeps the FULL locked door too — the
+        # PR runs the NEW gate the moment the regen commit lands, so
+        # without this the regen itself could flip an added card
+        # from held-red to advisory MID-PR and auto-merge a partial
+        # session (venture-lab #14). Hold semantics may only
+        # tighten, never loosen, inside the PR that changes them;
+        # the escape is the normal one — flip the card complete.
         run: |
           if [ -n "${{ github.base_ref }}" ]; then
             range="origin/${{ github.base_ref }}...HEAD"
@@ -111,8 +119,12 @@ jobs:
           fi
           card="$(git diff --name-only --diff-filter=d "$range" -- '.sessions/*.md' ':!.sessions/README.md' 2>/dev/null | tail -1)"
           added="$(git diff --name-only --diff-filter=A "$range" -- '.sessions/*.md' ':!.sessions/README.md' 2>/dev/null | tail -1)"
+          gate_regen="$(git diff --name-only "$range" -- '.github/workflows/substrate-gate.yml' 2>/dev/null | tail -1)"
           echo "session gate card: ${card:-<none - advisory sentinel>}"
-          if [ -n "$card" ] && [ "$card" != "$added" ]; then
+          if [ -n "$card" ] && { [ "$card" != "$added" ] || [ -n "$gate_regen" ]; }; then
+            if [ "$card" = "$added" ]; then
+              echo "card $card is ADDED but this PR also touches the gate workflow itself — locked-door gate (mid-PR semantics may only tighten; flip the card complete to merge)"
+            fi
             python3 bootstrap.py check --strict --require-session-log --session-log "$card"
           elif [ -n "$card" ]; then
             echo "card $card is newly ADDED by this PR (born-red heartbeat) — advisory sentinel gate"
