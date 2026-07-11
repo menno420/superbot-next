@@ -99,3 +99,14 @@ sweep_slash_moderation. Pre-flip 0/8 → post 8/8 (first post-change replay).
   on real Postgres; check_parity_depth OK (zero exemptions);
   check_sim_gate OK; check_compat_frozen OK; check_namespace/intent/
   slash_cap clean; **1313 passed, 5 skipped**.
+
+## 💡 Session idea
+
+(Backfilled 2026-07-11 in kit-upgrade PR #166, grammar-only: the original
+session recorded no idea. Backfill exists so the strict session-gate's
+newest-card-by-mtime pick cannot red CI on this card — see PR #166's card.)
+
+## ⟲ Previous-session review
+
+(Backfilled 2026-07-11 in kit-upgrade PR #166, grammar-only: the original
+session recorded no previous-session review.)
