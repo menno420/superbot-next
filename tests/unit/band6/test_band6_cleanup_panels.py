@@ -294,6 +294,30 @@ def test_history_scan_refuses_the_unported_deletion_leg():
     assert "Matched 1 of 2" in reply.user_message
 
 
+def test_history_scan_refuses_unported_mode_matchers():
+    """A non-`prohibited` mode over a NON-empty backlog must refuse
+    honestly — only the prohibited matcher is ported (codex review,
+    PR #140); the empty-backlog "Matched 0" stays factually true for
+    every mode (the golden path)."""
+    from types import SimpleNamespace
+
+    from sb.domain.cleanup import service
+    from sb.spec.outcomes import BLOCKED
+    from sb.spec.refs import HandlerRef, resolve as resolve_ref
+
+    async def reader(channel_id, *, limit):
+        return (SimpleNamespace(content="hello"),)
+
+    service.install_history_reader(reader)
+    try:
+        reply = run(resolve_ref(HandlerRef("cleanup.history_scan"))(
+            _Req(argv=("50", "links"))))
+    finally:
+        service.reset_cleanup_ports_for_tests()
+    assert reply.outcome == BLOCKED
+    assert "`links` matcher ports with the channel-ops slice" in reply.user_message
+
+
 def test_scan_arg_parse_matches_the_shipped_signature():
     from sb.domain.cleanup.handlers import _parse_scan_args
 

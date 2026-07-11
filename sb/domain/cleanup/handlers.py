@@ -19,8 +19,9 @@ Matched 0 messages for `prohibited`."). The shipped helper deletions
 reason-less ``delete_message`` calls — the ORDER-009
 ``invoking-message-deletion`` disposition class; v1 deliberately does
 not delete. Deliberate under-ports (in-code notes below): the transient
-⚠️ over-limit helper (``delete_after=7``) and the matched>0 deletion
-leg land with the channel-ops slice.
+⚠️ over-limit helper (``delete_after=7``), the non-``prohibited`` mode
+matchers (an honest refusal when they would have had to run) and the
+matched>0 deletion leg land with the channel-ops slice.
 """
 
 from __future__ import annotations
@@ -115,6 +116,15 @@ def _register() -> None:
                          "the channel-ops port lands with the discord "
                          "adapter slice.")
         scanned = len(messages)
+        if mode != "prohibited" and scanned:
+            # only the prohibited matcher is ported (the shipped default
+            # mode; the golden path). Reporting "Matched 0" for a mode
+            # whose matcher never ran would be a silent under-port — the
+            # declared + honest refusal instead (codex review, PR #140).
+            return Reply(BLOCKED,
+                         f"Scanned {scanned} message(s), but the `{mode}` "
+                         "matcher ports with the channel-ops slice — only "
+                         "`prohibited` sweeps are armed in this build.")
         matched = 0
         if mode == "prohibited" and messages:
             try:
