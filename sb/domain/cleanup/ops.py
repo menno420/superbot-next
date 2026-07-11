@@ -22,8 +22,10 @@ __all__ = ["register_ops"]
 def _word_from(ctx: WorkflowContext) -> str:
     word = str(ctx.params.get("word", "") or "")
     if not word:
+        # the shipped signature was greedy (`*, word: str`) — every
+        # remaining token joins into one word phrase.
         argv = tuple(ctx.params.get("argv", ()) or ())
-        word = str(argv[0]) if argv else ""
+        word = " ".join(str(t) for t in argv).strip()
     if not word:
         # ValidatorError ⇒ polite user_error denial with a usage hint,
         # never a BUG envelope (the band-2 parse_target_and_reason lesson).
@@ -37,10 +39,13 @@ def _word_from(ctx: WorkflowContext) -> str:
 async def _word_add(conn, ctx: WorkflowContext) -> LegOutcome:
     word = _word_from(ctx)
     added = await store.add_word(conn, guild_id=int(ctx.guild_id or 0), word=word)
-    # success copy through the sanctioned DB-leg channel (the moderation
-    # exemplar) — found live: both word ops answered with SILENCE.
-    copy = (f"✅ Added `{word}` to the prohibited words." if added
-            else f"`{word}` is already on the prohibited-word list.")
+    # the shipped copy verbatim (disbot/cogs/cleanup_cog.py word_add;
+    # goldens/cleanup/sweep_word_add.json pins the added branch byte-
+    # for-byte — the earlier "answered with SILENCE" note observed a
+    # different surface; the golden is the oracle record, #193 law)
+    # through the sanctioned DB-leg `user_message` channel.
+    copy = (f"Added '{word}' to the prohibited words list." if added
+            else f"The word '{word}' is already in the prohibited list.")
     return LegOutcome(step=StepResult(0, "word_add", True),
                       before={}, after={"word": word, "added": added},
                       user_message=copy)
@@ -51,8 +56,10 @@ async def _word_remove(conn, ctx: WorkflowContext) -> LegOutcome:
     word = _word_from(ctx)
     removed = await store.remove_word(conn, guild_id=int(ctx.guild_id or 0),
                                       word=word)
-    copy = (f"✅ Removed `{word}` from the prohibited words." if removed
-            else f"`{word}` wasn't on the prohibited-word list.")
+    # shipped copy verbatim (cleanup_cog.py word_remove; goldens/cleanup/
+    # sweep_word_remove.json pins the not-present branch).
+    copy = (f"Removed '{word}' from the prohibited words list." if removed
+            else f"The word '{word}' is not in the prohibited list.")
     return LegOutcome(step=StepResult(0, "word_remove", True),
                       before={"present": removed}, after={"word": word},
                       user_message=copy)
@@ -82,21 +89,35 @@ def _register_handlers() -> None:
 
     @handler("cleanup.word_list")
     async def word_list(req) -> Reply:
+        """``!word`` / ``!word list`` — the shipped render verbatim
+        (cleanup_cog.py word_cmd/word_list: the per-guild `_word_cache`
+        read, load-on-miss; goldens/cleanup/sweep_word pins the empty
+        copy, sweep_word_list the sorted backtick listing over the
+        CACHE — see sb/domain/cleanup/service.py's cache contract)."""
+        from sb.domain.cleanup import service
+
         try:
-            words = await store.get_words(int(req.guild_id or 0))
+            words = await service.get_words_cached(int(req.guild_id or 0))
         except Exception:  # noqa: BLE001 — headless read
             words = []
         if not words:
-            return Reply(SUCCESS, "No prohibited words configured.")
+            return Reply(SUCCESS, "No prohibited words are currently set.")
         return Reply(SUCCESS, "Prohibited words: " + ", ".join(
-            f"`{w}`" for w in words[:50]))
+            f"`{w}`" for w in sorted(words)))
 
 
 def _op_runner(op: CompoundOpSpec):
     async def _run(ctx):  # P2 marker
+        from sb.domain.cleanup import service
         from sb.kernel.workflow import engine
 
-        return await engine.run(op, ctx)
+        result = await engine.run(op, ctx)
+        # the shipped post-mutation cache refresh (cleanup_cog.py
+        # reloaded `_word_cache` after add/remove) — invalidate-only,
+        # AFTER the engine settles the txn (post-commit, so an aborted
+        # leg never poisons the cache; the next read reloads).
+        service.invalidate_word_cache(int(ctx.guild_id or 0))
+        return result
     return _run
 
 

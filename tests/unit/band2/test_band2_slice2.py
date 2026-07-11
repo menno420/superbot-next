@@ -128,10 +128,13 @@ def test_word_ops_registered_and_word_add_leg(monkeypatch):
     assert outcome.after == {"word": "spamword", "added": True}
 
 
-def test_word_ops_speak_success_copy(monkeypatch):
-    """Found live (band-2 slice 2): both word ops answered with SILENCE —
-    success copy now rides the sanctioned DB-leg `user_message` channel
-    (the moderation exemplar)."""
+def test_word_ops_speak_the_shipped_copy(monkeypatch):
+    """The word ops answer with the ORACLE copy verbatim (disbot/cogs/
+    cleanup_cog.py word_add/word_remove; goldens/cleanup/sweep_word_add +
+    sweep_word_remove pin the added / not-present branches byte-for-byte
+    — #193 law: the golden record supersedes the earlier band-2
+    "answered with SILENCE" live observation) through the sanctioned
+    DB-leg `user_message` channel."""
     from types import SimpleNamespace
 
     from sb.domain.cleanup import ops, store
@@ -152,13 +155,54 @@ def test_word_ops_speak_success_copy(monkeypatch):
                                params={"argv": (word,)})
 
     assert asyncio.run(ops._word_add(None, ctx("fresh"))).user_message \
-        == "✅ Added `fresh` to the prohibited words."
-    assert "already" in asyncio.run(
-        ops._word_add(None, ctx("dupe"))).user_message
+        == "Added 'fresh' to the prohibited words list."
+    assert asyncio.run(ops._word_add(None, ctx("dupe"))).user_message \
+        == "The word 'dupe' is already in the prohibited list."
     assert asyncio.run(ops._word_remove(None, ctx("fresh"))).user_message \
-        == "✅ Removed `fresh` from the prohibited words."
-    assert "wasn't" in asyncio.run(
-        ops._word_remove(None, ctx("gone"))).user_message
+        == "Removed 'fresh' from the prohibited words list."
+    assert asyncio.run(ops._word_remove(None, ctx("gone"))).user_message \
+        == "The word 'gone' is not in the prohibited list."
+
+
+def test_word_list_renders_the_cache_and_the_shipped_copy(monkeypatch):
+    """`!word` / `!word list` render the per-guild word CACHE (the
+    shipped `_word_cache` load-on-miss read — sb/domain/cleanup/
+    service.py): a seeded cache renders WITHOUT touching the DB
+    (goldens/cleanup/sweep_word_list pins `test` over a truncated DB),
+    an empty load renders the shipped empty copy (sweep_word)."""
+    from types import SimpleNamespace
+
+    from sb.domain.cleanup import ops, service, store
+    from sb.spec.refs import HandlerRef, resolve
+
+    ops.register_ops()
+    handler = resolve(HandlerRef("cleanup.word_list"))
+    req = SimpleNamespace(guild_id=2, args={})
+
+    async def fake_get_words(guild_id):
+        return []
+
+    monkeypatch.setattr(store, "get_words", fake_get_words)
+    try:
+        # the capture trajectory: cache seeded by the runner → cache HIT.
+        service.seed_word_cache_for_replay(2, ("test",))
+        reply = asyncio.run(handler(req))
+        assert reply.user_message == "Prohibited words: `test`"
+        # sorted render, oracle-shape (`, `-joined backticks).
+        service.seed_word_cache_for_replay(2, ("zeta", "alpha"))
+        reply = asyncio.run(handler(req))
+        assert reply.user_message == "Prohibited words: `alpha`, `zeta`"
+        # cleared cache → load-on-miss over the (empty) store → empty copy.
+        service.seed_word_cache_for_replay(2, None)
+        reply = asyncio.run(handler(req))
+        assert reply.user_message == "No prohibited words are currently set."
+        # the post-mutation refresh: invalidation drops the guild key only.
+        service.seed_word_cache_for_replay(2, ("stale",))
+        service.invalidate_word_cache(2)
+        reply = asyncio.run(handler(req))
+        assert reply.user_message == "No prohibited words are currently set."
+    finally:
+        service.seed_word_cache_for_replay(0, None)   # leave no test residue
 
 
 def test_word_op_missing_word_is_user_error():

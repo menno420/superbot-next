@@ -88,6 +88,23 @@ CAPTURE_WORLD_COUNTERS: dict[str, dict[str, int]] = {
                        "sweep.logging_status", "sweep.logging_test")},
 }
 
+#: CAPTURE-WORLD PROHIBITED-WORD CACHE, reconstructed (world state — the
+#: cleanup cog's per-guild process cache the word list renders; the same
+#: #163→#167 reseed lane as the counters above, and the very state the
+#: playbook's `_word_cache` precedent named). The capture's per-case DB
+#: truncate cannot reach a cog attribute, so the sweep's alphabetical
+#: order carried `!word add test`'s write into the LATER list cases:
+#: goldens/cleanup/sweep_word_list.json renders "Prohibited words:
+#: `test`" over a truncated DB (cache HIT), while sweep_word — BEFORE
+#: word_add alphabetically — renders the empty copy (cache load-on-miss
+#: over the empty DB). Seeded/CLEARED at every case (None ⇒ clear), so
+#: gate/report/isolation replay the same trajectory (trap 20:
+#: runner-seeded, never accumulated — the ops' own post-mutation
+#: invalidation would otherwise leak `test` differently per mode).
+CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
+    "sweep.word_list": ("test",),
+}
+
 
 def _flatten_components(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
     flat: list[dict[str, Any]] = []
@@ -172,6 +189,14 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
         from sb.domain.server_logging.service import seed_counters_for_replay
 
         seed_counters_for_replay(seeded_counters)
+
+    # capture-world PROCESS state, cleanup flavor (CAPTURE_WORLD_WORD_CACHE
+    # above) — seeded OR cleared at every case so the cache never
+    # accumulates across replayed cases (trap 20 mode-dependence).
+    from sb.domain.cleanup.service import seed_word_cache_for_replay
+
+    seed_word_cache_for_replay(harness.world.guild_id,
+                               CAPTURE_WORLD_WORD_CACHE.get(case.id))
 
     before: dict[str, Any] = {}
     pool = None
