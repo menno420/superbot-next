@@ -1755,6 +1755,294 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "latency"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "platform"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "slash",
+          "value": "platform"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "access"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "anchors"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "bindings"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "caches"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "cleanup-preview"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "command-access"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "consistency"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "counting-health"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "customization"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "economy"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "economytrend"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "findings"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "flags"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "identity"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "lifecycle"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "locks"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "media"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "migrations"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "participation-schemas"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "provisioning"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "resource-requirements"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "resources"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "schemas"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "sessions"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "settings-registry"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "setup-readiness"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "tasks"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "views"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "backfill"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "setting"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "finding"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "flag"
+        },
+        {
+          "kind": "command",
+          "parent_group": "platform",
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "automation"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "surface": "prefix",
@@ -3611,6 +3899,96 @@
           "value": "dm_help"
         },
         {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_status"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_latency"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_sysinfo"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_database"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_json"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_commands"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_errors"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diag_notify"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_overview"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_flag_manager"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_flag_enable"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_flag_disable"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_flag_refresh"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_flag_back"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_auto_enable"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_auto_disable"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_auto_delete"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "pf_auto_refresh"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "daily"
@@ -4645,6 +5023,26 @@
           "value": "diagnostic.hub"
         },
         {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic.card"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic.platform_hub"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic.flag_manager"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic.automation_panel"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.hub"
@@ -4948,6 +5346,11 @@
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.sub_diagnostic"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_diagnostic_p2"
         },
         {
           "source": "sb/manifest/help.py",
@@ -6021,6 +6424,11 @@
           "value": "deathmatch_stats"
         },
         {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "platform_migration_checkpoints"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy_balances"
@@ -6231,6 +6639,9 @@
       },
       "engine:deathmatch.store": {
         "module": "sb.domain.deathmatch.store"
+      },
+      "engine:diagnostic.store": {
+        "module": "sb.domain.diagnostic.store"
       },
       "engine:economy.store": {
         "module": "sb.domain.economy.store"
@@ -6849,6 +7260,144 @@
       },
       "handler:deathmatch.top_view": {
         "module": "sb.domain.deathmatch.service"
+      },
+      "handler:diagnostic.automation_pending": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.automation_reopen": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.diag_latency": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.diag_pending": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.flag_pending": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.flag_reopen": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.hub_open_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.hub_reopen": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.latency_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_access": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_anchors": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_backfill_route": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_bindings": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_caches": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_cleanup_preview": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_command_access": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_consistency": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_counting_health": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_customization": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_economy": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_economytrend": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_finding_route": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_findings": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_flags": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_identity": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_lifecycle": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_locks": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_media": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_migrations": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_participation_schemas": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_provisioning": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_resource_requirements": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_resources": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_root": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_schemas": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_sessions": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_setting_route": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_settings_registry": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_setup_readiness": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_tasks": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.pf_views": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.render_automation": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.render_card": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.render_flag_manager": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.render_hub": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.render_platform_hub": {
+        "module": "sb.domain.diagnostic.panels"
       },
       "handler:economy.balance_view": {
         "module": "sb.domain.economy.handlers"
@@ -7669,7 +8218,19 @@
       "panel:deathmatch.hub": {
         "module": "sb.domain.deathmatch.panels"
       },
+      "panel:diagnostic.automation_panel": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "panel:diagnostic.card": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "panel:diagnostic.flag_manager": {
+        "module": "sb.domain.diagnostic.panels"
+      },
       "panel:diagnostic.hub": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "panel:diagnostic.platform_hub": {
         "module": "sb.domain.diagnostic.panels"
       },
       "panel:economy.daily_card": {
@@ -7784,6 +8345,9 @@
         "module": "sb.domain.help.service"
       },
       "panel:help.sub_diagnostic": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_diagnostic_p2": {
         "module": "sb.domain.help.service"
       },
       "panel:help.sub_economy": {
@@ -8059,7 +8623,22 @@
       "provider:counting.enable_mode_options": {
         "module": "sb.domain.counting.panels"
       },
-      "provider:diagnostic.status_index": {
+      "provider:diagnostic.automation_rule_options": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:diagnostic.flag_options": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:diagnostic.hub_catalogues_options": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:diagnostic.hub_resources_options": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:diagnostic.hub_runtime_options": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "provider:diagnostic.hub_validation_options": {
         "module": "sb.domain.diagnostic.panels"
       },
       "provider:economy.available_jobs": {
@@ -8204,6 +8783,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_diagnostic_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_diagnostic_1": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_economy_0": {
@@ -8616,6 +9198,12 @@
       },
       "workflow:deathmatch.record_move": {
         "module": "sb.domain.deathmatch.ops"
+      },
+      "workflow:diagnostic.backfill_dry_run": {
+        "module": "sb.domain.diagnostic.ops"
+      },
+      "workflow:diagnostic.record_backfill_dry_run": {
+        "module": "sb.domain.diagnostic.ops"
       },
       "workflow:economy.award_work_xp": {
         "module": "sb.domain.economy.ops"
@@ -9405,6 +9993,14 @@
         },
         "subsystem": "moderation"
       },
+      "platform_migration_checkpoints": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "platform_migration_checkpoints",
+        "sole_writer": {
+          "$ref": "engine:diagnostic.store"
+        },
+        "subsystem": "diagnostic"
+      },
       "prohibited_words": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "prohibited_words",
@@ -9536,7 +10132,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:02de291bca1474d8c1167d801f4a1783e91eca20c86c7f4de0b84bef101a88c1",
+  "stable_hash": "sha256:d70edc17aab51d71fe8b61972ba375880018eb300983cc64c7c7829c74e89704",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -20160,6 +20756,811 @@
           "summary": "Platform status: lifecycle, findings, declarations, AI health.",
           "usage": "/diagnostics",
           "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "latency",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.latency_view"
+          },
+          "slash_common": false,
+          "summary": "Bot WebSocket latency.",
+          "usage": "!latency",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "name": "platform",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_root"
+          },
+          "slash_common": false,
+          "summary": "Platform diagnostics hub: runtime, catalogues, resources, validation.",
+          "usage": "/platform",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "access",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_access"
+          },
+          "slash_common": false,
+          "summary": "🔎 Access — what's usable here",
+          "usage": "!platform access",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "anchors",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_anchors"
+          },
+          "slash_common": false,
+          "summary": "📌 Panel anchors",
+          "usage": "!platform anchors",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "bindings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_bindings"
+          },
+          "slash_common": false,
+          "summary": "🔗 Subsystem bindings",
+          "usage": "!platform bindings",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "caches",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_caches"
+          },
+          "slash_common": false,
+          "summary": "🧠 Cache snapshot",
+          "usage": "!platform caches",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "cleanup-preview",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_cleanup_preview"
+          },
+          "slash_common": false,
+          "summary": "🧹 Cleanup preview (dry run)",
+          "usage": "!platform cleanup-preview",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "command-access",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_command_access"
+          },
+          "slash_common": false,
+          "summary": "✅ Command Access — <#{ch}>",
+          "usage": "!platform command-access",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "consistency",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_consistency"
+          },
+          "slash_common": false,
+          "summary": "🛡 Platform consistency · WARNING",
+          "usage": "!platform consistency",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "counting-health",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_counting_health"
+          },
+          "slash_common": false,
+          "summary": "🔢 Counting persistence health",
+          "usage": "!platform counting-health",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "customization",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_customization"
+          },
+          "slash_common": false,
+          "summary": "🧭 Customization catalogue",
+          "usage": "!platform customization",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "economy",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_economy"
+          },
+          "slash_common": false,
+          "summary": "💰 Economy faucet / sink",
+          "usage": "!platform economy",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "economytrend",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_economytrend"
+          },
+          "slash_common": false,
+          "summary": "📈 Economy flow trend",
+          "usage": "!platform economytrend",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "findings",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_findings"
+          },
+          "slash_common": false,
+          "summary": "🩺 Health findings — open",
+          "usage": "!platform findings",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "flags",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_flags"
+          },
+          "slash_common": false,
+          "summary": "🚩 Feature flags",
+          "usage": "!platform flags",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "identity",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_identity"
+          },
+          "slash_common": false,
+          "summary": "🪪 Identity contract",
+          "usage": "!platform identity",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "lifecycle",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_lifecycle"
+          },
+          "slash_common": false,
+          "summary": "🔄 Lifecycle",
+          "usage": "!platform lifecycle",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "locks",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_locks"
+          },
+          "slash_common": false,
+          "summary": "🔒 Scope locks",
+          "usage": "!platform locks",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "media",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_media"
+          },
+          "slash_common": false,
+          "summary": "🎬 Media (YouTube) diagnostics",
+          "usage": "!platform media",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "migrations",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_migrations"
+          },
+          "slash_common": false,
+          "summary": "🛠 Platform migrations",
+          "usage": "!platform migrations",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "participation-schemas",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_participation_schemas"
+          },
+          "slash_common": false,
+          "summary": "🧑‍🤝‍🧑 Participation schemas",
+          "usage": "!platform participation-schemas",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "provisioning",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_provisioning"
+          },
+          "slash_common": false,
+          "summary": "🧰 Resource provisioning catalogue",
+          "usage": "!platform provisioning",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "resource-requirements",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_resource_requirements"
+          },
+          "slash_common": false,
+          "summary": "🧱 Resource requirements",
+          "usage": "!platform resource-requirements",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "resources",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_resources"
+          },
+          "slash_common": false,
+          "summary": "🧱 Resources",
+          "usage": "!platform resources",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "schemas",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_schemas"
+          },
+          "slash_common": false,
+          "summary": "📐 Subsystem schemas",
+          "usage": "!platform schemas",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "sessions",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_sessions"
+          },
+          "slash_common": false,
+          "summary": "🎫 Active sessions",
+          "usage": "!platform sessions",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "settings-registry",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_settings_registry"
+          },
+          "slash_common": false,
+          "summary": "🗂️ Settings registry",
+          "usage": "!platform settings-registry",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "setup-readiness",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_setup_readiness"
+          },
+          "slash_common": false,
+          "summary": "🛰 Setup Readiness — 0%",
+          "usage": "!platform setup-readiness",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "tasks",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_tasks"
+          },
+          "slash_common": false,
+          "summary": "🔁 Managed tasks",
+          "usage": "!platform tasks",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "views",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_views"
+          },
+          "slash_common": false,
+          "summary": "🖼 Persistent views",
+          "usage": "!platform views",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "backfill",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_backfill_route"
+          },
+          "slash_common": false,
+          "summary": "🧩 Binding backfill — dry run",
+          "usage": "!platform backfill",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "setting",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_setting_route"
+          },
+          "slash_common": false,
+          "summary": "⚙️ Declared-setting inspector",
+          "usage": "!platform setting",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "finding",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.pf_finding_route"
+          },
+          "slash_common": false,
+          "summary": "🩺 Health-finding actions",
+          "usage": "!platform finding",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "flag",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:diagnostic.flag_manager"
+          },
+          "slash_common": false,
+          "summary": "🚩 Flag Manager",
+          "usage": "!platform flag",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "platform",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "automation",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:diagnostic.automation_panel"
+          },
+          "slash_common": false,
+          "summary": "🤖 Automation panel",
+          "usage": "!platform automation",
+          "usage_weight": 1.0
         }
       ],
       "data_invariants": [],
@@ -20167,29 +21568,270 @@
       "key": "diagnostic",
       "panels": [
         {
-          "actions": [],
-          "anchor_policy": "reply",
-          "audience": "invoker",
-          "body": [
+          "actions": [
             {
-              "text": "Platform status from the kernel truth sources (lifecycle, findings ring, declaration registry, AI collector)."
+              "action_id": "diag_status",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "🤖 Bot Status",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
             },
             {
-              "provider": {
-                "$ref": "provider:diagnostic.status_index"
-              }
+              "action_id": "diag_latency",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_latency"
+              },
+              "label": "📡 Latency",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "diag_sysinfo",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "💻 System Info",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "diag_database",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "🗄️ Database",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "diag_json",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "📄 JSON Files",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "diag_commands",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "📋 Commands",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "diag_errors",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "🔍 Recent Errors",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "diag_notify",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.diag_pending"
+              },
+              "label": "🔔 Test Notify",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
             }
           ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "provenance",
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Diagnostics Hub embed carries eight INLINE tool fields plus the 'Diagnostics Hub  •  Admin only' footer literal — grammar FieldsBlock rows render inline=False and FooterMode has no such literal. The override delegates the COMPONENTS to render_panel (declared buttons untouched) and composes the EMBED only; goldens/diagnostic/sweep_diagnostics pins every byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "diag_status",
+                    "diag_latency",
+                    "diag_sysinfo"
+                  ],
+                  [
+                    "diag_database",
+                    "diag_json",
+                    "diag_commands"
+                  ],
+                  [
+                    "diag_errors",
+                    "diag_notify"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "diagnostic.hub",
+          "renderer_override": {
+            "$ref": "handler:diagnostic.render_hub"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "diagnostic",
+          "timeout_s": 180,
+          "title": "🔧 Diagnostics Hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
             "max_fields": 25,
             "style_token": "",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped `!platform <view>` / `!latency` replies are capture-world snapshot embeds built by sb/domain/diagnostic/platform_views.py (goldens/diagnostic pins the bytes). Zero components; the renderer presents the handler-built RenderedEmbed verbatim (the ai.card precedent).",
           "layout": {
             "pages": []
           },
@@ -20198,22 +21840,581 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
-          "panel_id": "diagnostic.hub",
-          "renderer_override": null,
+          "panel_id": "diagnostic.card",
+          "renderer_override": {
+            "$ref": "handler:diagnostic.render_card"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "diagnostic",
           "timeout_s": 180,
-          "title": "Diagnostics",
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "pf_overview",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "platform_hub.overview",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.hub_reopen"
+              },
+              "label": "↩ Overview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_flag_manager",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "platform_hub.flag_manager",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:diagnostic.flag_manager"
+              },
+              "label": "🚩 Flag manager",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Platform hub embed carries five catalogue fields whose lines mirror the select options plus the typed-commands footer literal — static shipped copy outside the grammar's FieldsBlock/FooterMode vocabulary. The override delegates the COMPONENTS to render_panel (declared selects/buttons with their verbatim custom_id_override pins untouched) and composes the EMBED only; goldens/diagnostic/sweep_platform + sweep_slash_platform pin every byte on both surfaces.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pf_runtime"
+                  ],
+                  [
+                    "pf_catalogues"
+                  ],
+                  [
+                    "pf_resources"
+                  ],
+                  [
+                    "pf_validation"
+                  ],
+                  [
+                    "pf_overview",
+                    "pf_flag_manager"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "diagnostic.platform_hub",
+          "renderer_override": {
+            "$ref": "handler:diagnostic.render_platform_hub"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "platform_hub.runtime",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:diagnostic.hub_open_view"
+              },
+              "options_source": {
+                "$ref": "provider:diagnostic.hub_runtime_options"
+              },
+              "page_size": 25,
+              "placeholder": "Runtime / status…",
+              "selector_id": "pf_runtime",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "platform_hub.catalogues",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:diagnostic.hub_open_view"
+              },
+              "options_source": {
+                "$ref": "provider:diagnostic.hub_catalogues_options"
+              },
+              "page_size": 25,
+              "placeholder": "Catalogues…",
+              "selector_id": "pf_catalogues",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "platform_hub.resources",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:diagnostic.hub_open_view"
+              },
+              "options_source": {
+                "$ref": "provider:diagnostic.hub_resources_options"
+              },
+              "page_size": 25,
+              "placeholder": "Resources / rollout…",
+              "selector_id": "pf_resources",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "platform_hub.validation",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:diagnostic.hub_open_view"
+              },
+              "options_source": {
+                "$ref": "provider:diagnostic.hub_validation_options"
+              },
+              "page_size": 25,
+              "placeholder": "Validation…",
+              "selector_id": "pf_validation",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "diagnostic",
+          "timeout_s": 180,
+          "title": "🛰 Platform hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "pf_flag_enable",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "flag_manager:enable",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.flag_pending"
+              },
+              "label": "✅ Enable for this guild",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_flag_disable",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "flag_manager:disable",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.flag_pending"
+              },
+              "label": "🛑 Disable for this guild",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_flag_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "flag_manager:refresh",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.flag_reopen"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_flag_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "flag_manager:back",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.hub_reopen"
+              },
+              "label": "↩ Back to Platform",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Flag Manager embed is the static rollout-pipeline prose plus the read-only footer literal — outside FooterMode's vocabulary. The override delegates the COMPONENTS to render_panel (the verbatim flag_manager:* custom_id_override pins untouched) and composes the EMBED only; goldens/diagnostic/sweep_platform_flag pins every byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pf_flag_pick"
+                  ],
+                  [
+                    "pf_flag_enable",
+                    "pf_flag_disable",
+                    "pf_flag_refresh"
+                  ],
+                  [
+                    "pf_flag_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "diagnostic.flag_manager",
+          "renderer_override": {
+            "$ref": "handler:diagnostic.render_flag_manager"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "flag_manager:select",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:diagnostic.flag_pending"
+              },
+              "options_source": {
+                "$ref": "provider:diagnostic.flag_options"
+              },
+              "page_size": 25,
+              "placeholder": "Choose a flag…",
+              "selector_id": "pf_flag_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "diagnostic",
+          "timeout_s": 180,
+          "title": "🚩 Flag Manager",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "pf_auto_enable",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.automation_pending"
+              },
+              "label": "Enable",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_auto_disable",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.automation_pending"
+              },
+              "label": "Disable",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_auto_delete",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.automation_pending"
+              },
+              "label": "Delete",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "pf_auto_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.automation_reopen"
+              },
+              "label": "Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "orange",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Automation panel embed carries the scheduler-snapshot warning line and the no-rules Rules field — state-keyed shipped copy outside the grammar's vocabulary (true as a constant in both worlds: neither the capture harness nor v1 registers services.automation_scheduler). The override delegates the COMPONENTS to render_panel and composes the EMBED only; goldens/diagnostic/sweep_platform_automation pins every byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pf_auto_rule"
+                  ],
+                  [
+                    "pf_auto_enable",
+                    "pf_auto_disable",
+                    "pf_auto_delete",
+                    "pf_auto_refresh"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "diagnostic.automation_panel",
+          "renderer_override": {
+            "$ref": "handler:diagnostic.render_automation"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:diagnostic.automation_pending"
+              },
+              "options_source": {
+                "$ref": "provider:diagnostic.automation_rule_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a rule…",
+              "selector_id": "pf_auto_rule",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "diagnostic",
+          "timeout_s": 180,
+          "title": "🤖 Automation panel",
           "usage_weight": 1.0
         }
       ],
       "settings": [],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "platform_migration_checkpoints",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:diagnostic.store"
+          },
+          "table": "platform_migration_checkpoints",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },
@@ -26105,7 +28306,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "1 command(s), generated from the `diagnostic` manifest."
+              "text": "36 command(s), generated from the `diagnostic` manifest."
             },
             {
               "provider": {
@@ -26128,7 +28329,15 @@
           },
           "legacy_view": null,
           "navigation": {
-            "extra_routes": [],
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "More (2/2) ▶",
+                "route": {
+                  "$ref": "panel:help.sub_diagnostic_p2"
+                }
+              }
+            ],
             "home_hub": "__follow_parent__",
             "parent": {
               "$ref": "panel:help.cat_admin"
@@ -26143,7 +28352,62 @@
           "session_lifecycle": false,
           "subsystem": "help",
           "timeout_s": 180,
-          "title": "🩺 Diagnostics — commands",
+          "title": "🩺 Diagnostics — commands · page 1/2",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "36 command(s), generated from the `diagnostic` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_diagnostic_1"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "◀ First page",
+                "route": {
+                  "$ref": "panel:help.sub_diagnostic"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_admin"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_diagnostic_p2",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🩺 Diagnostics — commands · page 2/2",
           "usage_weight": 1.0
         },
         {
