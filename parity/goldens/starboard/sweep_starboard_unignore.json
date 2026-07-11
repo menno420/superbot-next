@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.starboard_ignore",
+ "case_id": "sweep.starboard_unignore",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -23,20 +23,12 @@
     }
    ]
   },
-  "starboard_ignore_channels": {
-   "added": [
-    {
-     "channel_id": "<#commands>",
-     "guild_id": "<guild>"
-    }
-   ]
-  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1853326000,
+     "last_xp": 1785308955,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -58,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "✅ Ignoring <#<#commands>> — its messages won't be starred.",
+      "content": "✅ No longer ignoring <#<#commands>>.",
       "tts": false
      }
     },
@@ -79,7 +71,7 @@
       "actor_type": "admin",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "add_starboard_ignore_channel",
+      "mutation_type": "remove_starboard_ignore_channel",
       "new_value": "channel=<#commands>",
       "occurred_at": "<ts>",
       "prev_value": null,
@@ -101,11 +93,11 @@
     }
    ],
    "input": {
-    "content": "!starboard ignore __CHANNEL_COMMANDS__",
+    "content": "!starboard unignore __CHANNEL_COMMANDS__",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "starboard"
 }

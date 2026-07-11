@@ -61,6 +61,7 @@ subsystems:
   servermanagement: unverified
   settings: unverified
   setup: unverified
+  starboard: unverified
   ticket: unverified
   treasury: unverified
   utility: unverified

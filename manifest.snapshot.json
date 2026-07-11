@@ -310,7 +310,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 46,
+  "manifest_count": 47,
   "projections": {
     "events": {
       "ai.orchestration.category_changed": {
@@ -3245,6 +3245,54 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "surface": "prefix",
+          "value": "starboard"
+        },
+        {
+          "kind": "command",
+          "parent_group": "starboard",
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "surface": "prefix",
+          "value": "ignore"
+        },
+        {
+          "kind": "command",
+          "parent_group": "starboard",
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "surface": "prefix",
+          "value": "unignore"
+        },
+        {
+          "kind": "command",
+          "parent_group": "starboard",
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "surface": "prefix",
+          "value": "off"
+        },
+        {
+          "kind": "command",
+          "parent_group": "starboard",
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "surface": "prefix",
+          "value": "selfstar"
+        },
+        {
+          "kind": "command",
+          "parent_group": "starboard",
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "surface": "prefix",
+          "value": "panel"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/ticket.py",
           "subsystem": "ticket",
           "surface": "prefix",
@@ -4773,6 +4821,21 @@
           "value": "access_next"
         },
         {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard_threshold"
+        },
+        {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard_selfstar"
+        },
+        {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard_disable"
+        },
+        {
           "source": "sb/manifest/ticket.py",
           "subsystem": "ticket",
           "value": "open_ticket"
@@ -5679,6 +5742,11 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_starboard"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.cat_other"
         },
         {
@@ -5870,6 +5938,11 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.hub"
+        },
+        {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard.config"
         },
         {
           "source": "sb/manifest/ticket.py",
@@ -6671,6 +6744,11 @@
           "value": "setup"
         },
         {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard"
+        },
+        {
           "source": "sb/manifest/ticket.py",
           "subsystem": "ticket",
           "value": "ticket"
@@ -6948,6 +7026,16 @@
           "value": "subsystem_bindings"
         },
         {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard_settings"
+        },
+        {
+          "source": "sb/manifest/starboard.py",
+          "subsystem": "starboard",
+          "value": "starboard_ignore_channels"
+        },
+        {
           "source": "sb/manifest/ticket.py",
           "subsystem": "ticket",
           "value": "ticket_config"
@@ -7038,6 +7126,9 @@
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
+      },
+      "engine:starboard.store": {
+        "module": "sb.domain.starboard.store"
       },
       "engine:ticket.store": {
         "module": "sb.domain.ticket.store"
@@ -8401,6 +8492,39 @@
       "handler:spotlight.xp_leaders": {
         "module": "sb.domain.community.handlers"
       },
+      "handler:starboard.ignore": {
+        "module": "sb.domain.starboard.handlers"
+      },
+      "handler:starboard.off": {
+        "module": "sb.domain.starboard.handlers"
+      },
+      "handler:starboard.panel_disable": {
+        "module": "sb.domain.starboard.panels"
+      },
+      "handler:starboard.panel_pick_channel": {
+        "module": "sb.domain.starboard.panels"
+      },
+      "handler:starboard.panel_selfstar": {
+        "module": "sb.domain.starboard.panels"
+      },
+      "handler:starboard.panel_threshold": {
+        "module": "sb.domain.starboard.panels"
+      },
+      "handler:starboard.panel_toggle_ignore": {
+        "module": "sb.domain.starboard.panels"
+      },
+      "handler:starboard.render_config": {
+        "module": "sb.domain.starboard.panels"
+      },
+      "handler:starboard.root": {
+        "module": "sb.domain.starboard.handlers"
+      },
+      "handler:starboard.selfstar": {
+        "module": "sb.domain.starboard.handlers"
+      },
+      "handler:starboard.unignore": {
+        "module": "sb.domain.starboard.handlers"
+      },
       "handler:ticket.add": {
         "module": "sb.domain.ticket.handlers"
       },
@@ -8929,6 +9053,9 @@
       "panel:help.sub_setup": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.sub_starboard": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.sub_ticket": {
         "module": "sb.domain.help.service"
       },
@@ -9057,6 +9184,9 @@
       },
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:starboard.config": {
+        "module": "sb.domain.starboard.panels"
       },
       "panel:ticket.hub": {
         "module": "sb.domain.ticket.handlers"
@@ -9389,6 +9519,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_setup_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_starboard_0": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_ticket_0": {
@@ -10237,6 +10370,36 @@
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
       },
+      "workflow:starboard.configure": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.disable": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.ignore_add": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.ignore_remove": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.record_configure": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.record_disable": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.record_ignore_add": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.record_ignore_remove": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.record_self_star": {
+        "module": "sb.domain.starboard.ops"
+      },
+      "workflow:starboard.set_self_star": {
+        "module": "sb.domain.starboard.ops"
+      },
       "workflow:ticket.blacklist_add": {
         "module": "sb.domain.ticket.ops"
       },
@@ -10687,6 +10850,22 @@
         },
         "subsystem": "settings"
       },
+      "starboard_ignore_channels": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "starboard_ignore_channels",
+        "sole_writer": {
+          "$ref": "engine:starboard.store"
+        },
+        "subsystem": "starboard"
+      },
+      "starboard_settings": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "starboard_settings",
+        "sole_writer": {
+          "$ref": "engine:starboard.store"
+        },
+        "subsystem": "starboard"
+      },
       "subsystem_bindings": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "subsystem_bindings",
@@ -10738,7 +10917,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:53dd670242f4d6a91d9631aefad3576c724803b5353db2c72cc5884a43ef5249",
+  "stable_hash": "sha256:bb94c587fc6c64c52afaae5ca6728e19f48747338da5fbd5fe9a7577a71e315d",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -30988,6 +31167,53 @@
           "audience": "public",
           "body": [
             {
+              "text": "6 command(s), generated from the `starboard` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_starboard_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_other"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_starboard",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🔹 starboard — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
               "text": "Everything not yet homed under a category."
             },
             {
@@ -31043,7 +31269,8 @@
                 "$ref": "handler:help.open_subsystem"
               },
               "options_source": [
-                "🔹 hermes"
+                "🔹 hermes",
+                "🔹 starboard"
               ],
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
@@ -41201,6 +41428,380 @@
           "style": "secondary"
         }
       ]
+    },
+    "starboard": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "starboard",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "starboard",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:starboard.root"
+          },
+          "slash_common": false,
+          "summary": "Show or set the hall-of-fame channel + star threshold.",
+          "usage": "!starboard [#channel] [threshold]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "starboard",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "starboard",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ignore",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:starboard.ignore"
+          },
+          "slash_common": false,
+          "summary": "Keep a channel's messages off the starboard.",
+          "usage": "!starboard ignore #channel",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "starboard",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "starboard",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "unignore",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:starboard.unignore"
+          },
+          "slash_common": false,
+          "summary": "Let a channel's messages onto the starboard again.",
+          "usage": "!starboard unignore #channel",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "starboard",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "starboard",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "off",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:starboard.off"
+          },
+          "slash_common": false,
+          "summary": "Disable the starboard.",
+          "usage": "!starboard off",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "starboard",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "starboard",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "selfstar",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:starboard.selfstar"
+          },
+          "slash_common": false,
+          "summary": "Count the author's own ⭐ toward the threshold?",
+          "usage": "!starboard selfstar on|off",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "staff",
+          "capability": "starboard",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "starboard",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "panel",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:starboard.config"
+          },
+          "slash_common": false,
+          "summary": "Open the interactive starboard config panel.",
+          "usage": "!starboard panel",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "starboard",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "starboard_threshold",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:starboard.panel_threshold"
+              },
+              "label": "✏️ Threshold",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "starboard_selfstar",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:starboard.panel_selfstar"
+              },
+              "label": "⭐ Self-star",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "starboard_disable",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:starboard.panel_disable"
+              },
+              "label": "🚫 Disable",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": ""
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped StarboardConfigPanel embed is state-keyed (config_panel.build_embed): the DESCRIPTION swaps between the configured Channel/Threshold/Self-stars lines and the off-state copy, a non-empty ignore list ADDS the '🚫 Ignored channels' mentions field, and the FOOTER is the shipped literal outside FooterMode's vocabulary ('Pick a channel below to toggle its ignore state.'). The override delegates to render_panel for the COMPONENTS (all bytes from the spec; the shipped component set is static across states) and composes only the EMBED. goldens/starboard/sweep_starboard_panel pins every off-state byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "starboard_pick_channel"
+                  ],
+                  [
+                    "starboard_toggle_ignore"
+                  ],
+                  [
+                    "starboard_threshold",
+                    "starboard_selfstar",
+                    "starboard_disable"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "starboard.config",
+          "renderer_override": {
+            "$ref": "handler:starboard.render_config"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:starboard.panel_pick_channel"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Set the hall-of-fame channel…",
+              "selector_id": "starboard_pick_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:starboard.panel_toggle_ignore"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Toggle an ignored channel…",
+              "selector_id": "starboard_toggle_ignore",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "starboard",
+          "timeout_s": 180,
+          "title": "⭐ Starboard config",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "starboard_settings",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:starboard.store"
+          },
+          "table": "starboard_settings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "starboard_ignore_channels",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:starboard.store"
+          },
+          "table": "starboard_ignore_channels",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
     },
     "ticket": {
       "capabilities": [],

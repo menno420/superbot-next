@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.starboard",
+ "case_id": "sweep.starboard_ignore",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -23,12 +23,20 @@
     }
    ]
   },
+  "starboard_ignore_channels": {
+   "added": [
+    {
+     "channel_id": "<#commands>",
+     "guild_id": "<guild>"
+    }
+   ]
+  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2077615460,
+     "last_xp": 1853326000,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +58,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "⭐ Starboard is off. Turn it on with `!starboard #channel [threshold]` (e.g. `!starboard #hall-of-fame 5`).",
+      "content": "✅ Ignoring <#<#commands>> — its messages won't be starred.",
       "tts": false
      }
     },
@@ -65,6 +73,22 @@
    ],
    "events": [
     {
+     "event": "audit.action_recorded",
+     "payload": {
+      "actor_id": "<@admin>",
+      "actor_type": "admin",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "add_starboard_ignore_channel",
+      "new_value": "channel=<#commands>",
+      "occurred_at": "<ts>",
+      "prev_value": null,
+      "scope": "guild",
+      "subsystem": "starboard",
+      "target": "guild:<guild>"
+     }
+    },
+    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -77,11 +101,11 @@
     }
    ],
    "input": {
-    "content": "!starboard",
+    "content": "!starboard ignore __CHANNEL_COMMANDS__",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "starboard"
 }
