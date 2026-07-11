@@ -134,27 +134,26 @@ def _register() -> None:
         return Reply(SUCCESS, f"✅ Reset XP for <@{ctx_target(argv)}>.")
 
     @handler("xp.xpconfig_view")
-    async def xpconfig_view(req) -> Reply:
-        from sb.domain.xp import service
+    async def xpconfig_view(req) -> Reply | None:
+        """!xpconfig — the shipped XpConfigView panel send (disbot/cogs/
+        xp_cog.py xpconfig: ``ctx.send(embed=await view.build_embed(),
+        view=view)``; goldens/xp/sweep_xpconfig.json pins the bytes)."""
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
 
-        gid = int(req.guild_id or 0)
-        xp_min, xp_max, cooldown = await service.xp_config(gid)
-        channel_id = await service.bound_announce_channel(gid)
-        channel_str = (f"<#{channel_id}>" if channel_id
-                       else "Same channel as message")
-        return Reply(SUCCESS,
-                     "⚙️ **XP Configuration**\n"
-                     f"XP per message: **{xp_min}–{xp_max}**\n"
-                     f"Cooldown: **{cooldown}s**\n"
-                     f"Level-up channel: {channel_str}\n"
-                     "Edit via the settings hub (`!settings`) — the xp.* "
-                     "keys ride the one declared write path.")
+        await open_panel(PanelRef("xp.config"), req)
+        return None
 
     @handler("xp.xpimport")
-    async def xpimport(req) -> Reply:
-        """!xpimport [source] [#channel] [limit] — formats help works
-        headlessly; the channel scan needs the history-scanner port
-        (arms with the message band). Honest BLOCKED until then."""
+    async def xpimport(req) -> Reply | None:
+        """!xpimport [source] [#channel] [limit] — the shipped arg walk
+        + scan flow verbatim (disbot/cogs/xp_cog.py xpimport: source key
+        → int limit → TextChannelConverter, unknown tokens ignored; the
+        "📥 Scanning…" send, the history read, the status.edit result —
+        goldens/xp/sweep_xpimport.json pins the `!xpimport test` lane:
+        "test" resolves BY NAME to a capture-world channel). Formats
+        help works headlessly; the scan needs the history-scanner port
+        (arms with the message band) — honest BLOCKED until then."""
         from sb.domain.xp import migrate, service
 
         argv = tuple(req.args.get("argv", ()) or ())
@@ -169,15 +168,74 @@ def _register() -> None:
             lines.append("Usage: `!xpimport [source] [#channel] [limit]` — "
                          "raise-only, preview first.")
             return Reply(SUCCESS, "\n".join(lines))
-        if service.active_history_scanner() is None:
+        scanner = service.active_history_scanner()
+        if scanner is None:
             return Reply(BLOCKED,
                          "📥 The channel scan needs message-history access, "
                          "which arms with the message band. The parsing "
                          "formats and the raise-only import op are live — "
                          "`!xpimport help` lists the supported bots.")
+
+        gid = int(req.guild_id or 0)
+        source_key: str | None = None
+        channel_id: int | None = None
+        limit: int | None = None
+        for arg in argv:
+            token = str(arg)
+            key = token.lower()
+            if migrate.get_format(key) is not None:
+                source_key = key
+                continue
+            try:
+                limit = int(token)
+                continue
+            except ValueError:
+                pass
+            resolved = await service.resolve_text_channel(gid, token)
+            if resolved is not None:
+                channel_id = resolved
+            # else: unknown token — ignore (the shipped BadArgument pass;
+            # the preview shows what was scanned)
+
+        fmt = migrate.get_format(source_key or migrate.DEFAULT_FORMAT)
+        target = channel_id or int(req.channel_id or 0)
+
+        from sb.kernel.panels.engine import open_panel, refresh_session_view
+        from sb.spec.refs import PanelRef
+
+        base = {"scan_channel_id": target, "scan_fmt_label": fmt.label}
+        key_ref = await open_panel(
+            PanelRef("xp.import_scan"),
+            dataclasses.replace(req, args={**dict(req.args), **base,
+                                           "scan_phase": "scanning"}))
+        messages = await scanner(target, limit=limit)
+        records: list[tuple[int, int]] = []
+        for message in messages or ():
+            parsed = migrate.parse_level_message(
+                str(getattr(message, "content", "") or ""),
+                tuple(getattr(message, "mention_ids", ()) or ()),
+                fmt=fmt)
+            if parsed is not None and parsed.user_id is not None:
+                records.append((parsed.user_id, parsed.level))
+        scanned = len(tuple(messages or ()))
+        if not records:
+            await refresh_session_view(
+                req, message_key=key_ref,
+                params={**base, "scan_phase": "empty",
+                        "scan_scanned": scanned},
+                expire=True)
+            return None
+        # UNDER-PORT boundary: the shipped preview panel (XpImportView
+        # Apply/Cancel over the raise-only xp.import_levels op) is the
+        # import-preview slice's port — no golden reaches a non-empty
+        # scan (the capture world held no channel messages), so the
+        # honest posture is the declared refusal, never a silent apply
+        # (and never the nothing-found edit over a found batch).
         return Reply(BLOCKED,
-                     "📥 Scan-and-preview wiring lands with the draft-lane "
-                     "slice (raise-only import op is live).")
+                     f"📥 Found **{len(records)}** level-up record(s) in "
+                     f"**{scanned}** message(s) — the preview/apply panel "
+                     "ports with the import-preview slice (the raise-only "
+                     "import op is live).")
 
 
 def ctx_target(argv: tuple) -> int:

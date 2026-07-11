@@ -19,6 +19,7 @@ session-lifecycle view: run-minted component ids, never anchored
 
 from __future__ import annotations
 
+from sb.domain.operator_spine import pending_handler as _pending_handler
 from sb.kernel.panels.registry import register_panel
 from sb.spec.confirmation import Challenge, ConfirmationSpec
 from sb.spec.outcomes import DeferMode
@@ -46,8 +47,8 @@ from sb.spec.refs import (
     provider,
 )
 
-__all__ = ["ensure_panel_refs", "install_xp_panels", "rank_card_spec",
-           "xp_hub_spec"]
+__all__ = ["ensure_panel_refs", "install_xp_panels", "import_scan_spec",
+           "rank_card_spec", "xp_config_spec", "xp_hub_spec"]
 
 _HUB_PROVIDER = "xp.hub_overview"
 
@@ -104,6 +105,66 @@ def _ensure_hub_provider() -> ProviderRef:
                            f"<#{channel_id}>" if channel_id
                            else "*(same channel as the message)*"))
             return tuple(fields)
+    return ref
+
+
+_CONFIG_PROVIDER = "xp.config_overview"
+
+# The shipped config buttons open settings modals (_XpRangeModal /
+# _XpCooldownModal / _XpChannelModal, disbot/views/xp/modals.py) and the
+# import button opens the XpImportSetupView channel/source picker
+# (disbot/views/xp/import_panel.py — select-driven). Their write flows are
+# the settings-mutation / import-preview slices' port; until then the
+# actions are declared pending terminals (the D-0030 channel-hub posture:
+# declared + honest refusal, never silent). No golden clicks them.
+# Registered at module import AND from ensure_panel_refs (the #141
+# doctrine: a registry clear must be repairable through ENSURE_REFS).
+def _register_pending() -> tuple[HandlerRef, ...]:
+    return (
+        _pending_handler(
+            "xp.config_range_pending",
+            "⚙️ The XP-Range modal ports with the settings-mutation "
+            "slice — the xp_min/xp_max keys ride `!settings` until then."),
+        _pending_handler(
+            "xp.config_cooldown_pending",
+            "⚙️ The Cooldown modal ports with the settings-mutation "
+            "slice — the xp_cooldown key rides `!settings` until then."),
+        _pending_handler(
+            "xp.config_channel_pending",
+            "⚙️ The Level-up Channel modal ports with the "
+            "settings-mutation slice — the announce binding rides "
+            "`!settings` until then."),
+        _pending_handler(
+            "xp.import_setup_pending",
+            "📥 The import setup picker ports with the import-preview "
+            "slice — `!xpimport [source] [#channel] [limit]` is the "
+            "command front door."),
+    )
+
+
+(_PENDING_XP_RANGE, _PENDING_XP_COOLDOWN,
+ _PENDING_XP_CHANNEL, _PENDING_XP_IMPORT_SETUP) = _register_pending()
+
+
+def _ensure_config_provider() -> ProviderRef:
+    """The declared config-field reads (the same service seams the
+    override renders inline — the grammar consumer sees real data)."""
+    ref = ProviderRef(_CONFIG_PROVIDER)
+    if not is_registered(ref):
+        @provider(_CONFIG_PROVIDER)
+        async def config_overview(ctx: object):
+            from sb.domain.xp import service
+
+            guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+            xp_min, xp_max, cooldown = await service.xp_config(guild_id)
+            channel_id = await service.bound_announce_channel(guild_id)
+            channel_str = (f"<#{channel_id}>" if channel_id
+                           else "Same channel as message")
+            return (
+                ("XP per message", f"{xp_min}–{xp_max}"),
+                ("Cooldown", f"{cooldown}s"),
+                ("Level-up channel", channel_str),
+            )
     return ref
 
 
@@ -168,6 +229,99 @@ def xp_hub_spec() -> PanelSpec:
             ("rank", "config"),
             ("givexp", "resetxp"),                # danger never row 0
         )),)),
+    )
+
+
+def xp_config_spec() -> PanelSpec:
+    """The shipped ``!xpconfig`` panel (disbot/views/xp/config_panel.py
+    ``XpConfigView`` + ``build_embed``) — an ephemeral timeout-based admin
+    view (run-minted ids, never anchored; goldens/xp/sweep_xpconfig.json
+    pins the send: the three blurple setting buttons on row 0, the grey
+    import button on row 1, the three inline config fields and the
+    "Click a button below…" footer)."""
+    return PanelSpec(
+        panel_id="xp.config",
+        subsystem="xp",
+        title="⚙️ XP Configuration",                 # shipped embed title
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blue",     # UTILITY_COLOR 3447003
+                             footer_mode=FooterMode.NONE),
+        body=(FieldsBlock(provider=_ensure_config_provider()),),
+        actions=(
+            # shipped labels/styles verbatim (@discord.ui.button decorators,
+            # config_panel.py). Action ids are subsystem-prefixed — K1
+            # claims panel action_ids BARE and cross-subsystem (trap 19);
+            # the wire never sees them (session mint => <cid:N>).
+            PanelActionSpec(
+                action_id="xp_range", label="XP Range",
+                style=ActionStyle.PRIMARY,           # ButtonStyle.blurple
+                audience_tier="",                    # ADMIN floor (shipped)
+                handler=_PENDING_XP_RANGE),
+            PanelActionSpec(
+                action_id="xp_cooldown", label="Cooldown",
+                style=ActionStyle.PRIMARY,
+                audience_tier="",
+                handler=_PENDING_XP_COOLDOWN),
+            PanelActionSpec(
+                action_id="xp_levelup_channel", label="Level-up Channel",
+                style=ActionStyle.PRIMARY,
+                audience_tier="",
+                handler=_PENDING_XP_CHANNEL),
+            PanelActionSpec(
+                action_id="xp_import", label="📥 Import from another bot",
+                style=ActionStyle.SECONDARY,         # ButtonStyle.grey;
+                audience_tier="",                    # glyph IN-LABEL (15a)
+                handler=_PENDING_XP_IMPORT_SETUP),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        # views/xp/__init__.py: "all views here are ephemeral,
+        # timeout-based" — session lifecycle, no panel_anchors row
+        # (goldens/xp/sweep_xpconfig pins the anchor-less delta).
+        session_lifecycle=True,
+        renderer_override=HandlerRef("xp.render_config"),
+        justification=(
+            "the shipped build_embed renders its three config fields "
+            "INLINE and a literal footer (\"Click a button below to "
+            "change a setting.\" — disbot/views/xp/config_panel.py); the "
+            "grammar's FieldsBlock renders block fields non-inline and "
+            "FooterMode has no literal form. The override delegates to "
+            "the grammar renderer for every component byte and replaces "
+            "ONLY the embed (title/color kept, fields re-rendered inline, "
+            "the footer literal added) — the economy wallet-card "
+            "delegation shape (#152). goldens/xp/sweep_xpconfig.json pins "
+            "the bytes."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("xp_range", "xp_cooldown", "xp_levelup_channel"),   # row 0
+            ("xp_import",),                                      # row 1
+        )),)),
+    )
+
+
+def import_scan_spec() -> PanelSpec:
+    """The shipped ``!xpimport`` scan status message (disbot/cogs/
+    xp_cog.py xpimport: the "📥 Scanning…" ctx.send, then the in-place
+    ``status.edit`` to the result embed) — a zero-component session panel
+    driven send-then-edit like utility.pong; goldens/xp/
+    sweep_xpimport.json pins both embeds and the edit wire shape."""
+    return PanelSpec(
+        panel_id="xp.import_scan",
+        subsystem="xp",
+        title="📥 Scanning…",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blue",
+                             footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("xp.render_import_scan"),
+        justification=(
+            "the shipped scan status embed is STATE-DEPENDENT (the "
+            "scanning line, then the nothing-to-import / preview result "
+            "written over it by status.edit — disbot/cogs/xp_cog.py); "
+            "grammar TextBlocks are static, so the override renders the "
+            "phase-keyed title/description (the cleanup/proof_channel "
+            "state-dependent-description precedent, #145 12c). Zero "
+            "components; goldens/xp/sweep_xpimport.json pins both "
+            "phases' bytes."),
     )
 
 
@@ -244,6 +398,65 @@ async def _render_rank_card(spec: PanelSpec, ctx: object) -> object:
     return await _attach_rank_card(rendered, ctx)
 
 
+async def _render_config(spec: PanelSpec, ctx: object) -> object:
+    """Grammar render for the components; the shipped build_embed bytes
+    for the embed (see the spec's justification) — disbot/views/xp/
+    config_panel.py verbatim; goldens/xp/sweep_xpconfig.json."""
+    from dataclasses import replace as _dc_replace
+
+    from sb.domain.xp import service
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    rendered = await render_panel(spec, ctx)
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    xp_min, xp_max, cooldown = await service.xp_config(guild_id)
+    channel_id = await service.bound_announce_channel(guild_id)
+    channel_str = (f"<#{channel_id}>" if channel_id
+                   else "Same channel as message")
+    embed = RenderedEmbed(
+        title="⚙️ XP Configuration",
+        description="",
+        fields=(
+            ("XP per message", f"{xp_min}–{xp_max}", True),
+            ("Cooldown", f"{cooldown}s", True),
+            ("Level-up channel", channel_str, True),
+        ),
+        footer="Click a button below to change a setting.",
+        style_token="blue")
+    return _dc_replace(rendered, embed=embed)
+
+
+async def _render_import_scan(spec: PanelSpec, ctx: object) -> object:
+    """The phase-keyed scan status embed (disbot/cogs/xp_cog.py xpimport
+    — the "📥 Scanning…" send, then the status.edit result; goldens/xp/
+    sweep_xpimport.json pins both). Zero components by design."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    channel_id = int(params.get("scan_channel_id", 0) or 0)
+    label = str(params.get("scan_fmt_label", "") or "")
+    if str(params.get("scan_phase", "scanning")) == "empty":
+        embed = RenderedEmbed(
+            title="Nothing to import",
+            description=(
+                f"Scanned **{int(params.get('scan_scanned', 0) or 0)}** "
+                f"message(s) in <#{channel_id}> but found no **{label}** "
+                "level-up announcements. Try a different `source` or "
+                "`#channel` — `!xpimport help` lists the formats."),
+            style_token="blue")
+    else:
+        embed = RenderedEmbed(
+            title="📥 Scanning…",
+            description=f"Reading <#{channel_id}> for **{label}** "
+                        "level-ups…",
+            style_token="blue")
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed,
+        invoker_lock=getattr(getattr(ctx, "actor", None), "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 @panel("xp.hub")
 def _hub_factory() -> PanelSpec:
     return xp_hub_spec()
@@ -252,6 +465,16 @@ def _hub_factory() -> PanelSpec:
 @panel("xp.rank_card")
 def _rank_card_factory() -> PanelSpec:
     return rank_card_spec()
+
+
+@panel("xp.config")
+def _config_factory() -> PanelSpec:
+    return xp_config_spec()
+
+
+@panel("xp.import_scan")
+def _import_scan_factory() -> PanelSpec:
+    return import_scan_spec()
 
 
 def install_xp_panels() -> PanelSpec:
@@ -271,6 +494,10 @@ def _register_renderers() -> None:
         _handler("xp.render_hub")(_render_hub)
     if not is_registered(HandlerRef("xp.rank_card_render")):
         _handler("xp.rank_card_render")(_render_rank_card)
+    if not is_registered(HandlerRef("xp.render_config")):
+        _handler("xp.render_config")(_render_config)
+    if not is_registered(HandlerRef("xp.render_import_scan")):
+        _handler("xp.render_import_scan")(_render_import_scan)
 
 
 _register_renderers()
@@ -282,8 +509,14 @@ def ensure_panel_refs() -> None:
     from sb.spec.refs import panel as _panel
 
     _ensure_hub_provider()
+    _ensure_config_provider()
+    _register_pending()
     _register_renderers()
     if not _is(_P("xp.hub")):
         _panel("xp.hub")(_hub_factory)
     if not _is(_P("xp.rank_card")):
         _panel("xp.rank_card")(_rank_card_factory)
+    if not _is(_P("xp.config")):
+        _panel("xp.config")(_config_factory)
+    if not _is(_P("xp.import_scan")):
+        _panel("xp.import_scan")(_import_scan_factory)

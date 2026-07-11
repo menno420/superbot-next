@@ -42,6 +42,7 @@ from sb.adapters.parity.transport import (
     ParityAvatarFetcher,
     ParityChannelEmitter,
     ParityHistoryReader,
+    ParityLevelupHistoryScanner,
     ParityModerationActions,
     ParityPresenter,
     ParityResponder,
@@ -257,6 +258,13 @@ class Harness:
         self.http: ParityTransport | None = None  # the `.calls`/`.gaps` twin
         self.events: list[dict[str, Any]] = []
         self.db_ready: bool = False
+        #: CAPTURE-WORLD LEAKED CHANNELS (runner-seeded per case, cleared
+        #: at every case head) — channels an alphabetically-earlier capture
+        #: case created that discord.py's gateway cache carried across the
+        #: per-case DB truncate (the trap-17 leak, READ-only here). Name →
+        #: constant snowflake; the Normalizer knows neither, so the id
+        #: renders as `<msg:N>` exactly like the golden's.
+        self.leaked_channels: dict[str, int] = {}
         self._index: dict[tuple[str, Surface], TargetRef] = {}
         self._real_time: Any = None
         self._bus: Any = None
@@ -488,9 +496,32 @@ class Harness:
         # without it the card renders avatar-less (the shipped
         # any-failure→None fallback) and the CDN read never records:
         # a harness gap, not bot behavior.
-        from sb.domain.xp.service import install_avatar_fetcher
+        from sb.domain.xp.service import (
+            install_avatar_fetcher,
+            install_channel_resolver,
+            install_levelup_history_scanner,
+        )
 
         install_avatar_fetcher(ParityAvatarFetcher(self.http))
+        # the xp `!xpimport` channel-history read port — the goldens'
+        # `logs_from` wire verb (goldens/xp/sweep_xpimport.json); without
+        # it the scan degrades to the not-armed refusal: a harness gap,
+        # not bot behavior (the cleanup history-reader posture).
+        install_levelup_history_scanner(ParityLevelupHistoryScanner(self.http))
+        # the `!xpimport` channel NAME lookup (TextChannelConverter's name
+        # leg over the gateway guild cache) — the capture world's own
+        # channels plus any runner-seeded leaked channel (trap 17 at
+        # gateway-cache level, READ-only: goldens/xp/sweep_xpimport's
+        # "test" was minted by the alphabetically-earlier sweep.create).
+        world_channels = dict(self.world.channels)
+        leaked = self.leaked_channels
+
+        async def _world_channel_resolver(guild_id: int,
+                                          name: str) -> int | None:
+            del guild_id
+            return world_channels.get(name) or leaked.get(name)
+
+        install_channel_resolver(_world_channel_resolver)
         # the utility read ports: the capture-world guild directory + the
         # no-heartbeat gateway probe (the old harness's bot.latency was nan
         # — goldens/utility/sweep_ping pins "nan ms").
@@ -558,6 +589,7 @@ class Harness:
         cooldown_mod.reset_for_tests()
         panel_engine.reset_panel_engine_for_tests()      # sessions + presenter
         reset_resolver_ports_for_tests()                 # seen ids + ports
+        self.leaked_channels.clear()                     # per-case seed (runner)
         self._arm_capture_ports()                        # re-arm what we own
 
     # ------------------------------------------------------------------ drive
