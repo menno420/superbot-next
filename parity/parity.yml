@@ -363,19 +363,11 @@ depth:
           _CreateChainModal quartet, D-0063's ingress) and the table's
           first row-bearing golden lands with an argful capture
           (decision record D-0069)"
-    cleanup:
-      # cleanup's three goldens are read-only surfaces (two panel opens
-      # + the 0-match history scan) — the word-filter K7 write lane is
-      # driven by the `!word add/remove` commands, whose sweep goldens
-      # live in _unmapped until re-homing.
-      - surface: "table:prohibited_words"
-        reason: "covered-elsewhere: the word lane's write bytes are
-          pinned by the sibling oracle goldens/_unmapped/
-          sweep_word_add.json (the shipped `!word add test` write's
-          prohibited_words row); the cleanup goldens are read-only —
-          the hub open renders the LIVE word count over this store, and
-          the words manager's live read lands with the word-mutation
-          panel slice"
+    # cleanup's table:prohibited_words covered-elsewhere exemption
+    # RETIRED (the #193 precedent: retire when coverage becomes
+    # first-class) — the word-family re-home moved sweep_word_add onto
+    # the cleanup row, so its `!word add test` prohibited_words db_delta
+    # row now covers the table on the row itself.
     counting:
       # counting's three goldens are read/render surfaces (the two
       # guard-byte reads + the Counting Manager inactive-state open) —
@@ -583,7 +575,7 @@ depth:
     btd6: {events: 1, tables: 4, settings: 1}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 1, tables: 2, settings: 0}
-    cleanup: {events: 1, tables: 2, settings: 0}
+    cleanup: {events: 1, tables: 3, settings: 0}
     community: {events: 1, tables: 2, settings: 0}
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
