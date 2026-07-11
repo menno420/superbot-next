@@ -50,7 +50,7 @@ subsystems:
   _unmapped: pending
   admin: pending
   ai: ported
-  automod: pending
+  automod: ported
   blackjack: ported
   btd6: ported
   casino: pending
@@ -429,6 +429,7 @@ depth:
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
     ai: {events: 2, tables: 4, settings: 1}
+    automod: {events: 1, tables: 2, settings: 0}
     blackjack: {events: 2, tables: 6, settings: 1}
     btd6: {events: 1, tables: 3, settings: 1}
     chain: {events: 1, tables: 2, settings: 0}

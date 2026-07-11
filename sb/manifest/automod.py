@@ -4,6 +4,7 @@ on_message feed arms with the message band."""
 
 from __future__ import annotations
 
+from sb.domain.automod import panels as _panels
 from sb.domain.operator_spine import ensure_hub, hub_spec
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -60,10 +61,12 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=(
         CommandSpec(name="automod", kind=CommandKind.PREFIX,
-                    route=PanelRef("automod.hub"),
-                    summary="Open the automod menu.", capability="automod"),
+                    route=PanelRef("automod.status"),
+                    summary="Show the current automod policy for this "
+                            "server.",
+                    capability="automod"),
     ),
-    panels=(hub_spec("automod", _TITLE, _BLURB),),
+    panels=(hub_spec("automod", _TITLE, _BLURB), _panels.status_spec()),
     settings=_SETTINGS,
     stores=(), events=(), capabilities=(),
 )
@@ -71,6 +74,7 @@ MANIFEST = SubsystemManifest(
 
 def _ensure_refs() -> None:
     ensure_hub("automod", _TITLE, _BLURB)
+    _panels.ensure_panel_refs()
 
 
 ENSURE_REFS = _ensure_refs
