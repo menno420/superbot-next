@@ -1976,6 +1976,38 @@
     "name": "setup"
    }
   ],
+  "starboard": [
+   {
+    "aliases": [],
+    "group": "starboard",
+    "name": "ignore"
+   },
+   {
+    "aliases": [],
+    "group": "starboard",
+    "name": "off"
+   },
+   {
+    "aliases": [],
+    "group": "starboard",
+    "name": "panel"
+   },
+   {
+    "aliases": [],
+    "group": "starboard",
+    "name": "selfstar"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "starboard"
+   },
+   {
+    "aliases": [],
+    "group": "starboard",
+    "name": "unignore"
+   }
+  ],
   "ticket": [
    {
     "aliases": [],
@@ -2489,6 +2521,7 @@
   "server_management",
   "settings",
   "setup",
+  "starboard",
   "ticket",
   "treasury",
   "utility",

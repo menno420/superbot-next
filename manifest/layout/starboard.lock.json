@@ -1,0 +1,104 @@
+{
+ "entries": {
+  "starboard:ignore:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "starboard:off:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "starboard:panel:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "starboard:selfstar:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "starboard:starboard.config:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "starboard_pick_channel"
+      ],
+      [
+       "starboard_toggle_ignore"
+      ],
+      [
+       "starboard_threshold",
+       "starboard_selfstar",
+       "starboard_disable"
+      ]
+     ]
+    }
+   ]
+  },
+  "starboard:starboard.config:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "starboard_pick_channel"
+    ],
+    [
+     "starboard_toggle_ignore"
+    ],
+    [
+     "starboard_threshold",
+     "starboard_selfstar",
+     "starboard_disable"
+    ]
+   ]
+  },
+  "starboard:starboard.config:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "starboard_pick_channel"
+       ],
+       [
+        "starboard_toggle_ignore"
+       ],
+       [
+        "starboard_threshold",
+        "starboard_selfstar",
+        "starboard_disable"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "starboard:starboard:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "starboard:unignore:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: starboard-family re-home (NEW subsystem birth) carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  }
+ }
+}
