@@ -69,7 +69,9 @@ band-6/7 live-testing passes per the 9-step ladder).
 - **`control/claims/`** — was empty at close-out; now carries exactly one file, the
   deliberate park record above.
 - Everything else merged: all other work landed on main via squash-merged-on-green
-  PRs (#111 → #208; per-PR trail in control/status.md's lane records).
+  PRs (#111 → #209; per-PR trail in control/status.md's lane records — #209 is the
+  band-7 lane's own archive-prep wrap-up, merged while this close-out was in flight;
+  its heartbeat fold was forward-merged into this branch).
 
 ## What a fresh session needs to resume
 
