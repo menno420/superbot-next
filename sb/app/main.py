@@ -475,6 +475,16 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                         "ignored; fuzzy/NL/counting/chain feeds stay "
                         "dormant)", str(cfg.BOT_PREFIX or "!"))
 
+        # 14b². the AI operator-surface environment ports (band 7): the
+        #       support report's runtime identity + the readiness scan's
+        #       channel-permission probe (uninstalled they degrade to the
+        #       shipped skipped/absent lines — never a crash).
+        from sb.adapters.discord.ai_operator_ports import (
+            install_ai_operator_ports,
+        )
+
+        install_ai_operator_ports(bot)
+
         # 14c. the reaction feed — raw reaction add/remove → the kernel
         #      reaction seam (band 6; the tournament sign-up consumer rides
         #      it, starboard/reaction-roles/AI-review 👎 are named
