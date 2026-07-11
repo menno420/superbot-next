@@ -463,3 +463,43 @@ def test_list_fields_paginate_like_shipped():
     assert page == 2
     _, page, _ = build_list_fields([], page=5)
     assert page == 1
+
+
+def test_ai_policy_command_derives_invoking_channel_category(monkeypatch):
+    """codex P2 on this PR (verified real): the shipped `!ai policy` dry-ran
+    against the REAL channel object, so its category rode into the resolver
+    (ai_cog.ai_policy → build_effective_policy_embed's
+    `getattr(channel, "category_id", None)`) — with the typed category
+    overlays live, the command path must pass the invoking channel's
+    category too (the chooser preview already did)."""
+    from types import SimpleNamespace
+
+    from sb.domain.ai import operator_cards, service
+
+    seen: dict = {}
+
+    async def fake_build(**kwargs):
+        seen.update(kwargs)
+        return SimpleNamespace(title="x")
+
+    async def fake_card(req, embed, files=()):
+        return None
+
+    monkeypatch.setattr(operator_cards, "build_policy_embed", fake_build)
+    monkeypatch.setattr(service, "_card", fake_card)
+
+    req = SimpleNamespace(
+        guild_id=1, channel_id=2,
+        actor=SimpleNamespace(user_id=3, role_ids=(9,)),
+        origin=SimpleNamespace(
+            channel=SimpleNamespace(id=2, category_id=777)),
+        args={})
+    run(service.policy_view(req))
+    assert seen["category_id"] == 777
+    # a category-less channel (the capture world) stays None — the golden
+    # trace carries no category line.
+    seen.clear()
+    req.origin = SimpleNamespace(channel=SimpleNamespace(id=2,
+                                                         category_id=None))
+    run(service.policy_view(req))
+    assert seen["category_id"] is None
