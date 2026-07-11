@@ -22,8 +22,10 @@ __all__ = [
     "KIND_UNKNOWN",
     "already_flagged",
     "lookup_answer",
+    "observe_correction_reply",
     "record_correction",
     "record_unknown",
+    "register_review_listeners",
     "remember_answer",
     "reset_registry_for_tests",
 ]
@@ -174,3 +176,76 @@ async def record_correction(*, reply_message_id: int, corrected_by: int,
         "corrected_by": corrected_by,
         "provider": ctx.provider, "model": ctx.model,
     })
+
+
+# --- the review-loop listeners (shipped cogs/ai_review_cog.py halves) --------------
+#
+# Both legs recover the Q&A from the registry above, so they only ever fire
+# on messages the bot actually answered WITH AI (``remember_answer`` is
+# called by the NL answer path) — inert-by-construction until NL arming,
+# exactly like the shipped cog on an AI-disabled guild. The shipped
+# review-channel POSTER (the ai.review_logged embed feed) stays parked with
+# the NL arming slice: its only trigger is a record these legs mint.
+
+_THUMBS_DOWN = "👎"
+
+
+async def _on_reaction(event: object) -> None:
+    """A 👎 on one of the bot's AI answers → log a correction (shipped
+    AIReviewCog.on_raw_reaction_add; the live/replay reaction feeds drop
+    bot-authored reactions before the seam)."""
+    if not bool(getattr(event, "added", True)):
+        return
+    if str(getattr(event, "emoji", "")) != _THUMBS_DOWN:
+        return
+    if not getattr(event, "guild_id", None):
+        return
+    await record_correction(
+        reply_message_id=int(getattr(event, "message_id", 0) or 0),
+        corrected_by=int(getattr(event, "user_id", 0) or 0),
+        signal=SIGNAL_REACTION)
+
+
+async def observe_correction_reply(message: object) -> int | None:
+    """Observe-only message leg (shipped AICorrectionStage.process): a
+    reply to one of the bot's *remembered* AI answers whose text reads as
+    a correction is logged as a ``correction`` entry. Never raises, never
+    consumes — the feed always continues."""
+    try:
+        author = getattr(message, "author", None)
+        if author is None or bool(getattr(author, "bot", False)):
+            return None
+        if getattr(getattr(message, "guild", None), "id", None) is None:
+            return None
+        ref = getattr(message, "reference", None)
+        ref_id = getattr(ref, "message_id", None) if ref is not None else None
+        if not ref_id:
+            return None
+        if lookup_answer(int(ref_id)) is None:
+            return None
+        from sb.domain.ai.correction_cues import looks_like_correction
+
+        content = str(getattr(message, "content", "") or "")
+        if not looks_like_correction(content):
+            return None
+        corrected_by = int(getattr(author, "id", 0) or 0)
+        if already_flagged(int(ref_id), corrected_by):
+            return None
+        return await record_correction(
+            reply_message_id=int(ref_id), corrected_by=corrected_by,
+            signal=SIGNAL_REPLY, correction_text=content)
+    except Exception:  # noqa: BLE001 — the feed never breaks the loop
+        logger.debug("ai review: correction observe failed", exc_info=True)
+        return None
+
+
+def register_review_listeners() -> None:
+    """Bind the 👎 consumer to the kernel reaction seam. Registered at
+    MODULE IMPORT + ENSURE_REFS (declaring IS reserving — the rps/blackjack
+    tournament sign-up precedent); idempotent."""
+    from sb.kernel.interaction.reactions import register_reaction_consumer
+
+    register_reaction_consumer("ai.review_thumbs_down", _on_reaction)
+
+
+register_review_listeners()   # MODULE IMPORT — the tournament.py precedent

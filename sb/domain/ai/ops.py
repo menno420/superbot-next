@@ -5,8 +5,10 @@
   AI misses/corrections).
 * ``ai.resolve_review_entry`` — flip reviewed=TRUE (!aireview resolve).
 * ``ai.set_preset`` / ``ai.remove_preset`` — the vetted-answer preset
-  mutations (the shipped audited write seam; the K7 central audit row
-  replaces the shipped audit.action_recorded emit).
+  mutations (the shipped audited write seam, remove BY ID; the K7
+  central audit row replaces the shipped audit.action_recorded emit).
+* ``ai.set_review_channel`` — the shipped legacy-KV guild_settings
+  pointer write (!aireview channel/off; value "" clears).
 * ``ai.scrub_review_subject`` — MEMBER_PII erasure body (delete the
   subject's review rows, detach preset authorship) — also the waiting
   body for kernel.ai.scrub_decision_audit's sibling roster.
@@ -63,49 +65,82 @@ async def _resolve_entry(conn, ctx: WorkflowContext) -> LegOutcome:
     entry_id = int(ctx.params.get("entry_id") or 0)
     existing = await store.get_entry(gid, entry_id, conn=conn)
     if not existing:
-        raise ValidatorError(f"❌ No review entry #{entry_id} here.")
+        # shipped aireview_resolve miss byte (ai_review_cog.py)
+        raise ValidatorError(f"⚠️ No entry `#{entry_id}` in this server.")
     await store.mark_reviewed(conn, guild_id=gid, entry_id=entry_id)
     return LegOutcome(
         step=StepResult(uid, "resolve_review", True),
         before={"reviewed": existing.get("reviewed")},
         after={"entry_id": entry_id,
-               "message": f"✅ Review entry #{entry_id} marked reviewed."})
+               # shipped success byte, verbatim
+               "message": f"✅ Entry #{entry_id} marked reviewed."})
 
 
 @workflow("ai.record_set_preset")
 async def _set_preset(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The shipped ai_preset_service.set_preset write semantics verbatim:
+    normalized key, stripped question/answer, upsert re-enables. The
+    shipped ValueError strings are kept as the leg's guard bytes (the
+    command handler wraps them in the shipped ``⚠️ Couldn't store that
+    preset: {exc}.`` copy)."""
     uid, gid = _ids(ctx)
     question = str(ctx.params.get("question") or "")
     answer = str(ctx.params.get("answer") or "").strip()
     key = normalize.normalize_question(question)
     if not key:
-        raise ValidatorError("The question is empty after normalization.")
+        raise ValidatorError("question is empty after normalization")
     if not answer:
-        raise ValidatorError("The vetted answer cannot be blank.")
+        raise ValidatorError("answer is empty")
     preset_id = await store.upsert_preset(
-        conn, guild_id=gid, question_key=key, question=question[:500],
-        answer=answer[:2000], task=ctx.params.get("task"),
+        conn, guild_id=gid, question_key=key, question=question.strip(),
+        answer=answer, task=ctx.params.get("task"),
         source=str(ctx.params.get("source") or "operator"),
         created_by=uid)
     return LegOutcome(
         step=StepResult(uid, "set_preset", True), before={},
-        after={"preset_id": preset_id,
-               "message": f"✅ Vetted answer stored (preset #{preset_id}) — "
-                          "served verbatim, zero model call."})
+        after={"preset_id": preset_id, "question": question.strip()})
 
 
 @workflow("ai.record_remove_preset")
 async def _remove_preset(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Delete BY ID (the shipped ``!aireview preset remove <id>``
+    semantics — ai_preset_service.remove_preset over get_by_id/delete)."""
     uid, gid = _ids(ctx)
-    key = normalize.normalize_question(str(ctx.params.get("question") or ""))
-    if not key:
-        raise ValidatorError("The question is empty after normalization.")
-    removed = await store.remove_preset(conn, guild_id=gid, question_key=key)
+    preset_id = int(ctx.params.get("preset_id") or 0)
+    existing = await store.get_preset(gid, preset_id, conn=conn)
+    if existing is None:
+        # shipped miss byte (ai_review_cog.aireview_preset_remove)
+        raise ValidatorError(f"⚠️ No preset `#{preset_id}` in this server.")
+    removed = await store.remove_preset(conn, guild_id=gid,
+                                        preset_id=preset_id)
     if not removed:
-        raise ValidatorError("❌ No preset stored for that question.")
+        raise ValidatorError(f"⚠️ No preset `#{preset_id}` in this server.")
     return LegOutcome(step=StepResult(uid, "remove_preset", True),
-                      before={"question_key": key},
-                      after={"message": "🗑️ Preset removed."})
+                      before={"question_key": existing.get("question_key"),
+                              "answer": existing.get("answer")},
+                      after={"preset_id": preset_id})
+
+
+@workflow("ai.record_review_channel")
+async def _set_review_channel(conn, ctx: WorkflowContext) -> LegOutcome:
+    """``!aireview channel/off`` — the shipped legacy-KV ``guild_settings``
+    upsert (ai_review_log_service.set_review_channel wrote value "" to
+    clear; the btd6.set_announce_channel / games tournament_flag precedent
+    for shipped guild_settings rows written by an audited domain op —
+    goldens/ai/sweep_aireview_off pins the row bytes)."""
+    from sb.kernel.db.pool import execute
+
+    uid, gid = _ids(ctx)
+    channel_id = ctx.params.get("channel_id")
+    value = str(int(channel_id)) if channel_id else ""
+    await execute(
+        "INSERT INTO guild_settings (guild_id, key, value) "
+        "VALUES ($1, $2, $3) "
+        "ON CONFLICT (guild_id, key) DO UPDATE SET value = EXCLUDED.value",
+        (gid, store.AI_REVIEW_CHANNEL_KEY, value), conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "review_channel", True), before={},
+        after={"key": store.AI_REVIEW_CHANNEL_KEY, "value": value})
 
 
 @workflow("ai.scrub_review_subject")
@@ -136,14 +171,18 @@ RESOLVE_ENTRY = _op("ai.resolve_review_entry", "ai_review_resolved",
 SET_PRESET = _op("ai.set_preset", "ai_preset_set", "ai.record_set_preset")
 REMOVE_PRESET = _op("ai.remove_preset", "ai_preset_removed",
                     "ai.record_remove_preset")
+SET_REVIEW_CHANNEL = _op("ai.set_review_channel", "ai_review_channel_set",
+                         "ai.record_review_channel")
 
-_OPS = (RECORD_ENTRY, RESOLVE_ENTRY, SET_PRESET, REMOVE_PRESET)
+_OPS = (RECORD_ENTRY, RESOLVE_ENTRY, SET_PRESET, REMOVE_PRESET,
+        SET_REVIEW_CHANNEL)
 
 _REF_TABLE = (
     ("ai.record_review_entry_leg", _record_entry),
     ("ai.record_resolve_entry", _resolve_entry),
     ("ai.record_set_preset", _set_preset),
     ("ai.record_remove_preset", _remove_preset),
+    ("ai.record_review_channel", _set_review_channel),
     ("ai.scrub_review_subject", _scrub_subject),
 )
 

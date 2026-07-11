@@ -188,6 +188,14 @@ def arm_message_feed(bot: object, *, prefix: str) -> None:
         # ran before process_commands); command-shaped content is skipped
         # inside, so ordering only matters for plain messages.
         observe_chat_message(message)
+        # the review-loop correction observer (shipped AICorrectionStage,
+        # passive tier order 55 — before the conversational stage, never
+        # consuming): a correction-reply to a REMEMBERED AI answer logs a
+        # review entry; inert until the NL answer path arms
+        # (remember_answer has no caller yet). Fail-safe inside.
+        from sb.domain.ai.review import observe_correction_reply
+
+        await observe_correction_reply(message)
         await handle_prefix_message(message, prefix=prefix)
         await handle_chat_award(message)
 

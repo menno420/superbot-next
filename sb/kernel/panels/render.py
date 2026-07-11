@@ -85,6 +85,10 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # CT-relic detail card (cogs/btd6/_builders.py
                               # build_ct_relic_embed; unpinned found-relic
                               # path of the golden-pinned relic command)
+    "dark_red": 10038562,     # discord.Color.dark_red() — the shipped AI
+                              # review-log cards (cogs/ai_review_cog.py
+                              # _REVIEW_COLOR; goldens/ai/sweep_aireview
+                              # pins the byte)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

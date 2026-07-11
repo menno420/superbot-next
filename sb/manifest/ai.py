@@ -19,6 +19,7 @@ from __future__ import annotations
 from sb.domain.ai import orchestration_presets as _presets
 from sb.domain.ai import panels as _panels
 from sb.domain.ai import readers as _readers
+from sb.domain.ai import review as _review
 from sb.domain.ai import round_cash as _round_cash
 from sb.domain.ai import service as _service
 from sb.domain.ai import tools as _tools
@@ -105,14 +106,14 @@ MANIFEST = SubsystemManifest(
         _rev("resolve", "ai.review_resolve_route",
              "Mark a review entry reviewed."),
         _rev("export", "ai.review_export_view",
-             "Export the unreviewed backlog."),
-        _rev("channel", "ai.review_channel_view",
-             "Where the review feed channel is configured."),
-        _rev("off", "ai.review_channel_view",
-             "Turn the review feed off (ai.review_channel = 0)."),
+             "Export the unreviewed backlog as a JSON file."),
+        _rev("channel", "ai.review_channel_route",
+             "Set the review feed channel."),
+        _rev("off", "ai.review_off_route",
+             "Clear the review feed channel (entries still recorded)."),
         CommandSpec(name="preset", kind=CommandKind.PREFIX,
                     group="aireview",
-                    route=HandlerRef("ai.preset_list_view"),
+                    route=HandlerRef("ai.preset_usage_view"),
                     audience_tier="staff", capability="ai",
                     summary="Vetted answer presets (served with zero "
                             "model call).",
@@ -121,8 +122,8 @@ MANIFEST = SubsystemManifest(
                     group="aireview.preset",
                     route=HandlerRef("ai.preset_add_route"),
                     audience_tier="staff", capability="ai",
-                    summary="Store a vetted answer: question | answer.",
-                    usage="!aireview preset add <q> | <a>"),
+                    summary="Store a vetted answer for an exact question.",
+                    usage='!aireview preset add "<question>" <answer>'),
         CommandSpec(name="from", kind=CommandKind.PREFIX,
                     group="aireview.preset",
                     route=HandlerRef("ai.preset_from_route"),
@@ -140,8 +141,8 @@ MANIFEST = SubsystemManifest(
                     group="aireview.preset",
                     route=HandlerRef("ai.preset_remove_route"),
                     audience_tier="staff", capability="ai",
-                    summary="Remove a stored preset.",
-                    usage="!aireview preset remove <question>"),
+                    summary="Remove a stored preset by id.",
+                    usage="!aireview preset remove <id>"),
     ),
     panels=(_panels.ai_hub_spec(), _panels.ai_settings_spec(),
             _panels.ai_card_spec()),
@@ -170,6 +171,7 @@ def _ensure_refs() -> None:
     _round_cash.register_round_cash_workflow()
     _tools.register_btd6_tools()
     _readers.install_ai_platform()
+    _review.register_review_listeners()
 
 
 ENSURE_REFS = _ensure_refs
