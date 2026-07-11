@@ -32,12 +32,17 @@
   preview/list/preset/profile pages) are the policy/orchestration-
   mutation slices' ports — honest pending terminals meanwhile
   (sb/domain/ai/settings_widgets.py `chooser_scope_pending`).
-* ``ai.settings_edit_presets`` / ``ai.settings_edit_enum`` — the shipped
-  S6/S7 edit WIDGETS (views/settings/edit_number_presets.py /
-  edit_enum.py) as parameterized session pages: the settings page's
+* ``ai.settings_edit_presets`` / ``ai.settings_edit_enum`` /
+  ``ai.settings_edit_text`` — the shipped S6/S7 edit WIDGETS
+  (views/settings/edit_number_presets.py / edit_enum.py / edit_text.py +
+  edit_number.py) as parameterized session pages: the settings page's
   "Edit a setting…" pick opens the right widget for the picked
   SettingSpec and each pick/click writes through the audited
-  ``settings.set_scalar`` op (sb/domain/ai/settings_widgets.py).
+  ``settings.set_scalar`` op (sb/domain/ai/settings_widgets.py). The
+  free-form editors are G-10 declared forms (the modal-arming slice):
+  the presets page's Override… and the text page's Edit… ISSUE the
+  shipped NumberSettingModal/TextSettingModal twins and their submits
+  re-enter through the frozen modal adapter.
 
 Click routes are golden-UNPINNED (no ai golden drives a click): the
 shipped buttons EDITED the panel message in place; on the component
@@ -51,6 +56,7 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import DeferMode
 from sb.spec.panels import (
     ActionStyle,
     Audience,
@@ -58,6 +64,9 @@ from sb.spec.panels import (
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalFieldStyle,
+    ModalSpec,
     NavRouteSpec,
     NavigationSpec,
     PageSpec,
@@ -84,6 +93,7 @@ __all__ = [
     "ai_policy_chooser_spec",
     "ai_settings_edit_enum_spec",
     "ai_settings_edit_presets_spec",
+    "ai_settings_edit_text_spec",
     "ai_settings_spec",
     "ai_tools_chooser_spec",
     "ensure_panel_refs",
@@ -565,6 +575,37 @@ _BACK_TO_SETTINGS = NavigationSpec(
 #: five per row, current value highlighted primary).
 _PRESET_SLOTS = 6
 
+#: the shipped NumberSettingModal (views/settings/edit_number.py) as the
+#: G-10 declared form — the presets page's "Override…" free-form input.
+#: The shipped title/placeholder embedded the picked setting's name and
+#: live current/default reprs; ModalSpec fields are static [S] data, so
+#: the per-open readout rides the widget page's prompt instead (ledgered
+#: deviation — the form itself is transient wire the corpus cannot pin,
+#: D-0063). The label is the shipped byte verbatim: every presets-hinted
+#: ai scalar is int. Submits re-enter through the modal adapter with the
+#: kernel-stashed `setting` param (resolve()'s modal-issue stash).
+_NUMBER_MODAL = ModalSpec(
+    modal_id="ai.settings_number_form",
+    title="Edit ai setting",
+    fields=(ModalFieldSpec(
+        field_id="new_value",
+        label="New value (type: int)",       # shipped: value_type.__name__
+        required=True, max_length=64),))
+
+#: the shipped TextSettingModal (views/settings/edit_text.py) — the
+#: free-form editor for str SettingSpecs without allowed_values
+#: (ai_default_model, ai_guild_instruction_profile). Shipped shape
+#: verbatim where static: multi-line paragraph style, optional (an empty
+#: submit writes the empty string — "empty = routing default"), 2000 cap.
+_TEXT_MODAL = ModalSpec(
+    modal_id="ai.settings_text_form",
+    title="Edit ai setting",
+    fields=(ModalFieldSpec(
+        field_id="new_value",
+        label="New value (text)",            # shipped byte
+        style=ModalFieldStyle.PARAGRAPH,
+        required=False, max_length=2000),))
+
 
 def ai_settings_edit_presets_spec() -> PanelSpec:
     return PanelSpec(
@@ -580,13 +621,16 @@ def ai_settings_edit_presets_spec() -> PanelSpec:
                 handler=HandlerRef("ai.settings_preset_pick"),
                 result_render=ResultRender.RESULT_CARD)
               for i in range(_PRESET_SLOTS)),
-            # the shipped "Override…" free-form modal button — the modal
-            # lane is dormant by design, so it answers a declared pending
-            # terminal until the modal-arming slice.
+            # the shipped "Override…" free-form modal button (grey =
+            # secondary): G-10 — the click ISSUES the number form, the
+            # submit re-enters through the modal adapter and writes on the
+            # audited settings.set_scalar lane (the modal-arming slice;
+            # formerly the declared pending terminal).
             PanelActionSpec(
                 action_id="override_btn", label="Override…",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
-                handler=HandlerRef("ai.settings_override_pending"),
+                defer_mode=DeferMode.MODAL, modal=_NUMBER_MODAL,
+                handler=HandlerRef("ai.settings_number_submit"),
                 result_render=ResultRender.RESULT_CARD),
         ),
         navigation=_BACK_TO_SETTINGS,
@@ -636,6 +680,41 @@ def ai_settings_edit_enum_spec() -> PanelSpec:
             "delegates to the grammar renderer and replaces ONLY the "
             "description and the select placeholder."),
         layout=LayoutSpec(pages=(PageSpec(rows=(("enum_value",),)),)),
+    )
+
+
+def ai_settings_edit_text_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="ai.settings_edit_text",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        actions=(
+            # G-10: the click issues the shipped TextSettingModal twin;
+            # the submit runs the write handler (surface=MODAL).
+            PanelActionSpec(
+                action_id="edit_value", label="Edit…",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
+                defer_mode=DeferMode.MODAL, modal=_TEXT_MODAL,
+                handler=HandlerRef("ai.settings_text_submit"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=_BACK_TO_SETTINGS,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_text_widget"),
+        justification=(
+            "the shipped free-text edit had NO page: dispatch_edit_setting "
+            "answered the select interaction with the TextSettingModal "
+            "directly (views/settings/subsystem_view.py) — on this engine "
+            "a selector pick is AUTO-deferred before its handler runs, so "
+            "a modal can no longer be its first response; the Edit… button "
+            "intermediates exactly like the D-0054 confirm surface's "
+            "Confirm button (ledgered deviation). The prompt carries the "
+            "picked setting's live current/default reprs (the shipped "
+            "modal placeholder's readout) — per-open copy outside the "
+            "static grammar; the override supplies ONLY the description."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("edit_value",),)),)),
     )
 
 
@@ -728,6 +807,28 @@ async def _render_presets_widget(spec: PanelSpec, ctx) -> object:
         embed=_dc_replace(rendered.embed, description=description))
 
 
+async def _render_text_widget(spec: PanelSpec, ctx) -> object:
+    """The free-text editor page: the presets-family prompt with the
+    picked setting's live current/default reprs (the readout the shipped
+    TextSettingModal carried in its placeholder — ModalSpec fields are
+    static, so it rides the page instead)."""
+    from sb.domain.ai import settings_widgets as widgets
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    key = str((ctx.params or {}).get("setting") or "")
+    sspec = widgets.spec_for_key(key)
+    if sspec is None:                        # defensive: never a crash
+        return _dc_replace(rendered, embed=_dc_replace(
+            rendered.embed, description=f"❌ Unknown setting `ai.{key}`."))
+    current = await widgets._current_value(int(ctx.guild_id or 0), sspec)
+    description = (f"Edit `ai.{key}` "
+                   f"(current=`{current!r}`, default=`{sspec.default!r}`) "
+                   "— **Edit…** opens the form.")
+    return _dc_replace(
+        rendered, embed=_dc_replace(rendered.embed, description=description))
+
+
 async def _render_enum_widget(spec: PanelSpec, ctx) -> object:
     """The shipped enum widget page: the dispatcher prompt as the
     description + the shipped per-setting select placeholder."""
@@ -781,6 +882,7 @@ _SPECS = {
     "ai.tools_chooser": ai_tools_chooser_spec,
     "ai.settings_edit_presets": ai_settings_edit_presets_spec,
     "ai.settings_edit_enum": ai_settings_edit_enum_spec,
+    "ai.settings_edit_text": ai_settings_edit_text_spec,
 }
 
 _RENDERERS = {
@@ -790,6 +892,7 @@ _RENDERERS = {
     "ai.render_chooser": _render_chooser,
     "ai.render_presets_widget": _render_presets_widget,
     "ai.render_enum_widget": _render_enum_widget,
+    "ai.render_text_widget": _render_text_widget,
 }
 
 _PROVIDERS = {

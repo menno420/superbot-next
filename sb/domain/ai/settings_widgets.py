@@ -15,11 +15,13 @@ value_type/allowed_values):
                                preset, current highlighted primary) —
                                ``✅ Updated … (was …)``
 * str + allowed_values       → the enum select page — ``✅ Updated …``
-* free-form str              → the shipped TextSettingModal — PARKED: the
-                               live root's modal-submit lane is dormant by
-                               design (sb/app/main.py), so the text editor
-                               answers a declared pending terminal until
-                               the modal-arming slice.
+* free-form str              → the text widget page whose Edit… button
+                               ISSUES the shipped TextSettingModal twin
+                               (G-10, the modal-arming slice); the submit
+                               re-enters through the frozen modal adapter
+                               — ``✅ Updated `ai.<name>` = …``
+* Override… (presets page)   → the shipped NumberSettingModal twin, same
+                               G-10 round-trip — ``✅ Updated … (was …)``
 * reset (any scalar)         → write the declared default —
                                ``✅ Reset `ai.<name>` to default = …``
 
@@ -187,13 +189,13 @@ async def settings_edit_route(req) -> Reply | None:
     if kind == "enum":
         await _open_widget(req, "ai.settings_edit_enum", key)
         return None
-    # free-form text — the shipped TextSettingModal parks with the
-    # modal-arming slice (the live modal-submit lane is dormant by design).
-    return Reply(SUCCESS,
-                 f"The free-form text editor for `ai.{key}` (the shipped "
-                 "edit modal) ports with the modal-lane arming slice — "
-                 "every toggle/preset/choice setting is editable here "
-                 "meanwhile.")
+    # free-form text — the text widget page (its Edit… button issues the
+    # shipped TextSettingModal twin; the shipped pick answered the select
+    # interaction with the modal DIRECTLY, but a selector pick is
+    # AUTO-deferred on this engine so a button intermediates — the D-0054
+    # confirm-surface posture, ledgered).
+    await _open_widget(req, "ai.settings_edit_text", key)
+    return None
 
 
 async def settings_reset_route(req) -> Reply:
@@ -266,27 +268,88 @@ async def settings_preset_pick(req) -> Reply:
         return Reply(result.outcome,
                      f"❌ Couldn't update `ai.{key}`: "
                      f"{result.user_message or 'write failed'}.")
-    # …but when a per-guild row EXISTED, prefer the IN-TRANSACTION prior
-    # the write leg returned (LegOutcome.before over the upsert's
-    # SELECT-then-UPDATE) — a concurrent writer between the read above
-    # and the commit can no longer misreport the "(was …)" byte.
-    prior_raw = ((result.before or {}).get("write_scalar") or {}).get("value")
-    if prior_raw is not None:
-        from sb.domain.settings.service import coerce_value
-
-        coerced, ok, _diag = coerce_value(spec, str(prior_raw))
-        old = coerced if ok else spec.default
+    old = _in_transaction_prior(result, spec, old)
     return Reply(SUCCESS,
                  f"✅ Updated `ai.{key}` = `{value!r}` (was `{old!r}`).")
 
 
-async def settings_override_pending(req) -> Reply:
-    """The shipped "Override…" button opened the free-form number MODAL —
-    parked with the modal-arming slice (declared pending terminal)."""
+def _in_transaction_prior(result, spec, fallback):
+    """When a per-guild row EXISTED, prefer the IN-TRANSACTION prior the
+    write leg returned (LegOutcome.before over the upsert's
+    SELECT-then-UPDATE) — a concurrent writer between the pre-write read
+    and the commit can no longer misreport the "(was …)" byte (the #160
+    codex-P3 posture, shared by every free-form/preset write)."""
+    prior_raw = ((result.before or {}).get("write_scalar") or {}).get("value")
+    if prior_raw is None:
+        return fallback
+    from sb.domain.settings.service import coerce_value
+
+    coerced, ok, _diag = coerce_value(spec, str(prior_raw))
+    return coerced if ok else spec.default
+
+
+# --- the G-10 form submits (the modal-arming slice) ---------------------------------
+
+
+async def settings_number_submit(req) -> Reply:
+    """The Override… form's SUBMIT (shipped NumberSettingModal.on_submit):
+    strip → coerce/validate against the picked SettingSpec (bounds +
+    allowed_values ride the same coercer the read path uses) → the audited
+    write — ``✅ Updated `ai.<key>` = `<new>` (was `<old>`).``. The
+    `setting` param arrives through the kernel modal-args stash (the
+    opening click's session args); a stash miss falls to the unknown-
+    setting guard."""
+    key = str(req.args.get("setting") or "")
+    spec = spec_for_key(key)
+    if spec is None:
+        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+    if not req.guild_id:
+        return Reply(SUCCESS, _NEEDS_GUILD_EDIT)
+    raw = str(req.args.get("new_value") or "").strip()
+    from sb.domain.settings.service import coerce_value
+
+    value, ok, diags = coerce_value(spec, raw)
+    if not ok:
+        # the shipped pipeline raised SettingsCoercionError("cannot coerce
+        # value=<raw> to <type>: …") — the K7 envelope form carries the
+        # same sentence body (#160's ledgered write-failure class).
+        return Reply(SUCCESS,
+                     f"❌ Couldn't update `ai.{key}`: cannot coerce "
+                     f"value={raw!r} to {spec.value_type} "
+                     f"({'; '.join(diags) or 'invalid value'}).")
+    old = await _current_value(int(req.guild_id), spec)
+    result = await _write_setting(req, spec, value)
+    if result.outcome != SUCCESS:
+        return Reply(result.outcome,
+                     f"❌ Couldn't update `ai.{key}`: "
+                     f"{result.user_message or 'write failed'}.")
+    old = _in_transaction_prior(result, spec, old)
+    await _refresh_settings_page(req)
     return Reply(SUCCESS,
-                 "The free-form override (the shipped number modal) ports "
-                 "with the modal-lane arming slice — pick one of the "
-                 "preset values meanwhile.")
+                 f"✅ Updated `ai.{key}` = `{value!r}` (was `{old!r}`).")
+
+
+async def settings_text_submit(req) -> Reply:
+    """The Edit… form's SUBMIT (shipped TextSettingModal.on_submit): the
+    raw string writes VERBATIM (str settings — an empty submit writes the
+    empty string, the shipped "empty = routing default" contract) —
+    ``✅ Updated `ai.<key>` = `<new>`.`` (the shipped text ack carries no
+    "(was …)")."""
+    key = str(req.args.get("setting") or "")
+    spec = spec_for_key(key)
+    if spec is None:
+        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+    if not req.guild_id:
+        return Reply(SUCCESS, _NEEDS_GUILD_EDIT)
+    raw = req.args.get("new_value")
+    value = "" if raw is None else str(raw)
+    result = await _write_setting(req, spec, value)
+    if result.outcome != SUCCESS:
+        return Reply(result.outcome,
+                     f"❌ Couldn't update `ai.{key}`: "
+                     f"{result.user_message or 'write failed'}.")
+    await _refresh_settings_page(req)
+    return Reply(SUCCESS, f"✅ Updated `ai.{key}` = `{value!r}`.")
 
 
 # --- the chooser scope pickers (the NEXT slices' pending terminals) -----------------
@@ -346,7 +409,8 @@ _HANDLERS = (
     ("ai.settings_reset_route", settings_reset_route),
     ("ai.settings_enum_pick", settings_enum_pick),
     ("ai.settings_preset_pick", settings_preset_pick),
-    ("ai.settings_override_pending", settings_override_pending),
+    ("ai.settings_number_submit", settings_number_submit),
+    ("ai.settings_text_submit", settings_text_submit),
     ("ai.chooser_scope_pending", chooser_scope_pending),
 )
 
