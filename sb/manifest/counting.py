@@ -41,7 +41,10 @@ _COMMANDS = (
          "Show a counting channel's mode + state.", ("ci",)),
     _cmd("counttop", HandlerRef("counting.top_view"),
          "This channel's top counters.", ("ct", "counting_top")),
-    _cmd("count_rules", HandlerRef("counting.rules_view"),
+    # the shipped count_rules sent the static rules EMBED
+    # (cogs/counting_cog.py — goldens/counting/sweep_count_rules pins the
+    # bytes); counting.rules_view stays a registered text read surface.
+    _cmd("count_rules", PanelRef("counting.rules_card"),
          "The counting rules.", ("cr",)),
     _cmd("set_skip_numbers", HandlerRef("counting.set_skip_route"),
          "Set the skip step for a 'skip' match.", ("ssn",),
@@ -56,7 +59,7 @@ MANIFEST = SubsystemManifest(
     key="counting",
     version=1,
     commands=_COMMANDS,
-    panels=(_panels.counting_hub_spec(),),
+    panels=(_panels.counting_hub_spec(), _panels.rules_card_spec()),
     settings=(),
     stores=(COUNTING_STATE_STORE,),
     events=(),

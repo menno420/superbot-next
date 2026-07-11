@@ -29,10 +29,35 @@ from sb.domain.role.store import (
 )
 from sb.kernel.scheduler.due_queue import declare_task
 from sb.spec.commands import CommandKind, CommandSpec
+from sb.spec.events import (
+    DeliveryClass,
+    EventSpec,
+    FieldSpec,
+    register_event_specs,
+)
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
 from sb.spec.scheduler import Interval, ManagedTaskSpec, TaskDurability
 from sb.spec.settings import Activation, SettingSpec
+
+#: the shipped role-object lifecycle event verbatim
+#: (services/role_lifecycle_service.py EVT_ROLE_LIFECYCLE — advisory,
+#: best-effort, shares its mutation_id with the audit companion;
+#: goldens/role/sweep_createrole pins the payload shape).
+ROLE_LIFECYCLE_EVENT = EventSpec(
+    name="role.lifecycle_changed",
+    payload_schema=(
+        FieldSpec("mutation_id", "str"),
+        FieldSpec("guild_id", "int"),
+        FieldSpec("operation", "str"),          # create | edit | delete
+        FieldSpec("outcome", "str"),
+        FieldSpec("applied", "list"),
+        FieldSpec("failed", "list"),
+        FieldSpec("occurred_at", "str"),
+    ),
+    owner_subsystem="role",
+    delivery=DeliveryClass.BEST_EFFORT,
+)
 
 
 def _cmd(name: str, route, *, aliases: tuple = (), tier: str = "administrator",
@@ -47,10 +72,16 @@ _COMMANDS = (
     _cmd("roles", PanelRef("role.hub"),
          summary="Open the Role Hub — create, manage, automate.",
          usage="!roles"),
-    _cmd("rolesettings", HandlerRef("role.time_roles_view"),
-         summary="Show the configured time-based role tiers.",
+    # rolesettings/rolecreator: the shipped cog bodies are
+    # `ctx.invoke(self.roles_hub)` — both open the Role Hub
+    # (goldens/role/sweep_rolesettings + sweep_rolecreator pin the hub
+    # bytes + the panel_anchors row; the band-5 tier-table route was a
+    # port invention, retired at the re-home — role.time_roles_view
+    # stays the hub's ⏱️ Time Roles button).
+    _cmd("rolesettings", PanelRef("role.hub"),
+         summary="Open the Role Hub — create, manage, automate.",
          usage="!rolesettings"),
-    _cmd("roleinfo", HandlerRef("role.roleinfo_pending"), aliases=("ri",),
+    _cmd("roleinfo", HandlerRef("role.roleinfo"), aliases=("ri",),
          summary="Inspect one role (live guild view).",
          usage="!roleinfo <role>"),
     # rolemenu opened the shipped RoleHubPanelView (role_cog.py) — the
@@ -60,17 +91,17 @@ _COMMANDS = (
     _cmd("rolemenu", PanelRef("role.hub"),
          summary="Open the Role Hub — create, manage, automate.",
          usage="!rolemenu"),
-    _cmd("rolecreator", HandlerRef("role.create_pending"),
-         summary="Interactive role creation (live adapter).",
+    _cmd("rolecreator", PanelRef("role.hub"),
+         summary="Open the Role Hub — create, manage, automate.",
          usage="!rolecreator"),
-    _cmd("assignroles", HandlerRef("role.assignroles_pending"),
+    _cmd("assignroles", HandlerRef("role.assignroles"),
          summary="Run the time-role reconciliation now.",
          usage="!assignroles"),
-    _cmd("createrole", HandlerRef("role.create_pending"),
-         summary="Create a server role (live adapter).",
+    _cmd("createrole", HandlerRef("role.createrole"),
+         summary="Create a server role.",
          usage="!createrole <name> [color]"),
-    _cmd("deleterole", HandlerRef("role.create_pending"),
-         summary="Delete a server role (live adapter).",
+    _cmd("deleterole", HandlerRef("role.deleterole"),
+         summary="Delete a server role.",
          usage="!deleterole <role>"),
     _cmd("setrole", HandlerRef("role.setrole"),
          summary="Auto-assign a role after N days in the server.",
@@ -78,10 +109,10 @@ _COMMANDS = (
     _cmd("unsetrole", HandlerRef("role.unsetrole"),
          summary="Remove a time-based role tier.",
          usage="!unsetrole <role name>"),
-    _cmd("debugroles", HandlerRef("role.debug_pending"),
-         summary="Role automation diagnostics (live adapter).",
+    _cmd("debugroles", HandlerRef("role.debugroles"),
+         summary="Role automation diagnostics (cached role dump).",
          usage="!debugroles"),
-    _cmd("refreshmembers", HandlerRef("role.debug_pending"),
+    _cmd("refreshmembers", HandlerRef("role.refreshmembers"),
          summary="Refresh the member cache (live adapter).",
          usage="!refreshmembers"),
     _cmd("reactroles", HandlerRef("role.reactroles_bind"),
@@ -141,10 +172,11 @@ MANIFEST = SubsystemManifest(
             REACTION_MODES_STORE, ROLE_MENUS_STORE, ROLE_MENU_OPTIONS_STORE,
             ROLE_GRANTS_STORE, ROLE_PICKUP_STATS_STORE,
             ROLE_EXEMPTIONS_STORE),
-    events=(),
+    events=(ROLE_LIFECYCLE_EVENT,),
     capabilities=(),
 )
 
+register_event_specs([ROLE_LIFECYCLE_EVENT])
 register_ops()
 install_xp_ports()
 
@@ -158,6 +190,7 @@ def _ensure_refs() -> None:
     _ops.ensure_ops_refs()
     _handlers.ensure_handler_refs()
     _panels.ensure_panel_refs()
+    register_event_specs([ROLE_LIFECYCLE_EVENT])
     register_ops()
     install_role_panels()
     install_xp_ports()

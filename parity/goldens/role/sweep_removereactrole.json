@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.reset_count",
+ "case_id": "sweep.removereactrole",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2003942673,
+     "last_xp": 1858984055,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "Counting game is not set up for this channel.",
+      "content": "✅ Reaction role for test on that message removed.",
       "tts": false
      }
     },
@@ -73,6 +73,22 @@
    ],
    "events": [
     {
+     "event": "audit.action_recorded",
+     "payload": {
+      "actor_id": "<@admin>",
+      "actor_type": "admin",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "remove_reaction_role",
+      "new_value": null,
+      "occurred_at": "<ts>",
+      "prev_value": "message=3,emoji=test",
+      "scope": "guild",
+      "subsystem": "role",
+      "target": "role:unknown"
+     }
+    },
+    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -85,11 +101,11 @@
     }
    ],
    "input": {
-    "content": "!reset_count",
+    "content": "!removereactrole 3 test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "role"
 }

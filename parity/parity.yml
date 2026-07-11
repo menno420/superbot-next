@@ -441,26 +441,16 @@ depth:
           subsystem's only golden opens the quick-play picker and finishes
           no match"
     role:
-      # role's one golden is the read-only !rolemenu hub open; the write
-      # lanes are driven by sibling _unmapped sweeps (two carry their
-      # rows verbatim) or sit behind the shipped INTERACTIVE reaction-
-      # roles surfaces (the PR-2 menu builder / manager views — select
-      # picks the corpus click schema cannot express, D-0064).
-      - surface: "table:role_thresholds"
-        reason: "covered-elsewhere: the threshold write's bytes and its
-          db_delta row are pinned verbatim by the sibling oracle
-          goldens/_unmapped/sweep_setrole.json (`!setrole 3 test` — the
-          role_thresholds added row + the shipped ack); the role
-          directory's own golden is the read-only hub open"
-      - surface: "table:reaction_roles"
-        reason: "covered-elsewhere: the legacy bind write's bytes and its
-          db_delta row are pinned verbatim by the sibling oracle
-          goldens/_unmapped/sweep_reactroles.json (`!reactroles 3 test
-          <@&…>` — the reaction_roles added row + the shipped ack); the
-          unbind guard bytes ride sweep_removereactrole.json"
+      # role's goldens are the hub opens + the re-homed sweep family
+      # (the #155-lane re-home: sweep_setrole / sweep_reactroles now
+      # carry the role_thresholds / reaction_roles rows IN-DIRECTORY —
+      # their two covered-elsewhere exemption rows are RETIRED); the
+      # remaining write lanes sit behind the shipped INTERACTIVE
+      # reaction-roles surfaces (the PR-2 menu builder / manager views —
+      # select picks the corpus click schema cannot express, D-0064).
       - surface: "table:role_grants"
         reason: "guard-only-capture: the grant lane's only capture sweep
-          (goldens/_unmapped/sweep_temprole.json, `!temprole <@member>
+          (goldens/role/sweep_temprole.json, `!temprole <@member>
           test <@&role>`) drove an unparseable duration token, so the
           shipped parse guard answered and no grant row was written —
           no imported golden corpus-wide carries the table (D-0069's
@@ -577,7 +567,7 @@ depth:
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
     proof_channel: {events: 1, tables: 2, settings: 0}
-    role: {events: 1, tables: 3, settings: 0}
+    role: {events: 3, tables: 5, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
     server_management: {events: 1, tables: 3, settings: 0}
