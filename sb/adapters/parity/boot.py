@@ -48,6 +48,7 @@ from sb.adapters.parity.transport import (
     ParityTransport,
 )
 from sb.kernel.interaction.request import Surface, TargetRef
+from sb.spec.commands import command_dispatch_keys
 
 __all__ = ["Harness", "HarnessBootError", "PREFIX"]
 
@@ -302,9 +303,11 @@ class Harness:
                 name = str(getattr(cmd, "name", "") or "")
                 if not name:
                     continue
-                qualified = str(getattr(cmd, "qualified_name", "") or name)
                 kind = str(getattr(cmd, "kind", "both") or "both")
-                keys = [qualified] + [str(a) for a in (getattr(cmd, "aliases", ()) or ())]
+                # qualified name + GROUP-SCOPED aliases — the ONE key truth
+                # the live index shares (sb/spec/commands.py
+                # command_dispatch_keys; shipped @group.command semantics).
+                keys = command_dispatch_keys(cmd)
                 for key in keys:
                     if kind in ("slash", "both"):
                         self._index[(key, Surface.SLASH)] = TargetRef(key=key, spec=cmd)

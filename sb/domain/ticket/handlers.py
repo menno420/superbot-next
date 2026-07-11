@@ -29,6 +29,10 @@ _HUB_NOT_SET_UP = (
 #: (views/tickets/hub.py list_user_open → empty), verbatim.
 _NO_OPEN_TICKETS = "You have no open tickets."
 
+#: shipped staff-gate refusal of the hub's "Post panel here" button
+#: (views/tickets/hub.py: is_ticket_staff fails → ephemeral send), verbatim.
+_STAFF_ONLY_POST_PANEL = "Only staff can post the ticket panel."
+
 
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
@@ -149,18 +153,25 @@ def _register() -> None:
 
     @handler("ticket.post_panel")
     async def ticket_post_panel(req) -> Reply:
-        """The hub's "Post panel here" button. Shipped: a staff check,
-        then post_launcher(channel) — the persistent public launcher panel
-        (views/tickets/launcher.py, static custom_id
-        "ticket:launcher:open"). The launcher panel is the ticket-mutation
-        slice's port (its only useful lane is the modal→open flow); at the
-        v1 config-absent epoch this answers the shipped open-lane
-        REASON_NOT_CONFIGURED refusal instead of posting a dead launcher
-        (under-port note; unpinned surface — no golden carries the
-        click)."""
+        """The hub's "Post panel here" button. Shipped order verbatim
+        (views/tickets/hub.py): get_config, then the is_ticket_staff gate
+        (admin/manage_guild perms, or the configured staff role), THEN
+        post_launcher(channel). At the v1 config-absent epoch the cfg
+        staff-role leg is vacuous (cfg is always None — service module
+        docstring), so the gate is exactly the perms leg — ActorRef's
+        is_guild_operator (owner/administrator/manage_guild, shipped).
+        The launcher panel itself is the ticket-mutation slice's port (its
+        only useful lane is the modal→open flow); staff answers the
+        shipped open-lane REASON_NOT_CONFIGURED refusal instead of posting
+        a dead launcher (under-port note; unpinned surface — no golden
+        carries the click)."""
         from sb.domain.ticket import service
 
         await service.get_config(int(req.guild_id or 0))
+        if not bool(getattr(req.actor, "is_guild_operator", False)):
+            # the shipped refusal byte, verbatim (views/tickets/hub.py:
+            # "Only staff can post the ticket panel.", ephemeral).
+            return Reply(BLOCKED, _STAFF_ONLY_POST_PANEL)
         return Reply(BLOCKED, service.NOT_CONFIGURED_MSG)
 
 

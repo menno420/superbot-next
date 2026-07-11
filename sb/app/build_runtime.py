@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from sb.kernel.interaction.adapters import install_target_index
 from sb.kernel.interaction.request import Surface, TargetRef
+from sb.spec.commands import command_dispatch_keys
 from sb.spec.events import KNOWN_EVENTS
 
 __all__ = ["RuntimeIndex", "build_live_index", "build_runtime",
@@ -136,9 +137,11 @@ def build_live_index(manifests: list) -> dict[tuple[str, Surface], TargetRef]:
             name = str(getattr(cmd, "name", "") or "")
             if not name:
                 continue
-            qualified = str(getattr(cmd, "qualified_name", "") or name)
             kind = str(getattr(cmd, "kind", "both") or "both")
-            keys = [qualified] + [str(a) for a in (getattr(cmd, "aliases", ()) or ())]
+            # qualified name + GROUP-SCOPED aliases (the shipped discord.py
+            # registration semantics — sb/spec/commands.py
+            # command_dispatch_keys, the parity boot's same truth).
+            keys = command_dispatch_keys(cmd)
             for key in keys:
                 if kind in ("slash", "both"):
                     index[(key, Surface.SLASH)] = TargetRef(key=key, spec=cmd)
