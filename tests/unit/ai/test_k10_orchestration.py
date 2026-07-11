@@ -4,6 +4,7 @@ profiles + resolver, answer-workflow template."""
 from __future__ import annotations
 
 import asyncio
+import sys
 
 import pytest
 
@@ -22,13 +23,31 @@ def run(coro):
     return asyncio.get_event_loop_policy().new_event_loop().run_until_complete(coro)
 
 
-@pytest.fixture(autouse=True)
-def _reset():
-    yield
+def _pristine_registries() -> None:
     tools_catalogue.clear_tools_for_tests()
     orchestration.reset_profiles_for_tests()
     orchestration.reset_profile_key_reader_for_tests()
     orchestration.clear_answer_workflows_for_tests()
+
+
+@pytest.fixture(autouse=True)
+def _reset():
+    """Both-direction isolation at the sanctioned seams. A prior suite's
+    Harness boot arms these module-global registries at sb.manifest.ai
+    import (the btd6 tool rows, domain profiles, the
+    analyze_execute_verify runner), so establish the pristine baseline
+    BEFORE each test too — clearing only after leaks that armed state in
+    under non-canonical selection orders (the #141 defect family). And
+    because the manifest module stays cached, its import-time
+    registration can never re-fire: after the final clear, re-arm
+    through the manifest's idempotent ENSURE_REFS hook so later-listed
+    composition-root suites find the world as the boot left it."""
+    _pristine_registries()
+    yield
+    _pristine_registries()
+    manifest = sys.modules.get("sb.manifest.ai")
+    if manifest is not None:
+        manifest.ENSURE_REFS()
 
 
 def _tool(name, *, min_scope=AIScope.USER, toolsets=("base",), domain=None):
