@@ -2222,6 +2222,15 @@
    "reason",
    "target_id"
   ],
+  "role.lifecycle_changed": [
+   "applied",
+   "failed",
+   "guild_id",
+   "mutation_id",
+   "occurred_at",
+   "operation",
+   "outcome"
+  ],
   "settings.changed": [
    "guild_id",
    "key",

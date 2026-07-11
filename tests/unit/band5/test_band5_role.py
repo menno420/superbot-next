@@ -392,6 +392,9 @@ class FakeRoleStore:
         async def delete_threshold(conn, *, guild_id, role_name):
             return True
 
+        async def get_thresholds(guild_id, conn=None):
+            return list(self.thresholds)
+
         async def get_exemptions(gid, conn=None):
             return []
 
@@ -579,10 +582,14 @@ def test_setrole_ack_speaks_the_written_tier(monkeypatch):
         "✅ Role **test** will be assigned after **3** day(s)."
 
 
-def test_unsetrole_ack_admits_the_deletion(monkeypatch):
-    """Live bug 2: "No such tier was configured." spoken over a deleted row
-    + written audit. Copy pinned to the oracle (role_cog.py:565 /
-    sweep_unsetrole.json); the genuine-miss branch keeps its honest copy."""
+def test_unsetrole_ack_is_unconditional(monkeypatch):
+    """The shipped unsetrole has NO miss branch (role_cog.unsetrole:
+    `match = next((...), role_name)` falls back to the RAW name, the
+    DELETE runs unconditionally, and the ack always speaks the removed
+    byte — goldens/role/sweep_unsetrole pins the success ack over an
+    absent row). The band-5 "No such tier was configured." miss copy was
+    a port invention, retired at the role-family re-home (oracle-wins,
+    the D-0065 flip-review posture)."""
     from sb.domain.role import handlers, ops
     from sb.domain.role import store as store_mod
     from sb.spec.refs import HandlerRef, resolve
@@ -600,12 +607,17 @@ def test_unsetrole_ack_admits_the_deletion(monkeypatch):
 
     monkeypatch.setattr(store_mod, "delete_threshold", delete_threshold_miss)
     out = run(unsetrole(FakeReq(argv=("ghost",))))
-    assert out.user_message == "No such tier was configured."
+    # shipped: the fallback name rides the SAME unconditional ack
+    assert out.user_message == \
+        "✅ Removed **ghost** from time-based assignment."
 
 
-def test_removereactrole_ack_admits_the_deletion(monkeypatch):
-    """Live bug 2: "That binding did not exist." spoken over a deleted row.
-    Copy pinned to the oracle (role_cog.py:705)."""
+def test_removereactrole_ack_is_unconditional(monkeypatch):
+    """The shipped removereactrole runs a bare DELETE and always speaks
+    the removed byte (role_cog.py:705 — no existence branch;
+    goldens/role/sweep_removereactrole pins the success ack over an
+    absent row). The band-5 "That binding did not exist." miss copy was
+    a port invention, retired at the role-family re-home (oracle-wins)."""
     from sb.domain.role import handlers, ops
     from sb.domain.role import store as store_mod
     from sb.spec.refs import HandlerRef, resolve
@@ -626,7 +638,8 @@ def test_removereactrole_ack_admits_the_deletion(monkeypatch):
 
     monkeypatch.setattr(store_mod, "unbind_reaction", unbind_reaction_miss)
     out = run(unbind(FakeReq(argv=("123", "😀"))))
-    assert out.user_message == "That binding did not exist."
+    assert out.user_message == \
+        "✅ Reaction role for 😀 on that message removed."
 
 
 def test_temprole_failure_copy_never_leaks_the_result_repr(monkeypatch):

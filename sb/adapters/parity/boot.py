@@ -45,6 +45,8 @@ from sb.adapters.parity.transport import (
     ParityModerationActions,
     ParityPresenter,
     ParityResponder,
+    ParityRoleMessageOps,
+    ParityRoleProvisioning,
     ParityTransport,
 )
 from sb.kernel.interaction.request import Surface, TargetRef
@@ -169,6 +171,81 @@ class _WorldGuildDirectory:
             created_at=self._snowflake_time(int(user_id)),
             joined_at=datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
         )
+
+
+class _WorldPerms(SimpleNamespace):
+    """Duck guild_permissions — undeclared flags read False."""
+
+    def __getattr__(self, name: str) -> bool:  # noqa: D105
+        return False
+
+
+class _WorldRole(SimpleNamespace):
+    """Duck role over the capture world's GUILD_CREATE payload."""
+
+
+class _WorldColor(SimpleNamespace):
+    pass
+
+
+def _build_world_guild(world: Any):
+    """The role guild-view port's duck guild — the SAME guild state the
+    old harness's real ConnectionState held at capture time
+    (parity/harness/world.py `_guild_payload`: @everyone + the Admin role
+    at position 1 with ADMINISTRATOR perms; members = the 3 personas +
+    the bot member, the bot and the admin persona both carrying Admin —
+    goldens/role/sweep_debugroles pins "Roles: @everyone, Admin",
+    sweep_roleinfo pins Members: 2, sweep_deleterole pins the ABOVE_BOT
+    hierarchy refusal against the bot's own top role)."""
+    from datetime import datetime, timezone
+
+    guild_id = int(world.guild_id)
+    admin_role_id = _ADMIN_ROLE_ID
+
+    everyone = _WorldRole(
+        id=guild_id, name="@everyone", position=0,
+        color=_WorldColor(value=0), hoist=False, mentionable=False,
+        managed=False, permissions=_WorldPerms(administrator=False),
+        members=(), guild=None)
+    admin_role = _WorldRole(
+        id=admin_role_id, name="Admin", position=1,
+        color=_WorldColor(value=0), hoist=False, mentionable=False,
+        managed=False, permissions=_WorldPerms(administrator=True,
+                                               manage_roles=True),
+        members=(), guild=None)
+
+    def _member(persona_key: str) -> SimpleNamespace:
+        persona = DEFAULT_PERSONAS[persona_key]
+        return SimpleNamespace(
+            id=persona["id"], name=persona["name"],
+            display_name=persona["name"], bot=False,
+            guild_permissions=_WorldPerms(
+                administrator=bool(persona.get("admin")),
+                manage_roles=bool(persona.get("admin"))),
+            roles=((admin_role,) if persona.get("admin") else ()),
+            top_role=(admin_role if persona.get("admin") else everyone),
+            joined_at=datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
+
+    members = tuple(_member(k) for k in DEFAULT_PERSONAS)
+    bot_member = SimpleNamespace(
+        id=World.BOT_USER_ID, name="GalaxyBotParity",
+        display_name="GalaxyBotParity", bot=True,
+        guild_permissions=_WorldPerms(administrator=True,
+                                      manage_roles=True),
+        roles=(admin_role,), top_role=admin_role,
+        joined_at=datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
+    # role.members mirrors the capture cache: admin persona + the bot
+    admin_members = tuple(m for m in members
+                          if any(r is admin_role for r in m.roles))
+    admin_role.members = admin_members + (bot_member,)
+    everyone.members = members + (bot_member,)
+
+    guild = SimpleNamespace(
+        id=guild_id, roles=(everyone, admin_role),
+        members=members + (bot_member,), me=bot_member)
+    everyone.guild = guild
+    admin_role.guild = guild
+    return guild
 
 
 class Harness:
@@ -301,6 +378,14 @@ class Harness:
         from sb.domain.server_logging import service as _server_logging
 
         _server_logging.subscribe(bus)
+        # the role audit/lifecycle fan-out is on the live root's
+        # SUBSCRIBE_ROSTER (sb/app/main.py) — arm the same seam here so
+        # the shipped role_lifecycle_service companions reach the tap
+        # (goldens/role/sweep_createrole pins audit.action_recorded +
+        # role.lifecycle_changed).
+        from sb.domain.role import service as _role_service
+
+        _role_service.subscribe(bus)
 
         from sb.kernel import lifecycle
 
@@ -416,6 +501,25 @@ class Harness:
 
         install_guild_directory(_WorldGuildDirectory(self.world))
         install_gateway_probe(lambda: float("nan"))
+        # the role guild-view + effect ports — the capture world's own
+        # gateway cache (goldens/role/sweep_debugroles, sweep_roleinfo,
+        # sweep_assignroles, sweep_deleterole) plus the create-role and
+        # fetch/react wire twins (sweep_createrole, sweep_reactroles).
+        from sb.domain.role.service import (
+            install_guild_source,
+            install_message_ops,
+            install_role_provisioning,
+        )
+
+        world_guild = _build_world_guild(self.world)
+
+        async def _world_guild_source(guild_id: int):
+            del guild_id
+            return world_guild
+
+        install_guild_source(_world_guild_source)
+        install_role_provisioning(ParityRoleProvisioning(self.http))
+        install_message_ops(ParityRoleMessageOps(self.http))
         # the AI operator-surface environment ports — capture-world twins
         # of the live root's installs (sb/adapters/discord/
         # ai_operator_ports.py): the support report's runtime lines are the
@@ -715,6 +819,9 @@ class Harness:
             reset_utility_ports_for_tests()
             reset_cleanup_ports_for_tests()
             reset_xp_ports_for_tests()
+            from sb.domain.role.service import reset_role_ports_for_tests
+
+            reset_role_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
             # the AI seams this harness armed (K0 platform + operator ports

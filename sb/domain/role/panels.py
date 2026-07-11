@@ -50,7 +50,8 @@ from sb.spec.panels import (
 )
 from sb.spec.refs import HandlerRef, ProviderRef, is_registered, provider
 
-__all__ = ["ensure_panel_refs", "install_role_panels", "role_hub_spec"]
+__all__ = ["INFO_CARD_PANEL_ID", "ensure_panel_refs", "info_card_spec",
+           "install_role_panels", "role_hub_spec"]
 
 _HUB_PROVIDER = "role.hub_overview"
 
@@ -176,14 +177,141 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
                                          fields=_HUB_FIELDS))
 
 
-def install_role_panels() -> tuple[PanelSpec, ...]:
-    spec = role_hub_spec()
+INFO_CARD_PANEL_ID = "role.info_card"
+
+#: the shipped notable-permission labels walked when a role is not an
+#: administrator (utils/role_info summarize_role_permissions) — attribute
+#: names against any duck permissions object.
+_NOTABLE_PERMISSIONS: tuple[tuple[str, str], ...] = (
+    ("manage_guild", "Manage Server"),
+    ("manage_roles", "Manage Roles"),
+    ("manage_channels", "Manage Channels"),
+    ("manage_messages", "Manage Messages"),
+    ("kick_members", "Kick Members"),
+    ("ban_members", "Ban Members"),
+    ("moderate_members", "Timeout Members"),
+    ("mention_everyone", "Mention Everyone"),
+)
+
+
+def info_card_spec() -> PanelSpec:
+    """The read-only role detail card (views/roles/role_info.py
+    ``build_role_info_embed`` — a plain ``ctx.send(embed=...)``, never
+    anchored: component-less session-lifecycle, the karma.card/welcome
+    status-card recipe; goldens/role/sweep_roleinfo pins the bytes)."""
+    return PanelSpec(
+        panel_id=INFO_CARD_PANEL_ID,
+        subsystem="role",
+        title="Role Info",
+        audience=Audience.INVOKER,
+        # ROLE_COLOR teal — the shipped default when role.color is unset;
+        # a colored role's own accent is a live-adapter successor (the
+        # grammar carries style tokens, not raw colors) — no golden
+        # reaches a colored role (the capture world's roles carry color 0).
+        frame=EmbedFrameSpec(style_token="teal", footer_mode=FooterMode.NONE),
+        body=(),
+        actions=(),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("role.render_info_card"),
+        justification=(
+            "the shipped role detail card is state-parameterized end to "
+            "end — every field value (mention, id, colour, live member "
+            "count, position, snowflake creation date, hoist/mentionable/"
+            "managed flags, the permission summary) and the title itself "
+            "carry the TARGET ROLE's live guild state, and the footer "
+            "carries the invoker's tag (`Requested by {member}`) — "
+            "grammar TextBlocks are static. The card declares no "
+            "components; the renderer only composes the embed "
+            "(goldens/role/sweep_roleinfo pins the bytes)."),
+        session_lifecycle=True,
+    )
+
+
+def _summarize_permissions(perms: object) -> str:
+    """utils/role_info summarize_role_permissions verbatim (the
+    administrator short-circuit byte is golden-pinned)."""
+    if bool(getattr(perms, "administrator", False)):
+        return "Administrator (all permissions)"
+    held = [label for attr, label in _NOTABLE_PERMISSIONS
+            if bool(getattr(perms, attr, False))]
+    return ", ".join(held) if held else "No notable permissions"
+
+
+async def _render_info_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — views/roles/role_info.build_role_info_embed
+    verbatim: the ten add_field rows in shipped order (nine inline, the
+    permission summary full-width), the `%Y-%m-%d` snowflake creation
+    date, the `Requested by {tag}` footer."""
+    from datetime import datetime, timezone
+
+    from sb.domain.role import service
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    role_id = int(params.get("roleinfo_role_id", 0) or 0)
+    guild = await service.guild_view(guild_id)
+    role = (service.find_role(guild, str(role_id))
+            if guild is not None else None)
+
+    def _yes_no(flag: object) -> str:
+        return "Yes" if bool(flag) else "No"
+
+    name = str(getattr(role, "name", "?"))
+    color_value = int(getattr(getattr(role, "color", None), "value",
+                              getattr(role, "color_value", 0) or 0) or 0)
+    created = datetime.fromtimestamp(
+        ((role_id >> 22) + 1_420_070_400_000) / 1000, tz=timezone.utc)
+    requested_by = "?"
     try:
-        return (register_panel(spec),)
-    except ValueError as exc:
-        if "already registered" in str(exc) or "duplicate" in str(exc):
-            return (spec,)
-        raise
+        from sb.domain.utility.service import guild_directory
+
+        info = await guild_directory().member_info(
+            guild_id, int(getattr(ctx.actor, "user_id", 0) or 0))
+        requested_by = str(info.tag)
+    except Exception:  # noqa: BLE001 — headless ⇒ degraded footer
+        pass
+    embed = RenderedEmbed(
+        title=f"Role Info — {name}",
+        description="",
+        fields=(
+            ("Mention", f"<@&{role_id}>", True),
+            ("ID", str(role_id), True),
+            ("Colour",
+             f"#{color_value:06x}" if color_value else "Default", True),
+            ("Members",
+             str(len(tuple(getattr(role, "members", ()) or ()))), True),
+            ("Position", str(int(getattr(role, "position", 0) or 0)), True),
+            ("Created", created.strftime("%Y-%m-%d"), True),
+            ("Hoisted", _yes_no(getattr(role, "hoist", False)), True),
+            ("Mentionable",
+             _yes_no(getattr(role, "mentionable", False)), True),
+            ("Managed", _yes_no(getattr(role, "managed", False)), True),
+            ("Key Permissions",
+             _summarize_permissions(getattr(role, "permissions", None)),
+             False),
+        ),
+        footer=f"Requested by {requested_by}",
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
+def install_role_panels() -> tuple[PanelSpec, ...]:
+    out = []
+    for spec in (role_hub_spec(), info_card_spec()):
+        try:
+            out.append(register_panel(spec))
+        except ValueError as exc:
+            if "already registered" in str(exc) or "duplicate" in str(exc):
+                out.append(spec)
+            else:
+                raise
+    return tuple(out)
 
 
 def _register_hub_render() -> None:
@@ -191,9 +319,24 @@ def _register_hub_render() -> None:
 
     if not is_registered(HandlerRef("role.render_hub")):
         handler("role.render_hub")(_render_hub)
+    if not is_registered(HandlerRef("role.render_info_card")):
+        handler("role.render_info_card")(_render_info_card)
+
+
+def _register_info_card_factory() -> None:
+    """Registered at MODULE IMPORT (#111 doctrine — the live root never
+    runs ENSURE_REFS with zero plugins)."""
+    from sb.spec.refs import PanelRef as _P
+    from sb.spec.refs import panel as _panel
+
+    if not is_registered(_P(INFO_CARD_PANEL_ID)):
+        @_panel(INFO_CARD_PANEL_ID)
+        def _info_factory():
+            return info_card_spec()
 
 
 _register_hub_render()
+_register_info_card_factory()
 # the live-count provider left the hub spec at the parity flip (the
 # shipped hub renders static blurbs) but stays a registered read
 # surface — at MODULE IMPORT, the composition-parity doctrine (#111).
@@ -211,3 +354,4 @@ def ensure_panel_refs() -> None:
         @_panel("role.hub")
         def _factory():
             return role_hub_spec()
+    _register_info_card_factory()

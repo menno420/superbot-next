@@ -27,12 +27,15 @@ BOT_MISSING_MANAGE_ROLES = "bot_missing_manage_roles"
 ABOVE_BOT = "above_bot"
 ABOVE_ACTOR = "above_actor"
 
+# the shipped reason copy VERBATIM (disbot/utils/role_feasibility.py
+# _REASONS @7f7628e1 — goldens/role/sweep_deleterole pins the ABOVE_BOT
+# byte through role_cog's "❌ Could not delete **{name}**: {first_error}").
 _REASONS: dict[str, str] = {
-    EVERYONE: "the @everyone role cannot be assigned",
-    MANAGED: "integration-managed role (bot/booster) cannot be assigned",
-    BOT_MISSING_MANAGE_ROLES: "the bot lacks the Manage Roles permission",
-    ABOVE_BOT: "role is at or above the bot's top role",
-    ABOVE_ACTOR: "role is at or above your top role",
+    EVERYONE: "the @everyone role can't be targeted",
+    MANAGED: "managed by an integration — not operator-editable",
+    BOT_MISSING_MANAGE_ROLES: "I lack the Manage Roles permission",
+    ABOVE_BOT: "above my highest role — I can't manage it",
+    ABOVE_ACTOR: "above your highest role",
 }
 
 

@@ -66,8 +66,14 @@ def _channels(state: dict) -> dict:
 def _require_channel(state: dict, channel_id: str) -> dict:
     data = _channels(state).get(channel_id)
     if data is None:
+        # copy-only form: the raise-site sentence IS the user copy,
+        # rendered BARE (the role ops `_verr` posture) — the one-arg param
+        # form wrapped it in the missing-argument boilerplate, but the
+        # shipped cog answered the plain byte
+        # (goldens/counting/sweep_reset_count +
+        # sweep_toggle_reset_on_wrong_count pin it).
         raise ValidatorError(
-            "Counting game is not set up for this channel.")
+            "", "Counting game is not set up for this channel.")
     return data
 
 

@@ -392,6 +392,11 @@
         "observability_only": false,
         "owner_subsystem": "moderation"
       },
+      "role.lifecycle_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "role"
+      },
       "settings.changed": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -4926,6 +4931,11 @@
           "value": "moderation.action_taken"
         },
         {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role.lifecycle_changed"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.changed"
@@ -5186,6 +5196,11 @@
           "source": "sb/manifest/counting.py",
           "subsystem": "counting",
           "value": "counting.hub"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting.rules_card"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -5676,6 +5691,11 @@
           "source": "sb/manifest/role.py",
           "subsystem": "role",
           "value": "role.hub"
+        },
+        {
+          "source": "sb/manifest/role.py",
+          "subsystem": "role",
+          "value": "role.info_card"
         },
         {
           "source": "sb/manifest/rps_tournament.py",
@@ -7431,6 +7451,9 @@
       "handler:counting.render_hub": {
         "module": "sb.domain.counting.panels"
       },
+      "handler:counting.render_rules_card": {
+        "module": "sb.domain.counting.panels"
+      },
       "handler:counting.reset_route": {
         "module": "sb.domain.counting.service"
       },
@@ -8010,14 +8033,26 @@
       "handler:proof_channel.timed_grant": {
         "module": "sb.domain.proof_channel.handlers"
       },
+      "handler:role.assignroles": {
+        "module": "sb.domain.role.handlers"
+      },
       "handler:role.assignroles_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:role.create_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:role.createrole": {
+        "module": "sb.domain.role.handlers"
+      },
       "handler:role.debug_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:role.debugroles": {
+        "module": "sb.domain.role.handlers"
+      },
+      "handler:role.deleterole": {
+        "module": "sb.domain.role.handlers"
       },
       "handler:role.diagnostics_view": {
         "module": "sb.domain.role.handlers"
@@ -8040,8 +8075,17 @@
       "handler:role.reactroles_unbind": {
         "module": "sb.domain.role.handlers"
       },
+      "handler:role.refreshmembers": {
+        "module": "sb.domain.role.handlers"
+      },
       "handler:role.render_hub": {
         "module": "sb.domain.role.panels"
+      },
+      "handler:role.render_info_card": {
+        "module": "sb.domain.role.panels"
+      },
+      "handler:role.roleinfo": {
+        "module": "sb.domain.role.handlers"
       },
       "handler:role.roleinfo_pending": {
         "module": "sb.domain.operator_spine"
@@ -8466,6 +8510,9 @@
       "panel:counting.hub": {
         "module": "sb.domain.counting.panels"
       },
+      "panel:counting.rules_card": {
+        "module": "sb.domain.counting.panels"
+      },
       "panel:creature.hub": {
         "module": "sb.manifest.creature"
       },
@@ -8758,6 +8805,9 @@
         "module": "sb.domain.proof_channel.handlers"
       },
       "panel:role.hub": {
+        "module": "sb.domain.role.panels"
+      },
+      "panel:role.info_card": {
         "module": "sb.domain.role.panels"
       },
       "panel:rps_tournament.hub": {
@@ -10421,7 +10471,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:7d02797191976c17a3f1fe83ab0993f2712fb5b3f845c385bc68311fb7b27b5d",
+  "stable_hash": "sha256:91e9c62cd290f4be4f89bfacbc2ce0130c1c8cd06c1bae20a90d40a8d1dc8422",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -21366,7 +21416,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:counting.rules_view"
+            "$ref": "panel:counting.rules_card"
           },
           "slash_common": false,
           "summary": "The counting rules.",
@@ -21650,6 +21700,48 @@
           "subsystem": "counting",
           "timeout_s": 180,
           "title": "🔢 Counting Manager",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped rules embed carries FIVE non-inline add_field rows and no description (cogs/counting_cog.py count_rules' literal add_field list — goldens/counting/sweep_count_rules pins every byte); the card declares no components and the renderer only composes the embed (the welcome status-card recipe).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "counting.rules_card",
+          "renderer_override": {
+            "$ref": "handler:counting.render_rules_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "counting",
+          "timeout_s": 180,
+          "title": "Counting Game Rules",
           "usage_weight": 1.0
         }
       ],
@@ -36501,10 +36593,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.time_roles_view"
+            "$ref": "panel:role.hub"
           },
           "slash_common": false,
-          "summary": "Show the configured time-based role tiers.",
+          "summary": "Open the Role Hub — create, manage, automate.",
           "usage": "!rolesettings",
           "usage_weight": 1.0
         },
@@ -36526,7 +36618,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.roleinfo_pending"
+            "$ref": "handler:role.roleinfo"
           },
           "slash_common": false,
           "summary": "Inspect one role (live guild view).",
@@ -36572,10 +36664,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.create_pending"
+            "$ref": "panel:role.hub"
           },
           "slash_common": false,
-          "summary": "Interactive role creation (live adapter).",
+          "summary": "Open the Role Hub — create, manage, automate.",
           "usage": "!rolecreator",
           "usage_weight": 1.0
         },
@@ -36595,7 +36687,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.assignroles_pending"
+            "$ref": "handler:role.assignroles"
           },
           "slash_common": false,
           "summary": "Run the time-role reconciliation now.",
@@ -36618,10 +36710,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.create_pending"
+            "$ref": "handler:role.createrole"
           },
           "slash_common": false,
-          "summary": "Create a server role (live adapter).",
+          "summary": "Create a server role.",
           "usage": "!createrole <name> [color]",
           "usage_weight": 1.0
         },
@@ -36641,10 +36733,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.create_pending"
+            "$ref": "handler:role.deleterole"
           },
           "slash_common": false,
-          "summary": "Delete a server role (live adapter).",
+          "summary": "Delete a server role.",
           "usage": "!deleterole <role>",
           "usage_weight": 1.0
         },
@@ -36710,10 +36802,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.debug_pending"
+            "$ref": "handler:role.debugroles"
           },
           "slash_common": false,
-          "summary": "Role automation diagnostics (live adapter).",
+          "summary": "Role automation diagnostics (cached role dump).",
           "usage": "!debugroles",
           "usage_weight": 1.0
         },
@@ -36733,7 +36825,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:role.debug_pending"
+            "$ref": "handler:role.refreshmembers"
           },
           "slash_common": false,
           "summary": "Refresh the member cache (live adapter).",
@@ -36859,7 +36951,54 @@
         }
       ],
       "data_invariants": [],
-      "events": [],
+      "events": [
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "role.lifecycle_changed",
+          "observability_only": false,
+          "owner_subsystem": "role",
+          "payload_schema": [
+            {
+              "name": "mutation_id",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "operation",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "outcome",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "applied",
+              "required": true,
+              "type": "list"
+            },
+            {
+              "name": "failed",
+              "required": true,
+              "type": "list"
+            },
+            {
+              "name": "occurred_at",
+              "required": true,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        }
+      ],
       "key": "role",
       "panels": [
         {
@@ -37085,6 +37224,48 @@
           "subsystem": "role",
           "timeout_s": 180,
           "title": "🎭 Role Hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "teal",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped role detail card is state-parameterized end to end — every field value (mention, id, colour, live member count, position, snowflake creation date, hoist/mentionable/managed flags, the permission summary) and the title itself carry the TARGET ROLE's live guild state, and the footer carries the invoker's tag (`Requested by {member}`) — grammar TextBlocks are static. The card declares no components; the renderer only composes the embed (goldens/role/sweep_roleinfo pins the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "role.info_card",
+          "renderer_override": {
+            "$ref": "handler:role.render_info_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "role",
+          "timeout_s": 180,
+          "title": "Role Info",
           "usage_weight": 1.0
         }
       ],
