@@ -23,7 +23,12 @@ Enforced invariants (red = exit 1):
       rows are minted at the flip, so ratchet-row + pending = a reverted flip).
 
 `--write-ratchet` regenerates `depth.ratchet` rows for ported subsystems
-(upward only) — run it in the same PR that adds coverage.
+(upward only) — run it in the same PR that adds coverage. The write is a
+TEXT SPLICE: only the machine-minted `depth.ratchet` block is rewritten;
+every other byte of parity.yml — the comment header, the exemption
+prose, key order — is preserved (the original `yaml.safe_dump` full
+rewrite destroyed all comments and forced a run-learn-restore-hand-apply
+workaround on every flip PR).
 
 Coverage extraction mirrors parity/coverage.py (the imported oracle-side
 measurer): events from step["events"][*]["event"]; tables from db_delta keys;
@@ -35,6 +40,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -241,6 +247,78 @@ def write_ratchet(parity: dict, docs_by_subsystem: dict[str, list[dict]]) -> dic
     return parity
 
 
+def render_ratchet_block(ratchet: dict[str, dict[str, int]]) -> list[str]:
+    """The `depth.ratchet` block at the committed parity.yml formatting
+    (two-space `ratchet:` key, four-space flow-mapping rows, sorted)."""
+    if not ratchet:
+        return ["  ratchet: {}"]
+    lines = ["  ratchet:"]
+    for name in sorted(ratchet):
+        row = ratchet[name] or {}
+        lines.append(
+            f"    {name}: {{events: {int(row.get('events', 0))}, "
+            f"tables: {int(row.get('tables', 0))}, "
+            f"settings: {int(row.get('settings', 0))}}}"
+        )
+    return lines
+
+
+def splice_ratchet_text(text: str, ratchet: dict[str, dict[str, int]]) -> str:
+    """Rewrite ONLY the `depth.ratchet` block inside parity.yml's raw text.
+
+    Every byte outside the block — the ~130-line comment header, the
+    exemption prose, key order, even the `# ratchet:` schema comment right
+    above the block — survives untouched. Only the machine-minted block
+    itself is regenerated (any comment INSIDE it is not preserved; nothing
+    hand-written belongs there). Raises SystemExit if the `depth:` section
+    carries no `ratchet:` key to splice over.
+    """
+    lines = text.splitlines()
+    start = None
+    in_depth = False
+    for i, line in enumerate(lines):
+        if re.match(r"^depth:\s*(#.*)?$", line):
+            in_depth = True
+            continue
+        if in_depth and re.match(r"^\S", line):
+            in_depth = False
+        if in_depth and re.match(r"^  ratchet:(?=\s|$)", line):
+            start = i
+            break
+    if start is None:
+        raise SystemExit(
+            "splice_ratchet_text: no `ratchet:` key found under `depth:` — "
+            "add an empty `ratchet: {}` row to parity.yml first"
+        )
+
+    # block extent: every following deeper-indented line (blank lines are
+    # consumed only when deeper content resumes after them)
+    end = start + 1
+    j = start + 1
+    while j < len(lines):
+        line = lines[j]
+        if line.strip() == "":
+            k = j + 1
+            while k < len(lines) and lines[k].strip() == "":
+                k += 1
+            if k < len(lines) and re.match(r"^\s{3,}\S", lines[k]):
+                j = k + 1
+                end = j
+                continue
+            break
+        if re.match(r"^\s{3,}", line):
+            j += 1
+            end = j
+            continue
+        break
+
+    new_lines = lines[:start] + render_ratchet_block(ratchet) + lines[end:]
+    out = "\n".join(new_lines)
+    if text.endswith("\n"):
+        out += "\n"
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="check_parity_depth")
     parser.add_argument(
@@ -257,10 +335,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.write_ratchet:
         updated = write_ratchet(parity, docs)
         PARITY_YML.write_text(
-            yaml.safe_dump(updated, sort_keys=True, allow_unicode=True)
+            splice_ratchet_text(
+                PARITY_YML.read_text(), updated["depth"]["ratchet"],
+            )
         )
-        print("parity.yml depth.ratchet regenerated (comments are lost — "
-              "restore the header from git if you use this on the real file)")
+        print("parity.yml depth.ratchet regenerated in place — only the "
+              "machine-minted ratchet block is rewritten; the comment "
+              "header and every other byte are preserved")
         return 0
 
     problems = check(parity, docs, snapshot)

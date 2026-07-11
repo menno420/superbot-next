@@ -4,7 +4,6 @@ profiles + resolver, answer-workflow template."""
 from __future__ import annotations
 
 import asyncio
-import sys
 
 import pytest
 
@@ -31,23 +30,18 @@ def _pristine_registries() -> None:
 
 
 @pytest.fixture(autouse=True)
-def _reset():
-    """Both-direction isolation at the sanctioned seams. A prior suite's
-    Harness boot arms these module-global registries at sb.manifest.ai
-    import (the btd6 tool rows, domain profiles, the
-    analyze_execute_verify runner), so establish the pristine baseline
-    BEFORE each test too — clearing only after leaks that armed state in
-    under non-canonical selection orders (the #141 defect family). And
-    because the manifest module stays cached, its import-time
-    registration can never re-fire: after the final clear, re-arm
-    through the manifest's idempotent ENSURE_REFS hook so later-listed
-    composition-root suites find the world as the boot left it."""
+def _pristine_baseline():
+    """The dir's ONE sanctioned PRE-leg (the #156 defense): a prior
+    suite's Harness boot arms these module-global registries at
+    sb.manifest.ai import (the btd6 tool rows, domain profiles, the
+    analyze_execute_verify runner), and under non-canonical selection
+    orders that armed state breaks this suite's exact-set assertions and
+    double-claim guards (the #141 defect family) — so establish the
+    pristine baseline BEFORE each test. The AFTER leg — the clear + the
+    idempotent ENSURE_REFS re-arm that lets later composition-root
+    suites find the world as the boot left it — now lives in
+    conftest.py's dir-wide after-only reset."""
     _pristine_registries()
-    yield
-    _pristine_registries()
-    manifest = sys.modules.get("sb.manifest.ai")
-    if manifest is not None:
-        manifest.ENSURE_REFS()
 
 
 def _tool(name, *, min_scope=AIScope.USER, toolsets=("base",), domain=None):
