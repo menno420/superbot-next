@@ -48,6 +48,7 @@ __all__ = [
     "game_xp_rows",
     "list_active",
     "list_stale",
+    "lock_new_checkpoint_slot",
     "lock_rows_for_settlement",
     "top_game_xp",
     "total_game_xp",
@@ -119,9 +120,18 @@ async def upsert_checkpoint(conn: Any, *, guild_id: int, user_id: int,
 
 async def fetch_checkpoint(guild_id: int, user_id: int, channel_id: int,
                            subsystem: str, conn: Any = None) -> dict | None:
+    """FOR UPDATE (F-001/F-002 fix): every caller composes this read inside
+    its own K7 leg txn ahead of a mutate-then-settle sequence (blackjack/rps
+    hit-stand-accept), so the NATURAL_KEY posture's "intrinsically once"
+    contract (spec 07 IdempotencyPosture docstring) requires the load itself
+    to fence concurrent terminal actions — a plain SELECT let two in-flight
+    ops read the SAME pre-mutation row and both settle/escrow. The row lock
+    holds until the leg's transaction commits, so a second racing op either
+    blocks-then-sees the first's committed state, or blocks-then-finds the
+    row already deleted (a clean "session expired", never a double-pay)."""
     row = await fetchone(
         "SELECT state, version FROM game_state WHERE guild_id=$1 AND "
-        "user_id=$2 AND channel_id=$3 AND subsystem=$4",
+        "user_id=$2 AND channel_id=$3 AND subsystem=$4 FOR UPDATE",
         (guild_id, user_id, channel_id, subsystem), conn=conn)
     if row is None:
         return None
@@ -133,14 +143,44 @@ async def fetch_user_checkpoint(guild_id: int, user_id: int, subsystem: str,
     """The user's checkpoint for *subsystem* in ANY channel — the shipped
     one-game-per-(user, guild) key (blackjack `_active[(uid, gid)]`): the
     row itself stores the channel the game was dealt in. Returns the whole
-    row (channel_id + decoded state), or None."""
+    row (channel_id + decoded state), or None.
+
+    FOR UPDATE for the same reason as :func:`fetch_checkpoint` (F-001) —
+    the blackjack solo hit/stand/double legs load through this exact
+    function ahead of their settle."""
     row = await fetchone(
         "SELECT id, guild_id, user_id, channel_id, state, version "
-        "FROM game_state WHERE guild_id=$1 AND user_id=$2 AND subsystem=$3",
+        "FROM game_state WHERE guild_id=$1 AND user_id=$2 AND subsystem=$3 "
+        "FOR UPDATE",
         (guild_id, user_id, subsystem), conn=conn)
     if row is None:
         return None
     return dict(row, state=_decode(row["state"]))
+
+
+async def lock_new_checkpoint_slot(conn: Any, *, guild_id: int, user_id: int,
+                                   subsystem: str) -> None:
+    """Fence a "does this (user, guild, subsystem) already have an active
+    checkpoint?" existence check against a CONCURRENT first insert —
+    adversarial-review finding, confirmed reachable: FOR UPDATE (above)
+    only locks rows that already exist, so it cannot serialize two
+    concurrent starts that both see "no row yet" (e.g. two `!blackjack`
+    invocations for the same user in two DIFFERENT channels — the
+    existence check is keyed on (guild, user, subsystem) alone, but the
+    row it would insert is additionally keyed on channel_id, so a plain
+    row lock has nothing to attach to before the row exists). A
+    transaction-scoped advisory lock closes the gap without a schema
+    change: keyed on the SAME (guild, user, subsystem) triple the
+    existence check uses, it serializes any two K7 legs racing to START a
+    checkpoint for that triple regardless of which channel each targets —
+    the second racer blocks here until the first's transaction commits
+    (after which its own existence check correctly sees the first's row)
+    or rolls back. Auto-released at commit/rollback — no matching unlock
+    call needed (unlike the session-scoped migrations.py lock)."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"games:new_checkpoint:{guild_id}:{user_id}:{subsystem}",),
+        conn=conn)
 
 
 async def delete_user_checkpoint(conn: Any, *, guild_id: int, user_id: int,

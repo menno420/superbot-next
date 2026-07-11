@@ -197,6 +197,17 @@ async def _record_solo_start(conn, ctx: WorkflowContext) -> LegOutcome:
     cid = int(ctx.params.get("channel_id") or 0)
     bet = _bet_from(ctx)
     now = _now(ctx)
+    # the existence check below is keyed WITHOUT channel_id (one solo game
+    # per (user, guild)), but the row it may insert is ADDITIONALLY keyed
+    # on channel_id — FOR UPDATE locks nothing when no row exists yet, so
+    # two concurrent starts in two different channels both pass the check;
+    # if both land a natural blackjack, both independently take the
+    # early-return payout branch below (no row ever written), a double
+    # payout (adversarial-review finding, confirmed reachable). The
+    # advisory lock serializes any two starts for this exact
+    # (guild, user, subsystem) triple regardless of channel.
+    await games_store.lock_new_checkpoint_slot(
+        conn, guild_id=gid, user_id=uid, subsystem=SOLO_SUBSYSTEM)
     if await games_store.fetch_user_checkpoint(gid, uid, SOLO_SUBSYSTEM,
                                                conn=conn) is not None:
         raise ValidatorError("You already have a game running!")

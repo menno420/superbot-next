@@ -112,6 +112,15 @@ class FakeGamesStore:
                     return 1
             return 0
 
+        async def lock_new_checkpoint_slot(conn, *, guild_id, user_id,
+                                           subsystem):
+            # a no-op fake: these tests drive one op at a time (no real
+            # concurrent transactions), so there is nothing to serialize —
+            # the real function's SQL is pinned separately in
+            # tests/unit/band6/test_band6_games_substrate.py and proven
+            # under genuine concurrency in tests/integration/.
+            return None
+
         async def lock_rows_for_settlement(conn, *, guild_id, subsystem,
                                            channel_id=None, user_ids=None):
             out = []

@@ -59,10 +59,18 @@ jobs:
           python-version: "3.11"
       - name: Install runtime deps from the hash-pinned lock (S13)
         run: pip install --require-hashes -r requirements.lock
+      - name: Install test tooling (unlocked — mirrors ci.yml's pytest install)
+        run: pip install pytest pyyaml
       - name: check_parity_depth (A-16 depth floor, inside this named gate)
         run: python3 tools/check_parity_depth.py
       - name: Gate — ported subsystems must replay green
         run: python3 tools/run_golden_parity.py --gate
+      # tests/integration/ (F-001/F-002 real-Postgres concurrency
+      # regressions) needs both the full runtime lock and a live DB — this
+      # is the ONLY job with both; code-quality's pytest run installs no
+      # runtime deps, so it would silently skip there.
+      - name: Real-Postgres concurrency regressions (F-001/F-002)
+        run: python3 -m pytest tests/integration -q
 
   report:
     # BORN RED BY DESIGN — red-until-parity (never mark this job required).

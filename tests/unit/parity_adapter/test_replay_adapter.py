@@ -59,6 +59,81 @@ def test_reconstruction_round_trips_inputs():
     assert described == [s["input"] for s in golden["steps"]]
 
 
+def test_load_replay_cases_with_report_counts_unreconstructable_goldens(
+        tmp_path):
+    """F-003 regression: a golden whose case_id fails reconstruction (here,
+    a click step carrying a normalized `<...>` custom_id with no CURATED_CASES
+    override) must be counted in `dropped`, not just vanish from `cases` —
+    that count is what lets run_golden_parity's --gate red on a silent drop
+    instead of quietly replaying fewer cases than exist on disk."""
+    from sb.adapters.parity.cases import load_replay_cases_with_report
+
+    xp_dir = tmp_path / "xp"
+    xp_dir.mkdir()
+    (xp_dir / "reconstructable.json").write_text(json.dumps({
+        "case_id": "xp.reconstructable_test_case", "subsystem": "xp",
+        "seed": 1, "notes": "",
+        "steps": [{"input": {"kind": "command", "persona": "member",
+                             "content": "!balance"}}],
+    }))
+    (xp_dir / "unreconstructable.json").write_text(json.dumps({
+        "case_id": "xp.unreconstructable_test_case", "subsystem": "xp",
+        "seed": 1, "notes": "",
+        "steps": [{"input": {"kind": "click", "persona": "member",
+                             "custom_id": "<normalized:session>"}}],
+    }))
+
+    cases, dropped = load_replay_cases_with_report(tmp_path)
+    ids = {c.id for c in cases}
+    assert "xp.reconstructable_test_case" in ids
+    assert "xp.unreconstructable_test_case" not in ids
+    assert dropped == {"xp": 1}
+
+
+def test_load_replay_cases_with_report_counts_duplicate_case_ids(tmp_path):
+    """F-003 regression (adversarial-review finding, reproduced directly):
+    two golden FILES sharing one case_id used to be silently absorbed —
+    the second file was skipped with no signal at all, so `dropped` stayed
+    empty even though only 1 of the 2 on-disk files was ever exercised.
+    That self-contradicted the gate's own denominator message (claims 0
+    unreconstructable cases while still declaring a count mismatch) and,
+    combined with a hypothetical subsystem-field/directory mismatch, could
+    let a genuine drop in one subsystem be exactly offset by a same-id
+    phantom credit from another — the precise false-GREEN class F-003 was
+    written to eliminate. A collision against a CURATED_CASES id stays
+    expected (the curated case IS that golden's intended replay, not a
+    drop) — only a golden-vs-golden collision counts."""
+    from sb.adapters.parity.cases import load_replay_cases_with_report
+
+    xp_dir = tmp_path / "xp"
+    xp_dir.mkdir()
+    golden = {
+        "case_id": "xp.dup_case", "subsystem": "xp", "seed": 1, "notes": "",
+        "steps": [{"input": {"kind": "command", "persona": "member",
+                             "content": "!balance"}}],
+    }
+    (xp_dir / "a_first.json").write_text(json.dumps(golden))
+    (xp_dir / "b_second.json").write_text(json.dumps(golden))
+
+    cases, dropped = load_replay_cases_with_report(tmp_path)
+    ids = [c.id for c in cases]
+    assert ids.count("xp.dup_case") == 1        # only ONE case, not two
+    assert dropped == {"xp": 1}                 # the second file IS a drop
+
+
+def test_load_replay_cases_matches_report_cases(tmp_path):
+    """load_replay_cases stays the thin (cases-only) projection of the
+    report — same cases, dropped count just discarded."""
+    from sb.adapters.parity.cases import (
+        load_replay_cases,
+        load_replay_cases_with_report,
+    )
+
+    report_cases, _dropped = load_replay_cases_with_report(GOLDENS_ROOT)
+    assert {c.id for c in load_replay_cases(GOLDENS_ROOT)} == {
+        c.id for c in report_cases}
+
+
 def test_mentions_inferred_from_content():
     from sb.adapters.parity.cases import reconstruct_case
 

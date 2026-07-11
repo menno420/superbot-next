@@ -84,12 +84,17 @@ async def _replay_corpus(only_subsystems: set[str] | None,
                          *, verbose_failures: int = 8):
     """Boot once, replay the (filtered) corpus, close. Returns
     (results, missing) where results is {case_id: (subsystem, ok, problems)}
-    and missing counts goldens whose cases could not be reconstructed."""
+    and missing is {subsystem: count} — goldens whose cases could not be
+    reconstructed (F-003 fix: this is the docstring's original promise,
+    previously unfulfilled — the function returned `results` alone, so a
+    silently-dropped golden had no signal to carry)."""
     from sb.adapters.parity import boot as sb_boot
-    from sb.adapters.parity.cases import load_replay_cases
+    from sb.adapters.parity.cases import load_replay_cases_with_report
     from sb.adapters.parity.runner import golden_path, replay_case
 
-    cases = load_replay_cases(GOLDENS_ROOT)
+    cases, missing = load_replay_cases_with_report(GOLDENS_ROOT)
+    if only_subsystems is not None:
+        missing = {s: n for s, n in missing.items() if s in only_subsystems}
     harness = await sb_boot.Harness.start()
     results: dict[str, tuple[str, bool, list[str]]] = {}
     try:
@@ -104,7 +109,7 @@ async def _replay_corpus(only_subsystems: set[str] | None,
             results[case.id] = (subsystem, ok, problems)
     finally:
         await harness.close()
-    return results
+    return results, missing
 
 
 def run_gate() -> int:
@@ -132,7 +137,7 @@ def run_gate() -> int:
 
     import asyncio
 
-    results = asyncio.run(_replay_corpus(set(ported)))
+    results, missing = asyncio.run(_replay_corpus(set(ported)))
     failures = 0
     for case_id, (subsystem, ok, problems) in sorted(results.items()):
         if ok:
@@ -141,8 +146,33 @@ def run_gate() -> int:
         print(f"  RED {case_id} ({subsystem}): {len(problems)} diff(s)")
         for p in problems[:8]:
             print(f"      {p}")
-    if failures:
-        print(f"gate: RED — {failures} regression(s) in ported subsystems")
+
+    # F-003 fix: the denominator check. `results` only ever holds cases that
+    # SUCCESSFULLY reconstructed (sourced from load_replay_cases_with_report)
+    # — a golden that failed to reconstruct into a case never gets an entry
+    # there, so the loop above has no way to see it and the gate could
+    # false-green with fewer cases replayed than goldens on disk. Assert the
+    # two counts match per ported subsystem so a silently-dropped golden
+    # reds the gate instead of just shrinking what got checked.
+    replayed_by_subsystem: dict[str, int] = {}
+    for subsystem, _ok, _problems in results.values():
+        replayed_by_subsystem[subsystem] = (
+            replayed_by_subsystem.get(subsystem, 0) + 1)
+
+    denominator_mismatches = 0
+    for name in ported:
+        golden_count = counts.get(name, 0)
+        replayed_count = replayed_by_subsystem.get(name, 0)
+        if replayed_count != golden_count:
+            denominator_mismatches += 1
+            print(f"  RED {name}: replayed {replayed_count}/{golden_count} "
+                  f"golden(s) — {missing.get(name, 0)} case(s) could not be "
+                  f"reconstructed (silently dropped)")
+
+    if failures or denominator_mismatches:
+        print(f"gate: RED — {failures} regression(s) + "
+              f"{denominator_mismatches} ported subsystem(s) with a "
+              f"replayed-count/golden-count mismatch")
         return 1
     print(f"gate: GREEN — all {len(results)} golden(s) across "
           f"{len(ported)} ported subsystem(s) replay clean")
@@ -175,7 +205,12 @@ def run_report() -> int:
 
     import asyncio
 
-    results = asyncio.run(_replay_corpus(None, verbose_failures=0))
+    results, missing = asyncio.run(_replay_corpus(None, verbose_failures=0))
+    total_missing = sum(missing.values())
+    if total_missing:
+        print(f"unreconstructable: {total_missing} golden(s) on disk could "
+              f"not be reconstructed into a replayable case: "
+              f"{dict(sorted(missing.items()))}")
     per_sub: dict[str, list[bool]] = {}
     for _case_id, (subsystem, ok, _problems) in results.items():
         per_sub.setdefault(subsystem, []).append(ok)
