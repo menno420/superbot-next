@@ -80,7 +80,7 @@ subsystems:
   moderation: pending
   project_moon: pending
   projectmoon: pending
-  proof_channel: pending
+  proof_channel: ported
   quicksetup: pending
   role: pending
   rps_tournament: ported
@@ -196,6 +196,24 @@ depth:
           the hub open renders the LIVE word count over this store, and
           the words manager's live read lands with the word-mutation
           panel slice"
+    proof_channel:
+      # proof_channel's three goldens (and the sibling _unmapped prize
+      # sweeps) all pin the shipped "#proof not found" guard — the
+      # capture guild carried no #proof channel and no proof_channel
+      # binding (schemas.py declares the resource OPTIONAL), so the
+      # lock-write lane behind the guard never ran in the capture world.
+      - surface: "table:proof_channel_locks"
+        reason: "covered-elsewhere: the lock lane's capture-reachable
+          bytes are pinned end-to-end by the named sibling oracles
+          goldens/_unmapped/sweep_+prize.json / sweep_-prize.json and
+          goldens/proof_channel/sweep_timedprize.json — every one
+          carries the shipped not-found guard byte (\"Channel '#proof'
+          not found.\"), which is as far as ANY capture reached: the
+          capture guild had no #proof channel, so no imported golden
+          can carry a proof_channel_locks row (the xp event:xp.level_up
+          / settings event:settings.changed unreachable-surface
+          precedent); its first live golden lands with a
+          #proof-provisioned capture alongside the channel-ops slice"
     rps_tournament:
       - surface: "table:rps_players"
         reason: "time-driven: rps_players stats rows are written at match
@@ -264,6 +282,7 @@ depth:
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
+    proof_channel: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     servermanagement: {events: 0, tables: 0, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
