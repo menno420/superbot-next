@@ -14,15 +14,41 @@ sweep_slash_server-management.json`` pins every byte of the slash twin
 (the ephemeral type-4, flags 64); the sibling ``server_management`` row's
 prefix golden pins the same panel on the message surface.
 
-``session_lifecycle=True`` with every component override-pinned: nothing
-is run-minted (the overrides survive verbatim — the engine's documented
-custom_id_override rule), no ``panel_anchors`` row is recorded (the
-shipped sweep goldens record none), and the never-strand fence takes the
-session-view exemption the golden's exactly-three-rows shape demands (the
-shipped hub carried NO nav row — it is the top-of-stack operator surface
-with its own 🔄 Refresh recovery). The shipped PERSISTENT-view anchor
-semantics (``panel_manager.get_or_render_panel``, restart restoration)
-are the sibling prefix row's flip concern, carried there.
+ANCHORED-PANEL SEMANTICS (the sibling prefix row's flip, PR after #178):
+``session_lifecycle=False`` — the shipped hub was a panel-MANAGER panel
+(``panel_manager.get_or_render_panel``): the PREFIX open sends a real
+channel message and records a ``panel_anchors`` row
+(goldens/server_management/sweep_servermanagement pins it), while the
+slash twin's ephemeral type-4 records none (the engine's
+``_record_anchor`` skips interaction surfaces — goldens/servermanagement
+pins the empty delta). Every component stays override-pinned (overrides
+render verbatim on non-session panels too — the moderation modmenu
+precedent).
+
+THE SHIPPED BACK-TO-HELP SPLIT: the shipped composition root wired a
+help hook into ``get_or_render_panel`` (bot1.py → cogs/help_cog.py
+``_attach_back_to_help_button``) that appended a ``↩ Back to Help``
+button (persistent id ``help:back``, row 4, grey) to DIRECTLY-INVOKED
+hubs on the MESSAGE path — the slash twin never passed through the
+panel manager, so it carried exactly three rows. The port declares the
+shipped button as a real routable action (``help_back``, override
+``help:back``, routed to the ported ``help.home``) and the
+renderer_override drops it on the ephemeral slash surface (surface-keyed
+component-drop — the D-0068 lane over the new ``PanelContext.surface``
+field). The never-strand fence is satisfied honestly by
+``navigation.parent = help.home`` (the shipped escape IS Help); the
+grammar's own injected ``nav:back:*`` button is dropped in the override
+(the shipped hub never rendered a grammar nav row — both goldens pin
+its absence; the declared ``help_back`` action carries the shipped
+escape byte instead).
+
+Ledgered unpinned corner (no golden drives it): a 🔄 Refresh click
+re-renders on the COMPONENT surface, which keeps the ``help_back`` row
+(matching the shipped ANCHORED panel's refresh, whose view kept the
+appended button); the shipped slash-opened ephemeral's refresh stayed
+three-row — that ephemeral-refresh corner renders four rows here until
+a message-context signal ports (surface alone cannot split the two
+refresh homes).
 
 Deliberate under-port notes (parity beyond the golden):
 * the shipped health badges are LIVE reads (bot permissions, role
@@ -167,13 +193,24 @@ def server_management_hub_spec() -> PanelSpec:
                 handler=PanelRef("server_management.hub"),
                 result_render=ResultRender.REFRESH_PANEL,
                 custom_id_override="server_management:refresh"),
+            # row 3 — the shipped panel-manager back-to-help hook's button
+            # (help_cog._attach_back_to_help_button: persistent id
+            # "help:back", grey, appended on the MESSAGE path only — the
+            # override drops it on the slash surface; module docstring).
+            PanelActionSpec(
+                action_id="help_back", label="↩ Back to Help",
+                style=ActionStyle.SECONDARY,
+                handler=PanelRef("help.home"),
+                custom_id_override="help:back"),
         ),
-        # the shipped hub carried NO nav row (top-of-stack operator
-        # surface; 🔄 Refresh is its recovery) — the goldens pin exactly
-        # three component rows; see the module docstring for the
-        # session-lifecycle rationale.
-        navigation=NavigationSpec(show_help=False, show_home=False),
-        session_lifecycle=True,
+        # the shipped hub carried NO grammar nav row (both goldens pin
+        # its absence); parent=help.home satisfies the never-strand
+        # fence honestly (the shipped escape IS Help — the declared
+        # help_back action carries the shipped wire byte) and the
+        # override drops the grammar's own nav:back button (module
+        # docstring).
+        navigation=NavigationSpec(parent=PanelRef("help.home"),
+                                  show_help=False, show_home=False),
         renderer_override=HandlerRef("server_management.render_hub"),
         justification=(
             "the shipped hub footer is the literal 'Read-only summary · "
@@ -181,13 +218,21 @@ def server_management_hub_spec() -> PanelSpec:
             "FooterMode's none/subsystem/provenance vocabulary "
             "(goldens/servermanagement + goldens/server_management pin "
             "the byte; the utility/ux_lab/channel precedent). The "
-            "override delegates to the grammar renderer and replaces "
-            "ONLY the footer; body, fields, actions and layout stay "
-            "declared."),
+            "override additionally adjusts TWO named component surfaces "
+            "(the 12c lane): (1) it DROPS the grammar's injected "
+            "nav:back:help.home button — the shipped hub never rendered "
+            "a grammar nav row, both goldens pin exactly the declared "
+            "rows; (2) it DROPS the declared help_back action on the "
+            "slash surface — the shipped back-to-help hook appended the "
+            "button on the panel-manager MESSAGE path only "
+            "(goldens/server_management pins the 4-row prefix shape, "
+            "goldens/servermanagement pins the 3-row slash shape). "
+            "Body, fields, and every other action stay declared."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("moderation", "channels", "roles"),
             ("cleanup", "setup"),
             ("access_map", "help_preview", "help_editor", "sm_refresh"),
+            ("help_back",),
         )),)),
     )
 
@@ -195,11 +240,21 @@ def server_management_hub_spec() -> PanelSpec:
 # --- renderer override ------------------------------------------------------------
 
 async def _render_hub(spec: PanelSpec, ctx) -> object:
-    """Grammar render + the shipped footer literal (see justification)."""
+    """Grammar render + the shipped footer literal + the two named
+    component drops (see justification): the grammar's injected
+    ``nav:back:*`` button always (the shipped hub had no grammar nav
+    row), and the declared ``help_back`` action on the slash surface
+    (the shipped hook appended it on the message path only)."""
     from sb.kernel.panels.render import render_panel
 
     rendered = await render_panel(spec, ctx)
-    return _dc_replace(rendered, embed=_dc_replace(rendered.embed, footer=_FOOTER))
+    components = tuple(
+        c for c in rendered.components
+        if not str(c.custom_id).startswith("nav:back:")
+        and not (c.custom_id == "help:back"
+                 and getattr(ctx, "surface", None) == "slash"))
+    return _dc_replace(rendered, components=components,
+                       embed=_dc_replace(rendered.embed, footer=_FOOTER))
 
 
 # --- registration -----------------------------------------------------------------
