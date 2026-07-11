@@ -1602,6 +1602,85 @@
    },
    "value": 0
   },
+  "community:community.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: community parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "co_ticket",
+       "co_xp",
+       "co_karma",
+       "co_community_spotlight",
+       "co_welcome"
+      ],
+      [
+       "co_counters",
+       "co_role"
+      ],
+      [
+       "co_counting",
+       "co_chain",
+       "co_leaderboard"
+      ]
+     ]
+    }
+   ]
+  },
+  "community:community.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: community parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "co_ticket",
+     "co_xp",
+     "co_karma",
+     "co_community_spotlight",
+     "co_welcome"
+    ],
+    [
+     "co_counters",
+     "co_role"
+    ],
+    [
+     "co_counting",
+     "co_chain",
+     "co_leaderboard"
+    ]
+   ]
+  },
+  "community:community.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: community parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "co_ticket",
+        "co_xp",
+        "co_karma",
+        "co_community_spotlight",
+        "co_welcome"
+       ],
+       [
+        "co_counters",
+        "co_role"
+       ],
+       [
+        "co_counting",
+        "co_chain",
+        "co_leaderboard"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "community:community:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
