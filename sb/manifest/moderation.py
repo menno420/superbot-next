@@ -127,7 +127,7 @@ MANIFEST = SubsystemManifest(
              summary="Show a member's moderation history.",
              usage="!modlogs @member"),
     ),
-    panels=(_panels.moderation_hub_spec(),),
+    panels=(_panels.moderation_hub_spec(), _panels.modlogs_card_spec()),
     settings=_SETTINGS + _BINDINGS,      # bindings ride the same facet tuple
     stores=(MOD_LOGS_STORE, WARNINGS_STORE),
     events=(MOD_ACTION_EVENT,),

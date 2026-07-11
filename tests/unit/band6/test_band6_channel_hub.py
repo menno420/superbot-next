@@ -146,8 +146,11 @@ def test_manifest_declares_the_menu_and_keeps_the_op_roster():
     assert by_name["slowmode"].aliases == ("slow",)
     (spec,) = MANIFEST.panels
     assert spec.panel_id == "channel.hub"
-    # R2 stays vacuous for channel: no declared stores/events/settings.
-    assert MANIFEST.stores == () and MANIFEST.events == ()
+    # the strays re-home declared the shipped lifecycle event (goldens/
+    # channel/sweep_slowmode + sweep_lock + sweep_unlock cover it);
+    # stores/settings stay undeclared.
+    assert MANIFEST.stores == ()
+    assert [e.name for e in MANIFEST.events] == ["channel.lifecycle_changed"]
     assert MANIFEST.settings == ()
 
 

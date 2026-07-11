@@ -41,6 +41,7 @@ from parity.harness.world import DEFAULT_PERSONAS, World
 from sb.adapters.parity.transport import (
     ParityAvatarFetcher,
     ParityChannelEmitter,
+    ParityChannelStateActions,
     ParityHistoryReader,
     ParityLevelupHistoryScanner,
     ParityModerationActions,
@@ -394,6 +395,13 @@ class Harness:
         from sb.domain.role import service as _role_service
 
         _role_service.subscribe(bus)
+        # the channel audit/lifecycle fan-out — same seam, same roster
+        # obligation (goldens/channel/sweep_slowmode + sweep_lock +
+        # sweep_unlock pin audit.action_recorded +
+        # channel.lifecycle_changed).
+        from sb.domain.channel import service as _channel_service
+
+        _channel_service.subscribe(bus)
 
         from sb.kernel import lifecycle
 
@@ -522,6 +530,20 @@ class Harness:
             return world_channels.get(name) or leaked.get(name)
 
         install_channel_resolver(_world_channel_resolver)
+        # the channel-state port + name lookup — the shipped
+        # ChannelLifecycleService's Discord edits in the goldens' wire
+        # verbs (goldens/channel/sweep_slowmode + sweep_lock +
+        # sweep_unlock) over the same world+leaked channel cache the
+        # capture's TextChannelConverter saw (trap 17 READ-only: the
+        # `test` channel was minted by the alphabetically-earlier
+        # `_unmapped` sweep.create capture).
+        from sb.domain.channel.service import (
+            install_channel_actions,
+            install_channel_lookup,
+        )
+
+        install_channel_actions(ParityChannelStateActions(self.http))
+        install_channel_lookup(_world_channel_resolver)
         # the utility read ports: the capture-world guild directory + the
         # no-heartbeat gateway probe (the old harness's bot.latency was nan
         # — goldens/utility/sweep_ping pins "nan ms").
