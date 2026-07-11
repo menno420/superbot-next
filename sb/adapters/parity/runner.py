@@ -135,6 +135,24 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
                             values=list(step.values) if step.values is not None else None,
                             persona=step.persona, channel=step.channel)
         return custom_id
+    if step.kind == "modal":
+        # wire-type-5 modal submit (D-0073): target_message is optional —
+        # a form driven at the feed seam with no earlier bot message in
+        # the case carries no originating message (the kernel stash then
+        # misses harmlessly; the submitted fields are the whole payload).
+        message_id = 0
+        if step.target_message:
+            index = step.target_message - 1
+            if index < 0 or index >= len(minted):
+                raise ValueError(
+                    f"step targets <msg:{step.target_message}> but only "
+                    f"{len(minted)} bot messages were minted")
+            message_id = minted[index]
+        await harness.modal_submit(message_id=message_id,
+                                   custom_id=step.custom_id,
+                                   fields=dict(step.fields),
+                                   persona=step.persona, channel=step.channel)
+        return None
     raise ValueError(f"unknown step kind {step.kind!r}")  # pragma: no cover
 
 

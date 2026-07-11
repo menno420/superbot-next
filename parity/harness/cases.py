@@ -16,9 +16,13 @@ class Step:
     * ``slash``   — an application-command interaction
     * ``click``   — a component interaction on a bot message minted earlier
       in this case (``target_message`` = the ``<msg:N>`` ordinal)
+    * ``modal``   — a wire-type-5 modal submit (``custom_id`` = the static
+      G-10 modal_id root, ``fields`` = the submitted field values;
+      corpus-schema growth reviewed in the D-0073 slice PR — the D-0063
+      deletion clause's replay-case vocabulary)
     """
 
-    kind: Literal["command", "slash", "click"]
+    kind: Literal["command", "slash", "click", "modal"]
     content: str = ""
     name: str = ""
     options: tuple[dict[str, Any], ...] = ()
@@ -29,6 +33,9 @@ class Step:
     target_message: int = 0
     component_type: int = 2
     values: tuple[str, ...] | None = None
+    #: modal steps: the submitted (field_id, value) pairs, sorted by
+    #: field_id (a tuple so the dataclass stays frozen/hashable).
+    fields: tuple[tuple[str, str], ...] = ()
     persona: str = "member"
     channel: str = "general"
     mentions: tuple[str, ...] = ()  # persona keys, resolved to ids at run time

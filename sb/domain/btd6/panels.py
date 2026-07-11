@@ -27,7 +27,7 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
-from sb.spec.outcomes import DeferMode
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.panels import (
     ActionStyle,
     Audience,
@@ -35,12 +35,14 @@ from sb.spec.panels import (
     FooterMode,
     LayoutSpec,
     ModalFieldSpec,
+    ModalFieldStyle,
     ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    TextBlock,
 )
 from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
 
@@ -75,6 +77,39 @@ ROUND_MODAL = ModalSpec(
                        required=True, max_length=12),
     ),
     on_submit=HandlerRef("btd6.ref_round_view"),
+)
+
+#: The shipped StrategySubmitModal, field for field (ORACLE disbot
+#: views/btd6/strategy_submit.py @8214200a, reconstructed via search_code
+#: fragments — full-file oracle reads stay denied; the default branch can
+#: be AHEAD of the corpus sha 7f7628e1, trap-24 caveat ledgered in
+#: D-0073). field_ids are the submit handler's args keys (the same
+#: title/summary/map/mode/hero vocabulary `_submit_params` already reads
+#: for the `!btd6strat submit` text lane).
+STRATEGY_MODAL = ModalSpec(
+    modal_id="btd6.strategy_form",
+    title="Submit BTD6 strategy",
+    fields=(
+        ModalFieldSpec(field_id="title", label="Title",
+                       placeholder="e.g. CHIMPS Bloody Puddles 4-2-0 "
+                                   "Super Monkey",
+                       required=True, max_length=100),
+        ModalFieldSpec(field_id="summary", label="Summary",
+                       style=ModalFieldStyle.PARAGRAPH,
+                       placeholder="Short pitch — when and why this "
+                                   "strategy works.",
+                       required=True, max_length=500),
+        ModalFieldSpec(field_id="map", label="Map (optional)",
+                       placeholder="e.g. Bloody Puddles",
+                       required=False, max_length=80),
+        ModalFieldSpec(field_id="mode", label="Mode (optional)",
+                       placeholder="e.g. CHIMPS",
+                       required=False, max_length=40),
+        ModalFieldSpec(field_id="hero", label="Hero (optional)",
+                       placeholder="e.g. Geraldo",
+                       required=False, max_length=40),
+    ),
+    on_submit=HandlerRef("btd6.strategy_form_submit"),
 )
 
 
@@ -182,6 +217,45 @@ def card_spec() -> PanelSpec:
     )
 
 
+def strategy_submit_spec() -> PanelSpec:
+    """The strategy-submission page — the G-10 declaring surface for the
+    shipped StrategySubmitModal twin (``btd6.strategy_form``).
+
+    ENGINE-SHAPE deviation, ledgered (D-0073): the shipped ingress was the
+    `/btd6 strat submit` app command calling ``send_modal`` directly
+    (disbot cogs/btd6/_unified.py strat_submit_slash) — CommandSpec carries
+    no modal facet on this engine (a Group-1 grammar amendment is the named
+    successor), so the form's declaring PanelActionSpec lives on this
+    session page (the D-0054/D-0066 intermediating-button posture). The
+    page itself is engine copy no golden pins; the FORM and its submit
+    bytes are the oracle's. `reply_visibility=EPHEMERAL` commits the
+    shipped ``safe_defer(interaction, ephemeral=True)`` flag on the submit
+    re-entry (goldens/btd6/btd6_strategy_form_* pin flags 64 on both
+    hops)."""
+    return PanelSpec(
+        panel_id="btd6.strategy_submit",
+        subsystem="btd6",
+        title="Submit BTD6 strategy",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="green", footer_mode=FooterMode.NONE),
+        body=(TextBlock(text="Share a strategy with this server — the "
+                             "button opens the submission form; staff "
+                             "review with `!btd6 pending`."),),
+        actions=(
+            PanelActionSpec(
+                action_id="open_strategy_form", label="Submit strategy…",
+                emoji="📝", style=ActionStyle.PRIMARY, audience_tier="user",
+                defer_mode=DeferMode.MODAL, modal=STRATEGY_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("btd6.strategy_form_submit"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(("open_strategy_form",),)),)),
+    )
+
+
 def ctteam_spec() -> PanelSpec:
     """The CT-team view + the shipped staff-only 'Set CT team…' button."""
     return PanelSpec(
@@ -260,6 +334,7 @@ _SPECS = {
     "btd6.hub": btd6_hub_spec,
     "btd6.card": card_spec,
     "btd6.ctteam": ctteam_spec,
+    "btd6.strategy_submit": strategy_submit_spec,
 }
 
 _RENDERERS = {

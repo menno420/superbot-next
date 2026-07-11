@@ -375,6 +375,10 @@ entries:
     consumers: [sb/kernel/panels/compile.py, sb/kernel/interaction/resolve.py]
     rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"
     minted: 2026-07-08
+  PanelActionSpec.reply_visibility:
+    consumers: [sb/domain/btd6/panels.py, sb/domain/ai/panels.py]
+    rejected_alternative: "handler-side visibility override after the ack (impossible: the type-5 defer COMMITS the flag before dispatch — Discord binds every followup to it); or a per-action capability_required to buy the CAPABILITY lane's EPHEMERAL default (wrong authority semantics for a member-open form)"
+    minted: 2026-07-11
   PanelActionSpec.result_card:
     consumers: [sb/kernel/panels/compile.py, sb/kernel/panels/render.py]
     rejected_alternative: "a hand-coded discord.ui.Button subclass per action (tier-3)"

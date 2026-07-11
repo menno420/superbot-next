@@ -53,6 +53,18 @@ def _step_from_input(doc: dict) -> Step | None:
         return Step(kind="click", custom_id=custom_id,
                     target_message=int(doc.get("target_message", 0)),
                     persona=persona, channel=channel)
+    if kind == "modal":
+        # wire-type-5 modal submit (D-0073 corpus-schema growth — the
+        # D-0063 deletion clause's replay-case vocabulary): custom_id is
+        # the STATIC G-10 modal_id root, fields the submitted values.
+        custom_id = doc.get("custom_id", "")
+        if not custom_id or custom_id.startswith("<"):
+            return None      # normalized session id — not reconstructable
+        fields = tuple(sorted(
+            (str(k), str(v)) for k, v in (doc.get("fields") or {}).items()))
+        return Step(kind="modal", custom_id=custom_id, fields=fields,
+                    target_message=int(doc.get("target_message", 0)),
+                    persona=persona, channel=channel)
     return None
 
 

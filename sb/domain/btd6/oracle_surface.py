@@ -276,6 +276,63 @@ async def cmd_strat_submit(req) -> Reply:
                "`/btd6 strat submit` to fill it in.")
 
 
+async def strategy_form_submit(req) -> Reply:
+    """The shipped ``StrategySubmitModal.on_submit``, byte for byte
+    (ORACLE disbot/views/btd6/strategy_submit.py @8214200a, search_code
+    fragment reconstruction — trap-24 sha caveat in D-0073): guild guard →
+    strip title/summary, strip-or-None map/mode/hero → ONE audited write
+    through the EXISTING ``btd6.submit_strategy`` K7 op (the same lane the
+    ``!btd6strat submit`` text twin rides; the leg re-validates in-txn) →
+    the shipped followups. The typed-refusal sentence rides a handler
+    pre-check (the karma-16a class: typed identity dies at the engine
+    boundary), duplicating the ORACLE's own service-order — its
+    ``submit_strategy`` validated before the INSERT too. Visibility is the
+    shipped ``safe_defer(interaction, ephemeral=True)``, committed by the
+    declaring action's ``reply_visibility`` (goldens/btd6/
+    btd6_strategy_form_* pin flags 64 on both hops)."""
+    if not req.guild_id:
+        # the shipped pre-defer guard, verbatim.
+        return _ok("❌ Submitting a strategy requires a guild context.")
+    title = str(req.args.get("title") or "").strip()
+    summary = str(req.args.get("summary") or "").strip()
+    if not title or not summary:
+        # the shipped `❌ {InvalidStrategyValueError}` echo
+        # ("title and summary are required" — services/
+        # btd6_strategy_mutation.py). Real clients cannot reach it (both
+        # fields are required=True on the form); the byte is kept for the
+        # curated-drive path and live stash-miss re-entries.
+        return _ok("❌ title and summary are required")
+    # the shipped submitter display snapshot (display_name or name).
+    user = getattr(req.origin, "user", None)
+    display = (getattr(user, "display_name", None)
+               or getattr(user, "name", None))
+    params = {
+        "title": title, "summary": summary,
+        "map": (str(req.args.get("map") or "").strip() or None),
+        "mode": (str(req.args.get("mode") or "").strip() or None),
+        "hero": (str(req.args.get("hero") or "").strip() or None),
+        "_display_name": str(display) if display else None,
+    }
+    from sb.kernel.workflow import engine
+    from sb.spec.refs import WorkflowRef
+
+    result = await engine.run(WorkflowRef("btd6.submit_strategy"),
+                              _ctx_from_req(req, params))
+    if result.outcome != SUCCESS:
+        # the shipped defensive branch ("no class name leakage").
+        return Reply(result.outcome,
+                     "❌ Unexpected error while submitting. "
+                     "Check logs for details.")
+    # the engine rolls leg `after` payloads up BY STEP TARGET NAME (the
+    # #111 role lesson: never read a leg key flat off result.after).
+    record = (result.after or {}).get("submit_strategy") or {}
+    strategy_id = record.get("strategy_id")
+    # the shipped success followup; `submitted` is the oracle service's
+    # submit-path StrategyMutationResult.action value.
+    return _ok(f"✅ Submitted as strategy `#{strategy_id}` (`submitted`). "
+               "Staff can review with `!btd6 pending`.")
+
+
 async def cmd_strat_pending(req) -> Reply | None:
     from sb.domain.btd6 import oracle_cards as cards
 
@@ -500,6 +557,7 @@ _HANDLERS = (
     ("btd6.cmd_strat_strategy", cmd_strat_strategy),
     ("btd6.cmd_strat_audit", cmd_strat_audit),
     ("btd6.cmd_strat_submit", cmd_strat_submit),
+    ("btd6.strategy_form_submit", strategy_form_submit),
     ("btd6.cmd_strat_pending", cmd_strat_pending),
     ("btd6.cmd_strat_strategies", cmd_strat_strategies),
     ("btd6.cmd_strat_why", cmd_strat_why),
