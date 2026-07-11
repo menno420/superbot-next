@@ -16,6 +16,7 @@ band-1 readers)."""
 
 from __future__ import annotations
 
+from sb.domain.ai import behavior_widgets as _behavior_widgets
 from sb.domain.ai import orchestration_presets as _presets
 from sb.domain.ai import panels as _panels
 from sb.domain.ai import policy_widgets as _policy_widgets
@@ -35,6 +36,7 @@ from sb.domain.ai.policy_ops import register_policy_ops
 from sb.domain.ai.policy_store import (
     AI_CATEGORY_POLICY_STORE,
     AI_CHANNEL_POLICY_STORE,
+    AI_INSTRUCTION_PROFILE_STORE,
     AI_ROLE_POLICY_STORE,
 )
 from sb.domain.ai.store import AI_ANSWER_PRESETS_STORE, AI_REVIEW_LOG_STORE
@@ -206,11 +208,17 @@ MANIFEST = SubsystemManifest(
             _panels.ai_policy_preview_picker_spec(),
             _panels.ai_policy_scope_edit_spec(),
             _panels.ai_policy_role_edit_spec(),
-            _panels.ai_policy_list_spec()),
+            _panels.ai_policy_list_spec(),
+            # the behavior-preset slice (D-0071): the shipped behavior
+            # scope pickers, the preview reuse and the preset picker.
+            _panels.ai_behavior_channel_picker_spec(),
+            _panels.ai_behavior_category_picker_spec(),
+            _panels.ai_behavior_preview_picker_spec(),
+            _panels.ai_behavior_preset_picker_spec()),
     settings=_SETTINGS,
     stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE,
             AI_CHANNEL_POLICY_STORE, AI_CATEGORY_POLICY_STORE,
-            AI_ROLE_POLICY_STORE),
+            AI_ROLE_POLICY_STORE, AI_INSTRUCTION_PROFILE_STORE),
     events=AI_POLICY_EVENTS,
     capabilities=(),
 )
@@ -237,6 +245,7 @@ def _ensure_refs() -> None:
     _service.ensure_handler_refs()
     _widgets.ensure_widget_refs()
     _policy_widgets.ensure_policy_widget_refs()
+    _behavior_widgets.ensure_behavior_widget_refs()
     register_ops()
     register_policy_ops()
     register_event_specs(AI_POLICY_EVENTS)

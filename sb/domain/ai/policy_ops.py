@@ -65,6 +65,36 @@ def _optional_int(value) -> int | None:
     return None if value is None else int(value)
 
 
+def _sentinel_int(ctx: WorkflowContext, key: str):
+    """ABSENT param key → the store's UNCHANGED sentinel (the shipped
+    ai_policy_mutation posture): the modal lane always sends the key
+    (possibly None = clear), the behavior-preset lane omits min_level/
+    cooldown so existing overrides are preserved verbatim."""
+    if key not in ctx.params:
+        return store.UNCHANGED
+    return _optional_int(ctx.params.get(key))
+
+
+async def _profile_binding(conn, ctx: WorkflowContext):
+    """instruction_profile_id pass-through (the behavior-preset lane,
+    D-0071): ABSENT → UNCHANGED; present → the leg re-checks the id names
+    a seeded ``is_preset`` row (§4.1 seam authority — no raw caller can
+    bind an arbitrary profile id; the shipped apply_preset resolved the
+    preset through describe_preset before writing)."""
+    if "instruction_profile_id" not in ctx.params:
+        return store.UNCHANGED
+    raw = ctx.params.get("instruction_profile_id")
+    if raw is None:
+        return None
+    preset_id = int(raw)
+    row = await store.get_preset_profile(preset_id, conn=conn)
+    if row is None:
+        # the shipped UnknownBehaviorPresetError sentence body.
+        raise ValidatorError(
+            f"preset_id={preset_id} not found or not flagged is_preset=True")
+    return preset_id
+
+
 @workflow("ai.record_channel_policy")
 async def _set_channel_policy(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid = _ids(ctx)
@@ -77,8 +107,9 @@ async def _set_channel_policy(conn, ctx: WorkflowContext) -> LegOutcome:
     channel_id = int(ctx.params.get("channel_id") or 0)
     prior = await store.upsert_channel_policy(
         conn, guild_id=gid, channel_id=channel_id, mode=mode,
-        min_level=_optional_int(ctx.params.get("min_level")),
-        cooldown_seconds=_optional_int(ctx.params.get("cooldown_seconds")),
+        min_level=_sentinel_int(ctx, "min_level"),
+        cooldown_seconds=_sentinel_int(ctx, "cooldown_seconds"),
+        instruction_profile_id=await _profile_binding(conn, ctx),
         updated_by=uid)
     generation = await store.bump_generation(conn, guild_id=gid)
     return LegOutcome(
@@ -99,8 +130,9 @@ async def _set_category_policy(conn, ctx: WorkflowContext) -> LegOutcome:
     category_id = int(ctx.params.get("category_id") or 0)
     prior = await store.upsert_category_policy(
         conn, guild_id=gid, category_id=category_id, mode=mode,
-        min_level=_optional_int(ctx.params.get("min_level")),
-        cooldown_seconds=_optional_int(ctx.params.get("cooldown_seconds")),
+        min_level=_sentinel_int(ctx, "min_level"),
+        cooldown_seconds=_sentinel_int(ctx, "cooldown_seconds"),
+        instruction_profile_id=await _profile_binding(conn, ctx),
         updated_by=uid)
     generation = await store.bump_generation(conn, guild_id=gid)
     return LegOutcome(
