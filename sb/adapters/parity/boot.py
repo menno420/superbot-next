@@ -40,6 +40,7 @@ from parity.harness.world import DEFAULT_PERSONAS, World
 
 from sb.adapters.parity.transport import (
     ParityChannelEmitter,
+    ParityHistoryReader,
     ParityModerationActions,
     ParityPresenter,
     ParityResponder,
@@ -328,6 +329,13 @@ class Harness:
         # replays PARTIAL with a not-installed finding: a harness gap).
         install_moderation_actions(
             ParityModerationActions(self.http, self.world.clock))
+        # the cleanup channel-history read port — the goldens' `logs_from`
+        # wire verb (goldens/cleanup/sweep_cleanuphistory.json); without it
+        # the scan degrades to the not-armed refusal: a harness gap, not
+        # bot behavior.
+        from sb.domain.cleanup.service import install_history_reader
+
+        install_history_reader(ParityHistoryReader(self.http))
         # the utility read ports: the capture-world guild directory + the
         # no-heartbeat gateway probe (the old harness's bot.latency was nan
         # — goldens/utility/sweep_ping pins "nan ms").
@@ -502,6 +510,7 @@ class Harness:
             self.db_ready = False
         # release the process-global seams we armed (same-process test hygiene)
         try:
+            from sb.domain.cleanup.service import reset_cleanup_ports_for_tests
             from sb.domain.moderation.service import reset_moderation_ports_for_tests
             from sb.domain.utility.service import reset_utility_ports_for_tests
             from sb.kernel import lifecycle
@@ -517,6 +526,7 @@ class Harness:
             reset_channel_emitter_for_tests()
             reset_moderation_ports_for_tests()
             reset_utility_ports_for_tests()
+            reset_cleanup_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
         except Exception:  # noqa: BLE001 — close is best-effort

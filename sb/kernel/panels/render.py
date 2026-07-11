@@ -78,6 +78,7 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
 # keeps the "Home" placeholder.
 HUB_NAV_LABELS: dict[str, str] = {
     "admin": "Administration",    # goldens/uxlab/sweep_slash_uxlab
+    "moderation": "Moderation",   # goldens/cleanup/sweep_cleanup
 }
 
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).

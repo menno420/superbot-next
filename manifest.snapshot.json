@@ -2929,6 +2929,56 @@
           "value": "visibility"
         },
         {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "words"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "logging"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "settings"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "policies"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_refresh"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "word_add"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "word_remove"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "word_refresh"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "scan_history"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "anti_evasion"
+        },
+        {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
           "value": "xp"
@@ -3791,6 +3841,11 @@
           "source": "sb/manifest/cleanup.py",
           "subsystem": "cleanup",
           "value": "cleanup.hub"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.words"
         },
         {
           "source": "sb/manifest/community.py",
@@ -5609,11 +5664,41 @@
       "handler:channel.visibility_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:cleanup.history_pending": {
+      "handler:cleanup.anti_evasion_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.history_scan": {
+        "module": "sb.domain.cleanup.handlers"
+      },
+      "handler:cleanup.logging_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.policies_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.render_hub": {
+        "module": "sb.domain.cleanup.panels"
+      },
+      "handler:cleanup.render_words": {
+        "module": "sb.domain.cleanup.panels"
+      },
+      "handler:cleanup.scan_history_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.settings_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.word_add_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:cleanup.word_list": {
         "module": "sb.domain.cleanup.ops"
+      },
+      "handler:cleanup.word_refresh_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:cleanup.word_remove_pending": {
+        "module": "sb.domain.operator_spine"
       },
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
@@ -6315,7 +6400,10 @@
         "module": "sb.domain.channel.panels"
       },
       "panel:cleanup.hub": {
-        "module": "sb.domain.operator_spine"
+        "module": "sb.domain.cleanup.panels"
+      },
+      "panel:cleanup.words": {
+        "module": "sb.domain.cleanup.panels"
       },
       "panel:community.hub": {
         "module": "sb.domain.community.panels"
@@ -6647,8 +6735,11 @@
       "provider:automod.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
-      "provider:cleanup.hub_settings": {
-        "module": "sb.domain.operator_spine"
+      "provider:cleanup.hub_fields": {
+        "module": "sb.domain.cleanup.panels"
+      },
+      "provider:cleanup.words_fields": {
+        "module": "sb.domain.cleanup.panels"
       },
       "provider:community_spotlight.game_options": {
         "module": "sb.domain.community.panels"
@@ -8082,7 +8173,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:36056fdd201a76eaa5aa3ee840733d5dcaf13547d0762dbc5242dadffce61c63",
+  "stable_hash": "sha256:0737e0f67e607d4a3a7aa0529d6128aa129824ae46274d027ae491d37adecf63",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -12914,7 +13005,7 @@
       "commands": [
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "cleanup",
           "capability_required": "",
           "cooldown": null,
@@ -12937,7 +13028,7 @@
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "cleanup",
           "capability_required": "",
           "cooldown": null,
@@ -12951,7 +13042,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "panel:cleanup.hub"
+            "$ref": "panel:cleanup.words"
           },
           "slash_common": false,
           "summary": "Open the word-filter menu.",
@@ -12960,7 +13051,7 @@
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "moderator",
           "capability": "cleanup",
           "capability_required": "",
           "cooldown": null,
@@ -12974,7 +13065,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:cleanup.history_pending"
+            "$ref": "handler:cleanup.history_scan"
           },
           "slash_common": false,
           "summary": "Sweep recent channel history.",
@@ -13079,16 +13170,137 @@
       "key": "cleanup",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "words",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup:words",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:cleanup.words"
+              },
+              "label": "🔤 Prohibited Words",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup:logging",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.logging_pending"
+              },
+              "label": "📝 Logging Status",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "settings",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup:settings",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.settings_pending"
+              },
+              "label": "⚙️ Settings",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "policies",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup:policies",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.policies_pending"
+              },
+              "label": "🧹 Cleanup Policies",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cl_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup:refresh",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:cleanup.hub"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Prohibited-word filter + message-hygiene sweeps."
+              "text": "Auto-moderation policies for command-style messages and prohibited content. Per-channel behaviour is configured under **Cleanup Policies** below."
             },
             {
               "provider": {
-                "$ref": "provider:cleanup.hub_settings"
+                "$ref": "provider:cleanup.hub_fields"
               }
             }
           ],
@@ -13096,31 +13308,226 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "red",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub footer is the literal 'Read-only summary. Use the buttons below to manage policies.' (cogs/cleanup/panel.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary — and the shipped Prohibited Words count field renders inline=True (panel.py add_field(inline=True)) — outside the grammar's vocabulary (2-tuple fields render inline=False). goldens/cleanup/sweep_cleanup.json pins both bytes (the settings-hub/access precedent). The override delegates to the grammar renderer and adjusts ONLY those two surfaces; body, fields, actions and layout stay declared.",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "words",
+                    "logging",
+                    "settings",
+                    "policies"
+                  ],
+                  [
+                    "cl_refresh"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
+            "home_hub": "moderation",
             "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "cleanup.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:cleanup.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "cleanup",
           "timeout_s": 180,
-          "title": "Cleanup",
+          "title": "🧹 Cleanup Hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "word_add",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.word_add_pending"
+              },
+              "label": "➕ Add Word",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "word_remove",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.word_remove_pending"
+              },
+              "label": "➖ Remove Word",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "word_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.word_refresh_pending"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "scan_history",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.scan_history_pending"
+              },
+              "label": "🔍 Scan History",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "anti_evasion",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.anti_evasion_pending"
+              },
+              "label": "🛡️ Anti-evasion",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "provider": {
+                "$ref": "provider:cleanup.words_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped words-manager footer is the literal 'Use buttons below to manage prohibited words.' (cleanup_cog.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/cleanup/sweep_wordmenu.json pins the byte; the settings/server_management footer precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "word_add",
+                    "word_remove",
+                    "word_refresh"
+                  ],
+                  [
+                    "scan_history",
+                    "anti_evasion"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.words",
+          "renderer_override": {
+            "$ref": "handler:cleanup.render_words"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🔤 Prohibited Words Manager",
           "usage_weight": 1.0
         }
       ],
