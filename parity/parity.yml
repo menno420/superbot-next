@@ -63,7 +63,7 @@ subsystems:
   counting: pending
   creature: pending
   diagnostic: pending
-  economy: pending
+  economy: ported
   farm: pending
   fishing: pending
   four_twenty: pending
@@ -183,6 +183,15 @@ depth:
                              # only), so no golden can drive the write
                              # (vocabulary growth reviewed in the btd6 flip PR,
                              # per the "reviewed schema change" rule above)
+    - select-driven          # writes sit behind a run-minted select-menu PICK —
+                             # click steps reconstruct STATIC custom_ids only
+                             # and carry no component values, and session select
+                             # ids normalize to <cid:N> at import (not
+                             # reconstructable), so no golden can drive the
+                             # write. The D-0063 structural-unreachability test
+                             # re-argued for the select ingress (D-0064;
+                             # vocabulary growth reviewed in the economy flip
+                             # PR, per the "reviewed schema change" rule above)
 
   # exemptions:
   #   <subsystem>:
@@ -213,6 +222,54 @@ depth:
           the hub open renders the LIVE word count over this store, and
           the words manager's live read lands with the word-mutation
           panel slice"
+    economy:
+      # economy's six goldens pin the read/menu/claim lane (the daily K7
+      # write + economy/economy_audit_log deltas + the hub/jobcenter/
+      # wallet wire bytes); the work/buy K7 writes sit behind the two
+      # session dropdowns, and the coins column moved home at the
+      # ledgered-coins boundary.
+      # NOT covered-elsewhere: no golden corpus-wide carries an
+      # economy_balances db_delta (the #145 codex ruling — when no
+      # imported golden CAN carry the table, the ground is structural
+      # absence, not a sibling). Here the absence is the capture
+      # SCHEMA EPOCH: the table is the ledgered-coins boundary's NEW
+      # home (xp-coins-alias disposition above, new_home_table).
+      - surface: "table:economy_balances"
+        reason: "env-keyed-integration: economy_balances is the
+          ledgered-coins boundary's NEW home — the capture world's
+          schema stored coins on the shipped xp.coins alias by DESIGN
+          (the xp-coins-alias disposition above documents exactly this:
+          'goldens are old-bot captures, so they can never contain an
+          economy_balances row'), so no imported golden can carry the
+          row; the wallet-mutation BYTES stay fully pinned through the
+          economy_audit_log delta/new_balance rows the same goldens
+          gate — goldens/economy/sweep_daily.json +
+          goldens/economy/economy_balance_and_daily.json (the
+          +1025/+879 daily credits; step 3's wallet card re-reads the
+          credited 879 from this very table) — and the table's first
+          direct golden lands with a new-bot capture corpus"
+      - surface: "table:job_progress"
+        reason: "select-driven: the ONLY shipped write path is the Job
+          Center dropdown pick (economy_cog.work → _WorkView/_JobSelect →
+          the audited economy.work op; the shipped !work command took NO
+          job argument) — a run-minted select whose id normalizes to
+          <cid:N> at import and whose picked VALUE the click schema does
+          not carry, so no imported golden can drive the write
+          (D-0064, the D-0063 test re-argued); the pinnable surface IS
+          pinned — goldens/economy/sweep_work.json replays the Job Center
+          open (the <cid:N> select + the three tier-1 options) and works
+          no job"
+      - surface: "table:inventory"
+        reason: "select-driven: the ONLY shipped write path is the shop
+          panel item pick (_ShopView/_ShopSelect → the audited
+          economy.buy op; the shipped !shop command sent the picker and
+          wrote nothing) — a run-minted select whose id normalizes to
+          <cid:N> at import and whose picked VALUE the click schema does
+          not carry, so no imported golden can drive the write
+          (D-0064, the D-0063 test re-argued); the pinnable surface IS
+          pinned — goldens/_unmapped/sweep_shop.json replays the shipped
+          shop picker open (the <cid:N> select + the car/toolkit/suit
+          options) and buys nothing"
     proof_channel:
       # proof_channel's three goldens (and the sibling _unmapped prize
       # sweeps) all pin the shipped "#proof not found" guard — the
@@ -298,6 +355,7 @@ depth:
     btd6: {events: 1, tables: 3, settings: 1}
     channel: {events: 1, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 2, settings: 0}
+    economy: {events: 2, tables: 5, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
