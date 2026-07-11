@@ -304,6 +304,66 @@ def test_shipped_preset_rosters_verbatim():
         0, 15, 30, 60, 120)
 
 
+def test_settings_page_renders_widget_written_rows_coerced_and_valid():
+    """Regression (codex P2 on #160): a value the preset/toggle widgets
+    WRITE lands as a raw KV string (`'15'` / `'true'`); the page must
+    render it COERCED with the coercion-driven validity flag (the shipped
+    resolve_setting semantics) — never string-compare it against
+    `allowed_values` (which marked every widget-written
+    `ai_memory_window_minutes` **invalid**)."""
+    import sb.manifest.ai as manifest
+    from sb.kernel import settings as ksettings
+    from sb.kernel.settings import register_manifest_settings
+
+    try:
+        register_manifest_settings(manifest.MANIFEST)
+    except ValueError as exc:
+        if "already declared" not in str(exc):
+            raise
+
+    store = {
+        "ai_memory_window_minutes": "15",   # the widget's serialized write
+        "ai_enabled": "true",
+        "ai_default_provider": "openai",
+        "ai_cooldown_seconds": "banana",    # unparseable raw → default+invalid
+    }
+
+    async def reader(guild_id, decl_key):
+        sub, _, name = decl_key.partition(".")
+        key = ksettings.persisted_key(sub, name)
+        if guild_id == 424242 and key in store:
+            return store[key]
+        return ksettings.UNSET
+
+    prior = ksettings._reader          # noqa: SLF001 — save/restore the seam
+    ksettings.install_settings_reader(reader)
+    try:
+        from sb.domain.ai.panels import _settings_fields
+
+        class Ctx:
+            guild_id = 424242
+            params = {}
+
+        fields = run(_settings_fields(Ctx()))
+        lines = fields[0][1].split("\n")
+        by_key = {line.split("`")[1]: line for line in lines
+                  if line.startswith("`")}
+        assert by_key["ai_memory_window_minutes"] == (
+            "`ai_memory_window_minutes` = `15` "
+            "(`guild`, default=`0`, valid)")
+        assert by_key["ai_enabled"] == (
+            "`ai_enabled` = `True` (`guild`, default=`False`, valid)")
+        assert by_key["ai_default_provider"] == (
+            "`ai_default_provider` = `'openai'` "
+            "(`guild`, default=`'deterministic'`, valid)")
+        # the shipped coercion-failure posture: declared default + invalid.
+        assert by_key["ai_cooldown_seconds"] == (
+            "`ai_cooldown_seconds` = `30` "
+            "(`guild`, default=`30`, **invalid**)")
+    finally:
+        ksettings.install_settings_reader(prior)
+
+
 def test_kv_serialization_is_the_read_path_inverse():
     """The shipped `_serialise` spellings — the exact tokens the readers
     coerce back ("true"/"false", str(int))."""

@@ -258,12 +258,24 @@ async def settings_preset_pick(req) -> Reply:
         value = tuple(spec.presets)[index]
     except (ValueError, IndexError):
         return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+    # pre-write read covers the NO-ROW display (the global/default
+    # resolution chain — the shipped resolution.value posture)…
     old = await _current_value(int(req.guild_id), spec)
     result = await _write_setting(req, spec, value)
     if result.outcome != SUCCESS:
         return Reply(result.outcome,
                      f"❌ Couldn't update `ai.{key}`: "
                      f"{result.user_message or 'write failed'}.")
+    # …but when a per-guild row EXISTED, prefer the IN-TRANSACTION prior
+    # the write leg returned (LegOutcome.before over the upsert's
+    # SELECT-then-UPDATE) — a concurrent writer between the read above
+    # and the commit can no longer misreport the "(was …)" byte.
+    prior_raw = ((result.before or {}).get("write_scalar") or {}).get("value")
+    if prior_raw is not None:
+        from sb.domain.settings.service import coerce_value
+
+        coerced, ok, _diag = coerce_value(spec, str(prior_raw))
+        old = coerced if ok else spec.default
     return Reply(SUCCESS,
                  f"✅ Updated `ai.{key}` = `{value!r}` (was `{old!r}`).")
 
