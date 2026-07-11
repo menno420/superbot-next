@@ -558,6 +558,28 @@ class ParityHistoryReader:
         return ()
 
 
+class ParityLevelupHistoryScanner:
+    """The xp `!xpimport` history-scan capture twin — the shipped
+    ``channel.history(limit=...)`` read that discord.py's HTTP layer
+    performed as ``logs_from`` (parity/harness/fake_http.py records
+    ``{"channel_id", "limit"}``; goldens/xp/sweep_xpimport.json pins the
+    call with limit 100). The recorded ``limit`` mirrors discord.py's
+    HTTP paging: the FIRST page requests ``min(limit, 100)`` and a
+    whole-channel scan (limit=None — the shipped default) requests 100;
+    the capture world holds no channel messages, so one page suffices
+    and the read yields the goldens' 0-scanned shape."""
+
+    def __init__(self, transport: ParityTransport) -> None:
+        self._transport = transport
+
+    async def __call__(self, channel_id: int, *,
+                       limit: "int | None" = None) -> tuple:
+        page = 100 if limit is None else max(min(int(limit), 100), 1)
+        self._transport.record(
+            "logs_from", {"channel_id": int(channel_id), "limit": page})
+        return ()
+
+
 #: fake_http.get_from_cdn's deterministic 1×1 PNG, verbatim — what the old
 #: harness fed the shipped card pipeline's avatar read.
 _CDN_PNG = bytes.fromhex(

@@ -32,11 +32,13 @@ __all__ = [
     "fetch_avatar_png",
     "handle_chat_message",
     "install_avatar_fetcher",
+    "install_channel_resolver",
     "install_economy_ports",
     "install_level_role_granter",
     "install_levelup_history_scanner",
     "install_participation_gate",
     "reset_xp_ports_for_tests",
+    "resolve_text_channel",
     "set_rng_for_tests",
     "subscribe",
     "xp_config",
@@ -77,6 +79,15 @@ HistoryScanner = Callable[..., Awaitable[list]]               # xpimport channel
 #: Shipped posture: ANY failure → None → the card degrades to initials,
 #: so an uninstalled port is the honest None fallback, never a raise.
 AvatarFetcher = Callable[[int, int], Awaitable["bytes | None"]]
+#: (guild_id, channel_name) -> channel_id, or None when no text channel of
+#: that name exists. The shipped `!xpimport` arg walk escalated a
+#: non-mention token to commands.TextChannelConverter (disbot/cogs/
+#: xp_cog.py — mention, id, then NAME lookup over the gateway guild
+#: cache); the name leg is this port. Unarmed => name tokens resolve to
+#: None and the walk ignores them — the shipped BadArgument pass — so
+#: the live root degrades to the same "unknown token — ignore" posture
+#: until the gateway channel-directory read lands (follow-up slice).
+ChannelResolver = Callable[[int, str], Awaitable["int | None"]]
 
 
 async def _default_participation_gate(user_id: int, guild_id: int) -> bool:
@@ -97,6 +108,7 @@ _participation_gate: ParticipationGate = _default_participation_gate
 _role_granter: RoleGranter = _default_role_granter
 _history_scanner: HistoryScanner | None = None
 _avatar_fetcher: AvatarFetcher | None = None
+_channel_resolver: ChannelResolver | None = None
 # None => the chat draw falls back to the MODULE-GLOBAL random — the
 # instance the parity harness seeds per case (`random.seed(case.seed)`),
 # so a fresh replay reproduces the captured amount (the economy-daily
@@ -124,6 +136,31 @@ def install_levelup_history_scanner(scanner: HistoryScanner) -> None:
 
 def active_history_scanner() -> HistoryScanner | None:
     return _history_scanner
+
+
+def install_channel_resolver(resolver: ChannelResolver) -> None:
+    """The `!xpimport` channel NAME lookup (TextChannelConverter's name
+    leg) — the composition root installs the gateway-cache read; the
+    parity harness installs the capture-world directory (boot.py)."""
+    global _channel_resolver
+    _channel_resolver = resolver
+
+
+async def resolve_text_channel(guild_id: int, token: str) -> int | None:
+    """One TextChannelConverter step, portable: ``<#id>`` mention, raw
+    snowflake id, then the name lookup through the installed resolver.
+    Returns None for an unresolvable token (the shipped BadArgument →
+    "unknown token — ignore" posture rides in the caller)."""
+    text = str(token).strip()
+    stripped = text.strip("<#>")
+    if stripped.isdigit() and len(stripped) >= 15:
+        return int(stripped)
+    if _channel_resolver is None:
+        return None
+    try:
+        return await _channel_resolver(int(guild_id), text)
+    except Exception:  # noqa: BLE001 — a directory failure reads as not-found
+        return None
 
 
 def install_avatar_fetcher(fetcher: AvatarFetcher) -> None:
@@ -156,11 +193,12 @@ def set_rng_for_tests(rng: random.Random | None) -> None:
 
 def reset_xp_ports_for_tests() -> None:
     global _participation_gate, _role_granter, _history_scanner, _rng
-    global _avatar_fetcher
+    global _avatar_fetcher, _channel_resolver
     _participation_gate = _default_participation_gate
     _role_granter = _default_role_granter
     _history_scanner = None
     _avatar_fetcher = None
+    _channel_resolver = None
     _rng = None
 
 

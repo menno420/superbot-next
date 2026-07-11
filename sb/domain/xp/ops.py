@@ -27,7 +27,6 @@ from sb.kernel.workflow.spec import (
     LegSpec,
     WorkflowLane,
 )
-from sb.spec.confirmation import Challenge, ConfirmationSpec
 from sb.spec.events import DeliveryClass
 from sb.spec.refs import WorkflowRef, workflow
 
@@ -268,8 +267,7 @@ _RESET_EMITS = (
 
 def _op(op_key: str, verb: str, leg_ref: str, *,
         emits: tuple[EventEmitSpec, ...] = (),
-        leg_reversibility: str = "reversible",
-        confirmation: ConfirmationSpec | None = None) -> CompoundOpSpec:
+        leg_reversibility: str = "reversible") -> CompoundOpSpec:
     """NATURAL_KEY: the upsert/raise-only/delete statements decide-and-
     write in one statement (the shipped race closures)."""
     return CompoundOpSpec(
@@ -278,14 +276,24 @@ def _op(op_key: str, verb: str, leg_ref: str, *,
         legs=(LegSpec("record", LegKind.DB, WorkflowRef(leg_ref),
                       leg_reversibility),),
         idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
-        audit_verb=verb, emits=emits, confirmation=confirmation)
+        audit_verb=verb, emits=emits, confirmation=None)
 
 
 AWARD = _op("xp.award", "xp_awarded", "xp.record_award", emits=_AWARD_EMITS)
-RESET = _op("xp.reset", "xp_reset", "xp.record_reset", emits=_RESET_EMITS,
-            leg_reversibility="irreversible",
-            confirmation=ConfirmationSpec(reversibility="irreversible",
-                                          challenge=Challenge.TYPED_PHRASE))
+# NO op-level ConfirmationSpec and a REVERSIBLE record leg: the shipped
+# `!resetxp` acked in ONE shot (disbot/cogs/xp_cog.py resetxp —
+# delete_xp + emit_audit_action + "✅ Reset XP for {member.mention}.",
+# no confirm challenge; goldens/xp/sweep_resetxp.json pins the direct
+# ack), and the golden-exercised lane admits no per-golden exemption
+# (A-16), so the §2.7 posture re-homes exactly like moderation-kick's
+# (#163 / trap 18e): the bare row DELETE relabels reversible (a
+# txn-scoped DB leg whose before-state the audit trail carries — the
+# role delete_threshold/unsetrole bare-DELETE class), the interactive
+# confirm stays on the HUB action (sb/domain/xp/panels.py resetxp
+# PanelActionSpec.confirm — the resolver's own confirm fence). The lone
+# DB leg needs no compensator (nothing follows it), so the
+# compensator-invariant is untouched and the allowlist stays EMPTY.
+RESET = _op("xp.reset", "xp_reset", "xp.record_reset", emits=_RESET_EMITS)
 IMPORT = _op("xp.import_levels", "xp_imported", "xp.record_import")
 REPAIR = _op("xp.repair_level_consistency", "xp_level_repaired",
              "xp.record_repair_level")
