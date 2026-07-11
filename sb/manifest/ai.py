@@ -23,6 +23,7 @@ from sb.domain.ai import panels as _panels
 from sb.domain.ai import policy_widgets as _policy_widgets
 from sb.domain.ai import readers as _readers
 from sb.domain.ai import review as _review
+from sb.domain.ai import routing_matrix as _routing_matrix
 from sb.domain.ai import round_cash as _round_cash
 from sb.domain.ai import service as _service
 from sb.domain.ai import settings_widgets as _widgets
@@ -232,6 +233,9 @@ MANIFEST = SubsystemManifest(
             _panels.ai_behavior_category_picker_spec(),
             _panels.ai_behavior_preview_picker_spec(),
             _panels.ai_behavior_preset_picker_spec(),
+            # the routing-matrix follow-up slice (D-0074): the shipped
+            # read-only dry-run diagnostic (views/ai/routing/matrix.py).
+            _panels.ai_behavior_matrix_picker_spec(),
             # the orchestration-mutation slice (D-0072): the shipped
             # tools scope pickers, the step-2 profile choice and the
             # dry-run preview.
@@ -275,6 +279,7 @@ def _ensure_refs() -> None:
     _policy_widgets.ensure_policy_widget_refs()
     _behavior_widgets.ensure_behavior_widget_refs()
     _orchestration_widgets.ensure_orchestration_widget_refs()
+    _routing_matrix.ensure_routing_matrix_refs()
     register_ops()
     register_policy_ops()
     register_orchestration_ops()

@@ -30,12 +30,13 @@
   chooser (the shipped punt) and every ↩ AI home back-route rebuilds the
   hub fresh. The POLICY chooser's scope pickers are LIVE (below), the
   BEHAVIOR preset pickers too (the behavior-preset slice, D-0071 —
-  channel/category/preview + the preset picker below), and so are the
-  TOOLS profile pickers (the orchestration-mutation slice, D-0072 —
-  guild/channel/category/preview below); the behavior ROUTING-MATRIX
-  picker (views/ai/routing/matrix.py) is the routing-matrix follow-up
-  slice's port — an honest pending terminal meanwhile
-  (settings_widgets.py `chooser_scope_pending`).
+  channel/category/preview + the preset picker below), the TOOLS
+  profile pickers (the orchestration-mutation slice, D-0072 —
+  guild/channel/category/preview below), and the behavior
+  ROUTING-MATRIX picker (views/ai/routing/matrix.py — the
+  routing-matrix follow-up slice, D-0074: the shipped read-only
+  dry-run resolve card; sb/domain/ai/routing_matrix.py owns the
+  route). No chooser pending terminals remain.
 * ``ai.tools_guild_picker`` / ``ai.tools_channel_picker`` /
   ``ai.tools_category_picker`` / ``ai.tools_profile_picker`` /
   ``ai.tools_preview_picker`` — the shipped TOOLS profile pickers
@@ -112,6 +113,7 @@ __all__ = [
     "ai_behavior_category_picker_spec",
     "ai_behavior_channel_picker_spec",
     "ai_behavior_chooser_spec",
+    "ai_behavior_matrix_picker_spec",
     "ai_behavior_preset_picker_spec",
     "ai_behavior_preview_picker_spec",
     "ai_card_spec",
@@ -237,15 +239,16 @@ def ai_card_spec() -> PanelSpec:
 
 
 def _scope_action(action_id: str, label: str, style: ActionStyle,
-                  handler=None) -> PanelActionSpec:
+                  handler) -> PanelActionSpec:
     """One chooser button — the shipped transient views carried NO
     persistent custom_ids (created per click, timeout 180), so every id
-    is session-minted; scope pickers land on the shared pending terminal
-    until their mutation slices."""
+    is session-minted. Every scope button now opens its shipped picker
+    page (the last pending terminal — the routing matrix — went live
+    with the routing-matrix slice, D-0074)."""
     return PanelActionSpec(
         action_id=action_id, label=label, style=style,
         audience_tier="staff",
-        handler=handler or HandlerRef("ai.chooser_scope_pending"),
+        handler=handler,
         result_render=ResultRender.RESULT_CARD)
 
 
@@ -370,7 +373,8 @@ def ai_behavior_chooser_spec() -> PanelSpec:
                           ActionStyle.SECONDARY,
                           handler=PanelRef("ai.behavior_preview_picker")),
             _scope_action("behavior_matrix", "Routing matrix",
-                          ActionStyle.SECONDARY),
+                          ActionStyle.SECONDARY,
+                          handler=PanelRef("ai.behavior_matrix_picker")),
             # the shipped Advanced punt — swap to the RAW policy chooser
             # page (views/ai/behavior/chooser.py advanced_btn).
             _scope_action("behavior_advanced", "Advanced",
@@ -803,6 +807,26 @@ def ai_behavior_preview_picker_spec() -> PanelSpec:
         placeholder="Pick a channel to preview…",
         on_select="ai.policy_preview_pick",
         selector_id="behavior_preview_pick",
+        navigation=_BACK_TO_BEHAVIOR)
+
+
+def ai_behavior_matrix_picker_spec() -> PanelSpec:
+    """The shipped RoutingMatrixSelectView page (views/ai/routing/
+    matrix.py — the routing-matrix follow-up slice, D-0074): the
+    chooser's ``matrix_btn`` swap (``_behavior_page_embed("Behavior ·
+    routing matrix", …)``) over the shipped ``_MatrixChannelSelect``
+    (native text-channel select, timeout 180 — session-minted like the
+    family); the pick renders the 🧭 dry-run resolve card
+    (sb/domain/ai/routing_matrix.py owns the route — read-only, no
+    audit / no cooldown / no mutation)."""
+    return _policy_picker_spec(
+        "ai.behavior_matrix_picker",
+        title="Behavior · routing matrix",
+        instruction="Pick a channel to dry-run the AI routing matrix.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel to preview routing for…",
+        on_select="ai.routing_matrix_pick",
+        selector_id="behavior_matrix_pick",
         navigation=_BACK_TO_BEHAVIOR)
 
 
@@ -1555,6 +1579,9 @@ _SPECS = {
     "ai.behavior_category_picker": ai_behavior_category_picker_spec,
     "ai.behavior_preview_picker": ai_behavior_preview_picker_spec,
     "ai.behavior_preset_picker": ai_behavior_preset_picker_spec,
+    # the routing-matrix follow-up slice (D-0074): the shipped read-only
+    # dry-run diagnostic (views/ai/routing/matrix.py).
+    "ai.behavior_matrix_picker": ai_behavior_matrix_picker_spec,
     # the orchestration-mutation slice (D-0072): the shipped tools scope
     # pickers, the step-2 profile choice and the dry-run preview
     # (views/ai/tools/*).

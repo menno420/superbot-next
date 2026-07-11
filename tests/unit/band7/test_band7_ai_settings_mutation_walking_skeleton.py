@@ -159,26 +159,23 @@ def test_tools_button_opens_shipped_tools_chooser_with_current(skeleton):
     ]
 
 
-def test_chooser_scope_buttons_answer_honest_pending(skeleton):
-    """The still-parked scope pickers keep their honest pending terminal
-    (the POLICY pickers are live — the policy-mutation slice's own
-    skeleton drives them — and so are the BEHAVIOR preset pickers, the
-    behavior-preset slice D-0071, whose own skeleton drives them
-    [test_band7_behavior_presets.py]; the behavior ROUTING-MATRIX picker
-    and the tools profile pickers stay the routing-matrix /
-    orchestration-mutation slices' ports)."""
+def test_chooser_scope_buttons_all_live(skeleton):
+    """No chooser pending terminals remain: the POLICY pickers went live
+    with the policy-mutation slice, the BEHAVIOR preset pickers with
+    D-0071 [test_band7_behavior_presets.py], the TOOLS profile pickers
+    with D-0072 [test_band7_orchestration_mutation.py], and the last one
+    — the behavior ROUTING-MATRIX picker — with the routing-matrix slice
+    D-0074 [test_band7_routing_matrix.py, which drives the pick →
+    dry-run card]; here we pin the button's route (the shipped
+    matrix_btn edit_message swap to the picker page)."""
     payload = _panel_payload(_click_hub(skeleton, "behavior"))
     matrix_btn = [c["custom_id"] for row in payload["components"]
                   for c in row["components"]
                   if c.get("label") == "Routing matrix"]
     run(skeleton.click(message_id=902, custom_id=matrix_btn[0],
                        persona="admin"))
-    calls = skeleton.take_calls()
-    assert calls[-1].payload["content"] == (
-        "The routing-matrix picker (views/ai/routing/matrix.py — the "
-        "channel-pick dry-run resolve card) ports with the "
-        "routing-matrix follow-up slice — `!ai routing` lists the task "
-        "table meanwhile.")
+    payload = _panel_payload(skeleton.take_calls())
+    assert payload["embeds"][0]["title"] == "Behavior · routing matrix"
 
 
 # --- the settings edit/reset dispatch (the shipped S6 routing) --------------------
