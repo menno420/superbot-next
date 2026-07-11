@@ -66,3 +66,13 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
+
+- 2026-07-11 · wall · Repo Settings/Rulesets are admin-only: agent tokens can
+  READ but cannot MODIFY rulesets or merge settings (so the require-up-to-date
+  rule and the update-branch dance cannot be changed agent-side) · evidence:
+  verified while un-stranding PRs #86/#87 (the stranding is the wall in
+  effect); an agent re-verified it cannot edit the ruleset — the ask is
+  queued as OWNER-ACTION 3 in control/status.md · workaround: branches ride
+  the forward-merge-main / API update-branch dance before merging; owner fix
+  is enabling a merge queue or dropping require-up-to-date for `docs/**` +
+  `control/**` paths.
