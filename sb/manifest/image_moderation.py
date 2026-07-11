@@ -6,6 +6,7 @@ provider keys."""
 
 from __future__ import annotations
 
+from sb.domain.image_moderation import panels as _panels
 from sb.domain.operator_spine import ensure_hub, hub_spec
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -47,11 +48,13 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=(
         CommandSpec(name="imagemod", kind=CommandKind.PREFIX,
-                    route=PanelRef("image_moderation.hub"),
-                    summary="Open the image-moderation menu.",
+                    route=PanelRef("image_moderation.status"),
+                    summary="Show the current image-moderation policy "
+                            "for this server.",
                     capability="image_moderation"),
     ),
-    panels=(hub_spec("image_moderation", _TITLE, _BLURB),),
+    panels=(hub_spec("image_moderation", _TITLE, _BLURB),
+            _panels.status_spec()),
     settings=_SETTINGS,
     stores=(), events=(), capabilities=(),
 )
@@ -59,6 +62,7 @@ MANIFEST = SubsystemManifest(
 
 def _ensure_refs() -> None:
     ensure_hub("image_moderation", _TITLE, _BLURB)
+    _panels.ensure_panel_refs()
 
 
 ENSURE_REFS = _ensure_refs

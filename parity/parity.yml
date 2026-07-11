@@ -71,7 +71,7 @@ subsystems:
   general: ported
   help: ported
   hermes: ported
-  image_moderation: pending
+  image_moderation: ported
   inventory: pending
   karma: ported
   leaderboard: ported
@@ -440,6 +440,7 @@ depth:
     general: {events: 1, tables: 2, settings: 0}
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
+    image_moderation: {events: 1, tables: 2, settings: 0}
     karma: {events: 2, tables: 4, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
