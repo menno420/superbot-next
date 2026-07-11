@@ -7201,6 +7201,9 @@
       "handler:community.render_hub": {
         "module": "sb.domain.community.panels"
       },
+      "handler:community_spotlight.render_hub": {
+        "module": "sb.domain.community.panels"
+      },
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -10165,7 +10168,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:af30821ec5e53a701faf6fbd425bc7cb497b5788a8877fedaf199364cf6003b0",
+  "stable_hash": "sha256:aa52f6aae9688ffa720b96945df6fca3de593d0d5a7cbab853dcab733653159c",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19318,26 +19321,17 @@
           ],
           "anchor_policy": "reply",
           "audience": "invoker",
-          "body": [
-            {
-              "text": "Live server activity — leaders, level-ups, and game stats."
-            },
-            {
-              "provider": {
-                "$ref": "provider:community_spotlight.overview"
-              }
-            }
-          ],
+          "body": [],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "green",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped spotlight embed is live-parameterized beyond the grammar's vocabulary on THREE named embed surfaces (goldens/community_spotlight/sweep_spotlight pins the bytes): the TITLE interpolates the live guild name ('🌟 Community Spotlight — <guild>'), the FIELDS carry explicit inline flags (three true + Level-Ups false — grammar FieldsBlock 2-tuples serialize inline=false), and the FOOTER interpolates the shipped %H:%M UTC clock read ('Updated {now} • Use the buttons to explore leaderboards'). The override delegates to the grammar renderer for every component and replaces only the embed (the economy delegation recipe).",
           "layout": {
             "pages": [
               {
@@ -19357,14 +19351,16 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "community_spotlight.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:community_spotlight.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "community_spotlight",
           "timeout_s": 180,
           "title": "🌟 Community Spotlight",
