@@ -87,7 +87,7 @@ subsystems:
   security: pending
   server_management: pending
   servermanagement: ported
-  settings: pending
+  settings: ported
   setup: pending
   ticket: pending
   treasury: pending
@@ -191,6 +191,32 @@ depth:
           channels) — out of capture scope for the sweep corpus; the
           subsystem's only golden opens the quick-play picker and finishes
           no match"
+    settings:
+      # settings owns the SHARED K7 config lane (band 1): its stores/event
+      # are written through the four scalar/binding ops that OTHER
+      # subsystems' config commands drive — the settings directory's own
+      # four goldens are read-only panel opens (hub + explorer); the
+      # mutation pages are the settings-mutation slice's port.
+      - surface: "table:settings"
+        reason: "covered-elsewhere: the K7 scalar lane's write bytes are
+          pinned by sibling config-write oracles (goldens/rps_tournament/
+          sweep_rpsregister.json carries the shipped scalar write's
+          guild_settings row and replays green through the PORTED
+          rps_tournament row); the settings goldens are read-only panel
+          opens"
+      - surface: "table:subsystem_bindings"
+        reason: "covered-elsewhere: the K7 binding lane's write bytes are
+          pinned by the sibling oracle goldens/_unmapped/
+          sweep_setlogchannel.json (subsystem_bindings +
+          binding_audit_log rows — the shipped logging bind flow); the
+          settings goldens are read-only panel opens"
+      - surface: "event:settings.changed"
+        reason: "covered-elsewhere: the advisory fires only from the four
+          K7 scalar/binding ops, whose write bytes are pinned by the named
+          sibling oracles above (sweep_rpsregister / sweep_setlogchannel);
+          the shipped bot published no tap-able bus event on those flows,
+          so no imported golden can carry the event — its first live
+          golden lands with the first config-write flip (logging)"
 
   # ratchet:
   #   <subsystem>: {events: N, tables: N, settings: N}
@@ -206,6 +232,7 @@ depth:
     leaderboard: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     servermanagement: {events: 0, tables: 0, settings: 0}
+    settings: {events: 1, tables: 2, settings: 0}
     utility: {events: 1, tables: 2, settings: 0}
     ux_lab: {events: 1, tables: 2, settings: 0}
     uxlab: {events: 0, tables: 0, settings: 0}

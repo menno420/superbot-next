@@ -3608,6 +3608,152 @@
    },
    "value": 0
   },
+  "settings:access:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-1 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "settings:settings.access:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "subsystem"
+      ],
+      [
+       "select_scope"
+      ],
+      [
+       "explain",
+       "reset"
+      ],
+      [
+       "access_prev",
+       "access_next"
+      ]
+     ]
+    }
+   ]
+  },
+  "settings:settings.access:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "subsystem"
+    ],
+    [
+     "select_scope"
+    ],
+    [
+     "explain",
+     "reset"
+    ],
+    [
+     "access_prev",
+     "access_next"
+    ]
+   ]
+  },
+  "settings:settings.access:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "subsystem"
+       ],
+       [
+        "select_scope"
+       ],
+       [
+        "explain",
+        "reset"
+       ],
+       [
+        "access_prev",
+        "access_next"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "settings:settings.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "subsystem_select"
+      ],
+      [
+       "needs_setup",
+       "invalid",
+       "missing_bindings",
+       "audit"
+      ],
+      [
+       "command_access"
+      ]
+     ]
+    }
+   ]
+  },
+  "settings:settings.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "subsystem_select"
+    ],
+    [
+     "needs_setup",
+     "invalid",
+     "missing_bindings",
+     "audit"
+    ],
+    [
+     "command_access"
+    ]
+   ]
+  },
+  "settings:settings.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "subsystem_select"
+       ],
+       [
+        "needs_setup",
+        "invalid",
+        "missing_bindings",
+        "audit"
+       ],
+       [
+        "command_access"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "settings:settings:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the settings-grouping sim re-runs post-telemetry)"

@@ -2587,6 +2587,14 @@
         },
         {
           "kind": "command",
+          "parent_group": "settings",
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "surface": "prefix",
+          "value": "access"
+        },
+        {
+          "kind": "command",
           "parent_group": null,
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
@@ -3476,6 +3484,51 @@
           "value": "sm_refresh"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "needs_setup"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "invalid"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "missing_bindings"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "audit"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "command_access"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "explain"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "reset"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "access_prev"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "access_next"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -4218,6 +4271,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.hub"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.access"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -6073,6 +6131,48 @@
       "handler:server_management.roles_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:settings.access_explain_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.access_page_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.access_reset_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.access_scope_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.access_subsystem_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.access_view": {
+        "module": "sb.domain.settings.handlers"
+      },
+      "handler:settings.audit_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.command_access_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.group_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.invalid_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.missing_bindings_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.needs_setup_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:settings.render_access": {
+        "module": "sb.domain.settings.panels"
+      },
+      "handler:settings.render_hub": {
+        "module": "sb.domain.settings.panels"
+      },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
       },
@@ -6502,6 +6602,9 @@
       "panel:server_management.hub": {
         "module": "sb.domain.server_management.panels"
       },
+      "panel:settings.access": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
@@ -6802,7 +6905,10 @@
       "provider:server_management.hub_health": {
         "module": "sb.domain.server_management.panels"
       },
-      "provider:settings.hub_index": {
+      "provider:settings.access_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.hub_fields": {
         "module": "sb.domain.settings.panels"
       },
       "provider:setup.sections_index": {
@@ -7976,7 +8082,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:213b14eef577d333f22ce95c81fc80f7ba824275b34b3a94a209ba81c5e1fcb9",
+  "stable_hash": "sha256:405d87266bcad71b5b001375314747a8dff936be1f872d962f204bcb3b2540e7",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -20798,7 +20904,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "1 command(s), generated from the `settings` manifest."
+              "text": "2 command(s), generated from the `settings` manifest."
             },
             {
               "provider": {
@@ -28892,12 +28998,12 @@
       "commands": [
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "settings",
           "capability_required": "",
           "cooldown": null,
           "cost_posture": "free",
-          "defer_mode": null,
+          "defer_mode": "none",
           "enabled_when": "",
           "group": "",
           "help_section_order": 0,
@@ -28911,6 +29017,29 @@
           "slash_common": true,
           "summary": "Open the settings hub (per-subsystem configuration).",
           "usage": "/settings",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "settings",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "settings",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "access",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:settings.access_view"
+          },
+          "slash_common": false,
+          "summary": "Explain the effective command-access policy (read-only governance diagnostic).",
+          "usage": "!settings access",
           "usage_weight": 1.0
         }
       ],
@@ -28946,16 +29075,137 @@
       "key": "settings",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "needs_setup",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "settings_hub.needs_setup",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.needs_setup_pending"
+              },
+              "label": "Needs setup",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "invalid",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "settings_hub.invalid",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚠️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.invalid_pending"
+              },
+              "label": "Invalid settings",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "missing_bindings",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "settings_hub.missing_bindings",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔗",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.missing_bindings_pending"
+              },
+              "label": "Missing bindings",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "audit",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "settings_hub.audit",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🕒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.audit_pending"
+              },
+              "label": "Recent changes",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "command_access",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "settings_hub.command_access",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🚪",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.command_access_pending"
+              },
+              "label": "Command access",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Per-subsystem configuration. Every value resolves per-guild explicit → global explicit → default."
+              "text": "Browse platform settings, bindings, resource requirements, and recent audit history.  The dropdown lists every group with something configurable (scalar edit + reset live on the group's page); use the buttons for cross-cutting diagnostics."
             },
             {
               "provider": {
-                "$ref": "provider:settings.hub_index"
+                "$ref": "provider:settings.hub_fields"
               }
             }
           ],
@@ -28963,31 +29213,552 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blurple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub footer is the literal 'Tip: `!platform customization` and `!platform settings-registry` expose the underlying catalogues.' (views/settings/hub.py build_embed set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/settings pin the byte; the utility/ux_lab/channel/server_management precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, selector, actions and layout stay declared.",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "subsystem_select"
+                  ],
+                  [
+                    "needs_setup",
+                    "invalid",
+                    "missing_bindings",
+                    "audit"
+                  ],
+                  [
+                    "command_access"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.hub",
+          "renderer_override": {
+            "$ref": "handler:settings.render_hub"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "settings_hub.subsystem_select",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:settings.group_pending"
+              },
+              "options_source": [
+                {
+                  "description": "Member greetings, farewells, and an optional entry role",
+                  "emoji": "👋",
+                  "label": "Welcome",
+                  "value": "welcome"
+                },
+                {
+                  "description": "Live member-count channels (total · humans · bots)",
+                  "emoji": "📊",
+                  "label": "Server Counters",
+                  "value": "counters"
+                },
+                {
+                  "description": "Raid detection + account-age screening on member join",
+                  "emoji": "🛡️",
+                  "label": "Server Security",
+                  "value": "security"
+                },
+                {
+                  "description": "Proof submission and exclusive access sessions",
+                  "emoji": "📋",
+                  "label": "Proof Channel",
+                  "value": "proof_channel"
+                },
+                {
+                  "description": "Time-based and XP-based automatic role assignment",
+                  "emoji": "🎭",
+                  "label": "Roles",
+                  "value": "role"
+                },
+                {
+                  "description": "Prohibited words, command deletion, channel hygiene",
+                  "emoji": "🧹",
+                  "label": "Cleanup",
+                  "value": "cleanup"
+                },
+                {
+                  "description": "Spam, invite links, excessive caps, and mass-mention filtering",
+                  "emoji": "🛡️",
+                  "label": "Automod",
+                  "value": "automod"
+                },
+                {
+                  "description": "Scan uploaded images for sexual, violent, harassment, or hate content",
+                  "emoji": "🖼️",
+                  "label": "Image moderation",
+                  "value": "image_moderation"
+                },
+                {
+                  "description": "Warnings, timeouts, bans, mod logs",
+                  "emoji": "🔨",
+                  "label": "Moderation",
+                  "value": "moderation"
+                },
+                {
+                  "description": "Per-guild moderation/cleanup event logging — channel selection, auto-create, and audit (S7)",
+                  "emoji": "📝",
+                  "label": "Server Logging",
+                  "value": "logging"
+                },
+                {
+                  "description": "Read-only AI gateway diagnostics: provider state, feature flags, task routing, and request/failure c",
+                  "emoji": "🤖",
+                  "label": "AI Platform",
+                  "value": "ai"
+                },
+                {
+                  "description": "Interactive help menu and command discovery",
+                  "emoji": "📚",
+                  "label": "Help",
+                  "value": "help"
+                },
+                {
+                  "description": "Daily coins, work, shop, balance",
+                  "emoji": "💰",
+                  "label": "Economy",
+                  "value": "economy"
+                },
+                {
+                  "description": "Experience points, levels, and leaderboards",
+                  "emoji": "⭐",
+                  "label": "XP & Levels",
+                  "value": "xp"
+                },
+                {
+                  "description": "Peer reputation — thank helpful members with !thanks",
+                  "emoji": "✨",
+                  "label": "Karma",
+                  "value": "karma"
+                },
+                {
+                  "description": "Blackjack card game",
+                  "emoji": "🃏",
+                  "label": "Blackjack",
+                  "value": "blackjack"
+                },
+                {
+                  "description": "Deterministic Bloons Tower Defense 6 assistant — tower/hero/map lookups, round threat summaries, and",
+                  "emoji": "🐵",
+                  "label": "BTD6 Assistant",
+                  "value": "btd6"
+                },
+                {
+                  "description": "1v1 duel battles",
+                  "emoji": "⚔️",
+                  "label": "Deathmatch",
+                  "value": "deathmatch"
+                },
+                {
+                  "description": "Rock Paper Scissors: quick play, PvP, bot matches, tournaments",
+                  "emoji": "✂️",
+                  "label": "Rock Paper Scissors",
+                  "value": "rps_tournament"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Open a settings group…",
+              "selector_id": "subsystem_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "⚙️ Settings Manager",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "explain",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "access:explain",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.access_explain_pending"
+              },
+              "label": "🔬 Explain Access",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reset",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "access:reset",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.access_reset_pending"
+              },
+              "label": "🔄 Reset",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "access_prev",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.access_page_pending"
+              },
+              "label": "◀ Prev",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "access_next",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.access_page_pending"
+              },
+              "label": "Next ▶",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Read-only diagnostic for effective governance policy. Pick a subsystem and a scope, then press **Explain Access** to see the decision chain."
+            },
+            {
+              "provider": {
+                "$ref": "provider:settings.access_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped explorer footer is the DYNAMIC author-lock notice 'Invoker: <name>. Only the invoker can interact with this panel.' (views/access/explorer.py set_footer) — invoker-named copy outside FooterMode's none/subsystem/provenance vocabulary (goldens/settings/sweep_settings_access pins the byte; the channel author-lock-footer precedent). The shipped selection prompt fields render inline=True and the first-page ◀ Prev button renders disabled — both outside the grammar's vocabulary (2-tuple fields render inline=False; actions carry no disabled state). The override delegates to the grammar renderer and adjusts ONLY those three surfaces; body, selectors, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "subsystem"
+                  ],
+                  [
+                    "select_scope"
+                  ],
+                  [
+                    "explain",
+                    "reset"
+                  ],
+                  [
+                    "access_prev",
+                    "access_next"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "admin",
+            "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
-          "panel_id": "settings.hub",
-          "renderer_override": null,
-          "selectors": [],
-          "session_lifecycle": false,
+          "panel_id": "settings.access",
+          "renderer_override": {
+            "$ref": "handler:settings.render_access"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:settings.access_subsystem_pending"
+              },
+              "options_source": [
+                {
+                  "description": "Interactive help menu and command discovery",
+                  "emoji": "📚",
+                  "label": "Help",
+                  "value": "help"
+                },
+                {
+                  "description": "General bot commands and information",
+                  "emoji": "💬",
+                  "label": "General",
+                  "value": "general"
+                },
+                {
+                  "description": "A leafy little easter-egg panel — wisdom and number trivia",
+                  "emoji": "🍃",
+                  "label": "420",
+                  "value": "four_twenty"
+                },
+                {
+                  "description": "General utility commands",
+                  "emoji": "🔧",
+                  "label": "Utility",
+                  "value": "utility"
+                },
+                {
+                  "description": "Daily coins, work, shop, balance",
+                  "emoji": "💰",
+                  "label": "Economy",
+                  "value": "economy"
+                },
+                {
+                  "description": "Item management and crafting",
+                  "emoji": "🎒",
+                  "label": "Inventory",
+                  "value": "inventory"
+                },
+                {
+                  "description": "Server-owned coin pool — contribute coins; managers disburse",
+                  "emoji": "🏛️",
+                  "label": "Treasury",
+                  "value": "treasury"
+                },
+                {
+                  "description": "Private support tickets — open by command, panel, or the AI",
+                  "emoji": "🎫",
+                  "label": "Support Tickets",
+                  "value": "ticket"
+                },
+                {
+                  "description": "Mining minigame and resource collection",
+                  "emoji": "⛏️",
+                  "label": "Mining",
+                  "value": "mining"
+                },
+                {
+                  "description": "Interface gallery — browse UI patterns, all fake & safe",
+                  "emoji": "🧪",
+                  "label": "UX Lab",
+                  "value": "ux_lab"
+                },
+                {
+                  "description": "Fishing minigame — cast a line, build your collection",
+                  "emoji": "🎣",
+                  "label": "Fishing",
+                  "value": "fishing"
+                },
+                {
+                  "description": "Catch original creatures and build your collection dex",
+                  "emoji": "🐾",
+                  "label": "Creatures",
+                  "value": "creature"
+                },
+                {
+                  "description": "Idle egg farm — hens lay eggs over time; collect, sell, grow",
+                  "emoji": "🐔",
+                  "label": "Chicken Farm",
+                  "value": "farm"
+                },
+                {
+                  "description": "Experience points, levels, and leaderboards",
+                  "emoji": "⭐",
+                  "label": "XP & Levels",
+                  "value": "xp"
+                },
+                {
+                  "description": "Peer reputation — thank helpful members with !thanks",
+                  "emoji": "✨",
+                  "label": "Karma",
+                  "value": "karma"
+                },
+                {
+                  "description": "Competitive games and channel activities",
+                  "emoji": "🎮",
+                  "label": "Games",
+                  "value": "games"
+                },
+                {
+                  "description": "Progression, roles, and community activities",
+                  "emoji": "🌱",
+                  "label": "Community",
+                  "value": "community"
+                },
+                {
+                  "description": "Live server activity dashboard — leaders, level-ups, game stats",
+                  "emoji": "🌟",
+                  "label": "Community Spotlight",
+                  "value": "community_spotlight"
+                },
+                {
+                  "description": "Blackjack card game",
+                  "emoji": "🃏",
+                  "label": "Blackjack",
+                  "value": "blackjack"
+                },
+                {
+                  "description": "Member greetings, farewells, and an optional entry role",
+                  "emoji": "👋",
+                  "label": "Welcome",
+                  "value": "welcome"
+                },
+                {
+                  "description": "Group card games like multiplayer poker",
+                  "emoji": "🎰",
+                  "label": "Casino",
+                  "value": "casino"
+                },
+                {
+                  "description": "Live member-count channels (total · humans · bots)",
+                  "emoji": "📊",
+                  "label": "Server Counters",
+                  "value": "counters"
+                },
+                {
+                  "description": "Deterministic Bloons Tower Defense 6 assistant — tower/hero/map lookups, round threat summaries, and",
+                  "emoji": "🐵",
+                  "label": "BTD6 Assistant",
+                  "value": "btd6"
+                },
+                {
+                  "description": "1v1 duel battles",
+                  "emoji": "⚔️",
+                  "label": "Deathmatch",
+                  "value": "deathmatch"
+                },
+                {
+                  "description": "Raid detection + account-age screening on member join",
+                  "emoji": "🛡️",
+                  "label": "Server Security",
+                  "value": "security"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Choose a subsystem… — page 1/2",
+              "selector_id": "subsystem",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "access:select_scope",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:settings.access_scope_pending"
+              },
+              "options_source": [
+                {
+                  "default": true,
+                  "description": "The channel this command was invoked in.",
+                  "label": "Channel (current)",
+                  "value": "channel"
+                },
+                {
+                  "description": "The category that contains the channel.",
+                  "label": "Category (current)",
+                  "value": "category"
+                },
+                {
+                  "description": "Guild-level — no channel/category override.",
+                  "label": "Guild (server-wide)",
+                  "value": "guild"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Choose a scope…",
+              "selector_id": "select_scope",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
           "subsystem": "settings",
           "timeout_s": 180,
-          "title": "Settings",
+          "title": "🔍 Access Policy Explorer",
           "usage_weight": 1.0
         }
       ],

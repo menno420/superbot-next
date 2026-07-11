@@ -1595,6 +1595,11 @@
   "settings": [
    {
     "aliases": [],
+    "group": "settings",
+    "name": "access"
+   },
+   {
+    "aliases": [],
     "group": "",
     "name": "settings"
    }
@@ -1838,6 +1843,9 @@
   "video.qa"
  ],
  "legacy_custom_ids": [
+  "access:explain",
+  "access:reset",
+  "access:select_scope",
   "blackjack.solo_bet_form",
   "btd6.grounding_form",
   "btd6.hero_form",
@@ -1876,6 +1884,12 @@
   "server_management:refresh",
   "server_management:roles",
   "server_management:setup",
+  "settings_hub.audit",
+  "settings_hub.command_access",
+  "settings_hub.invalid",
+  "settings_hub.missing_bindings",
+  "settings_hub.needs_setup",
+  "settings_hub.subsystem_select",
   "treasury.contribute_form",
   "utility:open:four_twenty",
   "utility:open:general",
