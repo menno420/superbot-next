@@ -113,9 +113,19 @@ jobs:
         # REQUIRED state at birth); the hold is a single
         # designed-state finding with a HOLD-by-design banner.
         # Sibling cards MODIFIED by a diff that also adds card(s)
-        # are ADVISORY-ONLY (logged, never grade-affecting): the
-        # added card is the gate's subject, and a sibling backfill
-        # can no longer shadow it. A diff that ONLY modifies cards
+        # gate through the SAME --require-session-log locked door
+        # as a modified-only diff: the added card still gates via
+        # its own --added-card lane, so a sibling verdict can only
+        # ADD red, never substitute — strictly tighter than the
+        # old advisory-only logging, which let a PR adding one
+        # good card silently break a modified sibling (review
+        # #226 finding G-1; supersedes the #187 advisory design).
+        # Session cards DELETED by the diff are a hard red —
+        # session memory is append-only; the card lists use
+        # --diff-filter=d (deletions excluded), so without this a
+        # deletion-only PR fell to the no-card advisory path and
+        # merged while erasing session memory (review #226
+        # finding G-2). A diff that ONLY modifies cards
         # (every session close-out flips one) keeps the full
         # locked-door gate on EACH modified card, so a close-out
         # that forgot to flip `complete` still reds. EXCEPT: when
@@ -138,14 +148,23 @@ jobs:
           fi
           cards="$(git diff --name-only --diff-filter=d "$range" -- '.sessions/*.md' ':!.sessions/README.md' 2>/dev/null)"
           added="$(git diff --name-only --diff-filter=A "$range" -- '.sessions/*.md' ':!.sessions/README.md' 2>/dev/null)"
+          deleted="$(git diff --name-only --diff-filter=D "$range" -- '.sessions/*.md' ':!.sessions/README.md' 2>/dev/null)"
           gate_regen="$(git diff --name-only "$range" -- '.github/workflows/substrate-gate.yml' 2>/dev/null | tail -1)"
           echo "session gate cards: ${cards:-<none - advisory sentinel>}"
           fail=0
+          if [ -n "$deleted" ]; then
+            while IFS= read -r card; do
+              [ -z "$card" ] && continue
+              echo "session card DELETED by this PR (session memory is append-only — hard red): $card"
+            done <<< "$deleted"
+            fail=1
+          fi
           if [ -n "$added" ]; then
             while IFS= read -r card; do
               [ -z "$card" ] && continue
               if printf '%s\n' "$added" | grep -Fxq -- "$card"; then continue; fi
-              echo "modified sibling card (advisory — logged, never grade-affecting): $card"
+              echo "modified sibling card (locked-door gate — same door as a modified-only diff; supersedes the #187 advisory semantics): $card"
+              python3 bootstrap.py check --strict --require-session-log --session-log "$card" || fail=1
             done <<< "$cards"
             while IFS= read -r card; do
               [ -z "$card" ] && continue

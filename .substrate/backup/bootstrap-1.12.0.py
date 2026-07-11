@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.12.1 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.12.0 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -31,7 +31,6 @@ import ast
 import copy
 import difflib
 import hashlib
-import io
 import itertools
 import json
 import os
@@ -39,7 +38,6 @@ import random
 import re
 import string
 import sys
-import tarfile
 import tempfile
 import time
 import urllib.error
@@ -89,7 +87,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.12.1"
+KIT_VERSION = "1.12.0"
 
 
 def _new_project_id() -> str:
@@ -4958,33 +4956,6 @@ _TRAIL_PREFIXES = (
 _TRAIL_LINE_CAP = 4
 _TRAIL_CHAR_CAP = 140
 
-# Fresh-state fast path (B1 run-9 ON-T2 footprint cut). Run-9's sole failing
-# axis was ON-T2 M1 (2505 vs OFF 675 words), and the transcript locates the
-# cost: the previous session left NOTHING to hand off (a complete card with
-# no resolved pointer and no evidence trail — the scripted adoption card),
-# yet the handoff still said "Open that card FIRST", so the agent paid a
-# contentless card read; and 1724 of the 2505 words (69%) were ONE repo-wide
-# grep polluted by the vendored ``bootstrap.py`` (862w) plus its byte-copy
-# under ``<state_dir>/backup/`` (862w) after the agent's hand-rolled
-# exclusion filter failed. The kit's two existing countermeasures both
-# missed that path: the planted ``.ignore`` only covers ripgrep-family
-# tools (plain ``grep`` has no ignore protocol), and the CLAUDE.md hygiene
-# recipe rode the claudeMd channel measured ABSENT 0/6. So when the trail is
-# empty, the handoff (a) stops routing the session into history and (b)
-# carries the byte-exact WORKING exclusion recipe on the one surface run-9
-# proves is delivered (push 3/3) and read first (ON-T2's first tool call).
-# T4-shaped (in-progress + trail) and T5-shaped (complete + resolved
-# pointer) renderings are byte-equivalent to before — pinned by tests.
-_FRESH_START_LINE = (
-    "- Fresh start — nothing in flight: orient from the task and the code; "
-    "the card and `git log` history have nothing for you here."
-)
-_SEARCH_HYGIENE_LINE = (
-    "- Search hygiene: `bootstrap.py` + `.substrate/` are kit machinery, not "
-    "project code — exclude them: `grep -r --exclude=bootstrap.py "
-    "--exclude-dir=.substrate …` (ripgrep honors the planted `.ignore`)."
-)
-
 
 def resolved_handoff_pointer(text: str) -> str:
     """Extract the newest RESOLVED handoff pointer from a session card.
@@ -5046,9 +5017,7 @@ def handoff_lines(root: Path, config: Config) -> list[str]:
     orientation push (section 2) and the ``HANDOFF.md`` pointer file. Content:
     the newest card's path, its completion state, its unresolved auto-draft
     slot count, and the previous session's resolved "Next session should
-    know" pointer, capped terse (the M1 budget). A complete card that left
-    neither pointer nor trail renders the fresh-state fast path instead
-    (run-9 ON-T2 footprint cut — see the constants above).
+    know" pointer, capped terse (the M1 budget).
     """
     card = latest_session_log(root / config.sessions_dir)
     if card is None:
@@ -5058,8 +5027,7 @@ def handoff_lines(root: Path, config: Config) -> list[str]:
         rel = card.relative_to(root)
     except ValueError:
         rel = card
-    in_progress = status_in_progress(text)
-    status = "in-progress/drafted" if in_progress else "complete"
+    status = "in-progress/drafted" if status_in_progress(text) else "complete"
     slots = unresolved_fill_count(text)
     slot_note = f", {slots} unresolved [[fill:]] slot(s)" if slots else ""
     lines = [f"- Newest session card: `{rel}` — status: {status}{slot_note}."]
@@ -5070,17 +5038,7 @@ def handoff_lines(root: Path, config: Config) -> list[str]:
         # No resolved pointer (an unadopted draft, usually): surface the
         # card's auto-collected evidence here so the arrival surface carries
         # content, not a pointer to a skeleton (run-8 content-gap fix).
-        trail = evidence_trail(text)
-        if not trail and not in_progress:
-            # Fresh-state fast path (run-9 ON-T2 footprint cut): a COMPLETE
-            # card that left neither a pointer nor a trail has nothing to
-            # hand off — routing the session into it is pure orientation
-            # tax. Say so, and arm the session with the working search
-            # exclusion instead (the 1724-word grep-pollution class).
-            lines.append(_FRESH_START_LINE)
-            lines.append(_SEARCH_HYGIENE_LINE)
-            return lines
-        lines.extend(trail)
+        lines.extend(evidence_trail(text))
     lines.append(
         "- Open that card FIRST — it is the last session's record; prefer it "
         "over re-deriving history from `git log`/`git show`.",
@@ -10264,25 +10222,13 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
     is still never graded mid-flight (the gba-homebrew PR #2 lesson —
     born-red is the REQUIRED state at birth); the hold is a single
     designed-state finding with a HOLD-by-design banner, not a marker red.
-    Sibling cards **MODIFIED** by a diff that also adds card(s) gate through
-    the **same** ``--require-session-log`` locked door as a modified-only
-    diff — the added card is still the gate's subject via its own
-    ``--added-card`` lane, so a sibling verdict can only ADD red, never
-    substitute for the added card's (grading siblings is strictly tighter
-    than the earlier advisory-only logging and cannot reintroduce the
-    tail-1 shadowing; supersedes the #187 advisory-sibling design —
-    external review #226 finding G-1 showed a PR adding one good card
-    could silently flip a sibling to in-progress, or strip its markers,
-    and still merge). A diff that **only
+    Sibling cards **MODIFIED** by a diff that also adds card(s) are
+    **advisory-only** — logged, never grade-affecting: the added card is the
+    gate's subject, and a sibling backfill (the mtime-lottery lesson's
+    encouraged pattern) can no longer shadow it. A diff that **only
     modifies** cards (every session close-out flips one) keeps the full
     ``--require-session-log`` locked door on EACH modified card, so a
-    close-out that forgot to flip ``complete`` still reds. Session cards
-    **DELETED** by the diff are a hard red on sight — session memory is
-    append-only, and the card lists are built with ``--diff-filter=d``
-    (deletions excluded), so before this guard a deletion-only PR fell to
-    the no-card advisory path and could merge while erasing session
-    memory (external review #226 finding G-2; same guard mirrored in the
-    kit's own dogfood gate). The
+    close-out that forgot to flip ``complete`` still reds. The
     diff-selection fixes validated live across gba-homebrew PRs #3–#14.
     One deliberate exception
     (queued fix 3, venture-lab #14): a card ADDED by a PR that ALSO touches
@@ -10457,19 +10403,9 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         "        # REQUIRED state at birth); the hold is a single\n"
         "        # designed-state finding with a HOLD-by-design banner.\n"
         "        # Sibling cards MODIFIED by a diff that also adds card(s)\n"
-        "        # gate through the SAME --require-session-log locked door\n"
-        "        # as a modified-only diff: the added card still gates via\n"
-        "        # its own --added-card lane, so a sibling verdict can only\n"
-        "        # ADD red, never substitute — strictly tighter than the\n"
-        "        # old advisory-only logging, which let a PR adding one\n"
-        "        # good card silently break a modified sibling (review\n"
-        "        # #226 finding G-1; supersedes the #187 advisory design).\n"
-        "        # Session cards DELETED by the diff are a hard red —\n"
-        "        # session memory is append-only; the card lists use\n"
-        "        # --diff-filter=d (deletions excluded), so without this a\n"
-        "        # deletion-only PR fell to the no-card advisory path and\n"
-        "        # merged while erasing session memory (review #226\n"
-        "        # finding G-2). A diff that ONLY modifies cards\n"
+        "        # are ADVISORY-ONLY (logged, never grade-affecting): the\n"
+        "        # added card is the gate's subject, and a sibling backfill\n"
+        "        # can no longer shadow it. A diff that ONLY modifies cards\n"
         "        # (every session close-out flips one) keeps the full\n"
         "        # locked-door gate on EACH modified card, so a close-out\n"
         "        # that forgot to flip `complete` still reds. EXCEPT: when\n"
@@ -10494,30 +10430,17 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         f"'{sessions_dir}/*.md' ':!{sessions_dir}/README.md' 2>/dev/null)\"\n"
         '          added="$(git diff --name-only --diff-filter=A "$range" -- '
         f"'{sessions_dir}/*.md' ':!{sessions_dir}/README.md' 2>/dev/null)\"\n"
-        '          deleted="$(git diff --name-only --diff-filter=D "$range" -- '
-        f"'{sessions_dir}/*.md' ':!{sessions_dir}/README.md' 2>/dev/null)\"\n"
         '          gate_regen="$(git diff --name-only "$range" -- '
         f"'{LIVE_CI_RELPATH}' 2>/dev/null | tail -1)\"\n"
         '          echo "session gate cards: ${cards:-<none - advisory sentinel>}"\n'
         "          fail=0\n"
-        '          if [ -n "$deleted" ]; then\n'
-        "            while IFS= read -r card; do\n"
-        '              [ -z "$card" ] && continue\n'
-        '              echo "session card DELETED by this PR (session memory is'
-        ' append-only — hard red): $card"\n'
-        '            done <<< "$deleted"\n'
-        "            fail=1\n"
-        "          fi\n"
         '          if [ -n "$added" ]; then\n'
         "            while IFS= read -r card; do\n"
         '              [ -z "$card" ] && continue\n'
         "              if printf '%s\\n' \"$added\" | grep -Fxq -- \"$card\";"
         " then continue; fi\n"
-        '              echo "modified sibling card (locked-door gate — same'
-        " door as a modified-only diff; supersedes the #187 advisory"
-        ' semantics): $card"\n'
-        f"              {interpreter} bootstrap.py check --strict"
-        ' --require-session-log --session-log "$card" || fail=1\n'
+        '              echo "modified sibling card (advisory — logged, never'
+        ' grade-affecting): $card"\n'
         '            done <<< "$cards"\n'
         "            while IFS= read -r card; do\n"
         '              [ -z "$card" ] && continue\n'
@@ -11748,25 +11671,8 @@ currency``) is agent-side only, while CI validates just the committed
 output's format + staleness (``checks/check_adopters_current.py``, no
 network). All parse / drift / render logic here is pure and unit-testable:
 the network sits behind an injectable fetcher (``fetch(repo, path) -> str |
-None``); the default fetcher is stdlib ``urllib`` (honours the
-environment's proxy settings), layered so PRIVATE repos read as tree
-truth, not as transport failure:
-
-1. ``raw.githubusercontent.com`` — primary; correct for public repos.
-2. The authenticated GitHub API contents endpoint (``GITHUB_TOKEN`` /
-   ``GH_TOKEN``) — a raw 404 is AMBIGUOUS (absent file, or a private repo
-   that 404s every unauthenticated path — the pokemon-mod-lab blindness,
-   kit #230), so a 404 only ever becomes ``None`` ("truly absent") once
-   the repo itself is proven readable.
-3. A ``codeload.github.com`` tarball of the branch — the whole committed
-   tree in one stdlib request; membership in it is definitive. This is
-   also the transport that works in proxy-mediated agent seats where
-   ``api.github.com`` REST is policy-blocked but GitHub credentials are
-   injected at the proxy.
-
-A repo readable by NO transport raises ``RepoUnreadableError``; the scan
-records the row as *unreadable* — loudly distinct from "not adopted",
-which is now always a statement about a tree we actually read.
+None``); the default fetcher is stdlib ``urllib`` against
+``raw.githubusercontent.com`` (honours the environment's proxy settings).
 
 Read-only by law: the scanner only ever *reads* sibling repos (KF-2 — the
 lab never writes to consumers); the one file it writes is this repo's
@@ -11783,14 +11689,8 @@ lab never writes to consumers); the one file it writes is this repo's
 ADOPTERS_RELPATH = "docs/adopters.md"
 ROSTER_RELPATH = "docs/fleet-repos.txt"
 RAW_HOST = "https://raw.githubusercontent.com"
-API_HOST = "https://api.github.com"
-CODELOAD_HOST = "https://codeload.github.com"
 DEFAULT_BRANCH = "main"
 FETCH_TIMEOUT_S = 30
-# Env vars consulted (in order) for the authenticated API fallback. Optional:
-# without a token the API step still serves public repos and the codeload
-# step still serves proxy-credentialed agent seats.
-TOKEN_ENV_VARS = ("GITHUB_TOKEN", "GH_TOKEN")
 
 # The machine-readable proof that the file is generated output. The CI-side
 # format gate keys off this exact string; keep the two in lockstep (the
@@ -11810,30 +11710,6 @@ DEFAULT_HEARTBEAT = "control/status.md"
 _NUMERIC_RE = re.compile(r"\d+")
 
 Fetcher = Callable[[str, str], "str | None"]
-# The HTTP seam the layered default fetcher (and its tests) stand on:
-# ``(url, headers) -> (status, body_bytes)``. HTTP error statuses come back
-# as data; only genuine transport failures (connection refused, DNS) raise.
-HttpGet = Callable[[str, "dict[str, str]"], "tuple[int, bytes]"]
-
-
-class CurrencyFetchError(RuntimeError):
-    """Hard transport failure — aborts the run rather than faking evidence."""
-
-
-class RepoUnreadableError(RuntimeError):
-    """One repo is readable by NO transport — its evidence is UNKNOWN.
-
-    Raised per-repo (never aborts the whole scan): ``scan_repo`` catches it
-    and records the row as *unreadable*, which renders loudly distinct from
-    "not adopted" — a 404 from an unauthenticated transport must never
-    masquerade as "there is no tree" (the pokemon-mod-lab blindness,
-    kit #230).
-    """
-
-    def __init__(self, repo: str, reason: str) -> None:
-        self.repo = repo
-        self.reason = reason
-        super().__init__(f"{repo}: {reason}")
 
 
 @dataclass
@@ -11856,19 +11732,10 @@ class RepoCurrency:
     tree_source: str | None = None  # which vendored path carried it
     config_pin: str | None = None  # substrate.config.json kit_version
     reports: list[SelfReport] = field(default_factory=list)
-    # Transport verdict, not tree evidence: set when no transport could read
-    # the repo (RepoUnreadableError reason). An unreadable row must never
-    # render "not adopted" — we could not see the tree to say so.
-    unreadable: str | None = None
 
     @property
     def adopted(self) -> bool:
-        """Any kit artifact at all? No artifact = not adopted, not an error.
-
-        Only meaningful for a repo the scan could actually read — verdict()
-        checks ``unreadable`` first, so transport failure never renders as
-        "not adopted".
-        """
+        """Any kit artifact at all? No artifact = not adopted, not an error."""
         return bool(
             self.tree_version
             or self.config_pin
@@ -11904,18 +11771,10 @@ class RepoCurrency:
         return out
 
     def verdict(self, kit_version: str) -> str:
-        """One cell: current / stale / DRIFT / pin-only / not adopted /
-        unreadable."""
-        if self.unreadable and not self.adopted:
-            # No transport could read the repo and nothing was seen before
-            # the failure: adoption is UNKNOWN, never "not adopted".
-            return f"⚠️ unreadable — {self.unreadable}"
+        """One cell: current / stale / DRIFT / pin-only / not adopted."""
         if not self.adopted:
             return "not adopted / unknown"
         parts: list[str] = []
-        if self.unreadable:
-            # Partial evidence landed before the transport failed.
-            parts.append(f"⚠️ partially unreadable — {self.unreadable}")
         if self.drifts():
             parts.append("⚠️ DRIFT")
         tree = self.effective_tree
@@ -11977,145 +11836,27 @@ def parse_roster(text: str) -> list[tuple[str, list[str]]]:
     return out
 
 
-def _env_token() -> str:
-    """The GitHub token for the authenticated API fallback ('' = none)."""
-    for var in TOKEN_ENV_VARS:
-        value = os.environ.get(var)
-        if value:
-            return value
-    return ""
-
-
-def _urllib_get(url: str, headers: dict[str, str]) -> tuple[int, bytes]:
-    """Default ``HttpGet``: HTTP statuses are data, transport failures raise."""
-    request = urllib.request.Request(url, headers=headers)  # noqa: S310
-    try:
-        with urllib.request.urlopen(  # noqa: S310
-            request,
-            timeout=FETCH_TIMEOUT_S,
-        ) as resp:
-            return resp.status, resp.read()
-    except urllib.error.HTTPError as exc:
-        return exc.code, exc.read() or b""
-
-
-class _TarTree:
-    """A branch tarball held in memory — the committed tree, definitively.
-
-    Membership answers the absent-vs-unreadable question with the strongest
-    possible evidence: the whole tree is in hand, so a missing path IS a
-    missing file, not a transport artifact.
-    """
-
-    def __init__(self, data: bytes) -> None:
-        self._tar = tarfile.open(fileobj=io.BytesIO(data), mode="r:gz")
-        names = self._tar.getnames()
-        # codeload prefixes every member with `<repo>-<ref>/`.
-        self._root = names[0].split("/", 1)[0] if names else ""
-        self._names = set(names)
-
-    def read(self, path: str) -> str | None:
-        """File content at ``path``, or None when absent from the tree."""
-        member = f"{self._root}/{path}"
-        if member not in self._names:
-            return None
-        handle = self._tar.extractfile(member)
-        if handle is None:  # directory / link — no regular file at this path
-            return None
-        return handle.read().decode("utf-8", errors="replace")
-
-
 def default_fetcher(
     host: str = RAW_HOST,
     branch: str = DEFAULT_BRANCH,
-    api_host: str = API_HOST,
-    codeload_host: str = CODELOAD_HOST,
-    token: str | None = None,
-    http_get: HttpGet | None = None,
 ) -> Fetcher:
-    """Return the layered fetcher: raw -> authenticated API -> tarball.
+    """Return a raw-content fetcher: 404 -> None, other failures raise.
 
     The asymmetry is deliberate: a missing file is evidence ("not adopted"),
     but a network/auth failure must never masquerade as one — a proxy outage
     silently generating a "nobody adopted" registry would be worse than no
-    run at all. Layering (per fetched path):
-
-    1. Raw content (unauthenticated). 200 is the answer; a non-404 failure
-       still raises (transport outage = abort). A 404 is AMBIGUOUS — absent
-       file, or a private repo that 404s every unauthenticated path — and
-       falls through.
-    2. GitHub API contents endpoint, ``Authorization`` from ``token`` (env
-       ``GITHUB_TOKEN``/``GH_TOKEN`` when None; works unauthenticated for
-       public repos). Used only once ``GET /repos/<repo>`` has proven the
-       repo readable — only then does a contents 404 mean "truly absent".
-    3. A ``codeload`` tarball of the branch (cached per repo): the whole
-       committed tree in one request; membership in it is definitive. Also
-       the transport that survives agent seats whose egress proxy blocks
-       ``api.github.com`` REST but injects GitHub credentials.
-
-    A repo no transport can read raises :class:`RepoUnreadableError` — the
-    scan records the row as *unreadable*, never as "not adopted".
+    run at all.
     """
-    get = http_get or _urllib_get
-    auth = token if token is not None else _env_token()
-    api_headers = {"Accept": "application/vnd.github.raw+json"}
-    if auth:
-        api_headers["Authorization"] = f"Bearer {auth}"
-    # Per-repo resolution cache: "api" | _TarTree | RepoUnreadableError.
-    resolved: dict[str, object] = {}
-
-    def _resolve(repo: str, api_status: int) -> object:
-        """Prove the repo readable via API or tarball, else mark unreadable."""
-        reasons = [
-            f"raw 404 on every probe; API contents HTTP {api_status}"
-            + ("" if auth else " (unauthenticated — no GITHUB_TOKEN/GH_TOKEN)"),
-        ]
-        status, _body = get(f"{api_host}/repos/{repo}", api_headers)
-        if status == 200:
-            return "api"
-        reasons.append(f"API repo probe HTTP {status}")
-        status, body = get(
-            f"{codeload_host}/{repo}/tar.gz/refs/heads/{branch}",
-            api_headers,
-        )
-        if status == 200:
-            try:
-                return _TarTree(body)
-            except (tarfile.TarError, OSError) as exc:
-                reasons.append(f"codeload tarball unreadable: {exc}")
-        else:
-            reasons.append(f"codeload tarball HTTP {status}")
-        return RepoUnreadableError(repo, "; ".join(reasons))
 
     def fetch(repo: str, path: str) -> str | None:
         url = f"{host}/{repo}/{branch}/{path}"
-        status, body = get(url, {})
-        if status == 200:
-            return body.decode("utf-8", errors="replace")
-        if status != 404:
-            raise CurrencyFetchError(f"GET {url} -> HTTP {status}")
-        # Raw 404: ambiguous. A previously-resolved repo answers instantly.
-        verdict = resolved.get(repo)
-        if isinstance(verdict, _TarTree):
-            return verdict.read(path)
-        if isinstance(verdict, RepoUnreadableError):
-            raise verdict
-        # Ask the API; trust its 404 only from a repo proven readable.
-        api_url = f"{api_host}/repos/{repo}/contents/{path}?ref={branch}"
-        api_status, api_body = get(api_url, api_headers)
-        if api_status == 200:
-            return api_body.decode("utf-8", errors="replace")
-        if verdict is None:
-            verdict = _resolve(repo, api_status)
-            resolved[repo] = verdict
-            if isinstance(verdict, _TarTree):
-                return verdict.read(path)
-            if isinstance(verdict, RepoUnreadableError):
-                raise verdict
-        # verdict == "api": the repo is API-readable, so its 404 is truth.
-        if api_status == 404:
-            return None  # truly absent from a readable repo's tree
-        raise CurrencyFetchError(f"GET {api_url} -> HTTP {api_status}")
+        try:
+            with urllib.request.urlopen(url, timeout=FETCH_TIMEOUT_S) as resp:  # noqa: S310
+                return resp.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return None
+            raise
 
     return fetch
 
@@ -12125,28 +11866,8 @@ def scan_repo(
     fetch: Fetcher,
     extra_heartbeats: list[str] | None = None,
 ) -> RepoCurrency:
-    """Scan one repo's committed tree for kit artifacts + self-reports.
-
-    A :class:`RepoUnreadableError` from the fetcher marks the row
-    *unreadable* (keeping any evidence gathered before the failure) instead
-    of aborting the fleet scan — one dark repo must not black out the
-    registry, and its row must say "unreadable", never "not adopted".
-    """
+    """Scan one repo's committed tree for kit artifacts + self-reports."""
     result = RepoCurrency(repo=repo)
-    try:
-        _scan_repo_evidence(result, fetch, extra_heartbeats)
-    except RepoUnreadableError as exc:
-        result.unreadable = exc.reason
-    return result
-
-
-def _scan_repo_evidence(
-    result: RepoCurrency,
-    fetch: Fetcher,
-    extra_heartbeats: list[str] | None,
-) -> None:
-    """Gather one repo's evidence, mutating ``result`` in place."""
-    repo = result.repo
     heartbeats = [DEFAULT_HEARTBEAT]
     config_text = fetch(repo, CONFIG_RELPATH)
     if config_text is not None:
@@ -12175,6 +11896,7 @@ def _scan_repo_evidence(
             continue
         version, check, engaged = parse_kit_line(status_text)
         result.reports.append(SelfReport(rel, version, check, engaged, found=True))
+    return result
 
 
 def scan_fleet(
@@ -12291,10 +12013,6 @@ def render_adopters(
         "  — their channel is their own `control/status.md` `kit:` line.",
         "- **Staleness reads as dark**, not as wrong: the `Generated:` stamp",
         "  above is the evidence date; rerun the scan to refresh.",
-        "- **`unreadable` reads as dark too**: no transport (raw content,",
-        "  authenticated API, branch tarball) could see that repo's tree",
-        "  this run — adoption is UNKNOWN, deliberately never rendered as",
-        '  "not adopted" (private-repo 404s are transport, not evidence).',
         "- **Roster:** `docs/fleet-repos.txt` (one `owner/repo` per line;",
         "  extra tokens name per-lane heartbeat files).",
         "- **Releases point back here:** every release's notes carry the",
@@ -15115,15 +14833,6 @@ def cmd_currency(
         _emit(f"currency: wrote {out_path} ({len(scans)} repo(s) scanned).")
     for line in drift_report_lines(scans, KIT_VERSION):
         _emit(f"  {line}")
-    unreadable = [scan.repo for scan in scans if scan.unreadable]
-    if unreadable:
-        _emit(
-            f"currency: UNREADABLE {len(unreadable)} repo(s): "
-            + ", ".join(unreadable)
-            + " — no transport could read their trees; their rows say"
-            " 'unreadable' (adoption UNKNOWN, never 'not adopted')."
-            " Fix transport/auth (GITHUB_TOKEN/GH_TOKEN?) and rerun.",
-        )
     drifting = [scan.repo for scan in scans if scan.drifts()]
     if drifting:
         _emit(
