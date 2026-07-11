@@ -3419,6 +3419,81 @@
       ],
       "custom_id": [
         {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "server_stats"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cog_list"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "reload_all"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "log_level"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_settings"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_sm"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_channels"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_ai"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_platform"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_diagnostics"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_uxlab"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_logging"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_cleanup"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_help"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin_overview"
+        },
+        {
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai_refresh"
@@ -6719,6 +6794,12 @@
       "handler:admin.loglevel": {
         "module": "sb.domain.admin.handlers"
       },
+      "handler:admin.reload_all_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:admin.render_hub": {
+        "module": "sb.domain.admin.panels"
+      },
       "handler:admin.restart": {
         "module": "sb.domain.admin.handlers"
       },
@@ -8133,7 +8214,7 @@
         "module": "sb.domain.xp.handlers"
       },
       "panel:admin.hub": {
-        "module": "sb.domain.operator_spine"
+        "module": "sb.domain.admin.panels"
       },
       "panel:ai.behavior_category_picker": {
         "module": "sb.domain.ai.panels"
@@ -8626,9 +8707,6 @@
       },
       "panel:xp.rank_card": {
         "module": "sb.domain.xp.panels"
-      },
-      "provider:admin.hub_settings": {
-        "module": "sb.domain.operator_spine"
       },
       "provider:ai.behavior_chooser_fields": {
         "module": "sb.domain.ai.panels"
@@ -10192,7 +10270,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:4b074e10d2a44a78ecfc256bb0bf226a125078e664de05dbb7872ddcef0774c2",
+  "stable_hash": "sha256:371eb677107f7c99f5b7da0219cabc08d53ac460f794f9939c9234bc7ff37a53",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -10370,48 +10448,434 @@
       "key": "admin",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "server_stats",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.serverstats_view"
+              },
+              "label": "📊 Server Stats",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cog_list",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.subsystems_view"
+              },
+              "label": "📋 Cog List",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reload_all",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.reload_all_pending"
+              },
+              "label": "🔄 Reload All",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "log_level",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.loglevel"
+              },
+              "label": "📝 Log Level",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_settings",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:settings.hub"
+              },
+              "label": "🛠 Settings",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_sm",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:server_management.hub"
+              },
+              "label": "🧭 Server Management",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_channels",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "📐 Channels",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_ai",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:ai.hub"
+              },
+              "label": "🤖 AI",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_platform",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:diagnostic.platform_hub"
+              },
+              "label": "🛰 Platform",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_diagnostics",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:diagnostic.hub"
+              },
+              "label": "🩺 Diagnostics",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_uxlab",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:ux_lab.home"
+              },
+              "label": "🧪 UX Lab",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_logging",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:logging.hub"
+              },
+              "label": "📝 Logging",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_cleanup",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:cleanup.hub"
+              },
+              "label": "🧹 Cleanup",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_help",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:help.home"
+              },
+              "label": "📚 Help",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "admin_overview",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:admin.hub"
+              },
+              "label": "↩ Overview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Operator surfaces over the kernel truth sources (manifest registry, lifecycle, log levels)."
-            },
-            {
-              "provider": {
-                "$ref": "provider:admin.hub_settings"
-              }
+              "text": "Loaded cogs: **58**\n\n**Tools**\n📊 Server Stats · 📋 Cog List · 🔄 Reload All · 📝 Log Level\n\n**Configure & Operate**\n🛠 Settings · 🧭 Server Management · 📐 Channels · 🤖 AI\n\n**Platform & Diagnostics**\n🛰 Platform · 🩺 Diagnostics · 🧪 UX Lab · 📝 Logging · 🧹 Cleanup\n\n📚 Help"
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "red",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub footer is the literal 'Only you can interact with this panel.' (admin_cog.py set_footer — the shared invoker-lock footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/admin/sweep_adminmenu + sweep_slash_admin pin the byte; the server_management/utility precedent). The override adjusts ONLY the embed footer; body, title, color and every component stay grammar-rendered.",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "server_stats",
+                    "cog_list",
+                    "reload_all",
+                    "log_level"
+                  ],
+                  [
+                    "admin_settings",
+                    "admin_sm",
+                    "admin_channels",
+                    "admin_ai"
+                  ],
+                  [
+                    "admin_platform",
+                    "admin_diagnostics",
+                    "admin_uxlab",
+                    "admin_logging",
+                    "admin_cleanup"
+                  ],
+                  [
+                    "admin_help",
+                    "admin_overview"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "admin.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:admin.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "admin",
           "timeout_s": 180,
-          "title": "Admin",
+          "title": "⚙️ Server & Admin",
           "usage_weight": 1.0
         }
       ],
