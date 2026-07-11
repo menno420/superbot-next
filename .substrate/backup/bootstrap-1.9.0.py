@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.10.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.9.0 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -87,7 +87,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.10.0"
+KIT_VERSION = "1.9.0"
 
 
 def _new_project_id() -> str:
@@ -1756,21 +1756,8 @@ def has_status_badge(text: str) -> bool:
     return any("**status:**" in line.lower() for line in text.splitlines())
 
 
-# The added-card born-red HOLD message (the superbot-games #40 loophole
-# fix). Callers that need to route this finding differently (the CLI gives
-# it its own finding kind so the designed-hold banner can recognise it)
-# match on this exact string — keep it a single module-level constant.
-BORN_RED_HOLD_MESSAGE = (
-    "born-red HOLD: this PR ADDS a session card that declares an "
-    "in-progress/drafted Status — the gate holds the merge red until the "
-    "card flips complete (designed hold, not a defect). Without this hold "
-    "a card-only born-red PR with auto-merge pre-armed merges the instant "
-    "CI reports (superbot-games #40 merged in 24 s on exactly this)."
-)
-
-
 def check_added_card(path: Path, markers: Sequence[Mapping[str, str]]) -> list[str]:
-    """Grade a card newly ADDED by a PR (the gate's added-card lane).
+    """Grammar-lint a card newly ADDED by a PR (the gate's advisory lane).
 
     The venture-lab #15 false-green class: the generated gate exempts an
     ADDED card from the locked door so a born-red heartbeat can merge — but
@@ -1779,20 +1766,15 @@ def check_added_card(path: Path, markers: Sequence[Mapping[str, str]]) -> list[s
     merged green and pre-reddened every later bare ``check --strict`` run
     via the newest-by-mtime fallback (fixed only by the next upgrade wave).
 
-    Judge the added card by what it *declares*, never by mid-flight
+    The middle tier (idea recorded on venture-lab PR #17's session card):
+    judge the added card by what it *declares*, never by mid-flight
     completeness —
 
     - **no Status badge at all** → a grammar finding: every session card
       carries a parseable ``> **Status:**`` badge from its first commit
       (the born-red convention *requires* the badge; it exempts the VALUE).
-    - **badge declares in-progress/drafted** → the born-red **HOLD**
-      (:data:`BORN_RED_HOLD_MESSAGE`): the PR is a mid-flight session and
-      must stay red until the card flips complete. This supersedes the
-      #168 full exemption — "exempt" meant GREEN, and a green card-only
-      diff with auto-merge pre-armed merged 24 seconds after open
-      (superbot-games #40, the v1.9.0 wave's premature-merge finding).
-      Born-red incompleteness is still never graded (no marker findings) —
-      the hold is a single designed-state finding, not a completeness red.
+    - **badge declares in-progress/drafted** → no findings: born-red
+      incompleteness is the designed state and stays fully exempt.
     - **badge declares anything else** (``complete`` & co.) → the card
       claims to be a finished close-out, so it gets the full
       :func:`check_log` completeness check — missing markers and unresolved
@@ -1809,7 +1791,7 @@ def check_added_card(path: Path, markers: Sequence[Mapping[str, str]]) -> list[s
             "VALUE, never its presence",
         ]
     if status_in_progress(text):
-        return [BORN_RED_HOLD_MESSAGE]
+        return []
     return check_log(path, markers)
 
 
@@ -9558,89 +9540,6 @@ def _adopt_stage(path: Path, relpath: str, text: str, report: list[str]) -> None
     report.append(f"staged: {relpath}")
 
 
-# Provenance marker for the retroactively-merged model doctrine (the
-# search-hygiene plant pattern): appended entries sit under one comment
-# naming their origin, so a host reading its own README knows which
-# paragraph the kit owns.
-MODEL_DOCTRINE_MARKER = (
-    "<!-- substrate-kit: model-attribution doctrine "
-    "(family-level names — ORDER 012) -->"
-)
-
-# The doctrine's detection phrase — one distinctive substring shared by the
-# fresh-plant render and the retroactive merge, so the two paths can never
-# drift apart on "is it already there?".
-_MODEL_DOCTRINE_PHRASE = "family-level model name your own harness/environment reports"
-
-
-def _model_doctrine_text() -> str:
-    """The ORDER 012 family-level model-attribution doctrine, one paragraph.
-
-    Composed in one place for both consumers: the fresh
-    ``.sessions/README.md`` plant embeds it inline, and
-    :func:`_merge_model_doctrine` appends it (under
-    :data:`MODEL_DOCTRINE_MARKER`) to READMEs planted before the doctrine
-    existed — the v1.9.0 wave found 4 adopters needing exactly that
-    hand-merge because the PR #170 render was not retroactive.
-    """
-    return (
-        f"The `{MODEL_LINE_NEEDLE}` model segment is the **{_MODEL_DOCTRINE_PHRASE} "
-        "this session** "
-        "(e.g. `fable-5`, `opus-4.8`, `sonnet-5`) — the committed card's "
-        "self-report is the attribution ground truth. Never copy it from "
-        "an external surface (schedule/Routines screens are evidenced to "
-        "misattribute), and never record a full dated model ID — "
-        "family-level names only."
-    )
-
-
-def _merge_model_doctrine(
-    root: Path,
-    config: Config,
-    report: list[str],
-) -> None:
-    """Append the model doctrine to a pre-existing ``.sessions/README.md``.
-
-    The PR #170 doctrine render only reached FRESH plants — skip-if-exists
-    left every already-planted README without it, and the v1.9.0
-    distribution wave had to regen/hand-merge 4 adopters. Retroactive now,
-    with the same append-only/provenance covenant as the search-hygiene
-    plants: existing content is preserved byte-for-byte (host edits are
-    host policy), the appended paragraph sits under
-    :data:`MODEL_DOCTRINE_MARKER`, re-runs are idempotent (the
-    detection phrase is shared with the fresh render, so a v1.9.0+ plant
-    is already "present"), and an unreadable file is skipped + reported,
-    never destroyed. No-op when the host's markers don't require the
-    Model line — doctrine without the needle would be noise.
-    """
-    if not any(
-        m.get("needle") == MODEL_LINE_NEEDLE for m in config.session_markers
-    ):
-        return
-    relpath = f"{config.sessions_dir}/README.md"
-    path = root / config.sessions_dir / "README.md"
-    if not path.is_file():
-        return
-    try:
-        existing = path.read_text(encoding="utf-8")
-    except OSError:
-        report.append(
-            f"skipped: {relpath} (unreadable — model doctrine not merged)",
-        )
-        return
-    if _MODEL_DOCTRINE_PHRASE in existing:
-        return
-    chunk = ""
-    if not existing.endswith("\n"):
-        chunk += "\n"
-    chunk += "\n" + MODEL_DOCTRINE_MARKER + "\n" + _model_doctrine_text() + "\n"
-    atomic_write_text(path, existing + chunk)
-    report.append(
-        f"merged: {relpath} (model-attribution doctrine appended; "
-        "existing content preserved)",
-    )
-
-
 def _adopt_sessions_readme(markers: list[dict[str, str]]) -> str:
     """Compose the one-paragraph ``.sessions/README.md`` (born-red convention).
 
@@ -9664,7 +9563,15 @@ def _adopt_sessions_readme(markers: list[dict[str, str]]) -> str:
     # markers actually require the Model line.
     model_doctrine = ""
     if any(m.get("needle") == MODEL_LINE_NEEDLE for m in markers):
-        model_doctrine = " " + _model_doctrine_text()
+        model_doctrine = (
+            f" The `{MODEL_LINE_NEEDLE}` model segment is the **family-level "
+            "model name your own harness/environment reports this session** "
+            "(e.g. `fable-5`, `opus-4.8`, `sonnet-5`) — the committed card's "
+            "self-report is the attribution ground truth. Never copy it from "
+            "an external surface (schedule/Routines screens are evidenced to "
+            "misattribute), and never record a full dated model ID — "
+            "family-level names only."
+        )
     return (
         "# Session logs\n\n"
         "Per-session logs live here as `<date>-<slug>.md`, newest first. "
@@ -9765,31 +9672,22 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
     onto the mid-session in-progress card and redded every unrelated PR;
     adopter live-fire, gba-homebrew PR #3, 2026-07-10.) A card **ADDED** by
     the PR (a born-red heartbeat: first-commit-carries-an-in-progress-card
-    conventions make in-progress the REQUIRED state at birth) gates via the
-    absent sentinel plus ``--added-card`` — the engine grades the card by
-    what it DECLARES: an in-progress/drafted card is the born-red **HOLD**
-    (red until it flips complete), a badge-less or complete-but-malformed
-    card reds on grammar, and a complete well-formed card passes. The hold
-    tier closed the v1.9.0 wave's card-only loophole: the previous lane
-    fully EXEMPTED an in-progress added card, so a card-only born-red PR
-    with auto-merge pre-armed went green and merged 24 seconds after open —
-    before the session built anything (superbot-games PR #40). Completeness
-    is still never graded mid-flight (the gba-homebrew PR #2 lesson —
-    born-red is the REQUIRED state at birth); the hold is a single
-    designed-state finding with a HOLD-by-design banner, not a marker red.
-    A card **MODIFIED** by the PR (every session close-out flips one)
+    conventions make in-progress the REQUIRED state at birth) also gates
+    advisory via the absent sentinel, because under ``--strict`` the engine
+    reds ANY existing-but-incomplete card — the locked door could never pass
+    a heartbeat (adopter live-fire: gba-homebrew PR #2 merged red on exactly
+    this). A card **MODIFIED** by the PR (every session close-out flips one)
     keeps the full ``--require-session-log`` locked door, so a close-out that
-    forgot to flip ``complete`` still reds. Both diff-selection fixes
-    validated live across gba-homebrew PRs #3–#14. One deliberate exception
-    (queued fix 3, venture-lab #14): a card ADDED by a PR that ALSO touches
-    this gate workflow file itself gates through the full locked door —
-    GitHub runs a ``pull_request`` workflow from the PR head, so the PR that
-    regenerates the gate runs the NEW gate mid-PR, and without the exception
-    the regen could silently loosen an added card's hold MID-PR. Hold
-    semantics may only tighten, never loosen, within the PR that changes
-    them; that branch also runs ``--simulate-added-card`` so the lane's
-    would-be verdict stays observable on exactly the PRs that ship gate
-    changes. The merge path is unchanged — flip the card ``complete``.
+    forgot to flip ``complete`` still reds. Both fixes validated live across
+    gba-homebrew PRs #3–#14. One deliberate exception (queued fix 3,
+    venture-lab #14): a card ADDED by a PR that ALSO touches this gate
+    workflow file itself gates through the full locked door — GitHub runs a
+    ``pull_request`` workflow from the PR head, so the PR that regenerates
+    the gate runs the NEW gate mid-PR, and without the exception the regen
+    could silently flip an added born-red card from held-red (old gate
+    semantics) to advisory, auto-merging a partial session. Hold semantics
+    may only tighten, never loosen, within the PR that changes them; the
+    merge path is unchanged — flip the card ``complete``.
 
     **Control fast lane (KL-8):** a diff touching only ``control/**`` (a
     status heartbeat, a manager inbox append) short-circuits the job GREEN
@@ -9931,34 +9829,33 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         "        # while the bare mtime fallback latches onto the mid-session\n"
         "        # in-progress card and reds every unrelated PR (adopter\n"
         "        # live-fire, gba-homebrew PR #3, 2026-07-10 — the omitted\n"
-        "        # argument was never fail-open in CI). A card ADDED by the PR\n"
-        "        # (first-commit conventions REQUIRE an in-progress card at\n"
-        "        # birth) gates via the absent sentinel + --added-card: the\n"
-        "        # engine grades the card by what it DECLARES — an\n"
-        "        # in-progress/drafted card is the born-red HOLD (red until it\n"
-        "        # flips complete; the superbot-games #40 loophole fix, where\n"
-        "        # a card-only born-red PR with auto-merge pre-armed went\n"
-        "        # green and merged 24 s after open), a badge-less or\n"
-        "        # complete-but-malformed card reds on grammar (the\n"
-        "        # venture-lab #15 false-green class), and a complete\n"
-        "        # well-formed card passes. Completeness is never graded\n"
-        "        # mid-flight (the gba-homebrew #2 lesson — born-red is the\n"
-        "        # REQUIRED state at birth); the hold is a single\n"
-        "        # designed-state finding with a HOLD-by-design banner. A\n"
-        "        # card MODIFIED by the PR (every session close-out flips\n"
-        "        # one) keeps the full locked-door gate, so a close-out that\n"
-        "        # forgot to flip `complete` still reds. EXCEPT: when this\n"
-        "        # same PR also touches THIS gate workflow file (an upgrade\n"
-        "        # PR regenerating the kit-owned gate), an ADDED card keeps\n"
-        "        # the FULL locked door too — the PR runs the NEW gate the\n"
-        "        # moment the regen commit lands, so without this the regen\n"
-        "        # itself could loosen an added card's hold MID-PR\n"
-        "        # (venture-lab #14). Hold semantics may only tighten, never\n"
-        "        # loosen, inside the PR that changes them; that branch also\n"
-        "        # runs --simulate-added-card so the added-card lane's\n"
-        "        # would-be verdict stays observable on exactly the PRs that\n"
-        "        # ship gate changes. The escape is the normal one — flip\n"
-        "        # the card complete.\n"
+        "        # argument was never fail-open in CI). Second live-fire case:\n"
+        "        # a heartbeat PR that ADDS the born-red card (first-commit\n"
+        "        # conventions REQUIRE an in-progress card at birth) can never\n"
+        "        # satisfy the locked door — gba-homebrew PR #2 merged red on\n"
+        "        # exactly this. So: a card ADDED by the PR gates ADVISORY via\n"
+        "        # the absent sentinel (under --strict the engine reds ANY\n"
+        "        # existing-but-incomplete card, required or not — born-red is\n"
+        "        # the REQUIRED state at birth, so a heartbeat must not be\n"
+        "        # judged on completeness); a card MODIFIED by the PR (every\n"
+        "        # session close-out flips one) keeps the full locked-door\n"
+        "        # gate, so a close-out that forgot to flip `complete` still\n"
+        "        # reds. EXCEPT: when this same PR also touches THIS gate\n"
+        "        # workflow file (an upgrade PR regenerating the kit-owned\n"
+        "        # gate), an ADDED card keeps the FULL locked door too — the\n"
+        "        # PR runs the NEW gate the moment the regen commit lands, so\n"
+        "        # without this the regen itself could flip an added card\n"
+        "        # from held-red to advisory MID-PR and auto-merge a partial\n"
+        "        # session (venture-lab #14). Hold semantics may only\n"
+        "        # tighten, never loosen, inside the PR that changes them;\n"
+        "        # the escape is the normal one — flip the card complete.\n"
+        "        # The advisory lane is NOT a full exemption: --added-card\n"
+        "        # grammar-lints the added card (a missing Status badge, or\n"
+        "        # a card declaring itself complete while missing its\n"
+        "        # markers, reds) while born-red incompleteness stays\n"
+        "        # exempt — the venture-lab #15 class, where an ADDED card\n"
+        "        # merged green with malformed grammar and pre-reddened\n"
+        "        # every later bare `check --strict` run.\n"
         "        run: |\n"
         '          if [ -n "${{ github.base_ref }}" ]; then\n'
         '            range="origin/${{ github.base_ref }}...HEAD"\n'
@@ -9980,17 +9877,12 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         '              echo "card $card is ADDED but this PR also touches the'
         ' gate workflow itself — locked-door gate (mid-PR semantics may only'
         ' tighten; flip the card complete to merge)"\n'
-        f"              {interpreter} bootstrap.py check --strict"
-        ' --require-session-log --session-log "$card"'
-        ' --simulate-added-card "$card"\n'
-        "            else\n"
-        f"              {interpreter} bootstrap.py check --strict"
-        ' --require-session-log --session-log "$card"\n'
         "            fi\n"
+        f"            {interpreter} bootstrap.py check --strict --require-session-log"
+        ' --session-log "$card"\n'
         "          elif [ -n \"$card\" ]; then\n"
         '            echo "card $card is newly ADDED by this PR (born-red heartbeat)'
-        ' — added-card gate: in-progress HOLDs until the card flips complete;'
-        ' grammar misses red"\n'
+        ' — advisory sentinel gate (card grammar still checked)"\n'
         f"            {interpreter} bootstrap.py check --strict --session-log "
         f"{sessions_dir}/__born-red-card-added__.md"
         ' --added-card "$card"\n'
@@ -10665,14 +10557,10 @@ def adopt(
             # Provenance for the upgrade diff (§4.3): hash what the kit wrote.
             record_doc_hash(backend, rel, final)
 
-    # (2) Session-log scaffolding. A pre-existing README (skip-if-exists
-    # keeps it) still receives the model-attribution doctrine append-only
-    # under a provenance marker — the PR #170 render was fresh-plant-only,
-    # and the v1.9.0 wave hand-merged 4 adopters for exactly this gap.
+    # (2) Session-log scaffolding.
     sessions_rel = f"{config.sessions_dir}/README.md"
     readme = _adopt_sessions_readme(config.session_markers)
     _adopt_plant(root / config.sessions_dir / "README.md", sessions_rel, readme, report)
-    _merge_model_doctrine(root, config, report)
 
     # (3) The context-pack index skeleton.
     project_name = context.get("project_name") or root.name
@@ -11905,13 +11793,9 @@ def upgrade_report_text(
     (queued fix 1, fleet-manager #40 finding): silence was indistinguishable
     from "the detector never ran", so the report now says which kit-owned
     workflows were scanned with 0 found — or that no kit-owned live workflow
-    exists to scan. ``carveouts=None`` states nothing — absence of the block
-    honestly means the detector did not run in that flow. The post-hoc
-    ``--apply-docs`` path used to pass ``None`` and thereby REWROTE the
-    report without its carve-out section (websites, v1.9.0 wave — the
-    section had to be hand-restored); it now passes the read-only rescan
-    plus any hits carried from the previous report
-    (:func:`scan_gate_carveouts` / :func:`_carried_carveout_hits`).
+    exists to scan. Pass ``carveouts=None`` (the post-hoc ``--apply-docs``
+    path, which runs no adopt pass) to state nothing — absence of the block
+    honestly means the detector did not run in that flow.
     """
     counts: dict[str, int] = {}
     for row in rows:
@@ -11962,78 +11846,6 @@ def upgrade_report_text(
         for row in diffs:
             lines += [f"### {row['relpath']}", "", "```diff", row["diff"], "```", ""]
     return "\n".join(lines) + "\n"
-
-
-# Suffix marking a carve-out hit carried forward from a previous report —
-# the read-only rescan reflects the CURRENT live workflow (post-regen it
-# usually matches the kit template again), so without the carry a rewrite
-# would erase the historical detection the host may still need to act on.
-CARRIED_CARVEOUT_SUFFIX = " [carried from the previous upgrade report]"
-
-
-def scan_gate_carveouts(root: Path, config: Config) -> list[str]:
-    """Read-only carve-out scan of the installed kit-owned workflows.
-
-    Produces the same ``carve-out:`` / ``carve-out scan:`` line grammar as
-    adopt's regen pass emits, WITHOUT writing or regenerating anything —
-    the post-hoc ``--apply-docs`` flow runs no adopt pass, but its report
-    rewrite must still carry an honest carve-out section (the websites
-    v1.9.0-wave finding: the rewrite dropped the section entirely). A
-    workflow that is absent contributes nothing (nothing installed,
-    nothing to scan); unreadable is reported as skipped, never a crash.
-    """
-    lines: list[str] = []
-    gate_expected = live_ci_workflow(
-        config.interpreter_for_checks or "python3",
-        sessions_dir=config.sessions_dir,
-    )
-    enabler_patterns, enabler_context = _automerge_params(config)
-    enabler_expected = automerge_enabler_workflow(enabler_patterns, enabler_context)
-    for relpath, expected in (
-        (LIVE_CI_RELPATH, gate_expected),
-        (AUTOMERGE_ENABLER_RELPATH, enabler_expected),
-    ):
-        path = root / relpath
-        if not path.is_file():
-            continue
-        try:
-            live_text = path.read_text(encoding="utf-8")
-        except OSError:
-            lines.append(
-                f"carve-out scan: {relpath} — unreadable, scan skipped",
-            )
-            continue
-        found = [] if live_text == expected else gate_carveouts(live_text, expected)
-        if not found:
-            lines.append(f"carve-out scan: {relpath} — ran, 0 found")
-        for line in found:
-            lines.append(f"carve-out: {relpath} — {line}")
-    return lines
-
-
-def _carried_carveout_hits(report_path: Path) -> list[str]:
-    """Extract ``carve-out:`` hit lines from an existing upgrade report.
-
-    Returns them WITHOUT the leading ``- `` bullet and WITHOUT any
-    :data:`CARRIED_CARVEOUT_SUFFIX` (re-added by the caller, so repeated
-    post-hoc runs never stack suffixes). Scan-status lines are not carried
-    — the fresh rescan states the current status. Missing/unreadable
-    report → nothing to carry.
-    """
-    try:
-        text = report_path.read_text(encoding="utf-8")
-    except OSError:
-        return []
-    hits: list[str] = []
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line.startswith("- carve-out:"):
-            continue
-        hit = line[2:]
-        if hit.endswith(CARRIED_CARVEOUT_SUFFIX):
-            hit = hit[: -len(CARRIED_CARVEOUT_SUFFIX)]
-        hits.append(hit)
-    return hits
 
 
 def newest_banked_archive(
@@ -12105,28 +11917,13 @@ def run_apply_docs_posthoc(
             "apply-docs: no template-improved docs to apply — every planted "
             "doc is already current or consumer-owned.",
         )
-    # The report rewrite must not drop the carve-out section (websites,
-    # v1.9.0 wave): re-emit it from a read-only rescan of the installed
-    # kit-owned workflows, and carry forward hits recorded in the report
-    # being replaced (post-regen the live file usually matches the template
-    # again, so the rescan alone would erase the historical detection the
-    # host may still need to act on).
     report_rel = f"{config.state_dir}/{UPGRADE_REPORT_FILENAME}"
-    carveout_lines = scan_gate_carveouts(root, config)
-    fresh_hits = {
-        line for line in carveout_lines if line.startswith("carve-out:")
-    }
-    for hit in _carried_carveout_hits(root / report_rel):
-        if hit not in fresh_hits:
-            carveout_lines.append(hit + CARRIED_CARVEOUT_SUFFIX)
-            fresh_hits.add(hit)
     atomic_write_text(
         root / report_rel,
         upgrade_report_text(
             from_version or config.kit_version or "unknown",
             rows,
             applied,
-            carveout_lines,
         ),
     )
     report.append(f"report: {report_rel}")
@@ -12311,13 +12108,6 @@ def run_upgrade(
             "\N{MIDDLE DOT} <task-class>`; session-close harvests it into "
             "telemetry/model-usage.jsonl.",
         )
-        # The adopt pass in step (6) ran BEFORE the needle existed in this
-        # host's markers, so its doctrine merge no-op'd — re-run it now
-        # that the marker is live (idempotent; append-only under the
-        # provenance marker). Without this, the first upgrade that
-        # introduces the needle leaves the planted README doctrine-less
-        # until the NEXT upgrade (the v1.9.0 wave's retroactivity gap).
-        _merge_model_doctrine(root, config, report)
 
     # (7) State migration (backup already banked above).
     backend.migrate(STATE_SCHEMA_VERSION)
@@ -12913,32 +12703,20 @@ def cmd_check(
     require_session_log: bool = False,
     session_log: Path | None = None,
     added_card: Path | None = None,
-    simulate_added_card: Path | None = None,
     status_only: bool = False,
     inbox_base: Path | None = None,
 ) -> int:
     """Run every hygiene checker against ``target``.
 
     ``added_card`` (CLI ``--added-card``) names a session card the PR's diff
-    ADDS — the generated gate's added-card lane passes it so a born-red
-    heartbeat is graded by what it *declares* (see
+    ADDS — the generated gate's advisory sentinel lane passes it so a
+    born-red heartbeat is still *grammar*-checked instead of exempted
+    entirely (the venture-lab #15 false-green class; see
     :func:`engine.checks.check_session_log.check_added_card` for the
-    declared-status tiering): an in-progress/drafted card yields the
-    born-red HOLD (the superbot-games #40 card-only loophole fix — an
-    added mid-flight card holds the merge red until it flips complete,
-    never advisory-green); grammar misses red as before (the venture-lab
-    #15 false-green class). Findings ride the strict loop like any doc
+    declared-status tiering). Findings ride the strict loop like any doc
     finding and are never allowlistable (they are the session-gate seam);
     a named file that does not exist is advisory-only — the gate derives
     the path from the diff, so absence means nothing to judge.
-
-    ``simulate_added_card`` (CLI ``--simulate-added-card``) is the lane's
-    ADVISORY self-test: it prints exactly what the added-card lane WOULD
-    conclude for the named card (hold / findings / pass) without ever
-    touching the exit code. It exists because the lane is unobservable on
-    the very PR that ships gate changes — a PR touching the gate workflow
-    takes the full locked door, superseding ``--added-card`` — so gate
-    work needs an in-run way to verify the lane's grading.
 
     ``inbox_base`` (CLI ``--inbox-base``) names the merge-base version of
     ``control/inbox.md`` — extracted by CI in bash, because engine code never
@@ -13087,12 +12865,9 @@ def cmd_check(
     entries, allow_findings = load_allowlist(target, config.state_dir)
     doc_findings, suppressed = apply_allowlist(doc_findings, entries)
     doc_findings += allow_findings
-    # Added-card grading (queued kit fix 1, the venture-lab #15 false-green
-    # class + the superbot-games #40 born-red loophole): appended AFTER the
-    # allowlist pass on purpose — like the session-log gate it extends, it
-    # is never allowlistable. An in-progress ADDED card yields the born-red
-    # HOLD finding (kind `session-card-hold`, so the designed-hold banner
-    # below can recognise it); grammar misses keep `session-card-grammar`.
+    # Added-card grammar lint (queued kit fix 1, the venture-lab #15
+    # false-green class): appended AFTER the allowlist pass on purpose —
+    # like the session-log gate it extends, it is never allowlistable.
     if added_card is not None and not status_only:
         card_path = (
             added_card if added_card.is_absolute() else target / added_card
@@ -13104,64 +12879,13 @@ def cmd_check(
                 else str(card_path)
             )
             doc_findings += [
-                Finding(
-                    card_rel,
-                    (
-                        "session-card-hold"
-                        if miss == BORN_RED_HOLD_MESSAGE
-                        else "session-card-grammar"
-                    ),
-                    miss,
-                )
+                Finding(card_rel, "session-card-grammar", miss)
                 for miss in check_added_card(card_path, config.session_markers)
             ]
         else:
             _emit(
                 f"check: --added-card {added_card} does not exist "
                 "(advisory — nothing to grammar-check).",
-            )
-    # --simulate-added-card: the lane's advisory self-test (v1.9.0 wave
-    # finding — the --added-card grading is unobservable on the very PR
-    # that ships gate changes, because touching the gate workflow routes
-    # the PR through the full locked door instead). Prints the lane's
-    # would-be verdict; NEVER feeds doc_findings or the exit code.
-    if simulate_added_card is not None and not status_only:
-        sim_path = (
-            simulate_added_card
-            if simulate_added_card.is_absolute()
-            else target / simulate_added_card
-        )
-        if not sim_path.is_file():
-            _emit(
-                f"check: simulate-added-card {simulate_added_card} does not "
-                "exist — nothing to simulate (advisory).",
-            )
-        else:
-            sim_misses = check_added_card(sim_path, config.session_markers)
-            if not sim_misses:
-                _emit(
-                    f"check: simulate-added-card {simulate_added_card} — the "
-                    "added-card lane would PASS (card declares a completed "
-                    "Status and carries every marker).",
-                )
-            elif sim_misses == [BORN_RED_HOLD_MESSAGE]:
-                _emit(
-                    f"check: simulate-added-card {simulate_added_card} — the "
-                    "added-card lane would HOLD (born-red: the card declares "
-                    "an in-progress/drafted Status; the gate would stay red "
-                    "until it flips complete).",
-                )
-            else:
-                _emit(
-                    f"check: simulate-added-card {simulate_added_card} — the "
-                    f"added-card lane would RED with {len(sim_misses)} "
-                    "finding(s):",
-                )
-                for miss in sim_misses:
-                    _emit(f"  [simulated session-card-grammar] {miss}")
-            _emit(
-                "check: simulation is advisory-only — it never affects this "
-                "run's exit code.",
             )
     if suppressed:
         _emit(
@@ -13384,7 +13108,6 @@ def cmd_check(
     # tell a designed hold from a real defect without opening the job log's
     # fine print. Any other finding alongside suppresses the banner: a
     # partially-real failure must never be labelled "by design".
-    added_card_holds = [f for f in doc_findings if f.kind == "session-card-hold"]
     hold_is_designed = (
         strict
         and not doc_findings
@@ -13393,24 +13116,8 @@ def cmd_check(
         and bool(log_missing)
         and _card_declares_in_progress(log)
     )
-    # Same banner for the added-card lane's born-red HOLD (the
-    # superbot-games #40 loophole fix): when the ONLY thing holding the run
-    # red is the ADDED card's in-progress declaration, that red is the
-    # designed hold too — an observer must be able to tell it from a defect
-    # without opening the fine print. Any other finding alongside (a grammar
-    # miss, a doc finding, an incomplete --session-log card) suppresses it.
-    added_hold_is_designed = (
-        strict
-        and bool(added_card_holds)
-        and len(doc_findings) == len(added_card_holds)
-        and not log_missing
-        and not log_absent_fails
-    )
-    if added_hold_is_designed:
-        hold_rel = added_card_holds[0].path
-    elif hold_is_designed:
+    if hold_is_designed:
         hold_rel = log.relative_to(target) if log.is_relative_to(target) else log
-    if hold_is_designed or added_hold_is_designed:
         _emit(
             f"check: HOLD (by design): session card {hold_rel} declares an "
             "in-progress Status — the born-red session gate holds the merge "
@@ -14479,24 +14186,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         help=(
-            "grade this session card as one newly ADDED by the PR (the "
-            "gate's added-card lane): an in-progress/drafted card is the "
-            "born-red HOLD (red until it flips complete — the "
-            "superbot-games #40 loophole fix); a missing Status badge — or "
-            "a card that declares itself complete while missing its "
-            "markers — reds (the venture-lab #15 false-green class)"
-        ),
-    )
-    check.add_argument(
-        "--simulate-added-card",
-        type=Path,
-        default=None,
-        help=(
-            "ADVISORY self-test: print what the gate's added-card lane "
-            "WOULD do for this card (hold / grammar findings / pass) "
-            "without affecting the exit code — makes the lane observable "
-            "on the very PR that ships gate changes, where the locked "
-            "door supersedes the --added-card path"
+            "grammar-lint this session card as one newly ADDED by the PR "
+            "(the gate's advisory sentinel lane): born-red incompleteness "
+            "stays exempt, but a missing Status badge — or a card that "
+            "declares itself complete while missing its markers — reds "
+            "(the venture-lab #15 false-green class)"
         ),
     )
     check.add_argument(
@@ -14563,7 +14257,6 @@ def main(argv: list[str] | None = None) -> int:
                 require_session_log=args.require_session_log,
                 session_log=args.session_log,
                 added_card=args.added_card,
-                simulate_added_card=args.simulate_added_card,
                 status_only=args.status_only,
                 inbox_base=args.inbox_base,
             )

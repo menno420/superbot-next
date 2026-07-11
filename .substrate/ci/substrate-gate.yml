@@ -91,33 +91,34 @@ jobs:
         # while the bare mtime fallback latches onto the mid-session
         # in-progress card and reds every unrelated PR (adopter
         # live-fire, gba-homebrew PR #3, 2026-07-10 — the omitted
-        # argument was never fail-open in CI). Second live-fire case:
-        # a heartbeat PR that ADDS the born-red card (first-commit
-        # conventions REQUIRE an in-progress card at birth) can never
-        # satisfy the locked door — gba-homebrew PR #2 merged red on
-        # exactly this. So: a card ADDED by the PR gates ADVISORY via
-        # the absent sentinel (under --strict the engine reds ANY
-        # existing-but-incomplete card, required or not — born-red is
-        # the REQUIRED state at birth, so a heartbeat must not be
-        # judged on completeness); a card MODIFIED by the PR (every
-        # session close-out flips one) keeps the full locked-door
-        # gate, so a close-out that forgot to flip `complete` still
-        # reds. EXCEPT: when this same PR also touches THIS gate
-        # workflow file (an upgrade PR regenerating the kit-owned
-        # gate), an ADDED card keeps the FULL locked door too — the
-        # PR runs the NEW gate the moment the regen commit lands, so
-        # without this the regen itself could flip an added card
-        # from held-red to advisory MID-PR and auto-merge a partial
-        # session (venture-lab #14). Hold semantics may only
-        # tighten, never loosen, inside the PR that changes them;
-        # the escape is the normal one — flip the card complete.
-        # The advisory lane is NOT a full exemption: --added-card
-        # grammar-lints the added card (a missing Status badge, or
-        # a card declaring itself complete while missing its
-        # markers, reds) while born-red incompleteness stays
-        # exempt — the venture-lab #15 class, where an ADDED card
-        # merged green with malformed grammar and pre-reddened
-        # every later bare `check --strict` run.
+        # argument was never fail-open in CI). A card ADDED by the PR
+        # (first-commit conventions REQUIRE an in-progress card at
+        # birth) gates via the absent sentinel + --added-card: the
+        # engine grades the card by what it DECLARES — an
+        # in-progress/drafted card is the born-red HOLD (red until it
+        # flips complete; the superbot-games #40 loophole fix, where
+        # a card-only born-red PR with auto-merge pre-armed went
+        # green and merged 24 s after open), a badge-less or
+        # complete-but-malformed card reds on grammar (the
+        # venture-lab #15 false-green class), and a complete
+        # well-formed card passes. Completeness is never graded
+        # mid-flight (the gba-homebrew #2 lesson — born-red is the
+        # REQUIRED state at birth); the hold is a single
+        # designed-state finding with a HOLD-by-design banner. A
+        # card MODIFIED by the PR (every session close-out flips
+        # one) keeps the full locked-door gate, so a close-out that
+        # forgot to flip `complete` still reds. EXCEPT: when this
+        # same PR also touches THIS gate workflow file (an upgrade
+        # PR regenerating the kit-owned gate), an ADDED card keeps
+        # the FULL locked door too — the PR runs the NEW gate the
+        # moment the regen commit lands, so without this the regen
+        # itself could loosen an added card's hold MID-PR
+        # (venture-lab #14). Hold semantics may only tighten, never
+        # loosen, inside the PR that changes them; that branch also
+        # runs --simulate-added-card so the added-card lane's
+        # would-be verdict stays observable on exactly the PRs that
+        # ship gate changes. The escape is the normal one — flip
+        # the card complete.
         run: |
           if [ -n "${{ github.base_ref }}" ]; then
             range="origin/${{ github.base_ref }}...HEAD"
@@ -131,10 +132,12 @@ jobs:
           if [ -n "$card" ] && { [ "$card" != "$added" ] || [ -n "$gate_regen" ]; }; then
             if [ "$card" = "$added" ]; then
               echo "card $card is ADDED but this PR also touches the gate workflow itself — locked-door gate (mid-PR semantics may only tighten; flip the card complete to merge)"
+              python3 bootstrap.py check --strict --require-session-log --session-log "$card" --simulate-added-card "$card"
+            else
+              python3 bootstrap.py check --strict --require-session-log --session-log "$card"
             fi
-            python3 bootstrap.py check --strict --require-session-log --session-log "$card"
           elif [ -n "$card" ]; then
-            echo "card $card is newly ADDED by this PR (born-red heartbeat) — advisory sentinel gate (card grammar still checked)"
+            echo "card $card is newly ADDED by this PR (born-red heartbeat) — added-card gate: in-progress HOLDs until the card flips complete; grammar misses red"
             python3 bootstrap.py check --strict --session-log .sessions/__born-red-card-added__.md --added-card "$card"
           else
             python3 bootstrap.py check --strict --session-log .sessions/__no-card-in-diff__.md

@@ -200,6 +200,53 @@ class TestLiveDispatchIndex:
         finally:
             adapters_mod.reset_adapter_ports_for_tests()
 
+    def test_grouped_command_aliases_are_group_scoped(self):
+        # the shipped @group.command(aliases=[...]) semantics: an alias on
+        # a grouped subcommand lives INSIDE the group — `!ticket open`
+        # routes ticket.new; bare `!open`/`!create` are NOT top-level
+        # routes (they'd shadow other subsystems' commands, e.g. the
+        # channel op `!create`).
+        from types import SimpleNamespace
+
+        from sb.app.build_runtime import build_live_index
+        from sb.kernel.interaction.request import Surface
+        from sb.spec.commands import CommandKind, CommandSpec
+
+        new = CommandSpec(name="new", kind=CommandKind.PREFIX,
+                          group="ticket", aliases=("open", "create"),
+                          route=object())
+        index = build_live_index([SimpleNamespace(commands=(new,), panels=())])
+        assert index[("ticket new", Surface.PREFIX)].spec is new
+        assert index[("ticket open", Surface.PREFIX)].spec is new
+        assert index[("ticket create", Surface.PREFIX)].spec is new
+        assert ("open", Surface.PREFIX) not in index
+        assert ("create", Surface.PREFIX) not in index
+
+    def test_ungrouped_aliases_stay_top_level(self):
+        from types import SimpleNamespace
+
+        from sb.app.build_runtime import build_live_index
+        from sb.kernel.interaction.request import Surface
+        from sb.spec.commands import CommandKind, CommandSpec
+
+        thanks = CommandSpec(name="thanks", kind=CommandKind.PREFIX,
+                             aliases=("rep", "thank"), route=object())
+        index = build_live_index([SimpleNamespace(commands=(thanks,),
+                                                  panels=())])
+        for key in ("thanks", "rep", "thank"):
+            assert index[(key, Surface.PREFIX)].spec is thanks
+
+    def test_parity_boot_shares_the_same_dispatch_keys(self):
+        # the parity twin must dispatch on the SAME keys the live index
+        # carries — both call sb.spec.commands.command_dispatch_keys.
+        from sb.spec.commands import CommandKind, CommandSpec, command_dispatch_keys
+
+        new = CommandSpec(name="new", kind=CommandKind.PREFIX,
+                          group="ticket", aliases=("open", "create"),
+                          route=object())
+        assert command_dispatch_keys(new) == [
+            "ticket new", "ticket open", "ticket create"]
+
     def test_component_custom_ids_indexed(self):
         from types import SimpleNamespace
 

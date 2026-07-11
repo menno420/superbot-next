@@ -2,6 +2,8 @@
 
 > **Status:** `complete`
 
+- **📊 Model:** unknown — backfilled 2026-07-11 (kit-upgrade PR #159, grammar-only): this card predates the model-attribution doctrine and the original session left no self-report; attribution is not fabricated.
+
 ## Scope
 
 Consumer half of kit-lab done-condition D2 (founding plan §4.2): record the

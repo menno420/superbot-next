@@ -418,7 +418,12 @@ def test_ai_manifest_imports_and_registers():
     tables = {s.table for s in manifest.MANIFEST.stores}
     assert tables == {"ai_review_log", "ai_answer_presets"}
     panel_ids = {p.panel_id for p in manifest.MANIFEST.panels}
-    assert panel_ids == {"ai.hub", "ai.settings", "ai.card"}
+    assert panel_ids == {
+        "ai.hub", "ai.settings", "ai.card",
+        # the settings-mutation slice: the shipped chooser PAGES + the
+        # S6/S7 edit widget pages.
+        "ai.policy_chooser", "ai.behavior_chooser", "ai.tools_chooser",
+        "ai.settings_edit_presets", "ai.settings_edit_enum"}
     manifest.ENSURE_REFS()
 
 
