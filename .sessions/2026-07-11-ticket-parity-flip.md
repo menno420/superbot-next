@@ -88,3 +88,14 @@ Pre-flip state: 0/6 green. Post: 6/6 on the FIRST local replay.
   centralize the under-port boundary in the service module.
 - (c) `HUB_NAV_LABELS` growth is golden-cited one label at a time
   (community joined admin/moderation here).
+
+## 💡 Session idea
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no idea. Backfill exists so the strict session-gate's
+newest-card-by-mtime pick cannot red CI on this card — see PR #159's card.)
+
+## ⟲ Previous-session review
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no previous-session review.)

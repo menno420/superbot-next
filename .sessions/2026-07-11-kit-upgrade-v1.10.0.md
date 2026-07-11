@@ -42,6 +42,16 @@ control/status edits.
    touched.
 5. `substrate.config.json` → `kit_version: 1.10.0`; kit-owned
    guard-fires.jsonl telemetry appended by this session's check runs.
+6. **⚑ In-passing (venture-lab #17 precedent): sibling-card grammar
+   backfill.** The close-out push went red when CI's bare `check
+   --strict` mtime-picked `.sessions/2026-07-11-ticket-parity-flip.md`
+   (missing `💡`/review needles) — the sibling-card lottery striking
+   live. Six cards carried needle gaps (2× missing `📊 Model:` from the
+   pre-doctrine era, 4× missing `💡` + review); each got an explicitly
+   provenance-marked, grammar-only backfill (nothing fabricated — the
+   Model backfills say `unknown`), and every card in `.sessions/` now
+   grades exit 0 individually via `--session-log`, so no future mtime
+   pick can red the gate on pre-existing drift.
 
 ## Verification
 

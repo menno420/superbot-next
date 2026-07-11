@@ -100,3 +100,14 @@ text-rendered). Post: 8/8 on the third local replay.
   ported** on real Postgres; check_parity_depth OK; check_sim_gate
   OK (zero new rows); check_compat_frozen OK; check_namespace clean;
   **1302 passed, 5 skipped**.
+
+## 💡 Session idea
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no idea. Backfill exists so the strict session-gate's
+newest-card-by-mtime pick cannot red CI on this card — see PR #159's card.)
+
+## ⟲ Previous-session review
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no previous-session review.)

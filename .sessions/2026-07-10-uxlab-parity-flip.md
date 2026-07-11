@@ -56,3 +56,14 @@ green (of 465). Full suite 1220 passed.
   pair, and the regenerated pins.
 - The author-lock / registry-derived-Exhibits under-ports are carried
   in the sibling card (`2026-07-10-ux-lab-parity-flip.md`) and in-code.
+
+## 💡 Session idea
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no idea. Backfill exists so the strict session-gate's
+newest-card-by-mtime pick cannot red CI on this card — see PR #159's card.)
+
+## ⟲ Previous-session review
+
+(Backfilled 2026-07-11 in kit-upgrade PR #159, grammar-only: the original
+session recorded no previous-session review.)
