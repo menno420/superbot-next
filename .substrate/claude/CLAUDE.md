@@ -13,12 +13,16 @@ superbot-next is built in Python.
 ## Orientation — read first, in order
 
 1. This file — the working agreement.
-2. `docs/current-state.md` — what is true right now.
-3. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).
+2. `HANDOFF.md` at repo root (when present) — the previous session's trail:
+   newest session card + where to pick up. Regenerated at every session
+   boot, untracked by design — read it before re-deriving history from
+   `git log`/`git show`; never commit or edit it.
+3. `docs/current-state.md` — what is true right now.
+4. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).
    Never declare a wall or a missing credential without its discovery rule:
    check the file → check the env → attempt once + capture the exact error →
    append the finding same session.
-4. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.
+5. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.
 
 ## Kit machinery — search hygiene
 

@@ -18,7 +18,7 @@ jobs:
   substrate-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: control fast lane (control/**-only diff short-circuits green)
@@ -77,7 +77,7 @@ jobs:
             git show "$base:control/inbox.md" > "$basefile" 2>/dev/null || : > "$basefile"
             python3 bootstrap.py check --strict --status-only --inbox-base "$basefile"
           fi
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: steps.lane.outputs.control_only != 'true'
         with:
           python-version: "3.x"
