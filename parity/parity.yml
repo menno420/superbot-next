@@ -54,7 +54,7 @@ subsystems:
   blackjack: ported
   btd6: ported
   casino: pending
-  chain: pending
+  chain: ported
   channel: ported
   cleanup: ported
   community: pending
@@ -200,6 +200,16 @@ depth:
                              # re-argued for the select ingress (D-0064;
                              # vocabulary growth reviewed in the economy flip
                              # PR, per the "reviewed schema change" rule above)
+    - guard-only-capture     # the writing command IS corpus-expressible, but
+                             # the imported sweep drove only its BARE/guard
+                             # invocation (the sweep enumerated commands
+                             # argument-less), so every captured case pins the
+                             # refusal/usage byte and the write-bearing ARGFUL
+                             # invocation exists in no imported golden; the
+                             # first row-bearing golden lands with an argful
+                             # capture (vocabulary growth reviewed in the chain
+                             # flip PR + decision record D-0069, per the
+                             # "reviewed schema change" rule above)
 
   # exemptions:
   #   <subsystem>:
@@ -234,6 +244,26 @@ depth:
           modal-pointer string (goldens/btd6/sweep_btd6_strat_submit),
           and the read surfaces (browse/mine/strategy/pending/strategies)
           are golden-pinned empty-state reads"
+    chain:
+      # chain's seven goldens are guard/usage bytes + the Chain Manager
+      # empty-state open — the sweep drove every `!chain` subcommand
+      # BARE, so each captured case pins its refusal/usage reply and no
+      # chain was ever created in the capture world.
+      - surface: "table:chain_channels"
+        reason: "guard-only-capture: the writing commands are
+          corpus-expressible (`!chain create [channel] <word>` /
+          `setlimit <n>`) but the imported sweep drove only their bare
+          invocations — every captured case pins the guard byte the
+          flipped row now answers verbatim (goldens/chain/
+          sweep_chain_create '❌ Please specify the word…',
+          sweep_chain_setlimit '❌ Please specify a valid word limit…',
+          sweep_chain_delete/sweep_chain_removelimit the no-chain
+          branches, sweep_chainmenu the empty-state manager), so no
+          imported golden can carry a chain_channels row; the shipped
+          panel write lane is additionally modal-driven (the
+          _CreateChainModal quartet, D-0063's ingress) and the table's
+          first row-bearing golden lands with an argful capture
+          (decision record D-0069)"
     cleanup:
       # cleanup's three goldens are read-only surfaces (two panel opens
       # + the 0-match history scan) — the word-filter K7 write lane is
@@ -401,6 +431,7 @@ depth:
     ai: {events: 2, tables: 4, settings: 1}
     blackjack: {events: 2, tables: 6, settings: 1}
     btd6: {events: 1, tables: 3, settings: 1}
+    chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 1, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 2, settings: 0}
     counting: {events: 1, tables: 2, settings: 0}

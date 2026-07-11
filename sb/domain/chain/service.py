@@ -132,6 +132,13 @@ def _register() -> None:
         else:
             channel_id, rest = _split_channel_and_rest(req)
             word = " ".join(rest)
+        if not word.strip():
+            # the shipped missing-word guard verbatim (chain_cog.create;
+            # goldens/chain/sweep_chain_create pins the bytes).
+            return Reply(BLOCKED,
+                         "❌ Please specify the word to enforce in the "
+                         "chain.\n**Usage:** `!chain create [channel] "
+                         "<word>`")
         result = await engine.run(
             WorkflowRef("chain.create"),
             _ctx_from_req(req, {"channel_id": channel_id, "word": word}))
@@ -142,11 +149,22 @@ def _register() -> None:
         after = next(iter((result.after or {}).values()), {})
         return Reply(SUCCESS, after.get("message", "Chain created."))
 
-    handler("chain.delete_route")(_run_op(
-        "chain.delete",
-        lambda req: {"channel_id": (_modal_channel(req)
-                                    if req.args.get("channel") is not None
-                                    else _split_channel_and_rest(req)[0])}))
+    @handler("chain.delete_route")
+    async def delete_route(req) -> Reply:
+        """!chain delete [#channel] (modal: channel)."""
+        from sb.domain.chain import store
+
+        channel_id = (_modal_channel(req)
+                      if req.args.get("channel") is not None
+                      else _split_channel_and_rest(req)[0])
+        if await store.get_chain_channel(channel_id) is None:
+            # the shipped not-applied branch verbatim (chain_cog.delete;
+            # goldens/chain/sweep_chain_delete pins the bytes).
+            return Reply(BLOCKED,
+                         f"❌ No active chain found in <#{channel_id}>.")
+        return await _run_op(
+            "chain.delete",
+            lambda r: {"channel_id": channel_id})(req)
 
     @handler("chain.setlimit_route")
     async def setlimit_route(req) -> Reply:
@@ -161,10 +179,14 @@ def _register() -> None:
         else:
             channel_id, rest = _split_channel_and_rest(req)
             limit = _int_or_none(rest[0]) if rest else None
-        if limit is None or limit < 0:
+        if limit is None or limit <= 0:
+            # the shipped guard verbatim (chain_cog.setlimit: rejects
+            # missing AND <= 0 — removal is !chain removelimit's job;
+            # goldens/chain/sweep_chain_setlimit pins the bytes).
             return Reply(BLOCKED,
-                         "Word limit must be a non-negative integer "
-                         "(0 removes it).")
+                         "❌ Please specify a valid word limit greater "
+                         "than 0.\n**Usage:** `!chain setlimit [channel] "
+                         "<number>`")
         result = await engine.run(
             WorkflowRef("chain.set_limit"),
             _ctx_from_req(req, {"channel_id": channel_id,
@@ -175,12 +197,24 @@ def _register() -> None:
         after = next(iter((result.after or {}).values()), {})
         return Reply(SUCCESS, after.get("message", "Done."))
 
-    handler("chain.removelimit_route")(_run_op(
-        "chain.set_limit",
-        lambda req: {"channel_id": (_modal_channel(req)
-                                    if req.args.get("channel") is not None
-                                    else _split_channel_and_rest(req)[0]),
-                     "limit": 0}))
+    @handler("chain.removelimit_route")
+    async def removelimit_route(req) -> Reply:
+        """!chain removelimit [#channel] (modal: channel)."""
+        from sb.domain.chain import store
+
+        channel_id = (_modal_channel(req)
+                      if req.args.get("channel") is not None
+                      else _split_channel_and_rest(req)[0])
+        row = await store.get_chain_channel(channel_id)
+        if row is None or not row.get("word_limit"):
+            # the shipped not_found / no_change branch verbatim
+            # (chain_cog.removelimit — "nothing was set, matching legacy
+            # copy"; goldens/chain/sweep_chain_removelimit pins the bytes).
+            return Reply(SUCCESS,
+                         f"ℹ️ No word limit is set in <#{channel_id}>.")
+        return await _run_op(
+            "chain.set_limit",
+            lambda r: {"channel_id": channel_id, "limit": 0})(req)
 
     @handler("chain.list_view")
     async def list_view(req) -> Reply:
@@ -189,9 +223,17 @@ def _register() -> None:
 
         rows = await store.get_all_chain_channels(int(req.guild_id or 0))
         if not rows:
+            # the shipped empty-list byte (chain_cog.list_chains;
+            # goldens/chain/sweep_chain_list pins it).
             return Reply(SUCCESS,
-                         "No chains or word limits are set up in this "
-                         "server.")
+                         "ℹ️ There are no active chains or word limits "
+                         "in this server.")
+        # UNDER-PORT NOTE (no golden pins this branch): the shipped
+        # non-empty list is an EMBED ("Active Chains and Word Limits",
+        # green, one field per channel — name=channel.name, value
+        # "Allowed Word: `w`\n" / "Word Limit: `n` words\n" / "No
+        # restrictions set."); Reply carries text only, so the embed
+        # shape lands with a result-card slice.
         lines = ["🔗 **Chains in this server**"]
         for row in rows:
             bits = []

@@ -3378,12 +3378,12 @@
         {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
-          "value": "chain_list"
+          "value": "chain_create"
         },
         {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
-          "value": "chain_create"
+          "value": "chain_delete"
         },
         {
           "source": "sb/manifest/chain.py",
@@ -3398,7 +3398,7 @@
         {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
-          "value": "chain_delete"
+          "value": "chain_refresh"
         },
         {
           "source": "sb/manifest/channel.py",
@@ -6513,11 +6513,17 @@
       "handler:chain.delete_route": {
         "module": "sb.domain.chain.service"
       },
+      "handler:chain.hub_refresh": {
+        "module": "sb.domain.chain.panels"
+      },
       "handler:chain.list_view": {
         "module": "sb.domain.chain.service"
       },
       "handler:chain.removelimit_route": {
         "module": "sb.domain.chain.service"
+      },
+      "handler:chain.render_hub": {
+        "module": "sb.domain.chain.panels"
       },
       "handler:chain.setlimit_route": {
         "module": "sb.domain.chain.service"
@@ -9259,7 +9265,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:fea82546c294f255d4f48c810d437f45d281cf2a56aafaf508e7d15f22ca4532",
+  "stable_hash": "sha256:f49659a6d25818bd2f726b09f2c9c0c1f374718604fccdb41be288df56d8a7eb",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -15598,30 +15604,6 @@
         {
           "actions": [
             {
-              "action_id": "chain_list",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "📋",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:chain.list_view"
-              },
-              "label": "List",
-              "modal": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
               "action_id": "chain_create",
               "audience_tier": "staff",
               "audit": "",
@@ -15631,12 +15613,12 @@
               "custom_id_override": "",
               "defer_mode": "modal",
               "destructive": false,
-              "emoji": "➕",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:chain.create_route"
               },
-              "label": "Create Chain",
+              "label": "➕ Create Chain",
               "modal": {
                 "fields": [
                   {
@@ -15674,6 +15656,48 @@
               "visible_when": ""
             },
             {
+              "action_id": "chain_delete",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:chain.delete_route"
+              },
+              "label": "🗑️ Delete Chain",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Channel (mention/ID, blank = current)",
+                    "max_length": 32,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "chain.delete_form",
+                "on_submit": {
+                  "$ref": "handler:chain.delete_route"
+                },
+                "title": "Delete Chain"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
               "action_id": "chain_set_limit",
               "audience_tier": "staff",
               "audit": "",
@@ -15683,12 +15707,12 @@
               "custom_id_override": "",
               "defer_mode": "modal",
               "destructive": false,
-              "emoji": "📏",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:chain.setlimit_route"
               },
-              "label": "Set Limit",
+              "label": "📏 Set Limit",
               "modal": {
                 "fields": [
                   {
@@ -15704,7 +15728,7 @@
                   {
                     "default": "",
                     "field_id": "limit",
-                    "label": "Word limit (0 = remove limit)",
+                    "label": "Word limit (> 0)",
                     "max_length": 6,
                     "min_length": null,
                     "placeholder": "",
@@ -15735,12 +15759,12 @@
               "custom_id_override": "",
               "defer_mode": "modal",
               "destructive": false,
-              "emoji": "🧹",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:chain.removelimit_route"
               },
-              "label": "Clear Limit",
+              "label": "🚫 Clear Limit",
               "modal": {
                 "fields": [
                   {
@@ -15768,44 +15792,26 @@
               "visible_when": ""
             },
             {
-              "action_id": "chain_delete",
+              "action_id": "chain_refresh",
               "audience_tier": "staff",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "modal",
+              "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🗑️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:chain.delete_route"
+                "$ref": "handler:chain.hub_refresh"
               },
-              "label": "Delete Chain",
-              "modal": {
-                "fields": [
-                  {
-                    "default": "",
-                    "field_id": "channel",
-                    "label": "Channel (mention/ID, blank = current)",
-                    "max_length": 32,
-                    "min_length": null,
-                    "placeholder": "",
-                    "required": false,
-                    "style": "short"
-                  }
-                ],
-                "modal_id": "chain.delete_form",
-                "on_submit": {
-                  "$ref": "handler:chain.delete_route"
-                },
-                "title": "Delete Chain"
-              },
+              "label": "🔄 Refresh",
+              "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "danger",
+              "style": "secondary",
               "usage_weight": 1.0,
               "visible_when": ""
             }
@@ -15814,33 +15820,31 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Message chains: lock a channel to one allowed word, cap message length, and watch the chain count climb. All other messages are removed."
+              "text": ""
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blue",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped _ChainMenuView embed is state-dependent copy the grammar cannot express (build_embed: 'No active chains in this server.' vs the per-channel '{mention} — word: `w`, limit: `n`' lines over get_all_chain_channels) plus the footer literal 'Use buttons below to manage chains.' — outside FooterMode's vocabulary. The override delegates the COMPONENTS to render_panel (declared actions untouched) and composes the EMBED only (title, blue, description, footer). goldens/chain/sweep_chainmenu pins every byte.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
-                    "chain_list"
-                  ],
-                  [
                     "chain_create",
+                    "chain_delete",
                     "chain_set_limit",
                     "chain_clear_limit"
                   ],
                   [
-                    "chain_delete"
+                    "chain_refresh"
                   ]
                 ]
               }
@@ -15851,17 +15855,19 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "chain.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:chain.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "chain",
           "timeout_s": 180,
-          "title": "🔗 Chain Manager",
+          "title": "⛓️ Chain Manager",
           "usage_weight": 1.0
         }
       ],
