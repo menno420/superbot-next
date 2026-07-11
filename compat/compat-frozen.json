@@ -1816,6 +1816,41 @@
     "name": "setup"
    }
   ],
+  "ticket": [
+   {
+    "aliases": [],
+    "group": "ticket",
+    "name": "add"
+   },
+   {
+    "aliases": [],
+    "group": "ticket",
+    "name": "claim"
+   },
+   {
+    "aliases": [],
+    "group": "ticket",
+    "name": "close"
+   },
+   {
+    "aliases": [
+     "create",
+     "open"
+    ],
+    "group": "ticket",
+    "name": "new"
+   },
+   {
+    "aliases": [],
+    "group": "ticket",
+    "name": "remove"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ticket"
+   }
+  ],
   "treasury": [
    {
     "aliases": [
@@ -2116,6 +2151,7 @@
   "settings_hub.subsystem_select",
   "settings_subsystem.back_to_hub",
   "settings_subsystem.open_panel",
+  "ticket.open_form",
   "treasury.contribute_form",
   "utility:open:four_twenty",
   "utility:open:general",
@@ -2164,6 +2200,7 @@
   "server_management",
   "settings",
   "setup",
+  "ticket",
   "treasury",
   "utility",
   "ux_lab",

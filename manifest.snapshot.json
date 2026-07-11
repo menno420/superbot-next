@@ -309,7 +309,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 45,
+  "manifest_count": 46,
   "projections": {
     "events": {
       "economy.balance_changed": {
@@ -2940,6 +2940,54 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "surface": "prefix",
+          "value": "ticket"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ticket",
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "surface": "prefix",
+          "value": "new"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ticket",
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "surface": "prefix",
+          "value": "add"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ticket",
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "surface": "prefix",
+          "value": "remove"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ticket",
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "surface": "prefix",
+          "value": "claim"
+        },
+        {
+          "kind": "command",
+          "parent_group": "ticket",
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "surface": "prefix",
+          "value": "close"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "surface": "prefix",
@@ -3947,6 +3995,21 @@
           "value": "access_next"
         },
         {
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "value": "open_ticket"
+        },
+        {
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "value": "my_tickets"
+        },
+        {
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "value": "post_panel"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -4523,6 +4586,11 @@
         {
           "source": "sb/manifest/help.py",
           "subsystem": "help",
+          "value": "help.sub_ticket"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
           "value": "help.cat_community"
         },
         {
@@ -4739,6 +4807,11 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.hub"
+        },
+        {
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "value": "ticket.hub"
         },
         {
           "source": "sb/manifest/treasury.py",
@@ -5508,6 +5581,11 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup"
+        },
+        {
+          "source": "sb/manifest/ticket.py",
+          "subsystem": "ticket",
+          "value": "ticket"
         },
         {
           "source": "sb/manifest/treasury.py",
@@ -6831,6 +6909,33 @@
       "handler:spotlight.xp_leaders": {
         "module": "sb.domain.community.handlers"
       },
+      "handler:ticket.add": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.claim": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.close": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.my_tickets": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.new": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.open_submit": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.post_panel": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.remove": {
+        "module": "sb.domain.ticket.handlers"
+      },
+      "handler:ticket.render_hub": {
+        "module": "sb.domain.ticket.handlers"
+      },
       "handler:utility.avatar_card_render": {
         "module": "sb.domain.utility.panels"
       },
@@ -7194,6 +7299,9 @@
       "panel:help.sub_setup": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.sub_ticket": {
+        "module": "sb.domain.help.service"
+      },
       "panel:help.sub_treasury": {
         "module": "sb.domain.help.service"
       },
@@ -7292,6 +7400,9 @@
       },
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:ticket.hub": {
+        "module": "sb.domain.ticket.handlers"
       },
       "panel:treasury.hub": {
         "module": "sb.domain.treasury.panels"
@@ -7567,6 +7678,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_setup_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_ticket_0": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_treasury_0": {
@@ -8779,7 +8893,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:062089ad38460b95dc37b5da8bb1858245feb39465fc2ec0179d83bf425c50fa",
+  "stable_hash": "sha256:8eae6e7fd0bad30b29d14a061933b166bea1e6a58392235f67d3a6c9980253fb",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -22935,6 +23049,53 @@
           "audience": "public",
           "body": [
             {
+              "text": "6 command(s), generated from the `ticket` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_ticket_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_community"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_ticket",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🎫 Support Tickets — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
               "text": "Progression, roles, and community activities."
             },
             {
@@ -22996,7 +23157,8 @@
                 "🌟 Community Spotlight",
                 "🎭 Roles",
                 "👋 Welcome",
-                "📊 Server Counters"
+                "📊 Server Counters",
+                "🎫 Support Tickets"
               ],
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
@@ -32595,6 +32757,298 @@
           "style": "secondary"
         }
       ]
+    },
+    "ticket": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "ticket",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "ticket",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:ticket.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the ticket hub — open a ticket or view your open tickets.",
+          "usage": "!ticket",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "open",
+            "create"
+          ],
+          "audience_tier": "user",
+          "capability": "ticket",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ticket",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "new",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ticket.new"
+          },
+          "slash_common": false,
+          "summary": "Open a ticket directly.",
+          "usage": "!ticket new <subject>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "ticket",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ticket",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "add",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ticket.add"
+          },
+          "slash_common": false,
+          "summary": "Add a member to this ticket (staff).",
+          "usage": "!ticket add @member",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "ticket",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ticket",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "remove",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ticket.remove"
+          },
+          "slash_common": false,
+          "summary": "Remove a member from this ticket (staff).",
+          "usage": "!ticket remove @member",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "ticket",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ticket",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "claim",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ticket.claim"
+          },
+          "slash_common": false,
+          "summary": "Claim this ticket (staff).",
+          "usage": "!ticket claim",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "ticket",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "ticket",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "close",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:ticket.close"
+          },
+          "slash_common": false,
+          "summary": "Close the ticket in this channel (staff or the opener).",
+          "usage": "!ticket close [reason]",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "ticket",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "open_ticket",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "🎫",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ticket.open_submit"
+              },
+              "label": "Open a ticket",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "subject",
+                    "label": "Subject",
+                    "max_length": null,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "ticket.open_form",
+                "on_submit": null,
+                "title": "Open a support ticket"
+              },
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "my_tickets",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ticket.my_tickets"
+              },
+              "label": "My open tickets",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "post_panel",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📮",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ticket.post_panel"
+              },
+              "label": "Post panel here",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped hub embed's description is STATE-dependent (views/tickets/hub.py _build_hub_embed: the not-set-up copy when `cfg is None or not cfg.is_set_up`, the configured body otherwise) — outside the grammar's static-TextBlock vocabulary; goldens/ticket/sweep_ticket.json pins the not-set-up bytes (the proof_channel-hub precedent). The override delegates to the grammar renderer and adjusts ONLY the description; actions, layout, frame and nav stay declared. The configured-branch body is unpinned (no golden captures a set-up guild — the config store is the ticket-mutation slice's port) and lands with that slice (under-port note).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "open_ticket",
+                    "my_tickets",
+                    "post_panel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "community",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "ticket.hub",
+          "renderer_override": {
+            "$ref": "handler:ticket.render_hub"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ticket",
+          "timeout_s": 180,
+          "title": "🎫 Support tickets",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
     },
     "treasury": {
       "capabilities": [],
