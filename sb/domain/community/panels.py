@@ -1,9 +1,24 @@
-"""The community-family panels (band 4):
+"""The community-family panels (band 4 + the parity flip):
 
-* ``community.hub`` — the shipped router-only Community hub (views/
-  community/hub.py): pure navigation to XP / Karma / Leaderboard /
-  Spotlight. Counting/Chain cross-links join at band 6 (their panels
-  don't exist yet — a PanelRef must resolve, never dangle).
+* ``community.hub`` — the SHIPPED 🌱 Community Hub (views/community/
+  hub.py ``build_community_hub_panel``, parity flip): the registry-
+  discovered child roster as the capture-world PIN (the utility
+  UTILITY_CHILDREN precedent — the shipped view ran
+  ``discover_community_children()`` per render over
+  utils/subsystem_registry SUBSYSTEMS.parent_hub == "community" +
+  hub_registry cross_link_children; the declarative spec pins the
+  roster the goldens captured), the GENERAL_COLOR green embed with the
+  two-section bullet legend ("• {emoji} **{display}** — {desc}"), the
+  "Only you can interact with this panel." footer (renderer_override —
+  outside FooterMode's vocabulary), the shipped PERSISTENT
+  ``community:open:<key>`` child-forwarding ids riding
+  ``custom_id_override`` through the session mint (the utility
+  ``utility:open:<key>`` precedent), and the grammar's own ``nav:help``
+  slot as the shipped row-4 📚 Help button.
+  ``parity/goldens/community/sweep_community.json`` +
+  ``sweep_slash_community.json`` pin every byte (prefix send + the
+  ephemeral type-4 flags-64 slash twin; session view ⇒ no
+  ``panel_anchors`` row in either).
 * ``leaderboard.board`` — the shipped category-selector view over the
   provider registry (options are PROVIDER-FED, so band-6 game categories
   appear without edits — the shipped "register a provider, not a view"
@@ -17,16 +32,31 @@ Shipped spotlight/leaderboard buttons carried no persistent custom_ids
 (view-local decorators); back-nav is engine ``nav:*`` (band-1 convention;
 the shipped ``community:back`` closure id is replaced BY DESIGN —
 kick-confirm class deviation, ledgered).
+
+Trap-24 drift check (community row): the oracle current-head fragments
+(views/community/hub.py "Pick a community feature below." + the
+"• {emoji} **{display}** — {desc}" line builder + the "Community games
+& standings" heading; utils/subsystem_registry.py child entries, e.g.
+the ticket row's display_name/description/emoji verbatim) match the
+corpus goldens — NO drift (corpus sha 7f7628e1).
+
+Shipped click semantics (no golden drives any click): the shared
+HubChildButton forwarded into each child cog's ``build_help_menu_view``
+— the port routes every child to its REAL ported surface (ticket.hub /
+xp.hub / karma.card_view / community_spotlight.hub / welcome.status /
+counters.status / role.hub / counting.hub / chain.hub /
+leaderboard.board).
 """
 
 from __future__ import annotations
+
+from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
     Audience,
     EmbedFrameSpec,
-    FieldsBlock,
     FooterMode,
     LayoutSpec,
     NavigationSpec,
@@ -117,44 +147,128 @@ def _ensure_spotlight_overview() -> ProviderRef:
     return ref
 
 
+# --- the shipped community child rosters (utils/subsystem_registry.py +
+# hub_registry cross_link_children, verbatim as the goldens captured them
+# in the sweep guild — the capture-world PIN; re-derivation from the
+# manifest inventory is the follow-up when discovery ports).
+# (key, display_name, emoji, description, ported route)
+COMMUNITY_PRIMARY: tuple[tuple[str, str, str, str, object], ...] = (
+    ("ticket", "Support Tickets", "🎫",
+     "Private support tickets — open by command, panel, or the AI",
+     PanelRef("ticket.hub")),
+    ("xp", "XP & Levels", "⭐",
+     "Experience points, levels, and leaderboards",
+     PanelRef("xp.hub")),
+    ("karma", "Karma", "✨",
+     "Peer reputation — thank helpful members with !thanks",
+     HandlerRef("karma.card_view")),
+    ("community_spotlight", "Community Spotlight", "🌟",
+     "Live server activity dashboard — leaders, level-ups, game stats",
+     PanelRef("community_spotlight.hub")),
+    ("welcome", "Welcome", "👋",
+     "Member greetings, farewells, and an optional entry role",
+     PanelRef("welcome.status")),
+    ("counters", "Server Counters", "📊",
+     "Live member-count channels (total · humans · bots)",
+     PanelRef("counters.status")),
+    ("role", "Roles", "🎭",
+     "Time-based and XP-based automatic role assignment",
+     PanelRef("role.hub")),
+)
+
+COMMUNITY_CROSS_LINKS: tuple[tuple[str, str, str, str, object], ...] = (
+    ("counting", "Counting", "🔢", "Collaborative counting game",
+     PanelRef("counting.hub")),
+    ("chain", "Word Chain", "🔗", "Word-chaining game",
+     PanelRef("chain.hub")),
+    ("leaderboard", "Leaderboard", "🏆",
+     "Server leaderboards for XP, coins, and games",
+     PanelRef("leaderboard.board")),
+)
+
+#: the shipped footer literal (views/community/hub.py ``set_footer`` —
+#: the shared invoker-lock footer) — outside FooterMode's vocabulary,
+#: hence the renderer_override below (the utility/admin precedent).
+_HUB_FOOTER = "Only you can interact with this panel."
+
+
+def _hub_description() -> str:
+    """views/community/hub.py ``build_community_hub_embed`` verbatim —
+    the goldens pin every byte of the discovered snapshot."""
+    parts = ["Pick a community feature below.", "\n**Progression**"]
+    parts += [f"• {emoji} **{display}** — {desc}"
+              for _k, display, emoji, desc, _r in COMMUNITY_PRIMARY]
+    parts.append("\n**Community games & standings**")
+    parts += [f"• {emoji} **{display}** — {desc}"
+              for _k, display, emoji, desc, _r in COMMUNITY_CROSS_LINKS]
+    return "\n".join(parts)
+
+
+def _child_action(key: str, display: str, emoji: str, route: object, *,
+                  style: ActionStyle) -> PanelActionSpec:
+    return PanelActionSpec(
+        # K1 claims action_ids bare and repo-global — utility owns
+        # "open_<key>", ticket owns "open_ticket"; the co_ prefix keeps
+        # the namespace clean (the wire byte is the override below).
+        action_id=f"co_{key}",
+        label=f"{emoji} {display}",              # emoji IN the label (wire shape)
+        style=style, audience_tier="user",
+        handler=route,
+        custom_id_override=f"community:open:{key}",  # the shipped persistent id
+    )
+
+
 def community_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="community.hub",
         subsystem="community",
         title="🌱 Community Hub",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(
-            TextBlock("Pick a community feature below.\n"
-                      "**Progression** — 🏆 XP · ✨ Karma\n"
-                      "**Standings** — 📊 Leaderboards · 🌟 Spotlight\n"
-                      "*Community games (Counting, Word Chain) join with "
-                      "the games band.*"),
-        ),
+        # GENERAL_COLOR green (3066993), footer via the override.
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_hub_description()),),
         actions=(
-            PanelActionSpec(
-                action_id="xp", label="XP", emoji="🏆",
-                style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=PanelRef("xp.hub")),
-            PanelActionSpec(
-                action_id="karma", label="Karma", emoji="✨",
-                style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("karma.card_view")),
-            PanelActionSpec(
-                action_id="leaderboard", label="Leaderboards", emoji="📊",
-                audience_tier="user",
-                handler=PanelRef("leaderboard.board")),
-            PanelActionSpec(
-                action_id="spotlight", label="Spotlight", emoji="🌟",
-                audience_tier="user",
-                handler=PanelRef("community_spotlight.hub")),
+            tuple(_child_action(k, d, e, r, style=ActionStyle.PRIMARY)
+                  for k, d, e, _desc, r in COMMUNITY_PRIMARY)
+            + tuple(_child_action(k, d, e, r, style=ActionStyle.SECONDARY)
+                    for k, d, e, _desc, r in COMMUNITY_CROSS_LINKS)
         ),
-        navigation=NavigationSpec(),
+        # the shipped hub carried the row-4 📚 Help button — the
+        # grammar's own nav:help slot (custom_id verbatim; both goldens
+        # pin it); no home/back slots.
+        navigation=NavigationSpec(show_help=True, show_home=False),
+        renderer_override=HandlerRef("community.render_hub"),
+        justification=(
+            "the shipped hub footer is the literal 'Only you can "
+            "interact with this panel.' (views/community/hub.py "
+            "set_footer — the shared invoker-lock footer) — outside "
+            "FooterMode's none/subsystem/provenance vocabulary "
+            "(goldens/community/sweep_community + sweep_slash_community "
+            "pin the byte; the utility/admin precedent). The override "
+            "adjusts ONLY the embed footer; body, title, color and "
+            "every component stay grammar-rendered."),
+        # the shipped view was a timeout session view whose child-
+        # forwarding buttons carried EXPLICIT persistent ids — the
+        # custom_id_override pins ride the session mint verbatim (the
+        # utility precedent); no panel_anchors row in either golden.
+        session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("xp", "karma"),
-            ("leaderboard", "spotlight"),
+            ("co_ticket", "co_xp", "co_karma", "co_community_spotlight",
+             "co_welcome"),
+            ("co_counters", "co_role"),
+            ("co_counting", "co_chain", "co_leaderboard"),
         )),)),
     )
+
+
+async def _render_hub(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped footer literal (see justification)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered, embed=_dc_replace(rendered.embed,
+                                                   footer=_HUB_FOOTER))
 
 
 def leaderboard_board_spec() -> PanelSpec:
@@ -191,17 +305,29 @@ def leaderboard_board_spec() -> PanelSpec:
 
 
 def spotlight_hub_spec() -> PanelSpec:
+    """The SHIPPED SpotlightView main embed + button row (parity flip —
+    cogs/community_spotlight_cog.py ``build_spotlight_embed`` +
+    ``SpotlightView``): the 🌟 title carries the LIVE guild name, the
+    four shipped fields ride explicit inline flags (three inline `true`
+    + the Level-Ups row `false`) and the footer interpolates the
+    shipped ``%H:%M UTC`` clock read — all outside the grammar's
+    static-TextBlock / 2-tuple-FieldsBlock vocabulary, hence the
+    renderer_override (delegation recipe: grammar components, replaced
+    embed). ``parity/goldens/community_spotlight/sweep_spotlight.json``
+    pins every byte: run-minted ``<cid:N>`` button ids (timeout session
+    view ⇒ ``session_lifecycle=True``, no ``panel_anchors`` row), the
+    emoji as SEPARATE wire fields next to the labels (trap 15a), no nav
+    row."""
     return PanelSpec(
         panel_id="community_spotlight.hub",
         subsystem="community_spotlight",
         title="🌟 Community Spotlight",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(
-            TextBlock("Live server activity — leaders, level-ups, and "
-                      "game stats."),
-            FieldsBlock(provider=_ensure_spotlight_overview()),
-        ),
+        # GENERAL_COLOR green; footer + fields + title live in the
+        # override (see docstring/justification).
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        body=(),
         actions=(
             PanelActionSpec(
                 action_id="xp_leaders", label="XP Leaders", emoji="🏆",
@@ -223,11 +349,69 @@ def spotlight_hub_spec() -> PanelSpec:
                 handler=PanelRef("community_spotlight.hub"),
                 result_render=ResultRender.REFRESH_PANEL),
         ),
-        navigation=NavigationSpec(),
+        # the shipped SpotlightView carried ONLY its four buttons (no
+        # nav slots; timeout session view) — the golden pins exactly one
+        # component row (session-view exemption, general.menu
+        # precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("community_spotlight.render_hub"),
+        justification=(
+            "the shipped spotlight embed is live-parameterized beyond "
+            "the grammar's vocabulary on THREE named embed surfaces "
+            "(goldens/community_spotlight/sweep_spotlight pins the "
+            "bytes): the TITLE interpolates the live guild name "
+            "('🌟 Community Spotlight — <guild>'), the FIELDS carry "
+            "explicit inline flags (three true + Level-Ups false — "
+            "grammar FieldsBlock 2-tuples serialize inline=false), and "
+            "the FOOTER interpolates the shipped %H:%M UTC clock read "
+            "('Updated {now} • Use the buttons to explore "
+            "leaderboards'). The override delegates to the grammar "
+            "renderer for every component and replaces only the embed "
+            "(the economy delegation recipe)."),
+        session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("xp_leaders", "richest", "games", "spotlight_refresh"),
         )),)),
     )
+
+
+async def _render_spotlight_hub(spec: PanelSpec, ctx) -> object:
+    """renderer_override — cogs/community_spotlight_cog.py
+    ``build_spotlight_embed`` verbatim: the guild-named title, the four
+    shipped fields (👥 members line through the guild-directory read —
+    the welcome posture: degrade, never invent), the ``Updated %H:%M
+    UTC`` footer (the capture Normalizer maps any clock read to
+    ``<hh:mm>``), GENERAL_COLOR green."""
+    import datetime as _dt
+
+    from sb.domain.community.spotlight import overview_fields
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    guild_name, member_count = "", None
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        info = await guild_directory().guild_info(guild_id)
+        guild_name = info.name
+        member_count = int(info.member_count or 0)
+    except Exception:  # noqa: BLE001 — headless ⇒ degraded header
+        pass
+
+    rows = await overview_fields(guild_id, member_count=member_count)
+    # the shipped inline flags: Server at a Glance / XP Leaders /
+    # Richest inline, Recent Level-Ups full-width.
+    fields = tuple((name, value, i < 3)
+                   for i, (name, value) in enumerate(rows))
+    now = _dt.datetime.now(_dt.timezone.utc).strftime("%H:%M UTC")
+    rendered = await render_panel(spec, ctx)
+    embed = RenderedEmbed(
+        title=f"🌟 Community Spotlight — {guild_name}",
+        description="",
+        fields=fields,
+        footer=f"Updated {now} • Use the buttons to explore leaderboards",
+        style_token=spec.frame.style_token)
+    return _dc_replace(rendered, embed=embed)
 
 
 def spotlight_games_spec() -> PanelSpec:
@@ -290,6 +474,22 @@ def install_community_panels() -> tuple[PanelSpec, ...]:
     return tuple(out)
 
 
+def _register_hub_render() -> None:
+    from sb.spec.refs import handler
+
+    if not is_registered(HandlerRef("community.render_hub")):
+        handler("community.render_hub")(_render_hub)
+    if not is_registered(HandlerRef("community_spotlight.render_hub")):
+        handler("community_spotlight.render_hub")(_render_spotlight_hub)
+
+
+_register_hub_render()
+# the overview provider left the spotlight hub spec at the parity flip
+# (the shipped embed is override-composed) but stays a registered read
+# surface — at MODULE IMPORT, the composition-parity doctrine (#111).
+_ensure_spotlight_overview()
+
+
 def ensure_panel_refs() -> None:
     from sb.spec.refs import PanelRef as _P
     from sb.spec.refs import is_registered as _is
@@ -298,6 +498,7 @@ def ensure_panel_refs() -> None:
     _ensure_category_options()
     _ensure_game_options()
     _ensure_spotlight_overview()
+    _register_hub_render()
     for pid, factory in (("community.hub", _community_hub_factory),
                          ("leaderboard.board", _board_factory),
                          ("community_spotlight.hub", _spotlight_factory),

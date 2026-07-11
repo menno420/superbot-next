@@ -3891,22 +3891,52 @@
         {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
-          "value": "xp"
+          "value": "co_ticket"
         },
         {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
-          "value": "karma"
+          "value": "co_xp"
         },
         {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
-          "value": "leaderboard"
+          "value": "co_karma"
         },
         {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
-          "value": "spotlight"
+          "value": "co_community_spotlight"
+        },
+        {
+          "source": "sb/manifest/community.py",
+          "subsystem": "community",
+          "value": "co_welcome"
+        },
+        {
+          "source": "sb/manifest/community.py",
+          "subsystem": "community",
+          "value": "co_counters"
+        },
+        {
+          "source": "sb/manifest/community.py",
+          "subsystem": "community",
+          "value": "co_role"
+        },
+        {
+          "source": "sb/manifest/community.py",
+          "subsystem": "community",
+          "value": "co_counting"
+        },
+        {
+          "source": "sb/manifest/community.py",
+          "subsystem": "community",
+          "value": "co_chain"
+        },
+        {
+          "source": "sb/manifest/community.py",
+          "subsystem": "community",
+          "value": "co_leaderboard"
         },
         {
           "source": "sb/manifest/community_spotlight.py",
@@ -7356,6 +7386,12 @@
       "handler:cleanup.word_remove_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:community.render_hub": {
+        "module": "sb.domain.community.panels"
+      },
+      "handler:community_spotlight.render_hub": {
+        "module": "sb.domain.community.panels"
+      },
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -8003,6 +8039,9 @@
       },
       "handler:role.reactroles_unbind": {
         "module": "sb.domain.role.handlers"
+      },
+      "handler:role.render_hub": {
+        "module": "sb.domain.role.panels"
       },
       "handler:role.roleinfo_pending": {
         "module": "sb.domain.operator_spine"
@@ -10382,7 +10421,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d83121ad6c939a31813cd702fb891ed8bca1b9f2d07a2e8635028a8f327b0872",
+  "stable_hash": "sha256:7d02797191976c17a3f1fe83ab0993f2712fb5b3f845c385bc68311fb7b27b5d",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -20265,21 +20304,45 @@
         {
           "actions": [
             {
-              "action_id": "xp",
+              "action_id": "co_ticket",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "community:open:ticket",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🏆",
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:ticket.hub"
+              },
+              "label": "🎫 Support Tickets",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "co_xp",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "community:open:xp",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:xp.hub"
               },
-              "label": "XP",
+              "label": "⭐ XP & Levels",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -20289,21 +20352,21 @@
               "visible_when": ""
             },
             {
-              "action_id": "karma",
+              "action_id": "co_karma",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "community:open:karma",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "✨",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:karma.card_view"
               },
-              "label": "Karma",
+              "label": "✨ Karma",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -20313,21 +20376,117 @@
               "visible_when": ""
             },
             {
-              "action_id": "leaderboard",
+              "action_id": "co_community_spotlight",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "community:open:community_spotlight",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "📊",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "panel:leaderboard.board"
+                "$ref": "panel:community_spotlight.hub"
               },
-              "label": "Leaderboards",
+              "label": "🌟 Community Spotlight",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "co_welcome",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "community:open:welcome",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:welcome.status"
+              },
+              "label": "👋 Welcome",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "co_counters",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "community:open:counters",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:counters.status"
+              },
+              "label": "📊 Server Counters",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "co_role",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "community:open:role",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:role.hub"
+              },
+              "label": "🎭 Roles",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "co_counting",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "community:open:counting",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:counting.hub"
+              },
+              "label": "🔢 Counting",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -20337,21 +20496,45 @@
               "visible_when": ""
             },
             {
-              "action_id": "spotlight",
+              "action_id": "co_chain",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "community:open:chain",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🌟",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "panel:community_spotlight.hub"
+                "$ref": "panel:chain.hub"
               },
-              "label": "Spotlight",
+              "label": "🔗 Word Chain",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "co_leaderboard",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "community:open:leaderboard",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:leaderboard.board"
+              },
+              "label": "🏆 Leaderboard",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -20365,30 +20548,38 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Pick a community feature below.\n**Progression** — 🏆 XP · ✨ Karma\n**Standings** — 📊 Leaderboards · 🌟 Spotlight\n*Community games (Counting, Word Chain) join with the games band.*"
+              "text": "Pick a community feature below.\n\n**Progression**\n• 🎫 **Support Tickets** — Private support tickets — open by command, panel, or the AI\n• ⭐ **XP & Levels** — Experience points, levels, and leaderboards\n• ✨ **Karma** — Peer reputation — thank helpful members with !thanks\n• 🌟 **Community Spotlight** — Live server activity dashboard — leaders, level-ups, game stats\n• 👋 **Welcome** — Member greetings, farewells, and an optional entry role\n• 📊 **Server Counters** — Live member-count channels (total · humans · bots)\n• 🎭 **Roles** — Time-based and XP-based automatic role assignment\n\n**Community games & standings**\n• 🔢 **Counting** — Collaborative counting game\n• 🔗 **Word Chain** — Word-chaining game\n• 🏆 **Leaderboard** — Server leaderboards for XP, coins, and games"
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "green",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub footer is the literal 'Only you can interact with this panel.' (views/community/hub.py set_footer — the shared invoker-lock footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/community/sweep_community + sweep_slash_community pin the byte; the utility/admin precedent). The override adjusts ONLY the embed footer; body, title, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
-                    "xp",
-                    "karma"
+                    "co_ticket",
+                    "co_xp",
+                    "co_karma",
+                    "co_community_spotlight",
+                    "co_welcome"
                   ],
                   [
-                    "leaderboard",
-                    "spotlight"
+                    "co_counters",
+                    "co_role"
+                  ],
+                  [
+                    "co_counting",
+                    "co_chain",
+                    "co_leaderboard"
                   ]
                 ]
               }
@@ -20400,13 +20591,15 @@
             "home_hub": "__follow_parent__",
             "parent": null,
             "show_help": true,
-            "show_home": true,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "community.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:community.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "community",
           "timeout_s": 180,
           "title": "🌱 Community Hub",
@@ -20556,26 +20749,17 @@
           ],
           "anchor_policy": "reply",
           "audience": "invoker",
-          "body": [
-            {
-              "text": "Live server activity — leaders, level-ups, and game stats."
-            },
-            {
-              "provider": {
-                "$ref": "provider:community_spotlight.overview"
-              }
-            }
-          ],
+          "body": [],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "green",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped spotlight embed is live-parameterized beyond the grammar's vocabulary on THREE named embed surfaces (goldens/community_spotlight/sweep_spotlight pins the bytes): the TITLE interpolates the live guild name ('🌟 Community Spotlight — <guild>'), the FIELDS carry explicit inline flags (three true + Level-Ups false — grammar FieldsBlock 2-tuples serialize inline=false), and the FOOTER interpolates the shipped %H:%M UTC clock read ('Updated {now} • Use the buttons to explore leaderboards'). The override delegates to the grammar renderer for every component and replaces only the embed (the economy delegation recipe).",
           "layout": {
             "pages": [
               {
@@ -20595,14 +20779,16 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "community_spotlight.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:community_spotlight.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "community_spotlight",
           "timeout_s": 180,
           "title": "🌟 Community Spotlight",
@@ -36688,12 +36874,12 @@
               "custom_id_override": "role:create",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "📝",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.create_pending"
               },
-              "label": "Create",
+              "label": "📝 Create",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36712,12 +36898,12 @@
               "custom_id_override": "role:manage",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🗂️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.manage_view"
               },
-              "label": "Manage",
+              "label": "🗂️ Manage",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36736,17 +36922,17 @@
               "custom_id_override": "role:time",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⏱️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.time_roles_view"
               },
-              "label": "Time Roles",
+              "label": "⏱️ Time Roles",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -36760,17 +36946,17 @@
               "custom_id_override": "role:xp",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⚡",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.xp_roles_view"
               },
-              "label": "XP Roles",
+              "label": "⚡ XP Roles",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -36784,17 +36970,17 @@
               "custom_id_override": "role:reaction",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "💬",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.reaction_view"
               },
-              "label": "Reaction Roles",
+              "label": "💬 Reaction Roles",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -36808,12 +36994,12 @@
               "custom_id_override": "role:diagnostics",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🔧",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.diagnostics_view"
               },
-              "label": "Diagnostics",
+              "label": "🔧 Diagnostics",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36832,12 +37018,12 @@
               "custom_id_override": "role:exemptions",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🚫",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "handler:role.exemptions_view"
               },
-              "label": "Exemptions",
+              "label": "🚫 Exemptions",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -36849,26 +37035,17 @@
           ],
           "anchor_policy": "reply",
           "audience": "invoker",
-          "body": [
-            {
-              "text": "Create, manage, and automate server roles — time tiers, XP tiers, reaction roles, and exemptions."
-            },
-            {
-              "provider": {
-                "$ref": "provider:role.hub_overview"
-              }
-            }
-          ],
+          "body": [],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "teal",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub embed carries SEVEN static inline-true blurb fields and no description (role_cog.py's literal (name, value, True) add_field list — goldens/role/sweep_rolemenu pins every byte incl. the inline flags); the grammar's FieldsBlock serializes 2-tuples inline=false, so the override delegates to the grammar renderer for every component and replaces only the embed fields (the economy delegation recipe). Title, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
@@ -36880,10 +37057,10 @@
                   ],
                   [
                     "role_xp",
-                    "role_reaction"
+                    "role_reaction",
+                    "role_diagnostics"
                   ],
                   [
-                    "role_diagnostics",
                     "role_exemptions"
                   ]
                 ]
@@ -36893,14 +37070,16 @@
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
+            "home_hub": "community",
             "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "role.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:role.render_hub"
+          },
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "role",
