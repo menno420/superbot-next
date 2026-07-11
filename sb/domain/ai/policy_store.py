@@ -34,6 +34,7 @@ __all__ = [
     "AI_CATEGORY_POLICY_STORE",
     "AI_CHANNEL_POLICY_STORE",
     "AI_INSTRUCTION_PROFILE_STORE",
+    "AI_ORCHESTRATION_PROFILE_KEY",
     "AI_POLICY_GENERATION_KEY",
     "AI_ROLE_POLICY_STORE",
     "UNCHANGED",
@@ -41,13 +42,18 @@ __all__ = [
     "detach_policy_editor",
     "ensure_policy_store_refs",
     "get_generation",
+    "get_guild_orchestration_profile",
     "get_preset_profile",
     "list_category_policies",
     "list_channel_policies",
     "list_preset_profiles",
     "list_role_policies",
+    "load_orchestration_overlays",
     "load_overlays",
+    "set_guild_orchestration_profile",
+    "upsert_category_orchestration",
     "upsert_category_policy",
+    "upsert_channel_orchestration",
     "upsert_channel_policy",
     "upsert_role_policy",
 ]
@@ -102,6 +108,13 @@ def _store_marker() -> str:
 #: the per-guild policy generation counter's guild_settings key (the shipped
 #: ai_guild_policy.generation twin — see the module docstring).
 AI_POLICY_GENERATION_KEY = "ai_policy_generation"
+
+#: the guild-default tool-orchestration profile's guild_settings key — the
+#: shipped ``ai_guild_policy.orchestration_profile`` column's KV twin (the
+#: orchestration-mutation slice; the ai_policy_generation precedent —
+#: D-0025 keeps the guild policy row a settings-plane port). Empty string
+#: = cleared (the shipped NULL).
+AI_ORCHESTRATION_PROFILE_KEY = "ai_orchestration_profile"
 
 
 # --- writes (op legs only — the K7 sole-writer lane) ---------------------------------
@@ -200,6 +213,72 @@ async def upsert_role_policy(conn: Any, *, guild_id: int, role_id: int,
         (guild_id, role_id, decision, min_level_override, bypass_cooldown,
          updated_by), conn=conn)
     return dict(prior) if prior else None
+
+
+async def _upsert_scoped_orchestration(conn: Any, *, table: str, id_col: str,
+                                       guild_id: int, target_id: int,
+                                       orchestration_profile: str | None,
+                                       updated_by: int | None) -> dict | None:
+    """The shipped COLUMN-ONLY orchestration setter (ORACLE utils/db/ai.py
+    set_channel_orchestration_profile / set_category_orchestration_profile
+    — migration 062): a fresh row is minted with ``mode='inherit'`` and a
+    conflicting row's mode/min_level/cooldown/instruction_profile_id are
+    NEVER touched — only ``orchestration_profile`` (+ the audit stamps)
+    move. NULL clears the override (inherit the next layer). Returns the
+    PRIOR row (or None)."""
+    prior = await fetchone(
+        f"SELECT orchestration_profile "  # noqa: S608
+        f"FROM {table} WHERE guild_id=$1 AND {id_col}=$2",
+        (guild_id, target_id), conn=conn)
+    await execute(
+        f"INSERT INTO {table} (guild_id, {id_col}, mode, "  # noqa: S608
+        f"orchestration_profile, updated_at, updated_by) "
+        f"VALUES ($1, $2, 'inherit', $3, NOW(), $4) "
+        f"ON CONFLICT (guild_id, {id_col}) DO UPDATE SET "
+        f"orchestration_profile=EXCLUDED.orchestration_profile, "
+        f"updated_at=NOW(), updated_by=EXCLUDED.updated_by",
+        (guild_id, target_id, orchestration_profile, updated_by), conn=conn)
+    return dict(prior) if prior else None
+
+
+async def upsert_channel_orchestration(conn: Any, *, guild_id: int,
+                                       channel_id: int,
+                                       orchestration_profile: str | None,
+                                       updated_by: int | None) -> dict | None:
+    return await _upsert_scoped_orchestration(
+        conn, table="ai_channel_policy", id_col="channel_id",
+        guild_id=guild_id, target_id=channel_id,
+        orchestration_profile=orchestration_profile, updated_by=updated_by)
+
+
+async def upsert_category_orchestration(conn: Any, *, guild_id: int,
+                                        category_id: int,
+                                        orchestration_profile: str | None,
+                                        updated_by: int | None) -> dict | None:
+    return await _upsert_scoped_orchestration(
+        conn, table="ai_category_policy", id_col="category_id",
+        guild_id=guild_id, target_id=category_id,
+        orchestration_profile=orchestration_profile, updated_by=updated_by)
+
+
+async def set_guild_orchestration_profile(conn: Any, *, guild_id: int,
+                                          profile_key: str | None) -> str | None:
+    """The shipped ai_guild_policy.orchestration_profile write's KV twin
+    (see AI_ORCHESTRATION_PROFILE_KEY): clear (None) stores the empty
+    string — the read side NULLIFs it back. Returns the PRIOR key (or
+    None)."""
+    prior = await fetchone(
+        "SELECT value FROM guild_settings WHERE guild_id=$1 AND key=$2",
+        (guild_id, AI_ORCHESTRATION_PROFILE_KEY), conn=conn)
+    await execute(
+        "INSERT INTO guild_settings (guild_id, key, value) "
+        "VALUES ($1, $2, $3) "
+        "ON CONFLICT (guild_id, key) DO UPDATE SET value=EXCLUDED.value",
+        (guild_id, AI_ORCHESTRATION_PROFILE_KEY, profile_key or ""),
+        conn=conn)
+    if prior is None:
+        return None
+    return str(prior["value"]) or None
 
 
 async def bump_generation(conn: Any, *, guild_id: int) -> int:
@@ -305,6 +384,37 @@ async def load_overlays(guild_id: int) -> tuple[
         "bypass_cooldown": r["bypass_cooldown"]}
         for r in await list_role_policies(guild_id)}
     return channel, category, role
+
+
+async def get_guild_orchestration_profile(guild_id: int,
+                                          conn: Any = None) -> str | None:
+    """The guild-default orchestration key, or None while unset/cleared
+    (the shipped NULL column)."""
+    row = await fetchone(
+        "SELECT value FROM guild_settings WHERE guild_id=$1 AND key=$2",
+        (guild_id, AI_ORCHESTRATION_PROFILE_KEY), conn=conn)
+    if row is None:
+        return None
+    return str(row["value"]) or None
+
+
+async def load_orchestration_overlays(guild_id: int) -> tuple[
+        dict[int, str], dict[int, str]]:
+    """(channel, category) maps of the NON-NULL orchestration_profile
+    overrides — the shape the K10 profile-key reader consumes (most-
+    specific-wins happens in sb/kernel/ai/orchestration.py)."""
+    channel_rows = await fetchall(
+        "SELECT channel_id, orchestration_profile FROM ai_channel_policy "
+        "WHERE guild_id=$1 AND orchestration_profile IS NOT NULL "
+        "ORDER BY channel_id", (guild_id,))
+    category_rows = await fetchall(
+        "SELECT category_id, orchestration_profile FROM ai_category_policy "
+        "WHERE guild_id=$1 AND orchestration_profile IS NOT NULL "
+        "ORDER BY category_id", (guild_id,))
+    return ({int(r["channel_id"]): str(r["orchestration_profile"])
+             for r in channel_rows},
+            {int(r["category_id"]): str(r["orchestration_profile"])
+             for r in category_rows})
 
 
 # --- erasure -------------------------------------------------------------------------

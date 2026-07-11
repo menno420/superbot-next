@@ -78,6 +78,43 @@ async def _policy_bundle_with_overlays(guild_id: int):
                         role=role)
 
 
+async def _profile_key_with_overlays(guild_id: int, channel_id: int,
+                                     category_id: int | None):
+    """The band-1 K10 profile-key reader WIDENED with the typed
+    orchestration overlays (the orchestration-mutation slice — the
+    shipped most-specific-wins columns of migration 062: channel →
+    category → guild):
+
+    * channel/category keys: the ai_channel_policy / ai_category_policy
+      ``orchestration_profile`` columns (migration 0031);
+    * guild key: the ``ai_orchestration_profile`` guild_settings row (the
+      shipped ai_guild_policy column's KV twin, D-0025) — falling back to
+      the band-1 read (the declared ``guild_instruction_profile``
+      approximation) when unset, so no existing behavior regresses;
+    * fail-safe: any store read failure degrades to the band-1 reader's
+      answer (the _policy_bundle_with_overlays posture — replay/DB-free
+      roots keep the exact band-1 behavior).
+    """
+    from sb.domain.settings.ai_readers import _profile_key
+
+    base = await _profile_key(guild_id, channel_id, category_id)
+    try:
+        from sb.domain.ai import policy_store
+
+        channel_map, category_map = (
+            await policy_store.load_orchestration_overlays(guild_id))
+        guild_key = await policy_store.get_guild_orchestration_profile(
+            guild_id)
+    except Exception:  # noqa: BLE001 — overlay miss = the band-1 answer
+        logger.debug("ai orchestration overlay read failed guild=%s",
+                     guild_id, exc_info=True)
+        return base
+    chan_key = channel_map.get(int(channel_id))
+    cat_key = (category_map.get(int(category_id))
+               if category_id is not None else None)
+    return chan_key, cat_key, (guild_key or base[2])
+
+
 async def _preset_lookup(guild_id: int, question: str | None) -> str | None:
     """Exact normalized-question preset lookup — FAIL-SAFE (any error
     returns None so the model path proceeds; shipped posture)."""
@@ -97,12 +134,14 @@ async def _preset_lookup(guild_id: int, question: str | None) -> str | None:
 def install_ai_platform() -> None:
     """Idempotent: band-1's four setting-backed readers + the band-7
     guild-policy overlay + the preset short-circuit + the typed policy
-    OVERRIDE overlays (the policy-mutation slice — installed OVER the
-    band-1 bundle reader; same seam, widened read)."""
+    OVERRIDE overlays (the policy-mutation slice) + the typed
+    ORCHESTRATION overlays (the orchestration-mutation slice) — each
+    installed OVER its band-1 reader; same seam, widened read."""
     from sb.domain.settings.ai_readers import install_ai_readers
-    from sb.kernel.ai import gateway, nl_engine, policy
+    from sb.kernel.ai import gateway, nl_engine, orchestration, policy
 
     install_ai_readers()
     policy.install_policy_bundle_reader(_policy_bundle_with_overlays)
+    orchestration.install_profile_key_reader(_profile_key_with_overlays)
     gateway.install_guild_policy_reader(_guild_policy_overlay)
     nl_engine.install_preset_lookup(_preset_lookup)

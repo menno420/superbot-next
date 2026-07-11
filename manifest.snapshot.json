@@ -312,6 +312,21 @@
   "manifest_count": 46,
   "projections": {
     "events": {
+      "ai.orchestration.category_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "ai"
+      },
+      "ai.orchestration.channel_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "ai"
+      },
+      "ai.orchestration.guild_changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "ai"
+      },
       "ai.policy.category_changed": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -4741,6 +4756,21 @@
           "value": "ai.policy.role_changed"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.orchestration.guild_changed"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.orchestration.channel_changed"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.orchestration.category_changed"
+        },
+        {
           "source": "sb/manifest/economy.py",
           "subsystem": "economy",
           "value": "economy.balance_changed"
@@ -4916,6 +4946,31 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai.behavior_preset_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.tools_guild_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.tools_channel_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.tools_category_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.tools_profile_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.tools_preview_picker"
         },
         {
           "source": "sb/manifest/automod.py",
@@ -6830,6 +6885,9 @@
       "handler:ai.render_text_widget": {
         "module": "sb.domain.ai.panels"
       },
+      "handler:ai.render_tools_profile": {
+        "module": "sb.domain.ai.panels"
+      },
       "handler:ai.review_channel_route": {
         "module": "sb.domain.ai.service"
       },
@@ -6877,6 +6935,18 @@
       },
       "handler:ai.support_report_view": {
         "module": "sb.domain.ai.service"
+      },
+      "handler:ai.tools_category_pick": {
+        "module": "sb.domain.ai.orchestration_widgets"
+      },
+      "handler:ai.tools_channel_pick": {
+        "module": "sb.domain.ai.orchestration_widgets"
+      },
+      "handler:ai.tools_preview_pick": {
+        "module": "sb.domain.ai.orchestration_widgets"
+      },
+      "handler:ai.tools_profile_pick": {
+        "module": "sb.domain.ai.orchestration_widgets"
       },
       "handler:ai.why_view": {
         "module": "sb.domain.ai.service"
@@ -8192,7 +8262,22 @@
       "panel:ai.settings_edit_text": {
         "module": "sb.domain.ai.panels"
       },
+      "panel:ai.tools_category_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.tools_channel_picker": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:ai.tools_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.tools_guild_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.tools_preview_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.tools_profile_picker": {
         "module": "sb.domain.ai.panels"
       },
       "panel:automod.hub": {
@@ -8639,6 +8724,12 @@
       "provider:ai.enum_edit_options": {
         "module": "sb.domain.ai.panels"
       },
+      "provider:ai.orchestration_profile_options": {
+        "module": "sb.domain.ai.orchestration_widgets"
+      },
+      "provider:ai.orchestration_profile_options_clear": {
+        "module": "sb.domain.ai.orchestration_widgets"
+      },
       "provider:ai.policy_category_options": {
         "module": "sb.domain.ai.policy_widgets"
       },
@@ -8969,14 +9060,26 @@
       "provider:xp.hub_overview": {
         "module": "sb.domain.xp.panels"
       },
+      "workflow:ai.orchestration_changed_payload": {
+        "module": "sb.domain.ai.orchestration_ops"
+      },
       "workflow:ai.policy_changed_payload": {
         "module": "sb.domain.ai.policy_ops"
+      },
+      "workflow:ai.record_category_orchestration": {
+        "module": "sb.domain.ai.orchestration_ops"
       },
       "workflow:ai.record_category_policy": {
         "module": "sb.domain.ai.policy_ops"
       },
+      "workflow:ai.record_channel_orchestration": {
+        "module": "sb.domain.ai.orchestration_ops"
+      },
       "workflow:ai.record_channel_policy": {
         "module": "sb.domain.ai.policy_ops"
+      },
+      "workflow:ai.record_guild_orchestration": {
+        "module": "sb.domain.ai.orchestration_ops"
       },
       "workflow:ai.record_remove_preset": {
         "module": "sb.domain.ai.ops"
@@ -9011,11 +9114,20 @@
       "workflow:ai.scrub_review_subject": {
         "module": "sb.domain.ai.ops"
       },
+      "workflow:ai.set_category_orchestration": {
+        "module": "sb.domain.ai.orchestration_ops"
+      },
       "workflow:ai.set_category_policy": {
         "module": "sb.domain.ai.policy_ops"
       },
+      "workflow:ai.set_channel_orchestration": {
+        "module": "sb.domain.ai.orchestration_ops"
+      },
       "workflow:ai.set_channel_policy": {
         "module": "sb.domain.ai.policy_ops"
+      },
+      "workflow:ai.set_guild_orchestration": {
+        "module": "sb.domain.ai.orchestration_ops"
       },
       "workflow:ai.set_preset": {
         "module": "sb.domain.ai.ops"
@@ -10192,7 +10304,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:4b074e10d2a44a78ecfc256bb0bf226a125078e664de05dbb7872ddcef0774c2",
+  "stable_hash": "sha256:dd7498800b0e8768a453fa8d47cd326d2a7d65f0b88c2c26031cf3fed39621a6",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -11025,6 +11137,69 @@
           "delivery": "best_effort",
           "expected_subscribers": [],
           "name": "ai.policy.role_changed",
+          "observability_only": false,
+          "owner_subsystem": "ai",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "ai.orchestration.guild_changed",
+          "observability_only": false,
+          "owner_subsystem": "ai",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "ai.orchestration.channel_changed",
+          "observability_only": false,
+          "owner_subsystem": "ai",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "mutation_id",
+              "required": false,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "ai.orchestration.category_changed",
           "observability_only": false,
           "owner_subsystem": "ai",
           "payload_schema": [
@@ -11977,7 +12152,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.tools_guild_picker"
               },
               "label": "Guild",
               "modal": null,
@@ -12001,7 +12176,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.tools_channel_picker"
               },
               "label": "Channel",
               "modal": null,
@@ -12025,7 +12200,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.tools_category_picker"
               },
               "label": "Category",
               "modal": null,
@@ -12049,7 +12224,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.tools_preview_picker"
               },
               "label": "Preview (dry-run)",
               "modal": null,
@@ -13500,6 +13675,393 @@
           "subsystem": "ai",
           "timeout_s": 180,
           "title": "Pick a Behavior preset",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick the guild-default orchestration profile."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tools_guild_profile_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Tools",
+                "route": {
+                  "$ref": "panel:ai.tools_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.tools_guild_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.tools_profile_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.orchestration_profile_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick an orchestration profile…",
+              "selector_id": "tools_guild_profile_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Tools · guild default",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel — the next step lists the orchestration profiles."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tools_channel_scope_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Tools",
+                "route": {
+                  "$ref": "panel:ai.tools_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.tools_channel_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.tools_channel_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel to configure…",
+              "selector_id": "tools_channel_scope_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Tools · channel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a category — the next step lists the orchestration profiles."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tools_category_scope_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Tools",
+                "route": {
+                  "$ref": "panel:ai.tools_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.tools_category_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.tools_category_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.policy_category_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a category to configure…",
+              "selector_id": "tools_category_scope_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Tools · category",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped profile choice carried a PER-OPEN prompt with the picked target ('Pick an orchestration profile for {label}.' — views/ai/tools/scope_view.py's send_message content) — per-render copy outside the static grammar. The override delegates to the grammar renderer and supplies ONLY the description + the shipped tools-page footer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tools_profile_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Tools",
+                "route": {
+                  "$ref": "panel:ai.tools_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.tools_profile_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_tools_profile"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.tools_profile_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.orchestration_profile_options_clear"
+              },
+              "page_size": 25,
+              "placeholder": "Pick an orchestration profile…",
+              "selector_id": "tools_profile_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel to preview the resolved AI tool orchestration."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tools_preview_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Tools",
+                "route": {
+                  "$ref": "panel:ai.tools_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.tools_preview_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.tools_preview_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel to preview…",
+              "selector_id": "tools_preview_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Tools · preview (dry-run)",
           "usage_weight": 1.0
         }
       ],

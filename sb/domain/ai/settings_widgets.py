@@ -356,30 +356,24 @@ async def settings_text_submit(req) -> Reply:
 
 _SCOPE_COPY = {
     # the policy chooser's five scope pickers are LIVE (the
-    # policy-mutation slice — sb/domain/ai/policy_widgets.py), and so are
-    # the behavior chooser's channel/category/preview pickers (the
-    # behavior-preset slice, D-0071 — sb/domain/ai/behavior_widgets.py).
+    # policy-mutation slice — sb/domain/ai/policy_widgets.py), the
+    # behavior chooser's channel/category/preview pickers too (the
+    # behavior-preset slice, D-0071 — sb/domain/ai/behavior_widgets.py),
+    # and so are the tools chooser's guild/channel/category/preview
+    # pickers (the orchestration-mutation slice, D-0072 —
+    # sb/domain/ai/orchestration_widgets.py).
     "behavior_matrix": ("The routing-matrix picker (views/ai/routing/"
                         "matrix.py — the channel-pick dry-run resolve "
                         "card) ports with the routing-matrix follow-up "
                         "slice — `!ai routing` lists the task table "
                         "meanwhile."),
-    # tools chooser (views/ai/tools/*).
-    "tools_guild": ("The guild-default orchestration profile picker ports "
-                    "with the orchestration-mutation slice."),
-    "tools_channel": ("The per-channel orchestration profile picker ports "
-                      "with the orchestration-mutation slice."),
-    "tools_category": ("The per-category orchestration profile picker "
-                       "ports with the orchestration-mutation slice."),
-    "tools_preview": ("The dry-run orchestration preview ports with the "
-                      "orchestration-mutation slice."),
 }
 
 
 async def chooser_scope_pending(req) -> Reply:
-    """One honest pending terminal for every chooser scope button — the
-    scope pages are the policy/orchestration-mutation slices' ports
-    (`session_action` carries the clicked button's action_id)."""
+    """One honest pending terminal for the last still-parked chooser
+    scope button (the routing-matrix follow-up slice;
+    `session_action` carries the clicked button's action_id)."""
     action = str(req.args.get("session_action") or "")
     return Reply(SUCCESS, _SCOPE_COPY.get(
         action, "This page ports with its mutation slice."))
