@@ -166,6 +166,79 @@ class TestPrefixContextReply:
         assert msg.replies == [None]
 
 
+class TestPanelPresenterRouting:
+    """DiscordPanelPresenter's interaction routing: pre-ack panels ride the
+    interaction response; post-ack (resolve()'s AUTO defer) panels ride a
+    webhook FOLLOWUP send — the shipped safe_defer + safe_followup split
+    the parity twin records as `interaction_response` + `followup_send`
+    (goldens/karma/karma_slash_card.json), never a PATCH of the deferred
+    original."""
+
+    def _presenter(self, monkeypatch):
+        from sb.adapters.discord import panel_view
+
+        monkeypatch.setattr(panel_view, "build_embed", lambda rendered: "EMBED")
+        monkeypatch.setattr(panel_view, "build_view",
+                            lambda rendered: SimpleNamespace(message=None))
+        monkeypatch.setattr(panel_view, "build_files", lambda rendered: [])
+        return panel_view.DiscordPanelPresenter()
+
+    def _rendered(self):
+        return SimpleNamespace(panel_id="karma.card", audience="invoker",
+                               edit_message_ref=None, anchor_policy="",
+                               self_reactions=())
+
+    def _origin(self, *, acked: bool):
+        calls: dict[str, object] = {}
+
+        class _Response:
+            def is_done(self) -> bool:
+                return acked
+
+            async def send_message(self, **kwargs):
+                calls["response_send"] = kwargs
+
+        class _Followup:
+            async def send(self, **kwargs):
+                calls["followup_send"] = kwargs
+                return SimpleNamespace(id=3003)
+
+        async def original_response():
+            calls["original_fetch"] = True
+            return SimpleNamespace(id=2002)
+
+        async def edit_original_response(**kwargs):
+            calls["edit_original"] = kwargs
+            return SimpleNamespace(id=2002)
+
+        origin = SimpleNamespace(
+            response=_Response(), followup=_Followup(),
+            original_response=original_response,
+            edit_original_response=edit_original_response)
+        return origin, calls
+
+    def test_unacked_interaction_uses_the_interaction_response(self, monkeypatch):
+        presenter = self._presenter(monkeypatch)
+        origin, calls = self._origin(acked=False)
+        req = SimpleNamespace(origin=origin)
+        run(presenter(self._rendered(), req))
+        assert "response_send" in calls and calls["original_fetch"]
+        assert "followup_send" not in calls and "edit_original" not in calls
+        assert calls["response_send"]["ephemeral"] is True
+
+    def test_acked_interaction_sends_a_followup_never_a_patch(self, monkeypatch):
+        # the deferred /karma card: type-5 defer already sent by resolve();
+        # the panel must be a followup SEND (the shipped wire shape), not
+        # an edit_original_response PATCH of the deferral.
+        presenter = self._presenter(monkeypatch)
+        origin, calls = self._origin(acked=True)
+        req = SimpleNamespace(origin=origin)
+        run(presenter(self._rendered(), req))
+        assert "followup_send" in calls
+        assert "edit_original" not in calls and "response_send" not in calls
+        assert calls["followup_send"]["ephemeral"] is True
+
+
 class TestHandleChatAward:
     def _patch_core(self, monkeypatch):
         import sb.domain.xp.service as xp_service

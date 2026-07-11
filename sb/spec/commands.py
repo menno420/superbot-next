@@ -112,6 +112,21 @@ class CommandSpec:
         return self.capability_required or self.audience_tier or ""
 
 
+def command_dispatch_keys(cmd: object) -> list[str]:
+    """Every key a command answers to in the dispatch index (duck-typed —
+    the parity boot and the live index share this ONE truth): the qualified
+    name, then each alias GROUP-SCOPED, mirroring the shipped discord.py
+    registration (``@group.command(aliases=[...])`` reserves the alias
+    INSIDE the group — ``!ticket open`` routes ticket.new; bare ``!open``
+    was never a top-level route)."""
+    name = str(getattr(cmd, "name", "") or "")
+    qualified = str(getattr(cmd, "qualified_name", "") or name)
+    group_path = str(getattr(cmd, "group", "") or "").replace(".", " ")
+    return [qualified] + [
+        f"{group_path} {a}" if group_path else str(a)
+        for a in (getattr(cmd, "aliases", ()) or ())]
+
+
 register_field_roles(
     "CooldownSpec",
     rate="S", per_s="S", scope="S",

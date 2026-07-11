@@ -177,8 +177,15 @@ class DiscordPanelPresenter:
             await interaction_response.send_message(
                 embed=embed, view=view, ephemeral=ephemeral, **file_kwargs)
             message = await origin.original_response()
-        elif hasattr(origin, "edit_original_response"):
-            message = await origin.edit_original_response(embed=embed, view=view)
+        elif getattr(origin, "followup", None) is not None:
+            # already-acked interaction (resolve()'s AUTO defer): the panel
+            # rides a webhook FOLLOWUP send, never a PATCH of the deferred
+            # original — the shipped safe_defer + safe_followup split the
+            # parity twin mirrors (transport.py: first response
+            # `interaction_response`, every later one `followup_send`;
+            # goldens/karma/karma_slash_card.json pins the wire shape).
+            message = await origin.followup.send(
+                embed=embed, view=view, ephemeral=ephemeral, **file_kwargs)
         elif hasattr(origin, "reply"):
             message = await origin.reply(embed=embed, view=view, **file_kwargs)
         view.message = message
