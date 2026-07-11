@@ -60,7 +60,7 @@ subsystems:
   community: pending
   community_spotlight: pending
   counters: pending
-  counting: pending
+  counting: ported
   creature: pending
   diagnostic: pending
   economy: ported
@@ -247,6 +247,28 @@ depth:
           the hub open renders the LIVE word count over this store, and
           the words manager's live read lands with the word-mutation
           panel slice"
+    counting:
+      # counting's three goldens are read/render surfaces (the two
+      # guard-byte reads + the Counting Manager inactive-state open) —
+      # the capture guild never had an active counting channel, so
+      # every state-touching sweep pinned the "Counting game is not set
+      # up for this channel." refusal (goldens/counting/sweep_count_info
+      # + sweep_counttop; the sibling _unmapped sweep_reset_count +
+      # sweep_toggle_reset_on_wrong_count pin the same guard byte).
+      - surface: "table:counting_state"
+        reason: "select-driven: the only capture-reachable write ingress
+          is the Counting Manager's run-minted Enable-Here mode pick
+          (the shipped _ModePick whitelist flow — D-0064: session select
+          PICKS carry values the click schema lacks and the run-minted
+          ids normalize to <cid:N>); the command ingresses the corpus
+          schema could express either provision a fresh Discord channel
+          first (!start_match — the create-channel capture wall, the
+          D-0030/trap-17 class; never swept into the imported corpus)
+          or mutate only an already-active channel no capture case
+          establishes (!end_match/!reset_count/!toggle_* — the pinned
+          not-set-up refusal bytes above), so no imported golden can
+          carry a counting_state row; the table's first row-bearing
+          golden lands with a state-seeded capture"
     economy:
       # economy's six goldens pin the read/menu/claim lane (the daily K7
       # write + economy/economy_audit_log deltas + the hub/jobcenter/
@@ -381,6 +403,7 @@ depth:
     btd6: {events: 1, tables: 3, settings: 1}
     channel: {events: 1, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 2, settings: 0}
+    counting: {events: 1, tables: 2, settings: 0}
     economy: {events: 2, tables: 5, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
     help: {events: 1, tables: 3, settings: 0}

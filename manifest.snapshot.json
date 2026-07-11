@@ -3518,21 +3518,6 @@
         {
           "source": "sb/manifest/counting.py",
           "subsystem": "counting",
-          "value": "counting_info"
-        },
-        {
-          "source": "sb/manifest/counting.py",
-          "subsystem": "counting",
-          "value": "counting_top"
-        },
-        {
-          "source": "sb/manifest/counting.py",
-          "subsystem": "counting",
-          "value": "counting_rules"
-        },
-        {
-          "source": "sb/manifest/counting.py",
-          "subsystem": "counting",
           "value": "counting_toggle_turns"
         },
         {
@@ -3549,6 +3534,11 @@
           "source": "sb/manifest/counting.py",
           "subsystem": "counting",
           "value": "counting_disable"
+        },
+        {
+          "source": "sb/manifest/counting.py",
+          "subsystem": "counting",
+          "value": "counting_refresh"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -6601,8 +6591,32 @@
       "handler:counting.end_match_route": {
         "module": "sb.domain.counting.service"
       },
+      "handler:counting.hub_disable": {
+        "module": "sb.domain.counting.panels"
+      },
+      "handler:counting.hub_enable_mode": {
+        "module": "sb.domain.counting.panels"
+      },
+      "handler:counting.hub_pick_channel": {
+        "module": "sb.domain.counting.panels"
+      },
+      "handler:counting.hub_refresh": {
+        "module": "sb.domain.counting.panels"
+      },
+      "handler:counting.hub_reset": {
+        "module": "sb.domain.counting.panels"
+      },
+      "handler:counting.hub_toggle_reset": {
+        "module": "sb.domain.counting.panels"
+      },
+      "handler:counting.hub_toggle_turns": {
+        "module": "sb.domain.counting.panels"
+      },
       "handler:counting.info_view": {
         "module": "sb.domain.counting.service"
+      },
+      "handler:counting.render_hub": {
+        "module": "sb.domain.counting.panels"
       },
       "handler:counting.reset_route": {
         "module": "sb.domain.counting.service"
@@ -7812,6 +7826,9 @@
       },
       "provider:counters.hub_settings": {
         "module": "sb.domain.operator_spine"
+      },
+      "provider:counting.enable_mode_options": {
+        "module": "sb.domain.counting.panels"
       },
       "provider:diagnostic.status_index": {
         "module": "sb.domain.diagnostic.panels"
@@ -9242,7 +9259,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:c8e9c2a6819550482cbf7335b7cd25a409f0f4d490824b08c0731699cf8886cb",
+  "stable_hash": "sha256:fea82546c294f255d4f48c810d437f45d281cf2a56aafaf508e7d15f22ca4532",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -18055,78 +18072,6 @@
         {
           "actions": [
             {
-              "action_id": "counting_info",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "ℹ️",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:counting.info_view"
-              },
-              "label": "Info",
-              "modal": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "counting_top",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "🏆",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:counting.top_view"
-              },
-              "label": "Top",
-              "modal": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "counting_rules",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "📜",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:counting.rules_view"
-              },
-              "label": "Rules",
-              "modal": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
               "action_id": "counting_toggle_turns",
               "audience_tier": "staff",
               "audit": "",
@@ -18136,12 +18081,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🔄",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:counting.toggle_turns_route"
+                "$ref": "handler:counting.hub_toggle_turns"
               },
-              "label": "Toggle Turns",
+              "label": "🔄 Toggle Turns",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18160,12 +18105,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "♻️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:counting.toggle_reset_route"
+                "$ref": "handler:counting.hub_toggle_reset"
               },
-              "label": "Toggle Reset",
+              "label": "♻️ Toggle Reset",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18184,12 +18129,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🔁",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:counting.reset_route"
+                "$ref": "handler:counting.hub_reset"
               },
-              "label": "Reset Count",
+              "label": "🔁 Reset Count",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
@@ -18208,17 +18153,41 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🛑",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:counting.end_match_route"
+                "$ref": "handler:counting.hub_disable"
               },
-              "label": "Disable Here",
+              "label": "🛑 Disable Here",
               "modal": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
               "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "counting_refresh",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:counting.hub_refresh"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
               "usage_weight": 1.0,
               "visible_when": ""
             }
@@ -18227,30 +18196,28 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Run counting matches in this channel: pick a mode below to enable counting HERE, or use `!start_match <mode> [args]` (multiples/custom modes take arguments). Wrong numbers are removed; ✅ marks accepted counts."
+              "text": ""
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blue",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped _CountingHubView is state-keyed on the managed channel (hub_panel._rebuild + build_embed): the EMBED description/fields/footer are state-dependent copy the grammar cannot express ('<#…> is not an active counting channel…' + 'Select a channel above to manage it.' vs 'Managing <#…>' + Mode/Current Count/Taking Turns/Reset on Wrong inline fields + 'Buttons operate on the selected channel.'), and the COMPONENT SET swaps with the same state (inactive ⇒ ModePick, no staff buttons; active ⇒ the four staff buttons, no ModePick — the shipped _rebuild if/else). The override delegates to render_panel and (1) composes the EMBED, (2) drops exactly the other state's components by canonical id (_ACTIVE_ONLY / _INACTIVE_ONLY above); every kept component's bytes come from the spec. goldens/counting/sweep_countingmenu pins every inactive-state byte.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
-                    "counting_enable_mode"
+                    "counting_pick_channel"
                   ],
                   [
-                    "counting_info",
-                    "counting_top",
-                    "counting_rules"
+                    "counting_enable_mode"
                   ],
                   [
                     "counting_toggle_turns",
@@ -18259,6 +18226,9 @@
                   [
                     "counting_reset",
                     "counting_disable"
+                  ],
+                  [
+                    "counting_refresh"
                   ]
                 ]
               }
@@ -18269,13 +18239,33 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "counting.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:counting.render_hub"
+          },
           "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:counting.hub_pick_channel"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Select a channel to manage…",
+              "selector_id": "counting_pick_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
             {
               "audience_tier": "staff",
               "capability_required": "",
@@ -18285,30 +18275,22 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:counting.enable_here_route"
+                "$ref": "handler:counting.hub_enable_mode"
               },
-              "options_source": [
-                "normal",
-                "reverse",
-                "skip",
-                "random",
-                "prime",
-                "fibonacci",
-                "squares",
-                "cubes",
-                "factorials"
-              ],
+              "options_source": {
+                "$ref": "provider:counting.enable_mode_options"
+              },
               "page_size": 25,
-              "placeholder": "Enable Here — pick a counting mode",
+              "placeholder": "Enable counting here — pick a mode…",
               "selector_id": "counting_enable_mode",
               "slash_common": false,
               "usage_weight": 1.0
             }
           ],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "counting",
           "timeout_s": 180,
-          "title": "🔢 Counting",
+          "title": "🔢 Counting Manager",
           "usage_weight": 1.0
         }
       ],
