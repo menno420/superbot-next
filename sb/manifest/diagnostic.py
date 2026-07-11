@@ -104,8 +104,9 @@ register_ops()
 
 def _ensure_refs() -> None:
     from sb.domain.diagnostic import ops as _ops
-    from sb.domain.diagnostic import store as _store  # noqa: F401 — store spec import
+    from sb.domain.diagnostic import store as _store
 
+    _store.ensure_refs()
     _panels.ensure_diagnostic_refs()
     _handlers.ensure_handler_refs()
     _ops.ensure_ops_refs()

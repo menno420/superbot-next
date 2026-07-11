@@ -44,6 +44,13 @@ def _store_marker() -> str:
     return "sb/domain/diagnostic/store.py"
 
 
+def ensure_refs() -> None:
+    from sb.spec.refs import EngineRef, engine as _engine, is_registered
+
+    if not is_registered(EngineRef("diagnostic.store")):
+        _engine("diagnostic.store")(_store_marker)
+
+
 async def insert_checkpoint(conn: Any, *, name: str, guild_id: int,
                             status: str, summary_json: str) -> None:
     """One checkpoint row (started_at = the DB clock, completed_at NULL —
