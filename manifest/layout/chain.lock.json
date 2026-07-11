@@ -2,61 +2,101 @@
  "entries": {
   "chain:chain.hub:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "chain_create",
+       "chain_delete",
+       "chain_set_limit",
+       "chain_clear_limit"
+      ],
+      [
+       "chain_refresh"
+      ]
+     ]
+    }
+   ]
   },
   "chain:chain.hub:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "chain_create",
+     "chain_delete",
+     "chain_set_limit",
+     "chain_clear_limit"
+    ],
+    [
+     "chain_refresh"
+    ]
+   ]
   },
   "chain:chain.hub:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "chain_create",
+        "chain_delete",
+        "chain_set_limit",
+        "chain_clear_limit"
+       ],
+       [
+        "chain_refresh"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "chain:chain:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "chain:chainmenu:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "chain:create:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "chain:delete:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "chain:list:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "chain:removelimit:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "chain:setlimit:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   }
