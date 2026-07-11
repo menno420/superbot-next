@@ -48,7 +48,7 @@ source:
 # to a subsystem directory; port bands re-home cases as they flip.
 subsystems:
   _unmapped: pending
-  admin: pending
+  admin: ported
   ai: ported
   automod: ported
   blackjack: ported
@@ -465,6 +465,7 @@ depth:
   # subsystem MUST have a row; regenerate with
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
+    admin: {events: 1, tables: 2, settings: 0}
     ai: {events: 2, tables: 4, settings: 1}
     automod: {events: 1, tables: 2, settings: 0}
     blackjack: {events: 2, tables: 6, settings: 1}
