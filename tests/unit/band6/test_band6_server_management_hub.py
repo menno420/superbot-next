@@ -34,10 +34,16 @@ def test_hub_spec_shape_matches_the_golden():
     assert spec.audience is Audience.INVOKER
     assert spec.frame.style_token == "red"           # discord.Color.red()
     assert spec.frame.footer_mode is FooterMode.NONE
-    # no nav row (the golden pins exactly three component rows); the
-    # never-strand fence takes the session-view exemption — every id is
-    # override-pinned so nothing is run-minted.
-    assert spec.session_lifecycle is True
+    # ANCHORED panel-manager semantics (the server_management prefix
+    # flip): session_lifecycle=False anchors the prefix open (the prefix
+    # golden pins the panel_anchors row; the slash surface never anchors)
+    # — every id is override-pinned so nothing is run-minted either way.
+    assert spec.session_lifecycle is False
+    # no grammar nav ROW in the render (the override drops the injected
+    # nav:back button); parent=help.home satisfies the never-strand fence
+    # honestly — the shipped escape IS Help.
+    from sb.spec.refs import PanelRef as _PanelRef
+    assert spec.navigation.parent == _PanelRef("help.home")
     assert spec.navigation.show_help is False
     assert spec.navigation.show_home is False
 
@@ -64,18 +70,26 @@ def test_hub_spec_shape_matches_the_golden():
         "sm_refresh": ("🔄 Refresh", ActionStyle.SECONDARY,
                        "server_management:refresh"),
     }
-    assert set(by_id) == set(expected)
+    assert set(by_id) == set(expected) | {"help_back"}
     for aid, (label, style, custom_id) in expected.items():
         assert by_id[aid].label == label, aid
         assert by_id[aid].style is style, aid
         assert by_id[aid].custom_id_override == custom_id, aid
         assert not by_id[aid].emoji, aid          # emoji lives in the label
         assert by_id[aid].audience_tier == "administrator", aid
+    # the shipped back-to-help hook's button (help_cog
+    # _attach_back_to_help_button — persistent id "help:back", grey);
+    # rendered on the message path only (the override drops it on slash).
+    back = by_id["help_back"]
+    assert back.label == "↩ Back to Help"
+    assert back.style is ActionStyle.SECONDARY
+    assert back.custom_id_override == "help:back"
 
     assert spec.layout.pages[0].rows == (
         ("moderation", "channels", "roles"),
         ("cleanup", "setup"),
         ("access_map", "help_preview", "help_editor", "sm_refresh"),
+        ("help_back",),
     )
 
 
@@ -106,7 +120,7 @@ def test_hub_spec_passes_the_compile_fences():
 # --- the render: footer literal + the badge fields ------------------------------------
 
 
-def _ctx():
+def _ctx(surface: str | None = "prefix"):
     from types import SimpleNamespace
 
     from sb.kernel.interaction.locale import LocaleContext
@@ -116,7 +130,8 @@ def _ctx():
     return PanelContext(
         bot=None, guild_id=1, actor=SimpleNamespace(user_id=42),
         channel_id=2, origin=PanelOrigin.INTERACTION,
-        audience=Audience.INVOKER, locale=LocaleContext(), params={})
+        audience=Audience.INVOKER, locale=LocaleContext(), params={},
+        surface=surface)
 
 
 def test_render_carries_the_footer_and_the_two_health_fields():
@@ -138,13 +153,35 @@ def test_render_carries_the_footer_and_the_two_health_fields():
     assert rendered.embed.fields[1][0] == "Overall configuration health"
     assert rendered.embed.fields[1][1] == (
         "🟢 No configuration issues need attention")
-    # no engine-injected nav components (the golden's exactly-three rows).
+    # no engine-injected nav components (both goldens pin their absence —
+    # the override drops the grammar's nav:back:help.home button).
     assert all(not c.custom_id.startswith("nav:") for c in rendered.components)
-    # every wire id is the shipped persistent id, never a minted one.
+    # every wire id is the shipped persistent id, never a minted one; the
+    # MESSAGE surface carries the shipped back-to-help hook's button
+    # (goldens/server_management pins the 4-row prefix shape).
     assert {c.custom_id for c in rendered.components} == {
         f"server_management:{k}" for k in (
             "moderation", "channels", "roles", "cleanup", "setup",
-            "access_map", "help_preview", "help_editor", "refresh")}
+            "access_map", "help_preview", "help_editor", "refresh")
+    } | {"help:back"}
+
+
+def test_render_drops_the_back_to_help_button_on_the_slash_surface():
+    """The shipped slash twin never passed through the panel manager —
+    goldens/servermanagement pins exactly three component rows."""
+    from sb.domain.server_management.panels import (
+        _render_hub,
+        server_management_hub_spec,
+    )
+
+    rendered = run(_render_hub(server_management_hub_spec(),
+                               _ctx(surface="slash")))
+    ids = {c.custom_id for c in rendered.components}
+    assert "help:back" not in ids
+    assert all(not c.custom_id.startswith("nav:") for c in rendered.components)
+    assert ids == {f"server_management:{k}" for k in (
+        "moderation", "channels", "roles", "cleanup", "setup",
+        "access_map", "help_preview", "help_editor", "refresh")}
 
 
 def test_red_style_token_is_the_shipped_color():

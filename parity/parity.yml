@@ -85,7 +85,7 @@ subsystems:
   role: pending
   rps_tournament: ported
   security: ported
-  server_management: pending
+  server_management: ported
   servermanagement: ported
   settings: ported
   setup: pending
@@ -451,6 +451,7 @@ depth:
     proof_channel: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
+    server_management: {events: 1, tables: 3, settings: 0}
     servermanagement: {events: 0, tables: 0, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
     ticket: {events: 1, tables: 2, settings: 0}

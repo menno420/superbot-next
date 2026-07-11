@@ -4126,6 +4126,11 @@
           "value": "sm_refresh"
         },
         {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "help_back"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "needs_setup"
@@ -9320,7 +9325,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b6ffda5ff158556612780ffa9f15ef10ee1c8e0d20be2586a331a4aaa5bbb9af",
+  "stable_hash": "sha256:d807374f14199999ec1f5ed396b92eb5c17e47c032429dcd018d87636333677b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -34201,6 +34206,30 @@
               "style": "secondary",
               "usage_weight": 1.0,
               "visible_when": ""
+            },
+            {
+              "action_id": "help_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "help:back",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:help.home"
+              },
+              "label": "↩ Back to Help",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
             }
           ],
           "anchor_policy": "reply",
@@ -34224,7 +34253,7 @@
             "style_token": "red",
             "thumbnail_ref": ""
           },
-          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/servermanagement + goldens/server_management pin the byte; the utility/ux_lab/channel precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/servermanagement + goldens/server_management pin the byte; the utility/ux_lab/channel precedent). The override additionally adjusts TWO named component surfaces (the 12c lane): (1) it DROPS the grammar's injected nav:back:help.home button — the shipped hub never rendered a grammar nav row, both goldens pin exactly the declared rows; (2) it DROPS the declared help_back action on the slash surface — the shipped back-to-help hook appended the button on the panel-manager MESSAGE path only (goldens/server_management pins the 4-row prefix shape, goldens/servermanagement pins the 3-row slash shape). Body, fields, and every other action stay declared.",
           "layout": {
             "pages": [
               {
@@ -34243,6 +34272,9 @@
                     "help_preview",
                     "help_editor",
                     "sm_refresh"
+                  ],
+                  [
+                    "help_back"
                   ]
                 ]
               }
@@ -34252,7 +34284,9 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": null,
+            "parent": {
+              "$ref": "panel:help.home"
+            },
             "show_help": false,
             "show_home": false,
             "show_rules": false
@@ -34262,7 +34296,7 @@
             "$ref": "handler:server_management.render_hub"
           },
           "selectors": [],
-          "session_lifecycle": true,
+          "session_lifecycle": false,
           "subsystem": "server_management",
           "timeout_s": 180,
           "title": "🧭 Server Management Hub",

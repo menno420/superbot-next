@@ -279,7 +279,8 @@ def _context_from_request(spec: PanelSpec, req: ResolveRequest) -> PanelContext:
         bot=None, guild_id=req.guild_id, actor=req.actor,
         channel_id=req.channel_id, origin=PanelOrigin.INTERACTION,
         audience=spec.audience, locale=LocaleContext(),
-        params=dict(req.args or {}))
+        params=dict(req.args or {}),
+        surface=getattr(req.surface, "value", None))
 
 
 async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
