@@ -5169,6 +5169,11 @@
         {
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
+          "value": "ai.behavior_matrix_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
           "value": "ai.tools_guild_picker"
         },
         {
@@ -7073,9 +7078,6 @@
       "handler:ai.behavior_preset_pick": {
         "module": "sb.domain.ai.behavior_widgets"
       },
-      "handler:ai.chooser_scope_pending": {
-        "module": "sb.domain.ai.settings_widgets"
-      },
       "handler:ai.diagnostics_view": {
         "module": "sb.domain.ai.service"
       },
@@ -7183,6 +7185,9 @@
       },
       "handler:ai.review_usage_view": {
         "module": "sb.domain.ai.service"
+      },
+      "handler:ai.routing_matrix_pick": {
+        "module": "sb.domain.ai.routing_matrix"
       },
       "handler:ai.routing_view": {
         "module": "sb.domain.ai.service"
@@ -8577,6 +8582,9 @@
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.behavior_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.behavior_matrix_picker": {
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.behavior_preset_picker": {
@@ -10730,7 +10738,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b685e016265e55d1b17571bad96e3e2a24212e145e4495abe0dbe9b593bf6a34",
+  "stable_hash": "sha256:53dd670242f4d6a91d9631aefad3576c724803b5353db2c72cc5884a43ef5249",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -12877,7 +12885,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.behavior_matrix_picker"
               },
               "label": "Routing matrix",
               "modal": null,
@@ -14538,6 +14546,83 @@
           "subsystem": "ai",
           "timeout_s": 180,
           "title": "Pick a Behavior preset",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel to dry-run the AI routing matrix."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "behavior_matrix_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Behavior",
+                "route": {
+                  "$ref": "panel:ai.behavior_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.behavior_matrix_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.routing_matrix_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel to preview routing for…",
+              "selector_id": "behavior_matrix_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Behavior · routing matrix",
           "usage_weight": 1.0
         },
         {
