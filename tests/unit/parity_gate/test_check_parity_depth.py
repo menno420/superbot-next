@@ -320,6 +320,79 @@ class TestWriteRatchetPreservesComments:
         text = "depth:\n  ratchet:\n    xp: {events: 1, tables: 0, settings: 0}\n"
         assert splice_ratchet_text(text, {}) == "depth:\n  ratchet: {}\n"
 
+    # the three codex #199 P2s (comment 4948021173 triage), each pinned:
+    def test_interstitial_comment_is_consumed_with_the_block(self):
+        """A shallow comment BETWEEN ratchet rows must not stop the extent
+        scan — leaving the post-comment rows in place duplicated the keys
+        and let a stale count win (codex P2, splice extent)."""
+        text = (
+            "depth:\n"
+            "  ratchet:\n"
+            "    admin: {events: 1, tables: 1, settings: 0}\n"
+            "  # hand comment between rows\n"
+            "    ai: {events: 2, tables: 2, settings: 0}\n"
+        )
+        out = splice_ratchet_text(
+            text, {"admin": {"events": 1, "tables": 1, "settings": 0}},
+        )
+        assert out == (
+            "depth:\n"
+            "  ratchet:\n"
+            "    admin: {events: 1, tables: 1, settings: 0}\n"
+        )
+        assert yaml.safe_load(out)["depth"]["ratchet"] == {
+            "admin": {"events": 1, "tables": 1, "settings": 0},
+        }
+
+    def test_trailing_blank_plus_sibling_comment_is_preserved(self):
+        """A blank line then a deeper-indented comment that belongs to the
+        NEXT section must not be swallowed by the splice (codex P2,
+        following-sibling comments)."""
+        text = (
+            "depth:\n"
+            "  ratchet:\n"
+            "    xp: {events: 1, tables: 1, settings: 0}\n"
+            "\n"
+            "    # exemption note below (belongs to exemptions)\n"
+            "  exemptions: {}\n"
+        )
+        out = splice_ratchet_text(
+            text, {"xp": {"events": 2, "tables": 1, "settings": 0}},
+        )
+        assert out == (
+            "depth:\n"
+            "  ratchet:\n"
+            "    xp: {events: 2, tables: 1, settings: 0}\n"
+            "\n"
+            "    # exemption note below (belongs to exemptions)\n"
+            "  exemptions: {}\n"
+        )
+
+    def test_crlf_line_endings_survive_the_splice(self):
+        """A CRLF-shaped file keeps CRLF everywhere — the splice never
+        silently renormalizes bytes outside the block (codex P2; the repo's
+        .gitattributes leaves parity.yml eol unspecified, so nothing else
+        would restore it)."""
+        text = (
+            "# header\r\n"
+            "depth:\r\n"
+            "  ratchet:\r\n"
+            "    xp: {events: 1, tables: 1, settings: 0}\r\n"
+        )
+        out = splice_ratchet_text(
+            text, {"xp": {"events": 2, "tables": 1, "settings": 0}},
+        )
+        assert out == (
+            "# header\r\n"
+            "depth:\r\n"
+            "  ratchet:\r\n"
+            "    xp: {events: 2, tables: 1, settings: 0}\r\n"
+        )
+        # and the identity property holds in CRLF shape too
+        assert splice_ratchet_text(
+            text, {"xp": {"events": 1, "tables": 1, "settings": 0}},
+        ) == text
+
 
 # ------------------------------------------------------------- the two legs
 class TestGateDriver:

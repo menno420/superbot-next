@@ -268,11 +268,15 @@ def splice_ratchet_text(text: str, ratchet: dict[str, dict[str, int]]) -> str:
 
     Every byte outside the block — the ~130-line comment header, the
     exemption prose, key order, even the `# ratchet:` schema comment right
-    above the block — survives untouched. Only the machine-minted block
-    itself is regenerated (any comment INSIDE it is not preserved; nothing
-    hand-written belongs there). Raises SystemExit if the `depth:` section
-    carries no `ratchet:` key to splice over.
+    above the block — survives untouched, and the file's own line ending
+    (LF or CRLF) is kept. Only the machine-minted block itself is
+    regenerated: a comment INTERSTITIAL to the block (one followed by
+    more block rows, at any indent) is consumed with it, while a TRAILING
+    blank/comment run belongs to whatever follows the block and is
+    preserved. Raises SystemExit if the `depth:` section carries no
+    `ratchet:` key to splice over.
     """
+    newline = "\r\n" if "\r\n" in text else "\n"
     lines = text.splitlines()
     start = None
     in_depth = False
@@ -291,31 +295,35 @@ def splice_ratchet_text(text: str, ratchet: dict[str, dict[str, int]]) -> str:
             "add an empty `ratchet: {}` row to parity.yml first"
         )
 
-    # block extent: every following deeper-indented line (blank lines are
-    # consumed only when deeper content resumes after them)
+    # block extent: every following deeper-indented non-comment line;
+    # blank/comment runs are consumed only when a deeper NON-comment line
+    # resumes after them (interstitial) — a trailing run is preserved for
+    # whatever follows the block
     end = start + 1
     j = start + 1
     while j < len(lines):
-        line = lines[j]
-        if line.strip() == "":
+        stripped = lines[j].strip()
+        if stripped == "" or stripped.startswith("#"):
             k = j + 1
-            while k < len(lines) and lines[k].strip() == "":
+            while k < len(lines) and (
+                lines[k].strip() == "" or lines[k].strip().startswith("#")
+            ):
                 k += 1
             if k < len(lines) and re.match(r"^\s{3,}\S", lines[k]):
                 j = k + 1
                 end = j
                 continue
             break
-        if re.match(r"^\s{3,}", line):
+        if re.match(r"^\s{3,}", lines[j]):
             j += 1
             end = j
             continue
         break
 
     new_lines = lines[:start] + render_ratchet_block(ratchet) + lines[end:]
-    out = "\n".join(new_lines)
-    if text.endswith("\n"):
-        out += "\n"
+    out = newline.join(new_lines)
+    if text.endswith(("\n", "\r\n")):
+        out += newline
     return out
 
 
