@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.listreactroles",
+ "case_id": "sweep.setrole",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:2>",
+     "message_id": "<msg:1>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -23,12 +23,25 @@
     }
    ]
   },
+  "role_thresholds": {
+   "added": [
+    {
+     "days_required": 3,
+     "display_name": "test",
+     "guild_id": "<guild>",
+     "level_required": null,
+     "role_id": null,
+     "role_name": "test",
+     "xp_auto_assign": false
+    }
+   ]
+  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1833277923,
+     "last_xp": 1767661301,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +63,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "No reaction roles configured.",
+      "content": "✅ Role **test** will be assigned after **3** day(s).",
       "tts": false
      }
     },
@@ -61,17 +74,25 @@
       "reason": null
      },
      "method": "delete_message"
-    },
-    {
-     "args": {
-      "channel_id": "<#general>",
-      "message_id": "<msg:2>",
-      "reason": null
-     },
-     "method": "delete_message"
     }
    ],
    "events": [
+    {
+     "event": "audit.action_recorded",
+     "payload": {
+      "actor_id": "<@admin>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "set_time_threshold",
+      "new_value": "3d",
+      "occurred_at": "<ts>",
+      "prev_value": null,
+      "scope": "guild",
+      "subsystem": "role_automation",
+      "target": "role:test"
+     }
+    },
     {
      "event": "xp.awarded",
      "payload": {
@@ -85,11 +106,11 @@
     }
    ],
    "input": {
-    "content": "!listreactroles",
+    "content": "!setrole 3 test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "role"
 }

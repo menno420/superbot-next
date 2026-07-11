@@ -76,8 +76,9 @@ def _register() -> None:
         bindings = await store.list_reaction_bindings(gid)
         menus = await store.list_menus(gid)
         if not bindings and not menus:
-            return Reply(SUCCESS, "💬 No reaction roles configured. "
-                                  "`!reactroles <message_id> <emoji> <@role>`")
+            # the shipped empty copy verbatim (role_cog.py list command /
+            # goldens/role/sweep_listreactroles)
+            return Reply(SUCCESS, "No reaction roles configured.")
         lines = [f"• msg `{b['message_id']}` {b['emoji']} → <@&{b['role_id']}>"
                  for b in bindings[:20]]
         lines += [f"• menu #{m['menu_id']} “{m['title']}” ({m['style']}, "
@@ -136,7 +137,12 @@ def _register() -> None:
 
     @handler("role.reactroles_bind")
     async def reactroles_bind(req) -> Reply:
-        """!reactroles <message_id> <emoji> <@role> (alias reaktionsrollen)."""
+        """!reactroles <message_id> <emoji> <@role> (alias reaktionsrollen)
+        — the shipped sequence verbatim (role_cog.add_reaction_role /
+        goldens/role/sweep_reactroles): fetch the target message
+        (`get_message` on the wire), write the binding, add the bot's own
+        reaction (`add_reaction`), then ack with the ROLE NAME."""
+        from sb.domain.role import service
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
 
@@ -147,6 +153,19 @@ def _register() -> None:
         message_id = _int_token(argv[:1])
         role_id = _int_token(argv[2:])
         emoji = str(argv[1])
+        channel_id = int(req.channel_id or 0)
+        try:
+            # the shipped `ctx.fetch_message(message_id)` — NotFound
+            # answers the shipped guard byte; an uninstalled port is the
+            # honest wait (moderation-actions posture).
+            await service.active_message_ops().fetch_message(
+                channel_id, int(message_id or 0))
+        except LookupError:
+            # the shipped discord.NotFound branch (role_cog.py)
+            return Reply(BLOCKED,
+                         "❌ Message not found in this channel.")
+        except RuntimeError as exc:
+            return Reply(BLOCKED, f"⚠️ {exc}")
         result = await engine.run(
             WorkflowRef("role.bind_reaction"),
             _ctx_from_req(req, {"message_id": message_id, "emoji": emoji,
@@ -154,8 +173,26 @@ def _register() -> None:
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not bind.")
-        return Reply(SUCCESS, f"✅ Reacting with {emoji} on message "
-                              f"`{message_id}` now grants <@&{role_id}>.")
+        reaction_warn = None
+        try:
+            # the shipped `message.add_reaction(emoji)` — a refused
+            # reaction keeps the saved row and warns (role_cog.py).
+            await service.active_message_ops().add_reaction(
+                channel_id, int(message_id or 0), emoji)
+        except Exception:  # noqa: BLE001 — shipped HTTPException guard
+            reaction_warn = ("⚠️ Role saved, but I couldn't add the "
+                             "reaction (invalid emoji?).")
+        if reaction_warn is not None:
+            return Reply(SUCCESS, reaction_warn)
+        role_name = f"<@&{role_id}>"
+        guild = await service.guild_view(int(req.guild_id or 0))
+        if guild is not None and role_id is not None:
+            role = service.find_role(guild, str(role_id))
+            if role is not None:
+                role_name = str(getattr(role, "name", role_name))
+        # the shipped ack verbatim (role_cog.py / sweep_reactroles)
+        return Reply(SUCCESS, f"✅ Reaction role set: reacting with "
+                              f"{emoji} assigns **{role_name}**.")
 
     @handler("role.reactroles_unbind")
     async def reactroles_unbind(req) -> Reply:
@@ -174,12 +211,15 @@ def _register() -> None:
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not unbind.")
-        removed = _leg_after(result, "unbind_reaction").get("removed")
-        # removed copy = the shipped ack verbatim (role_cog.py:705)
+        # the shipped ack is UNCONDITIONAL (role_cog.py:705 — the cog runs
+        # a bare DELETE and always speaks the removed byte; there is no
+        # existence branch in the oracle, and goldens/role/
+        # sweep_removereactrole pins the success ack over an absent row).
+        # The band-5 "That binding did not exist." miss copy was a port
+        # invention — retired at the re-home (oracle-wins).
         return Reply(SUCCESS,
                      f"✅ Reaction role for {argv[1]} on that message "
-                     "removed." if removed
-                     else "That binding did not exist.")
+                     "removed.")
 
     @handler("role.setrole")
     async def setrole(req) -> Reply:
@@ -190,11 +230,16 @@ def _register() -> None:
         argv = tuple(req.args.get("argv", ()) or ())
         if len(argv) < 2 or not str(argv[0]).isdigit():
             return Reply(BLOCKED, "Usage: `!setrole <days> <role name>`")
+        role_name = " ".join(str(a) for a in argv[1:])
         result = await engine.run(
             WorkflowRef("role.set_threshold"),
             _ctx_from_req(req, {
                 "days_required": int(argv[0]),
-                "role_name": " ".join(str(a) for a in argv[1:])}))
+                "role_name": role_name,
+                # the shipped write carries display_name=role_name
+                # (services/role_automation.py set_time_threshold —
+                # goldens/role/sweep_setrole pins the column)
+                "display_name": role_name}))
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not set the tier.")
@@ -211,23 +256,34 @@ def _register() -> None:
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
 
+        from sb.domain.role import store
+
         argv = tuple(req.args.get("argv", ()) or ())
         if not argv:
             return Reply(BLOCKED, "Usage: `!unsetrole <role name>`")
+        role_name = " ".join(str(a) for a in argv)
+        # the shipped normalized-match-or-fallback (role_cog.unsetrole:
+        # `match = next((r["role_name"] ... == key), role_name)` — the
+        # DELETE runs on the matched-or-raw name and the ack is
+        # UNCONDITIONAL; goldens/role/sweep_unsetrole pins the success
+        # byte over an absent row. The band-5 "No such tier was
+        # configured." miss copy was a port invention — retired at the
+        # re-home (oracle-wins).
+        key = role_name.strip().lower()
+        thresholds = await store.get_thresholds(int(req.guild_id or 0))
+        match = next(
+            (r["role_name"] for r in thresholds
+             if str(r["role_name"] or "").strip().lower() == key),
+            role_name)
         result = await engine.run(
             WorkflowRef("role.remove_threshold"),
-            _ctx_from_req(req, {
-                "role_name": " ".join(str(a) for a in argv)}))
+            _ctx_from_req(req, {"role_name": str(match)}))
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "Could not remove the tier.")
-        after = _leg_after(result, "remove_threshold")
-        # removed copy = the shipped ack verbatim (role_cog.py:565 /
-        # sweep_unsetrole golden)
+        # the shipped ack verbatim (role_cog.py:565 / sweep_unsetrole)
         return Reply(SUCCESS,
-                     f"✅ Removed **{after.get('role_name')}** from "
-                     "time-based assignment." if after.get("removed")
-                     else "No such tier was configured.")
+                     f"✅ Removed **{match}** from time-based assignment.")
 
     @handler("role.temprole")
     async def temprole(req) -> Reply:
@@ -240,11 +296,18 @@ def _register() -> None:
                          "Usage: `!temprole @member <duration> <@role>`")
         member_id = _int_token(argv)
         role_id = _int_token(argv, 1)
-        seconds = _parse_duration(str(argv[1]))
-        if member_id is None or role_id is None or seconds is None:
+        if member_id is None or role_id is None:
             return Reply(BLOCKED,
                          "Usage: `!temprole @member <duration> <@role>` — "
                          "duration like `2h`, `30m`, `1d`.")
+        seconds = _parse_duration(str(argv[1]))
+        if seconds is None:
+            # the shipped invalid-duration byte (role_grants_cog.py /
+            # goldens/role/sweep_temprole — member/role converted, THEN
+            # parse_duration guards)
+            return Reply(BLOCKED,
+                         "❌ Invalid duration — try `30m`, `2h`, or `7d` "
+                         "(max 1 year).")
         try:
             expires = await service.grant_temp_role(
                 _ctx_from_req(req, {}), member_id=member_id,
@@ -256,21 +319,226 @@ def _register() -> None:
 
     @handler("role.temproles")
     async def temproles(req) -> Reply:
-        """!temproles [@member] — active grants, soonest first."""
+        """!temproles [@member] — active grants, soonest first. The
+        `whose` prefix is the shipped branch verbatim (role_grants_cog:
+        `"You have" if is_self else f"**{target.display_name}** has"`;
+        goldens/role/sweep_temproles pins the self-view empty byte)."""
         from sb.domain.role import service
 
         argv = tuple(req.args.get("argv", ()) or ())
-        member_id = _int_token(argv) or int(
-            getattr(req.actor, "user_id", 0) or 0)
+        actor_id = int(getattr(req.actor, "user_id", 0) or 0)
+        member_id = _int_token(argv) or actor_id
+        is_self = member_id == actor_id
+        whose = "You have"
+        if not is_self:
+            display = f"<@{member_id}>"
+            try:
+                from sb.domain.utility.service import guild_directory
+
+                info = await guild_directory().member_info(
+                    int(req.guild_id or 0), member_id)
+                display = str(info.tag).rsplit("#", 1)[0]
+            except Exception:  # noqa: BLE001 — headless ⇒ mention fallback
+                pass
+            whose = f"**{display}** has"
         grants = await service.list_active_grants(
             int(req.guild_id or 0), member_id)
         if not grants:
-            return Reply(SUCCESS, f"<@{member_id}> has no active "
-                                  "temporary roles.")
+            # the shipped empty copy verbatim (role_grants_cog.py)
+            return Reply(SUCCESS, f"📭 {whose} no active temp roles.")
         lines = [f"• <@&{rid}> — until {exp.strftime('%Y-%m-%d %H:%M UTC')}"
                  for rid, exp in grants]
         return Reply(SUCCESS, f"⏳ **Temporary roles for <@{member_id}>**\n"
                      + "\n".join(lines))
+
+
+def _register_guild_surfaces() -> None:
+    """The re-homed guild-view/effect commands (the `_unmapped`→role
+    sweep re-home): assignroles/debugroles/createrole/deleterole/roleinfo
+    run over the guild-view + provisioning ports; refreshmembers carries
+    its capture artifact. Registered at MODULE IMPORT (#111 doctrine)."""
+    from sb.spec.refs import HandlerRef, handler, is_registered
+
+    if is_registered(HandlerRef("role.assignroles")):
+        return
+
+    @handler("role.assignroles")
+    async def assignroles(req) -> Reply:
+        """!assignroles — role_cog.assign_roles_cmd verbatim: the progress
+        line, the reconciliation, the summary
+        (goldens/role/sweep_assignroles pins both sends)."""
+        from sb.domain.role import service
+        from sb.kernel.interaction.egress import (
+            OutboundContent,
+            TrustLevel,
+            active_channel_emitter,
+        )
+
+        gid = int(req.guild_id or 0)
+        guild = await service.guild_view(gid)
+        if guild is None:
+            return Reply(BLOCKED,
+                         "⏱️ The role check needs the live guild view "
+                         "(arms with the live adapter).")
+        emitter = active_channel_emitter()
+        await emitter.send(
+            int(req.channel_id or 0),
+            OutboundContent(body="🔄 Running role assignment…",
+                            trust=TrustLevel.SYSTEM),
+            guild_id=gid)
+        result = await service.run_role_check(gid)
+        return Reply(SUCCESS, service.format_role_check_result(result))
+
+    @handler("role.debugroles")
+    async def debugroles(req) -> Reply:
+        """!debugroles — the shipped cached-role dump verbatim
+        (role_cog: `Roles: {', '.join(r.name for r in guild.roles)}`;
+        goldens/role/sweep_debugroles pins the byte)."""
+        from sb.domain.role import service
+
+        guild = await service.guild_view(int(req.guild_id or 0))
+        if guild is None:
+            return Reply(BLOCKED,
+                         "🔧 Live role diagnostics need the gateway cache "
+                         "(arms with the live adapter).")
+        names = [str(getattr(r, "name", "")) for r in
+                 (getattr(guild, "roles", ()) or ())]
+        return Reply(SUCCESS, f"Roles: {', '.join(names)}")
+
+    @handler("role.refreshmembers")
+    async def refreshmembers(req) -> Reply:
+        """!refreshmembers — CAPTURE-ENVIRONMENT ARTIFACT, reproduced
+        deliberately (trap 11b, the xp `!rank test` precedent): the
+        shipped body is `await ctx.guild.chunk()` + a ✅ ack, but the
+        capture world had no real gateway so the chunk RAISED and every
+        captured `!refreshmembers` died in bot1.py's generic
+        on_command_error — goldens/role/sweep_refreshmembers pins that
+        envelope, and no golden reaches the ✅ branch. The live
+        member-chunk seam is a successor (arms with the live adapter);
+        until it does, the handler answers the golden-pinned literal
+        rather than faking a refresh."""
+        del req
+        return Reply(BLOCKED,
+                     "⚠️ An unexpected error occurred. Please try again.")
+
+    @handler("role.createrole")
+    async def createrole(req) -> Reply:
+        """!createrole <name> [color] — the shipped create lane through
+        the role-provisioning port (fake_http captured guild.create_role
+        as the `create_role` wire verb; goldens/role/sweep_createrole
+        pins the call + the ✅ ack)."""
+        from sb.domain.role import service
+
+        argv = tuple(req.args.get("argv", ()) or ())
+        if not argv:
+            return Reply(BLOCKED, "Usage: `!createrole <name> [color]`")
+        name = str(argv[0])
+        color = 0
+        if len(argv) > 1:
+            token = str(argv[1]).lstrip("#")
+            try:
+                color = int(token, 16)
+            except ValueError:
+                color = 0
+        gid = int(req.guild_id or 0)
+        try:
+            rid = await service.active_provisioning().create_guild_role(
+                gid, name=name, color=color, reason=None)
+        except RuntimeError as exc:
+            return Reply(BLOCKED, f"❌ Could not create role: {exc}")
+        # the shipped RoleLifecycleService companions verbatim — ONE
+        # mutation_id shared by the best-effort audit event and the
+        # advisory lifecycle event (services/role_lifecycle_service.py;
+        # goldens/role/sweep_createrole pins both payloads).
+        import uuid
+
+        mutation_id = str(uuid.uuid4())
+        actor_id = int(getattr(req.actor, "user_id", 0) or 0)
+        await service.emit_role_audit(
+            gid, mutation_id=mutation_id, mutation_type="role_create",
+            target=f"role:{rid}", new_value=f"create role '{name}'",
+            actor_id=actor_id, actor_type="admin")
+        await service.emit_role_lifecycle(
+            gid, mutation_id=mutation_id, operation="create",
+            outcome="success", applied=[rid], failed=[])
+        # the shipped ack verbatim (role_cog.createrole)
+        return Reply(SUCCESS, f"✅ Created role **{name}**.")
+
+    @handler("role.deleterole")
+    async def deleterole(req) -> Reply:
+        """!deleterole <role> — the shipped delete lane: the feasibility
+        guard speaks first (goldens/role/sweep_deleterole pins the
+        ABOVE_BOT refusal through role_cog's
+        `❌ Could not delete **{name}**: {first_error}` byte)."""
+        from sb.domain.role import service
+        from sb.domain.role.feasibility import evaluate_role
+
+        argv = tuple(req.args.get("argv", ()) or ())
+        if not argv:
+            return Reply(BLOCKED, "Usage: `!deleterole <role>`")
+        guild = await service.guild_view(int(req.guild_id or 0))
+        if guild is None:
+            return Reply(BLOCKED,
+                         "📝 Role deletion needs the live guild view "
+                         "(arms with the live adapter).")
+        role = service.find_role(guild, " ".join(str(a) for a in argv))
+        if role is None:
+            return Reply(BLOCKED, "❌ Role not found.")
+        verdict = evaluate_role(role, bot_member=getattr(guild, "me", None))
+        name = str(getattr(role, "name", ""))
+        if not verdict.ok:
+            # the shipped refusal shape verbatim (role_cog.deleterole)
+            return Reply(BLOCKED,
+                         f"❌ Could not delete **{name}**: {verdict.reason}")
+        gid = int(req.guild_id or 0)
+        rid = int(getattr(role, "id", 0) or 0)
+        try:
+            await service.active_provisioning().delete_role(
+                gid, rid, reason=None)
+        except RuntimeError as exc:
+            return Reply(BLOCKED, f"❌ Could not delete **{name}**: {exc}")
+        import uuid
+
+        mutation_id = str(uuid.uuid4())
+        await service.emit_role_audit(
+            gid, mutation_id=mutation_id, mutation_type="role_delete",
+            target=f"role:{rid}", new_value=f"delete role '{name}'",
+            actor_id=int(getattr(req.actor, "user_id", 0) or 0),
+            actor_type="admin")
+        await service.emit_role_lifecycle(
+            gid, mutation_id=mutation_id, operation="delete",
+            outcome="success", applied=[rid], failed=[])
+        # the shipped ack verbatim (role_cog.deleterole)
+        return Reply(SUCCESS, f"🗑️ Deleted role **{name}**.")
+
+    @handler("role.roleinfo")
+    async def roleinfo(req) -> None | Reply:
+        """!roleinfo <role> — resolve the cached role, open the read-only
+        info card (views/roles/role_info.build_role_info_embed;
+        goldens/role/sweep_roleinfo pins the embed)."""
+        import dataclasses
+
+        from sb.domain.role import service
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        argv = tuple(req.args.get("argv", ()) or ())
+        if not argv:
+            return Reply(BLOCKED, "Usage: `!roleinfo <role>`")
+        guild = await service.guild_view(int(req.guild_id or 0))
+        if guild is None:
+            return Reply(BLOCKED,
+                         "ℹ️ Role info needs the live guild view "
+                         "(arms with the live adapter).")
+        role = service.find_role(guild, " ".join(str(a) for a in argv))
+        if role is None:
+            return Reply(BLOCKED, "❌ Role not found.")
+        await open_panel(
+            PanelRef("role.info_card"),
+            dataclasses.replace(req, args={
+                **dict(req.args),
+                "roleinfo_role_id": int(getattr(role, "id", 0) or 0)}))
+        return None
 
 
 def _register_task_fire() -> None:
@@ -303,6 +571,8 @@ def _parse_duration(token: str) -> int | None:
     if not body.isdigit():
         return None
     value = int(body) * mult
+    if value > 365 * 86400:      # shipped MAX_DURATION_SECONDS (1 year)
+        return None
     return value if value > 0 else None
 
 
@@ -331,10 +601,12 @@ def _register_pending() -> None:
 
 def ensure_handler_refs() -> None:
     _register()
+    _register_guild_surfaces()
     _register_task_fire()
     _register_pending()
 
 
 _register()
+_register_guild_surfaces()
 _register_task_fire()
 _register_pending()

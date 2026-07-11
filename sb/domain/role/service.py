@@ -25,18 +25,28 @@ logger = logging.getLogger("sb.domain.role")
 __all__ = [
     "ExemptRoleIds",
     "GuildRoleActions",
+    "MessageOps",
+    "RoleProvisioning",
     "active_actions",
+    "active_message_ops",
+    "active_provisioning",
     "emit_role_audit",
+    "emit_role_lifecycle",
+    "find_role",
+    "format_role_check_result",
     "get_exempt_role_ids",
     "grant_temp_role",
     "handle_reaction_add",
     "handle_reaction_remove",
     "install_guild_source",
+    "install_message_ops",
     "install_role_actions",
+    "install_role_provisioning",
     "install_xp_ports",
     "list_active_grants",
     "reaction_roles_enabled",
     "reset_role_ports_for_tests",
+    "run_role_check",
     "subscribe",
     "sweep_expired",
     "time_roles_stack",
@@ -66,7 +76,54 @@ class _NoActions:
     add_role = remove_role = _refuse
 
 
+class RoleProvisioning(Protocol):
+    """Adapter-implemented role CREATE/DELETE (the shipped !createrole /
+    !deleterole guild.create_role / role.delete lanes — fake_http captured
+    the create as a `create_role` wire verb, goldens/role/sweep_createrole).
+    Uninstalled ⇒ raise ⇒ the caller's honest BLOCKED refusal (the
+    moderation-actions posture)."""
+
+    async def create_guild_role(self, guild_id: int, *, name: str, color: int,
+                          reason: str | None) -> int: ...
+    async def delete_role(self, guild_id: int, role_id: int, *,
+                          reason: str | None) -> None: ...
+
+
+class _NoProvisioning:
+    async def _refuse(self, *_a, **_k) -> None:
+        raise RuntimeError(
+            "RoleProvisioning not installed — the composition root must "
+            "install an implementation "
+            "(sb.domain.role.service.install_role_provisioning)")
+
+    create_guild_role = delete_role = _refuse
+
+
+class MessageOps(Protocol):
+    """Adapter-implemented message reads/reactions for the reaction-role
+    bind flow (the shipped `ctx.fetch_message(message_id)` +
+    `message.add_reaction(emoji)` pair — fake_http captured them as the
+    `get_message` / `add_reaction` wire verbs,
+    goldens/role/sweep_reactroles). Uninstalled ⇒ raise ⇒ honest BLOCKED."""
+
+    async def fetch_message(self, channel_id: int,
+                            message_id: int) -> None: ...
+    async def add_reaction(self, channel_id: int, message_id: int,
+                           emoji: str) -> None: ...
+
+
+class _NoMessageOps:
+    async def _refuse(self, *_a, **_k) -> None:
+        raise RuntimeError(
+            "MessageOps not installed — the composition root must install "
+            "an implementation (sb.domain.role.service.install_message_ops)")
+
+    fetch_message = add_reaction = _refuse
+
+
 _actions: GuildRoleActions = _NoActions()  # fail-loud default
+_provisioning: RoleProvisioning = _NoProvisioning()
+_message_ops: MessageOps = _NoMessageOps()
 
 # guild view port: guild_id -> a duck guild (roles/members/me) or None.
 # The live adapter installs the gateway-cache read; headless default None
@@ -83,6 +140,24 @@ def install_role_actions(actions: GuildRoleActions) -> None:
 
 def active_actions() -> GuildRoleActions:
     return _actions
+
+
+def install_role_provisioning(provisioning: RoleProvisioning) -> None:
+    global _provisioning
+    _provisioning = provisioning
+
+
+def active_provisioning() -> RoleProvisioning:
+    return _provisioning
+
+
+def install_message_ops(ops: MessageOps) -> None:
+    global _message_ops
+    _message_ops = ops
+
+
+def active_message_ops() -> MessageOps:
+    return _message_ops
 
 
 def install_guild_source(source) -> None:
@@ -125,11 +200,32 @@ async def emit_role_audit(guild_id: int, *, mutation_id: str,
         logger.warning("role: audit fact emit failed", exc_info=True)
 
 
+async def emit_role_lifecycle(guild_id: int, *, mutation_id: str,
+                              operation: str, outcome: str,
+                              applied: list, failed: list) -> None:
+    """The shipped ``role.lifecycle_changed`` advisory event verbatim
+    (services/role_lifecycle_service.py — best-effort, shares its
+    mutation_id with the audit companion; goldens/role/sweep_createrole
+    pins the payload)."""
+    if _bus is None:
+        return
+    try:
+        await _bus.emit("role.lifecycle_changed", **{
+            "mutation_id": mutation_id, "guild_id": guild_id,
+            "operation": operation, "outcome": outcome,
+            "applied": applied, "failed": failed,
+            "occurred_at": _utcnow().isoformat()})
+    except Exception:  # noqa: BLE001 — advisory event is best-effort (shipped)
+        logger.warning("role: lifecycle event emit failed", exc_info=True)
+
+
 def reset_role_ports_for_tests() -> None:
-    global _actions, _guild_source, _bus
+    global _actions, _guild_source, _bus, _provisioning, _message_ops
     _actions = _NoActions()
     _guild_source = None
     _bus = None
+    _provisioning = _NoProvisioning()
+    _message_ops = _NoMessageOps()
 
 
 # --- exemptions + stacking (role_exemption_service.py) --------------------------------
@@ -328,6 +424,70 @@ async def sweep_expired(now: datetime | None = None) -> int:
         await engine.run(EXPIRE_TEMP_ROLE, ctx)
         resolved += 1
     return resolved
+
+
+# --- the manual role check (!assignroles — role_cog._assign_roles) --------------------------
+
+def format_role_check_result(result) -> str:
+    """role_cog.py ``_format_role_check_result`` verbatim (the happy path
+    is golden-pinned: goldens/role/sweep_assignroles)."""
+    from sb.domain.role.automation import summarize_failures
+
+    if not result.failed:
+        return (f"✅ Role check complete — {result.succeeded} "
+                "assignment(s) made.")
+    return (
+        f"⚠️ Role check complete — {result.succeeded} made, "
+        f"{result.failed} failed ({summarize_failures(result)}).\n"
+        "Open **!roles → 🔧 Diagnostics** to see what's blocking role "
+        "automation."
+    )
+
+
+async def run_role_check(guild_id: int):
+    """The shipped manual reconciliation core (role_cog._assign_roles):
+    time thresholds + stack flag + exemptions → the ONE planner → apply
+    through the actions port. Returns the ApplyResult, or None without a
+    guild view (honest wait — the caller reports it)."""
+    from sb.domain.role.automation import (
+        RoleThreshold,
+        compute_assignments,
+    )
+    from sb.domain.role.automation import apply as _apply
+
+    guild = await guild_view(guild_id)
+    if guild is None:
+        return None
+    rows = await store.get_thresholds(guild_id)
+    thresholds = tuple(
+        RoleThreshold(r["role_name"], int(r["days_required"] or 0),
+                      r.get("role_id"))
+        for r in rows if r["days_required"])
+    exempt = await get_exempt_role_ids(guild_id)
+    keep = await time_roles_stack(guild_id)
+    plans = compute_assignments(guild, thresholds,
+                                exempt_role_ids=exempt.time,
+                                keep_previous_tier=keep)
+    return await _apply(guild, plans, actor_type="admin")
+
+
+def find_role(guild, token: str):
+    """Resolve one command token to a cached guild role — mention/bare-id
+    first, then the normalized-name walk (the discord.py RoleConverter
+    order the shipped commands rode)."""
+    raw = str(token).strip()
+    stripped = raw.strip("<@&!>")
+    roles = tuple(getattr(guild, "roles", ()) or ())
+    if stripped.isdigit():
+        rid = int(stripped)
+        for role in roles:
+            if int(getattr(role, "id", 0) or 0) == rid:
+                return role
+    lowered = raw.lower()
+    for role in roles:
+        if str(getattr(role, "name", "")).lower() == lowered:
+            return role
+    return None
 
 
 # --- THE BAND-4 WAITING-PORT FILL ----------------------------------------------------------

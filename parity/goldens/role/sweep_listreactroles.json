@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.reactroles",
+ "case_id": "sweep.listreactroles",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -23,22 +23,12 @@
     }
    ]
   },
-  "reaction_roles": {
-   "added": [
-    {
-     "emoji": "test",
-     "guild_id": "<guild>",
-     "message_id": 3,
-     "role_id": "<@&admin>"
-    }
-   ]
-  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1782576373,
+     "last_xp": 1833277923,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -55,27 +45,12 @@
    "calls": [
     {
      "args": {
-      "channel_id": "<#general>",
-      "message_id": 3
-     },
-     "method": "get_message"
-    },
-    {
-     "args": {
-      "channel_id": "<#general>",
-      "emoji": "test",
-      "message_id": 3
-     },
-     "method": "add_reaction"
-    },
-    {
-     "args": {
       "channel_id": "<#general>"
      },
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "✅ Reaction role set: reacting with test assigns **Admin**.",
+      "content": "No reaction roles configured.",
       "tts": false
      }
     },
@@ -98,22 +73,6 @@
    ],
    "events": [
     {
-     "event": "audit.action_recorded",
-     "payload": {
-      "actor_id": "<@admin>",
-      "actor_type": "admin",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "set_reaction_role",
-      "new_value": "message=3,emoji=test",
-      "occurred_at": "<ts>",
-      "prev_value": null,
-      "scope": "guild",
-      "subsystem": "role",
-      "target": "role:<@&admin>"
-     }
-    },
-    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -126,11 +85,11 @@
     }
    ],
    "input": {
-    "content": "!reactroles 3 test <@&800000000000000201>",
+    "content": "!listreactroles",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "role"
 }

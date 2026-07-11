@@ -62,9 +62,11 @@ from sb.spec.refs import (
 
 __all__ = [
     "NO_ARG_MODES",
+    "RULES_CARD_PANEL_ID",
     "counting_hub_spec",
     "ensure_panel_refs",
     "install_counting_panels",
+    "rules_card_spec",
 ]
 
 # shipped hub_panel._ENABLE_MODES verbatim (== _channel_manager.NO_ARG_MODES;
@@ -350,17 +352,102 @@ def _hub_factory() -> PanelSpec:
     return counting_hub_spec()
 
 
+RULES_CARD_PANEL_ID = "counting.rules_card"
+
+#: the shipped rules embed fields VERBATIM (cogs/counting_cog.py
+#: `count_rules` — five non-inline add_field rows;
+#: goldens/counting/sweep_count_rules pins every byte).
+_RULES_FIELDS: tuple[tuple[str, str], ...] = (
+    ("1. Follow the Sequence",
+     "Provide the correct next number based on the game mode."),
+    ("2. Taking Turns",
+     "If enabled, users must take turns before counting again."),
+    ("3. Mode-Specific Rules",
+     "Each counting mode has unique rules (e.g., Fibonacci sequence, "
+     "squares)."),
+    ("4. Respect the Channel",
+     "Use only the designated counting channel for the game."),
+    ("5. Have Fun!",
+     "Enjoy the game and encourage others to participate."),
+)
+
+
+def rules_card_spec() -> PanelSpec:
+    """The shipped `!count_rules` rules embed (cogs/counting_cog.py — a
+    plain ``ctx.send(embed=...)``, never anchored: component-less
+    session-lifecycle, the welcome/karma.card recipe;
+    goldens/counting/sweep_count_rules pins the bytes)."""
+    return PanelSpec(
+        panel_id=RULES_CARD_PANEL_ID,
+        subsystem="counting",
+        title="Counting Game Rules",
+        audience=Audience.INVOKER,
+        # discord.Color.green() — the shipped accent
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.NONE),
+        body=(),
+        actions=(),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("counting.render_rules_card"),
+        justification=(
+            "the shipped rules embed carries FIVE non-inline add_field "
+            "rows and no description (cogs/counting_cog.py count_rules' "
+            "literal add_field list — goldens/counting/sweep_count_rules "
+            "pins every byte); the card declares no components and the "
+            "renderer only composes the embed (the welcome status-card "
+            "recipe)."),
+        session_lifecycle=True,
+    )
+
+
+async def _render_rules_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the shipped static embed verbatim (see
+    _RULES_FIELDS)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    embed = RenderedEmbed(
+        title="Counting Game Rules",
+        description="",
+        fields=_RULES_FIELDS,
+        footer="",
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
+@panel(RULES_CARD_PANEL_ID)
+def _rules_factory() -> PanelSpec:
+    return rules_card_spec()
+
+
 _register_handlers()
 
 
-def install_counting_panels() -> PanelSpec:
-    spec = counting_hub_spec()
-    try:
-        return register_panel(spec)
-    except ValueError as exc:
-        if "already registered" in str(exc) or "duplicate" in str(exc):
-            return spec
-        raise
+def _register_rules_render() -> None:
+    from sb.spec.refs import handler as _handler
+
+    if not is_registered(HandlerRef("counting.render_rules_card")):
+        _handler("counting.render_rules_card")(_render_rules_card)
+
+
+_register_rules_render()
+
+
+def install_counting_panels() -> tuple[PanelSpec, ...]:
+    out = []
+    for spec in (counting_hub_spec(), rules_card_spec()):
+        try:
+            out.append(register_panel(spec))
+        except ValueError as exc:
+            if "already registered" in str(exc) or "duplicate" in str(exc):
+                out.append(spec)
+            else:
+                raise
+    return tuple(out)
 
 
 def ensure_panel_refs() -> None:
@@ -368,4 +455,7 @@ def ensure_panel_refs() -> None:
 
     if not is_registered(_P("counting.hub")):
         _panel("counting.hub")(_hub_factory)
+    if not is_registered(_P(RULES_CARD_PANEL_ID)):
+        _panel(RULES_CARD_PANEL_ID)(_rules_factory)
+    _register_rules_render()
     _register_handlers()

@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.roles",
+ "case_id": "sweep.rolesettings",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -43,7 +43,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1869592923,
+     "last_xp": 2000459417,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -221,11 +221,11 @@
     }
    ],
    "input": {
-    "content": "!roles",
+    "content": "!rolesettings",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "role"
 }

@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.setrole",
+ "case_id": "sweep.unsetrole",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -23,25 +23,12 @@
     }
    ]
   },
-  "role_thresholds": {
-   "added": [
-    {
-     "days_required": 3,
-     "display_name": "test",
-     "guild_id": "<guild>",
-     "level_required": null,
-     "role_id": null,
-     "role_name": "test",
-     "xp_auto_assign": false
-    }
-   ]
-  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1767661301,
+     "last_xp": 2056672496,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -63,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "✅ Role **test** will be assigned after **3** day(s).",
+      "content": "✅ Removed **test** from time-based assignment.",
       "tts": false
      }
     },
@@ -84,8 +71,8 @@
       "actor_type": "user",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "set_time_threshold",
-      "new_value": "3d",
+      "mutation_type": "clear_time_threshold",
+      "new_value": null,
       "occurred_at": "<ts>",
       "prev_value": null,
       "scope": "guild",
@@ -106,11 +93,11 @@
     }
    ],
    "input": {
-    "content": "!setrole 3 test",
+    "content": "!unsetrole test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "role"
 }

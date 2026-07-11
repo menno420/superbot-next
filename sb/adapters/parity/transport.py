@@ -571,6 +571,64 @@ class ParityAvatarFetcher:
         return _CDN_PNG
 
 
+class ParityRoleProvisioning:
+    """The RoleProvisioning capture twin — the shipped !createrole
+    ``guild.create_role`` POST, recorded in the goldens' wire verb
+    (fake_http captured discord.py's HTTP layer: ``create_role`` with the
+    guild route args and the role-params body —
+    goldens/role/sweep_createrole pins the shape verbatim, including the
+    2.x ``colors.primary_color`` body key and the stringified
+    ``permissions``). ``delete_role`` records an honesty gap — no golden
+    reaches a feasible delete (the capture guild's only named role sits
+    at the bot's own top position), so inventing a wire shape would be
+    fiction (the dm_member precedent)."""
+
+    def __init__(self, transport: ParityTransport) -> None:
+        self._transport = transport
+
+    async def create_guild_role(self, guild_id: int, *, name: str, color: int,
+                          reason: str | None) -> int:
+        self._transport.record(
+            "create_role",
+            {"guild_id": int(guild_id), "reason": reason},
+            {"colors": {"primary_color": int(color)}, "hoist": False,
+             "mentionable": False, "name": str(name), "permissions": "0"})
+        # fake_http answered the POST with a role payload whose id came
+        # off the SAME allocator as message ids (the golden's created
+        # role normalizes as `<msg:2>` — sweep_createrole's audit target
+        # and lifecycle `applied` entry both carry it).
+        return int(self._transport._ids.allocate())  # noqa: SLF001 — same module family
+
+    async def delete_role(self, guild_id: int, role_id: int, *,
+                          reason: str | None) -> None:
+        del guild_id, reason
+        self._transport.gap(f"delete_role:{role_id}")
+
+
+class ParityRoleMessageOps:
+    """The role MessageOps capture twin — the shipped !reactroles
+    ``ctx.fetch_message`` (fake_http's ``get_message``, answered with a
+    canned message payload discord.py accepted — the capture bind
+    proceeded) and ``message.add_reaction`` (the same wire shape the
+    presenter's self-reaction recorder uses);
+    goldens/role/sweep_reactroles pins both calls."""
+
+    def __init__(self, transport: ParityTransport) -> None:
+        self._transport = transport
+
+    async def fetch_message(self, channel_id: int, message_id: int) -> None:
+        self._transport.record(
+            "get_message",
+            {"channel_id": int(channel_id), "message_id": int(message_id)})
+
+    async def add_reaction(self, channel_id: int, message_id: int,
+                           emoji: str) -> None:
+        self._transport.record(
+            "add_reaction",
+            {"channel_id": int(channel_id), "emoji": str(emoji),
+             "message_id": int(message_id)})
+
+
 class CaptureMemberEditParseError(RuntimeError):
     """The capture world's member-edit artifact (see
     ParityModerationActions.timeout_member) — a real exception class so
