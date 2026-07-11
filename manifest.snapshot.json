@@ -5090,6 +5090,11 @@
           "value": "welcome.hub"
         },
         {
+          "source": "sb/manifest/welcome.py",
+          "subsystem": "welcome",
+          "value": "welcome.status"
+        },
+        {
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "xp.hub"
@@ -7344,6 +7349,9 @@
       "handler:ux_lab.selects_wing": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:welcome.status_render": {
+        "module": "sb.domain.welcome.panels"
+      },
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
       },
@@ -7790,6 +7798,9 @@
       },
       "panel:welcome.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:welcome.status": {
+        "module": "sb.domain.welcome.panels"
       },
       "panel:xp.hub": {
         "module": "sb.domain.xp.panels"
@@ -9265,7 +9276,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:f49659a6d25818bd2f726b09f2c9c0c1f374718604fccdb41be288df56d8a7eb",
+  "stable_hash": "sha256:1bc702d4c049f59865ce1c413bbda9f42040261c4388900b3525db52185dec68",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -36629,10 +36640,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "panel:welcome.hub"
+            "$ref": "panel:welcome.status"
           },
           "slash_common": false,
-          "summary": "Open the welcome menu.",
+          "summary": "Show the current welcome (greeting) policy for this server.",
           "usage": "",
           "usage_weight": 1.0
         }
@@ -36684,6 +36695,48 @@
           "subsystem": "welcome",
           "timeout_s": 180,
           "title": "Welcome",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped status embed is state-parameterized end to end (the flag lines read the effective policy, the channel/entry-role lines render live binding mentions, the message-preview fields render the stored templates through the shipped variant splitter with the live guild name and member count, and the conditional leave/DM/auto-delete surfaces appear only when their toggles are set) — grammar TextBlocks are static. The card declares no components; the renderer only composes the embed (goldens/welcome/sweep_welcome pins the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "welcome.status",
+          "renderer_override": {
+            "$ref": "handler:welcome.status_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "welcome",
+          "timeout_s": 180,
+          "title": "👋 Welcome",
           "usage_weight": 1.0
         }
       ],

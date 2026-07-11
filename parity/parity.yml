@@ -94,7 +94,7 @@ subsystems:
   utility: ported
   ux_lab: ported
   uxlab: ported
-  welcome: pending
+  welcome: ported
   xp: ported
 
 # A-16 clause 3: kernel/governance-owned surfaces (owned by no port band's
@@ -453,4 +453,5 @@ depth:
     utility: {events: 1, tables: 2, settings: 0}
     ux_lab: {events: 1, tables: 2, settings: 0}
     uxlab: {events: 0, tables: 0, settings: 0}
+    welcome: {events: 1, tables: 2, settings: 0}
     xp: {events: 1, tables: 2, settings: 0}
