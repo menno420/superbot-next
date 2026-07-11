@@ -1,18 +1,19 @@
-"""ADMIN subsystem manifest (band 2) — operator/process surfaces on kernel
-truth sources. NOT ported (deploy-ops, no compiled-architecture analog —
-D-0030): cog / loadall / unloadall / syncslash."""
+"""ADMIN subsystem manifest (band 2 + the parity flip) — the shipped
+``_AdminPanelView`` Server & Admin hub (sb/domain/admin/panels.py —
+goldens/admin/ pins every wire byte on both surfaces) over the band-2
+operator reads (manifest registry, log levels, K5 lifecycle). NOT ported
+(deploy-ops, no compiled-architecture analog — D-0030): cog / loadall /
+unloadall / syncslash (all capture-skipped in _sweep_skips.json)."""
 
 from __future__ import annotations
 
 from sb.domain.admin import handlers as _handlers
-from sb.domain.operator_spine import ensure_hub, hub_spec
+from sb.domain.admin import panels as _panels
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
 
-_TITLE, _BLURB = "Admin", ("Operator surfaces over the kernel truth sources "
-                           "(manifest registry, lifecycle, log levels).")
-ensure_hub("admin", _TITLE, _BLURB)
+_TITLE = "Admin"
 
 
 def _cmd(name, route, summary, *, kind=CommandKind.PREFIX, aliases=()):
@@ -39,7 +40,7 @@ MANIFEST = SubsystemManifest(
         _cmd("restart", HandlerRef("admin.restart"),
              "Request a drain + restart (K5 lifecycle)."),
     ),
-    panels=(hub_spec("admin", _TITLE, _BLURB),),
+    panels=(_panels.admin_hub_spec(),),
     settings=(),
     stores=(),
     events=(),
@@ -48,7 +49,7 @@ MANIFEST = SubsystemManifest(
 
 
 def _ensure_refs() -> None:
-    ensure_hub("admin", _TITLE, _BLURB)
+    _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
 
 
