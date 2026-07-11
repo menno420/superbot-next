@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from sb.domain.operator_spine import ensure_hub, hub_spec
 from sb.domain.welcome import DEFAULT_JOIN_MESSAGE, DEFAULT_LEAVE_MESSAGE
+from sb.domain.welcome import panels as _panels
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import PanelRef
@@ -69,10 +70,12 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=(
         CommandSpec(name="welcome", kind=CommandKind.PREFIX,
-                    route=PanelRef("welcome.hub"),
-                    summary="Open the welcome menu.", capability="welcome"),
+                    route=PanelRef("welcome.status"),
+                    summary="Show the current welcome (greeting) policy "
+                            "for this server.",
+                    capability="welcome"),
     ),
-    panels=(hub_spec("welcome", _TITLE, _BLURB),),
+    panels=(hub_spec("welcome", _TITLE, _BLURB), _panels.status_spec()),
     settings=_SETTINGS,
     stores=(), events=(), capabilities=(),
 )
@@ -80,6 +83,7 @@ MANIFEST = SubsystemManifest(
 
 def _ensure_refs() -> None:
     ensure_hub("welcome", _TITLE, _BLURB)
+    _panels.ensure_panel_refs()
 
 
 ENSURE_REFS = _ensure_refs
