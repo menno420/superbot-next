@@ -39,6 +39,7 @@ from parity.harness.fake_http import drain_dispatch_tasks
 from parity.harness.world import DEFAULT_PERSONAS, World
 
 from sb.adapters.parity.transport import (
+    ParityAvatarFetcher,
     ParityChannelEmitter,
     ParityHistoryReader,
     ParityModerationActions,
@@ -336,6 +337,14 @@ class Harness:
         from sb.domain.cleanup.service import install_history_reader
 
         install_history_reader(ParityHistoryReader(self.http))
+        # the rank-card avatar read port — the goldens' `get_from_cdn`
+        # wire verb (goldens/xp/xp_chat_award.json, sweep_xpmenu.json);
+        # without it the card renders avatar-less (the shipped
+        # any-failure→None fallback) and the CDN read never records:
+        # a harness gap, not bot behavior.
+        from sb.domain.xp.service import install_avatar_fetcher
+
+        install_avatar_fetcher(ParityAvatarFetcher(self.http))
         # the utility read ports: the capture-world guild directory + the
         # no-heartbeat gateway probe (the old harness's bot.latency was nan
         # — goldens/utility/sweep_ping pins "nan ms").
@@ -513,6 +522,7 @@ class Harness:
             from sb.domain.cleanup.service import reset_cleanup_ports_for_tests
             from sb.domain.moderation.service import reset_moderation_ports_for_tests
             from sb.domain.utility.service import reset_utility_ports_for_tests
+            from sb.domain.xp.service import reset_xp_ports_for_tests
             from sb.kernel import lifecycle
             from sb.kernel.interaction import cooldown as cooldown_mod
             from sb.kernel.interaction.adapters import reset_adapter_ports_for_tests
@@ -527,6 +537,7 @@ class Harness:
             reset_moderation_ports_for_tests()
             reset_utility_ports_for_tests()
             reset_cleanup_ports_for_tests()
+            reset_xp_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
         except Exception:  # noqa: BLE001 — close is best-effort

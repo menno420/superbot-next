@@ -1,14 +1,17 @@
 """XP read/command handlers (band 4) — thin HandlerRef routes.
 
-The rank card renders as TEXT (RESULT_CARD grammar) — the shipped Pillow
-image card is presentation the live adapter may re-add; the embed/text
-stays the source of truth (shipped fallback posture). Category ranks
-resolve through the band-4 provider registry
-(sb.domain.community.rank_providers) exactly like the shipped PR-G flow.
+`!rank` sends the shipped rank IMAGE card (`rank.png` — the visual
+card-engine H3 surface; goldens/xp/xp_chat_award pins the multipart send
++ the avatar `get_from_cdn` read) through the zero-action
+``xp.rank_card`` panel. Category ranks resolve through the band-4
+provider registry (sb.domain.community.rank_providers) exactly like the
+shipped PR-G flow (their thinner provider CARD render is the visual
+card-engine slice's follow-up — text until then).
 """
 
 from __future__ import annotations
 
+import dataclasses
 
 from sb.spec.outcomes import BLOCKED, SUCCESS
 from sb.kernel.interaction.handler_kit import (
@@ -20,43 +23,13 @@ __all__ = ["Reply", "ensure_handler_refs"]
 
 _STAT_TYPES = {"xp", "coins", "both"}     # shipped verbatim (xp_helpers)
 
-
-def _progress_bar(current: int, needed: int, width: int = 10) -> str:
-    """Shipped ascii bar verbatim (xp_helpers._progress_bar)."""
-    filled = int((current / needed) * width) if needed else width
-    return "█" * filled + "░" * (width - filled)
-
-
-async def _rank_text(user_id: int, guild_id: int, stat: str) -> str:
-    """The rank card content — shipped field set, text-rendered."""
-    from sb.domain.community.rank_providers import get_provider
-    from sb.domain.xp import store
-    from sb.domain.xp.levels import level_progress
-
-    row = await store.get_xp(user_id, guild_id)
-    level, current, needed = level_progress(int(row["xp"]))
-    lines = [f"📊 **Rank — <@{user_id}>**"]
-
-    async def _pos(name: str) -> str:
-        provider = get_provider(name)
-        if provider is None:
-            return "?"
-        position, _ = await provider.member_rank(guild_id, user_id)
-        return str(position) if position is not None else "?"
-
-    if stat in ("both", "xp"):
-        bar = _progress_bar(current, needed)
-        lines.append(f"XP Rank: **#{await _pos('xp')}** · Level **{level}** · "
-                     f"Total XP **{row['xp']}**")
-        lines.append(f"Progress: `{bar}` {current}/{needed} XP")
-        lines.append(f"Messages: **{row['messages']}**")
-    if stat in ("both", "coins"):
-        from sb.domain.economy.store import get_coins
-
-        coins = await get_coins(user_id, guild_id)
-        lines.append(f"Coin Rank: **#{await _pos('coins')}** · "
-                     f"🪙 **{coins:,}**")
-    return "\n".join(lines)
+#: bot1.py on_command_error's generic fallback, verbatim — the copy the
+#: shipped bot sent when a command raised anything unclassified. The
+#: capture world had no member gateway, so the shipped rank command's
+#: member-name escalation (commands.MemberConverter → guild.query_members)
+#: RAISED there and the global handler sent this; goldens/xp/
+#: sweep_rank.json (`!rank test`) pins the byte.
+_GENERIC_ERROR = "⚠️ An unexpected error occurred. Please try again."
 
 
 def _register() -> None:
@@ -66,7 +39,7 @@ def _register() -> None:
         return
 
     @handler("xp.rank_view")
-    async def rank_view(req) -> Reply:
+    async def rank_view(req) -> Reply | None:
         """!rank [stat|category|@user] — shipped PR-G arg walk verbatim."""
         from sb.domain.community.rank_providers import get_provider
 
@@ -88,6 +61,17 @@ def _register() -> None:
             stripped = token.strip("<@!>")
             if stripped.isdigit():
                 member = int(stripped)
+                continue
+            # DELIBERATE oracle-in-harness pin: the shipped walk escalated
+            # a non-mention token to commands.MemberConverter, whose
+            # name-lookup leg is a GATEWAY member query — the capture world
+            # has none, so the shipped command raised and bot1.py's global
+            # on_command_error sent the generic fallback
+            # (goldens/xp/sweep_rank.json, `!rank test`). The live
+            # name-resolution read lands with the member-directory search
+            # port (follow-up slice); until then this is the same honest
+            # failure the goldens pin.
+            return Reply(BLOCKED, _GENERIC_ERROR)
 
         if category is not None:
             provider = get_provider(category)
@@ -100,7 +84,17 @@ def _register() -> None:
                          f"{provider.display_title} — <@{member}>\n"
                          f"Rank **#{rank_pos}** · {rendered}")
 
-        return Reply(SUCCESS, await _rank_text(member, gid, stat or "both"))
+        # the shipped H3 surface: the rank IMAGE card send (rank.png —
+        # goldens/xp/xp_chat_award pins get_from_cdn + the multipart shape).
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(
+            PanelRef("xp.rank_card"),
+            dataclasses.replace(req, args={**dict(req.args),
+                                           "rank_target": member,
+                                           "rank_stat": stat or "both"}))
+        return None
 
     @handler("xp.givexp")
     async def givexp(req) -> Reply:

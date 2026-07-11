@@ -4386,6 +4386,11 @@
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "xp.hub"
+        },
+        {
+          "source": "sb/manifest/xp.py",
+          "subsystem": "xp",
+          "value": "xp.rank_card"
         }
       ],
       "setting_key": [
@@ -6348,8 +6353,14 @@
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
       },
+      "handler:xp.rank_card_render": {
+        "module": "sb.domain.xp.panels"
+      },
       "handler:xp.rank_view": {
         "module": "sb.domain.xp.handlers"
+      },
+      "handler:xp.render_hub": {
+        "module": "sb.domain.xp.panels"
       },
       "handler:xp.resetxp": {
         "module": "sb.domain.xp.handlers"
@@ -6727,6 +6738,9 @@
         "module": "sb.domain.operator_spine"
       },
       "panel:xp.hub": {
+        "module": "sb.domain.xp.panels"
+      },
+      "panel:xp.rank_card": {
         "module": "sb.domain.xp.panels"
       },
       "provider:admin.hub_settings": {
@@ -8173,7 +8187,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:0737e0f67e607d4a3a7aa0529d6128aa129824ae46274d027ae491d37adecf63",
+  "stable_hash": "sha256:cae98a447c37fcc44401f5be87db4bd02820928ef63893d8b57e2aab8318175b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -32501,7 +32515,7 @@
             "style_token": "",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub send carries the invoker's rank image card as the message attachment `rank.png` (views/xp/main_panel.py build_response — the visual card-engine H3 surface, oracle PR #1413) — attachments are outside the grammar's block vocabulary; goldens/xp/sweep_xpmenu.json pins the multipart send shape ({\"_files\": [\"rank.png\"]}) and the preceding avatar `get_from_cdn` read. The override delegates to the grammar renderer and adds ONLY the attachment (avatar fetch + placeholder card bytes — rank_card.py); embed, fields, actions and layout stay declared.",
           "layout": {
             "pages": [
               {
@@ -32528,12 +32542,52 @@
             "show_rules": false
           },
           "panel_id": "xp.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:xp.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "xp",
           "timeout_s": 180,
           "title": "🏆 XP Panel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!rank` reply is the rank image card sent as the message attachment `rank.png` (utils/rank_render.py over services/xp_helpers.build_rank_response) — attachments are outside the grammar's block vocabulary; goldens/xp/xp_chat_award.json pins the multipart send shape ({\"_files\": [\"rank.png\"]}) and the preceding avatar `get_from_cdn` read. Zero components; the renderer composes only the attachment (the utility.profile_card precedent).",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "xp.rank_card",
+          "renderer_override": {
+            "$ref": "handler:xp.rank_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "xp",
+          "timeout_s": 180,
+          "title": "",
           "usage_weight": 1.0
         }
       ],

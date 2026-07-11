@@ -29,7 +29,9 @@ import random
 from typing import Awaitable, Callable
 
 __all__ = [
+    "fetch_avatar_png",
     "handle_chat_message",
+    "install_avatar_fetcher",
     "install_economy_ports",
     "install_level_role_granter",
     "install_levelup_history_scanner",
@@ -68,6 +70,13 @@ async def xp_config(guild_id: int) -> tuple[int, int, int]:
 ParticipationGate = Callable[[int, int], Awaitable[bool]]     # (user, guild) -> allow
 RoleGranter = Callable[..., Awaitable[None]]                  # (guild_id, user_id, new_level)
 HistoryScanner = Callable[..., Awaitable[list]]               # xpimport channel scan
+#: (user_id, guild_id) -> avatar PNG bytes, or None. The shipped
+#: services/xp_helpers.fetch_avatar_png — "the one seam where the
+#: otherwise-pure card pipeline touches the network" (the CDN asset read
+#: discord.py performed as ``get_from_cdn`` — the goldens' wire verb).
+#: Shipped posture: ANY failure → None → the card degrades to initials,
+#: so an uninstalled port is the honest None fallback, never a raise.
+AvatarFetcher = Callable[[int, int], Awaitable["bytes | None"]]
 
 
 async def _default_participation_gate(user_id: int, guild_id: int) -> bool:
@@ -87,6 +96,7 @@ async def _default_role_granter(guild_id: int, user_id: int,
 _participation_gate: ParticipationGate = _default_participation_gate
 _role_granter: RoleGranter = _default_role_granter
 _history_scanner: HistoryScanner | None = None
+_avatar_fetcher: AvatarFetcher | None = None
 # None => the chat draw falls back to the MODULE-GLOBAL random — the
 # instance the parity harness seeds per case (`random.seed(case.seed)`),
 # so a fresh replay reproduces the captured amount (the economy-daily
@@ -116,6 +126,29 @@ def active_history_scanner() -> HistoryScanner | None:
     return _history_scanner
 
 
+def install_avatar_fetcher(fetcher: AvatarFetcher) -> None:
+    """The rank-card avatar seam (shipped xp_helpers.fetch_avatar_png) —
+    the composition root installs the real CDN read (discord adapter);
+    the parity harness installs the capture twin (transport.py
+    ``ParityAvatarFetcher`` — records the goldens' ``get_from_cdn``)."""
+    global _avatar_fetcher
+    _avatar_fetcher = fetcher
+
+
+async def fetch_avatar_png(user_id: int, guild_id: int) -> bytes | None:
+    """The member's avatar as PNG bytes for the rank card, or ``None``.
+
+    Shipped semantics verbatim: any failure — including no installed
+    fetcher — yields ``None`` and the card renders its initials fallback
+    (never a refusal; the avatar is presentation, not data)."""
+    if _avatar_fetcher is None:
+        return None
+    try:
+        return await _avatar_fetcher(int(user_id), int(guild_id))
+    except Exception:  # noqa: BLE001 — the shipped any-failure→None posture
+        return None
+
+
 def set_rng_for_tests(rng: random.Random | None) -> None:
     global _rng
     _rng = rng
@@ -123,9 +156,11 @@ def set_rng_for_tests(rng: random.Random | None) -> None:
 
 def reset_xp_ports_for_tests() -> None:
     global _participation_gate, _role_granter, _history_scanner, _rng
+    global _avatar_fetcher
     _participation_gate = _default_participation_gate
     _role_granter = _default_role_granter
     _history_scanner = None
+    _avatar_fetcher = None
     _rng = None
 
 
