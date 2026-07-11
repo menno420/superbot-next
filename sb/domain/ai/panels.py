@@ -78,7 +78,7 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
-from sb.spec.outcomes import DeferMode
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.panels import (
     ActionStyle,
     Audience,
@@ -660,6 +660,10 @@ def ai_policy_scope_edit_spec() -> PanelSpec:
                 action_id="edit_scope_policy", label="Edit…",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
                 defer_mode=DeferMode.MODAL, modal=_POLICY_MODE_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the
+                # submit re-entry (PanelActionSpec.reply_visibility growth,
+                # D-0073 — the forms' oracle twins all followed up ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 handler=HandlerRef("ai.policy_mode_submit"),
                 result_render=ResultRender.RESULT_CARD),
         ),
@@ -684,6 +688,10 @@ def ai_policy_role_edit_spec() -> PanelSpec:
                 action_id="edit_role_policy", label="Edit…",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
                 defer_mode=DeferMode.MODAL, modal=_POLICY_ROLE_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the
+                # submit re-entry (PanelActionSpec.reply_visibility growth,
+                # D-0073 — the forms' oracle twins all followed up ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 handler=HandlerRef("ai.policy_role_submit"),
                 result_render=ResultRender.RESULT_CARD),
         ),
@@ -1165,6 +1173,10 @@ def ai_settings_edit_presets_spec() -> PanelSpec:
                 action_id="override_btn", label="Override…",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
                 defer_mode=DeferMode.MODAL, modal=_NUMBER_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the
+                # submit re-entry (PanelActionSpec.reply_visibility growth,
+                # D-0073 — the forms' oracle twins all followed up ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 handler=HandlerRef("ai.settings_number_submit"),
                 result_render=ResultRender.RESULT_CARD),
         ),
@@ -1232,6 +1244,10 @@ def ai_settings_edit_text_spec() -> PanelSpec:
                 action_id="edit_value", label="Edit…",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
                 defer_mode=DeferMode.MODAL, modal=_TEXT_MODAL,
+                # the shipped safe_defer(..., ephemeral=True) flag on the
+                # submit re-entry (PanelActionSpec.reply_visibility growth,
+                # D-0073 — the forms' oracle twins all followed up ephemeral).
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 handler=HandlerRef("ai.settings_text_submit"),
                 result_render=ResultRender.RESULT_CARD),
         ),

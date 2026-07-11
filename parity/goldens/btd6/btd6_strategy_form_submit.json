@@ -1,0 +1,83 @@
+{
+ "case_id": "btd6.strategy_form_submit",
+ "db_delta": {
+  "btd6_strategies": {
+   "added": [
+    {
+     "approval_model": null,
+     "approval_provider": null,
+     "approval_status": "pending",
+     "approved_by": null,
+     "approved_by_id": null,
+     "common_failures": [],
+     "created_at": "<ts>",
+     "current_guild_id": "<guild>",
+     "difficulty": null,
+     "hero": "Geraldo",
+     "id": 1,
+     "map": "Bloody Puddles",
+     "mode": "CHIMPS",
+     "origin_guild_id": "<guild>",
+     "origin_metadata": {},
+     "round_range": null,
+     "source_links": [],
+     "steps": [],
+     "submitted_by": "<@member>",
+     "submitter_display_snapshot": "MemberActor",
+     "submitter_identity_state": "present",
+     "summary": "Sniper spam early, sell into 4-2-0 Super Monkey before round 80.",
+     "title": "CHIMPS Bloody Puddles 4-2-0 Super Monkey",
+     "towers": [],
+     "updated_at": "<ts>",
+     "upgrade_paths": [],
+     "version": 1,
+     "visibility": "guild"
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "curated modal-submit case (D-0073 corpus-schema growth): the shipped StrategySubmitModal submit with every field (oracle views/btd6/strategy_submit.py, reconstructed via search_code @8214200a — corpus sha 7f7628e1 caveat ledgered in D-0073)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "✅ Submitted as strategy `#1` (`submitted`). Staff can review with `!btd6 pending`.",
+      "flags": 64
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "btd6.strategy_form",
+    "fields": {
+     "hero": "Geraldo",
+     "map": "Bloody Puddles",
+     "mode": "CHIMPS",
+     "summary": "Sniper spam early, sell into 4-2-0 Super Monkey before round 80.",
+     "title": "CHIMPS Bloody Puddles 4-2-0 Super Monkey"
+    },
+    "kind": "modal",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "btd6"
+}

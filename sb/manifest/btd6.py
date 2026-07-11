@@ -310,7 +310,7 @@ MANIFEST = SubsystemManifest(
              "Seed the data store from files (successor port)."),
     ),
     panels=(_panels.btd6_hub_spec(), _panels.card_spec(),
-            _panels.ctteam_spec()),
+            _panels.ctteam_spec(), _panels.strategy_submit_spec()),
     settings=_SETTINGS,
     stores=(BTD6_STRATEGIES_STORE,),
     events=(),

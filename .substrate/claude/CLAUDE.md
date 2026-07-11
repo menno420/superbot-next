@@ -18,11 +18,14 @@ superbot-next is built in Python.
    boot, untracked by design — read it before re-deriving history from
    `git log`/`git show`; never commit or edit it.
 3. `docs/current-state.md` — what is true right now.
-4. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).
-   Never declare a wall or a missing credential without its discovery rule:
-   check the file → check the env → attempt once + capture the exact error →
-   append the finding same session.
-5. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.
+
+That is the whole boot set. Everything else is routed, **not front-loaded**
+(reading every planted doc up front buys ceremony, not context — measured):
+open `docs/AGENT_ORIENTATION.md` when a task needs its reading route, and
+`docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring
+any wall or missing credential** — its discovery rule: check the file →
+check the env → attempt once + capture the exact error → append the finding
+same session.
 
 ## Kit machinery — search hygiene
 

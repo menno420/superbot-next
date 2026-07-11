@@ -152,73 +152,254 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "behavior_channel",
+       "behavior_category"
+      ],
+      [
+       "behavior_preview",
+       "behavior_matrix"
+      ],
+      [
+       "behavior_advanced"
+      ]
+     ]
+    }
+   ]
   },
   "ai:ai.behavior_chooser:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "behavior_channel",
+     "behavior_category"
+    ],
+    [
+     "behavior_preview",
+     "behavior_matrix"
+    ],
+    [
+     "behavior_advanced"
+    ]
+   ]
   },
   "ai:ai.behavior_chooser:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "behavior_channel",
+        "behavior_category"
+       ],
+       [
+        "behavior_preview",
+        "behavior_matrix"
+       ],
+       [
+        "behavior_advanced"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "ai:ai.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "ai_refresh",
+       "ai_diagnostics",
+       "ai_providers",
+       "ai_routing"
+      ],
+      [
+       "ai_settings",
+       "ai_policy",
+       "ai_behavior",
+       "ai_tools"
+      ]
+     ]
+    }
+   ]
   },
   "ai:ai.hub:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "ai_refresh",
+     "ai_diagnostics",
+     "ai_providers",
+     "ai_routing"
+    ],
+    [
+     "ai_settings",
+     "ai_policy",
+     "ai_behavior",
+     "ai_tools"
+    ]
+   ]
   },
   "ai:ai.hub:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "ai_refresh",
+        "ai_diagnostics",
+        "ai_providers",
+        "ai_routing"
+       ],
+       [
+        "ai_settings",
+        "ai_policy",
+        "ai_behavior",
+        "ai_tools"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "ai:ai.policy_chooser:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "policy_channel",
+       "policy_category",
+       "policy_role"
+      ],
+      [
+       "policy_preview",
+       "policy_list"
+      ]
+     ]
+    }
+   ]
   },
   "ai:ai.policy_chooser:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "policy_channel",
+     "policy_category",
+     "policy_role"
+    ],
+    [
+     "policy_preview",
+     "policy_list"
+    ]
+   ]
   },
   "ai:ai.policy_chooser:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "policy_channel",
+        "policy_category",
+        "policy_role"
+       ],
+       [
+        "policy_preview",
+        "policy_list"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "ai:ai.settings_edit_presets:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "preset_0",
+       "preset_1",
+       "preset_2",
+       "preset_3",
+       "preset_4"
+      ],
+      [
+       "preset_5",
+       "override_btn"
+      ]
+     ]
+    }
+   ]
   },
   "ai:ai.settings_edit_presets:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "preset_0",
+     "preset_1",
+     "preset_2",
+     "preset_3",
+     "preset_4"
+    ],
+    [
+     "preset_5",
+     "override_btn"
+    ]
+   ]
   },
   "ai:ai.settings_edit_presets:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "preset_0",
+        "preset_1",
+        "preset_2",
+        "preset_3",
+        "preset_4"
+       ],
+       [
+        "preset_5",
+        "override_btn"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "ai:ai:CommandSpec.help_section_order": {
    "provenance": {
@@ -236,7 +417,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_cooldown_seconds:SettingSpec.panel_order": {
    "provenance": {
@@ -254,7 +435,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_default_model:SettingSpec.panel_order": {
    "provenance": {
@@ -272,7 +453,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_default_provider:SettingSpec.panel_order": {
    "provenance": {
@@ -290,7 +471,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_enabled:SettingSpec.panel_order": {
    "provenance": {
@@ -308,7 +489,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_fresh_user_mention_allowance:SettingSpec.panel_order": {
    "provenance": {
@@ -326,7 +507,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_guild_instruction_profile:SettingSpec.panel_order": {
    "provenance": {
@@ -344,7 +525,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_memory_channel_scan_enabled:SettingSpec.panel_order": {
    "provenance": {
@@ -362,7 +543,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_memory_window_minutes:SettingSpec.panel_order": {
    "provenance": {
@@ -380,7 +561,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_minimum_level_default:SettingSpec.panel_order": {
    "provenance": {
@@ -398,7 +579,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_natural_language_enabled:SettingSpec.panel_order": {
    "provenance": {
@@ -416,7 +597,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:ai_review_channel:SettingSpec.panel_order": {
    "provenance": {
@@ -446,7 +627,7 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": ""
   },
   "ai:channel:CommandSpec.help_section_order": {
    "provenance": {
@@ -890,19 +1071,68 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "ask",
+       "events",
+       "units",
+       "rounds"
+      ],
+      [
+       "maps",
+       "strategy",
+       "status",
+       "admin"
+      ]
+     ]
+    }
+   ]
   },
   "btd6:btd6.hub:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "ask",
+     "events",
+     "units",
+     "rounds"
+    ],
+    [
+     "maps",
+     "strategy",
+     "status",
+     "admin"
+    ]
+   ]
   },
   "btd6:btd6.hub:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "ask",
+        "events",
+        "units",
+        "rounds"
+       ],
+       [
+        "maps",
+        "strategy",
+        "status",
+        "admin"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "btd6:btd6:CommandSpec.help_section_order": {
    "provenance": {
@@ -1328,19 +1558,59 @@
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "chain_create",
+       "chain_delete",
+       "chain_set_limit",
+       "chain_clear_limit"
+      ],
+      [
+       "chain_refresh"
+      ]
+     ]
+    }
+   ]
   },
   "chain:chain.hub:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "chain_create",
+     "chain_delete",
+     "chain_set_limit",
+     "chain_clear_limit"
+    ],
+    [
+     "chain_refresh"
+    ]
+   ]
   },
   "chain:chain.hub:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "chain_create",
+        "chain_delete",
+        "chain_set_limit",
+        "chain_clear_limit"
+       ],
+       [
+        "chain_refresh"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "chain:chain:CommandSpec.help_section_order": {
    "provenance": {
@@ -1917,19 +2187,83 @@
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "counting_pick_channel"
+      ],
+      [
+       "counting_enable_mode"
+      ],
+      [
+       "counting_toggle_turns",
+       "counting_toggle_reset"
+      ],
+      [
+       "counting_reset",
+       "counting_disable"
+      ],
+      [
+       "counting_refresh"
+      ]
+     ]
+    }
+   ]
   },
   "counting:counting.hub:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "counting_pick_channel"
+    ],
+    [
+     "counting_enable_mode"
+    ],
+    [
+     "counting_toggle_turns",
+     "counting_toggle_reset"
+    ],
+    [
+     "counting_reset",
+     "counting_disable"
+    ],
+    [
+     "counting_refresh"
+    ]
+   ]
   },
   "counting:counting.hub:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "counting_pick_channel"
+       ],
+       [
+        "counting_enable_mode"
+       ],
+       [
+        "counting_toggle_turns",
+        "counting_toggle_reset"
+       ],
+       [
+        "counting_reset",
+        "counting_disable"
+       ],
+       [
+        "counting_refresh"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "counting:countingmenu:CommandSpec.help_section_order": {
    "provenance": {
@@ -2796,6 +3130,8 @@
        "world_creatures"
       ],
       [
+       "world_deathmatch",
+       "world_casino",
        "world_card"
       ]
      ]
@@ -2814,6 +3150,8 @@
      "world_creatures"
     ],
     [
+     "world_deathmatch",
+     "world_casino",
      "world_card"
     ]
    ]
@@ -2833,6 +3171,8 @@
         "world_creatures"
        ],
        [
+        "world_deathmatch",
+        "world_casino",
         "world_card"
        ]
       ]
@@ -4292,19 +4632,68 @@
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    {
+     "rows": [
+      [
+       "pm_overview",
+       "pm_sinners",
+       "pm_sins",
+       "pm_damage",
+       "pm_mechanics"
+      ],
+      [
+       "pm_ego",
+       "pm_statuses",
+       "pm_origins"
+      ]
+     ]
+    }
+   ]
   },
   "projmoon:projmoon.hub:PageSpec.rows": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": [
+    [
+     "pm_overview",
+     "pm_sinners",
+     "pm_sins",
+     "pm_damage",
+     "pm_mechanics"
+    ],
+    [
+     "pm_ego",
+     "pm_statuses",
+     "pm_origins"
+    ]
+   ]
   },
   "projmoon:projmoon.hub:PanelSpec.layout": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
-   "value": 0
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "pm_overview",
+        "pm_sinners",
+        "pm_sins",
+        "pm_damage",
+        "pm_mechanics"
+       ],
+       [
+        "pm_ego",
+        "pm_statuses",
+        "pm_origins"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "projmoon:sin:CommandSpec.help_section_order": {
    "provenance": {
@@ -4863,6 +5252,9 @@
        "help_preview",
        "help_editor",
        "sm_refresh"
+      ],
+      [
+       "help_back"
       ]
      ]
     }
@@ -4887,6 +5279,9 @@
      "help_preview",
      "help_editor",
      "sm_refresh"
+    ],
+    [
+     "help_back"
     ]
    ]
   },
@@ -4912,6 +5307,9 @@
         "help_preview",
         "help_editor",
         "sm_refresh"
+       ],
+       [
+        "help_back"
        ]
       ]
      }
