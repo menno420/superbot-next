@@ -1,10 +1,13 @@
 """PROJMOON subsystem manifest (band 7, knowledge-domain family) — the
-shipped ``!pm`` read-only surface (group aliases limbus/projectmoon;
-lookup/list/origins + the six per-category lookups, shipped aliases
-verbatim), the projmoon.hub browse panel, and the K10 registrations
-(projmoon.answer claimed byte-identical; route probe AFTER btd6;
-names-only grounding verifier; MINTED 12-probe A-17 eval suite — the
-oracle had no projmoon corpus, A-17(d) mandates one at this band).
+shipped ``!pm`` read-only surface (oracle ``cogs/project_moon_cog.py``
+@7f7628e1: group aliases limbus/projectmoon; lookup/list/origins + the
+six per-category lookups, shipped aliases verbatim; bare ``!pm`` and
+the ephemeral ``/pm`` slash front door both open the LimbusBrowseView
+panel), the projmoon.hub browse panel + projmoon.card reply surface,
+and the K10 registrations (projmoon.answer claimed byte-identical;
+route probe AFTER btd6; names-only grounding verifier; MINTED 12-probe
+A-17 eval suite — the oracle had no projmoon corpus, A-17(d) mandates
+one at this band).
 
 The shared VIDEO tasks (video.describe/compare/qa — sb/domain/media)
 register here too: media has no command surface of its own, and
@@ -19,7 +22,7 @@ from sb.domain.projmoon import panels as _panels
 from sb.domain.projmoon import service as _service
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
-from sb.spec.refs import HandlerRef
+from sb.spec.refs import HandlerRef, PanelRef
 
 
 def _sub(name: str, ref: str, summary: str,
@@ -34,12 +37,24 @@ MANIFEST = SubsystemManifest(
     key="projmoon",
     version=1,
     commands=(
+        # bare `!pm` opens the shipped browse panel (pm_group's
+        # invoke_without_command leg — LimbusBrowseView +
+        # build_overview_embed; goldens/project_moon/sweep_pm).
         CommandSpec(name="pm", kind=CommandKind.PREFIX,
                     aliases=("limbus", "projectmoon"),
-                    route=HandlerRef("projmoon.overview_view"),
+                    route=PanelRef("projmoon.hub"),
                     audience_tier="user", capability="projmoon",
                     summary="Browse the Project Moon (Limbus) reference.",
                     usage="!pm"),
+        # the shipped `/pm` slash front door — the SAME panel, ephemeral
+        # (pm_slash sent ephemeral=True; goldens/projectmoon/
+        # sweep_slash_pm pins the type-4 + flags 64).
+        CommandSpec(name="pm", kind=CommandKind.SLASH,
+                    route=PanelRef("projmoon.hub"),
+                    audience_tier="user", capability="projmoon",
+                    summary="Browse Project Moon (Limbus) knowledge — "
+                            "Sinners, Sins, statuses, E.G.O.",
+                    usage="/pm"),
         _sub("lookup", "projmoon.lookup_view",
              "Resolve any Limbus name/term across every category.",
              aliases=("search", "what")),
@@ -65,7 +80,7 @@ MANIFEST = SubsystemManifest(
              "Look up one combat mechanic (or list all).",
              aliases=("mechanics", "combat")),
     ),
-    panels=(_panels.projmoon_hub_spec(),),
+    panels=(_panels.projmoon_hub_spec(), _panels.projmoon_card_spec()),
     settings=(),
     stores=(),
     events=(),

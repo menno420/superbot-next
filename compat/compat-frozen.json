@@ -1583,6 +1583,11 @@
     "name": "pm"
    },
    {
+    "aliases": [],
+    "group": "",
+    "name": "pm"
+   },
+   {
     "aliases": [
      "affinity",
      "sins"
@@ -2072,7 +2077,6 @@
   "economy:work",
   "general.eightball_form",
   "help_categories:select",
-  "projmoon.lookup_form",
   "proof_channel.grant_form",
   "proof_channel.timed_form",
   "role:create",
