@@ -210,6 +210,19 @@ depth:
                              # capture (vocabulary growth reviewed in the chain
                              # flip PR + decision record D-0069, per the
                              # "reviewed schema change" rule above)
+    - seeded-catalog         # the table's rows are minted ONLY by a K3
+                             # migration seed (system catalog data, present
+                             # BEFORE every case's before-snapshot) and the
+                             # ported slice ships NO runtime write ingress —
+                             # coverage is measured over per-case db_delta
+                             # keys, which structurally cannot carry
+                             # pre-seeded rows, so no golden (imported OR
+                             # future capture) can ever cover the table; the
+                             # class dies for a row the day a runtime write
+                             # lane for it ships (vocabulary growth reviewed
+                             # in the behavior-preset flip PR + decision
+                             # record D-0071, per the "reviewed schema
+                             # change" rule above)
 
   # exemptions:
   #   <subsystem>:
@@ -270,6 +283,21 @@ depth:
         reason: "modal-driven: emitted only by the ai.set_role_policy
           op the ai.policy_role_form submit runs (same ingress argument
           as its table row)"
+      # the instruction-profile catalog (the behavior-preset slice,
+      # D-0071): migration 0029 seeds the seven shipped system presets
+      # (oracle migrations 039/043/044) and the slice ships NO runtime
+      # write lane for the table — the preset pick's WRITE lands on
+      # ai_channel_policy / ai_category_policy (instruction_profile_id,
+      # rows already exempted above), and guild-authored profiles (the
+      # oracle ai_instruction_mutation surface) are unported. The read
+      # surface is live (the preset picker options/fields).
+      - surface: "table:ai_instruction_profile"
+        reason: "seeded-catalog: rows exist only as the migration-0029
+          system seed — they precede every case's before-snapshot, so a
+          per-case db_delta structurally cannot carry them, and no
+          runtime ingress (command/slash/click/modal, ported or shipped)
+          writes the table; the row dies when a guild-authored
+          profile-mutation lane ships (D-0071)"
     btd6:
       - surface: "table:btd6_strategies"
         reason: "modal-driven: the shipped strategy write flow is the
