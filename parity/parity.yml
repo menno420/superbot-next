@@ -139,6 +139,14 @@ dispositions:
     # paper (Q-0240), reviewable at the parity gate.
     columns:
       - economy_audit_log.mutation_id
+      # the SAME kernel idempotency column on the karma anti-abuse ledger
+      # (sb/domain/karma/store.py insert_karma_audit — the S14
+      # ledger-reinsert conflict key, the economy_audit_log twin). Every
+      # domain byte of the row (delta / from_user / to_user / reason /
+      # source / occurred_at) still diffs. Encoding completion 2026-07-11
+      # (karma flip PR) under the Q-0262.3 delegation — reversible on
+      # paper (Q-0240), reviewable at the parity gate.
+      - karma_audit_log.mutation_id
   xp-coins-alias:
     encoding: normalizer
     # the old `xp.coins` alias column (coins split to economy_balances at
