@@ -6,7 +6,10 @@ corpus and the everyday tower/hero/bloon/boss/paragon question families.
 Passes carried (each isolated so one failure cannot suppress the others,
 shipped discipline):
 
-1. resolver (sync, no DB) — towers/heroes/bloons/bosses/rounds;
+1. resolver (sync, no DB) — towers/heroes/bloons/bosses/rounds (the
+   resolver also matches maps/modes; in the oracle those feed only the
+   ``btd6_facts`` DB pass — a D-0046 successor — so no fixture facts
+   render for them here, matching shipped);
 2. fixture facts — tower identity/cost/upgrades/paragon + all-difficulty
    pricing, hero identity, bloon immunity/properties/description;
 3. paragon-name / paragon-degree facts (BUG-0015 "d67" disambiguation);

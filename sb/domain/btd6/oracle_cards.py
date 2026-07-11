@@ -28,10 +28,15 @@ Deviations from the oracle, ledgered here (all on golden-UNPINNED paths):
 * freeplay MOAB scaling (effective RBE, rounds 81+) is not recomputed —
   RBE renders the wiki base only (the scaled recompute needs the spawn-
   tree walk of ``bloon_rbe_at_round``, a named successor);
-* the resolver does not match maps/modes yet (its module docstring names
-  them successors) — test-intent renders their rows honestly as ``—``;
 * the boss-fight estimator (`!btd6 estimate <query>`) is a successor —
   only the golden-pinned bare-usage card is served.
+
+(The resolver's maps/modes matching — formerly the third ledgered
+deviation — is PORTED: the resolver matches them, ``deterministic_answer``
+answers them in the shipped order via :func:`for_map` / :func:`for_mode`,
+and test-intent renders the matched canonicals. In the oracle, matched
+maps/modes additionally feed the ``btd6_facts`` DB grounding pass — that
+pass rides D-0046 with the rest of live ingestion.)
 """
 
 from __future__ import annotations
@@ -427,6 +432,42 @@ def for_round(entry: dict) -> BTD6Response:
     )
 
 
+def for_map(game_map: dataset.MapEntry) -> BTD6Response:
+    why = game_map.lines_of_sight_notes
+    # Removable obstacles ride alongside line-of-sight (most removables ARE
+    # LoS blockers). Only present for maps with curated data; absent =
+    # unknown. (Shipped comment + logic, btd6_response_builder.for_map.)
+    if game_map.removables:
+        why = f"{why} Removable obstacles: {game_map.removables}"
+    return BTD6Response(
+        title=f"{game_map.canonical} ({game_map.difficulty})",
+        short_answer=game_map.description,
+        why_it_matters=why,
+        sources=(source_label(),),
+        confidence="high",
+        follow_up="Pair with `!btd6 mode <name>` for mode-specific advice.",
+    )
+
+
+def for_mode(mode: dataset.ModeEntry) -> BTD6Response:
+    # Modifiers (Double Cash, Fast Track) have no fixed cash/lives — their
+    # effect is relative — so only state those numbers when the row carries
+    # them. (Shipped comment + logic, btd6_response_builder.for_mode.)
+    bits: list[str] = []
+    if mode.starting_cash is not None:
+        bits.append(f"Starting cash: {mode.starting_cash}.")
+    if mode.starting_lives is not None:
+        bits.append(f"Starting lives: {mode.starting_lives}.")
+    return BTD6Response(
+        title=f"{mode.canonical} mode",
+        short_answer=mode.description,
+        why_it_matters=" ".join(bits),
+        recommended_options=mode.restrictions,
+        confidence="high",
+        sources=(source_label(),),
+    )
+
+
 def for_bloon(bloon: dataset.BloonEntry) -> BTD6Response:
     stat_bits: list[str] = []
     if bloon.health is not None:
@@ -475,12 +516,20 @@ def for_reference_facts(facts: tuple[str, ...]) -> BTD6Response:
 def deterministic_answer(intent) -> BTD6Response:
     """btd6_ai_service.deterministic_answer over the ported resolver.
 
-    First recognised entity wins: towers → heroes → rounds → bloons
-    (maps/modes are the resolver's named successors — never matched)."""
+    First recognised entity wins, shipped order: towers → heroes → maps
+    → modes → rounds → bloons. (The oracle round-trips ``intent.maps[0]``
+    through ``map_fact``/``mode_fact`` — knowledge_service delegates
+    straight to the dataset ``get_map``/``get_mode``, so the resolved
+    entry IS the fact; the tower/hero branches here carry the same
+    collapse.)"""
     if intent.towers:
         return for_tower(intent.towers[0])
     if intent.heroes:
         return for_hero(intent.heroes[0])
+    if intent.maps:
+        return for_map(intent.maps[0])
+    if intent.modes:
+        return for_mode(intent.modes[0])
     if intent.candidate_round_numbers:
         entry = get_round(int(intent.candidate_round_numbers[0]))
         if entry is not None:
@@ -817,7 +866,6 @@ def test_intent_card(text: str) -> RenderedEmbed:
     from sb.domain.btd6 import resolver
 
     intent = resolver.resolve(text)
-    # maps/modes: the ported resolver's named successors — honestly "—".
     return RenderedEmbed(
         title="🐵 BTD6 — test-intent",
         description=f"Resolved intent for: ``{text[:200]}``",
@@ -827,8 +875,10 @@ def test_intent_card(text: str) -> RenderedEmbed:
              ", ".join(t.canonical for t in intent.towers) or "—", False),
             ("Heroes",
              ", ".join(h.canonical for h in intent.heroes) or "—", False),
-            ("Maps", "—", False),
-            ("Modes", "—", False),
+            ("Maps",
+             ", ".join(m.canonical for m in intent.maps) or "—", False),
+            ("Modes",
+             ", ".join(m.canonical for m in intent.modes) or "—", False),
             ("Rounds",
              ", ".join(str(n) for n in intent.candidate_round_numbers) or "—",
              False),
