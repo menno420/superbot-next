@@ -1984,6 +1984,11 @@
    },
    {
     "aliases": [],
+    "group": "ticketblacklist",
+    "name": "add"
+   },
+   {
+    "aliases": [],
     "group": "ticket",
     "name": "claim"
    },
@@ -2007,8 +2012,33 @@
    },
    {
     "aliases": [],
+    "group": "ticketblacklist",
+    "name": "remove"
+   },
+   {
+    "aliases": [],
     "group": "",
     "name": "ticket"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ticketblacklist"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ticketlimit"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ticketpanel"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "ticketsetup"
    }
   ],
   "treasury": [
@@ -2398,7 +2428,9 @@
   "settings_hub.subsystem_select",
   "settings_subsystem.back_to_hub",
   "settings_subsystem.open_panel",
+  "ticket.launcher_open_form",
   "ticket.open_form",
+  "ticket:launcher:open",
   "treasury.contribute_form",
   "utility:open:four_twenty",
   "utility:open:general",

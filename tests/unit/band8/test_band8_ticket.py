@@ -51,3 +51,35 @@ def test_post_panel_staff_reaches_the_not_configured_lane():
     reply = run(_post_panel()(FakeReq(operator=True)))
     assert reply.outcome == BLOCKED
     assert reply.user_message == service.NOT_CONFIGURED_MSG
+
+
+def test_ticketblacklist_bare_answers_the_shipped_usage_byte():
+    from sb.domain.ticket import handlers
+    from sb.spec.refs import HandlerRef, resolve
+
+    handlers.ensure_handler_refs()
+    reply = run(resolve(HandlerRef("ticket.ticketblacklist"))(
+        FakeReq(operator=True)))
+    assert reply.outcome == BLOCKED
+    # cogs/ticket_cog.py ticket_blacklist (invoke_without_command), verbatim
+    # — goldens/ticket/sweep_ticketblacklist pins the byte.
+    assert reply.user_message == "Usage: `!ticketblacklist add|remove @user`."
+
+
+def test_role_selector_without_options_source_renders_the_native_picker():
+    # the ticket-admin re-home's kernel seam: an options-source-less ROLE
+    # selector is the Discord-native picker (wire type 6, RoleSelect —
+    # goldens/ticket/sweep_ticketsetup), while a provider-fed ROLE
+    # selector keeps the roster-fed string select (wire type 3 — the ai
+    # policy role picker, pinned by its own walking skeleton).
+    from sb.adapters.parity.transport import _component_payload
+    from sb.kernel.panels.render import RenderedComponent
+
+    native = RenderedComponent(
+        kind="selector", custom_id="cid", label="Staff role…", row=0,
+        placeholder="Staff role…", native_picker="role")
+    payload = _component_payload(native)
+    assert payload == {
+        "type": 6, "custom_id": "cid", "min_values": 1, "max_values": 1,
+        "disabled": False, "required": False, "placeholder": "Staff role…",
+    }
