@@ -77,7 +77,7 @@ subsystems:
   leaderboard: ported
   logging: pending
   mining: pending
-  moderation: pending
+  moderation: ported
   project_moon: ported
   projectmoon: ported
   proof_channel: ported
@@ -387,6 +387,7 @@ depth:
     hermes: {events: 0, tables: 0, settings: 0}
     karma: {events: 2, tables: 4, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
+    moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
     proof_channel: {events: 1, tables: 2, settings: 0}
