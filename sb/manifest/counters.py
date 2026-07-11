@@ -4,6 +4,7 @@ slice verbatim; the rename effect rides the channel-ops port."""
 from __future__ import annotations
 
 from sb.domain.counters import DEFAULT_TEMPLATES
+from sb.domain.counters import panels as _panels
 from sb.domain.operator_spine import ensure_hub, hub_spec, pending_handler
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -51,15 +52,21 @@ MANIFEST = SubsystemManifest(
     key="counters",
     version=1,
     commands=(
+        # BOTH front doors render the shipped status card: prefix as a
+        # public channel send, slash as the shipped ephemeral type-4
+        # twin (slash+PanelRef resolves DeferMode.NONE; Audience.INVOKER
+        # presents flags 64 on interaction surfaces).
         CommandSpec(name="counters", kind=CommandKind.BOTH,
-                    route=PanelRef("counters.hub"),
-                    summary="Open the counters menu.", capability="counters"),
+                    route=PanelRef("counters.status"),
+                    summary="Show the current server-counters policy "
+                            "for this server.",
+                    capability="counters"),
         CommandSpec(name="counterpreset", kind=CommandKind.PREFIX,
                     route=_PENDING,
                     summary="Apply a counter preset (port-armed later).",
                     capability="counters"),
     ),
-    panels=(hub_spec("counters", _TITLE, _BLURB),),
+    panels=(hub_spec("counters", _TITLE, _BLURB), _panels.status_spec()),
     settings=_SETTINGS,
     stores=(), events=(), capabilities=(),
 )
@@ -68,6 +75,7 @@ MANIFEST = SubsystemManifest(
 def _ensure_refs() -> None:
     ensure_hub("counters", _TITLE, _BLURB)
     pending_handler("counters.preset_pending", "")
+    _panels.ensure_panel_refs()
 
 
 ENSURE_REFS = _ensure_refs

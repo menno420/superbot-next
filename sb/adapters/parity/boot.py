@@ -142,6 +142,10 @@ class _WorldGuildDirectory:
             text_channels=(len(self._world.channels)
                            + self._SHIPPED_BOOT_TEXT_CHANNELS),
             voice_channels=0,
+            # The capture guild's one bot member is the bot user itself
+            # (world GUILD_CREATE: the 3 personas are humans) —
+            # goldens/counters pins Members: 4 / Humans: 3 / Bots: 1.
+            bots=1,
         )
 
     async def member_info(self, guild_id: int, user_id: int):
