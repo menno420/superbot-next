@@ -140,6 +140,12 @@ class RenderedComponent:
     # text channels — the shipped LogChannelSelectView shape,
     # goldens/logging/logging_enable_and_bind pins the wire bytes).
     channel_types: tuple[int, ...] | None = None
+    # SelectorKind.ROLE selectors are Discord-native pickers too (wire
+    # component type 6, discord.ui.RoleSelect): Discord supplies the
+    # option list — "role" marks the component for both presenters (the
+    # shipped ticket setup wizard's staff-role picker,
+    # goldens/ticket/sweep_ticketsetup pins the wire bytes).
+    native_picker: str = ""
 
 
 @dataclass(frozen=True)
@@ -381,6 +387,26 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                         min_values=cspec.min_values,
                         max_values=cspec.max_values,
                         channel_types=(0,)))
+                    continue
+                if cspec.kind is _SK.ROLE and not cspec.options_source:
+                    # Discord-native role picker (wire type 6,
+                    # discord.ui.RoleSelect): same posture as CHANNEL —
+                    # the client supplies the options, so the lane arms
+                    # ONLY when the spec declares no options source (the
+                    # shipped ticket setup staff-role picker; goldens/
+                    # ticket/sweep_ticketsetup pins the wire bytes). A
+                    # provider-fed ROLE selector keeps the roster-fed
+                    # string-select lane below (the shipped ai policy
+                    # role picker, wire type 3).
+                    components.append(RenderedComponent(
+                        kind="selector", custom_id=custom_id,
+                        label=resolver.resolve(cspec.placeholder, locale=loc),
+                        row=row_idx,
+                        placeholder=resolver.resolve(cspec.placeholder,
+                                                     locale=loc),
+                        min_values=cspec.min_values,
+                        max_values=cspec.max_values,
+                        native_picker="role"))
                     continue
                 if isinstance(cspec.options_source, tuple):
                     options = cspec.options_source

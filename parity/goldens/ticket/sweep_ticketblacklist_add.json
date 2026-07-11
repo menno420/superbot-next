@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.ticketblacklist_remove",
+ "case_id": "sweep.ticketblacklist_add",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -23,12 +23,23 @@
     }
    ]
   },
+  "ticket_blacklist": {
+   "added": [
+    {
+     "added_at": 2062642399,
+     "added_by": "<@admin>",
+     "guild_id": "<guild>",
+     "reason": null,
+     "user_id": "<@second_member>"
+    }
+   ]
+  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1828605505,
+     "last_xp": 2062642399,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +61,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "<@<@second_member>> removed from the ticket blacklist.",
+      "content": "<@<@second_member>> added to the ticket blacklist.",
       "tts": false
      }
     },
@@ -72,7 +83,7 @@
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
       "mutation_type": "blacklist",
-      "new_value": "blacklisted=False",
+      "new_value": "blacklisted=True",
       "occurred_at": "<ts>",
       "prev_value": null,
       "scope": "guild",
@@ -93,11 +104,11 @@
     }
    ],
    "input": {
-    "content": "!ticketblacklist remove <@900000000000000103>",
+    "content": "!ticketblacklist add <@900000000000000103>",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "ticket"
 }

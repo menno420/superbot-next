@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.ticketblacklist_add",
+ "case_id": "sweep.ticketblacklist",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -23,23 +23,12 @@
     }
    ]
   },
-  "ticket_blacklist": {
-   "added": [
-    {
-     "added_at": 2062642399,
-     "added_by": "<@admin>",
-     "guild_id": "<guild>",
-     "reason": null,
-     "user_id": "<@second_member>"
-    }
-   ]
-  },
   "xp": {
    "added": [
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2062642399,
+     "last_xp": 2055719943,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -61,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "<@<@second_member>> added to the ticket blacklist.",
+      "content": "Usage: `!ticketblacklist add|remove @user`.",
       "tts": false
      }
     },
@@ -76,22 +65,6 @@
    ],
    "events": [
     {
-     "event": "audit.action_recorded",
-     "payload": {
-      "actor_id": "<@admin>",
-      "actor_type": "user",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "blacklist",
-      "new_value": "blacklisted=True",
-      "occurred_at": "<ts>",
-      "prev_value": null,
-      "scope": "guild",
-      "subsystem": "ticket",
-      "target": "user:<@second_member>"
-     }
-    },
-    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -104,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!ticketblacklist add <@900000000000000103>",
+    "content": "!ticketblacklist",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "ticket"
 }

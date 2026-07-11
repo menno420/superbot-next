@@ -5558,6 +5558,12 @@
    },
    "value": 0
   },
+  "ticket:add:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "ticket:claim:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -5582,9 +5588,109 @@
    },
    "value": 0
   },
+  "ticket:remove:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:ticket.setup:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "setup_staff_role"
+      ],
+      [
+       "setup_log_channel"
+      ],
+      [
+       "setup_autocreate_log",
+       "setup_enable"
+      ],
+      [
+       "setup_post_panel"
+      ]
+     ]
+    }
+   ]
+  },
+  "ticket:ticket.setup:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "setup_staff_role"
+    ],
+    [
+     "setup_log_channel"
+    ],
+    [
+     "setup_autocreate_log",
+     "setup_enable"
+    ],
+    [
+     "setup_post_panel"
+    ]
+   ]
+  },
+  "ticket:ticket.setup:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "setup_staff_role"
+       ],
+       [
+        "setup_log_channel"
+       ],
+       [
+        "setup_autocreate_log",
+        "setup_enable"
+       ],
+       [
+        "setup_post_panel"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "ticket:ticket:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-8 parity slice carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:ticketblacklist:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:ticketlimit:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:ticketpanel:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "ticket:ticketsetup:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: ticket-admin re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
