@@ -84,7 +84,7 @@ subsystems:
   quicksetup: pending
   role: pending
   rps_tournament: ported
-  security: pending
+  security: ported
   server_management: pending
   servermanagement: ported
   settings: ported
@@ -448,6 +448,7 @@ depth:
     projectmoon: {events: 0, tables: 0, settings: 0}
     proof_channel: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
+    security: {events: 1, tables: 2, settings: 0}
     servermanagement: {events: 0, tables: 0, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
     ticket: {events: 1, tables: 2, settings: 0}
