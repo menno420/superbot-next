@@ -145,6 +145,22 @@ def _option_payload(option: Any) -> dict[str, Any]:
 
 def _component_payload(component: Any) -> dict[str, Any]:
     if component.kind == "selector":
+        if getattr(component, "channel_types", None):
+            # discord.py ChannelSelect.to_component_dict(): wire type 8,
+            # channel_types named, NO options, and "required" false — the
+            # shipped LogChannelSelectView shape
+            # (goldens/logging/logging_enable_and_bind pins every byte).
+            return {
+                "type": 8,
+                "custom_id": component.custom_id,
+                "min_values": component.min_values,
+                "max_values": component.max_values,
+                "disabled": bool(component.disabled),
+                "required": False,
+                "channel_types": list(component.channel_types),
+                **({"placeholder": component.placeholder}
+                   if component.placeholder else {}),
+            }
         out: dict[str, Any] = {
             "type": 3,
             "custom_id": component.custom_id,
@@ -187,11 +203,22 @@ def rendered_panel_payload(rendered: Any) -> dict[str, Any]:
     rows: dict[int, list[dict[str, Any]]] = {}
     for component in getattr(rendered, "components", ()) or ():
         rows.setdefault(int(component.row), []).append(_component_payload(component))
+    row_payload = [{"type": 1, "components": rows[r]} for r in sorted(rows)]
+    if getattr(rendered, "embed", None) is None:
+        # CONTENT-only panel (RenderedPanel.embed=None + content): the wire
+        # carries content + components and NO embeds key — discord.py's
+        # shape for a plain-text send with a View
+        # (goldens/logging/logging_enable_and_bind step 3 pins it).
+        return {
+            "content": getattr(rendered, "content", None),
+            "tts": False,
+            "components": row_payload,
+        }
     return {
         "content": None,
         "tts": False,
         "embeds": [_embed_payload(rendered.embed)],
-        "components": [{"type": 1, "components": rows[r]} for r in sorted(rows)],
+        "components": row_payload,
     }
 
 

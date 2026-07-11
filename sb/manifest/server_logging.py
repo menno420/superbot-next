@@ -1,8 +1,23 @@
 """LOGGING subsystem manifest (band 2, operator spine) — manifest key
 `logging` (module named server_logging: stdlib-shadow discipline, S15
-precedent). Shipped `!logging` group verbatim (cogs/logging_cog.py) via
-CommandSpec.group; settings claim the shipped logging keys slice; channel
-pointers are BindingSpecs with the legacy KV aliases (decision 3)."""
+precedent). FLIPPED to the shipped surface (disbot cogs/logging_cog.py +
+cogs/logging/{panel,select_view,routes_panel,schemas}.py @58040c6):
+
+* the shipped `!logging` group VERBATIM — bare group opens the panel
+  (invoke_without_command: an unknown token like the D-0029-era `enable`
+  falls through to the SAME panel; goldens/logging pin it), plus the five
+  real subcommands status/set/create/routes/test. The D-0029 `enable` /
+  `disable` subcommands were NEVER shipped commands (zero oracle
+  hits; no sweep golden exists for either) — retired at the flip, the
+  moderation-`!warnings` D-0065(3) precedent. The master switch lives on
+  the settings surface (`logging_enabled` — §4.1 one-write-path).
+* the shipped 11-slot route/binding table (select_view._ROUTE_BINDING)
+  replaces D-0029's 6 interim BindingSpecs — binding NAMES are the
+  shipped ones (mod_channel/…); the two legacy KV aliases carry.
+* four panels: the LoggingPanelView hub (8 static logging_panel.* ids),
+  the zero-component status card, the Routes panel (logging_routes.*),
+  and the LogChannelSelectView channel picker (session-minted ids).
+"""
 
 from __future__ import annotations
 
@@ -44,28 +59,42 @@ _SETTINGS = (
                 hint="Comma list of user ids never logged."),
 ) + _CATEGORY_SETTINGS
 
+#: the shipped 11 route bindings (cogs/logging/schemas.py BindingSpecs;
+#: names verbatim). The two legacy KV pointer aliases carry from the
+#: pre-flip manifest (decision 3).
 _BINDINGS = (
-    BindingSpec(name="mod", kind=BindingKind.CHANNEL,
+    BindingSpec(name="mod_channel", kind=BindingKind.CHANNEL,
                 hint="Moderation log channel (default name bot-mod-log).",
                 legacy_settings_key_aliases=("logging_mod_channel",)),
-    BindingSpec(name="cleanup", kind=BindingKind.CHANNEL,
+    BindingSpec(name="events_channel", kind=BindingKind.CHANNEL,
+                hint="Combined event-log channel (default bot-event-log)."),
+    BindingSpec(name="cleanup_channel", kind=BindingKind.CHANNEL,
                 hint="Cleanup log channel (falls back to mod).",
                 legacy_settings_key_aliases=("logging_cleanup_channel",)),
-    BindingSpec(name="events", kind=BindingKind.CHANNEL,
-                hint="Combined event-log channel."),
-    BindingSpec(name="messages", kind=BindingKind.CHANNEL,
-                hint="Per-category: message events."),
-    BindingSpec(name="members", kind=BindingKind.CHANNEL,
-                hint="Per-category: member events."),
-    BindingSpec(name="roles", kind=BindingKind.CHANNEL,
-                hint="Per-category: role events."),
+    BindingSpec(name="debug_channel", kind=BindingKind.CHANNEL,
+                hint="Debug severity route (falls back to mod)."),
+    BindingSpec(name="info_channel", kind=BindingKind.CHANNEL,
+                hint="Info severity route (falls back to mod)."),
+    BindingSpec(name="warning_channel", kind=BindingKind.CHANNEL,
+                hint="Warning severity route (falls back to mod)."),
+    BindingSpec(name="error_channel", kind=BindingKind.CHANNEL,
+                hint="Error severity route (falls back to mod)."),
+    BindingSpec(name="audit_channel", kind=BindingKind.CHANNEL,
+                hint="Audit-feed route (falls back to mod)."),
+    BindingSpec(name="message_channel", kind=BindingKind.CHANNEL,
+                hint="Per-category: message events (falls back to events)."),
+    BindingSpec(name="member_channel", kind=BindingKind.CHANNEL,
+                hint="Per-category: member events (falls back to events)."),
+    BindingSpec(name="role_channel", kind=BindingKind.CHANNEL,
+                hint="Per-category: role events (falls back to events)."),
 )
 
 
-def _sub(name: str, ref: str, summary: str) -> CommandSpec:
+def _sub(name: str, ref: str, summary: str, usage: str | None = None) -> CommandSpec:
     return CommandSpec(name=name, kind=CommandKind.PREFIX, group="logging",
                        route=HandlerRef(ref), summary=summary,
-                       usage=f"!logging {name}", capability="logging")
+                       usage=usage or f"!logging {name}",
+                       capability="logging")
 
 
 MANIFEST = SubsystemManifest(
@@ -74,21 +103,24 @@ MANIFEST = SubsystemManifest(
     commands=(
         CommandSpec(name="logging", kind=CommandKind.PREFIX,
                     route=PanelRef("logging.hub"),
-                    summary="Open the server-logging menu.",
+                    summary="Open the server-logging panel.",
                     usage="!logging", capability="logging"),
-        _sub("status", "logging.status_view",
-             "Show the logging config + counters."),
-        _sub("enable", "logging.enable", "Enable server logging."),
-        _sub("disable", "logging.disable", "Disable server logging."),
+        CommandSpec(name="status", kind=CommandKind.PREFIX, group="logging",
+                    route=PanelRef("logging.status_card"),
+                    summary="Show the logging config + counters.",
+                    usage="!logging status", capability="logging"),
         _sub("set", "logging.set_channel",
-             "Bind a log slot to a channel."),
+             "Open the channel selector for a log binding.",
+             usage="!logging set <route>"),
         _sub("create", "logging.create_channels",
-             "Provision missing log channels."),
+             "Provision a missing log channel.",
+             usage="!logging create <route>"),
         _sub("routes", "logging.routes_view",
-             "Show per-category routing."),
+             "Show per-route bindings + fallbacks."),
         _sub("test", "logging.test_send", "Send a test log line."),
     ),
-    panels=(_panels.logging_hub_spec(),),
+    panels=(_panels.logging_hub_spec(), _panels.status_card_spec(),
+            _panels.routes_panel_spec(), _panels.bind_picker_spec()),
     settings=_SETTINGS + _BINDINGS,
     stores=(),                      # KV/bindings rows live in the settings stores
     events=(),

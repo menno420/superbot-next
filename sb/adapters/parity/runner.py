@@ -38,6 +38,56 @@ CAPTURE_WORLD_SETTINGS: tuple[tuple[str, str], ...] = (
     ("moderation_ban_delete_message_days", "1"),
 )
 
+#: CAPTURE-WORLD PROCESS COUNTERS, reconstructed (world state — the
+#: process-local server_logging counter block the shipped status embed
+#: renders; goldens/logging/* pin the values). The counters are
+#: PROCESS-LIFETIME in both worlds, but the capture's trajectory encodes
+#: the CAPTURE run's own ordering (parity/run.py: CURATED_CASES first,
+#: then the sweep sorted by command qualified_name — parity/cases/
+#: sweep.py:169) plus its boot, neither of which the replay ordering
+#: (curated + goldens PATH-sorted, cases.py) reproduces — so the state
+#: is seeded per observing case, exactly like CAPTURE_WORLD_SETTINGS
+#: above (the #163 reseed lane, extended from settings rows to process
+#: memory; the cleanup `_word_cache` golden-pinned-literal precedent is
+#: the same class one level up).
+#:
+#: Derivation, per the shipped counter semantics (disbot services/
+#: server_logging.py: EVERY `moderation.action_taken` + every guild-
+#: bearing `audit.action_recorded` bumps `skipped_disabled` when
+#: `logging.enabled` is off; `_on_moderation_action_public` pre-filters
+#: to the disciplinary set {warn, timeout, kick, ban} and counts
+#: `mod_public_skipped` under the default "none" selector):
+#:
+#: * boot: +1 skipped_disabled — the harness boot ran the real on-ready
+#:   flows and cleared their CALLS/EVENTS as boot noise
+#:   (parity/harness/boot.py "boot noise ... is not case output") but a
+#:   process counter cannot be cleared with them; exactly one boot-time
+#:   audited mutation carried a guild (the on-ready log-channel binding
+#:   auto-provision lane — disbot services/binding_mutation.py's
+#:   system-actor class). Measured by the logging.enable_and_bind
+#:   golden itself: skipped_disabled = 1 with ZERO bus events in any
+#:   earlier curated case (curated order: 4×karma, economy — none emit
+#:   audit/moderation events; parity/cases/curated.py).
+#: * curated moderation.warn_flow (after enable_and_bind, before every
+#:   sweep): +2 (warn audit + warn action) and +1 mod_public_skipped.
+#: * sweeps before "logging" in qualified-name order (events counted
+#:   from the goldens' own pinned `events` arrays): aireview_preset_add
+#:   +1, ban +2 (+1 public), bulkcreate +1, bulkdelete +1,
+#:   clearwarnings +2 (NOT disciplinary — no public skip), clone +1,
+#:   create +2, createrole +1, del +1, kick +2 (+1 public), lock +1.
+#:
+#: ⇒ at logging.enable_and_bind: {skipped_disabled: 1}
+#: ⇒ at every sweep.logging_* case: 1 + 2 + 15 = {skipped_disabled: 18,
+#:   mod_public_skipped: 3} (warn_flow + ban + kick = 3 public skips;
+#:   nothing between sweep.logging and sweep.logging_test increments).
+CAPTURE_WORLD_COUNTERS: dict[str, dict[str, int]] = {
+    "logging.enable_and_bind": {"skipped_disabled": 1},
+    **{case_id: {"skipped_disabled": 18, "mod_public_skipped": 3}
+       for case_id in ("sweep.logging", "sweep.logging_create",
+                       "sweep.logging_routes", "sweep.logging_set",
+                       "sweep.logging_status", "sweep.logging_test")},
+}
+
 
 def _flatten_components(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
     flat: list[dict[str, Any]] = []
@@ -95,6 +145,15 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
     random.seed(case.seed)
     harness.world.clock.set_case_base(case.id)
     harness.reset_case_state()
+
+    seeded_counters = CAPTURE_WORLD_COUNTERS.get(case.id)
+    if seeded_counters is not None:
+        # capture-world PROCESS state (see CAPTURE_WORLD_COUNTERS above) —
+        # in-memory, so it seeds outside the DB block and never appears in
+        # any db_delta.
+        from sb.domain.server_logging.service import seed_counters_for_replay
+
+        seed_counters_for_replay(seeded_counters)
 
     before: dict[str, Any] = {}
     pool = None

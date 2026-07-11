@@ -50,10 +50,13 @@ def _select_option(option):
 
 
 def build_embed(rendered: RenderedPanel):
-    """RenderedEmbed → discord.Embed (budgets already enforced kernel-side)."""
+    """RenderedEmbed → discord.Embed (budgets already enforced kernel-side).
+    Returns None for CONTENT-only panels (RenderedPanel.embed=None)."""
     if discord is None:
         raise RuntimeError("discord is not installed")
     e = rendered.embed
+    if e is None:
+        return None
     embed = discord.Embed(title=e.title or None, description=e.description or None,
                           color=STYLE_TOKEN_COLORS.get(e.style_token))
     if getattr(e, "author_name", ""):
@@ -97,7 +100,18 @@ def build_view(rendered: RenderedPanel):
             self.panel_id = rendered.panel_id
             self.message = None     # set by the presenter after send
             for comp in rendered.components:
-                if comp.kind == "selector":
+                if comp.kind == "selector" and getattr(comp, "channel_types",
+                                                       None):
+                    # Discord-native channel picker (wire type 8) — the
+                    # shipped LogChannelSelectView shape.
+                    item = discord_ui.ChannelSelect(
+                        custom_id=comp.custom_id,
+                        placeholder=comp.placeholder or None,
+                        min_values=comp.min_values, max_values=comp.max_values,
+                        channel_types=[discord.ChannelType(t)
+                                       for t in comp.channel_types],
+                        row=comp.row)
+                elif comp.kind == "selector":
                     item = discord_ui.Select(
                         custom_id=comp.custom_id, placeholder=comp.placeholder or None,
                         min_values=comp.min_values, max_values=comp.max_values,
@@ -166,6 +180,10 @@ class DiscordPanelPresenter:
         files = build_files(rendered)
         if files:
             file_kwargs["files"] = files
+        if getattr(rendered, "content", None) is not None:
+            # CONTENT-only (or content-bearing) panel message — the shipped
+            # plain-text send carrying a component View.
+            file_kwargs["content"] = rendered.content
         if (rendered.anchor_policy == "channel_anchor"
                 and getattr(origin, "channel", None) is not None):
             # CHANNEL_ANCHOR: always a fresh channel message, even when a
