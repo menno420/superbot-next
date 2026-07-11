@@ -162,17 +162,23 @@ def test_tools_button_opens_shipped_tools_chooser_with_current(skeleton):
 def test_chooser_scope_buttons_answer_honest_pending(skeleton):
     """The still-parked scope pickers keep their honest pending terminal
     (the POLICY pickers are live — the policy-mutation slice's own
-    skeleton drives them; behavior preset / tools profile pickers are the
-    behavior-preset / orchestration-mutation slices' ports)."""
+    skeleton drives them — and so are the BEHAVIOR preset pickers, the
+    behavior-preset slice D-0071, whose own skeleton drives them
+    [test_band7_behavior_presets.py]; the behavior ROUTING-MATRIX picker
+    and the tools profile pickers stay the routing-matrix /
+    orchestration-mutation slices' ports)."""
     payload = _panel_payload(_click_hub(skeleton, "behavior"))
-    channel_btn = [c["custom_id"] for row in payload["components"]
-                   for c in row["components"] if c.get("label") == "Channel"]
-    run(skeleton.click(message_id=902, custom_id=channel_btn[0],
+    matrix_btn = [c["custom_id"] for row in payload["components"]
+                  for c in row["components"]
+                  if c.get("label") == "Routing matrix"]
+    run(skeleton.click(message_id=902, custom_id=matrix_btn[0],
                        persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"] == (
-        "The per-channel behavior preset picker ports with the "
-        "behavior-preset slice.")
+        "The routing-matrix picker (views/ai/routing/matrix.py — the "
+        "channel-pick dry-run resolve card) ports with the "
+        "routing-matrix follow-up slice — `!ai routing` lists the task "
+        "table meanwhile.")
 
 
 # --- the settings edit/reset dispatch (the shipped S6 routing) --------------------
