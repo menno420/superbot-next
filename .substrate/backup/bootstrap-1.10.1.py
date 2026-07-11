@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.11.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.10.1 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -87,7 +87,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.11.0"
+KIT_VERSION = "1.10.1"
 
 
 def _new_project_id() -> str:
@@ -740,19 +740,10 @@ def updated_line_example() -> str:
 #   kit: v<X.Y.Z> · check: green|red · engaged: yes|no
 # Parsed leniently — real heartbeats decorate the line, so the version is the
 # first `v<digit...>` token after `kit:` and the check/engaged fields are
-# scanned anywhere on the line. The line anchor is lenient too: adopters
-# embed the heartbeat as a markdown bullet with a bold label (venture-lab's
-# live shape, found at the v1.10.1 wave: `- **kit heartbeat:** kit: v… ·
-# check: … · engaged: …`), so an optional leading list marker and/or
-# `**bold label**` prefix is accepted before `kit:` — the old start-of-line
-# anchor silently degraded that row to "no `kit:` line" in the fleet
-# registry and lost its engaged signal. Consumed by currency.parse_kit_line
-# (the fleet registry's self-report evidence).
+# scanned anywhere on the line. Consumed by currency.parse_kit_line (the
+# fleet registry's self-report evidence).
 
-KIT_LINE_RE = re.compile(
-    r"^(?:[-*+]\s+)?(?:\*\*[^*\n]+\*\*\s*)?kit:\s*(.*)$",
-    re.MULTILINE,
-)
+KIT_LINE_RE = re.compile(r"^kit:\s*(.*)$", re.MULTILINE)
 KIT_VERSION_TOKEN_RE = re.compile(r"\bv(\d[\w.\-]*)")
 KIT_CHECK_FIELD_RE = re.compile(r"\bcheck:\s*(green|red)\b")
 KIT_ENGAGED_FIELD_RE = re.compile(r"\bengaged:\s*(yes|no)\b")
@@ -4490,20 +4481,6 @@ JSONL because atomic appends beat rewriting a JSON array (plan D-10).
 GUARD_FIRES_FILENAME = "guard-fires.jsonl"
 MODEL_USAGE_RELPATH = "telemetry/model-usage.jsonl"
 
-# Guard-fire dedupe window (seconds): a re-run of the same guard over the
-# same unchanged finding within this window appends nothing. Provenance:
-# trading-strategy PR #57's session card — the born-red gate lane re-runs
-# `check` 2–3× per push, so `guard-fires.jsonl` was "dominated by duplicate
-# born-red heartbeat noise (same card, same message, seconds apart)" and
-# stopped being a signal ledger. Ten minutes covers a CI/gate re-run burst
-# while a *persisting* finding still re-records on the next real session
-# activity; a verdict-carrying record (allowlist suppression) is never
-# deduped — verdict events are data, not noise.
-GUARD_FIRES_DEDUPE_WINDOW_S = 600
-# How many tail records to scan for the dedupe key set — bounds the read on
-# a long-lived fires log; a burst larger than this simply dedupes less.
-_GUARD_FIRES_DEDUPE_SCAN = 200
-
 # The run-report needle. \N escape keeps the engine source ASCII-safe.
 MODEL_LINE_NEEDLE = "\N{BAR CHART} Model:"  # 📊 Model:
 
@@ -4537,49 +4514,6 @@ def _append_jsonl(path: Path, record: dict) -> None:
         handle.write(line + "\n")
 
 
-def _recent_fire_keys(path: Path, now: datetime) -> set[tuple[str, str, str]]:
-    """Dedupe keys ``(guard, path, message)`` of recent verdict-less records.
-
-    Scans the tail of the fires log for records whose ``ts`` falls inside
-    :data:`GUARD_FIRES_DEDUPE_WINDOW_S` of ``now``. Records carrying a
-    ``verdict`` (allowlist-suppression events) never enter the key set —
-    they are data points, not repeat noise, and must never swallow a later
-    plain fire. Fail-open: any unreadable/undecodable state returns what was
-    parsed so far (worst case: no dedupe, the pre-fix behavior).
-    """
-    keys: set[tuple[str, str, str]] = set()
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return keys
-    for line in lines[-_GUARD_FIRES_DEDUPE_SCAN:]:
-        try:
-            record = json.loads(line)
-        except ValueError:
-            continue
-        if not isinstance(record, dict) or record.get("verdict") is not None:
-            continue
-        try:
-            ts = datetime.fromisoformat(str(record.get("ts")))
-        except ValueError:
-            continue
-        if ts.tzinfo is None:
-            continue
-        if (now - ts).total_seconds() > GUARD_FIRES_DEDUPE_WINDOW_S:
-            continue
-        finding = record.get("finding")
-        if not isinstance(finding, dict):
-            continue
-        keys.add(
-            (
-                str(record.get("guard")),
-                str(finding.get("path")),
-                str(finding.get("message")),
-            ),
-        )
-    return keys
-
-
 def record_guard_fires(
     root: Path,
     state_dir: str,
@@ -4602,14 +4536,6 @@ def record_guard_fires(
     and ``outcome`` always start null — a later, *different* party fills them
     (the grading-separation rule).
 
-    **Short-window dedupe** (trading-strategy #57's card): a verdict-less
-    fire whose ``(guard, path, message)`` already appears in a record from
-    the last :data:`GUARD_FIRES_DEDUPE_WINDOW_S` seconds is skipped — the
-    born-red gate lane re-runs ``check`` several times per push and was
-    filling the log with identical designed-hold echoes. Verdict-carrying
-    records (allowlist suppressions) always append: the verdict event is
-    the datum.
-
     Fail-open by contract: any failure (unwritable path, weird finding
     object) writes nothing and raises nothing — telemetry never blocks an
     agent-facing path. Writes only into an **existing** install
@@ -4620,16 +4546,9 @@ def record_guard_fires(
         if not (root / state_dir).is_dir():
             return 0
         path = guard_fires_path(root, state_dir)
-        now = datetime.now(timezone.utc)
-        ts = now.isoformat(timespec="seconds")
-        recent = _recent_fire_keys(path, now) if verdict is None else set()
+        ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
         written = 0
         for finding in findings:
-            if verdict is None:
-                key = (str(finding.kind), str(finding.path), str(finding.message))
-                if key in recent:
-                    continue
-                recent.add(key)
             record = {
                 "ts": ts,
                 "guard": str(finding.kind),
@@ -4838,169 +4757,6 @@ def reconcile_model_usage(root: Path, sessions_dir: Path) -> list[str]:
         return [head]
     except Exception:  # noqa: BLE001 — telemetry fails open by contract
         return ["model-usage: reconcile failed (fail-open) — rows not recorded."]
-
-# --- engine/loop/handoff_pointer.py ---
-"""Pull-visible handoff pointer — the B1 run-6 delivery-gap fix.
-
-Bench run-6 (PR #201, report §5) proved the #165 SessionStart handoff-push's
-delivery assumption false at the orchestrator→worker harness seam: the push
-fired at every ON boot but reached the measured delegated worker in **0/3**
-— the seam does not forward SessionStart context, and SessionStart does not
-re-fire for subagents. The signal never reached the session that acts.
-
-What the workers *did* touch, unprompted and early, was the working tree:
-``git status`` / ``ls`` / ``find`` ran in 4 of the 6 measured sessions, and
-run-6's one acknowledgment-adjacent event was the ON-T2 worker noticing
-untracked paths in its own ``git status``. So the kit now delivers the same
-handoff content through that surface: a lean ``HANDOFF.md`` at repo root,
-regenerated at every session boot (SessionStart hook / ``session-start``)
-and refreshed by the ``ensure_draft`` seam (Stop hook, ``session-close``,
-``draft``), carrying exactly the push's handoff section — newest session
-card path + status + unresolved slot count + the previous session's resolved
-"next session should know" pointer.
-
-Design decisions (decide-and-flag):
-
-- **Untracked by design, deliberately NOT gitignored.** A gitignored file is
-  invisible in ``git status`` — the one surface with observed worker
-  acknowledgment. Untracked-at-root rides both ``git status`` (shows it) and
-  plain ``ls`` (a dot-dir like ``.sessions/`` does not). The file's own
-  header says never to commit or edit it.
-- **Marker-guarded ownership.** The writer only ever creates, overwrites, or
-  deletes a file carrying ``HANDOFF_POINTER_MARKER`` — a host-owned
-  ``HANDOFF.md`` is never touched.
-- **One composer, two surfaces.** ``handoff_lines`` feeds both the
-  orientation push (``session_start._ori_handoff``) and this file, so the
-  pushed and pulled text can never drift apart.
-- **Fail-open by contract**, like every hook seam: writing the pointer can
-  never crash a session start or stop.
-"""
-
-
-
-
-# The pointer file's repo-root filename — a program-wide constant (like the
-# `do-not-automerge` label), not config: every adopter's cold session should
-# find the same name in the same place.
-HANDOFF_POINTER_FILENAME = "HANDOFF.md"
-# Ownership marker: the writer only creates/overwrites/deletes a file that
-# carries this line — a host-owned HANDOFF.md is never touched.
-HANDOFF_POINTER_MARKER = "<!-- substrate:handoff-pointer -->"
-# Cap on the handoff-pointer excerpt — the pointer must stay terse (the B1
-# M1 lesson: ON already pays a footprint premium; a fat artifact makes the
-# regression worse, not better).
-HANDOFF_EXCERPT_CAP = 300
-# The drafted close-out's handoff field (engine.loop.handoff draft text).
-HANDOFF_NEEDLE = "next session should know"
-
-
-def resolved_handoff_pointer(text: str) -> str:
-    """Extract the newest RESOLVED handoff pointer from a session card.
-
-    The auto-draft writes ``- Next session should know: [[fill: …]]`` and a
-    closing session resolves the slot in place, so the pointer is a line
-    match, not structure. The LAST resolved match wins (drafted close-outs
-    append, so the newest section sits at the bottom); a line still carrying
-    an unresolved ``[[fill:`` slot is skipped — pushing a template slot at a
-    cold session would be noise, not handoff.
-    """
-    pointer = ""
-    for line in text.splitlines():
-        lowered = line.lower()
-        index = lowered.find(HANDOFF_NEEDLE)
-        if index < 0:
-            continue
-        rest = line[index + len(HANDOFF_NEEDLE) :].lstrip(" :**").strip()
-        if not rest or DRAFT_FILL_TOKEN in rest:
-            continue
-        pointer = rest
-    if len(pointer) > HANDOFF_EXCERPT_CAP:
-        pointer = pointer[: HANDOFF_EXCERPT_CAP - 1].rstrip() + "…"
-    return pointer
-
-
-def handoff_lines(root: Path, config: Config) -> list[str]:
-    """Compose the handoff bullet lines, or ``[]`` when no session card exists.
-
-    The single source both delivery surfaces render: the SessionStart
-    orientation push (section 2) and the ``HANDOFF.md`` pointer file. Content:
-    the newest card's path, its completion state, its unresolved auto-draft
-    slot count, and the previous session's resolved "Next session should
-    know" pointer, capped terse (the M1 budget).
-    """
-    card = latest_session_log(root / config.sessions_dir)
-    if card is None:
-        return []
-    text = card.read_text(encoding="utf-8", errors="replace")
-    try:
-        rel = card.relative_to(root)
-    except ValueError:
-        rel = card
-    status = "in-progress/drafted" if status_in_progress(text) else "complete"
-    slots = unresolved_fill_count(text)
-    slot_note = f", {slots} unresolved [[fill:]] slot(s)" if slots else ""
-    lines = [f"- Newest session card: `{rel}` — status: {status}{slot_note}."]
-    pointer = resolved_handoff_pointer(text)
-    if pointer:
-        lines.append(f"- Next session should know: {pointer}")
-    lines.append(
-        "- Open that card FIRST — it is the last session's record; prefer it "
-        "over re-deriving history from `git log`/`git show`.",
-    )
-    return lines
-
-
-def compose_pointer_file(lines: list[str]) -> str:
-    """Render the ``HANDOFF.md`` body around the shared handoff lines."""
-    return (
-        "\n".join(
-            [
-                "# HANDOFF — the previous session's trail",
-                "",
-                HANDOFF_POINTER_MARKER,
-                "<!-- regenerated by substrate-kit at every session boot; "
-                "untracked by design — read it, never commit or edit it -->",
-                "",
-                *lines,
-            ],
-        )
-        + "\n"
-    )
-
-
-def write_handoff_pointer(root: Path, config: Config) -> str | None:
-    """Regenerate (or retire) the repo-root ``HANDOFF.md`` pointer file.
-
-    Marker-guarded: an existing file without ``HANDOFF_POINTER_MARKER`` is
-    host-owned and never touched. With no session card to point at, a
-    kit-written pointer is removed (a stale pointer is worse than none).
-    Returns a one-line advisory when the file changed, else ``None``.
-    Fail-open by contract — any failure returns ``None`` rather than raising
-    into a hook.
-    """
-    try:
-        path = root / HANDOFF_POINTER_FILENAME
-        existing: str | None = None
-        if path.is_file():
-            existing = path.read_text(encoding="utf-8", errors="replace")
-            if HANDOFF_POINTER_MARKER not in existing:
-                return None  # host-owned HANDOFF.md — never touch
-        lines = handoff_lines(root, config)
-        if not lines:
-            if existing is not None:
-                path.unlink()
-                return f"{HANDOFF_POINTER_FILENAME}: no session card to point at — pointer removed"
-            return None
-        body = compose_pointer_file(lines)
-        if existing == body:
-            return None
-        atomic_write_text(path, body)
-        return (
-            f"{HANDOFF_POINTER_FILENAME} refreshed → newest session card "
-            "(untracked by design; do not commit)"
-        )
-    except Exception:  # fail open — the pointer must never crash a hook seam
-        return None
 
 # --- engine/loop/handoff.py ---
 """Auto-drafted session handoff (band KL-5, founding plan §10 — the ruled B1 prerequisite).
@@ -5415,20 +5171,7 @@ def ensure_draft(root: Path, config: Config, backend: Any) -> list[str]:
     drafted is only counted (unresolved slots); a completed card is never
     touched. Fail-open by contract — any failure returns ``[]`` rather than
     raising into a hook.
-
-    After drafting, the repo-root ``HANDOFF.md`` pointer is refreshed —
-    silently — so it names the just-drafted card (the B1 run-6 delivery-gap
-    fix: the pointer rides the working-tree surfaces delegated workers
-    actually touch). Silent by design: the refresh is bookkeeping, not an
-    advisory, and it must not change this seam's advisory contract.
     """
-    lines = _draft_advisories(root, config, backend)
-    write_handoff_pointer(root, config)
-    return lines
-
-
-def _draft_advisories(root: Path, config: Config, backend: Any) -> list[str]:
-    """The drafting body of ``ensure_draft`` (see its contract above)."""
     try:
         try:
             state = dict(backend.data) if backend.data else {}
@@ -8401,6 +8144,12 @@ _ORI_STANDARD_LESSON_CAP = 3
 # an advisory (6), and the workflow proposal (10) — observe imposes nothing
 # else.
 _ORI_MINIMAL_SECTIONS = frozenset({1, 2, 6, 10})
+# Cap on the pushed handoff-pointer excerpt — the push must stay terse (the
+# B1 M1 lesson: ON already pays a footprint premium; a fat banner makes the
+# regression worse, not better).
+_ORI_HANDOFF_EXCERPT_CAP = 300
+# The drafted close-out's handoff field (engine.loop.handoff draft text).
+_ORI_HANDOFF_NEEDLE = "next session should know"
 
 
 def _ori_status_header(state: dict[str, Any], config: Config) -> str:
@@ -8414,6 +8163,31 @@ def _ori_status_header(state: dict[str, Any], config: Config) -> str:
     )
 
 
+def _ori_handoff_pointer(text: str) -> str:
+    """Extract the newest RESOLVED handoff pointer from a session card.
+
+    The auto-draft writes ``- Next session should know: [[fill: …]]`` and a
+    closing session resolves the slot in place, so the pointer is a line
+    match, not structure. The LAST resolved match wins (drafted close-outs
+    append, so the newest section sits at the bottom); a line still carrying
+    an unresolved ``[[fill:`` slot is skipped — pushing a template slot at a
+    cold session would be noise, not handoff.
+    """
+    pointer = ""
+    for line in text.splitlines():
+        lowered = line.lower()
+        index = lowered.find(_ORI_HANDOFF_NEEDLE)
+        if index < 0:
+            continue
+        rest = line[index + len(_ORI_HANDOFF_NEEDLE) :].lstrip(" :**").strip()
+        if not rest or DRAFT_FILL_TOKEN in rest:
+            continue
+        pointer = rest
+    if len(pointer) > _ORI_HANDOFF_EXCERPT_CAP:
+        pointer = pointer[: _ORI_HANDOFF_EXCERPT_CAP - 1].rstrip() + "…"
+    return pointer
+
+
 def _ori_handoff(root: Path, config: Config) -> str:
     """Render section 2 — the handoff push ('' when no session card exists).
 
@@ -8423,24 +8197,31 @@ def _ori_handoff(root: Path, config: Config) -> str:
     section PUSHES it: the newest card's path, its completion state, its
     unresolved auto-draft slot count, and the previous session's resolved
     "Next session should know" pointer, capped terse (the M1 budget).
-
-    The bullet lines are the shared ``engine.loop.handoff_pointer`` composer
-    — the same content the repo-root ``HANDOFF.md`` pointer file carries (the
-    B1 run-6 delivery-gap fix: this push stops at the orchestrator, so the
-    file delivers the identical trail through the working-tree surfaces
-    delegated workers actually touch). One composer, two surfaces — the
-    pushed and pulled text can never drift apart.
     """
-    lines = handoff_lines(root, config)
-    if not lines:
+    card = latest_session_log(root / config.sessions_dir)
+    if card is None:
         return ""
-    return "\n".join(
-        [
-            "## Handoff — the previous session's trail (pushed; read before re-deriving)",
-            "",
-            *lines,
-        ],
+    text = card.read_text(encoding="utf-8", errors="replace")
+    try:
+        rel = card.relative_to(root)
+    except ValueError:
+        rel = card
+    status = "in-progress/drafted" if status_in_progress(text) else "complete"
+    slots = unresolved_fill_count(text)
+    slot_note = f", {slots} unresolved [[fill:]] slot(s)" if slots else ""
+    lines = [
+        "## Handoff — the previous session's trail (pushed; read before re-deriving)",
+        "",
+        f"- Newest session card: `{rel}` — status: {status}{slot_note}.",
+    ]
+    pointer = _ori_handoff_pointer(text)
+    if pointer:
+        lines.append(f"- Next session should know: {pointer}")
+    lines.append(
+        "- Open that card FIRST — it is the last session's record; prefer it "
+        "over re-deriving history from `git log`/`git show`.",
     )
+    return "\n".join(lines)
 
 
 def _ori_stance(state: dict[str, Any]) -> str:
@@ -9966,7 +9747,7 @@ def ci_snippet() -> str:
         "#   substrate-check:\n"
         "#     runs-on: ubuntu-latest\n"
         "#     steps:\n"
-        "#       - uses: actions/checkout@v5\n"
+        "#       - uses: actions/checkout@v4\n"
         "#       - name: substrate checks\n"
         "#         run: python3 bootstrap.py check --strict\n"
     )
@@ -10101,7 +9882,7 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         "  substrate-gate:\n"
         "    runs-on: ubuntu-latest\n"
         "    steps:\n"
-        "      - uses: actions/checkout@v5\n"
+        "      - uses: actions/checkout@v4\n"
         "        with:\n"
         "          fetch-depth: 0\n"
         "      - name: control fast lane (control/**-only diff short-circuits green)\n"
@@ -10167,7 +9948,7 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         "            python3 bootstrap.py check --strict --status-only "
         '--inbox-base "$basefile"\n'
         "          fi\n"
-        "      - uses: actions/setup-python@v6\n"
+        "      - uses: actions/setup-python@v5\n"
         "        if: steps.lane.outputs.control_only != 'true'\n"
         "        with:\n"
         '          python-version: "3.x"\n'
@@ -13041,10 +12822,7 @@ def _hook_sessionstart(target: Path) -> list[str]:
     The anchor (timestamp + git HEAD/branch, ``state["session_anchor"]``) is
     the evidence baseline the KL-5 auto-draft diffs against at session close.
     Recording is fail-open inside ``record_session_anchor`` — orientation
-    must never be blocked by evidence bookkeeping. The boot also regenerates
-    the repo-root ``HANDOFF.md`` pointer (the B1 run-6 delivery-gap fix: the
-    orchestrator→worker seam does not forward this hook's stdout, so the same
-    handoff content rides the working tree, where delegated workers look).
+    must never be blocked by evidence bookkeeping.
     """
     config = load_config(target)
     backend = JsonStateBackend(_state_path(target, config))
@@ -13052,7 +12830,6 @@ def _hook_sessionstart(target: Path) -> list[str]:
     if text:
         sys.stdout.write(text)
     record_session_anchor(target, config, backend)
-    write_handoff_pointer(target, config)
     return []
 
 
@@ -14204,9 +13981,7 @@ def cmd_session_start(target: Path) -> int:
 
     Also records the session-start evidence anchor (fail-open) — the same
     baseline the SessionStart hook records, so a session driven by the CLI
-    instead of the hook still gets an evidence-backed auto-draft at close —
-    and regenerates the repo-root ``HANDOFF.md`` pointer (the B1 run-6
-    delivery-gap fix), exactly as the hook does.
+    instead of the hook still gets an evidence-backed auto-draft at close.
     """
     loaded = _require_state(target, "session-start")
     if loaded is None:
@@ -14214,9 +13989,6 @@ def cmd_session_start(target: Path) -> int:
     config, backend = loaded
     _emit(compose_orientation(target, config, backend))
     record_session_anchor(target, config, backend)
-    note = write_handoff_pointer(target, config)
-    if note:
-        _emit(f"session-start: {note}")
     return 0
 
 
@@ -14936,7 +14708,7 @@ def main(argv: list[str] | None = None) -> int:
 _TEMPLATES = {
     'AGENT_ORIENTATION.md.tmpl': '# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\n1. `.claude/CLAUDE.md` — the working agreement.\n2. `docs/current-state.md` — the living status ledger.\n3. `docs/CAPABILITIES.md` — verified session capabilities & walls (the\n   discovery rule lives there; append what you learn).\n4. This file — task-specific reading routes.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/ideas/README.md` — plus the root\n`CONSTITUTION.md` (the working agreement) and `.session-journal.md`.\n\n## Verifying any change\n\n```\n${verify_command}\n```\n',
     'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/capabilities.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   evidence (exact error, or proof it worked) and the workaround if one was\n   found. An unrecorded discovery is re-paid by every future session.\n\n## Capabilities — verified working\n\n- **Media is readable**: a video is never "unviewable" — extract frames\n  (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images; same\n  idea for audio (transcribe) and PDFs (render pages). Try the recipe before\n  reporting a format wall.\n- **Provisioned credentials**: the environment often carries tokens/keys as\n  env vars — `printenv` first; a missing-looking credential is usually a\n  missing *look*.\n- **Release cutting despite the tag wall**: `workflow_dispatch` on the\n  release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- **Tag push / release create via git**: HTTP 403 from the environment\'s git\n  proxy → use the workflow_dispatch release path.\n- **Branch deletion**: 403 on every path (git push `:branch` and API) →\n  owner deletes by hand / enables "Automatically delete head branches".\n- **`api.github.com` direct HTTP**: blocked → GitHub access is MCP-tools-only.\n- **Environment / routine / Project creation**: owner-click actions in the\n  console — queue them under `⚑ needs-owner`, never wait silently.\n- **Self-merge classifier**: sessions can be refused merging owner-gated PRs\n  while their other capabilities work — and the boundary differs by session\n  kind (a child session was refused where a coordinator was not). Record\n  which kind of session hit which boundary.\n- **GraphQL API quota**: tight — batch queries and prefer the REST-backed\n  MCP tools for bulk reads.\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.\n\n(Hand-filled by sessions, per the discovery rule. Seed walls/capabilities\nabove came from the fleet\'s lived 2026-07 findings; local ones go here.)\n',
-    'CLAUDE.md.tmpl': "# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `HANDOFF.md` at repo root (when present) — the previous session's trail:\n   newest session card + where to pick up. Regenerated at every session\n   boot, untracked by design — read it before re-deriving history from\n   `git log`/`git show`; never commit or edit it.\n3. `docs/current-state.md` — what is true right now.\n4. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).\n   Never declare a wall or a missing credential without its discovery rule:\n   check the file → check the env → attempt once + capture the exact error →\n   append the finding same session.\n5. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g '!bootstrap.py' -g\n'!.substrate' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n",
+    'CLAUDE.md.tmpl': "# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `docs/current-state.md` — what is true right now.\n3. `docs/CAPABILITIES.md` — what sessions here CAN and CANNOT do (verified).\n   Never declare a wall or a missing credential without its discovery rule:\n   check the file → check the env → attempt once + capture the exact error →\n   append the finding same session.\n4. `docs/AGENT_ORIENTATION.md` — the task-specific reading router.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g '!bootstrap.py' -g\n'!.substrate' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n",
     'CONSTITUTION.md.tmpl': "# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session's goal end-to-end; don't ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner often hands over a rough fragment, not\n  a full spec — and sometimes doesn't know yet if the idea is even possible.\n  Before substantive work, restate the fuller picture built from the ask —\n  the specs it implied but didn't state, and, when feasibility is uncertain,\n  the possibility space — inline in the first substantive response, never as\n  a separate blocking question. Two payoffs, not one: it catches a misread\n  before work happens, and the filled-in picture is itself new material the\n  owner reasons against and redirects.\n- **Capabilities are discovered, never assumed.** `docs/CAPABILITIES.md` is\n  the verified ledger of what sessions here can and cannot do — read it at\n  session start. Before declaring a wall or a missing credential: check that\n  file → check the environment (`printenv`, tool lists) → attempt once and\n  capture the exact error → append the finding same session. An imagined\n  wall stalls the session; an unrecorded real one taxes every later session.\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall (the\n  `docs/CAPABILITIES.md` discipline) — assumption-based asks are banned.\n  Every ask carries the OWNER-ACTION fields — WHAT / WHERE / HOW /\n  WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act on it\n  directly. Expire stale asks; fewer, clearer asks beat complete lists.\n\n## Changing the rules — propose, don't apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md):\nPL-001 decide-and-flag · PL-002 never-wait rebuild autonomy · PL-003\nrail-before-scale · PL-004 empirical model allocation · PL-005 observe-first\nbudgets · PL-006 source-wins / false-green · PL-007 enforce-don't-exhort ·\nPL-008 adopt-freely with a kill-switch · PL-009 the kit-lab's rails.\n**Cite PL-IDs — never copy ruling bodies into this repo.** The register is\nthe one home; a local copy is drift by construction. Repo-local rulings stay\nin `docs/decisions.md` / `docs/question-router.md`; a local ruling promoted\nprogram-wide becomes a PL-block there and a pointer here.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project's own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n",
     'ai-project-workflow.md.tmpl': "# ${project_name} — AI project workflow\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The multi-agent pipeline: how ideas become work\n> and how sessions run. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Idea lifecycle\n\n```\ncaptured -> classified -> planned -> built -> verified\n```\n\nEvery idea ends implemented, planned, in discussion, or explicitly rejected —\nnever orphaned. Backlog + routing: `docs/ideas/README.md`.\n\n## Session workflow\n\n```\norient -> claim -> born-red card -> build -> verify -> close\n```\n\n1. **Orient** — working agreement, current state, task-specific reading route.\n2. **Claim** — declare your lane so parallel sessions don't collide.\n3. **Born-red card** — open the session record first, marked in-progress, so\n   the work is visible while it is still incomplete.\n4. **Build** — the goal, end-to-end.\n5. **Verify** — run `${verify_command}` before shipping.\n6. **Close** — flip the card complete; log the session, groom one idea, hand\n   off.\n\n## Handoff template\n\n(What the next session needs, four lines: state of the work · what is\nverified · what is still open · the first next step.)\n\n## Adoption pace\n\nCurrent substrate-workflow adoption: **${integration_mode}**.\n",
     'architecture.md.tmpl': '# ${project_name} — architecture\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Layering, invariants, and decomposition rules.\n> **NOT SOURCE OF TRUTH** for code — source files always win.\n\n## Layers & import rules\n\n${architecture_layers}\n\n| Layer | May import | Must NOT import |\n|---|---|---|\n| (one row per layer, expanded from the summary above) | | |\n\n## Invariants\n\n(The rules that must survive every refactor — write each one as a testable\nstatement, and name the check that enforces it where one exists.)\n\n## Namespace protection — two mechanisms, both required\n\nTwo separate mechanisms guard the namespace, and they catch different\nfailure classes:\n\n1. **A registry for runtime string identities** — event names, command\n   names, settings keys, and any other string that selects behavior at\n   runtime. Collisions here are invisible to static analysis.\n2. **A static AST pass for Python symbol shadowing** — a later top-level\n   `def` / `class` with the same name silently shadows the earlier one, and\n   no import fails.\n\nNeither mechanism subsumes the other. The registry cannot see symbol\nshadowing; the AST pass cannot see string-keyed dispatch. Do not delete one\nbelieving the other covers it.\n\n## Verifying a change\n\n```\n${verify_command}\n```\n',
