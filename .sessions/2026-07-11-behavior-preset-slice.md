@@ -88,9 +88,16 @@ distinct view, not one of D-0070's parked picker pair).
 
 - units: `pytest tests/ -q` → **1388 passed / 2 skipped**
 - gate: `run_golden_parity.py --gate` → **GREEN 175/175 across 32
-  ported** (migration 0030 applied by the harness boot)
+  ported** (the slice migration applied by the harness boot)
 - report: `run_golden_parity.py --report` → **212/465 green, 465/465
   replayable, 32/49 ported** (unchanged — no goldens move)
+- POST-MERGE rerun (origin/main moved mid-session: the parallel wave-9
+  diagnostic flip #183 `10bf073` + heartbeat #184 `73db26d`; the slice
+  migration renumbered 0029→0030 on a number collision with main's new
+  `0029_platform_migration_checkpoints.sql`, checksums/guard-fires
+  keep-both, snapshot recompiled, fresh DB): units **1388/2**, gate
+  **GREEN 212/212 across 33 ported**, report **249/465 green, 465/465
+  replayable, 33/49** — every named gate clean again.
 - named gates: manifest_compile (rewritten + verified green),
   check_parity_depth OK (49 subsystems, 465 goldens),
   check_namespace / check_sim_gate / check_compat_frozen /
