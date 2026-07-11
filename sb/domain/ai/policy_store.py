@@ -2,7 +2,7 @@
 the policy-mutation slice) — the shipped migration 039 override shapes
 (NAME_STABLE; migrations/0028_ai_policy.sql) — plus the
 ai_instruction_profile preset-catalog reads (band 7, the behavior-preset
-slice — D-0071; migrations/0029_ai_instruction_profile.sql seeds the
+slice — D-0071; migrations/0030_ai_instruction_profile.sql seeds the
 seven shipped system presets and no runtime lane writes the table). Rows
 carry the mutating operator's id (``updated_by`` / ``created_by``) →
 MEMBER_ID; erasure = detach editorship (NULL the column), the
@@ -85,7 +85,7 @@ AI_CATEGORY_POLICY_STORE = register_store(_policy_store_spec("ai_category_policy
 AI_ROLE_POLICY_STORE = register_store(_policy_store_spec("ai_role_policy"))
 
 #: the shipped instruction-profile CATALOG (band 7, the behavior-preset
-#: slice — D-0071): migration 0029 seeds the seven system presets and no
+#: slice — D-0071): migration 0030 seeds the seven system presets and no
 #: runtime lane writes the table (guild-authored profiles are the oracle
 #: ai_instruction_mutation surface, unported); ``created_by`` exists in
 #: the shipped shape (NULL on every seed row) so the store rides the same
@@ -265,7 +265,7 @@ async def list_role_policies(guild_id: int, conn: Any = None) -> list[dict]:
 async def list_preset_profiles(conn: Any = None) -> list[dict]:
     """The shipped ai_db.list_preset_profiles: built-in presets, sorted
     alphabetically — all rows with ``is_preset = TRUE`` (the migration
-    0029 seed, oracle 044)."""
+    0030 seed, oracle 044)."""
     rows = await fetchall(
         "SELECT id, guild_id, name, body, scope, feature_key, is_preset "
         "FROM ai_instruction_profile WHERE is_preset ORDER BY name",

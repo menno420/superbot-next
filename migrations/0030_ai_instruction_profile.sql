@@ -1,4 +1,4 @@
--- 0029_ai_instruction_profile.sql — the shipped instruction-profile
+-- 0030_ai_instruction_profile.sql — the shipped instruction-profile
 -- CATALOG (band 7, the behavior-preset slice — D-0071): the FK target
 -- migration 0028 deliberately carried as "a plain nullable column (no FK
 -- target yet)".

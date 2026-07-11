@@ -163,6 +163,12 @@ class RenderedEmbed:
     # never set it; renderer_override panels carry it for the shipped
     # image-bearing cards.
     image_url: str = ""
+    # embed timestamp (the shipped ``discord.Embed(timestamp=...)`` corner —
+    # an ISO-8601 string; both presenters carry it: the parity twin
+    # serializes it verbatim, the live adapter parses it to the native
+    # datetime). First pinned by goldens/diagnostic/sweep_platform_findings
+    # (the shipped findings card stamps utcnow); "" omits the wire key.
+    timestamp: str = ""
 
 
 @dataclass(frozen=True)

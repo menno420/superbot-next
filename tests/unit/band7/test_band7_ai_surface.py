@@ -422,7 +422,7 @@ def test_ai_manifest_imports_and_registers():
                       "ai_channel_policy", "ai_category_policy",
                       "ai_role_policy",
                       # the behavior-preset slice (D-0071): the seeded
-                      # instruction-profile catalog (migrations/0029).
+                      # instruction-profile catalog (migrations/0030).
                       "ai_instruction_profile"}
     events = {e.name for e in manifest.MANIFEST.events}
     assert events == {"ai.policy.channel_changed",

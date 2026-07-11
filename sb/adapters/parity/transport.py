@@ -122,6 +122,11 @@ def _embed_payload(embed: Any) -> dict[str, Any]:
         # field (sb/adapters/discord/panel_view.py); the shipped wallet card
         # pins the shape (goldens/economy/sweep_balance).
         out["thumbnail"] = {"url": embed.thumbnail_ref}
+    if getattr(embed, "timestamp", ""):
+        # discord.py Embed(timestamp=...).to_dict() — the ISO string on the
+        # wire (goldens/diagnostic/sweep_platform_findings pins the key; the
+        # Normalizer maps any ISO datetime to "<ts>").
+        out["timestamp"] = embed.timestamp
     return out
 
 

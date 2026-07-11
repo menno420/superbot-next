@@ -16,7 +16,7 @@ distinct view, not one of D-0070's parked picker pair).
 
 ## What shipped
 
-1. **migrations/0029_ai_instruction_profile.sql** — the oracle 039
+1. **migrations/0030_ai_instruction_profile.sql** — the oracle 039
    `ai_instruction_profile` CREATE (NAME_STABLE) with 043's `is_preset`
    folded in, the SEVEN oracle-044 system presets seeded VERBATIM
    (disabled / mention_only_helper / helpful_channel / btd6_focused /
@@ -88,7 +88,7 @@ distinct view, not one of D-0070's parked picker pair).
 
 - units: `pytest tests/ -q` → **1388 passed / 2 skipped**
 - gate: `run_golden_parity.py --gate` → **GREEN 175/175 across 32
-  ported** (migration 0029 applied by the harness boot)
+  ported** (migration 0030 applied by the harness boot)
 - report: `run_golden_parity.py --report` → **212/465 green, 465/465
   replayable, 32/49 ported** (unchanged — no goldens move)
 - named gates: manifest_compile (rewritten + verified green),

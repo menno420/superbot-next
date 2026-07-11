@@ -7,7 +7,7 @@ audited ``ai.set_*_policy`` op with the profile binding — asserting the
 shipped bytes (reconstructed via search_code fragments; no golden pins
 these clicks).
 
-The catalog reads ride a fixture twin of the migration-0029 seed rows
+The catalog reads ride a fixture twin of the migration-0030 seed rows
 (the DB-free posture — the live drive proves the row-bearing reads);
 the write lane's engine seam is recorded like the policy-picker
 skeleton, while the pick → page → pick → handler → ack path is the real
@@ -28,7 +28,7 @@ PAGE_FOOTER = "Administrator-only · in-place navigation."
 _CHANNEL_ID = 555
 _CATEGORY_ID = 777
 
-#: the migration-0029 seed twin (ids in the seed's insert order; names +
+#: the migration-0030 seed twin (ids in the seed's insert order; names +
 #: is_preset the oracle 044 shape).
 _SEED_ROWS = [
     {"id": 1, "guild_id": None, "name": "disabled", "body": "…",
@@ -51,7 +51,7 @@ _SEED_ROWS = [
 @pytest.fixture()
 def seed_rows(monkeypatch):
     """The DB-free catalog: policy_store's preset reads answer the
-    migration-0029 seed (alphabetical, is_preset only — the real reads'
+    migration-0030 seed (alphabetical, is_preset only — the real reads'
     contract)."""
     from sb.domain.ai import policy_store
 

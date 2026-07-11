@@ -62,7 +62,7 @@ subsystems:
   counters: ported
   counting: ported
   creature: pending
-  diagnostic: pending
+  diagnostic: ported
   economy: ported
   farm: pending
   fishing: pending
@@ -284,7 +284,7 @@ depth:
           op the ai.policy_role_form submit runs (same ingress argument
           as its table row)"
       # the instruction-profile catalog (the behavior-preset slice,
-      # D-0071): migration 0029 seeds the seven shipped system presets
+      # D-0071): migration 0030 seeds the seven shipped system presets
       # (oracle migrations 039/043/044) and the slice ships NO runtime
       # write lane for the table — the preset pick's WRITE lands on
       # ai_channel_policy / ai_category_policy (instruction_profile_id,
@@ -502,6 +502,7 @@ depth:
     cleanup: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
     counting: {events: 1, tables: 2, settings: 0}
+    diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 2, tables: 5, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
     help: {events: 1, tables: 3, settings: 0}
