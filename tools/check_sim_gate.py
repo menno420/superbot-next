@@ -9,7 +9,11 @@ machine-derived from field roles) merged with the manifest/layout/*.lock.json
 overlays (sim.apply — the sole machine [A]-writer). Any change relative to
 the committed pin `sim/sim-gate-baseline.json` without matching provenance —
 a SimRef to a real sim record whose input hash matches, or an explicit
-Exempt(reason) — is red.
+Exempt(reason) — is red. An overlay whose value differs from the
+manifest-derived value for the SAME key is also red (overlay-masks-manifest
+drift, trap 30 / PR #190): overlays merge last, so a stale overlay would
+otherwise hide a manifest reshape from the diff entirely. Overlay-ONLY keys
+(no manifest-derived counterpart) remain legitimate.
 
     Diff mechanics: the spec's "diffs [A]-fields against the merge base" is
     implemented as the proven committed-pinned-baseline pattern (A-2/A-19):
@@ -56,14 +60,52 @@ SETTINGS_FLOOR = 6   # settings per subsystem, never per group
 
 
 # ------------------------------------------------------------------ current
-def current_assignments() -> dict[str, Any]:
-    from sim.apply import load_all_overlays
+def manifest_assignments() -> dict[str, Any]:
+    """The raw manifest-derived [A] assignments, BEFORE the overlay merge."""
     from sim.space import arrangement_assignments, registered_manifests
 
-    assignments = arrangement_assignments(registered_manifests())
+    return arrangement_assignments(registered_manifests())
+
+
+def current_assignments() -> dict[str, Any]:
+    from sim.apply import load_all_overlays
+
+    assignments = manifest_assignments()
     for key, entry in load_all_overlays().items():
         assignments[key] = entry.get("value")
     return assignments
+
+
+def overlay_mask_problems(
+    overlays: dict[str, dict[str, Any]],
+    manifest_derived: dict[str, Any],
+    auto_exempt: set[str],
+) -> list[str]:
+    """Trap-30 hardening (PR #190's role 3/2/2→3/3/1 reshape passed silently;
+    ledgered in control/status.md's #190 entry as the value-comparing-checker
+    follow-up): because overlays merge LAST in current_assignments(), a stale
+    overlay value overwrites the manifest-derived value for the SAME key —
+    both "current" and the baseline then carry the OLD value while the
+    manifest ships the NEW one, and nothing reds. Red any shared key whose
+    overlay value differs from the manifest-derived value. Keys that exist
+    ONLY in overlays (legacy-seed Exempt rows with no manifest-derived
+    counterpart, e.g. the setup WizardSectionSpec.order seeds) stay
+    legitimate. Auto-exempt below-floor keys stay outside the gate's
+    jurisdiction, matching every other check."""
+    problems: list[str] = []
+    for key, entry in sorted(overlays.items()):
+        if key not in manifest_derived or key in auto_exempt:
+            continue
+        overlay_value = entry.get("value")
+        manifest_value = manifest_derived[key]
+        if overlay_value != manifest_value:
+            problems.append(
+                f"{key}: overlay value {overlay_value!r} masks the "
+                f"manifest-derived value {manifest_value!r} — amend the "
+                f"manifest/layout/*.lock.json entry to the manifest truth "
+                f"(then regen the baseline) or revert the manifest reshape"
+            )
+    return problems
 
 
 def below_floor_keys(assignments: dict[str, Any]) -> set[str]:
@@ -151,6 +193,11 @@ def check() -> list[str]:
     for key, entry in overlays.items():
         problems.extend(_provenance_problems(key, entry.get("provenance")))
 
+    # an overlay must never mask a differing manifest-derived value (trap 30)
+    problems.extend(
+        overlay_mask_problems(overlays, manifest_assignments(), auto_exempt)
+    )
+
     for key, value in assignments.items():
         if key in auto_exempt:
             continue
@@ -185,6 +232,17 @@ def write_baseline() -> int:
     assignments = current_assignments()
     auto_exempt = below_floor_keys(assignments)
     baseline = load_baseline()
+
+    # refuse to re-pin a stale overlay value over a reshaped manifest (trap 30)
+    masked = overlay_mask_problems(overlays, manifest_assignments(), auto_exempt)
+    if masked:
+        for p in masked:
+            print(f"REFUSED {p}")
+        print(
+            "--write-baseline refused: overlay-masks-manifest value drift — "
+            "amend the lock overlay(s) to the manifest truth first"
+        )
+        return 1
 
     out: dict[str, dict[str, Any]] = {}
     refused: list[str] = []

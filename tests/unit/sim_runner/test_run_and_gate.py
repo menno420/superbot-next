@@ -172,3 +172,83 @@ class TestSimGate:
         monkeypatch.setattr(gate, "BASELINE", tmp_path / "sim-gate-baseline.json")
         assert gate.write_baseline() == 1
         assert "REFUSED" in capsys.readouterr().out
+
+
+class TestOverlayMasksManifestDrift:
+    """Trap-30 hardening (PR #190): a stale overlay value must not mask a
+    reshaped manifest-derived value for the same key."""
+
+    STALE_LAYOUT = {"pages": [{"rows": [["buy", "sell", "audit", "gift"], ["wipe"]]}]}
+
+    def _arm(self, monkeypatch, tmp_path, *, stale_overlay: bool):
+        """Register an above-floor 5-action panel; write an overlay + a
+        baseline that both pin either the manifest truth or a STALE layout
+        (the pre-hardening silently-green scenario)."""
+        import sim.apply as apply_mod
+
+        manifest = SubsystemManifest(
+            key="economy", panels=(_panel(("buy", "sell", "audit", "gift", "wipe")),))
+        monkeypatch.setattr(space_mod, "registered_manifests", lambda: [manifest])
+
+        overlay_dir = tmp_path / "layout"
+        monkeypatch.setattr(apply_mod, "OVERLAY_DIR", overlay_dir)
+        baseline = tmp_path / "sim-gate-baseline.json"
+        monkeypatch.setattr(gate, "BASELINE", baseline)
+
+        truth = gate.manifest_assignments()
+        key = "economy:econ.shop:PanelSpec.layout"
+        value = self.STALE_LAYOUT if stale_overlay else truth[key]
+        entries = {key: {"value": value, "provenance": Exempt("legacy-seed test")}}
+        write_overlay("economy", entries, overlay_dir=overlay_dir)
+        pins = {
+            k: {"value": (value if k == key else v),
+                "provenance": {"exempt": "legacy-seed test"}}
+            for k, v in truth.items()
+        }
+        baseline.write_text(
+            json.dumps({"schema_version": 1, "assignments": pins}))
+        return key, baseline
+
+    def test_overlay_masking_reshaped_manifest_value_is_red(
+        self, monkeypatch, tmp_path
+    ):
+        key, _ = self._arm(monkeypatch, tmp_path, stale_overlay=True)
+        problems = gate.check()
+        masked = [p for p in problems if "masks the manifest-derived value" in p]
+        assert masked and any(key in p for p in masked)
+
+    def test_overlay_only_key_stays_green(self, monkeypatch, tmp_path):
+        import sim.apply as apply_mod
+
+        # no manifests at all: the overlay key has NO manifest counterpart
+        monkeypatch.setattr(space_mod, "registered_manifests", lambda: [])
+        overlay_dir = tmp_path / "layout"
+        monkeypatch.setattr(apply_mod, "OVERLAY_DIR", overlay_dir)
+        baseline = tmp_path / "sim-gate-baseline.json"
+        monkeypatch.setattr(gate, "BASELINE", baseline)
+
+        key = "economy:econ.shop:PanelSpec.layout"
+        write_overlay("economy", {
+            key: {"value": self.STALE_LAYOUT,
+                  "provenance": Exempt("legacy-seed test")},
+        }, overlay_dir=overlay_dir)
+        baseline.write_text(json.dumps({"schema_version": 1, "assignments": {
+            key: {"value": self.STALE_LAYOUT,
+                  "provenance": {"exempt": "legacy-seed test"}},
+        }}))
+        assert gate.check() == []
+        assert gate.write_baseline() == 0
+
+    def test_write_baseline_refuses_on_masking_drift(
+        self, monkeypatch, capsys, tmp_path
+    ):
+        key, baseline = self._arm(monkeypatch, tmp_path, stale_overlay=True)
+        before = baseline.read_text()
+        assert gate.write_baseline() == 1
+        out = capsys.readouterr().out
+        assert "REFUSED" in out and "masks the manifest-derived value" in out
+        assert baseline.read_text() == before  # never re-pins the stale value
+
+    def test_matching_overlay_value_stays_green(self, monkeypatch, tmp_path):
+        self._arm(monkeypatch, tmp_path, stale_overlay=False)
+        assert gate.check() == []
