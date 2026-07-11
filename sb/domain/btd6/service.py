@@ -389,9 +389,24 @@ _HANDLERS = (
 )
 
 
-def ensure_handler_refs() -> None:
+def _register() -> None:
+    """Registered at MODULE IMPORT (declaring IS reserving) — the live
+    root imports and dispatches without ever running the manifest
+    ENSURE_REFS hooks when zero plugins are admitted, so an ensure-only
+    registration left every `!btd6ref`/`!btd6strat`/`!btd6events`/
+    `!btd6ops` subcommand dying in RefUnresolved BUG envelopes live
+    (BUG A class, band-5 live-drive ledger bug 1 — same fix as
+    sb/domain/role/handlers.py, burn-down row in
+    docs/ideas/ensure-only-registration-gaps-2026-07-10.md)."""
     from sb.spec.refs import HandlerRef, handler, is_registered
 
     for name, fn in _HANDLERS:
         if not is_registered(HandlerRef(name)):
             handler(name)(fn)
+
+
+def ensure_handler_refs() -> None:
+    _register()
+
+
+_register()

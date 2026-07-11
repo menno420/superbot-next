@@ -29,8 +29,24 @@ MAX_COMPONENTS_PER_ROW = 5
 MAX_COMPONENTS_PER_PAGE = 25
 MAX_MODAL_FIELDS = 5
 
-# §3.4: a legacy custom_id_override may not begin with a scheme-version token.
-_SCHEME_TOKEN_RE = re.compile(r"^[a-z]+\d+:")
+# §3.4: a legacy custom_id_override may not begin with a REGISTERED
+# scheme-version token. The fence used to reject the whole lexical class
+# ^[a-z]+\d+: — over-broad: the shipped BTD6 hub's persistent ids are
+# literally "btd6:ask" … "btd6:admin" (goldens/btd6/sweep_btd6menu pins
+# the bytes) and "btd6" is a subsystem name that happens to end in a
+# digit, not a scheme token. Disjointness stays enforced two-sided
+# against the REAL token set: this fence rejects overrides on registered
+# tokens, and router.register_scheme_parser rejects a NEW token whose
+# prefix any static id already claims — so a DYNAMIC id can never be
+# shadowed (route()'s static-first precedence already protects statics).
+_SCHEME_TOKEN_RE = re.compile(r"^([a-z]+\d+):")
+
+
+def _override_on_scheme_token(custom_id: str) -> bool:
+    from sb.kernel.panels.router import is_scheme_token
+
+    m = _SCHEME_TOKEN_RE.match(custom_id)
+    return bool(m and is_scheme_token(m.group(1)))
 
 # failure taxonomy
 LAYOUT_COVERAGE = "layout_coverage"                 # missing/extra/duplicate component
@@ -145,7 +161,7 @@ def check_panel(spec: PanelSpec) -> None:  # noqa: PLR0912 — a fence enumerate
                 MODAL_RULES, f"{pid}.{aid}: defer_mode=modal requires a ModalSpec (G-10)")
         if action.modal is not None:
             _check_modal(pid, aid, action.modal)
-        if _SCHEME_TOKEN_RE.match(action.custom_id_override or ""):
+        if _override_on_scheme_token(action.custom_id_override or ""):
             raise PanelCompileError(
                 SCHEME_TOKEN_OVERRIDE,
                 f"{pid}.{aid}: custom_id_override {action.custom_id_override!r} begins "
@@ -163,7 +179,7 @@ def check_panel(spec: PanelSpec) -> None:  # noqa: PLR0912 — a fence enumerate
                     f"{pid}.{aid}: handler {action.handler.name!r} is irreversible — "
                     f"a ConfirmationSpec is required")
     for selector in spec.selectors:
-        if _SCHEME_TOKEN_RE.match(selector.custom_id_override or ""):
+        if _override_on_scheme_token(selector.custom_id_override or ""):
             raise PanelCompileError(
                 SCHEME_TOKEN_OVERRIDE,
                 f"{pid}.{selector.selector_id}: custom_id_override begins with a "

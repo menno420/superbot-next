@@ -76,11 +76,30 @@ def parse_g1(custom_id: str) -> DynamicRoute | None:
 _parsers: dict[str, SchemeParser] = {"g1": parse_g1}
 
 
+def is_scheme_token(token: str) -> bool:
+    """Whether *token* is a REGISTERED scheme-version token — the §3.4
+    compile fence's source of truth (a lexical [a-z]+\\d+ match alone is
+    NOT a scheme token: shipped legacy ids like ``btd6:ask`` share the
+    shape without being one)."""
+    return token in _parsers
+
+
 def register_scheme_parser(token: str, parser: SchemeParser) -> None:
     if not re.fullmatch(r"[a-z]+\d+", token):
         raise ValueError(f"scheme token {token!r} must match [a-z]+<N>")
     if token in _parsers:
         raise ValueError(f"scheme token {token!r} already has a parser")
+    # two-sided §3.4 disjointness (the compile fence's twin): a NEW scheme
+    # token may not claim a prefix any registered static id already uses —
+    # static-first precedence would silently shadow every dynamic id under it.
+    from sb.kernel.panels.registry import static_table
+
+    prefix = f"{token}:"
+    claimed = sorted(cid for cid in static_table() if cid.startswith(prefix))
+    if claimed:
+        raise ValueError(
+            f"scheme token {token!r} collides with registered static "
+            f"custom_id(s) {claimed[:3]} — the id families must stay disjoint")
     _parsers[token] = parser
 
 
