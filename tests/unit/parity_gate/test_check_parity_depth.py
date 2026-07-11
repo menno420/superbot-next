@@ -428,6 +428,56 @@ class TestGateDriver:
         assert "RED BY DESIGN" in out
         assert "467 goldens" in out
 
+    def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
+                                                              monkeypatch):
+        """F-003 regression: a golden that fails reconstruction for a
+        `ported` subsystem must RED the gate, not quietly shrink the
+        replayed set under a GREEN banner. Before the fix, `run_gate` never
+        compared `_golden_counts()` (goldens on disk) against the replayed
+        case count — it only iterated `results`, which by construction never
+        contains an entry for a case that failed to reconstruct."""
+        import tools.run_golden_parity as rgp
+
+        monkeypatch.setattr(rgp, "_load_parity_yml",
+                            lambda: {"subsystems": {"help": "ported"}})
+        monkeypatch.setattr(rgp, "_replay_binding", lambda: (object(), ""))
+        real_count = rgp._golden_counts()["help"]
+        assert real_count >= 1
+
+        async def _fake_replay_corpus(only_subsystems, *, verbose_failures=8):
+            # one fewer than the real golden count — the injected drop.
+            results = {f"help.case{i}": ("help", True, [])
+                       for i in range(real_count - 1)}
+            return results, {"help": 1}
+
+        monkeypatch.setattr(rgp, "_replay_corpus", _fake_replay_corpus)
+        assert run_gate() == 1
+        out = capsys.readouterr().out
+        assert f"replayed {real_count - 1}/{real_count}" in out
+        assert "silently dropped" in out
+        assert "gate: GREEN" not in out
+
+    def test_gate_leg_green_when_replayed_count_matches_golden_count(
+            self, capsys, monkeypatch):
+        """The counterpart pin: when every golden on disk replayed (green or
+        not), the denominator check itself must NOT false-red."""
+        import tools.run_golden_parity as rgp
+
+        monkeypatch.setattr(rgp, "_load_parity_yml",
+                            lambda: {"subsystems": {"help": "ported"}})
+        monkeypatch.setattr(rgp, "_replay_binding", lambda: (object(), ""))
+        real_count = rgp._golden_counts()["help"]
+
+        async def _fake_replay_corpus(only_subsystems, *, verbose_failures=8):
+            results = {f"help.case{i}": ("help", True, [])
+                       for i in range(real_count)}
+            return results, {}
+
+        monkeypatch.setattr(rgp, "_replay_corpus", _fake_replay_corpus)
+        assert run_gate() == 0
+        out = capsys.readouterr().out
+        assert "gate: GREEN" in out
+
     def test_parity_yml_is_valid_yaml_with_kernel_home(self):
         parity = yaml.safe_load(PARITY_YML.read_text())
         assert "audit.action_recorded" in parity["kernel"]["events"]

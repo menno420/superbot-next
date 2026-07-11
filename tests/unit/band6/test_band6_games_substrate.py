@@ -35,6 +35,65 @@ def _ctx(params: dict, *, uid: int = P1, gid: int = GID,
         clock=lambda: dt.datetime.fromtimestamp(epoch, tz=dt.timezone.utc))
 
 
+# --- F-001/F-002 fast pin: checkpoint loads carry FOR UPDATE ---------------------------
+#
+# DB-free — inspects the SQL text a fake connection actually receives. This
+# is the cheap guard that runs in EVERY environment (including code-quality,
+# which has no asyncpg); the real proof that the lock actually closes the
+# race under genuine concurrent transactions lives in
+# tests/integration/test_games_checkpoint_race.py (needs a live Postgres).
+
+
+class _RecordingConn:
+    """A bare conn double that just remembers the SQL it was asked to run
+    (mirrors tests/unit/kernel/test_db_pool.py's _FakeConn)."""
+
+    def __init__(self, row: dict | None = None, rows: list[dict] | None = None):
+        self.row = row
+        self.rows = rows if rows is not None else []
+        self.queries: list[str] = []
+
+    async def fetchrow(self, query: str, *params: object):
+        self.queries.append(query)
+        return self.row
+
+    async def fetch(self, query: str, *params: object):
+        self.queries.append(query)
+        return self.rows
+
+    async def execute(self, query: str, *params: object):
+        self.queries.append(query)
+        return "OK"
+
+
+def test_fetch_checkpoint_locks_the_row():
+    from sb.domain.games import store
+
+    conn = _RecordingConn(row=None)
+    run(store.fetch_checkpoint(GID, P1, CH, "blackjack_pvp_pending",
+                               conn=conn))
+    assert "FOR UPDATE" in conn.queries[0]
+
+
+def test_fetch_user_checkpoint_locks_the_row():
+    from sb.domain.games import store
+
+    conn = _RecordingConn(row=None)
+    run(store.fetch_user_checkpoint(GID, P1, "blackjack_solo", conn=conn))
+    assert "FOR UPDATE" in conn.queries[0]
+
+
+def test_lock_rows_for_settlement_still_locks_the_row():
+    """The pre-existing settle-time guard (F-001/F-002 fix's sibling) —
+    pinned here so the same test sweep covers both checkpoint fences."""
+    from sb.domain.games import store
+
+    conn = _RecordingConn()
+    run(store.lock_rows_for_settlement(conn, guild_id=GID,
+                                       subsystem="blackjack_pvp_escrow"))
+    assert "FOR UPDATE" in conn.queries[0]
+
+
 # --- wager primitives ------------------------------------------------------------------
 
 

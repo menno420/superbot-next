@@ -11,10 +11,20 @@ Money legs write the economy ledger through the band-3 sole-writer store
 (the treasury precedent), so every escrow/settle/refund is a first-class
 ledger row with the shipped reason tags.
 
-Idempotency is double-guarded exactly like shipped: the K7 once() fence
-on the op PLUS the FOR-UPDATE row-consumption guard (a settle that finds
-its escrow rows already gone pays nothing — a replay can never
-double-pay).
+Idempotency guard (corrected, F-001/F-002 fix — this module previously
+claimed a K7 once() fence that never applied): every op here declares
+IdempotencyPosture.NATURAL_KEY, which mints NO once()/dedup key (that guard
+is DURABLE_ONCE-only, `sb/kernel/workflow/engine.py` step 3) and takes NO
+SINGLE_FLIGHT lock — the posture's own contract ("intrinsically once —
+ON CONFLICT / FOR UPDATE", spec 07) puts the WHOLE fence on the DB legs
+themselves. Two guards actually carry it: the FOR-UPDATE row-consumption
+guard at settle time (a settle/refund/payout that finds its escrow rows
+already gone pays nothing — `store.lock_rows_for_settlement`) PLUS, as of
+the F-001/F-002 fix, a FOR-UPDATE locking read on the checkpoint LOAD
+(`store.fetch_checkpoint` / `store.fetch_user_checkpoint`) — closing the
+gap where two in-flight terminal actions (a double-clicked solo stand, a
+double-clicked PvP accept) could both read the SAME pre-mutation row and
+both settle/escrow before either's delete landed.
 """
 
 from __future__ import annotations

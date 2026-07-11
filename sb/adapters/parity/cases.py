@@ -19,7 +19,8 @@ from pathlib import Path
 from parity.harness.cases import GoldenCase, Step
 from parity.harness.world import DEFAULT_PERSONAS
 
-__all__ = ["load_replay_cases", "reconstruct_case"]
+__all__ = ["load_replay_cases", "load_replay_cases_with_report",
+           "reconstruct_case"]
 
 _PERSONA_BY_ID = {p["id"]: key for key, p in DEFAULT_PERSONAS.items()}
 _MENTION = re.compile(r"<@!?(\d{15,20})>")
@@ -102,15 +103,51 @@ def load_replay_cases(goldens_root: Path) -> list[GoldenCase]:
     used to replay the curated plain-chat case (``xp.chat_award``) AFTER
     the ai sweeps, starving ``sweep.ai_forget`` of the buffer its golden
     cleared (the ✅ byte)."""
+    cases, _dropped = load_replay_cases_with_report(goldens_root)
+    return cases
+
+
+def load_replay_cases_with_report(
+    goldens_root: Path,
+) -> tuple[list[GoldenCase], dict[str, int]]:
+    """As :func:`load_replay_cases`, plus *dropped* — {subsystem dir name:
+    count of golden files on disk whose case_id never became an
+    INDEPENDENTLY-replayed case} (F-003 fix): the ORIGINAL loop silently
+    `continue`d past a missing case_id, a failed :func:`reconstruct_case`,
+    AND a case_id collision, so a golden file in any of those states just
+    vanished from the denominator instead of failing anything —
+    `tools/run_golden_parity.py --gate` counted goldens on disk
+    (``_golden_counts``) and replayed cases (this loader's output) through
+    two DIFFERENT code paths and never compared them, so a dropped golden
+    in a ``ported`` subsystem silently shrank the gate's replayed set
+    instead of redding it. This report is that comparison's other half —
+    the caller asserts ``golden_count == replayed_count`` per subsystem.
+
+    A case_id collision against a CURATED_CASES entry is EXPECTED, not a
+    drop (the curated case IS that golden file's intended replay — the
+    typed source, not the reconstructed one); a collision against an
+    EARLIER GOLDEN FILE is a genuine drop (caught in adversarial review,
+    reproduced directly: two files sharing an id silently absorbed the
+    second one with no signal at all, self-contradicting the gate's own
+    RED line, which reports 0 unreconstructable cases while still flagging
+    a count mismatch) — that second file's own content is never
+    independently verified, so it counts here."""
     from parity.cases import CURATED_CASES
 
+    curated_ids = {c.id for c in CURATED_CASES}
     cases: dict[str, GoldenCase] = {c.id: c for c in CURATED_CASES}
+    dropped: dict[str, int] = {}
     for path in sorted(goldens_root.glob("*/*.json")):
         golden = json.loads(path.read_text())
         case_id = golden.get("case_id")
-        if not case_id or case_id in cases:
-            continue
-        case = reconstruct_case(golden)
+        subsystem = path.parent.name
+        if case_id and case_id in cases:
+            if case_id not in curated_ids:
+                dropped[subsystem] = dropped.get(subsystem, 0) + 1
+            continue        # curated: expected; earlier file: counted above
+        case = reconstruct_case(golden) if case_id else None
         if case is not None:
             cases[str(case_id)] = case
-    return list(cases.values())
+        else:
+            dropped[subsystem] = dropped.get(subsystem, 0) + 1
+    return list(cases.values()), dropped

@@ -39,19 +39,32 @@ __all__ = ["register_ops"]
 async def _record_gc_sweep_row(conn, ctx: WorkflowContext) -> LegOutcome:
     """Refund a stranded row's staked ``bet`` (ledger-audited) and delete
     the row PRECISELY by id — one txn (the shipped GC refund convention;
-    a raced fresh game at the same natural key is untouched)."""
+    a raced fresh game at the same natural key is untouched).
+
+    Row-consumption guard (the same wallet-race class as F-001/F-002,
+    caught in review — the GC driver's ``store.list_stale``/``list_active``
+    scan is an UNLOCKED snapshot, so a row can legitimately be settled by
+    its own player between that scan and this leg's turn): delete FIRST,
+    by id, and credit ONLY when the delete actually removed a row. A bare
+    ``DELETE ... WHERE id=$1`` already takes the row's lock for the life of
+    this txn — a concurrent player settle that deletes the SAME row first
+    makes this delete affect zero rows, so the refund is skipped instead of
+    double-paying on top of the player's own settle. Reading the refund
+    amount from the ctx-supplied (possibly stale) snapshot stays safe: a
+    live blackjack/rps bet never changes after deal, only reachable *while
+    the row still exists* — exactly the case this guard already requires."""
     row = dict(ctx.params["row"])
     reason = str(ctx.params.get("reason") or "games:gc_refund")
     state = dict(row.get("state") or {})
     bet = state.get(wager.STAKE_KEY)
+    deleted = await store.delete_checkpoint_by_id(conn, row_id=int(row["id"]))
     changes: list[tuple[int, int, int, str]] = []
-    if isinstance(bet, int) and bet > 0:
+    if deleted and isinstance(bet, int) and bet > 0:
         balance = await wager.credit_in_txn(
             conn, guild_id=int(row["guild_id"]),
             user_id=int(row["user_id"]), amount=bet, reason=reason,
             actor_id=int(row["user_id"]))
         changes.append((int(row["user_id"]), bet, balance, reason))
-    deleted = await store.delete_checkpoint_by_id(conn, row_id=int(row["id"]))
     ctx.params["_balance_changes"] = changes
     return LegOutcome(
         step=StepResult(int(row["user_id"]), "gc_sweep", True),
