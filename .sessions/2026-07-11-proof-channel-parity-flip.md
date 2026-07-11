@@ -80,6 +80,30 @@ passed + affected subsets re-run post-flip.
   declare compensators (#105/#108/#111); nothing in this flip touches
   the op lanes and the compensator allowlist stays empty.
 
+## Codex review triage (three P2s, all verified against source)
+
+1. **Exemption class (real)** — `covered-elsewhere` misfit: NO golden
+   corpus-wide carries a `proof_channel_locks` db_delta, so the cited
+   siblings pin only the guard bytes, not the surface. Reclassified
+   under the EXISTING `env-keyed-integration` class ("absent by
+   design"): the capture guild carried no #proof channel/binding by
+   design, so the write lane was environment-unreachable. No new class
+   (btd6 #144's `modal-driven` growth was its own reviewed change).
+2. **DeferMode.MODAL (real)** — resolve.py's ACK boundary only opens
+   the declared form under explicit `DeferMode.MODAL`; default AUTO
+   would dispatch `grant_access` empty on click. The shipped btn_grant
+   sent `_PrizeWinnerModal` (send_modal) — both modal actions now
+   declare `DeferMode.MODAL` (the xp givexp/resetxp posture).
+3. **+prize guard byte (real)** — the shipped cog carried DIFFERENT
+   guard literals per flow: `+prize` appended "Please create one
+   first." (goldens/_unmapped/sweep_+prize pins it) while
+   timedprize/-prize/prizestatus sent the bare sentence.
+   `ops._resolve_channel` now takes the copy per call site
+   (`MISSING_CHANNEL` / `MISSING_CHANNEL_CREATE`); the review's
+   "don't flip" implication was wrong — _unmapped sweeps gate no row
+   (four merged exemption rows already cite them as non-gating
+   siblings).
+
 ## 💡 Session idea
 
 `table:<name>` exemptions now exist in two flavors — "sibling pins the

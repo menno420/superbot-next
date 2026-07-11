@@ -162,6 +162,7 @@ def prize_hub_spec():
         PanelSpec,
         ResultRender,
     )
+    from sb.spec.outcomes import DeferMode
     from sb.spec.refs import HandlerRef, WorkflowRef
 
     return PanelSpec(
@@ -182,6 +183,11 @@ def prize_hub_spec():
             PanelActionSpec(
                 action_id="prize_grant", label="🏆 Grant Access",
                 style=ActionStyle.SUCCESS, audience_tier="staff",
+                # the shipped click opened _PrizeWinnerModal (send_modal)
+                # — G-10: the form issues on open, the workflow runs on
+                # submit (the xp givexp/resetxp posture; codex on #145 —
+                # default AUTO would dispatch grant_access empty).
+                defer_mode=DeferMode.MODAL,
                 handler=WorkflowRef("proof_channel.grant_access"),
                 modal=ModalSpec(
                     modal_id="proof_channel.grant_form",
@@ -193,6 +199,10 @@ def prize_hub_spec():
             PanelActionSpec(
                 action_id="prize_timed", label="⏱️ Timed Access",
                 style=ActionStyle.PRIMARY, audience_tier="staff",
+                # shipped: the _PrizeWinnerModal(timed=True) →
+                # _TimedPrizeModal chain, collapsed to ONE declared form
+                # (G-10; same defer posture as prize_grant).
+                defer_mode=DeferMode.MODAL,
                 handler=WorkflowRef("proof_channel.grant_access"),
                 modal=ModalSpec(
                     modal_id="proof_channel.timed_form",

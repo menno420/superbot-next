@@ -8667,7 +8667,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:7108b57c4046951b5cd858cb250606e4072ffe5f5df7fe503d8d4e6d23bd4375",
+  "stable_hash": "sha256:0fb9887d4c45060346b6afd333f99dac310fe0a1483bfd40229253b147635b37",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -28098,7 +28098,7 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
@@ -28138,7 +28138,7 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,

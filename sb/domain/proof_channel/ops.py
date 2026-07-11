@@ -34,15 +34,25 @@ def _verr(message: str):
     return ValidatorError("", message)
 
 
-async def _resolve_channel(ctx: WorkflowContext) -> int:
+#: the shipped guard copies, per command, VERBATIM — the cog carried
+#: DIFFERENT literals per flow: timedprize / -prize / prizestatus sent the
+#: bare sentence (goldens/proof_channel/sweep_timedprize + goldens/
+#: _unmapped/sweep_-prize pin the byte), while +prize (the PERMANENT
+#: grant) appended "Please create one first." (goldens/_unmapped/
+#: sweep_+prize pins that byte; codex review on #145).
+MISSING_CHANNEL = "Channel '#proof' not found."
+MISSING_CHANNEL_CREATE = "Channel '#proof' not found. Please create one first."
+
+
+async def _resolve_channel(ctx: WorkflowContext,
+                           missing_copy: str = MISSING_CHANNEL) -> int:
     from sb.domain.proof_channel.service import bound_proof_channel
 
     cid = int(ctx.params.get("channel_id", 0) or 0)
     if not cid:
         cid = await bound_proof_channel(int(ctx.guild_id or 0)) or 0
     if not cid:
-        # shipped copy verbatim (parity/goldens/proof_channel/sweep_timedprize)
-        raise _verr("Channel '#proof' not found.")
+        raise _verr(missing_copy)
     ctx.params["channel_id"] = cid
     return cid
 
@@ -53,8 +63,11 @@ async def _record_lock(conn, ctx: WorkflowContext) -> LegOutcome:
     winner_id = int(ctx.params.get("winner_id", 0) or 0)
     if not winner_id:
         raise _verr("Usage: `+prize @winner`")
-    cid = await _resolve_channel(ctx)
     minutes = int(ctx.params.get("duration_minutes", 0) or 0)
+    # the permanent grant (+prize) carried the shipped longer guard copy;
+    # the timed grant kept the bare sentence (see the literals above).
+    cid = await _resolve_channel(
+        ctx, MISSING_CHANNEL if minutes else MISSING_CHANNEL_CREATE)
     if minutes:
         unlock_at = ctx.clock() + timedelta(minutes=minutes)
         await store.upsert_lock(conn, guild_id=gid, channel_id=cid,
