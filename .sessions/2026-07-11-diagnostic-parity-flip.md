@@ -114,7 +114,11 @@ the FIRST isolation replay**.
   manifest/layout/diagnostic.lock.json); check_compat_frozen OK (+33
   command rows, +10 verbatim custom_id pins); check_namespace / egress /
   no_skip / slash_cap / intent_survival / migrations clean;
-  manifest_compile green; unit suite green local (canonical order).
+  manifest_compile green; unit suite **1374 passed, 2 skipped** local
+  (canonical order; the one first-pass red was the store engine-ref
+  re-arm, fixed as its own commit — plus a self-inflicted phantom from
+  racing pytest against my own parity.yml scratch-learn, clean on the
+  serial rerun).
 
 ## 💡 Session idea
 
