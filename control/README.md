@@ -91,6 +91,25 @@ into `done=`. One writer per file is preserved: you only ever claim on your OWN 
 (Shipped by inbox ORDER 007 — the root-cause fix for the twin-execution failure; the
 ritual was live-proven manually on substrate-kit's own orders before graduating here.)
 
+## Claiming work (not an ORDER) — one file per claim under `control/claims/`
+
+Order claims cover the inbox; **work claims** cover everything else two
+parallel sessions could both pick up — a coordinator-assigned slice, a
+self-initiated build, a shared-surface change. Before starting such work,
+create **one file per claim** — `control/claims/<branch-or-scope>.md`, a
+single bullet `` - `branch-or-scope` · **scope** — detail · YYYY-MM-DD `` —
+land it on main FAST (claims are `control/**` traffic and ride the CI fast
+lane), re-read the directory at HEAD, build, then **delete the file at
+session close**. Per-file is the measured winner over any shared list (~98%
+merge-conflict rate for shared-append vs 0% per-file — superbot
+`tools/sim/claim_layout_sim.py`); first claim merged to main wins a
+collision; ~72h with no activity = abandoned, prune on sight. Full
+convention + checker contract: `control/claims/README.md`. (`check` nags —
+advisory-only — on unparseable, stale, duplicate, or legacy-located claims;
+legacy homes `docs/owner/claims/` and root `claims/` are auto-detected
+during the migration window, and a deliberate different home is pinned via
+`substrate.config.json` → `claims_dir`.)
+
 ## `status.md` format (what you write every session — your heartbeat)
 ```markdown
 # <project> · status
@@ -104,6 +123,8 @@ orders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]
 ⚑ needs-owner: <a decision/action only the owner can give, or `none`>
 notes: <anything the manager should know>
 ```
+
+Grammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit's `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit's `tests/test_grammar.py`.
 
 The `kit:` line is the **substrate-coordinator visibility** channel (kit-lab reads it via the
 manager relay — zero write access to this repo): `v<X.Y.Z>` = the vendored kit version this
@@ -138,6 +159,8 @@ Hygiene: **expire or withdraw stale asks every session** (an answered or obsolet
 the list is drift), and **fewer, clearer asks beat complete lists**. `check` warns — advisory,
 never exit-affecting — when a non-`none` ⚑ needs-owner list lacks these fields.
 
+Grammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit's `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit's `tests/test_grammar.py`.
+
 ## `inbox.md` order format (manager-written, append-only)
 ```markdown
 ## ORDER <nnn> · <ISO8601> · status: new     # manager flips new→done after seeing status done=
@@ -146,3 +169,5 @@ do: <pointer to a committed doc/section + the ask, kept short>
 why: <one line>
 done-when: <acceptance test>
 ```
+
+Grammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit's `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit's `tests/test_grammar.py`.

@@ -7,7 +7,7 @@
     "soft_target_sessions": 50
   },
   "graduation_proposed": false,
-  "kit_version": "1.7.1",
+  "kit_version": "1.8.0",
   "last_compaction_session": 0,
   "mode": "guided",
   "mode_history": [],
@@ -15,6 +15,7 @@
   "planted_doc_hashes": {
     ".session-journal.md": "b1ce40fcd95dab1a52a9b4983b09a161081f2bd5ebe4147a980df6a04fbc6b90",
     "CONSTITUTION.md": "401740195d5568d3983d02ea94b1aa63a0eae1c83fe70220713f5f9b64b3b293",
+    "control/claims/README.md": "0acf6392ca5d749ebec1c168aa2fd0c3c80797213f269fa1cdd342ee92eaa18f",
     "docs/AGENT_ORIENTATION.md": "91d167d094689cb24a1b7693fc84592df19e65e5ef11794385d13e99a4e7dd24",
     "docs/CAPABILITIES.md": "d367b7985bc36d05f059c752c810557524b88834cd64bb404f96f6114e6aa6f6",
     "docs/ai-project-workflow.md": "9aeecf6cb4908f9cca5506ffc8961ca642fc1ac6479f3de7ff3e168deaa2a536",
@@ -24,7 +25,8 @@
     "docs/helper-policy.md": "b372b1728b8d9e5d551ed980fe961b4d1ee902d80ece9848b58b01c10e62e522",
     "docs/owner-profile.md": "1c0b32dca7ec60a26c7098c69bdc21b53f7c17b50705e6dbf5541336ea664b87",
     "docs/ownership.md": "727746318a65e85b2ced228b4671faa1fa62e63b728ccffb08f3d58dc1cf4ba1",
-    "docs/runtime_contracts.md": "583fc42ac1da60f9b0454129f8d737d5b8286827a26a515f85897abd7b7f51ed"
+    "docs/runtime_contracts.md": "583fc42ac1da60f9b0454129f8d737d5b8286827a26a515f85897abd7b7f51ed",
+    "scripts/env-setup.sh": "cd2145129fcba288ff9399ad44146a09017d85813e282c16bcba22340b613a2c"
   },
   "project_id": "0f00ecc87d58",
   "promotion_rights": "propose",

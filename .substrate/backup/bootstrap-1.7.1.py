@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.8.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.7.1 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -87,7 +87,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.8.0"
+KIT_VERSION = "1.7.1"
 
 
 def _new_project_id() -> str:
@@ -168,46 +168,6 @@ def _default_heartbeat_files() -> list[str]:
     return ["control/status.md"]
 
 
-"""Default work-claim directory (EAP program review §6.4).
-
-The ONE kit-owned claims convention has two surfaces: ORDER claims are the
-``claimed-by:`` annotation on a lane's own heartbeat orders line (one writer
-per file — see ``control/README.md`` § "Claiming an order"), and WORK/lane
-claims are one-file-per-claim markdown files under this directory (superbot's
-measured evidence: a shared-append claim ledger merge-conflicts at ~98% under
-concurrent sessions vs 0% for per-file — ``tools/sim/claim_layout_sim.py`` in
-menno420/superbot; see the planted ``control/claims/README.md``). Lives under
-``control/`` on purpose: claims are coordination traffic, so they ride the
-control fast lane and land on main fast. Legacy locations
-(``docs/owner/claims/``, root ``claims/``) are auto-detected by
-``check_claims`` with an advisory migration nudge.
-"""
-DEFAULT_CLAIMS_DIR = "control/claims"
-
-
-def _default_automerge() -> dict:
-    """Return the auto-merge-enabler knobs (EAP program review §6.10).
-
-    Parameterizes the kit-owned planted ``.github/workflows/
-    auto-merge-enabler.yml`` (see ``adopt.automerge_enabler_workflow``):
-
-    - ``branch_patterns`` — head-branch patterns the enabler arms on. A
-      trailing ``*`` is a prefix match (``claude/*`` → every ``claude/…``
-      head); anything else matches exactly. An empty list falls back to the
-      default at the consumer (the ``heartbeat_files`` doctrine: a
-      misconfiguration must not silently disable — or widen — the arming).
-    - ``required_context`` — the required status-check context the arming
-      message names (default ``substrate-gate``, the planted gate's job).
-      Informational only: the workflow's refuse-to-arm guard counts the
-      base branch's required contexts generically via the rules API, so a
-      wrong name here mislabels a log line, never the guard.
-    """
-    return {
-        "branch_patterns": ["claude/*"],
-        "required_context": "substrate-gate",
-    }
-
-
 def _default_badge_tokens() -> list[str]:
     """Return the default Status-badge taxonomy the doc checker accepts."""
     return [
@@ -277,13 +237,6 @@ class Config:
     seams: list[dict] = field(default_factory=list)
     review_seam: dict = field(default_factory=_default_review_seam)
     heartbeat_files: list[str] = field(default_factory=_default_heartbeat_files)
-    # Work-claim home (EAP §6.4 — see DEFAULT_CLAIMS_DIR above). A host that
-    # deliberately keeps its claims elsewhere (e.g. superbot's
-    # docs/owner/claims/) pins that path here; the pinned dir is then
-    # canonical for that host and the legacy-location nudge never fires on it.
-    claims_dir: str = DEFAULT_CLAIMS_DIR
-    # Auto-merge-enabler knobs (EAP §6.10 — see _default_automerge above).
-    automerge: dict = field(default_factory=_default_automerge)
 
     def to_json(self) -> str:
         """Serialise the config to indented, key-sorted JSON."""
@@ -630,180 +583,6 @@ def active_practices(
     sessions = int(state.get("session_count", 0))
     unlocked = 1 + sessions // interval
     return list(GUIDED_ROLLOUT[:unlocked])
-
-# --- engine/grammar.py ---
-"""Control-plane grammar — THE single source of truth (EAP §6.8).
-
-Why + provenance: the EAP program review (menno420/superbot
-``docs/eap/eap-program-review-2026-07-10.md`` §6 item 8) found the
-control-plane grammar — the ORDER header + required fields, the ``orders:
-acked=/done=/claimed-by:`` status line, the six-field ⚑ OWNER-ACTION format,
-the ``kit:``/``check:``/``engaged:`` heartbeat self-report, the work-claim
-bullet — living implicitly in the planted control templates while each
-enforcer re-derived its own copy (``check_inbox_append``,
-``check_owner_actions``, ``check_status_current``, ``check_claims``,
-``currency``). Writer and enforcer can silently drift apart when the grammar
-has no owner: the manager's own seeded orders once failed the kit's 1.7.0
-grammar. This module makes the grammar a kit-owned CONSTANT with exactly one
-home; the writer half (templates, ``control/README.md`` teaching text) and
-the enforcer half (the checkers) both point here, and
-``tests/test_grammar.py`` pins writer↔enforcer agreement — the format the
-templates teach must satisfy the regexes the enforcers run.
-
-Layout: one section per grammar surface, each carrying (a) the tokens /
-field lists / compiled regexes the enforcers consume and (b) a canonical
-example renderer — the smallest text that a correct writer produces and a
-correct enforcer accepts. The examples are the agreement-test fixtures; they
-double as reference text for docs.
-
-Behavioral contract: the constants here are byte-identical moves of the
-regexes the checkers shipped with — centralizing the grammar changed **no
-behavior** (pinned by the pre-existing checker suites passing unchanged).
-House-style note (D-7): these are declared grammar, deliberately hardcoded —
-a consumer that truly needs a different grammar forks the constant, the kit
-does not grow config knobs for it. Stdlib only, no engine imports — this
-module sits below every checker.
-"""
-
-
-
-# ── control/inbox.md — the ORDER block (manager-written, append-only) ───────
-#
-# Taught in control/README.md § "inbox.md order format":
-#   ## ORDER <nnn> · <ISO8601> · status: <state>     [# optional manager note]
-#   priority: P0 | P1 | P2
-#   do: <pointer to a committed doc/section + the ask>
-#   why: <one line>
-#   done-when: <acceptance test>
-# The `·` is U+00B7 (the protocol's separator). A trailing `#` note is
-# allowed on the header (the README's own example carries one), so each
-# header value is read as its first token. Enforced by check_inbox_append.
-
-ORDER_HEADER_PREFIX = "## ORDER "
-ORDER_HEADER_RE = re.compile(r"^## ORDER \S+ · .+ · status: \S+")
-# Every ORDER block carries these body fields, one per line.
-ORDER_REQUIRED_FIELDS = ("priority:", "do:", "why:", "done-when:")
-
-
-def order_block_example() -> str:
-    """Canonical ORDER block — what a correct manager append looks like."""
-    return (
-        "## ORDER 001 · 2026-07-10T12:00Z · status: new\n"
-        "priority: P1\n"
-        "do: read docs/example.md §1 and execute the ask it names\n"
-        "why: one line of motivation\n"
-        "done-when: the acceptance test in docs/example.md §1 passes\n"
-    )
-
-
-# ── control/status*.md — the orders ack/done line (heartbeat-side) ──────────
-#
-# Taught in control/README.md § "status.md format" and § "Claiming an order":
-#   orders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]
-# The ids tokens are `,`/`+`-separated and may carry inclusive ranges
-# (`001-006`); the claimed-by annotation is three whitespace tokens — the ids
-# may be `+`-joined (`007+008`) and the lane token may itself carry hyphens
-# (`coordinator-lane`), so the lane is a whole token, never parsed. Enforced
-# by check_claims (order-claim hygiene).
-
-ORDERS_LINE_RE = re.compile(r"^orders:\s*(.*)$", re.MULTILINE)
-ORDERS_DONE_RE = re.compile(r"\bdone=(\S*)")
-ORDERS_CLAIMED_BY_RE = re.compile(r"claimed-by:\s*(\S+)\s+(\S+)\s+(\S+)")
-
-
-def orders_line_example(*, claimed: bool = False) -> str:
-    """Canonical ``orders:`` line (optionally carrying a live claim)."""
-    line = "orders: acked=001-003 done=001,002"
-    if claimed:
-        line += " claimed-by: 003 example-lane 2026-07-10T12:00Z"
-    return line + "\n"
-
-
-# ── control/status*.md — the `updated:` heartbeat line ──────────────────────
-#
-# The heartbeat's first field: `updated: <ISO8601>` — stale = the manager
-# treats the Project as dark. The value is the line's first token (ISO-8601,
-# minutes or seconds precision, `Z` or offset). Enforced by
-# check_status_current (parse_heartbeat).
-
-UPDATED_LINE_RE = re.compile(r"^updated:\s*(\S+)", re.MULTILINE)
-
-
-def updated_line_example() -> str:
-    """Canonical ``updated:`` heartbeat line."""
-    return "updated: 2026-07-10T12:00:00Z\n"
-
-
-# ── control/status*.md — the `kit:` self-report line (ORDER 003) ────────────
-#
-# Taught in control/README.md § "status.md format":
-#   kit: v<X.Y.Z> · check: green|red · engaged: yes|no
-# Parsed leniently — real heartbeats decorate the line, so the version is the
-# first `v<digit...>` token after `kit:` and the check/engaged fields are
-# scanned anywhere on the line. Consumed by currency.parse_kit_line (the
-# fleet registry's self-report evidence).
-
-KIT_LINE_RE = re.compile(r"^kit:\s*(.*)$", re.MULTILINE)
-KIT_VERSION_TOKEN_RE = re.compile(r"\bv(\d[\w.\-]*)")
-KIT_CHECK_FIELD_RE = re.compile(r"\bcheck:\s*(green|red)\b")
-KIT_ENGAGED_FIELD_RE = re.compile(r"\bengaged:\s*(yes|no)\b")
-
-
-def kit_line_example(version: str = "1.2.3") -> str:
-    """Canonical ``kit:`` self-report line for ``version``."""
-    return f"kit: v{version} · check: green · engaged: yes\n"
-
-
-# ── control/status*.md — the six-field ⚑ OWNER-ACTION format (ORDER 008) ────
-#
-# Taught in control/README.md § "⚑ needs-owner — the OWNER-ACTION item
-# format". Canonical spelling first per field; two fields also accept a
-# shorthand adopters write inline (WHY:/VERIFIED-WHEN:) because accepting an
-# alternate only ever *withholds* the advisory nag, never adds one. Enforced
-# by check_owner_actions.
-
-NEEDS_OWNER_TOKEN = "⚑ needs-owner"
-OWNER_ACTION_FIELDS = (
-    ("WHAT:",),
-    ("WHERE:",),
-    ("HOW:",),
-    ("WHY-IT-MATTERS:", "WHY:"),
-    ("UNBLOCKS:",),
-    ("VERIFIED-NEEDED:", "VERIFIED-WHEN:"),
-)
-
-
-def owner_action_block_example() -> str:
-    """Canonical ⚑ OWNER-ACTION block — every REQUIRED field present."""
-    return (
-        "⚑ OWNER-ACTION\n"
-        "WHAT: flip the example setting to on\n"
-        "WHERE: Settings → Example → the toggle\n"
-        "HOW: one checkbox\n"
-        "WHY-IT-MATTERS: the lane stalls without it\n"
-        "UNBLOCKS: the next slice starts moving the moment it's done\n"
-        "VERIFIED-NEEDED: attempted via the API — 403, owner-only surface\n"
-    )
-
-
-# ── control/claims/ — the work-claim bullet (EAP §6.4) ───────────────────────
-#
-# Taught in control/claims/README.md: one file per claim, a single bullet
-#   - `branch-or-scope` · **scope** — detail · YYYY-MM-DD
-# The bullet must carry a backticked branch/scope token (the duplicate scan's
-# key) and an ISO date anywhere after it. Enforced by check_claims
-# (work-claim hygiene).
-
-WORK_CLAIM_BULLET_RE = re.compile(r"^-\s.*`([^`\n]+)`", re.MULTILINE)
-WORK_CLAIM_DATE_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2})\b")
-
-
-def work_claim_bullet_example(date: str = "2026-07-10") -> str:
-    """Canonical work-claim bullet dated ``date``."""
-    return (
-        f"- `example-branch` · **scope** — one-line detail · "
-        f"expected files/area · {date}\n"
-    )
 
 # --- engine/interview/question_bank.py ---
 """The interview question bank — the seed set the staged onboarding draws from.
@@ -2225,10 +2004,6 @@ files fail open.
 
 
 
-# The `updated:` heartbeat-line grammar is kit-owned with ONE home —
-# engine.grammar (EAP §6.8): the writer templates and this enforcer consume
-# the same constant, so they cannot drift apart.
-
 CONTROL_DIR = "control"
 STATUS_RELPATH = "control/status.md"
 INBOX_RELPATH = "control/inbox.md"
@@ -2238,6 +2013,8 @@ CONTROL_README_RELPATH = "control/README.md"
 # spec suggests (2-4h) on purpose: the checker warns about *abandonment*, not
 # about a quiet afternoon — revise with data (KF-8 posture).
 DEFAULT_MAX_AGE_HOURS = 72
+
+_UPDATED_RE = re.compile(r"^updated:\s*(\S+)", re.MULTILINE)
 
 
 def parse_heartbeat(text: str) -> datetime | None:
@@ -2251,7 +2028,7 @@ def parse_heartbeat(text: str) -> datetime | None:
     line is absent or unparseable (the adopt seed's prose sentinel lands
     here by design).
     """
-    match = UPDATED_LINE_RE.search(text)
+    match = _UPDATED_RE.search(text)
     if not match:
         return None
     raw = match.group(1)
@@ -2417,12 +2194,24 @@ only; unreadable files fail open.
 
 
 
-# The six REQUIRED field labels (ORDER 008) + the ⚑ needs-owner token are
-# kit-owned grammar with ONE home — engine.grammar (EAP §6.8): the writer
-# templates and this enforcer consume the same constants, so they cannot
-# drift apart. Field semantics (canonical-first spelling, the lenient
-# WHY:/VERIFIED-WHEN: alternates) are documented there. Re-exported here
-# unchanged for existing importers.
+# The six REQUIRED field labels (ORDER 008), canonical spelling first.
+# VERIFIED-NEEDED is the band's heart — the attempted-or-exact-wall proof
+# that kills assumption-based asks. The canonical labels match the shipped
+# templates and control/README.md § OWNER-ACTION format exactly (checker and
+# templates agree). Two fields also accept a shorthand spelling adopters
+# write inline — WHY:/VERIFIED-WHEN: — because accepting an alternate only
+# ever *withholds* this advisory nag (never adds one), so it stays
+# backward-compatible and never newly reddens a valid ledger.
+OWNER_ACTION_FIELDS = (
+    ("WHAT:",),
+    ("WHERE:",),
+    ("HOW:",),
+    ("WHY-IT-MATTERS:", "WHY:"),
+    ("UNBLOCKS:",),
+    ("VERIFIED-NEEDED:", "VERIFIED-WHEN:"),
+)
+
+NEEDS_OWNER_TOKEN = "⚑ needs-owner"
 
 
 def _needs_owner_value(text: str) -> str | None:
@@ -2528,11 +2317,15 @@ judge, so ``check`` stays meaningful on a tree with no inbox change.
 
 
 
-# The ORDER grammar (header shape + required body fields) is kit-owned with
-# ONE home — engine.grammar (EAP §6.8): writer templates and this enforcer
-# consume the same constants, so they cannot drift apart. The shapes are
-# documented there. (No import aliases: the dist builder drops intra-package
-# imports whole, so the canonical names must be the ones used.)
+# The ORDER header grammar (control/README.md "inbox.md order format"):
+#   ## ORDER <nnn> · <ISO8601> · status: <state>     [# optional manager note]
+# The `·` is U+00B7 (the protocol's separator). A trailing `#` note is allowed
+# (the README's own example carries one), so the value is the first token.
+_ORDER_HEADER_PREFIX = "## ORDER "
+_ORDER_HEADER_RE = re.compile(r"^## ORDER \S+ · .+ · status: \S+")
+
+# Every ORDER block carries these fields (control/README.md order format).
+_REQUIRED_FIELDS = ("priority:", "do:", "why:", "done-when:")
 
 
 def _order_grammar_findings(appended: str) -> list[Finding]:
@@ -2546,7 +2339,7 @@ def _order_grammar_findings(appended: str) -> list[Finding]:
     validated for a well-formed header and the four required fields.
     """
     lines = appended.splitlines()
-    header_idxs = [i for i, ln in enumerate(lines) if ln.startswith(ORDER_HEADER_PREFIX)]
+    header_idxs = [i for i, ln in enumerate(lines) if ln.startswith(_ORDER_HEADER_PREFIX)]
     findings: list[Finding] = []
 
     preamble_end = header_idxs[0] if header_idxs else len(lines)
@@ -2574,7 +2367,7 @@ def _order_grammar_findings(appended: str) -> list[Finding]:
 def _validate_block(block: list[str]) -> list[Finding]:
     """Return findings for one ORDER block (header line through its body)."""
     header = block[0]
-    if not ORDER_HEADER_RE.match(header):
+    if not _ORDER_HEADER_RE.match(header):
         return [
             Finding(
                 INBOX_RELPATH,
@@ -2586,7 +2379,7 @@ def _validate_block(block: list[str]) -> list[Finding]:
         ]
     missing = [
         field
-        for field in ORDER_REQUIRED_FIELDS
+        for field in _REQUIRED_FIELDS
         if not any(ln.lstrip().startswith(field) for ln in block[1:])
     ]
     if missing:
@@ -2640,73 +2433,45 @@ def check_inbox_append(target: Path, base_path: Path) -> list[Finding]:
     return _order_grammar_findings(appended)
 
 # --- engine/checks/check_claims.py ---
-"""Claim-aware checker — THE unified claims enforcement (ORDER 007 + EAP §6.4).
+"""Claim-aware checker — order-claims must be unique and live (ORDER 007).
 
-Why + provenance: claim conventions had forked across the fleet (EAP program
-review 2026-07-10 §6.4 — "4 claim mechanisms + a checker checking a fifth"):
-superbot kept one-file-per-claim in ``docs/owner/claims/``, gba-homebrew in a
-root ``claims/``, websites had only the orders-line annotation, and this
-checker validated only that last convention. This module now enforces the ONE
-kit-owned convention, which has two deliberate surfaces:
+Why + provenance: the fleet coordination protocol (``control/README.md`` §
+"Claiming an order") makes every ``new`` order single-executor. Before
+building, a lane appends ``claimed-by: <order-ids> <lane-or-session>
+<ISO8601>`` to the ``orders:`` line of its OWN heartbeat (``control/status*.md``)
+and lands it on main FIRST — so two readers of the same ``status: new`` order
+cannot both execute it. That convention was born from a realized failure, not
+a theoretical one (substrate-kit PRs #50/#51: two lanes independently executed
+the same ORDER 005 the same day, and a whole session's work had to be
+reconciled as twins). But the convention shipped **doc-only** — enforced by
+nothing. This checker closes the "enforce, don't exhort" gap for the claim
+band, exactly as ``check_inbox_append`` did for the append-only law and
+``check_owner_actions`` did for the OWNER-ACTION format.
 
-**ORDER claims** (unchanged — inbox ORDER 007): the fleet coordination
-protocol (``control/README.md`` § "Claiming an order") makes every ``new``
-order single-executor. Before building, a lane appends ``claimed-by:
-<order-ids> <lane-or-session> <ISO8601>`` to the ``orders:`` line of its OWN
-heartbeat (``control/status*.md``) and lands it on main FIRST — so two
-readers of the same ``status: new`` order cannot both execute it. Born from a
-realized failure (substrate-kit PRs #50/#51: twin execution of ORDER 005).
-
-**WORK/lane claims** (EAP §6.4): parallel sessions doing coordinator-assigned
-or self-initiated work claim BEFORE a PR exists by creating ONE FILE PER
-CLAIM under ``control/claims/`` (``<branch-or-scope>.md``, a single bullet:
-`` - `branch-or-scope` · scope — detail · YYYY-MM-DD ``), deleted at session
-close. Per-file is the measured winner: superbot's real-``git merge``
-simulation (``tools/sim/claim_layout_sim.py``) put a shared-append claim
-ledger at ~98% merge-conflict rate under concurrent sessions vs **0% for
-one-file-per-claim** at every concurrency level. The planted
-``control/claims/README.md`` carries the convention to every adopter.
-
-What it flags (ALL **advisory** — a nudge, never a locked door, the same
+What it flags (both **advisory** — a nudge, never a locked door, the same
 posture as the staleness + owner-action warnings):
 
-- ``claims-duplicate`` — (orders) two or more DISTINCT heartbeat files carry
-  a ``claimed-by:`` naming the SAME order id; (work) two or more claim files
-  name the SAME backticked branch/scope token. The tiebreak (earliest claim
-  merged to main wins) is a human call, so the checker surfaces the
-  collision rather than picking a winner.
-- ``claims-stale`` — (orders) a live ``claimed-by:`` for an order already in
-  some lane's ``done=``, or older than the ~24h abandonment horizon; (work)
-  a claim file whose bullet date is older than the ~72h work horizon —
-  claim files are deleted at session close, so an old one is likely an
-  orphan the GC convention says to prune on sight.
-- ``claims-format`` — (work) a claim file without a parseable claim bullet
-  (a ``- `` bullet carrying a backticked branch/scope token and a
-  ``YYYY-MM-DD`` date). Unparseable claims are invisible to the duplicate
-  scan, so the format nag protects the collision detection itself.
-- ``claims-legacy-location`` — (work, the §6.4 migration/compat window)
-  claim files found in a pre-unification location (``docs/owner/claims/`` —
-  superbot's home; root ``claims/`` — gba-homebrew's). Legacy dirs are
-  AUTO-DETECTED and scanned in place (their claims still get the full
-  format/stale/duplicate treatment, and cross-location duplicates are
-  caught), with one nudge per legacy dir pointing at the canonical home.
-  Because every claims finding is advisory-by-contract, an adopter's
-  existing claims can never go born-red on upgrade — migration is by nag,
-  not locked door. A host that deliberately keeps a different home pins it
-  via ``substrate.config.json`` → ``claims_dir`` (then it IS canonical and
-  no nudge fires).
+- ``claims-duplicate`` — two or more DISTINCT heartbeat files carry a
+  ``claimed-by:`` naming the SAME order id. That is the twin-execution race
+  itself: the tiebreak (earliest claim merged to main wins) is a human call,
+  so the checker surfaces the collision rather than picking a winner.
+- ``claims-stale`` — a live ``claimed-by:`` for an order that is (a) already
+  reported in some lane's ``done=`` (the executor was meant to DROP the claim
+  when moving the id into ``done=`` — a lingering claim on a done order is
+  dead), or (b) older than the convention's ~24h abandonment horizon (a claim
+  with no fresh activity "may be treated as abandoned and re-claimed"). The
+  checker cannot see build activity from the status file alone, so the age
+  finding is deliberately a *withdraw-or-refresh* nudge, not a verdict.
 
 Posture is **advisory-only, never exit-affecting** — the deliberate mirror of
 ``check_owner_actions`` / ``check_status_current``'s staleness warning. Claims
 are a coordination hint the manager reconciles; a hard gate would red a
 required check on a race the checker can't adjudicate.
 
-The order-claim half is input-gated on the ``control/`` protocol per
-heartbeat file, like every control-band checker; the work-claim half is
-input-gated on a claims directory existing (canonical, configured, or
-legacy). Pure stdlib — no ``subprocess`` (§3.2). Unreadable / claim-less
-files fail open (no verdict). ``README.md`` inside a claims dir is the
-planted convention doc, never a claim.
+Input-gated on the ``control/`` protocol and per heartbeat file, like every
+control-band checker. Pure stdlib — no ``subprocess`` (§3.2); it only reads the
+heartbeat files the fast lane already validates. Unreadable / claim-less files
+fail open (no verdict).
 """
 
 
@@ -2717,23 +2482,14 @@ planted convention doc, never a claim.
 # revisable by data (KF-8 posture), mirroring check_status_current's constant.
 CLAIM_STALE_HOURS = 24
 
-# Work-claim horizon (EAP §6.4, decided-and-flagged): claim FILES are deleted
-# at session close, so age here means "probably orphaned", not "still
-# building" — but long sessions and weekend gaps are real, so the horizon is
-# deliberately looser than the order-claim 24h. Seeded at 72h; revisable by
-# data like every horizon constant.
-WORK_CLAIM_STALE_HOURS = 72
-
-# The §6.4 legacy locations the compat window auto-detects (in priority
-# order): superbot's docs/owner/claims/ (Q-0195) and gba-homebrew's root
-# claims/ (gen-2 blueprint §1). Scanned in place with a migration nudge —
-# see the module docstring's claims-legacy-location entry.
-LEGACY_CLAIMS_DIRS = ("docs/owner/claims", "claims")
-
-# The claim grammar — the work-claim bullet and the orders line
-# (acked=/done=/claimed-by:) — is kit-owned with ONE home — engine.grammar
-# (EAP §6.8): the writer templates and this enforcer consume the same
-# constants, so they cannot drift apart. Shape notes live there.
+# The orders line carries the claim + the done ledger:
+#   orders: acked=<ids> done=<ids> [claimed-by: <ids> <lane> <ISO8601>]
+_ORDERS_RE = re.compile(r"^orders:\s*(.*)$", re.MULTILINE)
+_DONE_RE = re.compile(r"\bdone=(\S*)")
+# claimed-by: <ids> <lane-or-session> <ISO8601> — three whitespace tokens.
+# The ids token is `+`/`,`-separated (README example: `007+008`); the lane may
+# itself carry hyphens (`coordinator-lane`) so it is a whole token, not parsed.
+_CLAIMED_RE = re.compile(r"claimed-by:\s*(\S+)\s+(\S+)\s+(\S+)")
 
 
 def _norm_id(raw: str) -> str | None:
@@ -2791,13 +2547,13 @@ def _parse_iso(raw: str) -> datetime | None:
 
 def _orders_line(text: str) -> str | None:
     """Return the first ``orders:`` line's value, or None when absent."""
-    match = ORDERS_LINE_RE.search(text)
+    match = _ORDERS_RE.search(text)
     return match.group(1) if match else None
 
 
 def _done_ids(orders_value: str) -> set[str]:
     """Return the set of order ids reported in ``done=`` on an orders line."""
-    match = ORDERS_DONE_RE.search(orders_value)
+    match = _DONE_RE.search(orders_value)
     return _expand_ids(match.group(1)) if match else set()
 
 
@@ -2808,7 +2564,7 @@ def _claim(orders_value: str) -> tuple[set[str], str, datetime | None] | None:
     token, ``ts`` the parsed timestamp (None when unparseable — the age check
     then simply skips, never fabricating staleness).
     """
-    match = ORDERS_CLAIMED_BY_RE.search(orders_value)
+    match = _CLAIMED_RE.search(orders_value)
     if not match:
         return None
     ids = _expand_ids(match.group(1))
@@ -2817,144 +2573,28 @@ def _claim(orders_value: str) -> tuple[set[str], str, datetime | None] | None:
     return ids, match.group(2), _parse_iso(match.group(3))
 
 
-def _claim_dirs(target: Path, claims_dir: str) -> list[tuple[str, bool]]:
-    """Return existing claims dirs as ``(relpath, is_legacy)`` pairs.
-
-    The configured/canonical dir first, then every §6.4 legacy location that
-    exists — a legacy dir is scanned even when the canonical one exists too
-    (claims left behind mid-migration are exactly the drift the nudge names,
-    and a cross-location duplicate is still the twin-execution race). A
-    legacy path that IS the configured dir is canonical for this host: no
-    nudge (the ``claims_dir`` pin is the deliberate-different-home opt-out).
-    """
-    dirs: list[tuple[str, bool]] = []
-    if (target / claims_dir).is_dir():
-        dirs.append((claims_dir, False))
-    for legacy in LEGACY_CLAIMS_DIRS:
-        if legacy != claims_dir and (target / legacy).is_dir():
-            dirs.append((legacy, True))
-    return dirs
-
-
-def _work_claim_findings(
-    target: Path,
-    claims_dir: str,
-    now: datetime,
-) -> list[Finding]:
-    """Return advisory findings for the one-file-per-claim work claims."""
-    findings: list[Finding] = []
-    # token -> [relpath, ...] across every scanned dir (cross-location
-    # duplicates are still one collision).
-    holders: dict[str, list[str]] = {}
-    for dir_rel, is_legacy in _claim_dirs(target, claims_dir):
-        dir_path = target / dir_rel
-        claim_files = sorted(
-            p for p in dir_path.glob("*.md") if p.name != "README.md"
-        )
-        if is_legacy and claim_files:
-            findings.append(
-                Finding(
-                    dir_rel,
-                    "claims-legacy-location",
-                    f"{len(claim_files)} work-claim file(s) in the legacy "
-                    f"location {dir_rel}/ — the kit convention is one file "
-                    f"per claim under {claims_dir}/ (control/claims/"
-                    "README.md). Move open claims there (or pin this "
-                    "location via substrate.config.json `claims_dir` if it "
-                    "is deliberate). Advisory during the migration window.",
-                ),
-            )
-        for path in claim_files:
-            rel = f"{dir_rel}/{path.name}"
-            try:
-                text = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue  # fail open — an unreadable file is not a verdict
-            bullet = WORK_CLAIM_BULLET_RE.search(text)
-            date_match = WORK_CLAIM_DATE_RE.search(text)
-            if bullet is None or date_match is None:
-                findings.append(
-                    Finding(
-                        rel,
-                        "claims-format",
-                        "no parseable claim bullet — a claim file carries "
-                        "one `- ` bullet with a backticked branch/scope "
-                        "token and a YYYY-MM-DD date "
-                        f"({claims_dir}/README.md); an unparseable claim is "
-                        "invisible to the duplicate scan.",
-                    ),
-                )
-                continue
-            holders.setdefault(bullet.group(1).strip(), []).append(rel)
-            claimed = _parse_iso(date_match.group(1))
-            if claimed is None:
-                continue
-            age_hours = (now - claimed).total_seconds() / 3600
-            if age_hours > WORK_CLAIM_STALE_HOURS:
-                findings.append(
-                    Finding(
-                        rel,
-                        "claims-stale",
-                        f"work claim dated {date_match.group(1)} is "
-                        f"{age_hours / 24:.0f} day(s) old (> "
-                        f"{WORK_CLAIM_STALE_HOURS}h work-claim horizon) — "
-                        "claim files are deleted at session close, so this "
-                        "is likely an orphan; delete it (prune-on-sight) or "
-                        "refresh its date if genuinely still building.",
-                    ),
-                )
-    for token in sorted(holders):
-        rels = sorted(holders[token])
-        if len(rels) < 2:
-            continue
-        for rel in rels:
-            findings.append(
-                Finding(
-                    rel,
-                    "claims-duplicate",
-                    f"work claim `{token}` is declared by {len(rels)} files "
-                    f"({', '.join(rels)}) — the same-lane collision the "
-                    "per-file convention exists to surface. Reconcile by "
-                    "the tiebreak (first claim merged to main wins); the "
-                    "loser deletes its file and stands down.",
-                ),
-            )
-    return findings
-
-
 def check_claims(
     target: Path,
     *,
     status_files: Sequence[str] | None = None,
     now: datetime | None = None,
-    claims_dir: str | None = None,
 ) -> list[Finding]:
-    """Return advisory findings for order-claims AND work-claims (§6.4).
+    """Return advisory findings for duplicate / stale order-claims.
 
-    Order half (ORDER 007): scans every configured heartbeat file's
-    ``orders:`` line for ``claimed-by:`` annotations — ``claims-duplicate``
-    when two distinct files claim one order id, ``claims-stale`` when a live
+    Scans every configured heartbeat file's ``orders:`` line for
+    ``claimed-by:`` annotations (ORDER 007). Emits ``claims-duplicate`` when
+    two distinct files claim one order id, and ``claims-stale`` when a live
     claim names an order already in some lane's ``done=`` or is older than
-    ``CLAIM_STALE_HOURS``. Work half (EAP §6.4): scans the claims
-    directory(-ies) — ``claims-format`` / ``claims-stale`` /
-    ``claims-duplicate`` per file plus the ``claims-legacy-location``
-    migration nudge (see the module docstring). ``claims_dir`` defaults to
-    :data:`engine.lib.config.DEFAULT_CLAIMS_DIR`. Advisory by contract —
-    callers must never count any of these toward an exit code. Empty when
-    neither the ``control/`` protocol nor a claims dir is present, and
-    fail-open on unreadable files.
+    ``CLAIM_STALE_HOURS``. Advisory by contract — callers must never count
+    these toward an exit code (see module docstring). Empty when the
+    ``control/`` protocol is absent, and fail-open on unreadable files.
     """
-    now = now or datetime.now(timezone.utc)
-    resolved_claims_dir = claims_dir or DEFAULT_CLAIMS_DIR
-    work_findings = _work_claim_findings(target, resolved_claims_dir, now)
-
     relpaths = heartbeat_relpaths(status_files)
     control_evidence = [INBOX_RELPATH, CONTROL_README_RELPATH, *relpaths]
     if not any((target / rel).is_file() for rel in control_evidence):
-        # No control protocol → no order-claim scan; the work half already
-        # self-gated on a claims dir existing.
-        return work_findings
+        return []
 
+    now = now or datetime.now(timezone.utc)
     # Per file: its claim (ids, lane, ts). Plus the union of every done= ledger
     # across lanes — an order done anywhere retires its claim everywhere.
     claims: dict[str, tuple[set[str], str, datetime | None]] = {}
@@ -2975,7 +2615,7 @@ def check_claims(
         if claim is not None:
             claims[rel] = claim
 
-    findings: list[Finding] = list(work_findings)
+    findings: list[Finding] = []
 
     # DUPLICATE — one order id claimed by two or more distinct files.
     holders: dict[str, list[str]] = {}
@@ -3346,176 +2986,6 @@ def check_capability_xref(
                         "starting fact.",
                     ),
                 )
-    return findings
-
-# --- engine/checks/check_setup_script.py ---
-"""Setup-script contract checker — the enforcer half of EAP §6.5.
-
-Why + provenance: the fleet ran six divergent hand-rolled environment setup
-scripts, and a contract-violating one is a *silent session killer* — a script
-that exits non-zero at provisioning kills the session before the worker can
-even report (two trading-strategy sessions died exactly this way; the
-substrate-kit PR #47 casualty is the same class). The fleet-manager archetype
-material (``environments/archetypes.md`` + ``templates/setup-universal.sh``)
-distilled the survivorship rules into ONE contract for the per-repo
-``scripts/env-setup.sh`` hook every archetype shim prefers, and the kit now
-plants that hook from ``env-setup.sh.tmpl`` (EAP program review 2026-07-10
-§6.5). This module is the **enforcer half of the writer/enforcer pair**: the
-planted template must pass this checker byte-for-byte (a test pins the
-agreement), and a host's later edits are nudged back onto the contract.
-
-What it flags (ALL **advisory** — a nudge, never a locked door, the same
-posture as the claims/owner-action/staleness warnings):
-
-- ``setup-fatal-posture`` — the script arms a fatal shell mode (``set -e`` /
-  ``set -o errexit``): any failing step then aborts provisioning and kills
-  the session with no signal. The contract is ``set +e`` + per-step guards.
-- ``setup-no-exit0`` — the last effective (non-comment, non-blank) line is
-  not an unconditional ``exit 0``: the script's own tail status leaks into
-  the shim and a benign install hiccup reads as a provisioning failure.
-- ``setup-secret-value`` — a secret-named variable (``*TOKEN*`` / ``*KEY*``
-  / ``*SECRET*`` / ``*PASSWORD*`` …) is assigned a literal value. Names and
-  placeholders are fine (referencing ``"$GITHUB_TOKEN"`` or documenting
-  ``FOO_TOKEN=<SET-IN-CLAUDE-AI>``); a real value in a committed file is
-  the one hard "never" the environment registry carries.
-
-Posture is **advisory-only, never exit-affecting**: the script is host-owned
-after planting, contract drift migrates by nag (the §6.4 compat guarantee —
-no adopter's existing hand-rolled script can red a required check on
-upgrade). Input-gated on the script existing — the plant itself is adopt's
-job, so a repo without the hook gets no missing-file nag here. The path is
-the fleet contract's fixed location (:data:`SETUP_SCRIPT_RELPATH` — the
-archetype shims hardcode it, so it is deliberately house-style constant, not
-config; a diverging host forks the constant, D-7). Pure stdlib, no
-``subprocess`` (§3.2); unreadable files fail open (no verdict).
-"""
-
-
-
-
-# The fleet contract's fixed location: every archetype setup shim runs
-# `bash scripts/env-setup.sh` when it exists (fleet-manager
-# environments/templates/setup-universal.sh). House-style constant on
-# purpose (D-7): the shims hardcode this path, so a config knob here could
-# only produce a hook the shims never call.
-SETUP_SCRIPT_RELPATH = "scripts/env-setup.sh"
-
-# Variable-name fragments that read as credentials. Deliberately coarse —
-# the finding is advisory and a committed secret is worth a false nag.
-_SECRET_NAME_RE = re.compile(
-    r"(TOKEN|SECRET|PASSWORD|PASSWD|API_?KEY|PRIVATE_?KEY|ACCESS_?KEY|CREDENTIAL)",
-    re.IGNORECASE,
-)
-
-# `NAME=value` / `export NAME=value` at line start (shell assignment shape).
-_ASSIGN_RE = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
-
-# `set -e` posture: a `set` line whose short-option token carries `e`
-# (`-e`, `-eu`, `-euo`), or the long form `set -o errexit`.
-_SET_LINE_RE = re.compile(r"^\s*set\s+(.+)$")
-
-
-def _effective_lines(text: str) -> list[str]:
-    """Return the script's non-blank, non-comment lines, stripped."""
-    lines: list[str] = []
-    for raw in text.split("\n"):
-        stripped = raw.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        lines.append(stripped)
-    return lines
-
-
-def _arms_fatal_posture(line: str) -> bool:
-    """True when ``line`` is a ``set`` command arming errexit."""
-    match = _SET_LINE_RE.match(line)
-    if match is None:
-        return False
-    tokens = match.group(1).split()
-    if "-o" in tokens and "errexit" in tokens:
-        return True
-    return any(
-        token.startswith("-") and not token.startswith("--") and "e" in token[1:]
-        for token in tokens
-        if token not in {"-o"}
-    )
-
-
-def _is_secret_literal(value: str) -> bool:
-    """True when an assignment's right-hand side looks like a real value.
-
-    Fine (not flagged): empty, a ``$``-reference (``"$GITHUB_TOKEN"``), a
-    ``<PLACEHOLDER>``, or a pure option-ish token starting with ``-``.
-    """
-    stripped = value.strip().strip("\"'").strip()
-    if not stripped:
-        return False
-    if stripped.startswith(("$", "<", "-")):
-        return False
-    return True
-
-
-def check_setup_script(target: Path) -> list[Finding]:
-    """Return advisory findings for ``scripts/env-setup.sh`` contract drift.
-
-    Engages only when the script exists (adopt plants it; absence is not a
-    finding). Advisory by contract — callers must never count these toward
-    an exit code. Fail-open on unreadable files.
-    """
-    path = target / SETUP_SCRIPT_RELPATH
-    if not path.is_file():
-        return []
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return []  # fail open — an unreadable file is not a verdict
-    findings: list[Finding] = []
-    effective = _effective_lines(text)
-
-    for line in effective:
-        if _arms_fatal_posture(line):
-            findings.append(
-                Finding(
-                    SETUP_SCRIPT_RELPATH,
-                    "setup-fatal-posture",
-                    f"`{line}` arms fatal shell posture — a failing step "
-                    "then kills the session at provisioning with no signal "
-                    "(the two-dead-sessions class). The contract is `set "
-                    "+e` with every install step guarded (env-setup.sh "
-                    "header, EAP §6.5).",
-                ),
-            )
-
-    if not effective or not re.fullmatch(r"exit\s+0", effective[-1]):
-        findings.append(
-            Finding(
-                SETUP_SCRIPT_RELPATH,
-                "setup-no-exit0",
-                "the last effective line is not an unconditional `exit 0` — "
-                "the script's tail status leaks to the environment shim and "
-                "a benign hiccup reads as a provisioning failure. End the "
-                "script with `exit 0` (contract rule 1, EAP §6.5).",
-            ),
-        )
-
-    for line in effective:
-        assign = _ASSIGN_RE.match(line)
-        if assign is None:
-            continue
-        name, value = assign.group(1), assign.group(2)
-        if _SECRET_NAME_RE.search(name) and _is_secret_literal(value):
-            findings.append(
-                Finding(
-                    SETUP_SCRIPT_RELPATH,
-                    "setup-secret-value",
-                    f"`{name}=…` assigns a literal to a secret-named "
-                    "variable — committed setup scripts carry NAMES and "
-                    "placeholders only; real values live in the "
-                    "environment panel (contract rule 2, EAP §6.5). "
-                    "Reference the variable (`\"$NAME\"`) or use a "
-                    "`<PLACEHOLDER>`.",
-                ),
-            )
     return findings
 
 # --- engine/ledger.py ---
@@ -8616,15 +8086,6 @@ silently blank. Templates ship embedded in the bootstrap (the generated
 
 _PLACEHOLDER_RE = re.compile(r"\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
 
-# Markdown code carriers, stripped by find_placeholders_outside_code before
-# scanning (the #148/#150 poison: a status heartbeat's `${VAR}` inside
-# backticks read as an unfilled interview slot and held strict RED). The
-# same proven pair check_session_log uses for its `[[fill:]]` counting —
-# fences first (a fence line may contain no backtick-span boundary), then
-# inline spans.
-_MD_CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
-_MD_CODE_FENCE_RE = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
-
 # Context keys the ENGINE computes and injects itself — never interview
 # slots. The template/bank coherence guard (tests/test_render.py) exempts
 # exactly this set, so a template may reference them without a bank question
@@ -8636,23 +8097,6 @@ ENGINE_CONTEXT_KEYS = frozenset({"kit_version"})
 def find_placeholders(text: str) -> set[str]:
     """Return the set of ``${name}`` placeholders remaining in ``text``."""
     return set(_PLACEHOLDER_RE.findall(text))
-
-
-def find_placeholders_outside_code(text: str) -> set[str]:
-    """Return the ``${name}`` placeholders outside code spans / fenced blocks.
-
-    The engagement gate's unrendered-slot scan reads host-maintained planted
-    docs (a control/status.md heartbeat above all), where a literal
-    ``${VAR}`` inside backticks or a fenced block is *prose about* a token,
-    never an unfilled interview slot — kit PR #148 poisoned main with exactly
-    that (a status code span), redding every subsequent full-lane PR until a
-    hand-fix (#150). Fenced blocks are stripped first, then inline spans —
-    the same order :mod:`engine.checks.check_session_log` uses for its
-    ``[[fill:]]`` counting. The full-text :func:`find_placeholders` stays the
-    writer-side truth (banner placement, render coverage): a template slot is
-    real wherever it sits, including inside backticks.
-    """
-    return find_placeholders(_MD_CODE_SPAN_RE.sub("", _MD_CODE_FENCE_RE.sub("", text)))
 
 
 def render(text: str, context: dict[str, str]) -> str:
@@ -9108,27 +8552,6 @@ ADOPT_PLAN: list[tuple[str, str]] = [
     ("control-README.md.tmpl", "control/README.md"),
     ("control-inbox.md.tmpl", "control/inbox.md"),
     ("control-status.md.tmpl", "control/status.md"),
-    # The kit-owned work-claim convention (EAP program review §6.4): one
-    # file per claim under control/claims/ — the measured 0%-conflict
-    # layout (vs ~98% for a shared-append ledger; superbot
-    # tools/sim/claim_layout_sim.py). The planted README both documents the
-    # convention and makes the directory exist; check_claims enforces it
-    # (advisory-only) with a legacy-location compat window for pre-§6.4
-    # homes (docs/owner/claims/, root claims/). Shared across lanes like
-    # inbox.md/README.md — a --lane adopt never re-plants it.
-    ("control-claims-README.md.tmpl", "control/claims/README.md"),
-    # The setup-script contract hook (EAP program review §6.5): every fleet
-    # environment's archetype setup shim prefers a repo's own
-    # scripts/env-setup.sh (fleet-manager environments/templates/
-    # setup-universal.sh), so the kit plants the contract-conformant hook —
-    # always exit 0, defensive posture, no secret values, guarded installs.
-    # Slot-free by design: a shell file must never carry the markdown
-    # UNRENDERED banner, and shell `$var` syntax must never read as an
-    # interview slot (tests pin both). Root-level on purpose (a hook the
-    # environment shim executes, not documentation): _adopt_dest's docs_root
-    # remap never applies. check_setup_script is the enforcer half
-    # (advisory-only); skip-if-exists keeps every hand-rolled script.
-    ("env-setup.sh.tmpl", "scripts/env-setup.sh"),
 ]
 
 # State key holding {planted relpath: sha256 hex} for every doc the kit last
@@ -9257,16 +8680,6 @@ def archive_dist(
     the archive exists from v1.0.0 onward. Pre-stamp dists archive as
     ``bootstrap-unknown.py``. Idempotent: an identical existing archive is
     left alone; None when there is no single file to archive (source layout).
-
-    **Never overwrite, never silently accept** (queued fix 2, wave B'
-    verification): a pre-existing archive at the target name is
-    hash-verified against the bytes about to be banked. Identical → the
-    explicit ``(already banked)`` line. Different → the earlier bank is a
-    rollback source someone may still need (two unstamped dists both name
-    ``bootstrap-unknown.py``; a re-tagged dist can collide on a version
-    name), so the new bytes bank under a content-hash-suffixed dedup name
-    and the collision is reported — the pre-existing archive is left
-    byte-untouched.
     """
     if not dist_file.is_file():
         return None
@@ -9274,31 +8687,15 @@ def archive_dist(
     version = dist_version(text) or "unknown"
     dest = root / config.state_dir / BACKUP_DIRNAME / f"bootstrap-{version}.py"
     rel = f"{config.state_dir}/{BACKUP_DIRNAME}/bootstrap-{version}.py"
-    if dest.exists():
-        if dest.read_text(encoding="utf-8") == text:
-            # Never silent on the idempotent path: an upgrade whose OLD dist
-            # was already banked (a prior adopt/check pass, or a re-run) must
-            # still account for it explicitly, or the report's only
-            # `archived:` line names the NEW version and readers conclude the
-            # old dist was never banked — the exact doubt the archive-first
-            # covenant exists to remove (field-reported three times, v1.6.0
-            # rollout).
-            report.append(f"archived: {rel} (already banked)")
-            return dest
-        digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
-        dedup_name = f"bootstrap-{version}.{digest}.py"
-        dedup = dest.with_name(dedup_name)
-        dedup_rel = f"{config.state_dir}/{BACKUP_DIRNAME}/{dedup_name}"
-        if dedup.exists() and dedup.read_text(encoding="utf-8") == text:
-            report.append(f"archived: {dedup_rel} (already banked)")
-            return dedup
-        atomic_write_text(dedup, text)
-        report.append(
-            f"archived: {dedup_rel} (name collision: {rel} already exists "
-            "with DIFFERENT content — banked under a content-hash suffix; "
-            "the pre-existing archive was NOT overwritten)",
-        )
-        return dedup
+    if dest.exists() and dest.read_text(encoding="utf-8") == text:
+        # Never silent on the idempotent path: an upgrade whose OLD dist was
+        # already banked (a prior adopt/check pass, or a re-run) must still
+        # account for it explicitly, or the report's only `archived:` line
+        # names the NEW version and readers conclude the old dist was never
+        # banked — the exact doubt the archive-first covenant exists to remove
+        # (field-reported three times, v1.6.0 rollout).
+        report.append(f"archived: {rel} (already banked)")
+        return dest
     atomic_write_text(dest, text)
     report.append(f"archived: {rel}")
     return dest
@@ -9545,15 +8942,7 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
     this). A card **MODIFIED** by the PR (every session close-out flips one)
     keeps the full ``--require-session-log`` locked door, so a close-out that
     forgot to flip ``complete`` still reds. Both fixes validated live across
-    gba-homebrew PRs #3–#14. One deliberate exception (queued fix 3,
-    venture-lab #14): a card ADDED by a PR that ALSO touches this gate
-    workflow file itself gates through the full locked door — GitHub runs a
-    ``pull_request`` workflow from the PR head, so the PR that regenerates
-    the gate runs the NEW gate mid-PR, and without the exception the regen
-    could silently flip an added born-red card from held-red (old gate
-    semantics) to advisory, auto-merging a partial session. Hold semantics
-    may only tighten, never loosen, within the PR that changes them; the
-    merge path is unchanged — flip the card ``complete``.
+    gba-homebrew PRs #3–#14.
 
     **Control fast lane (KL-8):** a diff touching only ``control/**`` (a
     status heartbeat, a manager inbox append) short-circuits the job GREEN
@@ -9706,15 +9095,7 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         "        # judged on completeness); a card MODIFIED by the PR (every\n"
         "        # session close-out flips one) keeps the full locked-door\n"
         "        # gate, so a close-out that forgot to flip `complete` still\n"
-        "        # reds. EXCEPT: when this same PR also touches THIS gate\n"
-        "        # workflow file (an upgrade PR regenerating the kit-owned\n"
-        "        # gate), an ADDED card keeps the FULL locked door too — the\n"
-        "        # PR runs the NEW gate the moment the regen commit lands, so\n"
-        "        # without this the regen itself could flip an added card\n"
-        "        # from held-red to advisory MID-PR and auto-merge a partial\n"
-        "        # session (venture-lab #14). Hold semantics may only\n"
-        "        # tighten, never loosen, inside the PR that changes them;\n"
-        "        # the escape is the normal one — flip the card complete.\n"
+        "        # reds.\n"
         "        run: |\n"
         '          if [ -n "${{ github.base_ref }}" ]; then\n'
         '            range="origin/${{ github.base_ref }}...HEAD"\n'
@@ -9727,16 +9108,8 @@ def live_ci_workflow(interpreter: str = "python3", sessions_dir: str = ".session
         '          added="$(git diff --name-only --diff-filter=A "$range" -- '
         f"'{sessions_dir}/*.md' ':!{sessions_dir}/README.md' 2>/dev/null "
         '| tail -1)"\n'
-        '          gate_regen="$(git diff --name-only "$range" -- '
-        f"'{LIVE_CI_RELPATH}' 2>/dev/null | tail -1)\"\n"
         '          echo "session gate card: ${card:-<none - advisory sentinel>}"\n'
-        '          if [ -n "$card" ] && { [ "$card" != "$added" ] || '
-        '[ -n "$gate_regen" ]; }; then\n'
-        '            if [ "$card" = "$added" ]; then\n'
-        '              echo "card $card is ADDED but this PR also touches the'
-        ' gate workflow itself — locked-door gate (mid-PR semantics may only'
-        ' tighten; flip the card complete to merge)"\n'
-        "            fi\n"
+        '          if [ -n "$card" ] && [ "$card" != "$added" ]; then\n'
         f"            {interpreter} bootstrap.py check --strict --require-session-log"
         ' --session-log "$card"\n'
         "          elif [ -n \"$card\" ]; then\n"
@@ -9822,316 +9195,6 @@ def gate_carveouts(live_text: str, expected_text: str) -> list[str]:
             if step not in expected_steps_all:
                 lines.append(f"host-added step '{step}' in job '{job}'")
     return lines
-
-
-AUTOMERGE_ENABLER_RELPATH = ".github/workflows/auto-merge-enabler.yml"
-
-# The advisory routing label the fleet's enabler/disarm pair honors: a PR
-# carrying it is never armed (kit doctrine — see
-# docs/operations/auto-merge-guards.md guards 1–2). A constant, not config
-# (house-style D-7): the label is program-wide vocabulary, and a per-repo
-# rename would silently split the fleet's shared review convention.
-AUTOMERGE_CARVEOUT_LABEL = "do-not-automerge"
-
-DEFAULT_AUTOMERGE_BRANCH_PATTERNS = ("claude/*",)
-DEFAULT_AUTOMERGE_REQUIRED_CONTEXT = "substrate-gate"
-
-
-def _automerge_branch_expr(branch_patterns: list[str] | None) -> str:
-    """Render the workflow-expression term matching the arming branches.
-
-    A trailing ``*`` is a prefix match (``claude/*`` →
-    ``startsWith(github.head_ref, 'claude/')``); anything else matches the
-    head ref exactly. Empty/blank patterns fall back to the default —
-    the ``heartbeat_files`` doctrine: a stray ``[]`` (or a pattern list of
-    empty strings) must not silently widen arming to EVERY branch.
-    """
-    terms: list[str] = []
-    for raw in branch_patterns or []:
-        pattern = str(raw).strip().replace("'", "")
-        if not pattern or pattern == "*":
-            # A bare "*" would arm every PR on the repo — refuse the
-            # footgun and let the fallback keep the agent-branch default.
-            continue
-        if pattern.endswith("*"):
-            terms.append(f"startsWith(github.head_ref, '{pattern[:-1]}')")
-        else:
-            terms.append(f"github.head_ref == '{pattern}'")
-    if not terms:
-        return _automerge_branch_expr(list(DEFAULT_AUTOMERGE_BRANCH_PATTERNS))
-    return " || ".join(terms)
-
-
-def automerge_enabler_workflow(
-    branch_patterns: list[str] | None = None,
-    required_context: str = DEFAULT_AUTOMERGE_REQUIRED_CONTEXT,
-) -> str:
-    """Return the LIVE auto-merge-enabler workflow (EAP program review §6.10).
-
-    The superbot Q-0123 pattern, generalized from this repo's own
-    ``.github/workflows/auto-merge-enabler.yml``: arm GitHub-native
-    auto-merge on agent PRs the moment they open, so a born-red session PR
-    merges itself the instant the required check goes green — the session
-    just flips its card; GitHub does the gated merge. Adopters previously
-    hand-forked this workflow or lacked it; it now plants and regenerates
-    exactly like :func:`live_ci_workflow` (staged always, installed live by
-    ``adopt --wire-enforcement``, kit-owned once it exists — see
-    :func:`adopt` step 6b).
-
-    Safety shape carried from the origin workflow, in firing order:
-
-    - **Same-repo guard** — never runs for fork PRs (a fork's token could
-      not arm anyway; the guard keeps the failure silent instead of noisy).
-    - **Branch patterns** (``branch_patterns``, config
-      ``automerge.branch_patterns``) — only agent branches arm.
-    - **Refuse-to-arm guard** (the KL-0/KL-1 footgun): with NO required
-      status-check CONTEXTS on the base branch, arming merges the PR
-      INSTANTLY — the workflow counts the base branch's required contexts
-      via the rules API and refuses to arm on zero. Contexts, not rules:
-      a rule with an empty context list armed-and-merged kit PR #7.
-    - **Label carve-out** (:data:`AUTOMERGE_CARVEOUT_LABEL`): a labelled PR
-      is never armed — checked at the job level AND re-read FRESH from the
-      API after a grace beat (the kit #22 stale-payload label race; the
-      label is advisory routing, the required check is the enforcement —
-      docs/operations/auto-merge-guards.md).
-
-    ``required_context`` (config ``automerge.required_context``) is
-    informational — it names the gate in the log lines so an adopter reading
-    the run knows WHICH check must go green / become required; the guard
-    itself counts contexts generically.
-    """
-    branch_expr = _automerge_branch_expr(
-        list(branch_patterns) if branch_patterns is not None else None,
-    )
-    context = (required_context or DEFAULT_AUTOMERGE_REQUIRED_CONTEXT).replace("'", "")
-    return (
-        "# substrate-kit auto-merge enabler (LIVE — installed by\n"
-        "# `bootstrap.py adopt --wire-enforcement`).\n"
-        "# KIT-OWNED: adopt/upgrade regenerates this file in place, so\n"
-        "# upstream enabler fixes land here on every `bootstrap.py upgrade` —\n"
-        "# hand edits are OVERWRITTEN. Put host-specific customizations in a\n"
-        "# SEPARATE workflow file, never in this one.\n"
-        "#\n"
-        "# Arms GitHub-native auto-merge on agent PRs at open, so a born-red\n"
-        "# session PR merges itself the moment the required check goes green.\n"
-        "# INERT until two one-time repo settings exist (owner UI — see the\n"
-        "# adopt report's repo-settings checklist):\n"
-        '#   1. Settings → General → Pull Requests → "Allow auto-merge" = ON.\n'
-        f"#   2. A ruleset on the default branch REQUIRING the '{context}'\n"
-        "#      status check.\n"
-        "# With NO required check, arming merges a PR INSTANTLY — the\n"
-        "# refuse-to-arm guard below counts required contexts and refuses on\n"
-        "# zero rather than inverting the gate.\n"
-        "#\n"
-        f"# CARVE-OUT: label `{AUTOMERGE_CARVEOUT_LABEL}` = never armed\n"
-        "# (job-level check + a fresh API re-read to defeat the stale-payload\n"
-        "# label race). The label is advisory routing; the required check\n"
-        "# going red is the enforcement.\n"
-        "name: auto-merge-enabler\n"
-        "on:\n"
-        "  pull_request:\n"
-        "    # `synchronize` (every push to the PR head) re-arms: arming is\n"
-        "    # idempotent and never merges anything itself — the merge stays\n"
-        "    # gated by the required check. This narrows the green-behind\n"
-        "    # stall: a fix-push or `git merge origin/<base>` re-arms on the\n"
-        "    # up-to-date head.\n"
-        "    types: [opened, reopened, ready_for_review, synchronize]\n"
-        "permissions:\n"
-        "  contents: write\n"
-        "  pull-requests: write\n"
-        "concurrency:\n"
-        "  group: auto-merge-enabler-${{ github.event.pull_request.number }}\n"
-        "  cancel-in-progress: false\n"
-        "jobs:\n"
-        "  enable-auto-merge:\n"
-        "    if: >-\n"
-        "      github.event.pull_request.head.repo.full_name == github.repository &&\n"
-        "      github.event.pull_request.draft == false &&\n"
-        f"      ({branch_expr}) &&\n"
-        "      !contains(github.event.pull_request.labels.*.name, "
-        f"'{AUTOMERGE_CARVEOUT_LABEL}')\n"
-        "    runs-on: ubuntu-latest\n"
-        "    steps:\n"
-        "      - name: Refuse to arm unless the base branch requires status "
-        "CONTEXTS\n"
-        "        id: rules\n"
-        "        env:\n"
-        "          GH_TOKEN: ${{ secrets.ROUTINE_PAT || secrets.GITHUB_TOKEN }}\n"
-        "        run: |\n"
-        "          # Count required check CONTEXTS, not rules: a\n"
-        "          # required_status_checks RULE with an empty context list\n"
-        "          # still lets an armed PR merge with nothing to wait for.\n"
-        "          contexts=\"$(gh api "
-        '"repos/$GITHUB_REPOSITORY/rules/branches/${{ github.base_ref }}" \\\n'
-        "            --jq '[.[] | select(.type == \"required_status_checks\")\n"
-        "                   | .parameters.required_status_checks // [] | "
-        ".[].context]')\"\n"
-        "          count=\"$(printf '%s' \"$contexts\" | python3 -c "
-        "'import json,sys; print(len(json.load(sys.stdin)))')\"\n"
-        '          echo "required contexts ($count): $contexts"\n'
-        '          echo "required=$count" >> "$GITHUB_OUTPUT"\n'
-        '          if [ "$count" = "0" ]; then\n'
-        '            echo "::warning::the base branch requires no status-check '
-        "CONTEXTS — arming would merge instantly. Refusing to arm; make "
-        f"'{context}' a required check first (see the adopt repo-settings "
-        'checklist)."\n'
-        "          fi\n"
-        f"      - name: Re-check the {AUTOMERGE_CARVEOUT_LABEL} label FRESH "
-        "(stale-payload race guard)\n"
-        "        id: label\n"
-        "        if: steps.rules.outputs.required != '0'\n"
-        "        env:\n"
-        "          GH_TOKEN: ${{ secrets.ROUTINE_PAT || secrets.GITHUB_TOKEN }}\n"
-        "          PR: ${{ github.event.pull_request.number }}\n"
-        "        run: |\n"
-        "          # The event payload snapshots labels at PR-open time; an\n"
-        "          # MCP-created PR gets its label in a SECOND call right\n"
-        "          # after create. Wait a grace beat, then re-read labels\n"
-        "          # from the API and refuse to arm if the label is present\n"
-        "          # NOW (the kit #22 incident class).\n"
-        "          sleep 15\n"
-        "          labels=\"$(gh api "
-        '"repos/$GITHUB_REPOSITORY/issues/$PR/labels" '
-        "--jq '[.[].name] | join(\",\")')\"\n"
-        '          echo "labels on re-read: $labels"\n'
-        '          case ",$labels," in\n'
-        f"            *,{AUTOMERGE_CARVEOUT_LABEL},*)\n"
-        f'              echo "{AUTOMERGE_CARVEOUT_LABEL} present on re-read '
-        '— refusing to arm."\n'
-        '              echo "skip=1" >> "$GITHUB_OUTPUT" ;;\n'
-        "            *)\n"
-        '              echo "skip=0" >> "$GITHUB_OUTPUT" ;;\n'
-        "          esac\n"
-        "      - name: Enable native auto-merge (squash)\n"
-        "        if: steps.rules.outputs.required != '0' && "
-        "steps.label.outputs.skip == '0'\n"
-        "        env:\n"
-        "          # Prefer a PAT so the eventual merge attributes to a real\n"
-        "          # user; GITHUB_TOKEN is the fallback.\n"
-        "          GH_TOKEN: ${{ secrets.ROUTINE_PAT || secrets.GITHUB_TOKEN }}\n"
-        "          PR: ${{ github.event.pull_request.number }}\n"
-        "        run: |\n"
-        '          if gh pr merge --auto --squash "$PR" --repo '
-        '"$GITHUB_REPOSITORY"; then\n'
-        f'            echo "Auto-merge enabled for PR #$PR — it merges when '
-        f"'{context}' is green.\"\n"
-        "          else\n"
-        '            echo "::warning::Could not enable auto-merge for PR #$PR. '
-        "Confirm: (1) 'Allow auto-merge' is ON, (2) the base branch requires "
-        f"the '{context}' check, (3) the token has Pull requests + Contents "
-        'write. On a repo shape where GitHub structurally refuses the arm '
-        "(born-red required checks with no pending window, or PR-required-"
-        "but-no-CI), REST merge-on-green is the landing path instead — see "
-        'docs/operations/auto-merge-guards.md."\n'
-        "          fi\n"
-    )
-
-
-def _regen_kit_owned_workflow(
-    root: Path,
-    config: Config,
-    relpath: str,
-    expected_text: str,
-    report: list[str],
-    *,
-    noun: str,
-    install_when_absent: bool,
-) -> None:
-    """Plant/regenerate one kit-owned live workflow (adopt step 6b shape).
-
-    The shared mechanism behind :data:`LIVE_CI_RELPATH` and
-    :data:`AUTOMERGE_ENABLER_RELPATH` (EAP program review §6.1 + §6.10):
-    an absent file is planted only when ``install_when_absent`` (the
-    ``--wire-enforcement`` opt-in — the kit never installs live CI
-    silently); once the file EXISTS it is kit-owned — regenerated in place
-    on every adopt/upgrade pass, with the #137 carve-out protection: host
-    additions are detected (:func:`gate_carveouts`), the full pre-regen copy
-    is banked content-hash-named under ``<state_dir>/backup/``, and each
-    carve-out is reported (upgrade surfaces them in ``upgrade-report.md``).
-    """
-    live_path = root / relpath
-    if live_path.is_file():
-        live_text = live_path.read_text(encoding="utf-8")
-        if live_text == expected_text:
-            # Byte-identity IS a clean scan result — say so explicitly
-            # (queued fix 1): a report with no carve-out language at all is
-            # indistinguishable from "the detector never ran".
-            report.append(f"carve-out scan: {relpath} — ran, 0 found")
-            report.append(f"kept: {relpath} (kit-owned, already current)")
-            return
-        carveouts = gate_carveouts(live_text, expected_text)
-        if not carveouts:
-            # Explicit-when-clean (queued fix 1, fleet-manager #40 finding):
-            # the scan ran and found no host additions — name that, so the
-            # upgrade report can prove the detector ran instead of leaving
-            # silence that also matches "never ran".
-            report.append(f"carve-out scan: {relpath} — ran, 0 found")
-        if carveouts:
-            digest = hashlib.sha256(live_text.encode("utf-8")).hexdigest()[:8]
-            stem = relpath.rsplit("/", 1)[-1]
-            stem = stem[: -len(".yml")] if stem.endswith(".yml") else stem
-            bank_rel = (
-                f"{config.state_dir}/{BACKUP_DIRNAME}/"
-                f"{stem}.pre-regen-{digest}.yml"
-            )
-            atomic_write_text(root / bank_rel, live_text)
-            for line in carveouts:
-                report.append(f"carve-out: {relpath} — {line}")
-            report.append(
-                f"carve-out: full pre-regen {noun} banked at {bank_rel} — "
-                "host additions were NOT carried into the regenerated "
-                f"kit-owned {noun}; move them into a separate workflow file "
-                "(e.g. .github/workflows/host-ci.yml) and commit that "
-                "before shipping this upgrade/adopt PR.",
-            )
-        atomic_write_text(live_path, expected_text)
-        report.append(
-            f"regenerated: {relpath} (kit-owned — template@new; "
-            "hand edits are overwritten, host carve-outs belong in a "
-            "separate workflow)",
-        )
-    elif install_when_absent:
-        _adopt_plant(live_path, relpath, expected_text, report)
-
-
-def _automerge_params(config: Config) -> tuple[list[str], str]:
-    """Return the enabler's (branch_patterns, required_context) from config.
-
-    Fallback-on-empty at the consumer (the ``heartbeat_files`` doctrine): a
-    stray ``{}``/``[]``/``""`` in ``substrate.config.json`` → ``automerge``
-    must not silently widen arming or blank the context name.
-    """
-    knobs = config.automerge if isinstance(config.automerge, dict) else {}
-    patterns = knobs.get("branch_patterns") or list(
-        DEFAULT_AUTOMERGE_BRANCH_PATTERNS,
-    )
-    context = str(
-        knobs.get("required_context") or DEFAULT_AUTOMERGE_REQUIRED_CONTEXT,
-    )
-    return [str(p) for p in patterns], context
-
-
-def _repo_settings_checklist(required_context: str) -> list[str]:
-    """Return the one-time repo-settings checklist (EAP §6.10, second half).
-
-    Adopt prints it whenever the live enabler is present: these are the
-    owner-UI toggles a planted workflow CANNOT set for itself — verified
-    live on the fleet (trading-strategy's "Allow auto-merge" is OFF, so its
-    enabler cannot arm anything until the owner flips it; a workflow has no
-    path to repo settings).
-    """
-    return [
-        "repo-settings checklist (one-time, owner UI — the planted "
-        "workflows are inert until these are set):",
-        '  1. Settings → General → Pull Requests → "Allow auto-merge" = ON '
-        "(a workflow cannot flip repo settings).",
-        f"  2. Require the '{required_context}' status check on the default "
-        "branch (Settings → Rules) — with NO required check, arming "
-        "auto-merge merges a PR instantly.",
-        '  3. Optional: "Automatically delete head branches" + auto-update '
-        "of PR branches (closes the merged-branch clutter and the "
-        "green-behind stall classes).",
-    ]
 
 
 def adopt(
@@ -10293,18 +9356,6 @@ def adopt(
         gate_text,
         report,
     )
-    # The auto-merge enabler stages right next to the gate (EAP §6.10): the
-    # two are halves of one pattern — the gate holds a born-red PR red, the
-    # enabler arms the merge that fires when the card flips green.
-    enabler_patterns, enabler_context = _automerge_params(config)
-    enabler_text = automerge_enabler_workflow(enabler_patterns, enabler_context)
-    enabler_rel = f"{config.state_dir}/ci/auto-merge-enabler.yml"
-    _adopt_stage(
-        state_base / "ci" / "auto-merge-enabler.yml",
-        enabler_rel,
-        enabler_text,
-        report,
-    )
 
     # (6) Explicit host opt-in: live .claude/ (still never overwrites).
     if include_claude:
@@ -10336,42 +9387,51 @@ def adopt(
     # opt-in signal after the first install. Hand edits are overwritten by
     # design — the generated header declares it and routes host carve-outs
     # to a separate workflow file.
-    # Carve-out protection (superbot-games PR #16 class, shipped PR #137):
-    # a host that hand-added jobs/steps INSIDE a kit-owned workflow — e.g.
-    # its only pytest job — must never lose them to a silent regen. The
-    # shared helper detects the additions, banks the full pre-regen copy
-    # under <state_dir>/backup/ (content-hash-named, so successive regens
-    # never clobber an earlier bank), and reports each carve-out explicitly
-    # (upgrade surfaces them in upgrade-report.md). The regen itself still
-    # happens — the workflow stays kit-owned; the host relocates the banked
-    # additions into a separate workflow file.
-    _regen_kit_owned_workflow(
-        root,
-        config,
-        LIVE_CI_RELPATH,
-        gate_text,
-        report,
-        noun="gate",
-        install_when_absent=wire_enforcement,
-    )
-    # The auto-merge enabler (EAP §6.10) follows the gate's exact lifecycle:
-    # created only by --wire-enforcement, kit-owned once it exists (a
-    # hand-forked copy at the same path falls under kit ownership on the
-    # next adopt/upgrade pass — the point of the shared basename).
-    _regen_kit_owned_workflow(
-        root,
-        config,
-        AUTOMERGE_ENABLER_RELPATH,
-        enabler_text,
-        report,
-        noun="enabler",
-        install_when_absent=wire_enforcement,
-    )
-    if (root / AUTOMERGE_ENABLER_RELPATH).is_file():
-        # The §6.10 second half: the enabler is inert until two owner-UI
-        # repo settings exist — say so in the adopt output itself, every
-        # pass (the checklist is idempotent guidance, not a nag).
-        report.extend(_repo_settings_checklist(enabler_context))
+    live_gate = root / LIVE_CI_RELPATH
+    if live_gate.is_file():
+        live_text = live_gate.read_text(encoding="utf-8")
+        if live_text == gate_text:
+            report.append(f"kept: {LIVE_CI_RELPATH} (kit-owned, already current)")
+        else:
+            # Carve-out protection (superbot-games PR #16 class): a host that
+            # hand-added jobs/steps INSIDE the kit-owned gate — e.g. its only
+            # pytest job — must never lose them to a silent regen. Detect the
+            # additions, bank the full pre-regen copy under <state_dir>/backup/
+            # (content-hash-named, so successive regens never clobber an
+            # earlier bank), and report each carve-out explicitly (upgrade
+            # surfaces them in upgrade-report.md). The regen itself still
+            # happens — the gate stays kit-owned; the host relocates the
+            # banked additions into a separate workflow file.
+            carveouts = gate_carveouts(live_text, gate_text)
+            if carveouts:
+                digest = hashlib.sha256(live_text.encode("utf-8")).hexdigest()[:8]
+                bank_rel = (
+                    f"{config.state_dir}/{BACKUP_DIRNAME}/"
+                    f"substrate-gate.pre-regen-{digest}.yml"
+                )
+                atomic_write_text(root / bank_rel, live_text)
+                for line in carveouts:
+                    report.append(f"carve-out: {LIVE_CI_RELPATH} — {line}")
+                report.append(
+                    f"carve-out: full pre-regen gate banked at {bank_rel} — "
+                    "host additions were NOT carried into the regenerated "
+                    "kit-owned gate; move them into a separate workflow file "
+                    "(e.g. .github/workflows/host-ci.yml) and commit that "
+                    "before shipping this upgrade/adopt PR.",
+                )
+            atomic_write_text(live_gate, gate_text)
+            report.append(
+                f"regenerated: {LIVE_CI_RELPATH} (kit-owned — template@new; "
+                "hand edits are overwritten, host carve-outs belong in a "
+                "separate workflow)",
+            )
+    elif wire_enforcement:
+        _adopt_plant(
+            live_gate,
+            LIVE_CI_RELPATH,
+            gate_text,
+            report,
+        )
 
     # (6b2) Lane-aware adopt: declare the just-planted lane heartbeat so the
     # status gate validates it (config mutated in place — cmd_adopt's
@@ -10472,17 +9532,7 @@ def scan_relpaths(config: Any) -> list[str]:
     unrendered banner/slots as strict-RED while the render path skipped the
     file, stranding every fresh adopter mid-checklist.
     """
-    relpaths = [
-        _adopt_dest(plan_rel, config)
-        for _, plan_rel in ADOPT_PLAN
-        # Shell plants are excluded from the unrendered/render-live surface
-        # (EAP §6.5): shell `${VAR}` syntax is not an interview slot — a
-        # host's hand-rolled scripts/env-setup.sh would false-red as
-        # `unrendered-slot`, and `render --live` must never rewrite an
-        # executable hook. The kit's own env-setup.sh.tmpl is slot-free by
-        # contract (a test pins it), so nothing real is skipped.
-        if not plan_rel.endswith(".sh")
-    ]
+    relpaths = [_adopt_dest(plan_rel, config) for _, plan_rel in ADOPT_PLAN]
     relpaths.extend(EXTRA_SCAN_RELPATHS)
     return relpaths
 
@@ -10492,23 +9542,10 @@ def _unrendered_findings(
     config: Any,
     *,
     evidence: bool,
-    relpaths: list[str] | None = None,
 ) -> list[Finding]:
-    """Scan the planted docs for the UNRENDERED banner / leftover ``${...}``.
-
-    The ``unrendered-slot`` finding is **code-span-aware** (queued fix 4, the
-    #148/#150 incident): planted docs the host maintains — the
-    ``control/status.md`` heartbeat above all — legitimately *mention*
-    ``${VAR}`` literals inside backticks or fenced blocks, and those are
-    prose about a token, never an unfilled interview slot. The banner branch
-    keeps the full-text slot listing: a doc still under the UNRENDERED banner
-    is kit output by construction, so a backticked slot there (e.g. the
-    ai-project-workflow template's `` `${verify_command}` ``) is a real slot
-    — and the banner itself (placed on full-text evidence) keeps holding the
-    gate until it renders away.
-    """
+    """Scan the planted docs for the UNRENDERED banner / leftover ``${...}``."""
     findings: list[Finding] = []
-    for rel in relpaths if relpaths is not None else scan_relpaths(config):
+    for rel in scan_relpaths(config):
         path = target / rel
         if not path.is_file():
             continue
@@ -10518,10 +9555,6 @@ def _unrendered_findings(
             continue
         slots = sorted(find_placeholders(text))
         listed = ", ".join(slots[:5]) + (" …" if len(slots) > 5 else "")
-        live_slots = sorted(find_placeholders_outside_code(text))
-        live_listed = ", ".join(live_slots[:5]) + (
-            " …" if len(live_slots) > 5 else ""
-        )
         if text.startswith(UNRENDERED_BANNER_FIRST_LINE):
             detail = f" (unfilled: {listed})" if slots else ""
             findings.append(
@@ -10533,35 +9566,16 @@ def _unrendered_findings(
                     "<slot> <value>`), then `bootstrap.py render --live`.",
                 ),
             )
-        elif evidence and live_slots:
+        elif evidence and slots:
             findings.append(
                 Finding(
                     rel,
                     "unrendered-slot",
-                    f"{len(live_slots)} unfilled ${{...}} slot(s): "
-                    f"{live_listed} — "
+                    f"{len(slots)} unfilled ${{...}} slot(s): {listed} — "
                     "answer them, then `bootstrap.py render --live`.",
                 ),
             )
     return findings
-
-
-def check_engagement_control(target: Path, config: Any) -> list[Finding]:
-    """The unrendered scan scoped to control-plane planted docs (fast lane).
-
-    Queued fix 4's deeper-bug half (#148 root cause): the CI control fast
-    lane runs only ``check --strict --status-only``, so a control-only PR
-    that wrote a slot regression into ``control/status.md`` merged GREEN and
-    poisoned main — every SUBSEQUENT full-lane PR went red until a hand-fix
-    (#150). A control-only diff can only regress ``control/**`` files, so
-    the fast lane runs exactly this scoped scan: the same banner/slot logic,
-    restricted to the planted docs under ``control/``. Cheap by construction
-    (a handful of file reads, stdlib-only) — the lane stays fast.
-    """
-    state = _load_state(target, config)
-    evidence = _adoption_evidence(config, state)
-    control = [rel for rel in scan_relpaths(config) if rel.startswith("control/")]
-    return _unrendered_findings(target, config, evidence=evidence, relpaths=control)
 
 
 def _strip_comment(line: str) -> str:
@@ -10683,10 +9697,6 @@ lab never writes to consumers); the one file it writes is this repo's
 
 
 
-# The `kit:` self-report line grammar is kit-owned with ONE home —
-# engine.grammar (EAP §6.8): the writer templates and this parser consume
-# the same constants, so they cannot drift apart. Shape notes live there.
-
 ADOPTERS_RELPATH = "docs/adopters.md"
 ROSTER_RELPATH = "docs/fleet-repos.txt"
 RAW_HOST = "https://raw.githubusercontent.com"
@@ -10708,6 +9718,15 @@ VENDORED_RELPATHS = ("bootstrap.py", "dist/bootstrap.py")
 CONFIG_RELPATH = "substrate.config.json"
 DEFAULT_HEARTBEAT = "control/status.md"
 
+# The planted heartbeat convention (ORDER 003): `kit: v1.2.3 · check: green ·
+# engaged: yes`. Parsed leniently — real heartbeats decorate the line (the
+# kit's own says "v1.7.0 released · KIT_VERSION 1.7.0 · …"), so we take the
+# first version token after `kit:` and scan the rest of the line for the
+# check/engaged fields wherever they sit.
+_KIT_LINE_RE = re.compile(r"^kit:\s*(.*)$", re.MULTILINE)
+_VERSION_TOKEN_RE = re.compile(r"\bv(\d[\w.\-]*)")
+_CHECK_FIELD_RE = re.compile(r"\bcheck:\s*(green|red)\b")
+_ENGAGED_FIELD_RE = re.compile(r"\bengaged:\s*(yes|no)\b")
 _NUMERIC_RE = re.compile(r"\d+")
 
 Fetcher = Callable[[str, str], "str | None"]
@@ -10804,13 +9823,13 @@ def parse_kit_line(text: str) -> tuple[str | None, str | None, str | None]:
     all. Lenient by design: fields are scanned anywhere on the line, so a
     decorated heartbeat (extra prose between fields) still parses.
     """
-    match = KIT_LINE_RE.search(text)
+    match = _KIT_LINE_RE.search(text)
     if match is None:
         return (None, None, None)
     line = match.group(1)
-    version = KIT_VERSION_TOKEN_RE.search(line)
-    check = KIT_CHECK_FIELD_RE.search(line)
-    engaged = KIT_ENGAGED_FIELD_RE.search(line)
+    version = _VERSION_TOKEN_RE.search(line)
+    check = _CHECK_FIELD_RE.search(line)
+    engaged = _ENGAGED_FIELD_RE.search(line)
     return (
         version.group(1) if version else None,
         check.group(1) if check else None,
@@ -11448,19 +10467,12 @@ def upgrade_report_text(
 ) -> str:
     """Compose ``<state_dir>/upgrade-report.md``.
 
-    ``carveouts`` — the ``carve-out:`` / ``carve-out scan:`` lines adopt's
-    kit-owned workflow regen emitted. Real carve-outs (host-added jobs/steps
-    the regen could not keep; the full pre-regen copy is banked under
-    ``<state_dir>/backup/``) get their own loud section: the report file is
-    the upgrade PR's body evidence, and a host whose only CI job lived inside
-    the kit gate (superbot-games #16) must see the relocation instruction
-    there, not only in stdout. A **clean** scan is stated explicitly too
-    (queued fix 1, fleet-manager #40 finding): silence was indistinguishable
-    from "the detector never ran", so the report now says which kit-owned
-    workflows were scanned with 0 found — or that no kit-owned live workflow
-    exists to scan. Pass ``carveouts=None`` (the post-hoc ``--apply-docs``
-    path, which runs no adopt pass) to state nothing — absence of the block
-    honestly means the detector did not run in that flow.
+    ``carveouts`` — the ``carve-out:`` lines adopt's kit-owned gate regen
+    emitted (host-added jobs/steps the regen could not keep; the full
+    pre-regen gate is banked under ``<state_dir>/backup/``). They get their
+    own loud section: the report file is the upgrade PR's body evidence, and
+    a host whose only CI job lived inside the kit gate (superbot-games #16)
+    must see the relocation instruction there, not only in stdout.
     """
     counts: dict[str, int] = {}
     for row in rows:
@@ -11478,30 +10490,14 @@ def upgrade_report_text(
         "|---|---|---|",
     ]
     lines += [f"| {r['relpath']} | {r['class']} | {r['note']} |" for r in rows]
-    scans = [line for line in carveouts or [] if line.startswith("carve-out scan:")]
-    hits = [line for line in carveouts or [] if line.startswith("carve-out:")]
-    if hits:
+    if carveouts:
         lines += [
             "",
             "## ⚠️ Gate carve-outs (host additions the kit-owned regen "
             "could not keep)",
             "",
         ]
-        lines += [f"- {line}" for line in hits]
-    if carveouts is not None:
-        lines += ["", "## Carve-out scan", ""]
-        if scans:
-            lines += [f"- {line}" for line in scans]
-        if hits:
-            lines += [
-                f"- carve-out scan: {len(hits)} carve-out line(s) reported "
-                "above (see the ⚠️ section).",
-            ]
-        if not scans and not hits:
-            lines += [
-                "- carve-out scan: ran — no kit-owned live workflow "
-                "installed, nothing to scan.",
-            ]
+        lines += [f"- {line}" for line in carveouts]
     if applied:
         lines += ["", "## Applied (--apply-docs)", ""]
         lines += [f"- {line}" for line in applied]
@@ -11746,14 +10742,9 @@ def run_upgrade(
     # Gate carve-outs (superbot-games #16 class): adopt's kit-owned gate
     # regen reports host additions it could not keep as ``carve-out:`` lines
     # — surface them in upgrade-report.md too (the report is the upgrade PR's
-    # body evidence; a stdout-only warning is too easy to lose). The clean
-    # ``carve-out scan:`` lines travel with them (queued fix 1): the report
-    # states "ran, 0 found" explicitly instead of a silence that also reads
-    # as "the detector never ran".
+    # body evidence; a stdout-only warning is too easy to lose).
     gate_carveout_lines = [
-        line
-        for line in adopt_lines
-        if line.startswith(("carve-out:", "carve-out scan:"))
+        line for line in adopt_lines if line.startswith("carve-out:")
     ]
 
     # (6b) KL-3: the 📊 Model needle joins session_markers at upgrade time —
@@ -12446,18 +11437,14 @@ def cmd_check(
         target,
         status_files=config.heartbeat_files,
     )
-    # Claims hygiene — orders AND work claims (ORDER 007 + EAP §6.4):
-    # advisory-only, like the staleness and owner-action warnings — a
-    # duplicate/stale `claimed-by:`, an orphaned/unparseable work-claim file,
-    # or a legacy claims location is a coordination nudge the manager/session
-    # reconciles, never a required-check red (the §6.4 compat guarantee: no
-    # adopter's existing claims can go born-red on upgrade). Runs on both
-    # lanes: order claims live on the heartbeat orders line and work claims
-    # under control/claims/ — both control-lane surfaces.
+    # Order-claim hygiene (ORDER 007): advisory-only, like the staleness and
+    # owner-action warnings — a duplicate or stale `claimed-by:` is a
+    # coordination race the manager reconciles, never a required-check red.
+    # Runs on both lanes: claims live on the heartbeat orders line the fast
+    # lane already validates.
     claim_advisories = check_claims(
         target,
         status_files=config.heartbeat_files,
-        claims_dir=config.claims_dir,
     )
     # OWNER-ACTION ↔ CAPABILITIES cross-reference (kit-lab queue item 8, the
     # #68 card idea): advisory-only, like the ORDER 008 format nag it
@@ -12470,12 +11457,6 @@ def cmd_check(
         target,
         status_files=config.heartbeat_files,
     )
-    # Setup-script contract (EAP §6.5): advisory-only, like every nudge
-    # above — the planted scripts/env-setup.sh is host-owned after adopt,
-    # so contract drift (fatal posture / missing exit 0 / secret literal)
-    # migrates by nag, never a required-check red. Full lane only: the hook
-    # is not control-lane traffic (emitted below with the adopters block).
-    setup_advisories = check_setup_script(target)
     # The inbox append-only gate (issue #36 report 2): a control/inbox.md
     # change must be pure-append vs the merge-base + ORDER-grammar shaped.
     # Rides the finding loop like every checker; engages only when CI handed
@@ -12493,17 +11474,10 @@ def cmd_check(
     adopters_gate, adopters_advisories = check_adopters_current(target)
     if status_only:
         # --status-only: the fast lane's scoped gate (see docstring). Only the
-        # control-lane checkers run — the heartbeat gate, the control-scoped
-        # unrendered scan (queued fix 4: a control-only PR that writes a slot
-        # regression into a control-plane planted doc must red HERE, not
-        # poison the next full-lane PR — the #148/#150 incident), and, when
-        # CI passes a base, the inbox append-only gate; everything downstream
-        # (allowlist, guard fires, emit loop) is shared with the full run.
-        doc_findings = (
-            list(status_gate)
-            + inbox_findings
-            + check_engagement_control(target, config)
-        )
+        # control-lane checkers run — the heartbeat gate and, when CI passes a
+        # base, the inbox append-only gate; everything downstream (allowlist,
+        # guard fires, emit loop) is shared with the full run.
+        doc_findings = list(status_gate) + inbox_findings
     else:
         docs_root = target / config.docs_root
         doc_findings = list(
@@ -12585,13 +11559,12 @@ def cmd_check(
             findings=owner_ask_advisories,
         )
     if claim_advisories:
-        # Same warn-only contract as the advisories above (ORDER 007 +
-        # EAP §6.4): the duplicate/stale/format/legacy-location claim nudge
-        # is surfaced + telemetry-recorded but never counted toward the exit
-        # code — the manager adjudicates the tiebreak; the checker only
-        # flags the collision/drift.
+        # Same warn-only contract as the advisories above (ORDER 007): the
+        # duplicate/stale-claim nudge is surfaced + telemetry-recorded but
+        # never counted toward the exit code — the manager adjudicates the
+        # tiebreak; the checker only flags the collision.
         _emit(
-            f"check: {len(claim_advisories)} claims advisory "
+            f"check: {len(claim_advisories)} order-claim advisory "
             "warning(s) (never exit-affecting):",
         )
         for finding in claim_advisories:
@@ -12622,26 +11595,6 @@ def cmd_check(
             surface="check",
             posture="advisory",
             findings=xref_advisories,
-        )
-    if setup_advisories and not status_only:
-        # Same warn-only contract as the advisories above (EAP §6.5): the
-        # setup-script hook is host-owned after planting — a contract nudge
-        # (fatal posture, missing exit 0, secret-shaped literal) is surfaced
-        # + telemetry-recorded, never counted toward the exit code, so no
-        # adopter's hand-rolled script can red a required check on upgrade.
-        _emit(
-            f"check: {len(setup_advisories)} setup-script contract advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in setup_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=setup_advisories,
         )
     if adopters_advisories and not status_only:
         # Same warn-only contract as the advisories above (EAP §6.3): a
@@ -13921,13 +12874,11 @@ _TEMPLATES = {
     'ai-project-workflow.md.tmpl': "# ${project_name} — AI project workflow\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The multi-agent pipeline: how ideas become work\n> and how sessions run. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Idea lifecycle\n\n```\ncaptured -> classified -> planned -> built -> verified\n```\n\nEvery idea ends implemented, planned, in discussion, or explicitly rejected —\nnever orphaned. Backlog + routing: `docs/ideas/README.md`.\n\n## Session workflow\n\n```\norient -> claim -> born-red card -> build -> verify -> close\n```\n\n1. **Orient** — working agreement, current state, task-specific reading route.\n2. **Claim** — declare your lane so parallel sessions don't collide.\n3. **Born-red card** — open the session record first, marked in-progress, so\n   the work is visible while it is still incomplete.\n4. **Build** — the goal, end-to-end.\n5. **Verify** — run `${verify_command}` before shipping.\n6. **Close** — flip the card complete; log the session, groom one idea, hand\n   off.\n\n## Handoff template\n\n(What the next session needs, four lines: state of the work · what is\nverified · what is still open · the first next step.)\n\n## Adoption pace\n\nCurrent substrate-workflow adoption: **${integration_mode}**.\n",
     'architecture.md.tmpl': '# ${project_name} — architecture\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Layering, invariants, and decomposition rules.\n> **NOT SOURCE OF TRUTH** for code — source files always win.\n\n## Layers & import rules\n\n${architecture_layers}\n\n| Layer | May import | Must NOT import |\n|---|---|---|\n| (one row per layer, expanded from the summary above) | | |\n\n## Invariants\n\n(The rules that must survive every refactor — write each one as a testable\nstatement, and name the check that enforces it where one exists.)\n\n## Namespace protection — two mechanisms, both required\n\nTwo separate mechanisms guard the namespace, and they catch different\nfailure classes:\n\n1. **A registry for runtime string identities** — event names, command\n   names, settings keys, and any other string that selects behavior at\n   runtime. Collisions here are invisible to static analysis.\n2. **A static AST pass for Python symbol shadowing** — a later top-level\n   `def` / `class` with the same name silently shadows the earlier one, and\n   no import fails.\n\nNeither mechanism subsumes the other. The registry cannot see symbol\nshadowing; the AST pass cannot see string-keyed dispatch. Do not delete one\nbelieving the other covers it.\n\n## Verifying a change\n\n```\n${verify_command}\n```\n',
     'collaboration-model.md.tmpl': "# ${project_name} — collaboration model\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How the owner and agents work together. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## The model\n\n- **Goal first.** The owner designs and directs; agents build. Each session\n  achieves its goal end-to-end — not the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting; a\n  prompt is one input, never a command list.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — code, verify, ship —\n  without re-confirming.\n\n## Act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task (that is expected, not scope creep).\n- **Ask** when the change is irreversible (data loss / external publish),\n  large and cross-cutting (architectural), or the goal itself is genuinely\n  ambiguous.\n\n## Routing work to the owner\n\nThe owner is the scarcest resource in the program. An ask reaches the owner\nonly when the agent has **attempted the action itself** or can name the\n**exact wall** (error text, permission denial) proving only the owner can do\nit — assumption-based asks are banned. Every ask uses the OWNER-ACTION\nformat — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED\n(canonical: `control/README.md`) — phrased so a non-technical owner can act\ndirectly: one plain sentence, an exact click path, paste-ready text.\nWithdraw asks that have gone stale; fewer, clearer asks beat complete lists.\n\n## Friction → guard\n\nAnything that interrupts a session's workflow — a stale file, a checker that\nlied, a footgun — is converted into the **cheapest enforcing prevention**\nbefore the session ends: checker / CI / test first, then hook, then written\nrule. Enforce, don't exhort.\n\n## Guiding questions\n\nDuring exploratory / brainstorming work, surface the single most useful\nquestion about the owner's idea that the agent genuinely cannot derive\nitself — rare and selective, never during routine execution, and only when\nthe answer would actually matter and be actionable. A big or vague idea\nearns a dedicated research pass or its own session before being answered\nfrom memory alone.\n\n## Program law\n\nThis model's program-wide form, and the rulings that bind every repo in the\nprogram, live canonically in the substrate-kit repo at\n`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001\ndecide-and-flag, PL-002 never-wait, PL-007 enforce-don't-exhort) and\n`docs/program/collaboration-model.md`\n(https://github.com/menno420/substrate-kit/tree/main/docs/program).\n**Cite PL-IDs — never copy ruling bodies into this repo.**\n\n## Drift & staleness\n\n- When a doc and a source file disagree: ${drift_resolution}\n- Staleness review cadence: ${staleness_review}\n",
-    'control-README.md.tmpl': '# Fleet coordination protocol — `control/`\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. Canonical spec: `menno420/superbot` →\n> `docs/planning/fleet-coordination-protocol-2026-07-09.md` (§1). Projects cannot talk to each\n> other directly — committed git files are the only shared medium; this directory is the bus.\n\n## The two files\n\n- `control/inbox.md` — ORDERS to this Project. **One writer: the manager** (appends via the\n  GitHub Contents API). Never edit this file.\n- `control/status.md` — STATE from this Project. **One writer: this Project** (overwrite it each\n  session).\n\n## The one rule that keeps it conflict-free\n\n**One writer per file.** The manager is the sole writer of `inbox.md`; this Project is the sole\nwriter of its own `status.md`. Two writers never touch the same file, so there are no merge\nconflicts. Everything is append-only / overwrite-own — forward-only git.\n\n## Multi-Project repos — per-lane heartbeats (optional extension)\n\nA SHARED repo can host several Projects ("lanes" — e.g. a mining lane and an exploration lane\ncohabiting one game repo). The one-writer rule scales by **splitting the heartbeat, never by\nsharing it**:\n\n- **One status file per lane** — `control/status-<lane>.md` (e.g. `control/status-mining.md` +\n  `control/status-exploration.md`). Each lane is the sole writer of its own file and overwrites\n  it as its session\'s deliberate LAST step; no lane ever edits another lane\'s heartbeat.\n- **`control/inbox.md` stays single** — the manager remains its one writer; a lane-specific\n  order names its lane in `do:`.\n- **Declare every lane heartbeat to the kit** — `substrate.config.json` →\n  `"heartbeat_files": ["control/status-mining.md", "control/status-exploration.md"]` (default\n  when unset: `["control/status.md"]`). The status checker then gates each listed file\n  independently (missing / heartbeat-less lane = strict RED; per-lane staleness warns), and the\n  Stop hook\'s overwrite reminder clears when any lane\'s heartbeat is fresh (it cannot know which\n  lane a session belongs to). An empty list falls back to the default — misconfiguration never\n  silently disables the gate.\n- **One command, not hand-edits** — a Project joining a SHARED repo runs\n  `bootstrap adopt --lane <name>`: it plants `control/status-<name>.md` (skip-if-exists),\n  declares it in `heartbeat_files`, and leaves `inbox.md`/`README.md` single — a second lane\n  never re-plants the first Project\'s files (the double-adoption fix).\n\n## Per-session ritual (every session, and every routine wake)\n\n- **FIRST:** git pull (a stale clone reads stale orders); read `control/inbox.md`; execute any\n  order whose status is `new`, in priority order (P0 before P1) — **claim it first** (see\n  "Claiming an order" below). An order\'s `do:` is a pointer to\n  a committed doc — read it. If an order is ambiguous or you disagree, do NOT guess: write it in\n  your status under `⚑ needs-owner` and proceed with the rest.\n- **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current\n  phase, health (green / red-by-design+why / broken+what), last-shipped PR, blockers, orders\n  acked/done, `⚑ needs-owner`. You report order progress ONLY here; never edit `inbox.md`\n  (the manager owns it — one writer per file).\n\nThe kit enforces this loop: `check` flags a missing or heartbeat-less `status.md`\n(strict = red), warns when the heartbeat goes stale, and the Stop hook reminds you when\n`status.md` was not overwritten this session.\n\n## Claiming an order — one executor per order (claim FIRST, build second)\n\nAn order\'s `status: new` is visible to every session that wakes, so two readers can both\nbelieve they are its executor — a realized failure, not a theoretical one (substrate-kit\nPRs #50/#51: two lanes independently executed the same ORDER 005 the same day, and a whole\nsession\'s work had to be reconciled as twins). The manager only flips `new→done` after\nseeing the status report; the claim covers the gap in between.\n\nBefore executing any `new` order:\n\n1. **Re-read the bus at origin/main HEAD** — `control/inbox.md` AND every sibling status\n   file (`control/status*.md`). If another lane\'s status already claims the order\n   (`claimed-by:` naming its id) or reports it in `done=`, stand down and pick other work.\n2. **Claim FIRST, on your own status file\'s orders line** — append\n   `claimed-by: <order-ids> <lane-or-session> <ISO8601>` — and land it on **main** BEFORE\n   any build work (a control-only fast-lane PR, or a direct commit where your rules allow\n   one). A claim that exists only on a branch is invisible; only main counts.\n3. **Re-read once more after the claim merges** — two claims can race in flight; the\n   tiebreak is the earliest claim merged to main. The loser withdraws its claim line in\n   its next status overwrite and stands down.\n4. **Claims expire** — a claim with no visible build activity (no open PR, no fresh\n   heartbeat referencing the order) after ~24h may be treated as abandoned and re-claimed;\n   note the takeover in your status `notes:`. A dead lane must never deadlock an order.\n\nWith an active claim the `orders:` line reads e.g.:\n`orders: acked=001-008 done=001-006 claimed-by: 007+008 coordinator-lane 2026-07-09T18:38Z`\n— the executor drops the `claimed-by:` annotation in the overwrite that moves those ids\ninto `done=`. One writer per file is preserved: you only ever claim on your OWN status.\n(Shipped by inbox ORDER 007 — the root-cause fix for the twin-execution failure; the\nritual was live-proven manually on this repo\'s own orders before graduating here.)\n\n## Claiming work (not an ORDER) — one file per claim under `control/claims/`\n\nOrder claims cover the inbox; **work claims** cover everything else two\nparallel sessions could both pick up — a coordinator-assigned slice, a\nself-initiated build, a shared-surface change. Before starting such work,\ncreate **one file per claim** — `control/claims/<branch-or-scope>.md`, a\nsingle bullet `` - `branch-or-scope` · **scope** — detail · YYYY-MM-DD `` —\nland it on main FAST (claims are `control/**` traffic and ride the CI fast\nlane), re-read the directory at HEAD, build, then **delete the file at\nsession close**. Per-file is the measured winner over any shared list (~98%\nmerge-conflict rate for shared-append vs 0% per-file — superbot\n`tools/sim/claim_layout_sim.py`); first claim merged to main wins a\ncollision; ~72h with no activity = abandoned, prune on sight. Full\nconvention + checker contract: `control/claims/README.md`. (`check` nags —\nadvisory-only — on unparseable, stale, duplicate, or legacy-located claims;\nlegacy homes `docs/owner/claims/` and root `claims/` are auto-detected\nduring the migration window, and a deliberate different home is pinned via\n`substrate.config.json` → `claims_dir`.)\n\n## `status.md` format (what you write every session — your heartbeat)\n\n```markdown\n# <project> · status\nupdated: <ISO8601>            # heartbeat — stale = the manager treats the Project as dark\nphase: <what I\'m doing right now, one line>\nhealth: green | red-by-design (<why>) | broken (<what>)\nkit: v<X.Y.Z> · check: green|red · engaged: yes|no   # kit self-report — see below\nlast-shipped: #<PR> — <one line>\nblockers: <what\'s stopping me, or `none`>\norders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]\n⚑ needs-owner: <a decision/action only the owner can give, or `none`>\nnotes: <anything the manager should know>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\nThe `kit:` line is the **substrate-coordinator visibility** channel (kit-lab reads it via the\nmanager relay — zero write access to this repo): `v<X.Y.Z>` = the vendored kit version this\nrepo actually runs (update it in the same session as every `bootstrap upgrade`); `check:` =\nthe latest `check --strict` verdict on this tree; `engaged:` = the post-adopt engagement gate\n(`yes` once no UNRENDERED banner/slot remains, live CI runs the gate, and the session loop\nhas engaged).\n\n## ⚑ needs-owner — the OWNER-ACTION item format (quality contract)\n\nThe owner is the scarcest resource in the program: every ask routed to the owner costs\nattention, and an unclear or unnecessary ask stalls your own lane on top of burning his.\n**Before routing ANYTHING to the owner, try it yourself or cite the exact wall** — an\nassumption-based ask ("agents probably can\'t do X") is banned; the bar is the capability\nledger (`docs/CAPABILITIES.md`) plus one real attempt with the captured error.\n\nEvery ⚑ needs-owner item carries ALL of these REQUIRED fields — inline on the item, or as a\nstructured block the item links to:\n\n```markdown\n⚑ OWNER-ACTION\nWHAT: <one plain sentence, zero jargon — the thing the owner does>\nWHERE: <exact click path or URL>\nHOW: <paste-ready text/values where applicable, or "click only">\nWHY-IT-MATTERS: <one sentence, in product terms>\nUNBLOCKS: <what starts moving the moment it\'s done>\nVERIFIED-NEEDED: <the attempt you made + the exact error/wall proving only the owner can do\nthis — never an assumption>\n```\n\nHygiene: **expire or withdraw stale asks every session** (an answered or obsolete ask left in\nthe list is drift), and **fewer, clearer asks beat complete lists**. `check` warns — advisory,\nnever exit-affecting — when a non-`none` ⚑ needs-owner list lacks these fields.\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## `inbox.md` order format (manager-written, append-only)\n\n```markdown\n## ORDER <nnn> · <ISO8601> · status: new     # manager flips new→done after seeing status done=\npriority: P0 | P1 | P2\ndo: <pointer to a committed doc/section + the ask, kept short>\nwhy: <one line>\ndone-when: <acceptance test>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## CI + auto-merge notes (learned live, 2026-07-09)\n\n- **Heartbeat commits ride a fast lane, not a `paths-ignore`.** A control-only diff (only\n  `control/**` files changed) must still *report* every required status check, or GitHub treats\n  the missing contexts as pending and auto-merge jams forever. The kit\'s planted\n  `substrate-gate.yml` therefore short-circuits GREEN inside the job on control-only diffs\n  instead of skipping the workflow — copy that pattern (an in-job early exit) into any other\n  heavy suite rather than adding `paths-ignore: [control/**]` to a workflow whose check is\n  required.\n- **API-authored PRs may not trigger CI.** A PR created purely through an app/integration token\n  (e.g. the GitHub Contents API + a REST PR create) can sit with **zero check runs** — required\n  checks then never report and the PR cannot auto-merge. The manager\'s canonical write path is\n  therefore a **direct Contents-API commit to the default branch of `inbox.md`** (it is the sole\n  writer, so no PR is needed). When this Project ships control changes by PR, push the branch\n  over git (a real `git push` triggers `pull_request`/`push` events) before or after creating\n  the PR, and verify the PR shows check runs before relying on auto-merge.\n',
-    'control-claims-README.md.tmpl': '# `control/claims/` — claim before build, one file per claim\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. The kit-owned work-claim convention\n> (EAP program review 2026-07-10 §6.4 — the fleet\'s forked claim mechanisms\n> unified on the measured winner). Order claims are different and stay on\n> your heartbeat — see `control/README.md` § "Claiming an order".\n\n## What this is\n\nA lightweight **claim ledger** so parallel agent sessions don\'t duplicate each\nother\'s work. Several sessions can run at once; two of them picking up the\nsame task is pure waste. This directory makes "is someone already on this?"\nanswerable **before a PR exists** — the claim is the early in-flight signal,\nthe PR is the late one.\n\n## Why one file per claim (measured, not vibes)\n\nA shared "active work" list that every session appends to and prunes is a\nmerge-conflict machine: a real-`git merge` simulation\n(menno420/superbot `tools/sim/claim_layout_sim.py`) measured the shared-append\npattern at a **~98% conflict rate** under concurrent sessions; splitting by\nsector only halved it. **One file per claim is structurally conflict-free —\n0% at every concurrency level** — because two sessions never touch the same\nfile. The rule that preserves that 0%: **no hand-edited shared index**.\nDiscover claims with `ls control/claims/` — this README never lists them.\n\n## How to use it\n\n1. **Before starting work**, scan this directory AND the open PRs. If your\n   task is already claimed or in flight, coordinate or pick something else.\n2. **Create one claim file** — `control/claims/<branch-or-scope>.md` — with a\n   single bullet:\n   `` - `branch-or-scope` · **scope** — one-line detail · expected files/area · YYYY-MM-DD ``\n   (Keep the backticks around the branch/scope token and the ISO date — the\n   `check_claims` checker parses both; an unparseable claim is invisible to\n   its duplicate scan.)\n   Grammar source of truth: the bullet\'s regexes (backticked token + ISO date) are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module `check_claims` consumes; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n3. **Land the claim on main FAST** (claims are `control/**` traffic — they\n   ride the CI control fast lane), then re-read this directory at HEAD before\n   you build: if both lanes do this, the second claimer always sees the first.\n4. **Delete your own claim file at session close.** The durable record is the\n   PR and the living ledger — a claim is a whiteboard note, not an audit\n   trail.\n\n## Arbitration + expiry\n\n- **First claim merged to main wins** a collision — a deterministic tiebreak\n  beats re-litigating every race; the loser deletes its file and stands down.\n- **Claims expire**: a claim file older than ~72h with no visible build\n  activity may be treated as abandoned — prune it on sight (the checker nags\n  with `claims-stale`).\n\n## What the checker enforces (all advisory, never exit-affecting)\n\n`check` warns on: `claims-format` (no parseable bullet), `claims-stale`\n(older than the ~72h horizon), `claims-duplicate` (two files, one\nbranch/scope token), and `claims-legacy-location` (claims living in a\npre-unification home — `docs/owner/claims/` or root `claims/`; move them\nhere, or pin your deliberate location via `substrate.config.json` →\n`claims_dir`).\n\n## Not for inbox ORDERS\n\nAn inbox ORDER is claimed on your OWN heartbeat\'s `orders:` line\n(`claimed-by: <ids> <lane> <ISO8601>` — `control/README.md` § "Claiming an\norder"), never here: the heartbeat annotation preserves one-writer-per-file\nfor the order lifecycle the manager reconciles. This directory is for\n**work** — coordinator-assigned slices, self-initiated builds, anything that\nisn\'t an ORDER id.\n',
+    'control-README.md.tmpl': '# Fleet coordination protocol — `control/`\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. Canonical spec: `menno420/superbot` →\n> `docs/planning/fleet-coordination-protocol-2026-07-09.md` (§1). Projects cannot talk to each\n> other directly — committed git files are the only shared medium; this directory is the bus.\n\n## The two files\n\n- `control/inbox.md` — ORDERS to this Project. **One writer: the manager** (appends via the\n  GitHub Contents API). Never edit this file.\n- `control/status.md` — STATE from this Project. **One writer: this Project** (overwrite it each\n  session).\n\n## The one rule that keeps it conflict-free\n\n**One writer per file.** The manager is the sole writer of `inbox.md`; this Project is the sole\nwriter of its own `status.md`. Two writers never touch the same file, so there are no merge\nconflicts. Everything is append-only / overwrite-own — forward-only git.\n\n## Multi-Project repos — per-lane heartbeats (optional extension)\n\nA SHARED repo can host several Projects ("lanes" — e.g. a mining lane and an exploration lane\ncohabiting one game repo). The one-writer rule scales by **splitting the heartbeat, never by\nsharing it**:\n\n- **One status file per lane** — `control/status-<lane>.md` (e.g. `control/status-mining.md` +\n  `control/status-exploration.md`). Each lane is the sole writer of its own file and overwrites\n  it as its session\'s deliberate LAST step; no lane ever edits another lane\'s heartbeat.\n- **`control/inbox.md` stays single** — the manager remains its one writer; a lane-specific\n  order names its lane in `do:`.\n- **Declare every lane heartbeat to the kit** — `substrate.config.json` →\n  `"heartbeat_files": ["control/status-mining.md", "control/status-exploration.md"]` (default\n  when unset: `["control/status.md"]`). The status checker then gates each listed file\n  independently (missing / heartbeat-less lane = strict RED; per-lane staleness warns), and the\n  Stop hook\'s overwrite reminder clears when any lane\'s heartbeat is fresh (it cannot know which\n  lane a session belongs to). An empty list falls back to the default — misconfiguration never\n  silently disables the gate.\n- **One command, not hand-edits** — a Project joining a SHARED repo runs\n  `bootstrap adopt --lane <name>`: it plants `control/status-<name>.md` (skip-if-exists),\n  declares it in `heartbeat_files`, and leaves `inbox.md`/`README.md` single — a second lane\n  never re-plants the first Project\'s files (the double-adoption fix).\n\n## Per-session ritual (every session, and every routine wake)\n\n- **FIRST:** git pull (a stale clone reads stale orders); read `control/inbox.md`; execute any\n  order whose status is `new`, in priority order (P0 before P1) — **claim it first** (see\n  "Claiming an order" below). An order\'s `do:` is a pointer to\n  a committed doc — read it. If an order is ambiguous or you disagree, do NOT guess: write it in\n  your status under `⚑ needs-owner` and proceed with the rest.\n- **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current\n  phase, health (green / red-by-design+why / broken+what), last-shipped PR, blockers, orders\n  acked/done, `⚑ needs-owner`. You report order progress ONLY here; never edit `inbox.md`\n  (the manager owns it — one writer per file).\n\nThe kit enforces this loop: `check` flags a missing or heartbeat-less `status.md`\n(strict = red), warns when the heartbeat goes stale, and the Stop hook reminds you when\n`status.md` was not overwritten this session.\n\n## Claiming an order — one executor per order (claim FIRST, build second)\n\nAn order\'s `status: new` is visible to every session that wakes, so two readers can both\nbelieve they are its executor — a realized failure, not a theoretical one (substrate-kit\nPRs #50/#51: two lanes independently executed the same ORDER 005 the same day, and a whole\nsession\'s work had to be reconciled as twins). The manager only flips `new→done` after\nseeing the status report; the claim covers the gap in between.\n\nBefore executing any `new` order:\n\n1. **Re-read the bus at origin/main HEAD** — `control/inbox.md` AND every sibling status\n   file (`control/status*.md`). If another lane\'s status already claims the order\n   (`claimed-by:` naming its id) or reports it in `done=`, stand down and pick other work.\n2. **Claim FIRST, on your own status file\'s orders line** — append\n   `claimed-by: <order-ids> <lane-or-session> <ISO8601>` — and land it on **main** BEFORE\n   any build work (a control-only fast-lane PR, or a direct commit where your rules allow\n   one). A claim that exists only on a branch is invisible; only main counts.\n3. **Re-read once more after the claim merges** — two claims can race in flight; the\n   tiebreak is the earliest claim merged to main. The loser withdraws its claim line in\n   its next status overwrite and stands down.\n4. **Claims expire** — a claim with no visible build activity (no open PR, no fresh\n   heartbeat referencing the order) after ~24h may be treated as abandoned and re-claimed;\n   note the takeover in your status `notes:`. A dead lane must never deadlock an order.\n\nWith an active claim the `orders:` line reads e.g.:\n`orders: acked=001-008 done=001-006 claimed-by: 007+008 coordinator-lane 2026-07-09T18:38Z`\n— the executor drops the `claimed-by:` annotation in the overwrite that moves those ids\ninto `done=`. One writer per file is preserved: you only ever claim on your OWN status.\n(Shipped by inbox ORDER 007 — the root-cause fix for the twin-execution failure; the\nritual was live-proven manually on this repo\'s own orders before graduating here.)\n\n## `status.md` format (what you write every session — your heartbeat)\n\n```markdown\n# <project> · status\nupdated: <ISO8601>            # heartbeat — stale = the manager treats the Project as dark\nphase: <what I\'m doing right now, one line>\nhealth: green | red-by-design (<why>) | broken (<what>)\nkit: v<X.Y.Z> · check: green|red · engaged: yes|no   # kit self-report — see below\nlast-shipped: #<PR> — <one line>\nblockers: <what\'s stopping me, or `none`>\norders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]\n⚑ needs-owner: <a decision/action only the owner can give, or `none`>\nnotes: <anything the manager should know>\n```\n\nThe `kit:` line is the **substrate-coordinator visibility** channel (kit-lab reads it via the\nmanager relay — zero write access to this repo): `v<X.Y.Z>` = the vendored kit version this\nrepo actually runs (update it in the same session as every `bootstrap upgrade`); `check:` =\nthe latest `check --strict` verdict on this tree; `engaged:` = the post-adopt engagement gate\n(`yes` once no UNRENDERED banner/slot remains, live CI runs the gate, and the session loop\nhas engaged).\n\n## ⚑ needs-owner — the OWNER-ACTION item format (quality contract)\n\nThe owner is the scarcest resource in the program: every ask routed to the owner costs\nattention, and an unclear or unnecessary ask stalls your own lane on top of burning his.\n**Before routing ANYTHING to the owner, try it yourself or cite the exact wall** — an\nassumption-based ask ("agents probably can\'t do X") is banned; the bar is the capability\nledger (`docs/CAPABILITIES.md`) plus one real attempt with the captured error.\n\nEvery ⚑ needs-owner item carries ALL of these REQUIRED fields — inline on the item, or as a\nstructured block the item links to:\n\n```markdown\n⚑ OWNER-ACTION\nWHAT: <one plain sentence, zero jargon — the thing the owner does>\nWHERE: <exact click path or URL>\nHOW: <paste-ready text/values where applicable, or "click only">\nWHY-IT-MATTERS: <one sentence, in product terms>\nUNBLOCKS: <what starts moving the moment it\'s done>\nVERIFIED-NEEDED: <the attempt you made + the exact error/wall proving only the owner can do\nthis — never an assumption>\n```\n\nHygiene: **expire or withdraw stale asks every session** (an answered or obsolete ask left in\nthe list is drift), and **fewer, clearer asks beat complete lists**. `check` warns — advisory,\nnever exit-affecting — when a non-`none` ⚑ needs-owner list lacks these fields.\n\n## `inbox.md` order format (manager-written, append-only)\n\n```markdown\n## ORDER <nnn> · <ISO8601> · status: new     # manager flips new→done after seeing status done=\npriority: P0 | P1 | P2\ndo: <pointer to a committed doc/section + the ask, kept short>\nwhy: <one line>\ndone-when: <acceptance test>\n```\n\n## CI + auto-merge notes (learned live, 2026-07-09)\n\n- **Heartbeat commits ride a fast lane, not a `paths-ignore`.** A control-only diff (only\n  `control/**` files changed) must still *report* every required status check, or GitHub treats\n  the missing contexts as pending and auto-merge jams forever. The kit\'s planted\n  `substrate-gate.yml` therefore short-circuits GREEN inside the job on control-only diffs\n  instead of skipping the workflow — copy that pattern (an in-job early exit) into any other\n  heavy suite rather than adding `paths-ignore: [control/**]` to a workflow whose check is\n  required.\n- **API-authored PRs may not trigger CI.** A PR created purely through an app/integration token\n  (e.g. the GitHub Contents API + a REST PR create) can sit with **zero check runs** — required\n  checks then never report and the PR cannot auto-merge. The manager\'s canonical write path is\n  therefore a **direct Contents-API commit to the default branch of `inbox.md`** (it is the sole\n  writer, so no PR is needed). When this Project ships control changes by PR, push the branch\n  over git (a real `git push` triggers `pull_request`/`push` events) before or after creating\n  the PR, and verify the PR shows check runs before relying on auto-merge.\n',
     'control-inbox.md.tmpl': '# ${project_name} · inbox\n\n> ORDERS to this Project. **ONE writer: the manager** — never edit this file. Report order\n> progress in `control/status.md` (`orders: acked=… done=…`). Protocol: `control/README.md`.\n\n*(no orders yet — the manager appends `## ORDER 001 · <ISO8601> · status: new` blocks here)*\n',
     'control-status.md.tmpl': '# ${project_name} · status\nupdated: (seeded at adopt — no real heartbeat yet: overwrite this whole file at your first session close)\nphase: adopted — first session not yet run\nhealth: green\nkit: v${kit_version} · check: red · engaged: no\nlast-shipped: none\nblockers: none\norders: acked= done=\n⚑ needs-owner: none\nnotes: seeded skeleton planted by substrate-kit adopt. This Project is the SOLE writer of this\nfile — overwrite it (never append) as the deliberate LAST step of every session, per\n`control/README.md`. `check` holds strict RED until the first real heartbeat replaces this seed.\nThe `kit:` line is your kit self-report (substrate-coordinator visibility): keep the version in\nsync with your vendored kit on every upgrade, `check:` = your last `check --strict` verdict,\n`engaged:` = the post-adopt engagement gate (yes once `check` reports ENGAGED/green live CI).\n',
     'current-state.md.tmpl': '# ${project_name} — Current State\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. **Living status ledger.** Source code and merged\n> work always win over this file. Read it second (right after the working\n> agreement) and keep it current as the project moves.\n\n## Stability baseline\n\n(Describe the accepted-stable baseline once established — what is known-good and\nshould not be re-audited without a reported regression.)\n\n## In flight\n\n(Verify against live source control — this section is a dated snapshot.)\n\n## Recently shipped (newest first)\n\n(Merged work only, newest first.)\n\n## Review rhythm\n\n${review_ritual}\n',
     'decisions.md.tmpl': '# ${project_name} — decisions\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. Append-only decision ledger — entries are\n> superseded, never deleted. Rule docs cite entries as bare [D-NNNN] ids;\n> this file holds the provenance so rules never narrate it inline.\n\n<!-- Grammar: ## [D-NNNN] <title> / - status: decided|superseded|retired / - date: YYYY-MM-DD / - supersedes: D-NNNN (opt) / - superseded-by: D-NNNN (opt) / - verdict: <one line> / - why: <2-3 lines> / - provenance: <ref> -->\n\n## [D-0001] Adopt the substrate-kit workflow\n\n- status: decided\n- date:\n- verdict: ${project_name} runs on the substrate-kit agent workflow.\n- why: A repo-resident working agreement, decision ledger, and session\n  discipline let agents work correctly with little steering; adopting the\n  kit starts ${project_name} governed instead of accreting rules ad hoc.\n- provenance: substrate-kit adoption interview\n',
-    'env-setup.sh.tmpl': '#!/usr/bin/env bash\n# scripts/env-setup.sh — this repo\'s environment setup hook (kit-planted).\n#\n# THE SETUP-SCRIPT CONTRACT (EAP program review 2026-07-10 §6.5; rendered\n# from the fleet-manager archetype material — environments/archetypes.md +\n# templates/setup-universal.sh, the shim every archetype script derives\n# from). Every fleet environment\'s setup shim prefers THIS file when it\n# exists, so repo-specific setup lives here — one durable per-repo hook\n# instead of divergent hand-rolled environment scripts. Four rules, paid\n# for in dead sessions across 4+ lanes:\n#\n#   1. ALWAYS exit 0. A failing setup script = dead session, no signal —\n#      the worker never even reports. Worst case is a session with missing\n#      deps that can still report and self-repair; that beats no session.\n#   2. NO SECRET VALUES — ever. Variable NAMES may be referenced; real\n#      values live only in the environment panel (owner-side). If it is\n#      not a name or a placeholder, it does not go in this file.\n#   3. Defensive posture: set +e (no -e / -u / pipefail), and every\n#      install step guarded by an existence check — one missing manifest\n#      must never block the rest.\n#   4. Run from the repo root: the environment shim invokes this as\n#      `cd <repo> && bash scripts/env-setup.sh`.\n#\n# HOST-OWNED after planting: add repo-specific steps (interpreter pins,\n# extra manifests, toolchains) in the marked section below, keeping the\n# contract. The kit\'s `check` validates the contract (advisory-only):\n# no fatal shell posture, no secret-shaped literals, and an unconditional\n# `exit 0` as the last effective line.\n\nset +e\n\nlog() { echo "[env-setup] $*"; }\n\nPY=python3\n\n# Guarded dependency installs — each manifest only if present, never fatal.\nfor req in requirements.txt requirements-dev.txt; do\n  if [ -f "$req" ]; then\n    log "$PY -m pip install -r $req"\n    "$PY" -m pip install --quiet -r "$req" \\\n      || log "$req install failed (non-fatal, continuing)"\n  fi\ndone\n\nif [ -f pyproject.toml ]; then\n  log "$PY -m pip install -e . (pyproject.toml present)"\n  "$PY" -m pip install --quiet -e . \\\n    || log "editable install failed (non-fatal, continuing)"\nfi\n\n# --- repo-specific steps go below (keep every step guarded + non-fatal) ----\n\n# Contract rule 1 — the single most important line. Do not "improve" this.\nlog "env-setup complete (defensive: always exit 0)"\nexit 0\n',
     'helper-policy.md.tmpl': '# ${project_name} — helper policy\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. When to create / move / promote a helper —\n> read this **before** adding a utility function anywhere. **NOT SOURCE OF\n> TRUTH** for code — source files always win.\n\n## Rules\n\n1. **One source of truth.** A behavior lives in exactly one function. Never\n   copy a helper into a second module "for convenience" — import it, or move\n   it (rule 2).\n2. **Shared helpers live below both consumers.** A helper needed by two\n   layers goes in the shared layer *below* both — never in either consumer\n   layer, and never duplicated into each.\n3. **Exact-name guard.** Before defining a new function, grep for\n   `def <exact_name>` in the target module and its siblings (plus the 1–2\n   nearest concept synonyms). A later same-name `def` silently shadows the\n   earlier one — no import fails, no warning fires.\n4. **Promote on second use.** The moment a private helper is wanted by a\n   second module, promote it to the shared layer — don\'t copy it.\n\n## Where helpers go in ${project_name}\n\n(Hand-filled: the concrete shared-layer path(s) for this repo, lowest layer\nfirst, with one line on what belongs in each.)\n',
     'ideas-README.md.tmpl': '# ${project_name} — idea backlog & lifecycle\n\n> **Status:** `ideas`\n>\n> Generated by substrate-kit. Capture ideas here so they live in the repo, not in\n> chat. Nothing here is approved until it graduates. A **conveyor, not a graveyard**:\n> every idea ends implemented, on a roadmap, in discussion, or explicitly rejected.\n\n## Lifecycle\n\n```\n(1) INTAKE   capture the idea (raw -> captured)\n(2) MAP      name the owning area, rough size, rough risk\n(3) ROUTE    -> quick-win | structured plan | discuss-first (question router)\n(4) GROOM    pull one routable idea forward each session\n(5) OUTCOME  implemented | on a roadmap | in discussion | rejected\n```\n\n## Frontmatter — the idea-outcome record\n\nEvery idea file in this directory (README excepted) opens with a flat\nYAML-subset frontmatter block — the machine-readable outcome record\n("ideas that ship and survive"), so a sweep can score the backlog without\nparsing prose:\n\n```\n---\nstate: captured | routed | promoted | historical\norigin: lab | owner | consumer:<owner>/<repo>\nshipped_pr: null | <PR number in shipped_repo>\nshipped_repo: null | <owner>/<repo>\nmerged_date: null | YYYY-MM-DD\noutcome: open | shipped | survived | reverted | rejected\n---\n```\n\nConventions: `shipped`/`survived`/`reverted` require all three ship fields;\n`open`/`rejected` keep them null; `survived` means the merge is ≥ 30 days old\nwith no revert; name files `<slug>-YYYY-MM-DD.md` (the generation-date cohort\nkey) and link every file from this README. The prose keeps the story, the\nfrontmatter keeps the score.\n\n## Backlog\n\n(Captured ideas, each with a state and a next destination — none left at `raw`.)\n',
     'owner-profile.md.tmpl': "# ${project_name} — owner working profile\n\n> **Status:** `owner-guidance`\n>\n> Generated by substrate-kit. Captures the owner's **working style** so\n> agents collaborate well — never personal data. The person is not shipped\n> with the kit.\n\n## How the owner works\n\n${owner_profile}\n\n## Review ritual\n\n${review_ritual}\n\n## Privacy note\n\nThis doc records working style only: communication preferences, review\ncadence, decision boundaries, autonomy expectations. No contact details, no\npersonal history, nothing that identifies the person beyond their role on\n${project_name}. When in doubt, leave it out.\n",
