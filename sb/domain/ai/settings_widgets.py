@@ -352,31 +352,15 @@ async def settings_text_submit(req) -> Reply:
     return Reply(SUCCESS, f"✅ Updated `ai.{key}` = `{value!r}`.")
 
 
-# --- the chooser scope pickers (the NEXT slices' pending terminals) -----------------
-
-_SCOPE_COPY = {
-    # the policy chooser's five scope pickers are LIVE (the
-    # policy-mutation slice — sb/domain/ai/policy_widgets.py), the
-    # behavior chooser's channel/category/preview pickers too (the
-    # behavior-preset slice, D-0071 — sb/domain/ai/behavior_widgets.py),
-    # and so are the tools chooser's guild/channel/category/preview
-    # pickers (the orchestration-mutation slice, D-0072 —
-    # sb/domain/ai/orchestration_widgets.py).
-    "behavior_matrix": ("The routing-matrix picker (views/ai/routing/"
-                        "matrix.py — the channel-pick dry-run resolve "
-                        "card) ports with the routing-matrix follow-up "
-                        "slice — `!ai routing` lists the task table "
-                        "meanwhile."),
-}
-
-
-async def chooser_scope_pending(req) -> Reply:
-    """One honest pending terminal for the last still-parked chooser
-    scope button (the routing-matrix follow-up slice;
-    `session_action` carries the clicked button's action_id)."""
-    action = str(req.args.get("session_action") or "")
-    return Reply(SUCCESS, _SCOPE_COPY.get(
-        action, "This page ports with its mutation slice."))
+# the chooser scope pickers are ALL live: policy (the policy-mutation
+# slice — sb/domain/ai/policy_widgets.py), behavior channel/category/
+# preview + presets (the behavior-preset slice, D-0071 —
+# sb/domain/ai/behavior_widgets.py), tools guild/channel/category/
+# preview (the orchestration-mutation slice, D-0072 —
+# sb/domain/ai/orchestration_widgets.py), and the behavior routing
+# matrix (the routing-matrix slice, D-0074 —
+# sb/domain/ai/routing_matrix.py). The `chooser_scope_pending` terminal
+# retired with D-0074 (no button routes to it anymore).
 
 
 # --- registration — MODULE IMPORT (BUG A rule) --------------------------------------
@@ -388,7 +372,6 @@ _HANDLERS = (
     ("ai.settings_preset_pick", settings_preset_pick),
     ("ai.settings_number_submit", settings_number_submit),
     ("ai.settings_text_submit", settings_text_submit),
-    ("ai.chooser_scope_pending", chooser_scope_pending),
 )
 
 

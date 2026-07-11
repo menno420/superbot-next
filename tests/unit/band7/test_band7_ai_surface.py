@@ -451,6 +451,9 @@ def test_ai_manifest_imports_and_registers():
         # pickers, the preview reuse and the preset picker.
         "ai.behavior_channel_picker", "ai.behavior_category_picker",
         "ai.behavior_preview_picker", "ai.behavior_preset_picker",
+        # the routing-matrix slice (D-0074): the shipped read-only
+        # dry-run diagnostic page.
+        "ai.behavior_matrix_picker",
         # the orchestration-mutation slice (D-0072): the shipped tools
         # scope pickers, the step-2 profile choice and the preview.
         "ai.tools_guild_picker", "ai.tools_channel_picker",
