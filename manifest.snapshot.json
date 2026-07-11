@@ -3190,6 +3190,111 @@
           "value": "open_panel"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "policy_channel"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "policy_category"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "policy_role"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "policy_preview"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "policy_list"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "behavior_channel"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "behavior_category"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "behavior_preview"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "behavior_matrix"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "behavior_advanced"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "tools_guild"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "tools_channel"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "tools_category"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "tools_preview"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "preset_0"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "preset_1"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "preset_2"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "preset_3"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "preset_4"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "preset_5"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "override_btn"
+        },
+        {
           "source": "sb/manifest/blackjack.py",
           "subsystem": "blackjack",
           "value": "bj_solo_free"
@@ -4222,6 +4327,31 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai.card"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.policy_chooser"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.behavior_chooser"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.tools_chooser"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.settings_edit_presets"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.settings_edit_enum"
         },
         {
           "source": "sb/manifest/automod.py",
@@ -5941,16 +6071,13 @@
       "handler:admin.subsystems_view": {
         "module": "sb.domain.admin.handlers"
       },
-      "handler:ai.behavior_chooser_pending": {
-        "module": "sb.domain.ai.service"
+      "handler:ai.chooser_scope_pending": {
+        "module": "sb.domain.ai.settings_widgets"
       },
       "handler:ai.diagnostics_view": {
         "module": "sb.domain.ai.service"
       },
       "handler:ai.forget_view": {
-        "module": "sb.domain.ai.service"
-      },
-      "handler:ai.policy_chooser_pending": {
         "module": "sb.domain.ai.service"
       },
       "handler:ai.policy_view": {
@@ -5980,7 +6107,16 @@
       "handler:ai.render_card": {
         "module": "sb.domain.ai.panels"
       },
+      "handler:ai.render_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
+      "handler:ai.render_enum_widget": {
+        "module": "sb.domain.ai.panels"
+      },
       "handler:ai.render_hub": {
+        "module": "sb.domain.ai.panels"
+      },
+      "handler:ai.render_presets_widget": {
         "module": "sb.domain.ai.panels"
       },
       "handler:ai.render_settings": {
@@ -6007,11 +6143,20 @@
       "handler:ai.routing_view": {
         "module": "sb.domain.ai.service"
       },
-      "handler:ai.settings_edit_pending": {
-        "module": "sb.domain.ai.panels"
+      "handler:ai.settings_edit_route": {
+        "module": "sb.domain.ai.settings_widgets"
       },
-      "handler:ai.settings_reset_pending": {
-        "module": "sb.domain.ai.panels"
+      "handler:ai.settings_enum_pick": {
+        "module": "sb.domain.ai.settings_widgets"
+      },
+      "handler:ai.settings_override_pending": {
+        "module": "sb.domain.ai.settings_widgets"
+      },
+      "handler:ai.settings_preset_pick": {
+        "module": "sb.domain.ai.settings_widgets"
+      },
+      "handler:ai.settings_reset_route": {
+        "module": "sb.domain.ai.settings_widgets"
       },
       "handler:ai.settings_view": {
         "module": "sb.domain.ai.service"
@@ -6020,9 +6165,6 @@
         "module": "sb.domain.ai.service"
       },
       "handler:ai.support_report_view": {
-        "module": "sb.domain.ai.service"
-      },
-      "handler:ai.tools_chooser_pending": {
         "module": "sb.domain.ai.service"
       },
       "handler:ai.why_view": {
@@ -7063,13 +7205,28 @@
       "panel:admin.hub": {
         "module": "sb.domain.operator_spine"
       },
+      "panel:ai.behavior_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:ai.card": {
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.hub": {
         "module": "sb.domain.ai.panels"
       },
+      "panel:ai.policy_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:ai.settings": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.settings_edit_enum": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.settings_edit_presets": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.tools_chooser": {
         "module": "sb.domain.ai.panels"
       },
       "panel:automod.hub": {
@@ -7468,7 +7625,19 @@
       "provider:admin.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
+      "provider:ai.behavior_chooser_fields": {
+        "module": "sb.domain.ai.panels"
+      },
+      "provider:ai.enum_edit_options": {
+        "module": "sb.domain.ai.panels"
+      },
+      "provider:ai.policy_chooser_fields": {
+        "module": "sb.domain.ai.panels"
+      },
       "provider:ai.settings_fields": {
+        "module": "sb.domain.ai.panels"
+      },
+      "provider:ai.tools_chooser_fields": {
         "module": "sb.domain.ai.panels"
       },
       "provider:automod.hub_settings": {
@@ -8927,7 +9096,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:5d3aad237b01e6ba3e9f380ba0d2e83ce76515e96c56daf20eaa6705d207d9e3",
+  "stable_hash": "sha256:9b2dbbcccd1236c08a257f6e96d864898ff3bf8d4d3337b599fb4e512a4ae563",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -9850,7 +10019,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.policy_chooser_pending"
+                "$ref": "panel:ai.policy_chooser"
               },
               "label": "Policy",
               "modal": null,
@@ -9874,7 +10043,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.behavior_chooser_pending"
+                "$ref": "panel:ai.behavior_chooser"
               },
               "label": "Behavior",
               "modal": null,
@@ -9898,7 +10067,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.tools_chooser_pending"
+                "$ref": "panel:ai.tools_chooser"
               },
               "label": "Tools",
               "modal": null,
@@ -10077,7 +10246,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:ai.settings_edit_pending"
+                "$ref": "handler:ai.settings_edit_route"
               },
               "options_source": [
                 {
@@ -10146,7 +10315,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:ai.settings_reset_pending"
+                "$ref": "handler:ai.settings_reset_route"
               },
               "options_source": [
                 {
@@ -10245,6 +10414,859 @@
             "$ref": "handler:ai.render_card"
           },
           "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "policy_channel",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "policy_category",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Category",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "policy_role",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Role",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "policy_preview",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Effective policy",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "policy_list",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "List overrides",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Override the guild's AI policy for specific channels, categories, or roles. Writes flow through `services.ai_policy_mutation` and emit `ai.policy.*` events; the natural-language stage picks up the new rules on the next message."
+            },
+            {
+              "provider": {
+                "$ref": "provider:ai.policy_chooser_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped chooser footer is the STATIC 'Administrator-only · ephemeral follow-up.' literal (views/ai/policy/chooser.py build_chooser_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary. The override delegates everything to the grammar renderer and replaces ONLY the footer (the ai.settings precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "policy_channel",
+                    "policy_category",
+                    "policy_role"
+                  ],
+                  [
+                    "policy_preview",
+                    "policy_list"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI home",
+                "route": {
+                  "$ref": "panel:ai.hub"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.policy_chooser",
+          "renderer_override": {
+            "$ref": "handler:ai.render_chooser"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "AI Policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "behavior_channel",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "behavior_category",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Category",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "behavior_preview",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Preview (dry-run)",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "behavior_matrix",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Routing matrix",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "behavior_advanced",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:ai.policy_chooser"
+              },
+              "label": "Advanced",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick **what the AI should do here**, then choose a scope. Presets bind together a channel mode plus an instruction profile. Use **Preview** to dry-run the resolver against your own user before saving. **Advanced** opens the raw policy editor."
+            },
+            {
+              "provider": {
+                "$ref": "provider:ai.behavior_chooser_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped chooser footer is the STATIC 'Administrator-only · ephemeral follow-up.' literal (views/ai/behavior/chooser.py build_behavior_embed set_footer) — copy outside FooterMode's vocabulary; the override replaces ONLY the footer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "behavior_channel",
+                    "behavior_category"
+                  ],
+                  [
+                    "behavior_preview",
+                    "behavior_matrix"
+                  ],
+                  [
+                    "behavior_advanced"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI home",
+                "route": {
+                  "$ref": "panel:ai.hub"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.behavior_chooser",
+          "renderer_override": {
+            "$ref": "handler:ai.render_chooser"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "AI Behavior",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "tools_guild",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Guild",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "tools_channel",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "tools_category",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Category",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "tools_preview",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.chooser_scope_pending"
+              },
+              "label": "Preview (dry-run)",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Choose **which tools the AI may use** here, independently of its reply tone (Behavior) and who may talk to it (Policy). A profile narrows the offered toolset, sets the tool-choice requirement, and caps the tool/loop budget. Writes flow through `services.ai_orchestration_mutation`; the next message picks up the new profile. Safe default: every scope inherits today's behaviour until you set a profile."
+            },
+            {
+              "provider": {
+                "$ref": "provider:ai.tools_chooser_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped chooser footer is the STATIC 'Administrator-only · ephemeral follow-up.' literal (views/ai/tools/chooser.py build_tools_embed set_footer) — copy outside FooterMode's vocabulary; the override replaces ONLY the footer.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tools_guild",
+                    "tools_channel",
+                    "tools_category"
+                  ],
+                  [
+                    "tools_preview"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI home",
+                "route": {
+                  "$ref": "panel:ai.hub"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.tools_chooser",
+          "renderer_override": {
+            "$ref": "handler:ai.render_chooser"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "AI Tools & Workflows",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "preset_0",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_preset_pick"
+              },
+              "label": "0",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "preset_1",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_preset_pick"
+              },
+              "label": "1",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "preset_2",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_preset_pick"
+              },
+              "label": "2",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "preset_3",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_preset_pick"
+              },
+              "label": "3",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "preset_4",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_preset_pick"
+              },
+              "label": "4",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "preset_5",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_preset_pick"
+              },
+              "label": "5",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "override_btn",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:ai.settings_override_pending"
+              },
+              "label": "Override…",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped NumericPresetsView is fully runtime-parameterized: one button PER DECLARED PRESET VALUE labeled str(value) with the CURRENT value highlighted primary (views/settings/edit_number_presets.py), and the shipped dispatcher prompt carries the live current/default reprs — labels, styles, slot count and copy all depend on the picked SettingSpec at open time, outside the static grammar. The override delegates to the grammar renderer, then relabels/restyles the declared slots and drops the surplus.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "preset_0",
+                    "preset_1",
+                    "preset_2",
+                    "preset_3",
+                    "preset_4"
+                  ],
+                  [
+                    "preset_5",
+                    "override_btn"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Settings",
+                "route": {
+                  "$ref": "panel:ai.settings"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.settings_edit_presets",
+          "renderer_override": {
+            "$ref": "handler:ai.render_presets_widget"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped enum widget prompt + placeholder carry the picked setting's name ('Pick a new value for `ai.<name>`:' / 'Pick a new value for <name>…' — views/settings/subsystem_view.py dispatch_edit_setting + edit_enum.build_enum_select_view) — per-open copy outside the static grammar. The override delegates to the grammar renderer and replaces ONLY the description and the select placeholder.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "enum_value"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Settings",
+                "route": {
+                  "$ref": "panel:ai.settings"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.settings_edit_enum",
+          "renderer_override": {
+            "$ref": "handler:ai.render_enum_widget"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.settings_enum_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.enum_edit_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a new value…",
+              "selector_id": "enum_value",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
           "session_lifecycle": true,
           "subsystem": "ai",
           "timeout_s": 180,
@@ -10382,13 +11404,20 @@
           "external_side_effects": false,
           "group": "",
           "hint": "Minimum member level for NL replies.",
-          "input_hint": "",
+          "input_hint": "numeric_presets",
           "keyed_secret": "",
           "legacy_keys": [],
           "name": "minimum_level_default",
           "panel_order": 0,
           "preset_kind": "none",
-          "presets": [],
+          "presets": [
+            0,
+            1,
+            2,
+            3,
+            5,
+            10
+          ],
           "scope_default": "guild",
           "settings_key": "ai_minimum_level_default",
           "storage": "kv",
@@ -10412,13 +11441,20 @@
           "external_side_effects": false,
           "group": "",
           "hint": "Per-user NL reply cooldown in seconds (0 = none).",
-          "input_hint": "",
+          "input_hint": "numeric_presets",
           "keyed_secret": "",
           "legacy_keys": [],
           "name": "cooldown_seconds",
           "panel_order": 0,
           "preset_kind": "none",
-          "presets": [],
+          "presets": [
+            0,
+            15,
+            30,
+            60,
+            120,
+            300
+          ],
           "scope_default": "guild",
           "settings_key": "ai_cooldown_seconds",
           "storage": "kv",
@@ -10442,13 +11478,19 @@
           "external_side_effects": false,
           "group": "",
           "hint": "Replies a below-level user may still get by mentioning the bot (spent per delivered reply).",
-          "input_hint": "",
+          "input_hint": "numeric_presets",
           "keyed_secret": "",
           "legacy_keys": [],
           "name": "fresh_user_mention_allowance",
           "panel_order": 0,
           "preset_kind": "none",
-          "presets": [],
+          "presets": [
+            0,
+            1,
+            3,
+            5,
+            10
+          ],
           "scope_default": "guild",
           "settings_key": "ai_fresh_user_mention_allowance",
           "storage": "kv",
@@ -10502,13 +11544,19 @@
           "external_side_effects": false,
           "group": "",
           "hint": "Conversation-memory window (0/15/30/60/120; 0 = floor-only memory).",
-          "input_hint": "",
+          "input_hint": "numeric_presets",
           "keyed_secret": "",
           "legacy_keys": [],
           "name": "memory_window_minutes",
           "panel_order": 0,
           "preset_kind": "none",
-          "presets": [],
+          "presets": [
+            0,
+            15,
+            30,
+            60,
+            120
+          ],
           "scope_default": "guild",
           "settings_key": "ai_memory_window_minutes",
           "storage": "kv",
