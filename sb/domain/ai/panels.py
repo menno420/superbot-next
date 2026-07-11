@@ -451,9 +451,19 @@ async def _settings_fields(ctx) -> tuple[tuple[str, str], ...]:
         # provenance vocabulary: explicit row → `guild`, else `default`
         # (the golden pins the all-defaults state).
         prov = "guild" if explicit else "default"
-        valid = "valid"
-        if spec.allowed_values and value not in spec.allowed_values:
-            valid = "**invalid**"
+        if explicit:
+            # an explicit row arrives as the RAW KV string — the shipped
+            # page rendered the COERCED typed value + the coercion-driven
+            # validity flag (settings_resolution.resolve_setting; the
+            # all-defaults golden state never reaches this branch).
+            from sb.domain.settings.service import coerce_value
+
+            value, ok, _diag = coerce_value(spec, str(value))
+            valid = "valid" if ok else "**invalid**"
+        else:
+            valid = "valid"
+            if spec.allowed_values and value not in spec.allowed_values:
+                valid = "**invalid**"
         lines.append(f"`{key}` = `{value!r}` "
                      f"(`{prov}`, default=`{spec.default!r}`, {valid})")
     bindings = ("`audit_log_channel` — kind=`channel` (optional) "
