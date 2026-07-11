@@ -392,11 +392,18 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         #      (spec 14 §2.B degrades message-band classes only). Without
         #      this listener every nav:*/panel/confirm click dies in the
         #      view's no-op default (owner-feedback triage, 2026-07-09).
+        #      The MODAL-SUBMIT lane (wire type 5) is ARMED here too — the
+        #      D-0054 wire-type-5 successor: sb.confirm: captures keep the
+        #      typed-phrase check, every other submit is a G-10 panel form
+        #      dispatching through the frozen modal adapter (the
+        #      modal-arming slice; formerly only sb.confirm: was consumed
+        #      and the general lane was dormant by design).
         from sb.adapters.discord.component_feed import arm_component_feed
 
         arm_component_feed(bot)
         logger.info("component feed armed: button/select dispatch "
-                    "(custom_id → resolve(); modal submits stay dormant)")
+                    "(custom_id → resolve()) + the modal-submit band "
+                    "(wire 5: confirm captures AND G-10 panel forms)")
 
         # 11. lifecycle STARTING (explicit intent record) → gateway connect.
         lifecycle.set_phase(lifecycle.Phase.STARTING, reason="composition root boot")

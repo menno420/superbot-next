@@ -2082,6 +2082,8 @@
   "access:explain",
   "access:reset",
   "access:select_scope",
+  "ai.settings_number_form",
+  "ai.settings_text_form",
   "ai:behavior",
   "ai:diagnostics",
   "ai:policy",

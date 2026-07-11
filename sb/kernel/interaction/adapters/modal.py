@@ -50,6 +50,20 @@ def request_from_modal(interaction: object, *, responder) -> ResolveRequest | No
             return None
     guild = getattr(interaction, "guild", None)
     args = _modal_fields(data)
+    if not confirmed:
+        # restore the OPENING click's stashed args (the confirm-stash twin,
+        # kernel-owned at the modal-issue branch of resolve()): a
+        # parameterized session panel's form carries static wire bytes, so
+        # its session params (e.g. the ai widgets' `setting`) ride kernel
+        # memory. Submitted field values win ties; a stash miss leaves the
+        # fields alone (the handler's own guards answer).
+        from sb.kernel.interaction.resolve import pop_modal_args
+
+        stashed = pop_modal_args(
+            custom_id, getattr(getattr(interaction, "user", None), "id", None))
+        if stashed:
+            args = {**stashed, **args}
+            args["interaction_id"] = getattr(interaction, "id", None)
     args.setdefault("interaction_id", getattr(interaction, "id", None))
     kwargs = dict(
         surface=Surface.MODAL, target=target,

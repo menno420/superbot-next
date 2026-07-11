@@ -220,17 +220,26 @@ def test_edit_pick_routes_enum_widget_shipped_bytes(skeleton):
     assert not options[1].get("default")
 
 
-def test_edit_pick_free_text_parks_on_modal_lane(skeleton):
-    """The two free-form str scalars used the shipped TextSettingModal —
-    the live modal-submit lane is dormant by design, so the pick answers
-    the declared pending terminal."""
+def test_edit_pick_free_text_opens_text_widget_page(skeleton):
+    """The two free-form str scalars use the shipped TextSettingModal —
+    armed by the modal-arming slice: the pick opens the text widget page
+    (the shipped pick sent the modal DIRECTLY, but a selector pick is
+    AUTO-deferred on this engine, so the Edit… button intermediates —
+    the D-0054 confirm-surface posture, ledgered)."""
     _, edit_cid, _ = _open_settings(skeleton)
     run(skeleton.click(message_id=905, custom_id=edit_cid, component_type=3,
                        values=["ai_default_model"], persona="admin"))
-    calls = skeleton.take_calls()
-    assert calls[-1].payload["content"].startswith(
-        "The free-form text editor for `ai.ai_default_model` (the shipped "
-        "edit modal) ports with the modal-lane arming slice")
+    payload = _panel_payload(skeleton.take_calls())
+    (embed,) = payload["embeds"]
+    # the shipped modal placeholder's readout rides the page prompt
+    # (current=default for the fresh guild: '' — "empty = routing default").
+    assert embed["description"] == ("Edit `ai.ai_default_model` "
+                                    "(current=`''`, default=`''`) — "
+                                    "**Edit…** opens the form.")
+    assert _rows(payload) == [
+        [("Edit…", 2)],
+        [("↩ Back to Settings", 2)],
+    ]
 
 
 def test_edit_and_reset_unknown_setting_bytes(skeleton):
@@ -247,9 +256,10 @@ def test_edit_and_reset_unknown_setting_bytes(skeleton):
     assert calls[-1].payload["content"] == "❌ Unknown setting `ai.not_a_setting`."
 
 
-def test_override_button_parks_on_modal_lane(skeleton):
-    """The shipped Override… button opened the free-form number modal —
-    parked with the modal-arming slice."""
+def test_override_button_issues_the_number_form(skeleton):
+    """The shipped Override… button opens the free-form number modal —
+    ARMED: the click ISSUES the G-10 form (never a dispatch; the handler
+    runs on submit, the modal-issued terminal)."""
     _, edit_cid, _ = _open_settings(skeleton)
     run(skeleton.click(message_id=907, custom_id=edit_cid, component_type=3,
                        values=["ai_minimum_level_default"], persona="admin"))
@@ -259,9 +269,9 @@ def test_override_button_parks_on_modal_lane(skeleton):
     run(skeleton.click(message_id=908, custom_id=override[0],
                        persona="admin"))
     calls = skeleton.take_calls()
-    assert calls[-1].payload["content"].startswith(
-        "The free-form override (the shipped number modal) ports with "
-        "the modal-lane arming slice")
+    assert [c.method for c in calls] == ["interaction_response"]
+    assert calls[0].payload["type"] == 9          # the modal IS the response
+    assert calls[0].payload["data"]["custom_id"] == "ai.settings_number_form"
 
 
 # --- the shipped routing/serialization tables (pure) ------------------------------

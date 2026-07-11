@@ -65,6 +65,7 @@ __all__ = [
     "install_panel_engine",
     "install_transparency_sink",
     "install_visibility_reader",
+    "pop_modal_args",
     "reset_resolver_ports_for_tests",
     "resolve",
 ]
@@ -97,6 +98,15 @@ _seen_request_ids: dict[str, None] = {}   # confirm re-entry dedup (in-memory, �
 _pending_confirm_args: dict[str, dict] = {}   # request_id -> original args
                                               # (v1 confirm re-entry carry)
 _cancelled_request_ids: dict[str, None] = {}  # confirm-cancel terminal (S9b view)
+# (modal_id, user_id) -> the OPENING request's args (the confirm-stash twin,
+# D-0052/D-0054's "the resolver restores the stashed args" pattern applied to
+# G-10 forms): a session-parameterized panel action that issues a modal (e.g.
+# the ai widgets' `setting` param) carries STATIC wire bytes only (the
+# modal_id is the custom-id root), so without this stash the submit re-entry
+# lost the opening click's session args. Keyed per invoker — one pending form
+# per (form, user), last-open-wins (the shipped views held the context in the
+# per-open Modal object's closure; a re-open replaced it the same way).
+_pending_modal_args: dict[tuple[str, int | None], dict] = {}
 _SEEN_MAX = 4096
 
 
@@ -129,6 +139,23 @@ def reset_resolver_ports_for_tests() -> None:
     _seen_request_ids.clear()
     _pending_confirm_args.clear()
     _cancelled_request_ids.clear()
+    _pending_modal_args.clear()
+
+
+def pop_modal_args(modal_id: str, user_id: int | None) -> dict:
+    """Take (and clear) the args stashed when *user_id*'s *modal_id* form
+    was issued — the MODAL adapter's re-entry restore. Empty for a stash
+    miss (restart / eviction / a form the kernel never issued): the submit
+    then carries only its own field values, and the handler's own guards
+    answer (the §3.4 polite-expiry posture for forms)."""
+    return _pending_modal_args.pop((modal_id, _stash_uid(user_id)), None) or {}
+
+
+def _stash_uid(user_id: object) -> int | None:
+    try:
+        return int(user_id)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
 
 
 def cancel_pending_confirm(request_id: str) -> bool:
@@ -327,9 +354,24 @@ async def resolve(req: ResolveRequest) -> Result:  # noqa: PLR0911, PLR0912, PLR
             else:
                 # the OPENING click: issue the declared form and stop — the
                 # handler runs on submit, never on open (G-10; terminal
-                # below, mirroring the confirm-issued pattern).
-                await req.responder.open_modal(getattr(spec, "modal", None))
+                # below, mirroring the confirm-issued pattern). The flag is
+                # set BEFORE the await: a failed open must terminate as an
+                # unissued form, never fall through to a field-less dispatch
+                # (the modal-arming rule — with the live wire-type-5 lane
+                # consuming submits, an open-failure dispatch would run the
+                # submit handler with no form data).
                 modal_issued = True
+                modal_spec = getattr(spec, "modal", None)
+                if modal_spec is not None:
+                    # stash the opening args for the submit re-entry (the
+                    # confirm-stash twin): the form's wire bytes are static,
+                    # so session params ride kernel memory, not the wire.
+                    _pending_modal_args[
+                        (modal_spec.modal_id, _stash_uid(actor.user_id))
+                    ] = dict(req.args)
+                    while len(_pending_modal_args) > _SEEN_MAX:
+                        _pending_modal_args.pop(next(iter(_pending_modal_args)))
+                await req.responder.open_modal(modal_spec)
     except Exception:  # noqa: BLE001 — a failed ack is a transient render issue
         logger.warning("responder ack/open_modal failed", exc_info=True)
 

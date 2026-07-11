@@ -153,7 +153,10 @@ MANIFEST = SubsystemManifest(
             _panels.ai_behavior_chooser_spec(),
             _panels.ai_tools_chooser_spec(),
             _panels.ai_settings_edit_presets_spec(),
-            _panels.ai_settings_edit_enum_spec()),
+            _panels.ai_settings_edit_enum_spec(),
+            # the free-text editor page (the modal-arming slice — its
+            # Edit… button issues the G-10 TextSettingModal twin).
+            _panels.ai_settings_edit_text_spec()),
     settings=_SETTINGS,
     stores=(AI_REVIEW_LOG_STORE, AI_ANSWER_PRESETS_STORE),
     events=(),

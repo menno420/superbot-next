@@ -602,6 +602,46 @@ class Harness:
         await dispatch_component(interaction, responder=responder)
         await self._settle()
 
+    async def modal_submit(self, *, message_id: int, custom_id: str,
+                           fields: dict[str, str],
+                           persona: str = "member",
+                           channel: str = "general") -> None:
+        """One wire-type-5 MODAL SUBMIT through the real pipeline
+        (``dispatch_modal`` — the seam the live component feed's armed
+        modal lane drives; the ``click`` twin for G-10 forms). CURATED
+        driving only: golden reconstruction still carries no modal step
+        kind (D-0063 — the imported corpus schema is command/slash/click),
+        so no golden reaches this method; the walking-skeleton suites do."""
+        if self.world is None:
+            raise RuntimeError("harness not started")
+        self.world.clock.advance()
+        interaction_id = self.world.ids.allocate()
+        member = _member_for(persona)
+        channel_id = self.world.channels[channel]
+        data: dict[str, Any] = {
+            "custom_id": custom_id,
+            "components": [
+                {"components": [{"custom_id": key, "value": value}]}
+                for key, value in fields.items()],
+        }
+        interaction = SimpleNamespace(
+            id=interaction_id,
+            user=member,
+            guild=SimpleNamespace(id=self.world.guild_id,
+                                  owner_id=DEFAULT_PERSONAS["admin"]["id"]),
+            channel_id=channel_id,
+            channel=SimpleNamespace(id=channel_id),
+            message=SimpleNamespace(id=message_id),
+            data=data,
+        )
+        responder = ParityResponder(self.http, surface=Surface.MODAL,
+                                    channel_id=channel_id,
+                                    interaction_id=interaction_id)
+        from sb.kernel.interaction.adapters.modal import dispatch_modal
+
+        await dispatch_modal(interaction, responder=responder)
+        await self._settle()
+
     async def _settle(self) -> None:
         """Wait out fire-and-forget tasks (bus fan-out) — same drain engine
         as the old harness, so attribution semantics match."""
