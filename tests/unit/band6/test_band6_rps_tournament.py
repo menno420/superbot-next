@@ -445,3 +445,114 @@ def test_rpsbot_mode_guard_and_matchup_guard(skeleton):
     calls = harness.take_calls()
     assert any("Tournament is not active." in str(c.payload)
                for c in calls if c.payload)
+
+
+def _texts(calls) -> list[str]:
+    return [str((c.payload or {}).get("content")) for c in calls if c.payload]
+
+
+def test_rpssettings_shipped_guards_and_update(skeleton, monkeypatch):
+    """The shipped ``rps_settings`` command verbatim: the three guard
+    copies (invalid setting — the sweep-pinned bytes — invalid mode,
+    non-odd best_of) and the success copy; the valid write rides the
+    band-1 `settings.set_scalar` op onto the declared persisted keys."""
+    harness, economy, games, flags = skeleton
+    # re-arm the band-1 settings op refs/spec (the ENSURE_REFS idiom the
+    # skeleton already applies to the rps sessions/reaction consumer —
+    # earlier suites may have cleared the registries this test dispatches
+    # through; idempotent when they haven't)
+    from sb.domain.settings import ops as settings_ops
+
+    settings_ops.ensure_ops_refs()
+    settings_ops.register_ops()
+
+    # invalid setting — sweep.rpssettings' golden bytes
+    run(harness.send_command("!rpssettings test test", persona="admin"))
+    assert any("Invalid setting. Available settings: default_mode, "
+               "default_best_of" in t for t in _texts(harness.take_calls()))
+
+    # invalid mode value — shipped copy
+    run(harness.send_command("!rpssettings default_mode banana",
+                             persona="admin"))
+    assert any("Invalid game mode. Available modes: classic, lizard_spock, "
+               "chess, elemental" in t for t in _texts(harness.take_calls()))
+
+    # even / non-numeric / non-positive best_of — shipped copy
+    for bad in ("4", "abc", "0", "-3"):
+        run(harness.send_command(f"!rpssettings default_best_of {bad}",
+                                 persona="admin"))
+        assert any("Please provide an odd positive integer for "
+                   "default_best_of." in t
+                   for t in _texts(harness.take_calls())), bad
+
+    # valid updates: shipped success copy + ONE write path (§4.1 — the
+    # band-1 scalar op against the declared persisted keys)
+    from sb.kernel.db import settings as db_settings
+
+    writes: list[tuple[int, str, str]] = []
+
+    async def fake_upsert(conn, *, guild_id, key, value):
+        writes.append((int(guild_id), str(key), str(value)))
+        return None
+
+    monkeypatch.setattr(db_settings, "upsert_setting", fake_upsert)
+    run(harness.send_command("!rpssettings default_mode chess",
+                             persona="admin"))
+    assert any("Setting `default_mode` updated to `chess`." in t
+               for t in _texts(harness.take_calls()))
+    run(harness.send_command("!rpssettings default_best_of 5",
+                             persona="admin"))
+    assert any("Setting `default_best_of` updated to `5`." in t
+               for t in _texts(harness.take_calls()))
+    assert writes == [(W_GUILD, "rps_default_mode", "chess"),
+                      (W_GUILD, "rps_default_best_of", "5")]
+    assert not economy.audit                     # settings touch no money
+
+
+def test_rpssettings_bare_shows_the_read_view(skeleton):
+    """Bare `!rpssettings` keeps the read view (the shipped command
+    required both args — MissingRequiredArgument fired; unpinned shape,
+    ledgered deviation)."""
+    harness, economy, games, flags = skeleton
+    run(harness.send_command("!rpssettings", persona="admin"))
+    texts = _texts(harness.take_calls())
+    assert any("⚙️ **RPS settings**" in t and "default_mode: `classic`" in t
+               for t in texts)
+
+
+def test_champion_frame_renders_exactly_once_under_a_settled_race(skeleton):
+    """The #133-review cosmetic race, rps side: if a racing final
+    resolution already claimed the champion render (state.settled), the
+    second resolution must not re-announce the champion or re-run the
+    payout — the in-memory check-and-set twin of the op's flag-row
+    guard."""
+    harness, economy, games, flags = skeleton
+    from sb.domain.rps import tournament
+
+    run(harness.send_command("!rpsregister", persona="admin"))
+    calls = harness.take_calls()
+    (join,) = _components(calls[0])
+    reg_message_id = calls[0].response_id
+    for persona in ("admin", "member"):
+        run(harness.click(message_id=reg_message_id,
+                          custom_id=join["custom_id"], persona=persona))
+        harness.take_calls()
+    state = tournament.get_state(W_GUILD)
+    state.registration_opened_mono -= 601
+    run(harness.send_command("!rpsstart classic 1", persona="admin"))
+    calls = harness.take_calls()
+    (match_call,) = [c for c in calls if (c.payload or {}).get("embeds")
+                     and "Round 1" in c.payload["embeds"][0].get("title", "")]
+
+    # the racing winner claimed the render between the two resolutions
+    state.settled = True
+    _, final_calls = _play_match(harness, match_call)
+    texts = _texts(final_calls)
+    assert not any("has won the RPS Tournament!" in t for t in texts)
+    assert not any("💰 Payout" in t for t in texts)
+    # payout op never ran for the loser: no money row, flag intact,
+    # state not torn down by the losing racer
+    assert not [a for a in economy.audit
+                if a["reason"].startswith("rps:tournament")]
+    assert flags.flags.get(W_GUILD) == "rps"
+    assert tournament.state_or_none(W_GUILD) is not None

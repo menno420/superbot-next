@@ -93,9 +93,9 @@ MANIFEST = SubsystemManifest(
         CommandSpec(name="rpssettings", kind=CommandKind.PREFIX,
                     route=HandlerRef("rps.settings_view"),
                     audience_tier="staff", capability="rps_tournament",
-                    summary="Show the RPS settings (edit them in the "
-                            "settings hub).",
-                    usage="!rpssettings"),
+                    summary="Update RPS settings (bare shows the current "
+                            "values).",
+                    usage="!rpssettings [setting] [value]"),
     ),
     panels=(_panels.rps_hub_spec(), _panels.rps_quickplay_spec(),
             _panels.rps_pvp_spec(), _panels.rps_registration_spec(),

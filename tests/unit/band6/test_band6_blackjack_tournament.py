@@ -541,3 +541,46 @@ def test_bjstart_cancel_branches(skeleton):
     assert W_GUILD not in flags.flags
     assert tournament.state_or_none(W_GUILD) is None
     assert not economy.audit                       # nothing ever debited
+
+
+def test_results_embed_renders_exactly_once_under_a_settled_race(skeleton):
+    """The #133-review cosmetic race: two racing final stands both pass
+    ``all_done`` — the in-memory ``state.settled`` check-and-set (the
+    twin of the payout op's flag-row guard) makes the losing racer's
+    ``_finish_tournament`` a no-op: no second results embed, no payout
+    op run, no double teardown."""
+    harness, economy, games, flags = skeleton
+    from sb.domain.blackjack import tournament
+
+    run(harness.send_command("!bjtournament 0 1 5", persona="admin"))
+    reg = harness.take_calls()
+    (join,) = _components(reg[0])
+    for persona in ("admin", "member"):
+        run(harness.click(message_id=reg[0].response_id,
+                          custom_id=join["custom_id"], persona=persona))
+        harness.take_calls()
+    run(harness.send_command("!bjstart", persona="admin"))
+    views = _round_views(harness.take_calls())
+    assert len(views) == 2
+    by_uid = {}
+    for view in views:
+        title = view.payload["embeds"][0]["title"]
+        by_uid[int(title.split("<@")[1].split(">")[0])] = view
+
+    _stand(harness, by_uid[ADMIN], ADMIN)          # not all done yet
+    state = tournament.get_state(W_GUILD)
+    assert not state.settled
+
+    # the racing winner claimed the render between the two resolutions
+    state.settled = True
+    final_calls = _stand(harness, by_uid[MEMBER], MEMBER)
+    texts = [str((c.payload or {}).get("content")) for c in final_calls
+             if c.payload]
+    # the finish line still lands, but NO results embed and NO payout
+    assert any("✅ You finished the tournament with **" in t for t in texts)
+    assert not [c for c in final_calls if (c.payload or {}).get("embeds")
+                and c.payload["embeds"][0].get("title")
+                == "🏆 Blackjack Tournament Results"]
+    assert not economy.audit
+    assert flags.flags.get(W_GUILD) == "blackjack"  # flag row intact
+    assert tournament.state_or_none(W_GUILD) is not None

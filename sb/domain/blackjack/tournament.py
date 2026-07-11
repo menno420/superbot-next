@@ -111,6 +111,10 @@ class TournamentState:
     names: dict[str, str] = field(default_factory=dict)
     entrants: dict[str, TournPlayer] = field(default_factory=dict)
     results: dict[str, int] = field(default_factory=dict)
+    settled: bool = False   # results render fired (in-memory check-and-set
+                            # twin of the payout op's flag-row guard — two
+                            # racing final stands render ONE results embed;
+                            # the #133 review's cosmetic race)
 
     @property
     def pot(self) -> int:

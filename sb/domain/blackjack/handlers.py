@@ -310,6 +310,13 @@ def _register() -> None:
         from sb.kernel.panels.engine import open_panel
         from sb.spec.refs import PanelRef
 
+        if state.settled:
+            # a racing final stand already rendered the results embed
+            # (money was already settle-once via the payout op's flag-row
+            # check-and-set) — don't render a second frame or re-run the
+            # teardown on dropped state (the #133 review's question).
+            return
+        state.settled = True          # check-and-set, no await in between
         ranked = tournament.ranking(state)
         winner = ranked[0][0] if ranked else None
         result = await _run_op("blackjack.tournament_payout", req, {
