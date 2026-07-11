@@ -2881,6 +2881,31 @@
           "value": "chain_delete"
         },
         {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "create"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "delete"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "restrict"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "move"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "visibility"
+        },
+        {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
           "value": "xp"
@@ -5409,7 +5434,25 @@
       "handler:chain.usage_view": {
         "module": "sb.domain.chain.service"
       },
+      "handler:channel.create_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:channel.delete_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:channel.move_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:channel.ops_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:channel.render_hub": {
+        "module": "sb.domain.channel.panels"
+      },
+      "handler:channel.restrict_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:channel.visibility_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:cleanup.history_pending": {
@@ -6043,7 +6086,7 @@
         "module": "sb.domain.chain.panels"
       },
       "panel:channel.hub": {
-        "module": "sb.domain.operator_spine"
+        "module": "sb.domain.channel.panels"
       },
       "panel:cleanup.hub": {
         "module": "sb.domain.operator_spine"
@@ -6373,9 +6416,6 @@
         "module": "sb.domain.operator_spine"
       },
       "provider:automod.hub_settings": {
-        "module": "sb.domain.operator_spine"
-      },
-      "provider:channel.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
       "provider:cleanup.hub_settings": {
@@ -7798,7 +7838,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:3fa7463cca747bc6163d9edeb0fb0d9790c66b1af87a6fef3ff3d3ce2dd59b93",
+  "stable_hash": "sha256:9a3a85ea61593493b59d48f8eae91f8e095c964e27ab9172c21e304c1736b62b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -11835,7 +11875,7 @@
       "commands": [
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -12234,48 +12274,180 @@
       "key": "channel",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "create",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "➕",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.create_pending"
+              },
+              "label": "Create Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "delete",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🗑️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.delete_pending"
+              },
+              "label": "Delete Channel",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "restrict",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.restrict_pending"
+              },
+              "label": "Manage Restrictions",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↔️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.move_pending"
+              },
+              "label": "Move / Reorder",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "visibility",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔍",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.visibility_pending"
+              },
+              "label": "Subsystem Visibility",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Channel operations (create/clone/lock/slowmode/…) — the ops port arms with the discord adapter slice."
-            },
-            {
-              "provider": {
-                "$ref": "provider:channel.hub_settings"
-              }
+              "text": "Select an action below to manage your server's channels.\n\n**➕ Create Channel** — interactive channel creator\n**🗑️ Delete Channel** — select and delete a channel\n**🔒 Manage Restrictions** — lock or unlock a channel\n**↔️ Move / Reorder** — bulk-move channels or send to top/bottom"
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blurple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped panel footer is the literal author-lock notice 'Only the command author can interact with this panel.' (main_panel.build_embed set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/channel/sweep_channelmenu pins the byte; the utility/ux_lab-panel precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, actions and layout stay declared.",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "create",
+                    "delete",
+                    "restrict"
+                  ],
+                  [
+                    "move",
+                    "visibility"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
+            "home_hub": "admin",
             "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "channel.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:channel.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "channel",
           "timeout_s": 180,
-          "title": "Channels",
+          "title": "🛠️ Channel Management Panel",
           "usage_weight": 1.0
         }
       ],
