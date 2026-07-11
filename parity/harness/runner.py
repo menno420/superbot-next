@@ -193,6 +193,13 @@ def _describe_step(step: Step) -> dict[str, Any]:
     elif step.kind == "click":
         doc["custom_id"] = step.custom_id
         doc["target_message"] = step.target_message
+    elif step.kind == "modal":
+        # wire-type-5 submit: the static G-10 modal_id root + the field
+        # values (D-0073 corpus-schema growth; sorted for canonical docs).
+        doc["custom_id"] = step.custom_id
+        doc["fields"] = dict(sorted(step.fields))
+        if step.target_message:
+            doc["target_message"] = step.target_message
     if step.channel != "general":
         doc["channel"] = step.channel
     return doc

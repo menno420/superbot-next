@@ -28,9 +28,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # --------------------------------------------------------------- the corpus
 class TestImportedCorpus:
-    def test_465_goldens_imported(self):
+    def test_corpus_golden_count(self):
+        # 465 imported at the source pin + 2 minted modal-submit goldens
+        # (D-0073 corpus-schema growth; parity.yml source.minted_goldens).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 465
+        assert len(goldens) == 467
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -49,7 +51,8 @@ class TestImportedCorpus:
         source = parity["source"]
         assert source["repo"] == "menno420/superbot"
         assert source["sha"] == "7f7628e12f3b89c5c2a1fbdcfb039787df269e20"
-        assert source["goldens"] == 465
+        assert source["goldens"] == 465     # the IMPORT pin (verbatim corpus)
+        assert source["minted_goldens"] == 2  # D-0073 modal-submit mints
 
 
 # ----------------------------------------------------- real-tree gate state
@@ -268,7 +271,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "465 goldens" in out
+        assert "467 goldens" in out
 
     def test_parity_yml_is_valid_yaml_with_kernel_home(self):
         parity = yaml.safe_load(PARITY_YML.read_text())
