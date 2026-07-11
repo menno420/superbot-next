@@ -6,6 +6,82 @@
    },
    "value": 0
   },
+  "server_management:server_management.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "moderation",
+       "channels",
+       "roles"
+      ],
+      [
+       "cleanup",
+       "setup"
+      ],
+      [
+       "access_map",
+       "help_preview",
+       "help_editor",
+       "sm_refresh"
+      ]
+     ]
+    }
+   ]
+  },
+  "server_management:server_management.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "moderation",
+     "channels",
+     "roles"
+    ],
+    [
+     "cleanup",
+     "setup"
+    ],
+    [
+     "access_map",
+     "help_preview",
+     "help_editor",
+     "sm_refresh"
+    ]
+   ]
+  },
+  "server_management:server_management.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "moderation",
+        "channels",
+        "roles"
+       ],
+       [
+        "cleanup",
+        "setup"
+       ],
+       [
+        "access_map",
+        "help_preview",
+        "help_editor",
+        "sm_refresh"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "server_management:servermanagement:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

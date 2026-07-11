@@ -3416,6 +3416,51 @@
           "value": "move_grass"
         },
         {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "moderation"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "channels"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "roles"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "cleanup"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "setup"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "access_map"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "help_preview"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "help_editor"
+        },
+        {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "sm_refresh"
+        },
+        {
           "source": "sb/manifest/treasury.py",
           "subsystem": "treasury",
           "value": "contribute"
@@ -5956,6 +6001,27 @@
       "handler:rps.tournament_move": {
         "module": "sb.domain.rps.handlers"
       },
+      "handler:server_management.access_map_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:server_management.cleanup_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:server_management.help_editor_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:server_management.help_preview_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:server_management.moderation_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:server_management.render_hub": {
+        "module": "sb.domain.server_management.panels"
+      },
+      "handler:server_management.roles_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
       },
@@ -6374,7 +6440,7 @@
         "module": "sb.domain.operator_spine"
       },
       "panel:server_management.hub": {
-        "module": "sb.domain.operator_spine"
+        "module": "sb.domain.server_management.panels"
       },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
@@ -6673,8 +6739,8 @@
       "provider:security.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
-      "provider:server_management.hub_settings": {
-        "module": "sb.domain.operator_spine"
+      "provider:server_management.hub_health": {
+        "module": "sb.domain.server_management.panels"
       },
       "provider:settings.hub_index": {
         "module": "sb.domain.settings.panels"
@@ -7838,7 +7904,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:9a3a85ea61593493b59d48f8eae91f8e095c964e27ab9172c21e304c1736b62b",
+  "stable_hash": "sha256:03447c44728cb845dd0e41081d41cd0c8d655aac82947543b758e1c05686f71b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -28201,7 +28267,7 @@
             "servermenu",
             "guildmenu"
           ],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "server_management",
           "capability_required": "",
           "cooldown": null,
@@ -28224,12 +28290,12 @@
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "server_management",
           "capability_required": "",
           "cooldown": null,
           "cost_posture": "free",
-          "defer_mode": null,
+          "defer_mode": "none",
           "enabled_when": "",
           "group": "",
           "help_section_order": 0,
@@ -28251,16 +28317,233 @@
       "key": "server_management",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "moderation",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:moderation",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:server_management.moderation_pending"
+              },
+              "label": "🛡️ Moderation",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "channels",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:channels",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "📺 Channels",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "roles",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:roles",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:server_management.roles_pending"
+              },
+              "label": "🎭 Roles",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cleanup",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:cleanup",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:server_management.cleanup_pending"
+              },
+              "label": "🧹 Cleanup",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "setup",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:setup",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:setup.hub"
+              },
+              "label": "🧩 Setup",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "access_map",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:access_map",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:server_management.access_map_pending"
+              },
+              "label": "🔓 Access Map",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "help_preview",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:help_preview",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:server_management.help_preview_pending"
+              },
+              "label": "👁 Help Preview",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "help_editor",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:help_editor",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:server_management.help_editor_pending"
+              },
+              "label": "✏️ Help editor",
+              "modal": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sm_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "server_management:refresh",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:server_management.hub"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Guild configuration overview — per-subsystem hubs hang off this menu."
+              "text": "Your single entry point to the server's operator tools. Pick a manager below — the badges are a read-only health summary."
             },
             {
               "provider": {
-                "$ref": "provider:server_management.hub_settings"
+                "$ref": "provider:server_management.hub_health"
               }
             }
           ],
@@ -28268,31 +28551,53 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "red",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/servermanagement + goldens/server_management pin the byte; the utility/ux_lab/channel precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "moderation",
+                    "channels",
+                    "roles"
+                  ],
+                  [
+                    "cleanup",
+                    "setup"
+                  ],
+                  [
+                    "access_map",
+                    "help_preview",
+                    "help_editor",
+                    "sm_refresh"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "server_management.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:server_management.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "server_management",
           "timeout_s": 180,
-          "title": "Server management",
+          "title": "🧭 Server Management Hub",
           "usage_weight": 1.0
         }
       ],
