@@ -600,7 +600,7 @@ depth:
     server_management: {events: 1, tables: 3, settings: 0}
     servermanagement: {events: 0, tables: 0, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
-    ticket: {events: 1, tables: 2, settings: 0}
+    ticket: {events: 2, tables: 4, settings: 0}
     utility: {events: 1, tables: 2, settings: 0}
     ux_lab: {events: 1, tables: 2, settings: 0}
     uxlab: {events: 0, tables: 0, settings: 0}
