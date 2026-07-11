@@ -106,9 +106,10 @@ def _register() -> None:
         gid = int(req.guild_id or 0)
         cid = await service.bound_proof_channel(gid)
         if not cid:
-            return Reply(BLOCKED,
-                         "Channel '#proof' not bound. Bind `proof_channel` "
-                         "in settings (or create #proof).")
+            # shipped copy verbatim (cogs/proof_channel_cog.py; goldens/
+            # proof_channel/sweep_prizestatus pins the byte — the same
+            # guard literal ops._resolve_channel carries).
+            return Reply(BLOCKED, "Channel '#proof' not found.")
         lock = await store.get_lock(gid, cid)
         if lock is None:
             return Reply(SUCCESS, f"<#{cid}>: no active timed prize lock.")
@@ -134,12 +135,23 @@ def _register_task_fire() -> None:
 
 # --- panel ------------------------------------------------------------------------
 
+#: the shipped footer literal (proof_channel_cog.py build_embed
+#: ``set_footer``) — outside FooterMode's none/subsystem/provenance
+#: vocabulary, hence the renderer_override below (the cleanup/
+#: server_management/ux_lab footer precedent);
+#: goldens/proof_channel/sweep_prizemenu.json pins the byte.
+_HUB_FOOTER = "Use buttons below to manage prize access."
+
+#: the shipped no-channel branch copy (build_embed's ``else`` arm),
+#: verbatim — the golden pins the byte.
+_HUB_NO_CHANNEL = "⚠️ No `#proof` channel found. Create one first."
+
+
 def prize_hub_spec():
     from sb.spec.panels import (
         ActionStyle,
         Audience,
         EmbedFrameSpec,
-        FieldsBlock,
         FooterMode,
         LayoutSpec,
         ModalFieldSpec,
@@ -149,38 +161,33 @@ def prize_hub_spec():
         PanelActionSpec,
         PanelSpec,
         ResultRender,
-        TextBlock,
     )
-    from sb.spec.refs import ProviderRef, WorkflowRef, is_registered, provider
-
-    ref = ProviderRef("proof_channel.status_overview")
-    if not is_registered(ref):
-        @provider("proof_channel.status_overview")
-        async def status_overview(ctx: object):
-            from sb.domain.proof_channel import service, store
-
-            gid = int(getattr(ctx, "guild_id", 0) or 0)
-            cid = await service.bound_proof_channel(gid)
-            if not cid:
-                return (("Channel", "*(unbound — bind `proof_channel`)*"),)
-            lock = await store.get_lock(gid, cid)
-            state = (f"locked for <@{lock['winner_id']}> until "
-                     f"{lock['unlock_at']}" if lock else "no timed lock")
-            return (("Channel", f"<#{cid}>"), ("State", state))
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.refs import HandlerRef, WorkflowRef
 
     return PanelSpec(
         panel_id="proof_channel.hub",
         subsystem="proof_channel",
         title="🏆 Prize Channel Manager",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(TextBlock("Grant winners exclusive proof-channel access — "
-                        "manual or timed (auto-unlock survives restarts)."),
-              FieldsBlock(provider=ref)),
+        # the shipped accent — ECONOMY_COLOR == discord.Color.gold()
+        # (goldens/proof_channel/sweep_prizemenu pins 15844367).
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        # no declared body: the shipped build_embed description is
+        # STATE-dependent (Managing <#ch> / the no-channel warning) —
+        # the renderer_override below supplies it (see justification).
         actions=(
+            # the shipped _PrizeManagerView buttons — emoji IN the labels
+            # (discord.ui.button(label="🏆 Grant Access", ...)), verbatim.
             PanelActionSpec(
-                action_id="prize_grant", label="Grant", emoji="🎁",
+                action_id="prize_grant", label="🏆 Grant Access",
                 style=ActionStyle.SUCCESS, audience_tier="staff",
+                # the shipped click opened _PrizeWinnerModal (send_modal)
+                # — G-10: the form issues on open, the workflow runs on
+                # submit (the xp givexp/resetxp posture; codex on #145 —
+                # default AUTO would dispatch grant_access empty).
+                defer_mode=DeferMode.MODAL,
                 handler=WorkflowRef("proof_channel.grant_access"),
                 modal=ModalSpec(
                     modal_id="proof_channel.grant_form",
@@ -190,8 +197,12 @@ def prize_hub_spec():
                                            required=True),)),
             ),
             PanelActionSpec(
-                action_id="prize_timed", label="Timed", emoji="⏱️",
+                action_id="prize_timed", label="⏱️ Timed Access",
                 style=ActionStyle.PRIMARY, audience_tier="staff",
+                # shipped: the _PrizeWinnerModal(timed=True) →
+                # _TimedPrizeModal chain, collapsed to ONE declared form
+                # (G-10; same defer posture as prize_grant).
+                defer_mode=DeferMode.MODAL,
                 handler=WorkflowRef("proof_channel.grant_access"),
                 modal=ModalSpec(
                     modal_id="proof_channel.timed_form",
@@ -205,20 +216,67 @@ def prize_hub_spec():
                     )),
             ),
             PanelActionSpec(
-                action_id="prize_end", label="End", emoji="🔒",
+                action_id="prize_end", label="🔒 End Session",
                 style=ActionStyle.DANGER, audience_tier="staff",
                 handler=WorkflowRef("proof_channel.end_access")),
             PanelActionSpec(
-                action_id="prize_refresh", label="Refresh", emoji="🔄",
-                audience_tier="staff",
+                action_id="prize_refresh", label="🔄 Refresh Status",
+                style=ActionStyle.SECONDARY, audience_tier="staff",
                 handler=PanelRefLocal(),
                 result_render=ResultRender.REFRESH_PANEL),
         ),
-        navigation=NavigationSpec(),
+        # the shipped view carried ONLY its own buttons (no nav row; a
+        # ctx-bound timeout view) — the golden pins exactly two component
+        # rows (the cleanup.words / general-menu precedent).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        # shipped _PrizeManagerView is an ephemeral timeout view with
+        # view-local button decorators (no persistent custom_ids) —
+        # session lifecycle: run-minted ids (<cid:1>..<cid:4>), never in
+        # panel_anchors (the golden pins the no-anchor-row delta).
+        session_lifecycle=True,
+        renderer_override=HandlerRef("proof_channel.render_hub"),
+        justification=(
+            "the shipped hub embed's description is STATE-dependent "
+            "(proof_channel_cog.py build_embed: 'Managing {ch.mention}' "
+            "when the proof channel resolves, the '⚠️ No `#proof` channel "
+            "found. Create one first.' warning otherwise) and its footer "
+            "is the literal 'Use buttons below to manage prize access.' "
+            "(set_footer) — both outside the grammar's static-TextBlock/"
+            "FooterMode vocabulary; goldens/proof_channel/"
+            "sweep_prizemenu.json pins both bytes (the cleanup-hub "
+            "precedent). The override delegates to the grammar renderer "
+            "and adjusts ONLY those two surfaces (description + footer); "
+            "actions, layout and frame stay declared. The shipped "
+            "bound-branch 'Current Permissions' field renders LIVE "
+            "channel overwrites (_format_overwrites(ch.overwrites)) — a "
+            "Discord read with no capture twin and no pinning golden; it "
+            "lands with the channel-ops slice (under-port note)."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("prize_grant", "prize_timed", "prize_end", "prize_refresh"),
+            # the shipped rows verbatim: row 0 grant/timed/end, row 1 the
+            # grey in-place refresh (@discord.ui.button(..., row=1)).
+            ("prize_grant", "prize_timed", "prize_end"),
+            ("prize_refresh",),
         )),)),
     )
+
+
+async def _render_hub(spec, ctx) -> object:
+    """Grammar render + the two shipped adjustments (see the spec's
+    justification): the state-dependent description and the footer
+    literal."""
+    from dataclasses import replace as _dc_replace
+
+    from sb.domain.proof_channel import service
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    cid = await service.bound_proof_channel(gid)
+    description = f"Managing <#{cid}>" if cid else _HUB_NO_CHANNEL
+    return _dc_replace(
+        rendered,
+        embed=_dc_replace(rendered.embed, description=description,
+                          footer=_HUB_FOOTER))
 
 
 def PanelRefLocal():
@@ -240,12 +298,14 @@ def install_proof_panels():
 
 
 def ensure_panel_refs() -> None:
-    from sb.spec.refs import PanelRef, is_registered, panel
+    from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
     if not is_registered(PanelRef("proof_channel.hub")):
         @panel("proof_channel.hub")
         def _factory():
             return prize_hub_spec()
+    if not is_registered(HandlerRef("proof_channel.render_hub")):
+        handler("proof_channel.render_hub")(_render_hub)
 
 
 def ensure_handler_refs() -> None:
@@ -255,3 +315,4 @@ def ensure_handler_refs() -> None:
 
 _register()
 _register_task_fire()
+ensure_panel_refs()

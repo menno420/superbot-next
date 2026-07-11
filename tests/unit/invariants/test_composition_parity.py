@@ -97,7 +97,6 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     "handler:mining.vault_pending",
     "handler:mining.vaultupgrade_pending",
     "handler:mining.workshop_pending",
-    "panel:proof_channel.hub",
     "panel:role.hub",
 })
 
