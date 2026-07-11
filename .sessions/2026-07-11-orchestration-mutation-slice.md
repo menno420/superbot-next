@@ -152,6 +152,15 @@ Final head (after the codex fixes + the #186 merge-forward):
   suite carries the CI-runnable drive (testing-report row 9 untouched by
   convention).
 
+- CI STALL (trap 13a, second sighting after #145): the push of the
+  codex-fix head `f7ba81f` (14:57Z) and the one sanctioned empty-commit
+  retrigger `eb53d40` (15:06Z) both spawned ZERO workflow runs (~25+
+  min; get_check_runs total_count 0, actions_list shows the branch's
+  last runs on `b943138`); per the #145 precedent the fix is the next
+  REAL push — this stall-note commit is that push. Codex posted a
+  usage-limit notice on the PR (the trap-14g class): no review reply
+  will come; the posted @codex question satisfies Q-0259 regardless.
+
 ## 💡 Session idea
 
 parity.yml's ai `seeded-catalog` row still says "migration-0029" from
