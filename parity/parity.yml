@@ -82,7 +82,7 @@ subsystems:
   projectmoon: ported
   proof_channel: ported
   quicksetup: pending
-  role: pending
+  role: ported
   rps_tournament: ported
   security: ported
   server_management: ported
@@ -412,6 +412,65 @@ depth:
           channels) — out of capture scope for the sweep corpus; the
           subsystem's only golden opens the quick-play picker and finishes
           no match"
+    role:
+      # role's one golden is the read-only !rolemenu hub open; the write
+      # lanes are driven by sibling _unmapped sweeps (two carry their
+      # rows verbatim) or sit behind the shipped INTERACTIVE reaction-
+      # roles surfaces (the PR-2 menu builder / manager views — select
+      # picks the corpus click schema cannot express, D-0064).
+      - surface: "table:role_thresholds"
+        reason: "covered-elsewhere: the threshold write's bytes and its
+          db_delta row are pinned verbatim by the sibling oracle
+          goldens/_unmapped/sweep_setrole.json (`!setrole 3 test` — the
+          role_thresholds added row + the shipped ack); the role
+          directory's own golden is the read-only hub open"
+      - surface: "table:reaction_roles"
+        reason: "covered-elsewhere: the legacy bind write's bytes and its
+          db_delta row are pinned verbatim by the sibling oracle
+          goldens/_unmapped/sweep_reactroles.json (`!reactroles 3 test
+          <@&…>` — the reaction_roles added row + the shipped ack); the
+          unbind guard bytes ride sweep_removereactrole.json"
+      - surface: "table:role_grants"
+        reason: "guard-only-capture: the grant lane's only capture sweep
+          (goldens/_unmapped/sweep_temprole.json, `!temprole <@member>
+          test <@&role>`) drove an unparseable duration token, so the
+          shipped parse guard answered and no grant row was written —
+          no imported golden corpus-wide carries the table (D-0069's
+          structural test: the capture drive reaches only the guard; a
+          future valid-duration capture sweep deletes this row)"
+      - surface: "table:role_menus"
+        reason: "select-driven: menu config rows are written only through
+          the shipped interactive menu BUILDER (the reaction-roles
+          overhaul's PR-2 builder — role/theme/template one-tap PICKERS,
+          disbot/utils/role_menu_presentation.py) — run-minted selects
+          whose picked VALUES the corpus click schema does not carry
+          (D-0064, the D-0063 test re-argued per ingress); no imported
+          golden corpus-wide carries the table"
+      - surface: "table:role_menu_options"
+        reason: "select-driven: option rows are written in the same
+          builder transaction as their role_menus parent (the role
+          picker's selected values) — D-0064, the role_menus row's
+          ground verbatim; no imported golden corpus-wide carries the
+          table"
+      - surface: "table:role_menu_pickup_stats"
+        reason: "select-driven: pickup rows are recorded when a member
+          picks a role from a PUBLISHED menu's dropdown
+          (views/roles/role_menu_view.py RoleMenuView) — a select pick
+          on a menu message that itself cannot exist in the harness
+          world (its parent role_menus row is select-driven above);
+          D-0064; no imported golden corpus-wide carries the table"
+      - surface: "table:reaction_role_message_modes"
+        reason: "select-driven: the per-message mode (normal/unique/
+          verify) is set through the shipped reaction-roles manager
+          view's mode picker — a run-minted select whose value the
+          click schema does not carry (D-0064); no imported golden
+          corpus-wide carries the table"
+      - surface: "table:role_automation_exemptions"
+        reason: "select-driven: exemption rows are written through the
+          shipped Exemptions panel's role picker (the set_role_exemption
+          audit lane) — a run-minted role select whose value the click
+          schema does not carry (D-0064); no imported golden
+          corpus-wide carries the table"
     settings:
       # settings owns the SHARED K7 config lane (band 1): its stores/event
       # are written through the four scalar/binding ops that OTHER
@@ -489,6 +548,7 @@ depth:
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
     proof_channel: {events: 1, tables: 2, settings: 0}
+    role: {events: 1, tables: 3, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
     server_management: {events: 1, tables: 3, settings: 0}
