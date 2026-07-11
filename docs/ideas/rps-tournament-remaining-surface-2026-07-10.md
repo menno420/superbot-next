@@ -20,8 +20,10 @@ outcome: open
 click → audited `rps.solo_play` → result + money row); **the PvP button
 surface shipped in the band-6 PvP-on-the-wire PR** (item 1); **the
 tournament orchestration core + the reaction seam shipped in the band-6
-tournament-orchestration PR** (item 3 below, deviations recorded); the
-`!rpsbot` bot-match flow and the `rpssettings` copy decision remain.
+tournament-orchestration PR** (item 3 below, deviations recorded); **the
+`!rpssettings` update command shipped in the band-6 copy-parity polish PR**
+(item 4 — the subsystem's last red golden flipped); the `!rpsbot` deep
+bot-match flow remains.
 
 ## Shipped in the flip PR (context)
 
@@ -79,7 +81,11 @@ tournament-orchestration PR** (item 3 below, deviations recorded); the
    check-and-set — the free branch has no escrow rows to consume, so
    two racing champion resolutions could both have paid the 100 🪙
    consolation; keying settle on the atomic row-deletion count makes it
-   fire exactly once. Match stats land through the
+   fire exactly once. HARDENED AGAIN (copy-parity polish PR, closing the
+   #133 review's cosmetic half): an in-memory `state.settled`
+   check-and-set now also gates the champion ANNOUNCE — the racing loser
+   renders no second "🏆 … has won" frame (money was already
+   settle-once; this pins the wire frame too). Match stats land through the
    audited `rps.tournament_result` op. `!rpsmatchup` creates manual
    matches (shipped guards verbatim). **Deliberate deviations, ledgered:**
    (a) matches are BUTTON views in the tournament's home channel (the #124
@@ -101,10 +107,22 @@ tournament-orchestration PR** (item 3 below, deviations recorded); the
    the sweep recorded); the replay reproduces it identically in corpus
    order (`sweep.rpsregister` precedes it in the sorted case list) and is
    RED in isolation by construction — same class as the recorded oracle.
-4. **`!rpssettings` oracle copy**: shipped bare `!rpssettings` answered
-   "Invalid setting. Available settings: default_mode, default_best_of";
-   v1 shows a read view. Decide verbatim-copy vs deliberate deviation when
-   its golden re-homes.
+4. **`!rpssettings` oracle copy** — ✅ SHIPPED (band-6 copy-parity polish
+   PR): `!rpssettings <setting> <value>` now runs the shipped
+   `rps_settings` command verbatim — the invalid-setting guard ("Invalid
+   setting. Available settings: default_mode, default_best_of" — the
+   sweep-pinned bytes; the shipped `self.settings` dict held ONLY those
+   two keys), the mode guard ("Invalid game mode. Available modes: …"),
+   the odd-int guard ("Please provide an odd positive integer for
+   default_best_of."), and the success copy ("Setting `{setting}` updated
+   to `{value}`."). **Deliberate deviations, ledgered:** (a) the write
+   rides the band-1 `settings.set_scalar` op onto the DECLARED persisted
+   keys (`rps_default_mode`/`rps_default_best_of`) — the shipped command
+   mutated a cog-local in-memory dict that a restart forgot (the audit
+   docs called that drift; §4.1's one-write-path posture makes it
+   durable); (b) bare/one-arg `!rpssettings` keeps the v1 read view — the
+   shipped command required both args and let discord.py's
+   MissingRequiredArgument fire (unpinned wire shape).
 5. **`!rpsbot` bot-match flow**: the mode guard now answers the shipped
    copy verbatim (its sweep is green); a VALID mode still gets the honest
    pending terminal — the shipped bot match ran in a private match channel
@@ -117,8 +135,9 @@ tournament-orchestration PR** (item 3 below, deviations recorded); the
 
 ## Classify-or-fix — the band's red goldens (ORDER 004 binding, this flip)
 
-Gating dir `parity/goldens/rps_tournament/` (after the tournament-
-orchestration PR re-homed the four newly-green sweeps): 5/5 GREEN.
+Gating dir `parity/goldens/rps_tournament/` (after the copy-parity polish
+PR re-homed `sweep.rpssettings` — the subsystem family's LAST red): 6/6
+GREEN.
 
 | golden | state | class |
 | --- | --- | --- |
@@ -128,4 +147,4 @@ orchestration PR re-homed the four newly-green sweeps): 5/5 GREEN.
 | `sweep.rpsstart` | GREEN (re-homed) | fixed in corpus order — the shipped registration-active guard verbatim; isolated replay is red by construction (the golden itself captured the oracle's in-memory cross-case leak — see item 3's corpus-order note) |
 | `sweep.rpsmatchup` | GREEN (re-homed) | fixed — the shipped "Tournament is not active." guard verbatim |
 | `sweep.rpsregister` | GREEN (re-homed) | fixed — the golden-pinned registration embed + Join button + ✅ primer + the `guild_settings` flag row, byte-for-byte |
-| `sweep.rpssettings` | RED (stays `_unmapped`) | `settings-view-copy-deviation` (item 4 above, unchanged) |
+| `sweep.rpssettings` | GREEN (re-homed) | fixed — was `settings-view-copy-deviation`; the shipped guard/success copy is real behavior, the write rides the band-1 settings op (item 4 above) |

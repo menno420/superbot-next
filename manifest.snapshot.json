@@ -8082,7 +8082,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:405d87266bcad71b5b001375314747a8dff936be1f872d962f204bcb3b2540e7",
+  "stable_hash": "sha256:36056fdd201a76eaa5aa3ee840733d5dcaf13547d0762dbc5242dadffce61c63",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -27457,8 +27457,8 @@
             "$ref": "handler:rps.settings_view"
           },
           "slash_common": false,
-          "summary": "Show the RPS settings (edit them in the settings hub).",
-          "usage": "!rpssettings",
+          "summary": "Update RPS settings (bare shows the current values).",
+          "usage": "!rpssettings [setting] [value]",
           "usage_weight": 1.0
         }
       ],

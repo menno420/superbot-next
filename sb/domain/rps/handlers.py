@@ -1,9 +1,9 @@
 """RPS command handlers (band 6) — !rps quick-play / challenge routing,
-the rpshelp text (shipped verbatim), the rpssettings read view (§4.1:
-edits ride the band-1 settings hub — the xpconfig precedent), and honest
-pending terminals for the tournament orchestration (registration
-reactions + round channels + no-prefix move parsing = live-adapter /
-message-band successor work; entry/payout money lanes are live)."""
+the rpshelp text (shipped verbatim), the rpssettings command (shipped
+guards/copy verbatim; the write rides the band-1 settings ops — §4.1),
+and honest pending terminals for the deep bot-match flow (match
+channels + no-prefix move parsing = live-adapter / message-band
+successor work; entry/payout money lanes are live)."""
 
 from __future__ import annotations
 
@@ -448,6 +448,12 @@ def _register() -> None:
                 await _announce(req, f"**<@{bye}>** gets a bye this round.")
             await _open_match_views(req, state, advanced["matches"])
         elif advanced["stage"] == "champion":
+            if state.settled:
+                # a racing final resolution already rendered the champion
+                # frame (money was already settle-once via the payout op's
+                # flag-row check-and-set) — don't render it twice.
+                return Reply(SUCCESS, None)
+            state.settled = True      # check-and-set, no await in between
             champion = advanced["winner"]
             fee = int(state.entry_fee or 0)
             result = await engine.run(
@@ -524,18 +530,68 @@ def _register() -> None:
 
     @handler("rps.settings_view")
     async def settings_view(req) -> Reply:
-        """!rpssettings — read view; edits ride the settings hub (§4.1)."""
-        from sb.kernel.settings import resolve
+        """!rpssettings <setting> <value> — the shipped ``rps_settings``
+        command verbatim (guards + success copy); the write itself rides
+        the band-1 `settings.set_scalar` op (§4.1: ONE write path — the
+        shipped cog mutated an in-memory ``self.settings`` dict; making
+        the same two keys durable SettingSpec writes is the ledgered
+        deviation). Bare/one-arg calls show the read view (the shipped
+        command required both args and let discord.py's
+        MissingRequiredArgument fire — unpinned shape, ledgered)."""
+        from sb.domain.rps import rules as rps_rules
+        from sb.kernel.settings import persisted_key, resolve
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
 
         gid = int(req.guild_id or 0)
-        mode = await resolve(gid, "rps_tournament", "default_mode")
-        best = await resolve(gid, "rps_tournament", "default_best_of")
-        fee = await resolve(gid, "rps_tournament", "default_entry_fee")
+        argv = [str(a) for a in (req.args.get("argv", ()) or ())]
+        if len(argv) < 2:
+            mode = await resolve(gid, "rps_tournament", "default_mode")
+            best = await resolve(gid, "rps_tournament", "default_best_of")
+            fee = await resolve(gid, "rps_tournament", "default_entry_fee")
+            return Reply(SUCCESS,
+                         "⚙️ **RPS settings** (edit in the settings hub):\n"
+                         f"default_mode: `{getattr(mode, 'value', mode)}`\n"
+                         f"default_best_of: "
+                         f"`{getattr(best, 'value', best)}`\n"
+                         f"default_entry_fee: "
+                         f"`{getattr(fee, 'value', fee)}`")
+        setting, value = argv[0], argv[1]
+        # the shipped self.settings keys — default_mode/default_best_of
+        # ONLY (default_entry_fee was a schemas.py SettingSpec, never in
+        # the command's dict); copy pinned by sweep.rpssettings.
+        if setting not in ("default_mode", "default_best_of"):
+            return Reply(BLOCKED,
+                         "Invalid setting. Available settings: "
+                         "default_mode, default_best_of")
+        coerced: str | int = value
+        if setting == "default_mode":
+            if value not in rps_rules.GAME_MODES:
+                # shipped copy, verbatim
+                return Reply(BLOCKED,
+                             "Invalid game mode. Available modes: "
+                             + ", ".join(rps_rules.GAME_MODES.keys()))
+        else:                                    # default_best_of
+            try:
+                coerced = int(value)
+                if coerced % 2 == 0 or coerced < 1:
+                    raise ValueError
+            except ValueError:
+                # shipped copy, verbatim
+                return Reply(BLOCKED, "Please provide an odd positive "
+                                      "integer for default_best_of.")
+        result = await engine.run(
+            WorkflowRef("settings.set_scalar"),
+            _ctx_from_req(req, {
+                "key": persisted_key("rps_tournament", setting),
+                "value": str(coerced)}))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message
+                         or "Couldn't update the setting.")
+        # shipped success copy, verbatim
         return Reply(SUCCESS,
-                     "⚙️ **RPS settings** (edit in the settings hub):\n"
-                     f"default_mode: `{getattr(mode, 'value', mode)}`\n"
-                     f"default_best_of: `{getattr(best, 'value', best)}`\n"
-                     f"default_entry_fee: `{getattr(fee, 'value', fee)}`")
+                     f"Setting `{setting}` updated to `{coerced}`.")
 
 
 def _register_pending() -> None:

@@ -103,6 +103,10 @@ class TournamentState:
     current_round: list[int] = field(default_factory=list)
     matches: dict[str, Match] = field(default_factory=dict)
     _match_seq: int = 0
+    settled: bool = False   # champion render fired (in-memory check-and-set
+                            # twin of the payout op's flag-row guard — two
+                            # racing final resolutions render ONE champion
+                            # frame; the #133 review's cosmetic race)
 
     def registration_window_elapsed(self, *, now_mono: float | None = None) -> bool:
         now = time.monotonic() if now_mono is None else now_mono

@@ -109,7 +109,13 @@ orchestration and two `_unmapped` sweeps remain.
    payout leg's flag-row delete is a check-and-set — the free branch can
    never re-fire on a racing double resolution (the same guard was
    retrofit onto `rps.tournament_payout`, closing the #130 review's
-   free-branch race). Deliberate deviations, ledgered here: (a) rounds
+   free-branch race). **Render-once too** (copy-parity polish PR, closing
+   the #133 review's cosmetic half): an in-memory `state.settled`
+   check-and-set at the top of `_finish_tournament` — two racing final
+   stands that both pass `all_done` render ONE results embed, and the
+   losing racer never re-runs the payout op or the state teardown (the
+   same guard gates the rps champion announce).
+   Deliberate deviations, ledgered here: (a) rounds
    run in the tournament's HOME channel (one view per entrant per round)
    instead of the shipped private per-player channels under the "BJ
    Tournament" category (channel provisioning rides the
