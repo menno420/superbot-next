@@ -78,8 +78,8 @@ subsystems:
   logging: pending
   mining: pending
   moderation: pending
-  project_moon: pending
-  projectmoon: pending
+  project_moon: ported
+  projectmoon: ported
   proof_channel: ported
   quicksetup: pending
   role: pending
@@ -302,6 +302,8 @@ depth:
     help: {events: 1, tables: 3, settings: 0}
     hermes: {events: 0, tables: 0, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
+    project_moon: {events: 1, tables: 2, settings: 0}
+    projectmoon: {events: 0, tables: 0, settings: 0}
     proof_channel: {events: 1, tables: 2, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     servermanagement: {events: 0, tables: 0, settings: 0}

@@ -204,29 +204,41 @@ def test_video_build_no_urls_and_error_reason():
 # --- the !pm surface -----------------------------------------------------------------
 
 
-def _req(argv=(), args=None):
-    base = {"argv": tuple(argv)}
-    base.update(args or {})
-    return SimpleNamespace(args=base, guild_id=1, channel_id=5,
-                           request_id="r1", confirmed=True,
-                           actor=SimpleNamespace(user_id=42))
+def test_pm_oracle_cards():
+    """The shipped `!pm` reply embeds (goldens/project_moon bytes) —
+    the handlers present these verbatim through projmoon.card."""
+    from sb.domain.projmoon import oracle_cards as cards
 
+    over = cards.overview_card()
+    assert over.title == "🌑 Project Moon — Limbus knowledge"
+    assert over.style_token == "purple"
+    assert over.footer == cards.FOOTER
+    assert ("Sinners (12)",
+            "Yi Sang, Faust, Don Quixote, Ryōshū, Meursault, Hong Lu, …",
+            False) in over.fields
 
-def test_pm_views():
-    from sb.domain.projmoon import service
+    hit = cards.entry_card(pm_dataset.resolve("don quixote"))
+    assert hit.title == "🌑 Don Quixote"
+    assert ("Literary origin", "*Don Quixote* — Miguel de Cervantes",
+            False) in hit.fields
 
-    out = run(service.overview_view(_req()))
-    assert "Sinners: 12" in out.user_message
-    out = run(service.lookup_view(_req(["don", "quixote"])))
-    assert "Don Quixote" in out.user_message
-    out = run(service.lookup_view(_req(["zzzz"])))
-    assert "don't have a Limbus entry" in out.user_message
-    out = run(service.origins_view(_req()))
-    assert "Wuthering Heights" in out.user_message
-    out = run(service.ego_view(_req(["aleph"])))
-    assert "ALEPH" in out.user_message
-    out = run(service.list_view(_req(["sinners"])))
-    assert "Gregor" in out.user_message
+    miss = cards.lookup_miss_card("zzzz")
+    assert miss.title == "🌑 Limbus lookup"
+    assert "don't have a Limbus entry matching **zzzz**" in miss.description
+    assert miss.style_token == "greyple" and miss.footer == ""
+
+    origins = cards.origins_card()
+    assert "**Heathcliff** — *Wuthering Heights*, Emily Brontë" in (
+        origins.description)
+
+    ego = cards.kind_card("ego_grade")
+    assert ego.title == "🌑 Limbus — E.G.O grades"
+    assert ego.fields[-1][0] == "ALEPH"
+
+    # the shipped rstrip("s") singularizer + internal kind-key hint, verbatim
+    cmiss = cards.category_miss_card("status", "zzzz")
+    assert cmiss.description.startswith("No statuse matches **zzzz**.")
+    assert "`!pm list status`" in cmiss.description
 
 
 def test_dataset_resolver_longest_token_wins():
