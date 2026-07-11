@@ -7,20 +7,13 @@ import asyncio
 import re
 from datetime import datetime, timedelta, timezone
 
-import pytest
-
 from sb.kernel.ai.grounding import absence_guard, format as gformat, name_guard, verify
+
+# registry cleanup: conftest.py's dir-wide after-only reset
 
 
 def run(coro):
     return asyncio.get_event_loop_policy().new_event_loop().run_until_complete(coro)
-
-
-@pytest.fixture(autouse=True)
-def _reset():
-    yield
-    verify.clear_verifiers_for_tests()
-    absence_guard.clear_attributes_for_tests()
 
 
 class TestFormat:

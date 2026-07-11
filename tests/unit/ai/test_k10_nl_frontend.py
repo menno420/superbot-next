@@ -23,16 +23,7 @@ def run(coro):
     return asyncio.get_event_loop_policy().new_event_loop().run_until_complete(coro)
 
 
-@pytest.fixture(autouse=True)
-def _reset_nl_state():
-    yield
-    policy.reset_policy_for_tests()
-    conversation.reset_conversation_for_tests()
-    router.clear_probes_for_tests()
-    memory.reset_memory_ports_for_tests()
-    instructions.clear_task_contracts_for_tests()
-    instructions.reset_profile_reader_for_tests()
-    feature_facts.clear_gatherers_for_tests()
+# registry cleanup: conftest.py's dir-wide after-only reset
 
 
 def _ctx(**kw):

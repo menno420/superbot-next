@@ -10,13 +10,10 @@ import pytest
 from sb.kernel.ai import (
     conversation,
     evals,
-    feature_facts,
     flags,
-    instructions,
     memory,
     nl_engine,
     policy,
-    router,
     routing,
 )
 from sb.kernel.ai.contracts import AIResponse, PolicyDenialReason
@@ -33,6 +30,7 @@ def run(coro):
 @pytest.fixture(autouse=True)
 def _reset_all(monkeypatch):
     # Audit rows go to an in-memory list (no DB in this container).
+    # Registry cleanup: conftest.py's dir-wide after-only reset.
     rows = []
 
     async def fake_insert(**kwargs):
@@ -43,16 +41,6 @@ def _reset_all(monkeypatch):
 
     monkeypatch.setattr(ai_audit, "insert_decision", fake_insert)
     yield rows
-    policy.reset_policy_for_tests()
-    conversation.reset_conversation_for_tests()
-    router.clear_probes_for_tests()
-    memory.reset_memory_ports_for_tests()
-    instructions.clear_task_contracts_for_tests()
-    instructions.reset_profile_reader_for_tests()
-    feature_facts.clear_gatherers_for_tests()
-    verify.clear_verifiers_for_tests()
-    nl_engine.reset_nl_engine_for_tests()
-    evals.clear_suites_for_tests()
 
 
 @pytest.fixture()

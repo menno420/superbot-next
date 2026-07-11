@@ -10,6 +10,8 @@ from pathlib import Path
 
 import yaml
 
+import pytest
+
 from tools.check_parity_depth import (
     GOLDENS_ROOT,
     PARITY_YML,
@@ -19,6 +21,7 @@ from tools.check_parity_depth import (
     declared_surfaces,
     golden_docs,
     load_parity_yml,
+    splice_ratchet_text,
     write_ratchet,
 )
 from tools.run_golden_parity import run_gate, run_report
@@ -237,6 +240,158 @@ class TestDepthRules:
         row = updated["depth"]["ratchet"]["xp"]
         assert row["events"] == 9  # committed floor kept
         assert row["tables"] == 1  # grew to the measured count
+
+
+# ------------------------------------------- the comment-preserving writer
+class TestWriteRatchetPreservesComments:
+    """--write-ratchet is a text splice: only the machine-minted
+    `depth.ratchet` block is rewritten. The old `yaml.safe_dump` full
+    rewrite destroyed the ~130-line comment header on every run (the
+    run-learn-restore-hand-apply pain across the flip PRs)."""
+
+    def test_real_file_identity_round_trip_is_byte_identical(self):
+        """Splicing the committed values back in reproduces the whole
+        file byte-for-byte — the header, the exemption prose, and the
+        `# ratchet:` schema comment (which must never be mistaken for
+        the real key) all survive."""
+        text = PARITY_YML.read_text()
+        ratchet = load_parity_yml()["depth"]["ratchet"]
+        assert splice_ratchet_text(text, ratchet) == text
+
+    def test_header_survives_a_value_bump_byte_identical(self):
+        text = PARITY_YML.read_text()
+        parity = load_parity_yml()
+        ratchet = {k: dict(v) for k, v in parity["depth"]["ratchet"].items()}
+        ratchet["xp"]["events"] += 1
+        out = splice_ratchet_text(text, ratchet)
+        # every byte up to the spliced block is untouched
+        block_at = text.index("\n  ratchet:\n") + 1
+        assert out[:block_at] == text[:block_at]
+        # and the parsed document changed ONLY in depth.ratchet
+        reparsed = yaml.safe_load(out)
+        assert reparsed["depth"]["ratchet"] == ratchet
+        reparsed["depth"]["ratchet"] = parity["depth"]["ratchet"]
+        assert reparsed == parity
+
+    def test_minted_values_match_the_old_writer(self):
+        """Semantics pin: the splice writes exactly the rows the old
+        destructive `yaml.safe_dump(write_ratchet(...))` path minted —
+        same upward-only values, nothing else moved."""
+        parity = load_parity_yml()
+        updated = write_ratchet(parity, golden_docs())
+        old_doc = yaml.safe_load(
+            yaml.safe_dump(updated, sort_keys=True, allow_unicode=True)
+        )
+        new_doc = yaml.safe_load(
+            splice_ratchet_text(PARITY_YML.read_text(),
+                                updated["depth"]["ratchet"])
+        )
+        assert new_doc == old_doc
+
+    def test_missing_ratchet_key_is_a_loud_error(self):
+        text = "depth:\n  reason_classes: []\nother: 1\n"
+        with pytest.raises(SystemExit, match="no `ratchet:` key"):
+            splice_ratchet_text(text, {"xp": {"events": 1}})
+
+    def test_synthetic_splice_replaces_only_the_block(self):
+        text = (
+            "# header comment survives\n"
+            "depth:\n"
+            "  # ratchet:\n"
+            "  #   <subsystem>: {events: N, tables: N, settings: N}\n"
+            "  ratchet:\n"
+            "    old_row: {events: 1, tables: 1, settings: 1}\n"
+            "tail: kept\n"
+        )
+        out = splice_ratchet_text(
+            text, {"xp": {"events": 2, "tables": 3, "settings": 0}},
+        )
+        assert out == (
+            "# header comment survives\n"
+            "depth:\n"
+            "  # ratchet:\n"
+            "  #   <subsystem>: {events: N, tables: N, settings: N}\n"
+            "  ratchet:\n"
+            "    xp: {events: 2, tables: 3, settings: 0}\n"
+            "tail: kept\n"
+        )
+
+    def test_empty_ratchet_renders_the_flow_empty_mapping(self):
+        text = "depth:\n  ratchet:\n    xp: {events: 1, tables: 0, settings: 0}\n"
+        assert splice_ratchet_text(text, {}) == "depth:\n  ratchet: {}\n"
+
+    # the three codex #199 P2s (comment 4948021173 triage), each pinned:
+    def test_interstitial_comment_is_consumed_with_the_block(self):
+        """A shallow comment BETWEEN ratchet rows must not stop the extent
+        scan — leaving the post-comment rows in place duplicated the keys
+        and let a stale count win (codex P2, splice extent)."""
+        text = (
+            "depth:\n"
+            "  ratchet:\n"
+            "    admin: {events: 1, tables: 1, settings: 0}\n"
+            "  # hand comment between rows\n"
+            "    ai: {events: 2, tables: 2, settings: 0}\n"
+        )
+        out = splice_ratchet_text(
+            text, {"admin": {"events": 1, "tables": 1, "settings": 0}},
+        )
+        assert out == (
+            "depth:\n"
+            "  ratchet:\n"
+            "    admin: {events: 1, tables: 1, settings: 0}\n"
+        )
+        assert yaml.safe_load(out)["depth"]["ratchet"] == {
+            "admin": {"events": 1, "tables": 1, "settings": 0},
+        }
+
+    def test_trailing_blank_plus_sibling_comment_is_preserved(self):
+        """A blank line then a deeper-indented comment that belongs to the
+        NEXT section must not be swallowed by the splice (codex P2,
+        following-sibling comments)."""
+        text = (
+            "depth:\n"
+            "  ratchet:\n"
+            "    xp: {events: 1, tables: 1, settings: 0}\n"
+            "\n"
+            "    # exemption note below (belongs to exemptions)\n"
+            "  exemptions: {}\n"
+        )
+        out = splice_ratchet_text(
+            text, {"xp": {"events": 2, "tables": 1, "settings": 0}},
+        )
+        assert out == (
+            "depth:\n"
+            "  ratchet:\n"
+            "    xp: {events: 2, tables: 1, settings: 0}\n"
+            "\n"
+            "    # exemption note below (belongs to exemptions)\n"
+            "  exemptions: {}\n"
+        )
+
+    def test_crlf_line_endings_survive_the_splice(self):
+        """A CRLF-shaped file keeps CRLF everywhere — the splice never
+        silently renormalizes bytes outside the block (codex P2; the repo's
+        .gitattributes leaves parity.yml eol unspecified, so nothing else
+        would restore it)."""
+        text = (
+            "# header\r\n"
+            "depth:\r\n"
+            "  ratchet:\r\n"
+            "    xp: {events: 1, tables: 1, settings: 0}\r\n"
+        )
+        out = splice_ratchet_text(
+            text, {"xp": {"events": 2, "tables": 1, "settings": 0}},
+        )
+        assert out == (
+            "# header\r\n"
+            "depth:\r\n"
+            "  ratchet:\r\n"
+            "    xp: {events: 2, tables: 1, settings: 0}\r\n"
+        )
+        # and the identity property holds in CRLF shape too
+        assert splice_ratchet_text(
+            text, {"xp": {"events": 1, "tables": 1, "settings": 0}},
+        ) == text
 
 
 # ------------------------------------------------------------- the two legs
