@@ -24,6 +24,11 @@ MOD_ACTION_EVENT = EventSpec(
         FieldSpec("target_id", "int"),
         FieldSpec("actor_id", "int"),
         FieldSpec("reason", "str", required=False),
+        # shipped verbatim: _record_action minted str(uuid.uuid4()) into
+        # the payload (services/moderation_service.py); the K7 result's
+        # mutation_id carries it now — every moderation golden pins the
+        # normalized <uuid> byte.
+        FieldSpec("mutation_id", "str", required=False),
     ),
     owner_subsystem="moderation",
     delivery=DeliveryClass.BEST_EFFORT,      # OD-1 v1: only the audit canary is ALO
@@ -102,7 +107,7 @@ MANIFEST = SubsystemManifest(
         _cmd("warn", WorkflowRef("moderation.warn"),
              summary="Warn a member (escalates at the threshold).",
              usage="!warn @member [reason]"),
-        _cmd("timeout", WorkflowRef("moderation.timeout"),
+        _cmd("timeout", HandlerRef("moderation.timeout_command"),
              summary="Timeout a member.",
              usage="!timeout @member <minutes>"),
         _cmd("kick", WorkflowRef("moderation.kick"),
@@ -114,9 +119,10 @@ MANIFEST = SubsystemManifest(
         _cmd("clearwarnings", WorkflowRef("moderation.clearwarnings"),
              summary="Clear a member's warnings.",
              usage="!clearwarnings @member"),
-        _cmd("warnings", HandlerRef("moderation.warnings_view"),
-             summary="Show a member's warning count.",
-             usage="!warnings @member"),
+        # NO `warnings` command: the oracle never shipped one — the capture
+        # answered `!warnings` with the bot1.py did-you-mean reply
+        # (goldens/moderation/moderation_warn_flow step 2 pins the byte);
+        # the invented band-2 lane was retired at the parity flip.
         _cmd("modlogs", HandlerRef("moderation.modlogs_view"),
              summary="Show a member's moderation history.",
              usage="!modlogs @member"),

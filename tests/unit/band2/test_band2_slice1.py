@@ -190,12 +190,13 @@ def test_warn_escalation_blocked_compensates(monkeypatch):
         "moderation.compensate_warn_escalation")
 
 
-def test_timeout_blocked_compensates(monkeypatch):
-    """ORACLE ALIGNMENT (disbot services/moderation_service.py timeout —
-    Discord call first, row only after success): a Discord-refused timeout
-    leaves NO history row claiming the member was timed out — the
-    compensator withdraws the committed row; the TIMEOUT op wires it
-    (fork E, same class as the warn-escalation fix)."""
+def test_kick_blocked_compensates(monkeypatch):
+    """ORACLE ALIGNMENT (disbot services/moderation_service.py — Discord
+    call first, row only after success): a Discord-refused kick leaves NO
+    history row claiming the member was kicked — the compensator withdraws
+    the committed row; the KICK op wires it (fork E, the compensate_timeout
+    shape re-homed at the moderation flip, when timeout itself moved to
+    the oracle's call-first sequencing inside its record leg)."""
     import contextlib
     from types import SimpleNamespace
 
@@ -221,8 +222,8 @@ def test_timeout_blocked_compensates(monkeypatch):
     ctx = WorkflowContext(
         actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
         request_id="r4", confirmed=False,
-        params={"_timeout_row_id": 21, "_target_id": 900000000000000103})
-    out = asyncio.run(ops._compensate_timeout(None, ctx))
+        params={"_kick_row_id": 21, "_target_id": 900000000000000103})
+    out = asyncio.run(ops._compensate_kick(None, ctx))
     assert withdrawn == [(21,)]                       # phantom row gone
     assert out.after["withdrawn_rows"] == 1
 
@@ -230,28 +231,34 @@ def test_timeout_blocked_compensates(monkeypatch):
     ctx2 = WorkflowContext(
         actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
         request_id="r5", confirmed=False, params={})
-    out2 = asyncio.run(ops._compensate_timeout(None, ctx2))
+    out2 = asyncio.run(ops._compensate_kick(None, ctx2))
     assert out2.after == {"compensated": "nothing"}
     assert withdrawn == [(21,)]
 
-    # the TIMEOUT op declares the compensator on its EFFECT leg
-    effect = [leg for leg in ops.TIMEOUT.legs if leg.leg_id == "apply"][0]
+    # the KICK op declares the compensator on its EFFECT leg
+    effect = [leg for leg in ops.KICK.legs if leg.leg_id == "apply"][0]
     assert effect.reversibility == "compensatable"
-    assert effect.compensator == WorkflowRef("moderation.compensate_timeout")
+    assert effect.compensator == WorkflowRef("moderation.compensate_kick")
+
+    # TIMEOUT carries NO effect leg at all: its record leg runs the
+    # oracle's call-Discord-first sequencing (a refused timeout aborts the
+    # txn — no row, no event; goldens/moderation/sweep_timeout).
+    assert [leg.leg_id for leg in ops.TIMEOUT.legs] == ["record"]
 
 
-def test_timeout_record_leg_parses_duration(monkeypatch):
-    """Shipped `!timeout @member <minutes>`: the duration is REQUIRED and,
-    with no explicit reason, IS the reason ("N minutes" — shipped verbatim);
-    a missing duration is a polite user_error."""
+def test_timeout_record_leg_calls_discord_first(monkeypatch):
+    """The oracle sequencing inside the record leg: the guild-action port
+    runs BEFORE the row write; a port failure marks the ctx.params
+    side-channel (`_moderation_generic_error`) and re-raises so the txn
+    aborts with no row and no emit."""
     from types import SimpleNamespace
 
-    from sb.domain.moderation import ops, store
-    from sb.kernel.interaction.errors import ValidatorError
+    from sb.domain.moderation import ops, service, store
     from sb.kernel.workflow.context import WorkflowContext
 
     _register_declarations()
     rows: list[tuple] = []
+    calls: list[tuple] = []
 
     async def fake_log(conn, *, guild_id, action, target_id, moderator_id,
                        reason, at=None):
@@ -259,25 +266,83 @@ def test_timeout_record_leg_parses_duration(monkeypatch):
 
     monkeypatch.setattr(store, "log_mod_action", fake_log)
 
+    class RefusingActions:
+        async def timeout_member(self, guild_id, user_id, *, minutes, reason):
+            calls.append(("timeout", user_id, minutes, reason))
+            raise RuntimeError("Discord refused")
+
     def _ctx(argv):
         return WorkflowContext(
             actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
             request_id="r1", confirmed=False, params={"argv": argv})
 
-    ctx = _ctx(("<@900000000000000103>", "3"))
-    outcome = asyncio.run(ops._record_timeout(None, ctx))
-    assert ctx.params["_minutes"] == 3
-    assert ctx.params["_reason"] == "3 minutes"
-    assert outcome.after["minutes"] == 3
-    assert rows[-1] == ("timeout", 900000000000000103, "3 minutes")
+    service.install_moderation_actions(RefusingActions())
+    try:
+        ctx = _ctx(("<@900000000000000103>", "3"))
+        with pytest.raises(RuntimeError):
+            asyncio.run(ops._record_timeout(None, ctx))
+        assert calls == [("timeout", 900000000000000103, 3, "3 minutes")]
+        assert rows == []                              # no row on refusal
+        assert ctx.params["_moderation_generic_error"] is True
+    finally:
+        service.reset_moderation_ports_for_tests()
 
-    ctx = _ctx(("<@900000000000000103>", "5", "being", "rude"))
-    asyncio.run(ops._record_timeout(None, ctx))
-    assert ctx.params["_minutes"] == 5
-    assert ctx.params["_reason"] == "being rude"
 
-    with pytest.raises(ValidatorError):
-        asyncio.run(ops._record_timeout(None, _ctx(("<@900000000000000103>",))))
+def test_timeout_record_leg_parses_duration(monkeypatch):
+    """Shipped `!timeout @member <minutes>`: the duration is REQUIRED and,
+    with no explicit reason, IS the reason ("N minutes" — shipped verbatim);
+    a missing duration is a polite user_error (raised BEFORE any Discord
+    call). The success ack is the shipped ⏳ line (leg copy — the reply the
+    op-running handler renders)."""
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, service, store
+    from sb.kernel.interaction.errors import ValidatorError
+    from sb.kernel.workflow.context import WorkflowContext
+
+    _register_declarations()
+    rows: list[tuple] = []
+    calls: list[tuple] = []
+
+    async def fake_log(conn, *, guild_id, action, target_id, moderator_id,
+                       reason, at=None):
+        rows.append((action, target_id, reason))
+
+    monkeypatch.setattr(store, "log_mod_action", fake_log)
+
+    class FakeActions:
+        async def timeout_member(self, guild_id, user_id, *, minutes, reason):
+            calls.append(("timeout", user_id, minutes, reason))
+
+    def _ctx(argv):
+        return WorkflowContext(
+            actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+            request_id="r1", confirmed=False, params={"argv": argv})
+
+    service.install_moderation_actions(FakeActions())
+    try:
+        ctx = _ctx(("<@900000000000000103>", "3"))
+        outcome = asyncio.run(ops._record_timeout(None, ctx))
+        assert ctx.params["_minutes"] == 3
+        assert ctx.params["_reason"] == "3 minutes"
+        assert outcome.after["minutes"] == 3
+        assert outcome.user_message == ("⏳ <@900000000000000103> timed out "
+                                        "for 3 minute(s).")
+        assert calls[-1] == ("timeout", 900000000000000103, 3, "3 minutes")
+        assert rows[-1] == ("timeout", 900000000000000103, "3 minutes")
+
+        ctx = _ctx(("<@900000000000000103>", "5", "being", "rude"))
+        asyncio.run(ops._record_timeout(None, ctx))
+        assert ctx.params["_minutes"] == 5
+        assert ctx.params["_reason"] == "being rude"
+
+        n_calls = len(calls)
+        with pytest.raises(ValidatorError):
+            asyncio.run(ops._record_timeout(
+                None, _ctx(("<@900000000000000103>",))))
+        assert len(calls) == n_calls           # validator fires pre-Discord
+    finally:
+        service.reset_moderation_ports_for_tests()
 
 
 def test_apply_legs_carry_shipped_acks(monkeypatch):
@@ -304,6 +369,9 @@ def test_apply_legs_carry_shipped_acks(monkeypatch):
         async def unban_member(self, guild_id, user_id, *, reason):
             applied.append(("unban", user_id, reason))
 
+        async def fetch_user(self, user_id):
+            applied.append(("fetch_user", user_id))
+
         async def dm_member(self, user_id, text):
             applied.append(("dm", user_id))
 
@@ -314,11 +382,6 @@ def test_apply_legs_carry_shipped_acks(monkeypatch):
                 actor=SimpleNamespace(user_id=42, actor_type="user"),
                 guild_id=1, request_id="r1", confirmed=True, params=params)
 
-        out = asyncio.run(ops._apply_timeout(
-            None, _ctx(_target_id=7, _reason="3 minutes", _minutes=3)))
-        assert out.user_message == "⏳ <@7> timed out for 3 minute(s)."
-        assert applied[-1] == ("timeout", 7, 3, "3 minutes")
-
         out = asyncio.run(ops._apply_kick(
             None, _ctx(_target_id=7, _reason="No reason provided")))
         assert out.user_message == "👢 <@7> kicked. Reason: No reason provided"
@@ -326,6 +389,10 @@ def test_apply_legs_carry_shipped_acks(monkeypatch):
         out = asyncio.run(ops._apply_unban(
             None, _ctx(_target_id=3, _reason="No reason provided")))
         assert out.user_message == "✅ <@3> unbanned."
+        # shipped cog sequencing: fetch_user BEFORE unban (goldens/
+        # moderation/sweep_unban pins get_user then unban)
+        assert applied[-2:] == [("fetch_user", 3),
+                                ("unban", 3, "No reason provided")]
 
         out = asyncio.run(ops._apply_warn_effects(
             None, _ctx(_target_id=7, _escalation="timeout",
@@ -348,12 +415,16 @@ def test_op_reversibility_rollup_and_kick_confirmation():
         return REGISTRY.resolve(WorkflowRef(key)).reversibility
 
     # warn's effect leg declares its escalation compensator (ORDER 004
-    # item 1) — the rollup derives compensatable, ban's class; still no
-    # §2.7 confirm (only irreversible mints the fence).
+    # item 1) — the rollup derives compensatable, ban's class. Kick joined
+    # the same class at the moderation parity flip (2026-07-11): its
+    # compensator withdraws the false history row on a refused kick, and
+    # the D-0029 typed-challenge ConfirmationSpec came OFF — the flip
+    # review D-0029 itself scheduled resolved ORACLE-WINS (the shipped
+    # !kick is no-confirm; goldens/moderation/sweep_kick pins the bytes).
     assert rev("moderation.warn") == "compensatable"
     assert rev("moderation.ban") == "compensatable"
-    assert rev("moderation.kick") == "irreversible"
-    assert KICK.confirmation is not None            # the frozen §2.7 fence
+    assert rev("moderation.kick") == "compensatable"
+    assert KICK.confirmation is None                # oracle-wins, flip review
     assert rev("moderation.clearwarnings") == "reversible"
 
 

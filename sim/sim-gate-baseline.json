@@ -3028,6 +3028,76 @@
    },
    "value": 0
   },
+  "moderation:moderation.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the moderation parity flip carries the shipped ModPanelView arrangement as the seed (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry); goldens/moderation/sweep_modmenu pins the 3/3/1 rows"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "warn",
+       "timeout",
+       "kick"
+      ],
+      [
+       "ban",
+       "unban",
+       "logs"
+      ],
+      [
+       "clearwarn"
+      ]
+     ]
+    }
+   ]
+  },
+  "moderation:moderation.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the moderation parity flip carries the shipped ModPanelView arrangement as the seed (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry); goldens/moderation/sweep_modmenu pins the 3/3/1 rows"
+   },
+   "value": [
+    [
+     "warn",
+     "timeout",
+     "kick"
+    ],
+    [
+     "ban",
+     "unban",
+     "logs"
+    ],
+    [
+     "clearwarn"
+    ]
+   ]
+  },
+  "moderation:moderation.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the moderation parity flip carries the shipped ModPanelView arrangement as the seed (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry); goldens/moderation/sweep_modmenu pins the 3/3/1 rows"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "warn",
+        "timeout",
+        "kick"
+       ],
+       [
+        "ban",
+        "unban",
+        "logs"
+       ],
+       [
+        "clearwarn"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "moderation:moderation:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -3281,12 +3351,6 @@
    "value": ""
   },
   "moderation:warn_timeout_minutes:SettingSpec.panel_order": {
-   "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
-   },
-   "value": 0
-  },
-  "moderation:warnings:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },

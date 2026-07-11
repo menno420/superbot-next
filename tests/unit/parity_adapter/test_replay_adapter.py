@@ -160,24 +160,38 @@ def test_wire_mapping_rendered_panel():
 
 def test_moderation_actions_capture_wire_vocabulary(harness):
     """The GuildModerationActions capture twin records the goldens' wire
-    verbs (edit_member/kick/ban/unban) and is armed by the harness boot —
-    the moderation EFFECT legs must not degrade to PARTIAL in replay."""
-    from sb.adapters.parity.transport import ParityModerationActions
+    verbs (edit_member/kick/ban/unban/get_user) and is armed by the harness
+    boot — the moderation legs must not degrade to PARTIAL in replay.
+    timeout_member records the edit_member call then RAISES the
+    capture-environment member-edit artifact (fake_http's canned PATCH
+    response was unparseable to discord.py, so every captured `!timeout`
+    died after the wire call — goldens/moderation/sweep_timeout pins it)."""
+    import pytest
+
+    from sb.adapters.parity.transport import (
+        CaptureMemberEditParseError,
+        ParityModerationActions,
+    )
     from sb.domain.moderation.service import active_actions
 
     assert isinstance(active_actions(), ParityModerationActions)
 
     actions = active_actions()
-    asyncio.run(actions.timeout_member(1, 2, minutes=3, reason="3 minutes"))
+    with pytest.raises(CaptureMemberEditParseError):
+        asyncio.run(actions.timeout_member(1, 2, minutes=3,
+                                           reason="3 minutes"))
     asyncio.run(actions.kick_member(1, 2, reason="No reason provided"))
     asyncio.run(actions.ban_member(1, 2, reason="r", delete_message_days=1))
     asyncio.run(actions.ban_member(1, 2, reason="r", delete_message_days=0))
+    asyncio.run(actions.fetch_user(3))
     asyncio.run(actions.unban_member(1, 3, reason="No reason provided"))
     calls = harness.take_calls()
     methods = [c.method for c in calls]
-    assert methods == ["edit_member", "kick", "ban", "ban", "unban"]
+    assert methods == ["edit_member", "kick", "ban", "ban", "get_user",
+                       "unban"]
     assert calls[0].payload and "communication_disabled_until" in calls[0].payload
     assert calls[2].args["delete_message_seconds"] == 86400
     assert "delete_message_seconds" not in calls[3].args   # 0 days => omitted
-    assert calls[4].args == {"guild_id": 1, "user_id": 3,
+    assert calls[4].args == {"user_id": 3}
+    assert calls[5].args == {"guild_id": 1, "user_id": 3,
                              "reason": "No reason provided"}

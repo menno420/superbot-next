@@ -168,4 +168,28 @@ def install_live_target_index(manifests: list) -> int:
         return index.get((key, surface))
 
     install_target_index(_lookup)
+    _install_prefix_typo_corpus(index)
     return len(index)
+
+
+def _install_prefix_typo_corpus(
+        index: dict[tuple[str, Surface], TargetRef]) -> None:
+    """Arm the shipped CommandNotFound typo ladder (bot1.py:541-586) with
+    this index's top-level PREFIX names. `is_read` derives from the route
+    kind — only PanelRef opens auto-run silently in the shipped ladder's
+    ported half; Workflow/Handler routes always downgrade to the
+    did-you-mean SUGGEST reply (the shipped DESTRUCTIVE_COMMANDS
+    never-auto-run guard, derived from the manifest instead of a
+    hand-list)."""
+    from sb.kernel.interaction.adapters.fuzzy import install_prefix_typo_corpus
+    from sb.spec.refs import PanelRef
+
+    corpus = frozenset(key for (key, surface) in index
+                       if surface is Surface.PREFIX and " " not in key)
+
+    def _is_read(canonical: str) -> bool:
+        target = index.get((canonical, Surface.PREFIX))
+        route = getattr(getattr(target, "spec", None), "route", None)
+        return isinstance(route, PanelRef)
+
+    install_prefix_typo_corpus(lambda: (corpus, _is_read))

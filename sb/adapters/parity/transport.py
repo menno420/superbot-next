@@ -533,6 +533,12 @@ class ParityAvatarFetcher:
         return _CDN_PNG
 
 
+class CaptureMemberEditParseError(RuntimeError):
+    """The capture world's member-edit artifact (see
+    ParityModerationActions.timeout_member) — a real exception class so
+    findings and tests can name it; NEVER raised by live adapters."""
+
+
 class ParityModerationActions:
     """The GuildModerationActions capture twin — the moderation EFFECT
     legs' Discord state mutations, recorded in the goldens' wire verbs
@@ -559,6 +565,22 @@ class ParityModerationActions:
             {"guild_id": int(guild_id), "user_id": int(user_id),
              "reason": reason},
             {"communication_disabled_until": self._until(int(minutes))})
+        # CAPTURE-ENVIRONMENT ARTIFACT, reproduced deliberately: in the
+        # capture world fake_http answered the edit_member PATCH with a
+        # canned response discord.py could not rebuild a Member from, so
+        # `member.timeout(...)` RAISED *after* the wire call was recorded
+        # and before the shipped service wrote its row or emitted its
+        # event — every captured `!timeout` died in bot1.py's generic
+        # on_command_error (goldens/moderation/sweep_timeout pins the
+        # edit_member call + the generic-error reply + the zero-row,
+        # zero-event delta). kick/ban/unban returned bodyless 204s, so
+        # only the member-edit route carries the artifact. This twin
+        # mirrors the capture environment, not bot behavior — a live
+        # guild-action adapter (D-0049) will simply not raise.
+        raise CaptureMemberEditParseError(
+            "capture-world edit_member response is unparseable to "
+            "discord.py (fake_http canned payload) — the recorded wire "
+            "call stands, the shipped flow raised here")
 
     async def kick_member(self, guild_id: int, user_id: int, *,
                           reason: str) -> None:
@@ -581,6 +603,14 @@ class ParityModerationActions:
         self._transport.record(
             "unban", {"guild_id": int(guild_id), "user_id": int(user_id),
                       "reason": reason})
+
+    async def fetch_user(self, user_id: int) -> None:
+        # the shipped unban's bot.fetch_user() — fake_http recorded the
+        # GET as `get_user` with the bare user_id and answered with a
+        # canned user payload discord.py accepted (the capture unban
+        # SUCCEEDED; goldens/moderation/sweep_unban pins get_user then
+        # unban then the ✅ ack).
+        self._transport.record("get_user", {"user_id": int(user_id)})
 
     async def dm_member(self, user_id: int, text: str) -> None:
         # no golden exercises the courtesy DM (dm_on_action defaults off);
