@@ -1,13 +1,30 @@
-"""BTD6 hub panel (band 7) — the shipped ``!btd6menu`` BTD6PanelView
-declarative. Shipped buttons Ask / Live Events / Units / Rounds / Maps &
-Modes / Strategy / Status become: Tower Lookup + Hero Lookup + Round
-Lookup (G-10 modals over the reference views), Strategies (published
-list), Grounding Check (the retrieval-diagnosis modal), and Live Events
-(ingestion pending terminal). The Ask NL path arms with the K10 message
-shell (slice 3) — until then grounding-check shows exactly what Ask
-would ground."""
+"""BTD6 panels (band 7) — the SHIPPED hub (`!btd6` / `!btd6menu` →
+views/btd6/panel.py BTD6PanelView, Menu Layout B) plus the oracle-card
+presentation panels.
+
+* ``btd6.hub`` — the shipped 🐵 BTD6 Assistant panel byte-for-byte
+  (goldens/btd6/sweep_btd6 + sweep_btd6menu): the Layout-B category hub —
+  row 0 Ask (🧠, green) / Live Events / Units / Rounds; row 1 Maps & Modes
+  / Strategy / Status / 🛠️ Admin — on the shipped PERSISTENT custom_ids
+  (``btd6:ask`` … ``btd6:admin``, carried verbatim via
+  ``custom_id_override``). The shipped view was never anchored in
+  panel_anchors (``session_lifecycle=True`` — the goldens pin the
+  no-anchor-row delta) and never edited on click.
+* ``btd6.card`` — the generic one-embed reply card every `!btd6 <sub>`
+  command presents through (the shipped ``ctx.send(embed=…)``).
+* ``btd6.ctteam`` — the CT-team view + the shipped "Set CT team…" button
+  (session-minted id — the golden's ``<cid:1>``), staff-visible only.
+
+Click routes are golden-UNPINNED (no btd6 golden drives a click): Ask /
+Units / Rounds open the G-10 lookup modals over the reference views;
+Maps & Modes / Status open their catalog cards; Strategy lists published
+strategies; Live Events shows the events usage view; Admin (staff) the
+ops usage view.
+"""
 
 from __future__ import annotations
+
+from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
 from sb.spec.outcomes import DeferMode
@@ -24,11 +41,20 @@ from sb.spec.panels import (
     PanelActionSpec,
     PanelSpec,
     ResultRender,
-    TextBlock,
 )
-from sb.spec.refs import HandlerRef, is_registered, panel
+from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
 
 __all__ = ["btd6_hub_spec", "ensure_panel_refs", "install_btd6_panels"]
+
+ASK_MODAL = ModalSpec(
+    modal_id="btd6.ask_form",
+    title="Ask BTD6 Assistant",
+    fields=(
+        ModalFieldSpec(field_id="name", label="Your question",
+                       required=True, max_length=300),
+    ),
+    on_submit=HandlerRef("btd6.cmd_ask"),
+)
 
 TOWER_MODAL = ModalSpec(
     modal_id="btd6.tower_form",
@@ -38,16 +64,6 @@ TOWER_MODAL = ModalSpec(
                        required=True, max_length=60),
     ),
     on_submit=HandlerRef("btd6.ref_tower_view"),
-)
-
-HERO_MODAL = ModalSpec(
-    modal_id="btd6.hero_form",
-    title="Hero Lookup",
-    fields=(
-        ModalFieldSpec(field_id="name", label="Hero name",
-                       required=True, max_length=60),
-    ),
-    on_submit=HandlerRef("btd6.ref_hero_view"),
 )
 
 ROUND_MODAL = ModalSpec(
@@ -61,92 +77,225 @@ ROUND_MODAL = ModalSpec(
     on_submit=HandlerRef("btd6.ref_round_view"),
 )
 
-GROUNDING_MODAL = ModalSpec(
-    modal_id="btd6.grounding_form",
-    title="Grounding Check",
-    fields=(
-        ModalFieldSpec(field_id="name", label="Your BTD6 question",
-                       required=True, max_length=200),
-    ),
-    on_submit=HandlerRef("btd6.events_grounding_view"),
-)
-
 
 def btd6_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="btd6.hub",
         subsystem="btd6",
-        title="🎈 BTD6 Assistant",
-        audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(
-            TextBlock("Deterministic BTD6 reference over the committed "
-                      "game dataset — towers, heroes, rounds, bosses, "
-                      "paragons — plus the community strategy memory. "
-                      "Natural-language answers ride the grounded AI "
-                      "path (mention the bot)."),
-        ),
+        title="🐵 BTD6 Assistant",
+        audience=Audience.PUBLIC,
+        frame=EmbedFrameSpec(style_token="green", footer_mode=FooterMode.NONE),
         actions=(
+            # row 0 — Ask (modal) + the highest-traffic browse categories.
             PanelActionSpec(
-                action_id="btd6_tower", label="Tower Lookup", emoji="🗼",
+                action_id="ask", label="Ask", emoji="🧠",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("btd6.cmd_ask"),
+                defer_mode=DeferMode.MODAL, modal=ASK_MODAL,
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:ask"),
+            PanelActionSpec(
+                action_id="events", label="Live Events", emoji="🎯",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("btd6.events_usage_view"),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:events"),
+            PanelActionSpec(
+                action_id="units", label="Units", emoji="🗼",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=HandlerRef("btd6.ref_tower_view"),
                 defer_mode=DeferMode.MODAL, modal=TOWER_MODAL,
-                result_render=ResultRender.RESULT_CARD),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:units"),
             PanelActionSpec(
-                action_id="btd6_hero", label="Hero Lookup", emoji="🦸",
-                style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("btd6.ref_hero_view"),
-                defer_mode=DeferMode.MODAL, modal=HERO_MODAL,
-                result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(
-                action_id="btd6_round", label="Round Lookup", emoji="🎯",
+                action_id="rounds", label="Rounds", emoji="🎲",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=HandlerRef("btd6.ref_round_view"),
                 defer_mode=DeferMode.MODAL, modal=ROUND_MODAL,
-                result_render=ResultRender.RESULT_CARD),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:rounds"),
+            # row 1 — reference categories + staff.
             PanelActionSpec(
-                action_id="btd6_strategies", label="Strategies",
-                emoji="📚", audience_tier="user",
-                handler=HandlerRef("btd6.strat_published_view"),
-                result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(
-                action_id="btd6_grounding", label="Grounding Check",
-                emoji="🔎", audience_tier="user",
-                handler=HandlerRef("btd6.events_grounding_view"),
-                defer_mode=DeferMode.MODAL, modal=GROUNDING_MODAL,
-                result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(
-                action_id="btd6_events", label="Live Events", emoji="📡",
+                action_id="maps", label="Maps & Modes", emoji="🗺️",
                 audience_tier="user",
-                handler=HandlerRef("btd6.events_pending"),
-                result_render=ResultRender.RESULT_CARD),
+                handler=HandlerRef("btd6.cmd_diagnostics"),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:maps"),
+            PanelActionSpec(
+                action_id="strategy", label="Strategy", emoji="📋",
+                audience_tier="user",
+                handler=HandlerRef("btd6.strat_published_view"),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:strategy"),
+            PanelActionSpec(
+                action_id="status", label="Status", emoji="📊",
+                audience_tier="user",
+                handler=HandlerRef("btd6.cmd_status"),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:status"),
+            # emoji IN the label (the shipped wire shape — no emoji field).
+            PanelActionSpec(
+                action_id="admin", label="🛠️ Admin",
+                audience_tier="staff",
+                handler=HandlerRef("btd6.ops_usage_view"),
+                result_render=ResultRender.RESULT_CARD,
+                custom_id_override="btd6:admin"),
         ),
-        navigation=NavigationSpec(),
+        # the shipped BTD6PanelView carried its two button rows PLUS the
+        # standard-nav 📚 Help slot (goldens pin the three rows: ask/events/
+        # units/rounds · maps/strategy/status/admin · nav:help) and was
+        # never anchored.
+        navigation=NavigationSpec(show_help=True, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_hub"),
+        justification=(
+            "the shipped hub embed is live-data-parameterized (dataset "
+            "version/counts + per-kind freshness lines) with the command "
+            "legend + ` • ctx=btd6_hub:main` footer — outside FooterMode's "
+            "vocabulary and the static TextBlock grammar. The override "
+            "delegates the component rows to the grammar renderer and "
+            "replaces ONLY the embed (goldens/btd6/sweep_btd6menu pins "
+            "every byte)."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("btd6_tower", "btd6_hero", "btd6_round"),
-            ("btd6_strategies", "btd6_grounding", "btd6_events"),)),)),
+            ("ask", "events", "units", "rounds"),
+            ("maps", "strategy", "status", "admin"),)),)),
     )
 
 
-@panel("btd6.hub")
-def _hub_factory() -> PanelSpec:
-    return btd6_hub_spec()
+def card_spec() -> PanelSpec:
+    """The generic oracle-card reply (one embed, zero components)."""
+    return PanelSpec(
+        panel_id="btd6.card",
+        subsystem="btd6",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_card"),
+        justification=(
+            "the shipped `!btd6 <sub>` replies are fully live-data-"
+            "parameterized embeds built by sb/domain/btd6/oracle_cards.py "
+            "(colors/footers/fields outside the grammar vocabulary — "
+            "goldens/btd6 pins the bytes). Zero components; the renderer "
+            "presents the handler-built RenderedEmbed verbatim."),
+    )
 
 
-def install_btd6_panels() -> PanelSpec:
-    spec = btd6_hub_spec()
-    try:
-        return register_panel(spec)
-    except ValueError as exc:
-        if "already registered" in str(exc) or "duplicate" in str(exc):
-            return spec
-        raise
+def ctteam_spec() -> PanelSpec:
+    """The CT-team view + the shipped staff-only 'Set CT team…' button."""
+    return PanelSpec(
+        panel_id="btd6.ctteam",
+        subsystem="btd6",
+        title="🛡️ BTD6 — Your CT Team",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="set_team", label="Set CT team…", emoji="🛡️",
+                style=ActionStyle.PRIMARY, audience_tier="staff",
+                handler=HandlerRef("btd6.ctteam_set_pending"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_ctteam"),
+        justification=(
+            "the shipped CT-team embed carries the ` • ctx=btd6_ct:team` "
+            "footer and a Manage-Server-only button on a discord.py "
+            "auto-minted id (goldens/btd6/sweep_btd6_ctteam pins the "
+            "<cid:1> mix) — the renderer gates the button on the opener's "
+            "operator fact and delegates minting to the session engine."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("set_team",),)),)),
+    )
+
+
+# --- renderer overrides ------------------------------------------------------
+
+
+async def _render_hub(spec: PanelSpec, ctx) -> object:
+    """Grammar-rendered components + the shipped hub embed bytes."""
+    from sb.domain.btd6 import oracle_cards
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered, embed=oracle_cards.hub_card())
+
+
+async def _render_card(spec: PanelSpec, ctx) -> object:
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    embed = (ctx.params or {}).get("_card")
+    if not isinstance(embed, RenderedEmbed):  # defensive: never a crash
+        embed = RenderedEmbed(title="", description="")
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed,
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
+async def _render_ctteam(spec: PanelSpec, ctx) -> object:
+    from sb.domain.btd6 import oracle_cards
+    from sb.kernel.panels.render import RenderedComponent, RenderedPanel
+
+    components = ()
+    if bool((ctx.params or {}).get("can_manage")):
+        components = (RenderedComponent(
+            kind="button", custom_id=f"{spec.panel_id}.set_team",
+            label="Set CT team…", row=0, style=ActionStyle.PRIMARY.value,
+            emoji="🛡️"),)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=oracle_cards.ctteam_card(),
+        components=components,
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
+# --- registration --------------------------------------------------------------
+
+
+_SPECS = {
+    "btd6.hub": btd6_hub_spec,
+    "btd6.card": card_spec,
+    "btd6.ctteam": ctteam_spec,
+}
+
+_RENDERERS = {
+    "btd6.render_hub": _render_hub,
+    "btd6.render_card": _render_card,
+    "btd6.render_ctteam": _render_ctteam,
+}
+
+
+def _register_refs() -> None:
+    from sb.spec.refs import handler
+
+    for pid, factory in _SPECS.items():
+        if not is_registered(PanelRef(pid)):
+            panel(pid)(factory)
+    for name, fn in _RENDERERS.items():
+        if not is_registered(HandlerRef(name)):
+            handler(name)(fn)
+
+
+_register_refs()
+
+
+def install_btd6_panels() -> tuple[PanelSpec, ...]:
+    out = []
+    for factory in _SPECS.values():
+        spec = factory()
+        try:
+            out.append(register_panel(spec))
+        except ValueError as exc:
+            if "already registered" in str(exc) or "duplicate" in str(exc):
+                out.append(spec)
+            else:
+                raise
+    return tuple(out)
 
 
 def ensure_panel_refs() -> None:
-    from sb.spec.refs import PanelRef as _P
-    from sb.spec.refs import panel as _panel
-
-    if not is_registered(_P("btd6.hub")):
-        _panel("btd6.hub")(_hub_factory)
+    _register_refs()

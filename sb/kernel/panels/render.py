@@ -68,6 +68,18 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
     "blurple": 5793266,       # discord.Color.blurple() — the shipped UX Lab
                               # Home card (views/ux_lab/home.py;
                               # goldens/ux_lab + goldens/uxlab)
+    "light_grey": 9936031,    # discord.Color.light_grey() — the shipped BTD6
+                              # low-confidence response card
+                              # (utils/btd6/response_embed.py;
+                              # goldens/btd6/sweep_btd6_ask)
+    "greyple": 10070709,      # discord.Color.greyple() — the shipped BTD6
+                              # ingestion-readiness "disabled" card
+                              # (cogs/btd6/_builders.py;
+                              # goldens/btd6/sweep_btd6_ops_readiness)
+    "teal": 1752220,          # discord.Color.teal() — the shipped BTD6
+                              # CT-relic detail card (cogs/btd6/_builders.py
+                              # build_ct_relic_embed; unpinned found-relic
+                              # path of the golden-pinned relic command)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

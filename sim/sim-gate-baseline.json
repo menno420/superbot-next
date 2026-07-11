@@ -696,7 +696,25 @@
    },
    "value": 0
   },
+  "btd6:announcechannel:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:ask:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:browse:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:browse:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -715,6 +733,12 @@
    "value": 0
   },
   "btd6:btd6.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:btd6:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -756,7 +780,43 @@
    },
    "value": 0
   },
+  "btd6:ct:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:ctteam:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:diagnostics:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:estimate:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:event:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:event:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:events:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -768,7 +828,19 @@
    },
    "value": 0
   },
+  "btd6:grounding:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:hero:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:hero:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -780,7 +852,19 @@
    },
    "value": 0
   },
+  "btd6:income:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:latest-data:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:latest-data:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -792,7 +876,19 @@
    },
    "value": 0
   },
+  "btd6:leaderboard:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:live:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:live:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -804,7 +900,25 @@
    },
    "value": 0
   },
+  "btd6:mine:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:ops:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:pending:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:pending:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -816,7 +930,19 @@
    },
    "value": 0
   },
+  "btd6:rbe:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:readiness:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:readiness:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -828,7 +954,19 @@
    },
    "value": 0
   },
+  "btd6:refresh-source:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:relic:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:relic:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -840,7 +978,19 @@
    },
    "value": 0
   },
+  "btd6:round:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:runs:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:runs:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -852,7 +1002,19 @@
    },
    "value": 0
   },
+  "btd6:seed-data:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:source-health:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:source-health:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -864,7 +1026,19 @@
    },
    "value": 0
   },
+  "btd6:source_disable:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:source_enable:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:source_enable:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -876,7 +1050,31 @@
    },
    "value": 0
   },
+  "btd6:sources:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:status:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:strat:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:strategies:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:strategies:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -888,7 +1086,19 @@
    },
    "value": 0
   },
+  "btd6:strategy-audit:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:strategy:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:strategy:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -900,13 +1110,37 @@
    },
    "value": 0
   },
+  "btd6:submit:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:test-intent:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:tower:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
+  "btd6:tower:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "btd6:why-no-response:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:why-no-response:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },

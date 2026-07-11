@@ -90,6 +90,33 @@ async def _record_review(conn, ctx: WorkflowContext) -> LegOutcome:
                "message": f"Strategy #{strategy_id} → **{verdict}**."})
 
 
+#: the shipped legacy-KV settings key (utils/settings_keys.py
+#: BTD6_VERSION_ANNOUNCEMENT_CHANNEL, verbatim — the
+#: sweep_btd6_ops_announcechannel golden pins the row bytes).
+ANNOUNCE_CHANNEL_KEY = "btd6_version_announcement_channel"
+
+
+@workflow("btd6.record_announce_channel")
+async def _record_announce_channel(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!btd6 ops announcechannel` — the shipped guild_settings KV upsert
+    (btd6_version_announce.set_channel / clear_channel wrote value "" to
+    disable; the sb/domain/games/tournament_flag.py precedent for shipped
+    guild_settings rows written by an audited domain op)."""
+    from sb.kernel.db.pool import execute
+
+    uid, gid = _ids(ctx)
+    channel_id = ctx.params.get("channel_id")
+    value = str(int(channel_id)) if channel_id else ""
+    await execute(
+        "INSERT INTO guild_settings (guild_id, key, value) "
+        "VALUES ($1, $2, $3) "
+        "ON CONFLICT (guild_id, key) DO UPDATE SET value = EXCLUDED.value",
+        (gid, ANNOUNCE_CHANNEL_KEY, value), conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "announce_channel", True), before={},
+        after={"key": ANNOUNCE_CHANNEL_KEY, "value": value})
+
+
 @workflow("btd6.scrub_strategy_submitter")
 async def _scrub_submitter(conn, ctx: WorkflowContext) -> LegOutcome:
     uid = int(ctx.params.get("subject_user_id")
@@ -115,12 +142,15 @@ SUBMIT = _op("btd6.submit_strategy", "btd6_strategy_submitted",
              "btd6.record_submit_strategy")
 REVIEW = _op("btd6.review_strategy", "btd6_strategy_reviewed",
              "btd6.record_review_strategy", authority="staff")
+ANNOUNCE = _op("btd6.set_announce_channel", "btd6_announce_channel_set",
+               "btd6.record_announce_channel", authority="staff")
 
-_OPS = (SUBMIT, REVIEW)
+_OPS = (SUBMIT, REVIEW, ANNOUNCE)
 
 _REF_TABLE = (
     ("btd6.record_submit_strategy", _record_submit),
     ("btd6.record_review_strategy", _record_review),
+    ("btd6.record_announce_channel", _record_announce_channel),
     ("btd6.scrub_strategy_submitter", _scrub_submitter),
 )
 

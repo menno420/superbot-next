@@ -52,7 +52,7 @@ subsystems:
   ai: pending
   automod: pending
   blackjack: ported
-  btd6: pending
+  btd6: ported
   casino: pending
   chain: pending
   channel: ported
@@ -177,12 +177,29 @@ depth:
     - ops-not-behavior       # instance lock / health server / memory sampler class
     - covered-elsewhere      # covered by a named sibling oracle (cite it)
     - kernel-owned           # surface owned by the kernel coverage home above
+    - modal-driven           # writes sit behind a Discord modal submission — an
+                             # input kind the imported corpus schema does not
+                             # carry (cases reconstruct command/slash/click
+                             # only), so no golden can drive the write
+                             # (vocabulary growth reviewed in the btd6 flip PR,
+                             # per the "reviewed schema change" rule above)
 
   # exemptions:
   #   <subsystem>:
   #     - surface: "event:xp.level_up" | "table:xp" | "setting:xp.enabled"
   #       reason: "<reason-class>: <specifics>"
   exemptions:
+    btd6:
+      - surface: "table:btd6_strategies"
+        reason: "modal-driven: the shipped strategy write flow is the
+          `/btd6 strat submit` Discord modal (views/btd6/strategy_submit.py
+          StrategySubmitModal) — the imported corpus schema has no modal
+          input kind (parity/harness reconstructs command/slash/click
+          only), so no golden can carry the insert; the prefix
+          `!btd6 strat submit` the sweep drives is the shipped
+          modal-pointer string (goldens/btd6/sweep_btd6_strat_submit),
+          and the read surfaces (browse/mine/strategy/pending/strategies)
+          are golden-pinned empty-state reads"
     cleanup:
       # cleanup's three goldens are read-only surfaces (two panel opens
       # + the 0-match history scan) — the word-filter K7 write lane is
@@ -276,6 +293,7 @@ depth:
   #   python3 tools/check_parity_depth.py --write-ratchet
   ratchet:
     blackjack: {events: 2, tables: 6, settings: 1}
+    btd6: {events: 1, tables: 3, settings: 1}
     channel: {events: 1, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
