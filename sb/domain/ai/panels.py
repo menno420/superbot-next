@@ -28,11 +28,13 @@
   "Administrator-only · ephemeral follow-up." footer) over the shipped
   button rows; the Behavior "Advanced" button routes to the policy
   chooser (the shipped punt) and every ↩ AI home back-route rebuilds the
-  hub fresh. The POLICY chooser's scope pickers are LIVE (below); the
-  behavior preset pickers and the tools profile pickers are the
-  behavior-preset / orchestration-mutation slices' ports — honest
-  pending terminals meanwhile (settings_widgets.py
-  `chooser_scope_pending`).
+  hub fresh. The POLICY chooser's scope pickers are LIVE (below), and so
+  are the BEHAVIOR preset pickers (the behavior-preset slice, D-0071 —
+  channel/category/preview + the preset picker below); the behavior
+  ROUTING-MATRIX picker (views/ai/routing/matrix.py) and the tools
+  profile pickers are the routing-matrix / orchestration-mutation
+  slices' ports — honest pending terminals meanwhile
+  (settings_widgets.py `chooser_scope_pending`).
 * ``ai.policy_channel_picker`` / ``ai.policy_category_picker`` /
   ``ai.policy_role_picker`` / ``ai.policy_preview_picker`` /
   ``ai.policy_scope_edit`` / ``ai.policy_role_edit`` /
@@ -97,7 +99,11 @@ from sb.spec.refs import (
 )
 
 __all__ = [
+    "ai_behavior_category_picker_spec",
+    "ai_behavior_channel_picker_spec",
     "ai_behavior_chooser_spec",
+    "ai_behavior_preset_picker_spec",
+    "ai_behavior_preview_picker_spec",
     "ai_card_spec",
     "ai_hub_spec",
     "ai_policy_category_picker_spec",
@@ -336,12 +342,18 @@ def ai_behavior_chooser_spec() -> PanelSpec:
               FieldsBlock(
                   provider=ProviderRef("ai.behavior_chooser_fields"))),
         actions=(
+            # the behavior-preset slice (D-0071): channel/category open
+            # their shipped scope-picker pages, preview opens the shipped
+            # PreviewChannelSelectView reuse under behavior page bytes.
             _scope_action("behavior_channel", "Channel",
-                          ActionStyle.PRIMARY),
+                          ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.behavior_channel_picker")),
             _scope_action("behavior_category", "Category",
-                          ActionStyle.PRIMARY),
+                          ActionStyle.PRIMARY,
+                          handler=PanelRef("ai.behavior_category_picker")),
             _scope_action("behavior_preview", "Preview (dry-run)",
-                          ActionStyle.SECONDARY),
+                          ActionStyle.SECONDARY,
+                          handler=PanelRef("ai.behavior_preview_picker")),
             _scope_action("behavior_matrix", "Routing matrix",
                           ActionStyle.SECONDARY),
             # the shipped Advanced punt — swap to the RAW policy chooser
@@ -508,7 +520,8 @@ _POLICY_PICKER_JUSTIFICATION = (
 def _policy_picker_spec(panel_id: str, *, title: str, instruction: str,
                         kind: SelectorKind, placeholder: str,
                         on_select: str, selector_id: str,
-                        provider_name: str = "") -> PanelSpec:
+                        provider_name: str = "",
+                        navigation: NavigationSpec | None = None) -> PanelSpec:
     """One shipped scope-picker page: the chooser's _scope_page_embed
     (title + instruction) over the scope's single pick-one select.
     ``selector_id`` is per-picker unique — K1 leaf-id claims are
@@ -534,7 +547,7 @@ def _policy_picker_spec(panel_id: str, *, title: str, instruction: str,
                 audience_tier="staff",
                 on_select=HandlerRef(on_select)),
         ),
-        navigation=_BACK_TO_POLICY,
+        navigation=navigation or _BACK_TO_POLICY,
         session_lifecycle=True,
         renderer_override=HandlerRef("ai.render_policy_picker"),
         justification=_POLICY_PICKER_JUSTIFICATION,
@@ -689,6 +702,113 @@ def ai_policy_list_spec() -> PanelSpec:
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("list_prev", "list_next"),
         )),)),
+    )
+
+
+# --- the BEHAVIOR PRESET PICKER pages (views/ai/behavior/* — the
+# --- behavior-preset slice, D-0071; sb/domain/ai/behavior_widgets.py owns
+# --- the routes; the shipped page footer byte is the SAME
+# --- 'Administrator-only · in-place navigation.' literal, so the pages
+# --- ride ai.render_policy_picker) -------------------------------------------
+
+#: every behavior page's shipped "↩ AI Behavior" back-route
+#: (_add_back_to_behavior).
+_BACK_TO_BEHAVIOR = NavigationSpec(
+    show_help=False, show_home=False,
+    extra_routes=(NavRouteSpec(label="↩ AI Behavior",
+                               route=PanelRef("ai.behavior_chooser")),))
+
+
+def ai_behavior_channel_picker_spec() -> PanelSpec:
+    return _policy_picker_spec(
+        "ai.behavior_channel_picker",
+        title="Behavior · channel",
+        instruction="Pick a channel — the next step lists the available "
+                    "presets.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel…",
+        on_select="ai.behavior_channel_pick",
+        selector_id="behavior_channel_pick",
+        navigation=_BACK_TO_BEHAVIOR)
+
+
+def ai_behavior_category_picker_spec() -> PanelSpec:
+    """The shipped _BehaviorCategorySelect was a native category-typed
+    ChannelSelect — the D-0070 ledgered engine lane renders it as the
+    roster-fed string select capped at 25 (the policy category picker's
+    exact deviation)."""
+    return _policy_picker_spec(
+        "ai.behavior_category_picker",
+        title="Behavior · category",
+        instruction="Pick a category — the next step lists the available "
+                    "presets.",
+        kind=SelectorKind.ENTITY,
+        provider_name="ai.policy_category_options",
+        placeholder="Pick a category…",
+        on_select="ai.behavior_category_pick",
+        selector_id="behavior_category_pick",
+        navigation=_BACK_TO_BEHAVIOR)
+
+
+def ai_behavior_preview_picker_spec() -> PanelSpec:
+    """The shipped Behavior Preview button REUSED the policy chooser's
+    PreviewChannelSelectView (behavior/chooser.py imports it) under its
+    own page embed — same select, same dry-run callback
+    (ai.policy_preview_pick), behavior page bytes + the behavior
+    back-route."""
+    return _policy_picker_spec(
+        "ai.behavior_preview_picker",
+        title="Behavior · preview (dry-run)",
+        instruction="Pick a channel to preview the effective AI policy "
+                    "as your user.",
+        kind=SelectorKind.CHANNEL,
+        placeholder="Pick a channel to preview…",
+        on_select="ai.policy_preview_pick",
+        selector_id="behavior_preview_pick",
+        navigation=_BACK_TO_BEHAVIOR)
+
+
+def ai_behavior_preset_picker_spec() -> PanelSpec:
+    """The shipped preset_picker.py page: the catalog embed (one field
+    per preset) over the single pick-one preset select — the pick applies
+    immediately (the shipped _PresetSelect.callback ran apply_preset from
+    the pick; no modal, so no intermediating button is needed on this
+    engine)."""
+    return PanelSpec(
+        panel_id="ai.behavior_preset_picker",
+        subsystem="ai",
+        title="Pick a Behavior preset",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(
+            "Selecting a preset binds it to the picked scope and writes "
+            "through the existing policy chokepoint. Existing min_level "
+            "/ cooldown overrides for that scope are preserved."),),
+        selectors=(
+            SelectorSpec(
+                selector_id="behavior_preset_pick",
+                kind=SelectorKind.ENTITY,
+                options_source=ProviderRef("ai.behavior_preset_options"),
+                placeholder="Pick a preset…",
+                audience_tier="staff",
+                on_select=HandlerRef("ai.behavior_preset_pick")),
+        ),
+        navigation=_BACK_TO_BEHAVIOR,
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_behavior_preset"),
+        justification=(
+            "the shipped build_preset_picker_embed is per-open "
+            "parameterized (views/ai/behavior/preset_picker.py): the "
+            "description interpolates the PICKED scope_label ('Selecting "
+            "a preset binds it to **{scope_label}** and writes through "
+            "the existing policy chokepoint…') and the field rows are "
+            "catalog reads (name='`{key}` · mode=`{mode}`', "
+            "value=headline) — per-render copy outside the static "
+            "grammar. The override delegates to the grammar renderer and "
+            "replaces ONLY description + fields."),
+        layout=LayoutSpec(pages=(PageSpec(
+            rows=(("behavior_preset_pick",),)),)),
     )
 
 
@@ -1129,6 +1249,35 @@ async def _render_policy_picker(spec: PanelSpec, ctx) -> object:
                                          footer=_POLICY_PAGE_FOOTER))
 
 
+async def _render_behavior_preset(spec: PanelSpec, ctx) -> object:
+    """The shipped build_preset_picker_embed page: the scope_label
+    description + one catalog field per preset (name='`{key}` ·
+    mode=`{mode}`', value=headline, ≤25 — the shipped _MAX_OPTIONS
+    cap)."""
+    from sb.domain.ai import behavior_presets as presets
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    scope_label = str((ctx.params or {}).get("behavior_scope_label")
+                      or "the picked scope")
+    description = (
+        f"Selecting a preset binds it to **{scope_label}** and "
+        "writes through the existing policy chokepoint. Existing "
+        "min_level / cooldown overrides for that scope are "
+        "preserved.")
+    try:
+        rows = await presets.list_behavior_presets()
+    except Exception:  # noqa: BLE001 — DB-free replay degrades to no fields
+        rows = []
+    fields = tuple(
+        (f"`{p.key}` · mode=`{p.recommended_mode}`", p.headline, False)
+        for p in rows[:25])
+    return _dc_replace(
+        rendered,
+        embed=_dc_replace(rendered.embed, description=description,
+                          fields=fields))
+
+
 async def _render_policy_edit(spec: PanelSpec, ctx) -> object:
     """The scope edit page: the picked target's prompt (the shipped
     modal-title readout riding the page — the D-0066 class) + the shipped
@@ -1225,6 +1374,12 @@ _SPECS = {
     "ai.policy_scope_edit": ai_policy_scope_edit_spec,
     "ai.policy_role_edit": ai_policy_role_edit_spec,
     "ai.policy_list": ai_policy_list_spec,
+    # the behavior-preset slice (D-0071): the shipped scope pickers, the
+    # preview reuse and the preset picker (views/ai/behavior/*).
+    "ai.behavior_channel_picker": ai_behavior_channel_picker_spec,
+    "ai.behavior_category_picker": ai_behavior_category_picker_spec,
+    "ai.behavior_preview_picker": ai_behavior_preview_picker_spec,
+    "ai.behavior_preset_picker": ai_behavior_preset_picker_spec,
 }
 
 _RENDERERS = {
@@ -1238,6 +1393,7 @@ _RENDERERS = {
     "ai.render_policy_picker": _render_policy_picker,
     "ai.render_policy_edit": _render_policy_edit,
     "ai.render_policy_list": _render_policy_list,
+    "ai.render_behavior_preset": _render_behavior_preset,
 }
 
 _PROVIDERS = {

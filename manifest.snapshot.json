@@ -4898,6 +4898,26 @@
           "value": "ai.policy_list"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.behavior_channel_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.behavior_category_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.behavior_preview_picker"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai.behavior_preset_picker"
+        },
+        {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod.hub"
@@ -6389,6 +6409,11 @@
           "value": "ai_role_policy"
         },
         {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
+          "value": "ai_instruction_profile"
+        },
+        {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6_strategies"
@@ -6706,6 +6731,15 @@
       "handler:admin.subsystems_view": {
         "module": "sb.domain.admin.handlers"
       },
+      "handler:ai.behavior_category_pick": {
+        "module": "sb.domain.ai.behavior_widgets"
+      },
+      "handler:ai.behavior_channel_pick": {
+        "module": "sb.domain.ai.behavior_widgets"
+      },
+      "handler:ai.behavior_preset_pick": {
+        "module": "sb.domain.ai.behavior_widgets"
+      },
       "handler:ai.chooser_scope_pending": {
         "module": "sb.domain.ai.settings_widgets"
       },
@@ -6762,6 +6796,9 @@
       },
       "handler:ai.readiness_view": {
         "module": "sb.domain.ai.service"
+      },
+      "handler:ai.render_behavior_preset": {
+        "module": "sb.domain.ai.panels"
       },
       "handler:ai.render_card": {
         "module": "sb.domain.ai.panels"
@@ -8098,7 +8135,19 @@
       "panel:admin.hub": {
         "module": "sb.domain.operator_spine"
       },
+      "panel:ai.behavior_category_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.behavior_channel_picker": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:ai.behavior_chooser": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.behavior_preset_picker": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.behavior_preview_picker": {
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.card": {
@@ -8583,6 +8632,9 @@
       },
       "provider:ai.behavior_chooser_fields": {
         "module": "sb.domain.ai.panels"
+      },
+      "provider:ai.behavior_preset_options": {
+        "module": "sb.domain.ai.behavior_widgets"
       },
       "provider:ai.enum_edit_options": {
         "module": "sb.domain.ai.panels"
@@ -9753,6 +9805,14 @@
         },
         "subsystem": "ai"
       },
+      "ai_instruction_profile": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "ai_instruction_profile",
+        "sole_writer": {
+          "$ref": "engine:ai.policy_store"
+        },
+        "subsystem": "ai"
+      },
       "ai_review_log": {
         "checkpoint_class": "session",
         "invariant_tag": "ai_review_log",
@@ -10132,7 +10192,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d70edc17aab51d71fe8b61972ba375880018eb300983cc64c7c7829c74e89704",
+  "stable_hash": "sha256:4b074e10d2a44a78ecfc256bb0bf226a125078e664de05dbb7872ddcef0774c2",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -11725,7 +11785,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.behavior_channel_picker"
               },
               "label": "Channel",
               "modal": null,
@@ -11749,7 +11809,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.behavior_category_picker"
               },
               "label": "Category",
               "modal": null,
@@ -11773,7 +11833,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ai.chooser_scope_pending"
+                "$ref": "panel:ai.behavior_preview_picker"
               },
               "label": "Preview (dry-run)",
               "modal": null,
@@ -13129,6 +13189,318 @@
           "timeout_s": 180,
           "title": "AI policy overrides",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel — the next step lists the available presets."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "behavior_channel_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Behavior",
+                "route": {
+                  "$ref": "panel:ai.behavior_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.behavior_channel_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.behavior_channel_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel…",
+              "selector_id": "behavior_channel_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Behavior · channel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a category — the next step lists the available presets."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "behavior_category_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Behavior",
+                "route": {
+                  "$ref": "panel:ai.behavior_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.behavior_category_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.behavior_category_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.policy_category_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a category…",
+              "selector_id": "behavior_category_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Behavior · category",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel to preview the effective AI policy as your user."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped scope-page footer is the STATIC 'Administrator-only · in-place navigation.' literal (views/ai/policy/chooser.py _scope_page_embed set_footer) — copy outside FooterMode's none/subsystem/provenance vocabulary; the override delegates to the grammar renderer and replaces ONLY the footer (the ai.render_chooser precedent).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "behavior_preview_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Behavior",
+                "route": {
+                  "$ref": "panel:ai.behavior_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.behavior_preview_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_policy_picker"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.policy_preview_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel to preview…",
+              "selector_id": "behavior_preview_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Behavior · preview (dry-run)",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Selecting a preset binds it to the picked scope and writes through the existing policy chokepoint. Existing min_level / cooldown overrides for that scope are preserved."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped build_preset_picker_embed is per-open parameterized (views/ai/behavior/preset_picker.py): the description interpolates the PICKED scope_label ('Selecting a preset binds it to **{scope_label}** and writes through the existing policy chokepoint…') and the field rows are catalog reads (name='`{key}` · mode=`{mode}`', value=headline) — per-render copy outside the static grammar. The override delegates to the grammar renderer and replaces ONLY description + fields.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "behavior_preset_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI Behavior",
+                "route": {
+                  "$ref": "panel:ai.behavior_chooser"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.behavior_preset_picker",
+          "renderer_override": {
+            "$ref": "handler:ai.render_behavior_preset"
+          },
+          "selectors": [
+            {
+              "audience_tier": "staff",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:ai.behavior_preset_pick"
+              },
+              "options_source": {
+                "$ref": "provider:ai.behavior_preset_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a preset…",
+              "selector_id": "behavior_preset_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "Pick a Behavior preset",
+          "usage_weight": 1.0
         }
       ],
       "settings": [
@@ -13620,6 +13992,33 @@
             "$ref": "engine:ai.policy_store"
           },
           "table": "ai_role_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:ai.scrub_policy_editor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "ai_instruction_profile",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:ai.policy_store"
+          },
+          "table": "ai_instruction_profile",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

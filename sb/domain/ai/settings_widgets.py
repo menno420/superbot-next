@@ -356,20 +356,14 @@ async def settings_text_submit(req) -> Reply:
 
 _SCOPE_COPY = {
     # the policy chooser's five scope pickers are LIVE (the
-    # policy-mutation slice — sb/domain/ai/policy_widgets.py).
-    # behavior chooser (views/ai/behavior/* — the preset catalog +
-    # instruction-profile binding are their own slice).
-    "behavior_channel": ("The per-channel behavior preset picker ports "
-                         "with the behavior-preset slice."),
-    "behavior_category": ("The per-category behavior preset picker ports "
-                          "with the behavior-preset slice."),
-    "behavior_preview": ("The dry-run preview picker ports with the "
-                         "behavior-preset slice — the Policy chooser's "
-                         "Effective policy picker answers the dual "
-                         "dry-run trace meanwhile."),
-    "behavior_matrix": ("The routing-matrix picker ports with the "
-                        "behavior-preset slice — `!ai routing` lists the "
-                        "task table meanwhile."),
+    # policy-mutation slice — sb/domain/ai/policy_widgets.py), and so are
+    # the behavior chooser's channel/category/preview pickers (the
+    # behavior-preset slice, D-0071 — sb/domain/ai/behavior_widgets.py).
+    "behavior_matrix": ("The routing-matrix picker (views/ai/routing/"
+                        "matrix.py — the channel-pick dry-run resolve "
+                        "card) ports with the routing-matrix follow-up "
+                        "slice — `!ai routing` lists the task table "
+                        "meanwhile."),
     # tools chooser (views/ai/tools/*).
     "tools_guild": ("The guild-default orchestration profile picker ports "
                     "with the orchestration-mutation slice."),
