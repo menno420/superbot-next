@@ -161,8 +161,8 @@ async def _record_sell(conn, ctx: WorkflowContext) -> LegOutcome:
     price = market.sell_price(item)
     if price is None:
         raise ValidatorError(f"❌ `{item}` can't be sold.")
-    held = (await store.get_mining_inventory(uid, gid,
-                                             conn=conn)).get(item, 0)
+    held = (await store.get_mining_inventory(
+        uid, gid, conn=conn, for_update=True)).get(item, 0)
     if held < qty:
         raise ValidatorError(f"❌ You only have **{held}× {item}**.")
     after = await _sell_rows(conn, ctx, [(item, qty, price)])
@@ -173,7 +173,8 @@ async def _record_sell(conn, ctx: WorkflowContext) -> LegOutcome:
 @workflow("mining.record_sell_all")
 async def _record_sell_all(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid, _ = _ids(ctx)
-    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn,
+                                                 for_update=True)
     rows = market.sellable_inventory(inventory)
     if not rows:
         raise ValidatorError("Nothing sellable — mine some ore first!")

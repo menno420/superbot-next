@@ -37,13 +37,45 @@ def _store_marker() -> str:
     return "sb/domain/farm/store.py"
 
 
-async def get_farm(user_id: int, guild_id: int,
-                   conn: Any = None) -> tuple[int, int, int, int]:
+async def get_farm(user_id: int, guild_id: int, conn: Any = None, *,
+                   for_update: bool = False) -> tuple[int, int, int, int]:
     """(chickens, eggs, eggs_updated_at, coop_level) — shipped defaults
-    for a fresh farmer (1 starter hen, level-0 coop, epoch-0 timestamp)."""
+    for a fresh farmer (1 starter hen, level-0 coop, epoch-0 timestamp).
+
+    ``for_update=True`` (the F-001/F-002 fix's farm sibling, PR #213
+    class): every farm K7 leg composes this read inside its own txn ahead
+    of a settle → coin-leg → upsert sequence under
+    ``IdempotencyPosture.NATURAL_KEY`` — a posture whose "intrinsically
+    once" contract puts the WHOLE concurrency fence on the DB legs. A
+    plain SELECT let two concurrent collects both read ``eggs > 0`` and
+    both credit the payout (a pure mint), and let a stale buy/upgrade
+    write pre-collect eggs back over a committed ``eggs=0`` (a re-mint).
+    Two locks close the two halves:
+
+    - ``pg_advisory_xact_lock`` keyed on the SAME (guild, user) pair the
+      ``set_farm`` upsert conflicts on — ``FOR UPDATE`` cannot fence the
+      no-row-yet first-insert race (two concurrent first buys both read
+      the starter defaults, both debit, and one purchase vanishes into
+      the other's upsert); the advisory lock serializes racers before the
+      row exists. Auto-released at commit/rollback
+      (``lock_new_checkpoint_slot`` precedent, sb/domain/games/store.py).
+    - ``FOR UPDATE`` on the row itself — belt for the existing-row case
+      and a fence against non-farm writers (the erasure lane's DELETE).
+
+    Money-bearing legs MUST pass ``for_update=True`` (and therefore a
+    conn); plain reads (panels, leaderboards) stay unlocked."""
+    if for_update:
+        if conn is None:
+            raise ValueError("for_update=True requires the caller's leg "
+                             "conn — a locking read outside a transaction "
+                             "fences nothing")
+        await execute(
+            "SELECT pg_advisory_xact_lock(hashtext($1))",
+            (f"farm:slot:{guild_id}:{user_id}",), conn=conn)
     row = await fetchone(
         "SELECT chickens, eggs, eggs_updated_at, coop_level FROM "
-        "chicken_farm WHERE user_id=$1 AND guild_id=$2",
+        "chicken_farm WHERE user_id=$1 AND guild_id=$2"
+        + (" FOR UPDATE" if for_update else ""),
         (user_id, guild_id), conn=conn)
     if row is None:
         return 1, 0, 0, 0

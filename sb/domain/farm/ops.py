@@ -48,7 +48,8 @@ def _stored(now: int, chickens: int, eggs: int, ts: int,
 @workflow("farm.record_collect")
 async def _record_collect(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid, now = _ids(ctx)
-    chickens, eggs, ts, coop = await store.get_farm(uid, gid, conn=conn)
+    chickens, eggs, ts, coop = await store.get_farm(uid, gid, conn=conn,
+                                                    for_update=True)
     settled = core.settle(_stored(now, chickens, eggs, ts, coop), now)
     if settled.eggs <= 0:
         raise ValidatorError(
@@ -78,7 +79,8 @@ async def _record_collect(conn, ctx: WorkflowContext) -> LegOutcome:
 @workflow("farm.record_buy_chicken")
 async def _record_buy_chicken(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid, now = _ids(ctx)
-    chickens, eggs, ts, coop = await store.get_farm(uid, gid, conn=conn)
+    chickens, eggs, ts, coop = await store.get_farm(uid, gid, conn=conn,
+                                                    for_update=True)
     if not core.can_buy_chicken(chickens):
         raise ValidatorError(
             f"🐔 Your flock is at the cap of **{core.MAX_CHICKENS}** hens "
@@ -116,7 +118,8 @@ async def _record_buy_chicken(conn, ctx: WorkflowContext) -> LegOutcome:
 @workflow("farm.record_upgrade_coop")
 async def _record_upgrade_coop(conn, ctx: WorkflowContext) -> LegOutcome:
     uid, gid, now = _ids(ctx)
-    chickens, eggs, ts, coop = await store.get_farm(uid, gid, conn=conn)
+    chickens, eggs, ts, coop = await store.get_farm(uid, gid, conn=conn,
+                                                    for_update=True)
     if not core.can_upgrade_coop(coop):
         raise ValidatorError(
             f"🏠 Your coop is already maxed at level "

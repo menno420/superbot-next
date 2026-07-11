@@ -59,10 +59,35 @@ def _store_marker() -> str:
 
 
 async def get_mining_inventory(user_id: int, guild_id: int,
-                               conn: Any = None) -> dict[str, int]:
+                               conn: Any = None, *,
+                               for_update: bool = False) -> dict[str, int]:
+    """The user's held items (quantity > 0 only).
+
+    ``for_update=True`` (the F-001/F-002 fix's mining sibling, PR #213
+    class): the sell/sell_all K7 legs compose this read inside their own
+    txn ahead of a decrement → ``wager.credit_in_txn`` sequence under
+    ``IdempotencyPosture.NATURAL_KEY``, and ``update_mining_item``'s
+    decrement floors at zero (``GREATEST(0, …)``) — so with a plain
+    SELECT, two concurrent sells both read ``held=N``, both pass the
+    holdings check, the loser's decrement silently floors instead of
+    failing, and BOTH credit ``N × price``: a double payout for one
+    inventory. The row locks hold until the leg's txn commits, so the
+    second racer blocks here and then re-reads the committed (emptied)
+    stack — a clean denial, never a second credit. ``ORDER BY item_name``
+    keeps multi-row lock acquisition deterministic (no deadlock between
+    two concurrent sell_alls). Selling requires ``held > 0`` (the rows
+    exist), so no advisory no-row fence is needed on this lane.
+
+    Money-bearing legs MUST pass ``for_update=True`` (and a conn); plain
+    reads (loot rolls, panels, totals) stay unlocked."""
+    if for_update and conn is None:
+        raise ValueError("for_update=True requires the caller's leg conn "
+                         "— a locking read outside a transaction fences "
+                         "nothing")
     rows = await fetchall(
         "SELECT item_name, quantity FROM mining_inventory WHERE "
-        "user_id=$1 AND guild_id=$2 AND quantity > 0",
+        "user_id=$1 AND guild_id=$2 AND quantity > 0"
+        + (" ORDER BY item_name FOR UPDATE" if for_update else ""),
         (str(user_id), guild_id), conn=conn)
     return {str(r["item_name"]): int(r["quantity"]) for r in rows}
 

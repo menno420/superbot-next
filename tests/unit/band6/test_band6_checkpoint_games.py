@@ -34,7 +34,8 @@ class FakeFarmStore:
     def install(self, monkeypatch):
         from sb.domain.farm import store as fs
 
-        async def get_farm(user_id, guild_id, conn=None):
+        async def get_farm(user_id, guild_id, conn=None,
+                           for_update=False):
             return self.rows.get((user_id, guild_id), (1, 0, 0, 0))
 
         async def set_farm(conn, *, user_id, guild_id, chickens, eggs,
@@ -206,7 +207,8 @@ class FakeMiningStore:
     def install(self, monkeypatch):
         from sb.domain.mining import store as ms
 
-        async def get_mining_inventory(user_id, guild_id, conn=None):
+        async def get_mining_inventory(user_id, guild_id, conn=None,
+                                        for_update=False):
             return dict(self.inv.get((user_id, guild_id), {}))
 
         async def update_mining_item(conn, *, user_id, guild_id, item,
@@ -346,7 +348,8 @@ def test_mining_inventory_merges_into_inventory(monkeypatch):
     mining_service._source_installed = False
     mining_service.install_inventory_source()
 
-    async def get_mining_inventory(user_id, guild_id, conn=None):
+    async def get_mining_inventory(user_id, guild_id, conn=None,
+                                    for_update=False):
         return {"gold": 3}
 
     async def get_inventory(user_id, guild_id, conn=None):
