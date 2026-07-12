@@ -4506,6 +4506,11 @@
           "value": "cbattle_decline"
         },
         {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "cbattle_rematch"
+        },
+        {
           "source": "sb/manifest/deathmatch.py",
           "subsystem": "deathmatch",
           "value": "dm_fight_bot"
@@ -6108,6 +6113,11 @@
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
           "value": "creature.challenge"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.challenge_select"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -8777,8 +8787,11 @@
       "handler:creature.challenge_decline": {
         "module": "sb.domain.creature.service"
       },
-      "handler:creature.challenge_pick_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:creature.challenge_pick": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.challenge_rematch": {
+        "module": "sb.domain.creature.service"
       },
       "handler:creature.dex_view": {
         "module": "sb.domain.creature.service"
@@ -10161,6 +10174,9 @@
         "module": "sb.domain.creature.panels"
       },
       "panel:creature.challenge": {
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.challenge_select": {
         "module": "sb.domain.creature.panels"
       },
       "panel:creature.collectors_card": {
@@ -12583,7 +12599,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:033f9c9f295802c601b723e6fcbb8b5b9d20847dfec1b4452eee7dea24f4fdd9",
+  "stable_hash": "sha256:2f6fcdc43a09ed728b6d98ee5c3d3ffc30dfdfe5c8682a506523f0da24c057e4",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -25936,7 +25952,7 @@
               "emoji": "⚔️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:creature.challenge_pick_pending"
+                "$ref": "panel:creature.challenge_select"
               },
               "label": "Challenge",
               "modal": null,
@@ -26332,6 +26348,31 @@
               "style": "danger",
               "usage_weight": 1.0,
               "visible_when": ""
+            },
+            {
+              "action_id": "cbattle_rematch",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.challenge_rematch"
+              },
+              "label": "Rematch",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
             }
           ],
           "anchor_policy": "reply",
@@ -26358,6 +26399,9 @@
                   [
                     "cbattle_accept",
                     "cbattle_decline"
+                  ],
+                  [
+                    "cbattle_rematch"
                   ]
                 ]
               }
@@ -26381,6 +26425,75 @@
           "subsystem": "creature",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick the trainer you want to battle. They'll get an Accept / Decline prompt; teams are level-normalized, so your collection and type matchups decide it."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "challenge_opponent"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:creature.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "creature.challenge_select",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "member",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:creature.challenge_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Choose a trainer to battle…",
+              "selector_id": "challenge_opponent",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "⚔️ Challenge a trainer",
           "usage_weight": 1.0
         },
         {
