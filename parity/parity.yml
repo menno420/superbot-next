@@ -89,6 +89,12 @@ source:
   # ledgered in the panel specs), so they are regression tripwires: a
   # deliberate render change re-mints them in the same PR, an accidental one
   # goes red in the gate.
+  # +2 minted the multi-step TOURNAMENT-flow goldens (the D-0073 procedure,
+  # captured in the full-corpus replay trajectory): blackjack/
+  # blackjack_tournament_full_flow (open → Join sign-ups incl. the duplicate
+  # refusal → !bjstart launch → per-entrant round → champion payout, self-
+  # cleaning) and rps_tournament/rps_tournament_foreign_active_refusal (the
+  # #277 cross-game guard — a foreign blackjack flag refuses !rpsregister).
   # WP-1 mining WRITE-PARITY minted FIVE more (2026-07-12) via the same
   # capture_case procedure — the first ROW-BEARING mining write goldens:
   # goldens/mining/mining_{equip,unequip,loadout_save,loadout_apply,
@@ -101,10 +107,10 @@ source:
   # the shipped `<@u> ` mention + oracle copy (mining_workflow verbatim);
   # the audited kernel-spine rows ride the same kernel-surface-drift drop as
   # every domain golden.
-  minted_goldens: 17
+  minted_goldens: 19
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 479). The first retirement (2026-07-12
+  # imported + minted − retired = 481). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

@@ -27,8 +27,8 @@ __all__ = ["Reply", "ensure_handler_refs"]
 
 
 def _target_id(argv: tuple) -> int | None:
-    for token in argv:
-        stripped = str(token).strip("<@!>")
+    if argv:
+        stripped = str(argv[0]).strip("<@!>")
         if stripped.isdigit():
             return int(stripped)
     return None

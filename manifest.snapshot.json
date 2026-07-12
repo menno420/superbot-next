@@ -12583,7 +12583,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:082cad4fb6dda0d269259d6adf26577f333024a8e6c5c91b76357170557a59b6",
+  "stable_hash": "sha256:033f9c9f295802c601b723e6fcbb8b5b9d20847dfec1b4452eee7dea24f4fdd9",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -14455,7 +14455,7 @@
           "session_lifecycle": true,
           "subsystem": "ai",
           "timeout_s": 180,
-          "title": "💤 AI Platform",
+          "title": "AI Platform",
           "usage_weight": 1.0
         },
         {

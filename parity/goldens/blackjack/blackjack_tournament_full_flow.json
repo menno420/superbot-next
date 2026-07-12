@@ -1,0 +1,622 @@
+{
+ "case_id": "blackjack.tournament_full_flow",
+ "db_delta": {
+  "economy_audit_log": {
+   "added": [
+    {
+     "actor_id": "<@second_member>",
+     "delta": 200,
+     "guild_id": "<guild>",
+     "id": 1,
+     "new_balance": 200,
+     "occurred_at": "<ts>",
+     "reason": "blackjack:tournament_free_reward",
+     "user_id": "<@second_member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1950484817,
+     "level": 0,
+     "messages": 2,
+     "user_id": "<@admin>",
+     "xp": 43
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "full tournament wire: open → Join button sign-ups (incl. the 'You're already registered!' duplicate refusal) → !bjstart launch → per-entrant round → all-done settle → champion payout + results embed (self-cleaning: end_tournament + clear_active)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🃏"
+          },
+          "label": "Join Tournament",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "fields": [
+         {
+          "inline": true,
+          "name": "Entry Fee",
+          "value": "Free"
+         },
+         {
+          "inline": true,
+          "name": "Rounds",
+          "value": "1"
+         },
+         {
+          "inline": true,
+          "name": "Duration",
+          "value": "5 min"
+         },
+         {
+          "inline": true,
+          "name": "Players",
+          "value": "0"
+         },
+         {
+          "inline": true,
+          "name": "Pot",
+          "value": "0 🪙"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "React ✅ or click Join to register."
+        },
+        "title": "🃏 Blackjack Tournament — Registration Open",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>",
+      "emoji": "✅",
+      "message_id": "<msg:1>"
+     },
+     "method": "add_reaction"
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!bjtournament 0 1",
+    "kind": "command",
+    "persona": "admin"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "✅ Registered! (1 player(s) so far)"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:3>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "You're already registered!"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:4>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "✅ Registered! (2 player(s) so far)"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "second_member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "Welcome, <@<@member>>! You have **1** rounds and start with **1000** chips. Good luck! 🃏",
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "👊"
+          },
+          "label": "Hit",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "✋"
+          },
+          "label": "Stand",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Dealer (10+?)",
+          "value": "Q ♣  ||?||"
+         },
+         {
+          "inline": false,
+          "name": "Your hand (13)",
+          "value": "2 ♣  A ♥"
+         },
+         {
+          "inline": true,
+          "name": "Bet",
+          "value": "**200** chips"
+         }
+        ],
+        "flags": 0,
+        "title": "🃏 Blackjack Tournament — <@<@member>> · Round 1",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "Welcome, <@<@second_member>>! You have **1** rounds and start with **1000** chips. Good luck! 🃏",
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "👊"
+          },
+          "label": "Hit",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "✋"
+          },
+          "label": "Stand",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Dealer (9+?)",
+          "value": "9 ♣  ||?||"
+         },
+         {
+          "inline": false,
+          "name": "Your hand (9)",
+          "value": "7 ♠  2 ♥"
+         },
+         {
+          "inline": true,
+          "name": "Bet",
+          "value": "**200** chips"
+         }
+        ],
+        "flags": 0,
+        "title": "🃏 Blackjack Tournament — <@<@second_member>> · Round 1",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 18,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 43,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!bjstart",
+    "kind": "command",
+    "persona": "admin"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:5>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:6>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:2>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "👊"
+          },
+          "label": "Hit",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "✋"
+          },
+          "label": "Stand",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 15158332,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Dealer (19)",
+          "value": "Q ♣  5 ♥  4 ♣"
+         },
+         {
+          "inline": false,
+          "name": "Your hand (13)",
+          "value": "2 ♣  A ♥"
+         },
+         {
+          "inline": true,
+          "name": "Bet",
+          "value": "**200** chips"
+         },
+         {
+          "inline": false,
+          "name": "😞 Dealer wins.",
+          "value": "Chips: **800** | Rounds left: **0**"
+         }
+        ],
+        "flags": 0,
+        "title": "🃏 Blackjack Tournament — <@<@member>> · Round 1",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "✅ You finished the tournament with **800** chips!",
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:3>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 3
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:7>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:8>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:4>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "👊"
+          },
+          "label": "Hit",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:5>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "✋"
+          },
+          "label": "Stand",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 3066993,
+        "fields": [
+         {
+          "inline": false,
+          "name": "Dealer (24)",
+          "value": "9 ♣  5 ♦  J ♠"
+         },
+         {
+          "inline": false,
+          "name": "Your hand (9)",
+          "value": "7 ♠  2 ♥"
+         },
+         {
+          "inline": true,
+          "name": "Bet",
+          "value": "**200** chips"
+         },
+         {
+          "inline": false,
+          "name": "🎉 Dealer busts — you win!",
+          "value": "Chips: **1200** | Rounds left: **0**"
+         }
+        ],
+        "flags": 0,
+        "title": "🃏 Blackjack Tournament — <@<@second_member>> · Round 1",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "✅ You finished the tournament with **1200** chips!",
+      "tts": false
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": null,
+      "embeds": [
+       {
+        "color": 15844367,
+        "description": "🥇 **OtherActor** — 1200 chips\n🥈 **MemberActor** — 800 chips",
+        "flags": 0,
+        "title": "🏆 Blackjack Tournament Results",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "economy.balance_changed",
+     "payload": {
+      "delta": 200,
+      "guild_id": "<guild>",
+      "new_balance": 200,
+      "reason": "blackjack:tournament_free_reward",
+      "user_id": "<@second_member>"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:5>",
+    "kind": "click",
+    "persona": "second_member",
+    "target_message": 5
+   }
+  }
+ ],
+ "subsystem": "blackjack"
+}

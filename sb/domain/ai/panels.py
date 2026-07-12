@@ -163,7 +163,12 @@ def ai_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="ai.hub",
         subsystem="ai",
-        title="💤 AI Platform",
+        # AIP-08: the declared title never renders live — renderer_override
+        # (ai.render_hub) swaps the whole embed for the live-state one whose
+        # title is DYNAMIC (f"{status_emoji} AI Platform", emoji ∈ ✅/⚠️/💤;
+        # operator_cards.build_panel_embed). Declared here as the neutral
+        # base form so the spec no longer pins one transient state.
+        title="AI Platform",
         audience=Audience.INVOKER,
         frame=EmbedFrameSpec(style_token="blurple",
                              footer_mode=FooterMode.NONE),
