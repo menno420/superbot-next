@@ -357,6 +357,34 @@ def test_odd_chip_goes_to_earliest_left_of_button():
     assert g.players[2].stack == 37
 
 
+def test_folder_dead_money_swells_the_pot_for_live_contenders():
+    # idx2 (BB) folds after posting; its 2 chips are dead money that swell the
+    # low pot layer but only the live contenders (idx0, idx1) can win them.
+    g = PokerGame(_players(100, 100, 100), button=0, rng=_seed(40))
+    g.begin_hand()
+    _force(
+        g,
+        {0: ("AS", "AD"), 1: ("KS", "KD"), 2: ("QS", "QD")},
+        ["2C", "7H", "9D", "JC", "3S"],
+    )
+    g.act(Action.RAISE, raise_to=6)  # idx0 raises
+    g.act(Action.CALL)  # idx1 (SB) calls to 6
+    g.act(Action.FOLD)  # idx2 (BB) folds, leaving its 2-chip blind behind
+    assert g.stage == Stage.FLOP
+    for _ in range(3):  # flop, turn, river checked down
+        g.act(Action.CHECK)
+        g.act(Action.CHECK)
+    assert g.stage == Stage.COMPLETE
+    assert g.pot_total == 14  # 6 + 6 + 2 (the dead blind)
+    # idx0's aces take the whole pot, dead money included; chips conserve.
+    assert g.players[0].stack == 108  # 100 - 6 + 14
+    assert g.players[1].stack == 94  # 100 - 6
+    assert g.players[2].stack == 98  # 100 - 2 (folded blind lost)
+    assert sum(p.stack for p in g.players) == 300
+    got = {r.user_id: r.amount for r in g.results}
+    assert got == {0: 14}
+
+
 def test_split_pot_even():
     # Heads-up dead heat, even pot → clean split, no odd chip.
     g = PokerGame(_players(100, 100), button=0, rng=_seed(26))
