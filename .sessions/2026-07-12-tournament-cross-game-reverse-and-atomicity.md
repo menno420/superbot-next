@@ -1,6 +1,6 @@
 # 2026-07-12 — Tournament cross-game reverse guard + open-flag atomicity re-ledger
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · high · money-path review follow-up (regression pin + parity-decision doc)
 
@@ -71,9 +71,52 @@ from the oracle — not taken unilaterally.
 - `sb/domain/games/tournament_flag.py` — module-docstring concurrency-
   posture note (no behavior change).
 
+## Follow-up 3 (money-review round-2) — PAID-tournament conservation golden
+
+#302's tournament goldens pinned only the FREE leg (fee=0 / pot=0). The
+PAID-pot money path was unpinned. Minted
+`parity/goldens/blackjack/blackjack_tournament_paid_flow.json` (D-0073
+procedure, `sb/adapters/parity/runner.capture_case`): open a fee-25
+single-round tournament → two pre-funded entrants Join → `!bjstart` debits
+each 25 (`tournament:entry_fee`) → per-entrant round → champion paid the
+pooled 50 pot (`blackjack:tournament_win`) + `clear_active`, self-cleaning.
+The golden's `economy_audit_log` rows ARE the conservation assertion:
+
+```
+member         -25  tournament:entry_fee     new_balance 75
+second_member  -25  tournament:entry_fee     new_balance 75
+second_member  +50  blackjack:tournament_win new_balance 125
+```
+
+two 25 debits sum to the single 50 payout — no coins minted or stranded.
+Entrants pre-funded via `fixture_sql` (outside `db_delta`); fee = the
+sim-pinned test value (a user command arg, not an oracle constant), pot =
+summed stakes, payout reason oracle-verbatim. Refund
+(`blackjack:entry_refund`) is not deterministically reachable in a
+self-settling flow (fires only on the abort/forfeit branch) — noted, not
+pinned. Double-captured byte-identical post-disposition. Count pins
+reconciled: on-disk 476→477, `minted_goldens` 14→15 (`parity.yml` + the
+two count-pin tests).
+
 ## Evidence
 
-<!-- filled at close-out -->
+- `python3 -m pytest tests/ -q` — 2054 passed, 5 skipped (real Postgres,
+  throwaway local instance on :5433).
+- `python3 -m pytest tests/unit/band6/test_band6_blackjack_tournament.py
+  tests/unit/band6/test_band6_rps_tournament.py -q` — 30 passed.
+- `python3 -m pytest tests/unit/parity_adapter tests/unit/parity_gate -q`
+  — 93 passed (the reconciled count pins).
+- `python3 tools/run_golden_parity.py --gate` — GREEN, all 462 golden(s)
+  across 51 ported subsystems replay clean (+1 over baseline: the new
+  paid-tournament golden replays in-trajectory).
+- `python3 tools/check_parity_depth.py` — OK, 477 goldens, no ratchet
+  movement (the golden touches already-covered tables economy_audit_log/xp).
+- `python3 -m pytest tests/integration -q` — 11 passed.
+- `python3 bootstrap.py check --strict` — all checks pass.
+- The reverse guard test red-proofed: neutralizing the blackjack
+  foreign-flag guard makes
+  `test_bjtournament_refuses_when_a_foreign_tournament_is_active` fail;
+  restored, it passes.
 
 ## 💡 Session idea
 
