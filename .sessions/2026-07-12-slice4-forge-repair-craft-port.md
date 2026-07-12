@@ -1,6 +1,6 @@
 # 2026-07-12 — slice 4 port: forge / repair / quickcraft / cook / use (workshop · campfire · consumables)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · high · feature build (Q-0194)
 
@@ -49,7 +49,48 @@ Planned delivery:
 
 ## Verification (local, real Postgres, pristine DB)
 
-_(filled at close-out — see the landing report.)_
+- **golden-parity GATE GREEN — all 444 golden(s) across 51 ported
+  subsystem(s) replay clean** (was 439; the +5 re-home takes it to 444,
+  mining 24 → 29, `_unmapped` 29 → 24), incl. sweep_forge / sweep_repair /
+  sweep_quickcraft / sweep_cook / sweep_use. Each verified byte-identical
+  against the REAL handlers by a targeted `replay_case` pass BEFORE the
+  `git mv` (all five GREEN — the 🔥 Forge card's title / MINING_COLOR frame /
+  Level "**(not built)** (0/2)" / Unlocks / "Next: Forge I → unlocks
+  **gold-tier** gear" 25× iron, 15× stone + **3000** 🪙 / footer / 🔥 Build +
+  ↩ Workshop + nav row bytes, and the four plain guard/read strings), then
+  again in the full gate after.
+- **check_parity_depth: OK — 51 subsystems (50 ported), kernel ported,
+  468 goldens** (the new `table:mining_structures` declared surface held by a
+  `guard-only-capture` exemption; `last_broken_item` rides
+  `mining_player_state`, no new table; R3 ratchet unchanged).
+- **check_migrations: clean (46)** — 0046_mining_structures.sql appended to
+  `checksums.json`. **manifest_compile: green** (snapshot recompiled, P9
+  parity, 48 manifests).
+- **check_money_race: OK — 0 violations** (the audited `!repair`
+  read-then-settle — the wear read that sizes the coin cost ahead of the
+  debit — fenced with `lock_workshop_slot`'s `pg_advisory_xact_lock`, the
+  #213/#217 precedent; the quick-craft material-consume shares the same fence
+  though it is not money-bearing). **check_sim_gate: OK — 520 auto-exempt
+  below-floor** (the new 2-action `mining.forge` panel sits BELOW the
+  4-action floor → auto-exempt, so — unlike slice 3's 5-action vault — it
+  needed NO legacy-seed overlay and NO baseline regeneration).
+- **pytest tests/unit: 1748 passed, 5 skipped** on a pristine DB, run
+  SERIALLY (`-p no:randomly`). `tests/unit/invariants/test_composition_
+  parity.py` green (the 5 now-removed `*_pending` refs — forge/repair/
+  quickcraft/cook/use — pruned from the burn-down; the forge 🔥 Build pending
+  registers at import so it stays import-visible); test_check_money_race +
+  sim_runner green; the mining + band6 suites (240) green.
+- `bootstrap.py check --strict`: the only red was the by-design born-red
+  HOLD while this card declared `in-progress` — flipped `complete` in this
+  final commit; nothing else.
+
+### 5 re-homed goldens (git mv `_unmapped → mining`, subsystem flip only)
+sweep_forge, sweep_repair, sweep_quickcraft, sweep_cook, sweep_use — rename
+similarity R098 (only the `"subsystem"` line changed; asserted
+calls/events/db_delta bytes untouched — #193 law). The forge card is the
+second component-bearing mining golden (after the vault card); its build
+button + the argful cook/use energy lanes stay deferred (D-0043 pending
+terminals), the write-free render/guard paths being the only parity surface.
 
 ## 💡 Session idea
 
