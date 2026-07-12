@@ -274,10 +274,12 @@ async def _taken_names(req) -> set[str]:
 
 
 async def _emit_op(req, *, operation: str, target: str, new_value: str,
-                   applied: list) -> None:
+                   applied: list, failed: list | None = None,
+                   outcome: str = "success") -> None:
     """One shipped lifecycle operation's companions: the best-effort
     audit fact + the advisory lifecycle event, shared mutation_id (the
-    goldens pin both payloads per op)."""
+    goldens pin both payloads per op — always outcome `success` with an
+    empty failed list; the partial branch is reconstruction, unpinned)."""
     import uuid
 
     from sb.domain.channel import service
@@ -289,7 +291,7 @@ async def _emit_op(req, *, operation: str, target: str, new_value: str,
         new_value=new_value, actor_id=_actor_id(req), actor_type="admin")
     await service.emit_channel_lifecycle(
         gid, mutation_id=mutation_id, operation=operation,
-        outcome="success", applied=applied, failed=[])
+        outcome=outcome, applied=applied, failed=list(failed or []))
 
 
 async def _open_card(req, panel_id: str, params: dict) -> None:
@@ -355,6 +357,7 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
         actions = service.active_actions()
         created: list[str] = []
         applied: list[int] = []
+        failed: list[str] = []
         for raw in names:
             safe = service.collision_safe_name(str(raw), taken)
             taken.add(safe)
@@ -364,7 +367,17 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
                     parent_id=(category.channel_id if category else None),
                     reason=None)
             except RuntimeError as exc:
-                return Reply(BLOCKED, f"❌ Could not create channels: {exc}")
+                if not created:
+                    # nothing landed yet — the unarmed-port refusal, no
+                    # events (the moderation-actions posture).
+                    return Reply(BLOCKED,
+                                 f"❌ Could not create channels: {exc}")
+                # partial success stays RECORDED (the shipped service
+                # collected per-step results and emitted ONE companion
+                # pair carrying applied+failed — a created channel never
+                # goes unaudited).
+                failed.append(safe)
+                continue
             created.append(safe)
             applied.append(int(cid))
         await _emit_op(
@@ -372,11 +385,15 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
             new_value=service.create_summary(
                 len(names), category=(category.name if category else None),
                 applied=len(created), total=len(names)),
-            applied=applied)
-        # shipped response builder, verbatim (created/failed blocks; the
-        # port's failure lane aborts wholesale above, so `failed` never
-        # populates here).
-        return Reply(SUCCESS, f"✅ Created: {', '.join(created)}.\n")
+            applied=applied, failed=failed,
+            outcome=("success" if not failed else "partial"))
+        # shipped response builder, verbatim (created/failed blocks).
+        response = ""
+        if created:
+            response += f"✅ Created: {', '.join(created)}.\n"
+        if failed:
+            response += f"❌ Failed: {', '.join(failed)}."
+        return Reply(SUCCESS, response)
 
     @handler("channel.bulkdelete")
     async def bulkdelete(req) -> Reply:
@@ -546,8 +563,16 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
                               "(`!create <name> <@role> <True/False>`)")
         gid = int(req.guild_id or 0)
         try:
-            category = (await _find_category(req, str(argv[3]))
-                        if len(argv) > 3 else None)
+            category = None
+            if len(argv) > 3:
+                category = await _find_category(req, str(argv[3]))
+                if category is None:
+                    # the shipped optional category slot refuses on a
+                    # miss (a converter/guard death, never a silent
+                    # guild-root create); copy unpinned — the module's
+                    # not-found convention.
+                    return Reply(BLOCKED,
+                                 f'Category "{argv[3]}" not found.')
             taken = await _taken_names(req)
         except RuntimeError as exc:
             return Reply(BLOCKED,
@@ -704,12 +729,15 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
             return None
         fields = []
         for cat in (s for s in snaps if s.kind == "category"):
+            # parent relation, never a name match (the shipped
+            # by-category walk — duplicate category names stay distinct).
             lines = [f" - {s.name}" for s in snaps
-                     if s.kind != "category" and s.category == cat.name]
+                     if s.kind != "category"
+                     and s.parent_id == cat.channel_id]
             fields.append((cat.name, "\n".join(lines) or "No channels",
                            False))
         uncat = [f" - {s.name}" for s in snaps
-                 if s.kind != "category" and s.category is None]
+                 if s.kind != "category" and s.parent_id is None]
         if uncat:
             fields.append(("— Uncategorized —", "\n".join(uncat), False))
         await _open_card(req, "channel.list_card", {
@@ -885,10 +913,14 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
             target = await _find_category(req, target_token)
             children = None
             if target is not None:
+                # the shipped _overwrite_channel_ids fan-out is the
+                # category object's OWN children (`tuple(ch.id for ch in
+                # target.channels)` — parent relation, never a name
+                # match; duplicate category names must not cross-hit).
                 snaps = await service.active_directory().list_channels(
                     int(req.guild_id or 0))
                 children = [s for s in snaps if s.kind != "category"
-                            and s.category == target.name]
+                            and s.parent_id == target.channel_id]
             else:
                 target = await _snapshot_for(req, target_token)
                 children = [target] if target is not None else None
