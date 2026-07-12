@@ -385,6 +385,46 @@ def test_folder_dead_money_swells_the_pot_for_live_contenders():
     assert got == {0: 14}
 
 
+def test_orphaned_dead_layer_is_refunded_not_burned():
+    # Chip-conservation regression (Codex P1 on engine.py:496).  A folded
+    # all-in short stack contributes MORE to the pot than any *live* contender
+    # matched, creating a top side-pot layer no un-folded player is eligible
+    # for.  That uncalled money must be returned to its contributor, not
+    # silently dropped.
+    #
+    # Layout: stacks P0=1, P1=1, P2=3, button=0.  P1 posts SB all-in (1), P2
+    # posts BB (2), P0 calls all-in (1), then P2 folds facing nothing to call.
+    # Contributions at showdown are {0:1, 1:1, 2:2}: the level-1 layer (3
+    # chips) is contested by P0+P1; the level-2 layer (1 chip) is pure dead
+    # money from P2's uncalled blind — no contender committed 2 — so it must
+    # be refunded to P2.
+    g = PokerGame(_players(1, 1, 3), button=0, rng=_seed(41))
+    g.begin_hand()
+    _force(
+        g,
+        {0: ("AS", "AD"), 1: ("KS", "KD"), 2: ("QS", "QD")},
+        ["2C", "7H", "9D", "JC", "3S"],
+    )
+    before = sum(p.stack + p.committed_hand for p in g.players)
+    assert before == 5
+    g.act(Action.CALL)  # P0 (first to act) calls all-in for 1
+    g.act(Action.FOLD)  # P2 (BB) folds with nothing to call
+    assert g.stage == Stage.COMPLETE
+    assert g.pot_total == 4  # 1 + 1 + 2 (P2's full posted blind)
+    # P0's aces take the 3-chip contested layer; P2's uncalled odd chip comes
+    # back; not one chip is burned.
+    assert g.players[0].stack == 3  # won the 3-chip main layer
+    assert g.players[1].stack == 0  # lost, was all-in
+    assert g.players[2].stack == 2  # 1 left after the blind + 1 refunded
+    # Pot-conservation invariant: total table chips are unchanged.
+    assert sum(p.stack for p in g.players) == 5
+    # Result awards (the contested pot) plus refunds reconcile to the pot.
+    awarded = sum(r.amount for r in g.results)
+    assert awarded == 3
+    got = {r.user_id: r.amount for r in g.results}
+    assert got == {0: 3}  # the refund is a return of dead money, not a "win"
+
+
 def test_split_pot_even():
     # Heads-up dead heat, even pot → clean split, no odd chip.
     g = PokerGame(_players(100, 100), button=0, rng=_seed(26))

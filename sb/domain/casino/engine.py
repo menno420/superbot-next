@@ -7,8 +7,18 @@ expose the same ``Card`` / ``make_deck`` and ``HandRank`` / ``best_hand``
 names, so no symbol rename was needed) plus one non-behavioral addition: the
 :meth:`PokerGame.snapshot` / :meth:`PokerGame.to_state` serializable
 table-state reader (the clean headless shape downstream goldens / the
-table-flow layer consume). The betting/pot semantics are byte-for-byte the
-oracle's.
+table-flow layer consume).
+
+The betting/pot semantics are the oracle's, with **one deliberate deviation**
+(a chip-conservation correctness fix, not a payout/balance change): in
+:meth:`_settle_showdown`, a side-pot layer reached only by *folded* players
+(no un-folded contender is eligible to win it) is **refunded to its
+contributors** instead of being silently dropped.  The oracle burns that
+uncalled money, so a chip can vanish — e.g. stacks ``P0=1, P1=1, P2=3`` with a
+folded all-in blind leaves a 1-chip orphan layer, breaking ``sum(winnings) ==
+pot_total``.  ⚑ The same bug exists upstream in the oracle and should be
+flagged to the Ideas Lab / fixed upstream; this port cannot faithfully carry a
+chip-nonconservation bug into a play-money table.
 
 Owns one poker *table* of seated players and drives a hand through its betting
 rounds (preflop → flop → turn → river → showdown), including blinds, the
@@ -486,6 +496,7 @@ class PokerGame:
             if p.committed_hand > 0
         }
         winnings: dict[int, int] = defaultdict(int)
+        refunds: dict[int, int] = defaultdict(int)
         labels: dict[int, str] = {}
 
         levels = sorted(set(contributions.values()))
@@ -504,9 +515,21 @@ class PokerGame:
                     labels[w] = ranks[w].label
                 for w in ordered_winners[:remainder]:
                     winnings[w] += 1
+            elif layer > 0:
+                # Orphaned dead layer: only *folded* players reached this depth,
+                # so no un-folded contender is eligible to win it.  This is
+                # uncalled money — return it to each contributor (each put in
+                # ``level - prev`` here) rather than silently burning it, which
+                # keeps the pot conserved to the chip.  DEVIATION from the
+                # verbatim oracle, which drops this layer (see PR note / ⚑).
+                for i, c in contributions.items():
+                    if c >= level:
+                        refunds[i] += level - prev
             prev = level
 
         for i, amt in winnings.items():
+            self.players[i].stack += amt
+        for i, amt in refunds.items():
             self.players[i].stack += amt
 
         self.results = [
