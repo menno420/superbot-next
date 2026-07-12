@@ -1,6 +1,6 @@
 # 2026-07-12 — CAPABILITIES ledger: verified worker-session port-oracle path (+ pytest env facts)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude (Fable family) · docs-only ledger append, no product code
 
