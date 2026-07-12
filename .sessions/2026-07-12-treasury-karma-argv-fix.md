@@ -113,3 +113,29 @@ strictly POSITIONAL —
 Question posted on the PR head per the directive; codex is currently
 usage-capped — outcome recorded in the PR thread (non-review noted here
 if it replies with a limits message).
+
+## 💡 Session idea
+
+The scan-class defect is now fixed in all three ops files (#275 xp,
+this PR treasury + karma), but the anti-pattern SHAPE still exists in
+`sb/domain/karma/handlers.py` `_target_id` (view lane, benign today)
+and nothing stops the next domain from re-seeding it. #275's card
+already proposed the checker — flag any `for token in argv` loop
+feeding a target/amount binding; this slice seconds it with a concrete
+allowlist seed: the one legitimate survivor is the optional-member
+VIEW lane (actor fallback), which a checker could recognize by the
+`return None`/actor-default tail instead of a raise.
+
+## ⟲ Previous-session review
+
+#275's sibling-scan section was exactly the right artifact: it made
+this slice a precise work order (both defects file:line-cited with
+severity honestly ranked — treasury "fails loudly", karma "could
+mis-target"). What it under-called: the karma reason digit-filter.
+The card framed karma as "target-scan half, amount param-only", but
+re-deriving the oracle's `*, reason` rest-slot semantics showed the
+digit-FILTER in `_reason_from` was the same scan's other half (eats
+digits out of recorded reasons) — patching only the named helper would
+have left half the defect in place. Same lesson as #275's own
+actor-fallback finding: re-derive the shipped signature, don't patch
+the named line alone.
