@@ -222,6 +222,52 @@ def profile_card_spec() -> PanelSpec:
     return _info_card_spec("utility.profile_card", "", "")
 
 
+def bot_info_spec() -> PanelSpec:
+    """The shipped ``!botinfo`` census embed (utility_cog.botinfo —
+    goldens/utility/sweep_botinfo pins the bytes)."""
+    return _info_card_spec("utility.bot_info", "", "blue")
+
+
+def member_census_spec() -> PanelSpec:
+    """The shipped ``!membercount`` embed (utility_cog.membercount —
+    goldens/utility/sweep_membercount pins the bytes)."""
+    return _info_card_spec("utility.member_census", "", "blue")
+
+
+def user_card_spec() -> PanelSpec:
+    """The shipped ``!userinfo`` / ``!info user`` six-field member card
+    (utility_cog.info user branch; SUCCESS_COLOR —
+    goldens/utility/sweep_userinfo pins the bytes). Distinct from the
+    panel button's two-field ``utility.user_info`` summary (a separate
+    shipped call site, unpinned)."""
+    return _info_card_spec("utility.user_card", "", "green")
+
+
+def error_card_spec() -> PanelSpec:
+    """The shipped red refusal embed (utils/embeds.py ``error``) the
+    utility cog sent for every argument guard (poll/remind/clear) — the
+    karma.error_card pattern, verbatim envelope."""
+    return PanelSpec(
+        panel_id="utility.error_card",
+        subsystem="utility",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="red", footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("utility.error_card_render"),
+        justification=(
+            "the shipped refusal is the shared utils/embeds.error "
+            "envelope: a bare description embed '❌ {message}' with the "
+            "ERROR_COLOR red accent and no title/fields/footer "
+            "(goldens/utility/sweep_poll pins the bytes) — the "
+            "description is run-parameterized refusal copy, outside the "
+            "static grammar TextBlock vocabulary. Zero components; the "
+            "renderer only composes the embed."),
+        session_lifecycle=True,
+    )
+
+
 # --- renderer overrides ---------------------------------------------------------
 
 async def _render_utility_panel(spec: PanelSpec, ctx) -> object:
@@ -318,6 +364,51 @@ async def _render_user_info(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+async def _render_param_card(spec: PanelSpec, ctx) -> object:
+    """The shared param-driven info card (the general.card pattern grown
+    footer/thumbnail): title/description/fields/footer/thumbnail arrive
+    as open params — the shipped utility_cog embeds are composed at the
+    command body from live reads, so the handler owns every byte and the
+    renderer only assembles (goldens/utility/sweep_botinfo,
+    sweep_membercount, sweep_userinfo pin the bytes; the accent rides the
+    spec's style_token — INFO_COLOR blue / SUCCESS_COLOR green)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    fields = tuple(tuple(f) for f in params.get("card_fields", ()) or ())
+    embed = RenderedEmbed(
+        title=str(params.get("card_title", "") or ""),
+        description=str(params.get("card_description", "") or ""),
+        fields=fields,
+        footer=str(params.get("card_footer", "") or ""),
+        thumbnail_ref=str(params.get("card_thumbnail", "") or ""),
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
+async def _render_error_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — utils/embeds.py ``error`` verbatim: the
+    ``❌ {message}`` description on the red accent, nothing else (the
+    karma.error_card render, same envelope)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    message = str(params.get("error_text", "") or "")
+    embed = RenderedEmbed(
+        title="",
+        description=f"❌ {message}",
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 async def _render_profile_card(spec: PanelSpec, ctx) -> object:
     """The /myprofile hero-card send (profile_card.py owns the bytes; the
     goldens pin the multipart send shape — filenames only)."""
@@ -348,6 +439,10 @@ _SPECS = {
     "utility.server_info": server_info_spec,
     "utility.user_info": user_info_spec,
     "utility.profile_card": profile_card_spec,
+    "utility.bot_info": bot_info_spec,
+    "utility.member_census": member_census_spec,
+    "utility.user_card": user_card_spec,
+    "utility.error_card": error_card_spec,
 }
 
 _RENDERERS = {
@@ -357,6 +452,10 @@ _RENDERERS = {
     "utility.server_info_render": _render_server_info,
     "utility.user_info_render": _render_user_info,
     "utility.profile_card_render": _render_profile_card,
+    "utility.bot_info_render": _render_param_card,
+    "utility.member_census_render": _render_param_card,
+    "utility.user_card_render": _render_param_card,
+    "utility.error_card_render": _render_error_card,
 }
 
 

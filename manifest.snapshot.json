@@ -3603,6 +3603,70 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "botinfo"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "info"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "userinfo"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "membercount"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "poll"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "remind"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "invite"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "surface": "prefix",
+          "value": "clear"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/ux_lab.py",
           "subsystem": "ux_lab",
           "surface": "prefix",
@@ -6464,6 +6528,26 @@
           "value": "utility.profile_card"
         },
         {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.bot_info"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.member_census"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.user_card"
+        },
+        {
+          "source": "sb/manifest/utility.py",
+          "subsystem": "utility",
+          "value": "utility.error_card"
+        },
+        {
           "source": "sb/manifest/ux_lab.py",
           "subsystem": "ux_lab",
           "value": "ux_lab.home"
@@ -9274,11 +9358,35 @@
       "handler:utility.avatar_view": {
         "module": "sb.domain.utility.handlers"
       },
+      "handler:utility.bot_info_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.botinfo_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.clear_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.error_card_render": {
+        "module": "sb.domain.utility.panels"
+      },
       "handler:utility.four_twenty_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:utility.info_view": {
+        "module": "sb.domain.utility.handlers"
+      },
       "handler:utility.invite_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:utility.invite_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.member_census_render": {
+        "module": "sb.domain.utility.panels"
+      },
+      "handler:utility.membercount_view": {
+        "module": "sb.domain.utility.handlers"
       },
       "handler:utility.menu_view": {
         "module": "sb.domain.utility.handlers"
@@ -9292,6 +9400,9 @@
       "handler:utility.poll_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:utility.poll_view": {
+        "module": "sb.domain.utility.handlers"
+      },
       "handler:utility.pong_render": {
         "module": "sb.domain.utility.panels"
       },
@@ -9300,6 +9411,9 @@
       },
       "handler:utility.remind_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:utility.remind_view": {
+        "module": "sb.domain.utility.handlers"
       },
       "handler:utility.render_panel": {
         "module": "sb.domain.utility.panels"
@@ -9310,10 +9424,16 @@
       "handler:utility.server_info_view": {
         "module": "sb.domain.utility.handlers"
       },
+      "handler:utility.user_card_render": {
+        "module": "sb.domain.utility.panels"
+      },
       "handler:utility.user_info_render": {
         "module": "sb.domain.utility.panels"
       },
       "handler:utility.user_info_view": {
+        "module": "sb.domain.utility.handlers"
+      },
+      "handler:utility.userinfo_view": {
         "module": "sb.domain.utility.handlers"
       },
       "handler:ux_lab.buttons_wing": {
@@ -9973,6 +10093,15 @@
       "panel:utility.avatar_card": {
         "module": "sb.domain.utility.panels"
       },
+      "panel:utility.bot_info": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.error_card": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.member_census": {
+        "module": "sb.domain.utility.panels"
+      },
       "panel:utility.panel": {
         "module": "sb.domain.utility.panels"
       },
@@ -9983,6 +10112,9 @@
         "module": "sb.domain.utility.panels"
       },
       "panel:utility.server_info": {
+        "module": "sb.domain.utility.panels"
+      },
+      "panel:utility.user_card": {
         "module": "sb.domain.utility.panels"
       },
       "panel:utility.user_info": {
@@ -11776,7 +11908,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:582963b0d5c42fb53caf2793e441b21e6c7843dedf679a104415ce8e26818d84",
+  "stable_hash": "sha256:a8616c6adcac00eb0741034b854a84caed1c681d191f79c0b9f8172c7b85d7f6",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -33498,7 +33630,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "6 command(s), generated from the `utility` manifest."
+              "text": "14 command(s), generated from the `utility` manifest."
             },
             {
               "provider": {
@@ -47058,6 +47190,204 @@
           "summary": "View your per-server profile card.",
           "usage": "!myprofile",
           "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "about"
+          ],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "botinfo",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.botinfo_view"
+          },
+          "slash_common": false,
+          "summary": "Show information about the bot — servers, uptime, latency, version.",
+          "usage": "!botinfo",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "info",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.info_view"
+          },
+          "slash_common": false,
+          "summary": "Show server or user info.",
+          "usage": "!info [server|user] [@mention]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "userinfo",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.userinfo_view"
+          },
+          "slash_common": false,
+          "summary": "Show a member's profile details.",
+          "usage": "!userinfo [@member]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "members"
+          ],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "membercount",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.membercount_view"
+          },
+          "slash_common": false,
+          "summary": "Show this server's member count — humans, bots, and total.",
+          "usage": "!membercount",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "poll",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.poll_view"
+          },
+          "slash_common": false,
+          "summary": "Create a simple reaction poll.",
+          "usage": "!poll <question> <option1> <option2> [...]",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "remind",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.remind_view"
+          },
+          "slash_common": false,
+          "summary": "Set a reminder.",
+          "usage": "!remind <minutes> <message>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "invite",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.invite_view"
+          },
+          "slash_common": false,
+          "summary": "Generate a one-use server invite.",
+          "usage": "!invite",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "purge"
+          ],
+          "audience_tier": "moderator",
+          "capability": "utility",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "clear",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:utility.clear_view"
+          },
+          "slash_common": false,
+          "summary": "Purge messages. Max 100.",
+          "usage": "!clear [amount]",
+          "usage_weight": 1.0
         }
       ],
       "data_invariants": [],
@@ -47541,6 +47871,162 @@
           "panel_id": "utility.profile_card",
           "renderer_override": {
             "$ref": "handler:utility.profile_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.bot_info",
+          "renderer_override": {
+            "$ref": "handler:utility.bot_info_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.member_census",
+          "renderer_override": {
+            "$ref": "handler:utility.member_census_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (guild/member/latency reads at send time — utility_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.user_card",
+          "renderer_override": {
+            "$ref": "handler:utility.user_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "utility",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped refusal is the shared utils/embeds.error envelope: a bare description embed '❌ {message}' with the ERROR_COLOR red accent and no title/fields/footer (goldens/utility/sweep_poll pins the bytes) — the description is run-parameterized refusal copy, outside the static grammar TextBlock vocabulary. Zero components; the renderer only composes the embed.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "utility.error_card",
+          "renderer_override": {
+            "$ref": "handler:utility.error_card_render"
           },
           "selectors": [],
           "session_lifecycle": true,

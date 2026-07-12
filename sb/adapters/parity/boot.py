@@ -119,7 +119,7 @@ class _WorldGuildDirectory:
     #: "temporarily add to the cache" path), so every capture-time guild
     #: read saw the 4 world channels PLUS 4 bot-created text channels —
     #: every Server Information golden pins "Text Channels: 8"
-    #: (utility/sweep_serverinfo, _unmapped/sweep_info). The new bot's
+    #: (utility/sweep_serverinfo, utility/sweep_info). The new bot's
     #: channel-provisioning bands are pending; until they port, the fixture
     #: carries the capture-time count.
     _SHIPPED_BOOT_TEXT_CHANNELS = 4
@@ -592,12 +592,37 @@ class Harness:
         # no-heartbeat gateway probe (the old harness's bot.latency was nan
         # — goldens/utility/sweep_ping pins "nan ms").
         from sb.domain.utility.service import (
+            BotIdentity,
+            install_bot_identity,
             install_gateway_probe,
             install_guild_directory,
+            install_message_purger,
         )
 
         install_guild_directory(_WorldGuildDirectory(self.world))
         install_gateway_probe(lambda: float("nan"))
+        # the `!botinfo` census — the CAPTURE environment's own values,
+        # verbatim (the RuntimeIdentity precedent: capture identity is
+        # world state, not bot behavior). goldens/utility/sweep_botinfo
+        # pins every byte: 1 guild, 4 members (3 personas + the bot),
+        # the shipped registry's len(set(bot.walk_commands())) == 406 at
+        # capture, the corpus environment's discord.py 2.7.1, and the
+        # on_ready-to-case uptime under one minute ("0m").
+        install_bot_identity(lambda: BotIdentity(
+            name="GalaxyBotParity",
+            avatar_url=("https://cdn.discordapp.com/embed/avatars/"
+                        f"{(World.BOT_USER_ID >> 22) % 6}.png"),
+            guild_count=1,
+            user_count=len(DEFAULT_PERSONAS) + 1,
+            command_count=406,
+            library="discord.py 2.7.1",
+            uptime_s=0,
+        ))
+        # the `!clear` purge port — the SAME history-read twin the
+        # cleanup/xp scans ride (goldens' `logs_from` wire verb over the
+        # capture world's empty backlog; goldens/utility/sweep_clear
+        # pins limit 5 and the 0-deleted reply).
+        install_message_purger(ParityHistoryReader(self.http))
         # the role guild-view + effect ports — the capture world's own
         # gateway cache (goldens/role/sweep_debugroles, sweep_roleinfo,
         # sweep_assignroles, sweep_deleterole) plus the create-role and

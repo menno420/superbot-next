@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.invite",
+ "case_id": "sweep.userinfo",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:2>",
+     "message_id": "<msg:1>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1952481755,
+     "last_xp": 1808779882,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,29 +45,58 @@
    "calls": [
     {
      "args": {
-      "channel_id": "<#general>",
-      "reason": null
-     },
-     "method": "create_invite",
-     "payload": {
-      "flags": null,
-      "max_age": 0,
-      "max_uses": 1,
-      "target_application_id": null,
-      "target_type": null,
-      "target_user_id": null,
-      "temporary": false,
-      "unique": true
-     }
-    },
-    {
-     "args": {
       "channel_id": "<#general>"
      },
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "⚠️ An unexpected error occurred. Please try again.",
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "fields": [
+         {
+          "inline": true,
+          "name": "Username",
+          "value": "AdminActor"
+         },
+         {
+          "inline": true,
+          "name": "User ID",
+          "value": "<@admin>"
+         },
+         {
+          "inline": true,
+          "name": "Joined Server",
+          "value": "2026-01-01"
+         },
+         {
+          "inline": true,
+          "name": "Joined Discord",
+          "value": "2021-10-19"
+         },
+         {
+          "inline": true,
+          "name": "Status",
+          "value": "Offline"
+         },
+         {
+          "inline": true,
+          "name": "Activity",
+          "value": "None"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Requested by AdminActor#0000"
+        },
+        "thumbnail": {
+         "url": "https://cdn.discordapp.com/embed/avatars/1.png"
+        },
+        "title": "User Info — AdminActor#0000",
+        "type": "rich"
+       }
+      ],
       "tts": false
      }
     },
@@ -94,11 +123,11 @@
     }
    ],
    "input": {
-    "content": "!invite",
+    "content": "!userinfo",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "utility"
 }

@@ -101,7 +101,12 @@ class ChannelStateActions(Protocol):
     ``create_channel`` — overwrites ride IN the create payload, the
     oracle's guild_resources.ensure_channel create path; returns the new
     channel id), ``delete_channel`` the channel DELETE (fake_http
-    ``delete_channel``).
+    ``delete_channel``), ``create_invite`` the channel-invite POST
+    (fake_http ``create_invite`` — the shipped ``!invite``
+    ``ctx.channel.create_invite(max_uses=1, unique=True)``; returns the
+    minted invite URL. Joined at the utility ``!invite`` re-home: an
+    invite is a channel op, so it rides THIS port rather than a new
+    seam — goldens/utility/sweep_invite pins the wire shape).
 
     Contracts the callers rely on (D-0077): get-before-create/idempotent
     reuse is DOMAIN logic (the oracle's ensure_setup_channel), never the
@@ -122,6 +127,9 @@ class ChannelStateActions(Protocol):
             parent_id: int | None, reason: str | None) -> int: ...
     async def delete_channel(self, channel_id: int, *,
                              reason: str | None) -> None: ...
+    async def create_invite(self, channel_id: int, *, max_age: int,
+                            max_uses: int, temporary: bool, unique: bool,
+                            reason: str | None) -> str: ...
 
 
 class _NoActions:
@@ -132,7 +140,7 @@ class _NoActions:
             "(sb/domain/channel/service.install_channel_actions)")
 
     set_slowmode = set_overwrite = _refuse
-    create_text_channel = delete_channel = _refuse
+    create_text_channel = delete_channel = create_invite = _refuse
 
 
 _actions: ChannelStateActions = _NoActions()  # type: ignore[assignment]

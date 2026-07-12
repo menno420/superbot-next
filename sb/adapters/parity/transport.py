@@ -750,6 +750,42 @@ class ParityChannelStateActions:
             "delete_channel",
             {"channel_id": int(channel_id), "reason": reason})
 
+    async def create_invite(self, channel_id: int, *, max_age: int,
+                            max_uses: int, temporary: bool, unique: bool,
+                            reason: str | None) -> str:
+        # fake_http.create_invite verbatim: args {channel_id, reason} +
+        # the discord.py 2.x HTTP create_invite BODY as the payload —
+        # the shipped `ctx.channel.create_invite(max_uses=1, unique=True)`
+        # sent every default field named (flags/target_* ride as nulls;
+        # goldens/utility/sweep_invite pins all eight keys).
+        self._transport.record(
+            "create_invite",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"flags": None, "max_age": int(max_age),
+             "max_uses": int(max_uses), "target_application_id": None,
+             "target_type": None, "target_user_id": None,
+             "temporary": bool(temporary), "unique": bool(unique)})
+        # CAPTURE-ENVIRONMENT ARTIFACT, reproduced deliberately (the
+        # edit_member precedent below): fake_http answered the POST with
+        # a canned invite payload discord.py could not rebuild an Invite
+        # from, so the shipped `create_invite(...)` RAISED *after* the
+        # wire call was recorded and before the "Here is your invite
+        # link" send — every captured `!invite` died in bot1.py's
+        # generic on_command_error (goldens/utility/sweep_invite pins
+        # the create_invite call + the generic-error reply). This twin
+        # mirrors the capture environment, not bot behavior — a live
+        # invite adapter will simply not raise.
+        raise CaptureInviteParseError(
+            "capture-world create_invite response is unparseable to "
+            "discord.py (fake_http canned payload) — the recorded wire "
+            "call stands, the shipped flow raised here")
+
+
+class CaptureInviteParseError(RuntimeError):
+    """The capture world's channel-invite artifact (see
+    ParityChannelStateActions.create_invite) — a real exception class so
+    findings and tests can name it; NEVER raised by live adapters."""
+
 
 class CaptureMemberEditParseError(RuntimeError):
     """The capture world's member-edit artifact (see
