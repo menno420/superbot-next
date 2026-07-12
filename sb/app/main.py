@@ -50,7 +50,7 @@ from pathlib import Path
 logger = logging.getLogger("sb.app.main")
 
 __all__ = ["ESCROW_RECOVERY_SUBSYSTEMS", "SUBSCRIBE_ROSTER", "cli",
-           "guild_sync_target", "run_app"]
+           "guild_sync_target", "moderation_test_guild", "run_app"]
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -122,6 +122,20 @@ def guild_sync_target(cfg: object) -> int | None:
                        "— guild sync NOT armed")
         return None
     return int(guild_id)
+
+
+def moderation_test_guild(cfg: object) -> int | None:
+    """The single test guild the LIVE moderation adapter (D-0049) may mutate,
+    or None when the port must stay un-installed. TWO gates, both explicit and
+    the SAME pair ``guild_sync_target`` rides: ``SB_DATA_PLANE == "test"``
+    (DB protection) AND an explicit ``SB_APPCMD_SYNC_GUILD_ID`` (the hard
+    test-guild allow-list handed to the adapter). Returns None — port stays
+    un-installed — on the prod plane or with no test-guild id, so a live
+    ``!ban``/``!kick`` on prod writes its row + copy but performs NO Discord
+    mutation (the not-installed port raises LOUDLY → PARTIAL) until the owner
+    flips prod himself (the CUT-3 gate). Reusing the app-command sync guild id
+    keeps ONE test-guild identity for every test-plane live effect."""
+    return guild_sync_target(cfg)
 
 
 def arm_subscribe_roster(bus: object) -> tuple[str, ...]:
@@ -376,6 +390,39 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         register_error_handlers(bot)
         install_channel_emitter(DiscordChannelEmitter(bot))
+
+        # 10a. the moderation guild-action port (D-0049 live successor) — the
+        #      moderation twin of the channel emitter above: live kick/ban/
+        #      timeout/unban + the guild.me 🤖 readiness read. DOUBLE-GATED,
+        #      a single explicit switch (moderation_test_guild → the SAME
+        #      SB_DATA_PLANE=="test" + SB_APPCMD_SYNC_GUILD_ID gate that
+        #      guild_sync_target rides):
+        #        (1) SB_DATA_PLANE == "test" protects the DB, AND
+        #        (2) an explicit test-guild id is REQUIRED and handed to the
+        #            adapter as a hard per-call allow-list — the bot still
+        #            holds the PRODUCTION gateway token, so without this a
+        #            test-plane process could kick/ban a real guild's members.
+        #      Prod arming is the OWNER'S CUT-3 gate: with no test-guild id
+        #      (prod) the port stays un-installed, so a live !ban/!kick writes
+        #      its row + copy but performs NO Discord effect until the owner
+        #      flips prod himself.
+        test_guild_id = moderation_test_guild(cfg)
+        if test_guild_id is not None:
+            from sb.adapters.discord.moderation_actions import (
+                DiscordModerationActions,
+                DiscordModerationReadinessReader,
+            )
+            from sb.domain.moderation.service import (
+                install_moderation_actions,
+                install_moderation_readiness,
+            )
+
+            install_moderation_actions(
+                DiscordModerationActions(bot, allowed_guild_id=test_guild_id))
+            install_moderation_readiness(DiscordModerationReadinessReader(bot))
+            logger.info("moderation guild-action port ARMED (test plane, "
+                        "guild %d ONLY): live kick/ban/timeout/unban + "
+                        "guild.me readiness", test_guild_id)
 
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;

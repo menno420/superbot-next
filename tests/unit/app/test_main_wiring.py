@@ -41,6 +41,43 @@ class TestSubscribeRoster:
         assert "moderation.action_taken" in bus.subscriptions
 
 
+class TestModerationTestGuildGate:
+    """The live moderation guild-action adapter (D-0049) is DOUBLE-GATED: the
+    composition root arms it (main.py step 10a) ONLY under
+    ``SB_DATA_PLANE == "test"`` AND an explicit ``SB_APPCMD_SYNC_GUILD_ID``,
+    and hands that guild id to the adapter as a hard test-guild allow-list.
+    Prod arming is the owner's CUT-3 gate — the prod root leaves the port
+    un-installed (a live !ban/!kick writes its row + copy but performs NO
+    Discord effect until the owner flips prod)."""
+
+    def test_gate_returns_the_test_guild_only_on_the_test_plane(self):
+        from types import SimpleNamespace
+
+        # both gates satisfied → the test-guild id (armed)
+        assert app_main.moderation_test_guild(SimpleNamespace(
+            SB_DATA_PLANE="test", SB_APPCMD_SYNC_GUILD_ID=4242)) == 4242
+        # prod plane → None (un-installed) even with a guild id
+        assert app_main.moderation_test_guild(SimpleNamespace(
+            SB_DATA_PLANE="prod", SB_APPCMD_SYNC_GUILD_ID=4242)) is None
+        # test plane but NO guild id → None (no allow-list, so un-installed)
+        assert app_main.moderation_test_guild(SimpleNamespace(
+            SB_DATA_PLANE="test", SB_APPCMD_SYNC_GUILD_ID=None)) is None
+        assert app_main.moderation_test_guild(SimpleNamespace()) is None
+
+    def test_install_is_guarded_by_the_gate_and_passes_the_allow_list(self):
+        # the wiring fact: the step-10a install block is reached ONLY when the
+        # gate yields a test guild, and the adapter is constructed WITH that
+        # guild id as its hard allow-list (a prod boot never arms it, and a
+        # test-plane boot never mutates a non-allowed guild).
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        assert "test_guild_id = moderation_test_guild(cfg)" in src
+        assert "if test_guild_id is not None:" in src
+        assert ("DiscordModerationActions(bot, allowed_guild_id=test_guild_id)"
+                in src)
+
+
 class TestEscrowRecoveryRoster:
     def test_roster_matches_the_domain_constants(self):
         from sb.domain.blackjack import ops as blackjack_ops
