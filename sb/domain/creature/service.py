@@ -16,8 +16,11 @@ over the ported panels (sb/domain/creature/panels.py):
   posture: no invented data, the guard simply cannot fire).
 * Decline — the shipped '❌ {name} declined the challenge.' in-place
   edit (refresh_session_view, buttons disabled, session expired).
-  Accept is a declared pending terminal (combat engine = successor
-  slice; see panels.py's under-port ledger).
+* Accept — the shipped AUTO-RESOLVE (D-0078): build both teams,
+  run the pure engine (sb/domain/creature/battle.py), write the W/L
+  pair + battle-win xp through the audited creature.record_battle_result
+  lane, and re-render the card as the outcome embed (settle-once via
+  the session teardown; the deathmatch challenge-card lineage).
 """
 
 from __future__ import annotations
@@ -146,6 +149,85 @@ def _register() -> None:
                     {"cb_challenger_id": challenger,
                      "cb_opponent_id": opponent})
         return Reply(SUCCESS, None)
+
+    @handler("creature.challenge_accept")
+    async def challenge_accept(req) -> Reply:
+        """The shipped Accept click — the oracle AUTO-RESOLVES on Accept (no
+        turn buttons): build both teams from each player's collection at a
+        normalized level, run the pure engine, then in the already-live
+        audited record lane (creature.record_battle_result) write the W/L
+        pair + the winner's battle-win game-xp in ONE txn, and re-render the
+        challenge card in place as the outcome embed (settle-once via the
+        session teardown — the deathmatch challenge-card lineage; D-0078).
+
+        The battle RNG is seeded deterministically from the battle inputs so
+        the resolution is replayable/goldenable (the oracle's injectable-rng
+        seam), while each live battle still varies with the clock."""
+        import random
+        import time
+
+        from sb.domain.creature import battle_service, panels, store
+        from sb.kernel.panels.engine import refresh_session_view
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        gid = int(req.guild_id or 0)
+        challenger = int(req.args.get("cb_challenger_id") or 0)
+        opponent = int(req.args.get("cb_opponent_id")
+                       or getattr(req.actor, "user_id", 0) or 0)
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+
+        now = int(time.time())
+        rng = random.Random(f"cbattle:{gid}:{challenger}:{opponent}:{now}")
+        result = await battle_service.resolve_pvp(
+            challenger, opponent, gid, rng=rng)
+
+        if result is None:
+            # neither/one fighter has a usable team — settle with the nudge.
+            params = {**dict(req.args), "stage": "resolved",
+                      "cb_no_team": True}
+            if message_key and await refresh_session_view(
+                    req, message_key=message_key, params=params, expire=True):
+                return Reply(SUCCESS, None)
+            return Reply(SUCCESS, battle_service.NO_TEAM_MSG)
+
+        if result.a_won:
+            winner_id, loser_id = challenger, opponent
+        else:
+            winner_id, loser_id = opponent, challenger
+
+        # the audited W/L + battle-win xp write (one txn, xp events after
+        # commit) — the engine feeds the record lane that was live + waiting.
+        op_result = await engine.run(
+            WorkflowRef("creature.record_battle_result"),
+            _ctx_from_req(req, {"winner_id": winner_id,
+                                "loser_id": loser_id}))
+        if op_result.outcome != SUCCESS:
+            return Reply(op_result.outcome,
+                         op_result.user_message
+                         or "The battle couldn't be recorded.")
+        after = next(iter((op_result.after or {}).values()), {})
+        xp_note = (f"🎉 Reached game level **{after['new_level']}**!"
+                   if after.get("leveled_up") else None)
+
+        winner_rec = await store.get_battle_record(winner_id, gid)
+        loser_rec = await store.get_battle_record(loser_id, gid)
+        records = {winner_id: winner_rec, loser_id: loser_rec}
+        challenger_name = await panels._member_display(challenger, gid)
+        opponent_name = await panels._member_display(opponent, gid)
+        description, fields = battle_service.build_result_view(
+            challenger_name, opponent_name, challenger, opponent, result,
+            winner_id=winner_id, records=records, xp_note=xp_note)
+
+        params = {**dict(req.args), "stage": "resolved",
+                  "cb_desc": description, "cb_fields": [list(f) for f in fields]}
+        if message_key and await refresh_session_view(
+                req, message_key=message_key, params=params, expire=True):
+            return Reply(SUCCESS, None)
+        # vanished session (restart/eviction) — the record is authoritative;
+        # degrade to a text line naming the winner.
+        return Reply(SUCCESS, f"⚔️ Creature battle resolved — 🏆 <@{winner_id}> wins!")
 
     @handler("creature.challenge_decline")
     async def challenge_decline(req) -> Reply:

@@ -51,10 +51,13 @@ Under-port ledger (no golden pins these corners):
   select; a native USER picker seam does not exist yet (only
   role/channel — the ticket/logging natives), so the button is a
   declared pending terminal (the D-0030 xp-config posture).
-* Accept resolved the battle immediately (utils/creatures/battle.py
-  combat math + views/creature_battle/render.py) — the combat engine is
-  the successor slice; Accept is a declared pending terminal and the
-  audited record lane (creature.record_battle_result) is live, waiting.
+
+Accept now resolves the battle immediately (the shipped
+utils/creatures/battle.py combat math ported to
+sb/domain/creature/battle.py + views/creature_battle/render.py ported to
+battle_service.build_result_view) and records the result through the
+audited creature.record_battle_result lane — the challenge card's
+``resolved`` stage renders the outcome embed in place (D-0078).
 """
 
 from __future__ import annotations
@@ -169,13 +172,14 @@ _RULES_DESCRIPTION = (
 )
 
 
-# The shipped Challenge button opened _ChallengePickView (a user select)
-# and Accept resolved the battle through utils/creatures/battle.py —
-# both are successor-slice surfaces (no native USER picker seam; the
-# combat engine is unported). Declared pending terminals (the D-0030
-# xp-config posture: declared + honest refusal, never silent). No golden
-# clicks them. Registered at module import AND from ensure_panel_refs
-# (the #141 doctrine).
+# The shipped hub Challenge button opened _ChallengePickView (a user
+# select); a native USER picker seam does not exist yet, so it stays a
+# declared pending terminal (the D-0030 xp-config posture: declared +
+# honest refusal, never silent; challenge directly with `!cbattle
+# @member` meanwhile). The Accept battle-resolution terminal is NO LONGER
+# pending — it ports here as the real auto-resolve handler
+# (creature.challenge_accept in service.py; D-0078). Registered at module
+# import AND from ensure_panel_refs (the #141 doctrine).
 def _register_pending() -> tuple[HandlerRef, ...]:
     from sb.domain.operator_spine import pending_handler as _pending
 
@@ -185,15 +189,10 @@ def _register_pending() -> tuple[HandlerRef, ...]:
             "⚔️ The trainer picker ports with the native user-select "
             "seam — challenge directly with `!cbattle @member` until "
             "then."),
-        _pending(
-            "creature.challenge_accept",
-            "⚔️ Battle resolution ports with the creature combat engine "
-            "slice — the audited record lane is live and waiting for "
-            "it."),
     )
 
 
-(_PENDING_CHALLENGE_PICK, _PENDING_ACCEPT) = _register_pending()
+(_PENDING_CHALLENGE_PICK,) = _register_pending()
 
 
 def creature_hub_spec() -> PanelSpec:
@@ -568,17 +567,20 @@ async def _render_battletop(spec: PanelSpec, ctx) -> object:
 
 async def _render_challenge(spec: PanelSpec, ctx) -> object:
     """renderer_override — the shipped CONTENT-only challenge send +
-    the opponent lock; ``params['stage'] == 'declined'`` renders the
-    shipped decline edit (both buttons disabled — the shipped
-    ``item.disabled = True`` walk)."""
-    from sb.kernel.panels.render import render_panel
+    the opponent lock; ``params['stage']`` swaps stages: ``declined``
+    renders the shipped decline edit (both buttons disabled — the shipped
+    ``item.disabled = True`` walk), ``resolved`` renders the auto-resolve
+    outcome (the battle embed, or the go-catch nudge when a fighter has no
+    team) with the buttons disabled (D-0078)."""
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
 
     rendered = await render_panel(spec, ctx)
     params = getattr(ctx, "params", {}) or {}
     opponent = int(params.get("cb_opponent_id") or 0)
     challenger = int(params.get("cb_challenger_id")
                      or getattr(ctx.actor, "user_id", 0) or 0)
-    if str(params.get("stage", "") or "") == "declined":
+    stage = str(params.get("stage", "") or "")
+    if stage == "declined":
         name = await _member_display(opponent, int(ctx.guild_id or 0))
         components = tuple(_dc_replace(c, disabled=True)
                            for c in rendered.components)
@@ -586,6 +588,25 @@ async def _render_challenge(spec: PanelSpec, ctx) -> object:
             rendered, embed=None,
             content=f"❌ {name} declined the challenge.",
             components=components,
+            invoker_lock=opponent or None)
+    if stage == "resolved":
+        from sb.domain.creature.battle_service import NO_TEAM_MSG
+
+        components = tuple(_dc_replace(c, disabled=True)
+                           for c in rendered.components)
+        if params.get("cb_no_team"):
+            # neither/one fighter has a team — the shipped go-catch nudge.
+            return _dc_replace(
+                rendered, embed=None, content=NO_TEAM_MSG,
+                components=components, invoker_lock=opponent or None)
+        embed = RenderedEmbed(
+            title="⚔️ Creature Battle",
+            description=str(params.get("cb_desc") or ""),
+            fields=tuple((str(n), str(v), bool(i))
+                         for n, v, i in params.get("cb_fields", ())),
+            style_token="green")
+        return _dc_replace(
+            rendered, embed=embed, content=None, components=components,
             invoker_lock=opponent or None)
     content = (
         f"<@{opponent}> — <@{challenger}> challenges you to a creature "
