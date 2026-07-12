@@ -61,7 +61,7 @@ _SETTINGS = (
                                       suggested_name="economy-log",
                                       suggested_category="Staff"),
         binding_name="log_channel",
-        description="Operator-facing audit channel for economy mutations. "
+        description="Operator-facing audit channel for economy mutations.  "
                     "Recommended for any guild that runs the economy "
                     "actively.",
         offer_on_enable=True,

@@ -168,6 +168,26 @@ def test_record_move_locks():
     tournament.reset_tournaments_for_tests()
 
 
+def test_duplicate_registration_refusal_is_oracle_verbatim():
+    """The in-memory duplicate-entry guard's refusal copy is oracle-verbatim.
+
+    Oracle: disbot/views/rps/registration.py Join button ephemeral reply —
+    "You're already registered!" (with the exclamation mark). The new tree's
+    guard had drifted to a period (ledgered out of scope by PR #223); this
+    pins the exact byte-form so the golden-uncovered refusal cannot drift
+    silently again. Matches domain/games/wager.py AlreadyEnteredError."""
+    from sb.domain.rps import tournament
+
+    tournament.reset_tournaments_for_tests()
+    state = tournament.get_state(1)
+    state.players = [11]
+    state.registration_active = True
+    ok, detail = asyncio.run(tournament.register_player(1, 11))
+    assert ok is False
+    assert detail == "You're already registered!"
+    tournament.reset_tournaments_for_tests()
+
+
 # --- ORDER-004 walking skeleton -----------------------------------------------------
 
 
@@ -290,7 +310,8 @@ def test_walking_skeleton_rps_tournament_end_to_end(skeleton):
     run(harness.click(message_id=reg_message_id, custom_id=join["custom_id"],
                       persona="member"))
     dup = harness.take_calls()
-    assert any("already registered" in str(c.payload) for c in dup
+    # oracle-verbatim refusal copy (exclamation, not a period)
+    assert any("You're already registered!" in str(c.payload) for c in dup
                if c.payload)
     # the reaction path (the kernel seam — no wire calls, silent)
     run(dispatch_reaction(ReactionEvent(
