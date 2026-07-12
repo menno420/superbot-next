@@ -1,25 +1,65 @@
 ---
 name: session-close
-description: "End the session correctly — write the log, groom + add an idea, verify, commit, push, drive the PR to a terminal state."
+description: "Land the session — claim, born-red card first, READY PR, batched work, close-out docs, flip complete last; never self-merge."
 ---
 
 # session-close
 
-Close superbot-next's current session correctly.
+Land superbot-next's session correctly — the full landing path, claim to
+merged-on-green. Playbook-grade: a session reading this executes without
+improvising (grounded-skills plan §7.2).
 
-1. Session log — write `.sessions/<date>-<slug>.md`: what changed, one new idea
-   you genuinely believe in, and a one-line review of the previous session.
-2. Capability delta — did you discover a new capability or hit a wall this
-   session? Append it to `docs/CAPABILITIES.md` (dated, with the exact
-   error or the proof it worked, plus any workaround).
-3. Owner asks — every ⚑ needs-owner item you leave behind carries the
-   OWNER-ACTION fields (WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS /
-   VERIFIED-NEEDED — you attempted it, or you name the exact wall; see
-   `control/README.md`). Withdraw stale asks; fewer, clearer asks beat
-   complete lists.
-4. Idea backlog — groom one idea forward (the ideas-README lifecycle).
-5. Verify — run the project's checks: `python3 -m pytest` and `bootstrap check`.
-6. Commit + push on the session branch; open the PR ready (not draft).
-7. Drive the PR to a terminal state — merge on green CI, or close with a reason.
+## What this does
+
+Drives the session's work to a terminal, verified state on two rails:
+the born-red gate (card first, flip last) and never-self-merge (the repo's
+server-side auto-merge-enabler arms; GitHub lands the PR on green required
+checks). Everything else is ordered steps.
+
+## Instructions
+
+1. Claim first (session start — verify it happened) — one file per claim,
+   `control/claims/<branch-or-scope>.md`, a single bullet: backticked
+   branch/scope token · **scope** — one-line detail · expected files/area ·
+   ISO date (the shape `check_claims` parses). Land the claim on main fast,
+   then re-read `control/claims/` at HEAD before building.
+2. Born-red card as the FIRST commit — `.sessions/<date>-<slug>.md` whose
+   Status badge line declares `in-progress` (the born-red hold token), plus
+   a one-line "what is about to happen". Push, then open the PR READY (not
+   draft) immediately: the open PR + the claim are the in-flight signal
+   parallel sessions collide without.
+3. NEVER arm auto-merge on, or merge, your own PR — author self-arm/
+   self-merge is refused terminally (deny-wins; never retry it). The
+   enabler workflow arms server-side at open; green required checks merge
+   it with no action from you. Read a red on a born-red head as the
+   designed hold, not a CI failure: verify any red against the job log
+   before diagnosing — alias/mirror jobs echo the required check without
+   running anything (kit repo example: the two legacy jobs mirroring
+   `kit-quality`), and "HOLD (by design)" means nothing to investigate.
+4. Batch the work — push when a batch is meaningfully complete, never every
+   commit (superseded CI runs are the dominant Actions cost).
+5. Close-out docs, into the SAME card: what shipped (paths + commits);
+   Capability delta — new capability or wall discovered? Append it to
+   `docs/CAPABILITIES.md` (dated, exact error or proof, workaround); every
+   ⚑ needs-owner ask carries the OWNER-ACTION fields (WHAT / WHERE / HOW /
+   WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED — attempted, or the exact
+   wall; see `control/README.md`) — Withdraw stale asks; groom one idea
+   forward; add one new 💡 idea you genuinely believe in; write the ⟲
+   previous-session review.
+6. Verify — `python3 -m pytest` and `python3 bootstrap.py check --strict`.
+   The only acceptable pre-flip red is the designed born-red hold naming
+   this session's own card.
+7. Flip as the deliberate LAST step — flip the card badge to `complete`,
+   delete your own claim file, push. Green then merges server-side; a
+   flipped-early card merges a partial PR (the failure the gate exists
+   for), and an unpushed flip leaves the PR red forever.
+
+## Report format (card close-out)
+
+- Shipped: one line per artifact, with paths + commit SHAs.
+- Verify: each command + its tail, verbatim.
+- ⚑ decide-and-flag lines · 💡 session idea · ⟲ previous-session review.
+- PR: #<n> + terminal state, probed against the tree/checks — not a stale
+  PR read.
 
 Declared capabilities: edit (the log + docs), run (the checks + git).

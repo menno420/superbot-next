@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.13.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.12.1 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -89,7 +89,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.13.0"
+KIT_VERSION = "1.12.1"
 
 
 def _new_project_id() -> str:
@@ -8198,205 +8198,31 @@ skill is project-aware (e.g. ``quality-gate`` runs the project's own verify comm
 
 
 
-
 _SESSION_CLOSE_BODY = """\
-Land ${project_name}'s session correctly — the full landing path, claim to
-merged-on-green. Playbook-grade: a session reading this executes without
-improvising (grounded-skills plan §7.2).
+Close ${project_name}'s current session correctly.
 
-## What this does
-
-Drives the session's work to a terminal, verified state on two rails:
-the born-red gate (card first, flip last) and never-self-merge (the repo's
-server-side auto-merge-enabler arms; GitHub lands the PR on green required
-checks). Everything else is ordered steps.
-
-## Instructions
-
-1. Claim first (session start — verify it happened) — one file per claim,
-   `control/claims/<branch-or-scope>.md`, a single bullet: backticked
-   branch/scope token · **scope** — one-line detail · expected files/area ·
-   ISO date (the shape `check_claims` parses). Land the claim on main fast,
-   then re-read `control/claims/` at HEAD before building.
-2. Born-red card as the FIRST commit — `.sessions/<date>-<slug>.md` whose
-   Status badge line declares `in-progress` (the born-red hold token), plus
-   a one-line "what is about to happen". Push, then open the PR READY (not
-   draft) immediately: the open PR + the claim are the in-flight signal
-   parallel sessions collide without.
-3. NEVER arm auto-merge on, or merge, your own PR — author self-arm/
-   self-merge is refused terminally (deny-wins; never retry it). The
-   enabler workflow arms server-side at open; green required checks merge
-   it with no action from you. Read a red on a born-red head as the
-   designed hold, not a CI failure: verify any red against the job log
-   before diagnosing — alias/mirror jobs echo the required check without
-   running anything (kit repo example: the two legacy jobs mirroring
-   `kit-quality`), and "HOLD (by design)" means nothing to investigate.
-4. Batch the work — push when a batch is meaningfully complete, never every
-   commit (superseded CI runs are the dominant Actions cost).
-5. Close-out docs, into the SAME card: what shipped (paths + commits);
-   Capability delta — new capability or wall discovered? Append it to
-   `docs/CAPABILITIES.md` (dated, exact error or proof, workaround); every
-   ⚑ needs-owner ask carries the OWNER-ACTION fields (WHAT / WHERE / HOW /
-   WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED — attempted, or the exact
-   wall; see `control/README.md`) — Withdraw stale asks; groom one idea
-   forward; add one new 💡 idea you genuinely believe in; write the ⟲
-   previous-session review.
-6. Verify — `${verify_command}` and `python3 bootstrap.py check --strict`.
-   The only acceptable pre-flip red is the designed born-red hold naming
-   this session's own card.
-7. Flip as the deliberate LAST step — flip the card badge to `complete`,
-   delete your own claim file, push. Green then merges server-side; a
-   flipped-early card merges a partial PR (the failure the gate exists
-   for), and an unpushed flip leaves the PR red forever.
-
-## Report format (card close-out)
-
-- Shipped: one line per artifact, with paths + commit SHAs.
-- Verify: each command + its tail, verbatim.
-- ⚑ decide-and-flag lines · 💡 session idea · ⟲ previous-session review.
-- PR: #<n> + terminal state, probed against the tree/checks — not a stale
-  PR read.
+1. Session log — write `.sessions/<date>-<slug>.md`: what changed, one new idea
+   you genuinely believe in, and a one-line review of the previous session.
+2. Capability delta — did you discover a new capability or hit a wall this
+   session? Append it to `docs/CAPABILITIES.md` (dated, with the exact
+   error or the proof it worked, plus any workaround).
+3. Owner asks — every ⚑ needs-owner item you leave behind carries the
+   OWNER-ACTION fields (WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS /
+   VERIFIED-NEEDED — you attempted it, or you name the exact wall; see
+   `control/README.md`). Withdraw stale asks; fewer, clearer asks beat
+   complete lists.
+4. Idea backlog — groom one idea forward (the ideas-README lifecycle).
+5. Verify — run the project's checks: `${verify_command}` and `bootstrap check`.
+6. Commit + push on the session branch; open the PR ready (not draft).
+7. Drive the PR to a terminal state — merge on green CI, or close with a reason.
 
 Declared capabilities: edit (the log + docs), run (the checks + git)."""
-
-_UPGRADE_DISTRIBUTION_BODY = """\
-Roll a substrate-kit release out to ${project_name} — one target repo of the
-distribution wave. Playbook-grade wave runbook (grounded-skills plan §7.2).
-
-## What this does
-
-Moves the target's vendored `bootstrap.py` to the released version with the
-sha256 three-way proof, the banked rollback path, a carve-out scan for local
-modifications, and a born-red PR — then verifies MERGED MAIN against the
-tree, never a registry line or a PR read.
-
-## Instructions
-
-1. Preflight — sync the clone before reading anything:
-   `git fetch origin main && git reset --hard origin/main`. A stale clone
-   reads stale orders and re-executes finished work.
-2. Download the release next to the vendored copy:
-   `gh release download vX.Y.Z --repo menno420/substrate-kit --pattern 'bootstrap.py*' --pattern 'release.json'`
-   then move the downloaded dist to `bootstrap.py.new` (the consumer flow
-   `release.json` names).
-3. sha256 three-way compare (never skip) — `sha256sum bootstrap.py.new`
-   must equal BOTH the `sha256` field in `release.json` AND the kit repo's
-   committed `dist/bootstrap.py` at the release's bump SHA. Any mismatch:
-   stop and report; do not upgrade.
-4. Born-red PR first — claim file + `.sessions/` card declaring
-   `in-progress` as the first commit on the wave branch; open the PR READY;
-   never self-arm/self-merge (the session-close rails apply verbatim).
-5. Upgrade — `python3 bootstrap.py.new upgrade`. It banks the OLD dist to
-   `.substrate/backup/` (verify the banked `bootstrap-<old-version>.py`
-   exists — that is the rollback path) and consumes its own inputs.
-6. Carve-out scan — read `.substrate/upgrade-report.md`: `consumer-edited`
-   and `diverged` docs are LOCAL MODIFICATIONS the upgrade must not
-   clobber; list them verbatim in the PR body. `template-improved` applies
-   only under `--apply-docs` and only to consumer-untouched docs.
-7. Verify + flip — `${verify_command}` and
-   `python3 bootstrap.py check --strict` green (own card's designed hold
-   excepted); flip the card `complete`, delete the claim, push.
-8. Verify merged main afterward — TREE over registries:
-   `git fetch origin main && git log -1 --oneline origin/main` and read the
-   vendored dist's version header at origin/main. Never trust an MCP PR
-   read alone for merge/CI state (~25-min-stale data) — cross-check the
-   tree or the Actions runs.
-
-## Report format — one outcome line per target repo
-
-`<repo>: vOLD → vNEW · sha256 3-way ✔ · bank ✔ · carve-outs: <n or none> · PR #<n> merged @ <sha> · tree-verified ✔`
-
-Known failure modes + fixes:
-
-- A `do-not-automerge` label applied seconds after MCP PR-create misses the
-  opened-event label snapshot and reds the first CI round — cure with one
-  empty commit (`git commit --allow-empty`) to re-fire the enabler.
-- MCP PR reads can serve ~25-minute-stale merge/CI state — probe the tree,
-  not the PR object.
-- A born-red head red-pings "failed checks"; job-log truth is the designed
-  hold plus alias jobs that mirror the required check — verify against the
-  job log, don't chase.
-
-Declared capabilities: edit (the vendored dist + docs), run (git + gh + the
-checks)."""
-
-_RELEASE_BODY = """\
-Cut and publish a substrate-kit release — the kit cut runbook, executable
-(canonical prose: `docs/operations/release-runbook.md`). Kit-repo-specific
-by nature: the commands below run in the kit repo, the source of the
-releases ${project_name} consumes.
-
-## What this does
-
-Takes `CHANGELOG.md` `[Unreleased]` to a published GitHub Release with
-byte-verified assets: version bump PR (born-red), workflow_dispatch publish,
-three-way post-release verification, then adopter notification via
-distribution PRs.
-
-## Instructions
-
-1. Preconditions — every shipped PR has its entry under `[Unreleased]` in
-   `CHANGELOG.md`; decide the semver class (MAJOR = planted-doc / state /
-   config / CLI break · MINOR = new capability · PATCH = fixes).
-2. Claim, then bump PR born-red — claim `control/claims/` (one file, e.g.
-   release-vX.Y.Z.md) on main first; cut the bump branch from post-claim
-   main; born-red card as first commit; open the PR READY; never
-   self-arm/self-merge.
-3. Version bump, one commit set — BOTH version homes in the SAME commit:
-   `src/engine/lib/config.py` (`KIT_VERSION`) and `pyproject.toml`
-   (`version`). CHANGELOG: rename `[Unreleased]` to the new `[X.Y.Z]`
-   dated section, add a fresh empty `[Unreleased]` above it, and keep the
-   machine comment (breaking / state_migration / min_upgrade_from)
-   accurate — the release workflow refuses a version with no CHANGELOG
-   section.
-4. Dist regen + byte-pin — `python3 src/build_bootstrap.py`, then
-   `git diff --exit-code dist/bootstrap.py` must be clean; commit the
-   regenerated dist (CI rebuilds and byte-compares).
-5. Verify locally, then flip — `python3 -m pytest tests/ -q` green ·
-   `python3 -m ruff check src/engine/` clean ·
-   `python3 src/build_release_json.py --version X.Y.Z --verify-only`
-   reports preconditions green ·
-   `python3 dist/bootstrap.py check --strict` (only acceptable red = own
-   card's designed hold). Flip the card `complete` as the last commit; the
-   server-side enabler merges on green.
-6. Publish — dispatch the release workflow on main at the bump-merge SHA:
-   `gh workflow run release.yml -f version=X.Y.Z`. The run creates the
-   annotated tag `vX.Y.Z` in-Actions and publishes the Release with three
-   assets: `bootstrap.py`, `bootstrap.py.sha256`, `release.json`.
-7. Post-release verification (never skip) — the tag exists:
-   `git fetch --tags && git tag -l vX.Y.Z`; the assets are published:
-   `gh release view vX.Y.Z`; independently download the released
-   `bootstrap.py` and its sha256 must equal BOTH the `sha256` field in
-   `release.json` AND the committed `dist/bootstrap.py` at the bump SHA
-   (three-way, byte-identical). Record run id, tag, commit SHA, and hash
-   in the release record.
-8. Aftermath — adopter notification via distribution PRs: run the
-   `upgrade-distribution` skill per adopter (one born-red PR each);
-   registry regen `python3 dist/bootstrap.py currency` refreshes
-   `docs/adopters.md`; write the `control/status.md` release record;
-   delete the claim.
-
-## Report format (release record)
-
-`vX.Y.Z · bump PR #<n> merged @ <sha> · release run <id> · tag vX.Y.Z @ <sha> · sha256 <hash> (3-way ✔) · adopters: <one outcome line per repo>`
-
-Known failure modes + fixes:
-
-- Tag pushes can 403 where branch pushes work — the workflow_dispatch path
-  creates the tag in-Actions; never hand-push a tag first.
-- The workflow refuses when `KIT_VERSION` / dist header / CHANGELOG
-  disagree — fix the version homes, never the guard.
-- Published releases are never deleted — supersede a bad cut with a fixed
-  one whose `release.json` carries the yank note.
-
-Declared capabilities: edit (version homes + CHANGELOG + docs), run (build +
-git + gh)."""
 
 _QUALITY_GATE_BODY = """\
 Prove a change is good before pushing ${project_name}.
 
 1. Run `${verify_command}` — the project's full verification (tests + lint/types).
-2. Run `python3 bootstrap.py check --strict` — doc + session-log hygiene.
+2. Run `bootstrap check --strict` — doc + session-log hygiene.
 3. Report every failure with the exact command to reproduce it.
 4. Do NOT push on red — green here should mean green in CI.
 
@@ -8416,8 +8242,8 @@ Declared capabilities: comment."""
 _REPO_HEALTH_BODY = """\
 Audit ${project_name}'s documentation + session-log hygiene.
 
-1. Run `python3 bootstrap.py check` — badges, link resolution, doc
-   reachability, and the required session-log markers.
+1. Run `bootstrap check` — badges, link resolution, doc reachability, and the
+   required session-log markers.
 2. Summarize the drift: orphaned docs, missing badges, incomplete logs.
 3. Fix the small ones (link the orphan, badge the doc); capture the rest as ideas.
 
@@ -8454,65 +8280,13 @@ Declared capabilities: read-only."""
 
 # Each skill declares the capabilities it needs *beyond* read (read is implicit).
 # The declared set is what overrides the ambient stance (the precedence rule).
-#
-# ``grounds`` (grounded-skills plan §7.2, slice 2) is the skill's exact-command
-# grounding: the verbatim command strings the body's procedure runs, as
-# STRUCTURED DATA — never scraped from prose. Invariants (test-pinned): the
-# key exists on every skill; each entry appears verbatim as a backticked span
-# in the body (grounds can never drift from what the body actually says); a
-# playbook skill's list is non-empty. Read-only skills ground nothing ([]).
-# The index table surfaces the column; check_skill_grounds verifies each
-# entry's command resolves (advisory, §8 Q2=B).
 SKILLS: list[dict] = [
     {
         "name": "session-close",
-        "description": "Land the session — claim, born-red card first, READY PR, "
-        "batched work, close-out docs, flip complete last; never self-merge.",
+        "description": "End the session correctly — write the log, groom + add an "
+        "idea, verify, commit, push, drive the PR to a terminal state.",
         "capabilities": [EDIT, RUN],
         "body": _SESSION_CLOSE_BODY,
-        "grounds": [
-            "${verify_command}",
-            "python3 bootstrap.py check --strict",
-        ],
-    },
-    {
-        "name": "upgrade-distribution",
-        "description": "Roll a kit release out to one adopter repo — download, "
-        "sha256 three-way, banked rollback, carve-out scan, born-red PR, "
-        "tree-verified merge.",
-        "capabilities": [EDIT, RUN],
-        "body": _UPGRADE_DISTRIBUTION_BODY,
-        "grounds": [
-            "git fetch origin main && git reset --hard origin/main",
-            "gh release download vX.Y.Z --repo menno420/substrate-kit "
-            "--pattern 'bootstrap.py*' --pattern 'release.json'",
-            "sha256sum bootstrap.py.new",
-            "python3 bootstrap.py.new upgrade",
-            "${verify_command}",
-            "python3 bootstrap.py check --strict",
-            "git fetch origin main && git log -1 --oneline origin/main",
-            "git commit --allow-empty",
-        ],
-    },
-    {
-        "name": "release",
-        "description": "Cut + publish a substrate-kit release — version bump PR, "
-        "workflow_dispatch publish, three-way asset verification, adopter "
-        "distribution wave.",
-        "capabilities": [EDIT, RUN],
-        "body": _RELEASE_BODY,
-        "grounds": [
-            "python3 src/build_bootstrap.py",
-            "git diff --exit-code dist/bootstrap.py",
-            "python3 -m pytest tests/ -q",
-            "python3 -m ruff check src/engine/",
-            "python3 src/build_release_json.py --version X.Y.Z --verify-only",
-            "python3 dist/bootstrap.py check --strict",
-            "gh workflow run release.yml -f version=X.Y.Z",
-            "git fetch --tags && git tag -l vX.Y.Z",
-            "gh release view vX.Y.Z",
-            "python3 dist/bootstrap.py currency",
-        ],
     },
     {
         "name": "quality-gate",
@@ -8520,10 +8294,6 @@ SKILLS: list[dict] = [
         "report what must be fixed.",
         "capabilities": [RUN],
         "body": _QUALITY_GATE_BODY,
-        "grounds": [
-            "${verify_command}",
-            "python3 bootstrap.py check --strict",
-        ],
     },
     {
         "name": "review",
@@ -8531,7 +8301,6 @@ SKILLS: list[dict] = [
         "comment with a verdict and fixes, no edits.",
         "capabilities": [COMMENT],
         "body": _REVIEW_BODY,
-        "grounds": [],
     },
     {
         "name": "repo-health",
@@ -8539,9 +8308,6 @@ SKILLS: list[dict] = [
         "summarize drift.",
         "capabilities": [RUN],
         "body": _REPO_HEALTH_BODY,
-        "grounds": [
-            "python3 bootstrap.py check",
-        ],
     },
     {
         "name": "deep-research",
@@ -8549,7 +8315,6 @@ SKILLS: list[dict] = [
         "synthesize a cited report.",
         "capabilities": [RUN],
         "body": _DEEP_RESEARCH_BODY,
-        "grounds": [],
     },
     {
         "name": "question",
@@ -8557,7 +8322,6 @@ SKILLS: list[dict] = [
         "make no changes.",
         "capabilities": [],
         "body": _QUESTION_BODY,
-        "grounds": [],
     },
     {
         "name": "analysis",
@@ -8565,7 +8329,6 @@ SKILLS: list[dict] = [
         "without changing anything.",
         "capabilities": [],
         "body": _ANALYSIS_BODY,
-        "grounds": [],
     },
 ]
 
@@ -8610,66 +8373,6 @@ def action_permitted(
     if skill_name is not None and skill_permits(skill_name, action):
         return True
     return action_allowed(stance_name, action)
-
-
-# A ``${slot}`` inside a grounds string, for the index's display rewrite —
-# same braced-only form as engine.render._PLACEHOLDER_RE (skills.py cannot
-# import render.py: render.py imports THIS module, and MODULE_ORDER puts
-# skills before render).
-_GROUND_SLOT_RE = re.compile(r"\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
-
-
-def _ground_cell(grounds: list[str], context: dict[str, str] | None) -> str:
-    """Render one index-table grounds cell (``—`` when the skill grounds nothing).
-
-    Slot references inside a ground substitute from ``context`` when the
-    project has filled them; an unfilled (or context-less) slot displays as
-    ``<slot_name>`` — NEVER as a raw ``${slot_name}``, which would make the
-    planted ``docs/SKILLS.md`` read as an unrendered doc forever
-    (``with_unrendered_banner`` re-banners any text carrying ``${...}``, and
-    the index is injected AFTER template substitution, so nothing would ever
-    fill it). Multiple grounds join with ``<br>`` so the table stays one row
-    per skill.
-    """
-    if not grounds:
-        return "—"
-    cells = []
-    for ground in grounds:
-        shown = _GROUND_SLOT_RE.sub(
-            lambda m: (context or {}).get(m.group(1)) or f"<{m.group(1)}>",
-            ground,
-        )
-        cells.append(f"`{shown}`")
-    return "<br>".join(cells)
-
-
-def skills_index_table(context: dict[str, str] | None = None) -> str:
-    """Render the skill-index table (planted ``docs/SKILLS.md``) from :data:`SKILLS`.
-
-    Engine-computed on purpose (grounded-skills plan §2, PR #263): the index's
-    rows come FROM the same list that emits the skills, so the planted index
-    can never hand-drift from what the kit actually installs — the "render
-    from ONE source" rule. Consumed as the ``skills_index`` engine context key
-    (:func:`engine.render.build_context` injects it on every render path);
-    the surrounding prose lives in ``SKILLS-index.md.tmpl``.
-
-    ``context`` (slice 2) fills slot references inside the Grounds column —
-    ``build_context`` passes the project's slot values so a filled project's
-    index shows its REAL verify command; without context (or unfilled) the
-    slot displays as ``<slot_name>`` (see :func:`_ground_cell` for why raw
-    ``${...}`` must never survive into the injected table).
-    """
-    lines = [
-        "| Skill | When to reach for it | Capabilities | Grounds (exact commands) |",
-        "|---|---|---|---|",
-    ]
-    for skill in SKILLS:
-        caps = ", ".join(f"`{c}`" for c in skill_capabilities(skill["name"]))
-        grounds = _ground_cell(skill.get("grounds", []), context)
-        lines.append(
-            f"| `{skill['name']}` | {skill['description']} | {caps} | {grounds} |"
-        )
-    return "\n".join(lines)
 
 
 def skill_frontmatter(skill: dict) -> str:
@@ -9510,25 +9213,7 @@ _MD_CODE_FENCE_RE = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
 # exactly this set, so a template may reference them without a bank question
 # existing. Grows deliberately: every addition must be injected by
 # build_context (or a caller) unconditionally, or templates strand unfilled.
-ENGINE_CONTEXT_KEYS = frozenset({"agreement_home", "kit_version", "skills_index"})
-
-
-def agreement_home(root: Path, *, include_claude: bool = False) -> str:
-    """Return the boot pointer to the target repo's working agreement.
-
-    ``.claude/CLAUDE.md`` only when it is actually live in ``root`` (or the
-    current adopt run is about to write it, via ``include_claude``);
-    otherwise the root ``CONSTITUTION.md``, which ``ADOPT_PLAN`` always
-    plants. Engine-computed (an :data:`ENGINE_CONTEXT_KEYS` member, like
-    ``kit_version``) because no interview answer can know what the run
-    installs: the planted ``docs/AGENT_ORIENTATION.md`` used to hardcode
-    ``.claude/CLAUDE.md`` while the default adopt deliberately only STAGES
-    CLAUDE.md — a dead boot pointer verified live in 3/3 adopters
-    (inbox ORDER 015, 2026-07-12).
-    """
-    if include_claude or (root / ".claude" / "CLAUDE.md").is_file():
-        return ".claude/CLAUDE.md"
-    return "CONSTITUTION.md"
+ENGINE_CONTEXT_KEYS = frozenset({"kit_version"})
 
 
 def find_placeholders(text: str) -> set[str]:
@@ -9582,26 +9267,14 @@ def build_context(state: dict[str, Any]) -> dict[str, str]:
     (inbox ORDER 003, adopter-visibility band) renders with the real version
     instead of stranding as an unfilled placeholder. A slot named
     ``kit_version`` (none exists) would win over the constant by design.
-    ``skills_index`` follows the same shape (grounded-skills plan §2, slice
-    1): the planted ``docs/SKILLS.md`` table is rendered FROM the kit's
-    ``SKILLS`` list — the same source that emits the skills — so the index
-    can never hand-drift from what the kit installs; injected here so every
-    render path fills it, and a same-named slot (none exists) would win.
-    (Top-level imports on purpose: ``lib/config.py`` and ``skills/skills.py``
-    both precede ``render.py`` in the dist's MODULE_ORDER, so the
-    intra-package imports strip cleanly; a function-body ``from engine...``
-    would survive into the single file and fail at dist runtime.)
+    (Top-level import on purpose: ``lib/config.py`` precedes ``render.py``
+    in the dist's MODULE_ORDER, so the intra-package import strips cleanly;
+    a function-body ``from engine...`` would survive into the single file
+    and fail at dist runtime.)
     """
     values = state.get("slot_values", {})
     context = {slot: str(entry.get("value", "")) for slot, entry in values.items()}
     context.setdefault("kit_version", KIT_VERSION)
-    # The slot context is passed INTO the table (slice 2): grounds-column
-    # slot references (e.g. a ``${verify_command}`` ground) fill from the
-    # project's own answers; render() cannot fill them later because the
-    # table is itself a substitution VALUE — re.sub never rescans
-    # replacements, so anything unfilled here would strand as literal
-    # ``${...}`` and re-banner the planted index (skills._ground_cell docs).
-    context.setdefault("skills_index", skills_index_table(context))
     return context
 
 
@@ -10006,16 +9679,6 @@ ADOPT_PLAN: list[tuple[str, str]] = [
     # append discoveries at close (session-close skill nudge), so one
     # session's imagined-wall lesson never costs a second session.
     ("CAPABILITIES.md.tmpl", "docs/CAPABILITIES.md"),
-    # The skill index (grounded-skills program slice 1 —
-    # docs/planning/2026-07-12-grounded-skills-program.md §2/§7.1): one
-    # table — skill → when to reach for it → capabilities — rendered FROM
-    # the kit's SKILLS list via the engine-computed ``skills_index``
-    # context key (engine.render.build_context), so the planted index can
-    # never drift from the skills the kit actually emits. Boot-set wiring
-    # lives in the CLAUDE / CONSTITUTION / AGENT_ORIENTATION templates
-    # (the CAPABILITIES.md pattern); advisory only — no CI enforcement
-    # of "you used the skill" (§8 Q2=B, graduation later).
-    ("SKILLS-index.md.tmpl", "docs/SKILLS.md"),
     ("ideas-README.md.tmpl", "docs/ideas/README.md"),
     ("session-journal.md.tmpl", ".session-journal.md"),
     # The fleet coordination protocol (band KL-8, spec: superbot
@@ -11597,13 +11260,6 @@ def adopt(
     context = build_context(backend.data)
     # The live integration mode is state, not a slot — render it truthfully.
     context.setdefault("integration_mode", str(backend.get("mode", "guided")))
-    # The boot pointer is state too: only this run knows whether
-    # .claude/CLAUDE.md is (or is about to be) live in the target — the
-    # ORDER 015 dead-pointer fix (logic: engine.render.agreement_home).
-    context.setdefault(
-        "agreement_home",
-        agreement_home(root, include_claude=include_claude),
-    )
 
     # (1) Plant the live docs — never clobber; a doc with unfilled ${slots}
     # is planted under the loud UNRENDERED banner (visible, never inert).
@@ -12059,254 +11715,6 @@ def check_engagement(target: Path, config: Any) -> list[Finding]:
                 "and run `bootstrap.py session-close` at close.",
             ),
         )
-    return findings
-
-# --- engine/checks/check_skill_grounds.py ---
-"""check_skill_grounds — skill-body command-grounding advisory (slice 2, plan §7.2).
-
-Why + provenance: the grounded-skills program's slice-2 accept criterion is
-"each body names only commands that exist" — and the slice-1 session card's
-💡 idea (`.sessions/2026-07-12-grounded-skills-slice1-index.md`) rules that
-this ships as a CHECKER, not a review habit ("enforce, don't exhort"): a
-grammar-level scan that extracts backticked command spans from skill bodies
-plus the structured ``grounds`` lists and verifies each names something that
-resolves — a whitelisted executable, a file in the target tree, or a path
-the kit itself plants/ships. Added 2026-07-12 (grounded-skills slice 2,
-§8 Q2=B advisory-first). Reliability (PL-008): UNVERIFIED — confirm its
-findings against ground truth a few times across sessions before trusting
-it; **delete this if it proves unreliable over multiple sessions.**
-
-Posture is **advisory-only, never exit-affecting** (§8 Q2=B: no CI-red until
-proven; graduation is a later, deliberate step) — the same nudge-never-door
-contract as ``check_claims`` / ``check_capability_xref``. Detection is
-deliberately coarse: backticked spans are prose as often as commands, so a
-span is only *judged* when its first token is command- or path-shaped;
-everything ambiguous fails open (no verdict). A false nudge costs one
-glance; a skill that tells every future session to run a command that does
-not exist costs every session an improvisation.
-
-What it scans:
-
-- The kit-truth :data:`engine.skills.skills.SKILLS` list — every body's
-  backticked spans and every ``grounds`` entry (the self-check that travels
-  with the kit).
-- The target's installed/staged skill documents (``.claude/skills/*/
-  SKILL.md`` and ``<state_dir>/skills/*/SKILL.md``) when present — the
-  RENDERED bodies, so a host-edited or host-added skill gets the same scan.
-
-Skip rules (fail-open classes, in order): a span carrying an unfilled
-``${slot}`` (rendered per-project — the raw body cannot know the value);
-a span carrying non-ASCII characters (``·``/``→``/``✔`` mark report-format
-prose, never commands);
-a first token that is not identifier/path-shaped (prose, ``<placeholders>``,
-``[brackets]``, flags, globs); a token ending ``/`` (directory prose); a
-token under the state dir (runtime artifacts, not committed files); a single
-bare word with no path shape (``complete``, ``in-progress`` — status tokens,
-not commands). Pure stdlib; no ``subprocess`` (§3.2) — resolution is
-existence checks, never execution.
-"""
-
-
-
-
-# One backticked inline span (commands never span lines in skill bodies —
-# a grounds-matching invariant the skills tests pin).
-_SPAN_RE = re.compile(r"`([^`\n]+)`")
-
-# A judgeable first token: identifier/path-shaped. Anything else (``>``,
-# ``[Unreleased]``, ``<repo>:``, ``<!--``, unicode prose) is skipped as prose.
-_FIRST_TOKEN_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.\-/]*$")
-
-# A real file extension (lowercase — ``vX.Y.Z`` version placeholders end in
-# uppercase pseudo-extensions and must stay prose).
-_EXT_RE = re.compile(r"\.[a-z0-9]{1,5}$")
-
-# Executables a skill body may legitimately invoke without the target repo
-# proving anything: VCS/CI/toolchain entry points, plus the MCP tool verbs
-# the landing-path doctrine names (gh-mcp). Deliberately generous — this is
-# an advisory scan of prose, and an unknown-but-real tool must fail open at
-# the "bare word" rule rather than nag every adopter.
-_EXECUTABLES = frozenset(
-    {
-        "git",
-        "gh",
-        "python",
-        "python3",
-        "python3.10",
-        "python3.11",
-        "python3.12",
-        "pip",
-        "pip3",
-        "pytest",
-        "ruff",
-        "black",
-        "isort",
-        "mypy",
-        "npm",
-        "npx",
-        "node",
-        "yarn",
-        "make",
-        "cargo",
-        "go",
-        "sha256sum",
-        "shasum",
-        "curl",
-        "wget",
-        "bash",
-        "sh",
-        "ls",
-        "grep",
-        "rg",
-        "bootstrap",  # the vendored entry point's shorthand spelling
-        # gh-mcp / trigger-MCP verbs (tool calls, not shell commands)
-        "create_pull_request",
-        "update_pull_request",
-        "list_pull_requests",
-        "merge_pull_request",
-        "enable_pr_auto_merge",
-        "get_file_contents",
-        "create_trigger",
-        "delete_trigger",
-        "list_triggers",
-        "fire_trigger",
-        "send_later",
-    }
-)
-
-# Paths that are grounded by construction even when absent from the target
-# tree: the kit's own release/distribution artifacts (the ``release`` and
-# ``upgrade-distribution`` runbooks name kit-repo files and transient wave
-# files that no adopter tree carries) plus the vendored-dist names the
-# consumer flow uses. ADOPT_PLAN destinations join this set below — a path
-# the kit plants is grounded wherever the kit is adopted.
-_KIT_SHIPPED_PATHS = frozenset(
-    {
-        "bootstrap.py",
-        "bootstrap.py.new",
-        "bootstrap.py.sha256",
-        "release.json",
-        "dist/bootstrap.py",
-        "src/build_bootstrap.py",
-        "src/build_release_json.py",
-        "src/engine/lib/config.py",
-        "pyproject.toml",
-        "CHANGELOG.md",
-        ".github/workflows/release.yml",
-        "docs/adopters.md",
-        "docs/operations/release-runbook.md",
-        "docs/SKILLS.md",
-    }
-)
-
-_KNOWN_PATHS = _KIT_SHIPPED_PATHS | {dest for _tmpl, dest in ADOPT_PLAN}
-
-
-def _unresolved(span: str, target: Path, state_dir: str) -> bool:
-    """True when ``span``'s first token is command/path-shaped and resolves nowhere.
-
-    Every ambiguous shape returns False (fail open — no verdict); see the
-    module docstring's skip-rule ladder.
-    """
-    if "${" in span:
-        return False  # slot-bearing — rendered per project, not judgeable raw
-    if any(ord(ch) > 127 for ch in span):
-        return False  # commands are ASCII; ·/→/✔ mark report-format prose
-    tokens = span.split()
-    if not tokens:
-        return False
-    first = tokens[0]
-    if not _FIRST_TOKEN_RE.match(first):
-        return False  # prose / placeholder / flag / bracket shapes
-    if first.endswith("/") or first.startswith(f"{state_dir}/"):
-        return False  # directory prose; runtime state artifacts
-    if first in _EXECUTABLES or first in _KNOWN_PATHS:
-        return False
-    if (target / first).exists():
-        return False
-    path_shaped = "/" in first or _EXT_RE.search(first) is not None
-    if path_shaped:
-        return True  # names a concrete file that is nowhere
-    # Bare word: with arguments it reads as a command whose executable is
-    # unknown (the fake-command class); alone it is a prose token.
-    return len(tokens) > 1
-
-
-def _spans(body: str) -> list[str]:
-    """Return the backticked inline spans of ``body``, in order."""
-    return _SPAN_RE.findall(body)
-
-
-def _skill_doc_paths(target: Path, state_dir: str) -> list[Path]:
-    """Return the target's installed + staged skill documents (may be empty)."""
-    paths: list[Path] = []
-    for root in (target / ".claude" / "skills", target / state_dir / "skills"):
-        if root.is_dir():
-            paths.extend(sorted(root.glob("*/SKILL.md")))
-    return paths
-
-
-def check_skill_grounds(
-    target: Path,
-    *,
-    skills: list[dict] | None = None,
-    state_dir: str = ".substrate",
-) -> list[Finding]:
-    """Return advisory ``skill-ground-unresolved`` findings for ``target``.
-
-    Scans the kit-truth skill set (``skills`` defaults to :data:`SKILLS`) —
-    bodies + ``grounds`` — and any rendered skill documents installed in the
-    target. Advisory by contract: callers must NEVER count these findings
-    toward an exit code (§8 Q2=B — see module docstring). Fail-open on
-    unreadable files and on every ambiguous span shape.
-    """
-    skill_set = SKILLS if skills is None else skills
-    findings: list[Finding] = []
-    for skill in skill_set:
-        rel = f"skills/{skill['name']}/SKILL.md"
-        for span in _spans(skill.get("body", "")):
-            if _unresolved(span, target, state_dir):
-                findings.append(
-                    Finding(
-                        rel,
-                        "skill-ground-unresolved",
-                        f"body names `{span}` but its first token resolves to "
-                        "no whitelisted executable, target file, or "
-                        "kit-shipped path — a session following this skill "
-                        "would improvise; fix the body (or the grounds "
-                        "whitelist) this session.",
-                    ),
-                )
-        for ground in skill.get("grounds", []):
-            if _unresolved(ground, target, state_dir):
-                findings.append(
-                    Finding(
-                        rel,
-                        "skill-ground-unresolved",
-                        f"grounds entry `{ground}` resolves to no whitelisted "
-                        "executable, target file, or kit-shipped path — "
-                        "grounds are the skill's exact-command truth; an "
-                        "unresolvable ground is drift.",
-                    ),
-                )
-    for doc in _skill_doc_paths(target, state_dir):
-        try:
-            text = doc.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue  # fail open — an unreadable file is not a verdict
-        rel = str(doc.relative_to(target)) if doc.is_relative_to(target) else str(doc)
-        for span in _spans(text):
-            if _unresolved(span, target, state_dir):
-                findings.append(
-                    Finding(
-                        rel,
-                        "skill-ground-unresolved",
-                        f"rendered skill names `{span}` but its first token "
-                        "resolves to no whitelisted executable, target file, "
-                        "or kit-shipped path — verify the command before a "
-                        "session inherits it.",
-                    ),
-                )
     return findings
 
 # --- engine/currency.py ---
@@ -13167,18 +12575,10 @@ def verify_against_release_json(running: Path, release_json: Path) -> list[str]:
     return [f"verified: sha256 + version against {release_json.name}"]
 
 
-def _upgrade_context(root: Path, backend: Any) -> dict[str, str]:
-    """Build the render context exactly the way adopt does.
-
-    ``agreement_home`` uses the same existence rule as :func:`_doc_plan`
-    (a live ``.claude/CLAUDE.md`` means the host opted in), so the doc-diff
-    classification renders the boot pointer adopt would compute — a mismatch
-    here would misclassify an untouched ``docs/AGENT_ORIENTATION.md`` as
-    diverged.
-    """
+def _upgrade_context(backend: Any) -> dict[str, str]:
+    """Build the render context exactly the way adopt does."""
     context = build_context(backend.data)
     context.setdefault("integration_mode", str(backend.get("mode", "guided")))
-    context.setdefault("agreement_home", agreement_home(root))
     return context
 
 
@@ -13219,7 +12619,7 @@ def classify_planted_docs(
     diverged docs with old templates available — the template@old→new delta,
     both rendered through the *current* slot context for a readable diff).
     """
-    context = _upgrade_context(root, backend)
+    context = _upgrade_context(backend)
     templates = new_templates if new_templates is not None else load_templates()
     rows: list[dict[str, str]] = []
     for template_name, rel in _doc_plan(root, config):
@@ -13307,7 +12707,7 @@ def apply_doc_improvements(
     planted docs are never auto-edited without ``--apply-docs``, and never
     when the consumer diverged).
     """
-    context = _upgrade_context(root, backend)
+    context = _upgrade_context(backend)
     templates = new_templates if new_templates is not None else load_templates()
     lines: list[str] = []
     for row in rows:
@@ -14052,9 +13452,6 @@ def cmd_render(target: Path, live: bool = False) -> int:
         _emit(f"render: no state at {target} (run init first).")
         return 1
     context = build_context(backend.data)
-    # Engine-computed boot pointer (ORDER 015): same rule as adopt, so a
-    # staged/live render never strands ${agreement_home} as an unfilled slot.
-    context.setdefault("agreement_home", agreement_home(target))
     if live:
         return _render_live(target, context, backend)
     out_dir = target / config.state_dir / "rendered"
@@ -14491,13 +13888,6 @@ def cmd_check(
     # migrates by nag, never a required-check red. Full lane only: the hook
     # is not control-lane traffic (emitted below with the adopters block).
     setup_advisories = check_setup_script(target)
-    # Skill command-grounding scan (grounded-skills slice 2, §8 Q2=B):
-    # advisory-only by contract, like every nudge above — a skill body /
-    # grounds entry / rendered SKILL.md naming a command that resolves
-    # nowhere is a drift nudge for the session, never a required-check red
-    # (UNVERIFIED per its provenance header; graduation is a later,
-    # deliberate step). Full lane only: skills are not control-lane traffic.
-    grounds_advisories = check_skill_grounds(target, state_dir=config.state_dir)
     # The inbox append-only gate (issue #36 report 2): a control/inbox.md
     # change must be pure-append vs the merge-base + ORDER-grammar shaped.
     # Rides the finding loop like every checker; engages only when CI handed
@@ -14740,26 +14130,6 @@ def cmd_check(
             surface="check",
             posture="advisory",
             findings=setup_advisories,
-        )
-    if grounds_advisories and not status_only:
-        # Same warn-only contract as the advisories above (grounded-skills
-        # slice 2, §8 Q2=B advisory-first): an unresolvable skill command is
-        # surfaced + telemetry-recorded, never counted toward the exit code
-        # — the checker is UNVERIFIED (PL-008 header) and a coarse prose
-        # scan can never be a verdict.
-        _emit(
-            f"check: {len(grounds_advisories)} skill-grounds advisory "
-            "warning(s) (never exit-affecting):",
-        )
-        for finding in grounds_advisories:
-            _emit(f"  [{finding.kind}] {finding.path}: {finding.message}")
-        record_guard_fires(
-            target,
-            config.state_dir,
-            cmd="check",
-            surface="check",
-            posture="advisory",
-            findings=grounds_advisories,
         )
     if adopters_advisories and not status_only:
         # Same warn-only contract as the advisories above (EAP §6.3): a
@@ -16181,11 +15551,10 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 _TEMPLATES = {
-    'AGENT_ORIENTATION.md.tmpl': '# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\nThe boot set lives in the working agreement — `${agreement_home}` — and its\norientation guidance (one list, one home). This file is not boot reading —\nopen it when a task needs a route into the deeper docs.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/SKILLS.md` ·\n`docs/ideas/README.md` — plus the root\n`CONSTITUTION.md` (the working agreement) and `.session-journal.md`.\n\nRecurring action? **`docs/SKILLS.md`** — the skill index — names every\nkit-shipped skill and when to reach for it; check it before improvising a\nprocedure.\n\n## Verifying any change\n\nSee the working agreement (`${agreement_home}`) and its verify guidance\n(one home, never two copies).\n',
+    'AGENT_ORIENTATION.md.tmpl': '# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\nThe boot set lives in `.claude/CLAUDE.md` § "Orientation — read first" (one\nlist, one home). This file is not boot reading — open it when a task needs\na route into the deeper docs.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/ideas/README.md` — plus the root\n`CONSTITUTION.md` (the working agreement) and `.session-journal.md`.\n\n## Verifying any change\n\nSee `.claude/CLAUDE.md` § "Verifying a change" (one home, never two copies).\n',
     'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/capabilities.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   evidence (exact error, or proof it worked) and the workaround if one was\n   found. An unrecorded discovery is re-paid by every future session.\n\n## Capabilities — verified working\n\n- **Media is readable**: a video is never "unviewable" — extract frames\n  (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images; same\n  idea for audio (transcribe) and PDFs (render pages). Try the recipe before\n  reporting a format wall.\n- **Provisioned credentials**: the environment often carries tokens/keys as\n  env vars — `printenv` first; a missing-looking credential is usually a\n  missing *look*.\n- **Release cutting despite the tag wall**: `workflow_dispatch` on the\n  release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- **Tag push / release create via git**: HTTP 403 from the environment\'s git\n  proxy → use the workflow_dispatch release path.\n- **Branch deletion**: 403 on every path (git push `:branch` and API) →\n  owner deletes by hand / enables "Automatically delete head branches".\n- **`api.github.com` direct HTTP**: blocked → GitHub access is MCP-tools-only.\n- **Environment / routine / Project creation**: owner-click actions in the\n  console — queue them under `⚑ needs-owner`, never wait silently.\n- **Self-merge classifier**: sessions can be refused merging owner-gated PRs\n  while their other capabilities work — and the boundary differs by session\n  kind (a child session was refused where a coordinator was not). Record\n  which kind of session hit which boundary.\n- **GraphQL API quota**: tight — batch queries and prefer the REST-backed\n  MCP tools for bulk reads.\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.\n\n(Hand-filled by sessions, per the discovery rule. Seed walls/capabilities\nabove came from the fleet\'s lived 2026-07 findings; local ones go here.)\n',
-    'CLAUDE.md.tmpl': "# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `HANDOFF.md` at repo root (when present) — the previous session's trail:\n   newest session card + where to pick up. Regenerated at every session\n   boot, untracked by design — read it before re-deriving history from\n   `git log`/`git show`; never commit or edit it.\n3. `docs/current-state.md` — what is true right now.\n\nThat is the whole boot set. Everything else is routed, **not front-loaded**\n(reading every planted doc up front buys ceremony, not context — measured):\nopen `docs/AGENT_ORIENTATION.md` when a task needs its reading route,\n`docs/SKILLS.md` (the skill index) **before improvising a procedure for a\nrecurring action**, and\n`docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring\nany wall or missing credential** — its discovery rule: check the file →\ncheck the env → attempt once + capture the exact error → append the finding\nsame session.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g '!bootstrap.py' -g\n'!.substrate' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n",
-    'CONSTITUTION.md.tmpl': '# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session\'s goal end-to-end; don\'t ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner hands over fragments, not full\n  specs. Before substantive work, restate the fuller picture built from the\n  ask — the implied specs, and the possibility space when feasibility is\n  uncertain — inline in the first substantive response, never as a blocking\n  question. It catches a misread early, and the filled-in picture is itself\n  new material the owner redirects.\n- **Capabilities are discovered, never assumed.** Before declaring a wall or\n  a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →\n  check the environment → attempt once and capture the exact error → append\n  the finding same session.\n- **Recurring actions run through the skill index.** `docs/SKILLS.md` names\n  every kit-shipped skill and when to reach for it — check it before\n  improvising a procedure or repo-searching "how do we do X here".\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall — assumption-based\n  asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE\n  / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act directly.\n  Expire stale asks; fewer, clearer asks beat complete lists.\n\n## Changing the rules — propose, don\'t apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),\ne.g. PL-001 decide-and-flag · PL-006 source-wins / false-green.\n**Cite PL-IDs — never copy ruling bodies into this repo** (the register is\nthe one home; a local copy is drift by construction). Repo-local rulings\nstay in `docs/decisions.md` / `docs/question-router.md`.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project\'s own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n',
-    'SKILLS-index.md.tmpl': '# ${project_name} — skill index\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The table below renders FROM the kit\'s\n> `SKILLS` list — the same source that emits the skills — and regenerates\n> at adopt/upgrade, so it cannot hand-drift. **NOT SOURCE OF TRUTH** for\n> skill bodies: the installed `.claude/skills/<name>/SKILL.md` wins.\n\n## What this is\n\nThe registered skill set for ${project_name}: every recurring action that\nhas a defined, kit-shipped procedure. **Check this index before improvising\na workflow or repo-searching "how do we do X here"** — when a row covers\nthe action, invoke the skill (or read its installed body) instead of\nderiving the procedure from scratch.\n\n## The skills\n\n${skills_index}\n\n## Where the bodies live\n\n- **Installed (live):** `.claude/skills/<name>/SKILL.md` — invoke as\n  `/<name>`.\n- **Staged (regenerated at every adopt/upgrade):** the kit state dir\'s\n  `skills/` tree (default `.substrate/skills/`); install with\n  `python3 bootstrap.py skills --build`.\n- **Precedence:** a skill\'s declared capability **wins over the ambient\n  stance** (an invoked `session-close` may write the session log even under\n  a `review` stance); stances stay advisory for anything a skill has not\n  declared.\n\n## Growing the set\n\nThe skill set is kit-owned (the `SKILLS` list in the kit\'s\n`src/engine/skills/skills.py`) and this index regenerates from it — never\nhand-edit the table. A recurring action without a row here is a candidate\nskill: capture it as an idea (`docs/ideas/README.md`) or propose it\nupstream to the kit, and it reaches every adopter at the next release.\n',
+    'CLAUDE.md.tmpl': "# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `HANDOFF.md` at repo root (when present) — the previous session's trail:\n   newest session card + where to pick up. Regenerated at every session\n   boot, untracked by design — read it before re-deriving history from\n   `git log`/`git show`; never commit or edit it.\n3. `docs/current-state.md` — what is true right now.\n\nThat is the whole boot set. Everything else is routed, **not front-loaded**\n(reading every planted doc up front buys ceremony, not context — measured):\nopen `docs/AGENT_ORIENTATION.md` when a task needs its reading route, and\n`docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring\nany wall or missing credential** — its discovery rule: check the file →\ncheck the env → attempt once + capture the exact error → append the finding\nsame session.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g '!bootstrap.py' -g\n'!.substrate' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n",
+    'CONSTITUTION.md.tmpl': "# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session's goal end-to-end; don't ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner hands over fragments, not full\n  specs. Before substantive work, restate the fuller picture built from the\n  ask — the implied specs, and the possibility space when feasibility is\n  uncertain — inline in the first substantive response, never as a blocking\n  question. It catches a misread early, and the filled-in picture is itself\n  new material the owner redirects.\n- **Capabilities are discovered, never assumed.** Before declaring a wall or\n  a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →\n  check the environment → attempt once and capture the exact error → append\n  the finding same session.\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall — assumption-based\n  asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE\n  / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act directly.\n  Expire stale asks; fewer, clearer asks beat complete lists.\n\n## Changing the rules — propose, don't apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),\ne.g. PL-001 decide-and-flag · PL-006 source-wins / false-green.\n**Cite PL-IDs — never copy ruling bodies into this repo** (the register is\nthe one home; a local copy is drift by construction). Repo-local rulings\nstay in `docs/decisions.md` / `docs/question-router.md`.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project's own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n",
     'ai-project-workflow.md.tmpl': "# ${project_name} — AI project workflow\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The multi-agent pipeline: how ideas become work\n> and how sessions run. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Idea lifecycle\n\n```\ncaptured -> classified -> planned -> built -> verified\n```\n\nEvery idea ends implemented, planned, in discussion, or explicitly rejected —\nnever orphaned. Backlog + routing: `docs/ideas/README.md`.\n\n## Session workflow\n\n```\norient -> claim -> born-red card -> build -> verify -> close\n```\n\n1. **Orient** — working agreement, current state, task-specific reading route.\n2. **Claim** — declare your lane so parallel sessions don't collide.\n3. **Born-red card** — open the session record first, marked in-progress, so\n   the work is visible while it is still incomplete.\n4. **Build** — the goal, end-to-end.\n5. **Verify** — run `${verify_command}` before shipping.\n6. **Close** — flip the card complete; log the session, groom one idea, hand\n   off.\n\n## Handoff template\n\n(What the next session needs, four lines: state of the work · what is\nverified · what is still open · the first next step.)\n\n## Adoption pace\n\nCurrent substrate-workflow adoption: **${integration_mode}**.\n",
     'architecture.md.tmpl': '# ${project_name} — architecture\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Layering, invariants, and decomposition rules.\n> **NOT SOURCE OF TRUTH** for code — source files always win.\n\n## Layers & import rules\n\n${architecture_layers}\n\n| Layer | May import | Must NOT import |\n|---|---|---|\n| (one row per layer, expanded from the summary above) | | |\n\n## Invariants\n\n(The rules that must survive every refactor — write each one as a testable\nstatement, and name the check that enforces it where one exists.)\n\n## Namespace protection — two mechanisms, both required\n\nTwo separate mechanisms guard the namespace, and they catch different\nfailure classes:\n\n1. **A registry for runtime string identities** — event names, command\n   names, settings keys, and any other string that selects behavior at\n   runtime. Collisions here are invisible to static analysis.\n2. **A static AST pass for Python symbol shadowing** — a later top-level\n   `def` / `class` with the same name silently shadows the earlier one, and\n   no import fails.\n\nNeither mechanism subsumes the other. The registry cannot see symbol\nshadowing; the AST pass cannot see string-keyed dispatch. Do not delete one\nbelieving the other covers it.\n\n## Verifying a change\n\n```\n${verify_command}\n```\n',
     'collaboration-model.md.tmpl': "# ${project_name} — collaboration model\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How the owner and agents work together. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## The model\n\n- **Goal first.** The owner designs and directs; agents build. Each session\n  achieves its goal end-to-end — not the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting; a\n  prompt is one input, never a command list.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — code, verify, ship —\n  without re-confirming.\n\n## Act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task (that is expected, not scope creep).\n- **Ask** when the change is irreversible (data loss / external publish),\n  large and cross-cutting (architectural), or the goal itself is genuinely\n  ambiguous.\n\n## Routing work to the owner\n\nThe owner is the scarcest resource in the program. An ask reaches the owner\nonly when the agent has **attempted the action itself** or can name the\n**exact wall** (error text, permission denial) proving only the owner can do\nit — assumption-based asks are banned. Every ask uses the OWNER-ACTION\nformat — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED\n(canonical: `control/README.md`) — phrased so a non-technical owner can act\ndirectly: one plain sentence, an exact click path, paste-ready text.\nWithdraw asks that have gone stale; fewer, clearer asks beat complete lists.\n\n## Friction → guard\n\nAnything that interrupts a session's workflow — a stale file, a checker that\nlied, a footgun — is converted into the **cheapest enforcing prevention**\nbefore the session ends: checker / CI / test first, then hook, then written\nrule. Enforce, don't exhort.\n\n## Guiding questions\n\nDuring exploratory / brainstorming work, surface the single most useful\nquestion about the owner's idea that the agent genuinely cannot derive\nitself — rare and selective, never during routine execution, and only when\nthe answer would actually matter and be actionable. A big or vague idea\nearns a dedicated research pass or its own session before being answered\nfrom memory alone.\n\n## Program law\n\nThis model's program-wide form, and the rulings that bind every repo in the\nprogram, live canonically in the substrate-kit repo at\n`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001\ndecide-and-flag, PL-002 never-wait, PL-007 enforce-don't-exhort) and\n`docs/program/collaboration-model.md`\n(https://github.com/menno420/substrate-kit/tree/main/docs/program).\n**Cite PL-IDs — never copy ruling bodies into this repo.**\n\n## Drift & staleness\n\n- When a doc and a source file disagree: ${drift_resolution}\n- Staleness review cadence: ${staleness_review}\n",
