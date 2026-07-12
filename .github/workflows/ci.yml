@@ -54,7 +54,7 @@ jobs:
             check_metric_cardinality check_migrations check_money_race \
             check_namespace \
             check_no_skip check_rollback_disposition check_runtime_smoke \
-            check_schema_growth \
+            check_schema_growth check_settle_once \
             check_sim_gate check_slash_cap check_symbol_shadowing \
             check_verified_live; do
             echo "::group::${checker}"
