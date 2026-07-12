@@ -15,10 +15,12 @@ from sb.domain.mining.ops import register_ops
 from sb.domain.mining.panels import (
     mining_card_spec,
     mining_forge_spec,
+    mining_home_spec,
     mining_hub_spec,
     mining_skills_spec,
     mining_titles_spec,
     mining_vault_spec,
+    mining_workshop_spec,
 )
 from sb.domain.mining.store import (
     MINING_EQUIPMENT_STORE,
@@ -44,12 +46,6 @@ def _cmd(name: str, route, summary: str, aliases: tuple[str, ...] = (),
                        usage=f"!{name}")
 
 
-def _pending(name: str, summary: str,
-             aliases: tuple[str, ...] = ()) -> CommandSpec:
-    return _cmd(name, HandlerRef(f"mining.{name}_pending"), summary,
-                aliases)
-
-
 _COMMANDS = (
     _cmd("minemenu", PanelRef("mining.hub"), "Open the mining hub."),
     _cmd("mine", HandlerRef("mining.mine_route"),
@@ -71,10 +67,13 @@ _COMMANDS = (
          "Your mining pack.", ("mineinventory",)),
     _cmd("minestats", HandlerRef("mining.stats_view"),
          "Your mining stats."),
-    # --- deep systems (the D-0043 named successor port) -------------------
-    _pending("build", "Build a structure.", ("craft",)),
-    _pending("buildlist", "List built structures."),
-    _pending("buildable", "What you can build now."),
+    # --- slice-6 port (LIVE): structures recipe catalogue -----------------
+    _cmd("build", HandlerRef("mining.build_route"),
+         "Build / craft an item from recipes: !build [<item>].", ("craft",)),
+    _cmd("buildlist", HandlerRef("mining.buildlist_route"),
+         "List every craftable structure/gear recipe."),
+    _cmd("buildable", HandlerRef("mining.buildable_view"),
+         "What you can build now from your resources."),
     # --- slice-4 port (LIVE): workshop / campfire / consumables ------------
     _cmd("use", HandlerRef("mining.use_route"), "Use a consumable item."),
     _cmd("cook", HandlerRef("mining.cook_route"), "Cook fish at a campfire."),
@@ -113,8 +112,11 @@ _COMMANDS = (
          "Your earned titles — equip one on your Character card."),
     _cmd("forge", PanelRef("mining.forge"),
          "Open the Forge — build it to unlock higher-tier gear crafting."),
-    _pending("home", "Your home structure."),
-    _pending("workshop", "The repair workshop."),
+    # --- slice-6 port (LIVE): home backdrop + workshop craft/repair panel ---
+    _cmd("home", PanelRef("mining.home"),
+         "Open your Home — build it to personalize your Character card."),
+    _cmd("workshop", PanelRef("mining.workshop"),
+         "Open the workshop — repair worn gear, craft replacements."),
     _cmd("repair", HandlerRef("mining.repair_route"), "Repair worn gear."),
     _cmd("quickcraft", HandlerRef("mining.quickcraft_route"),
          "Re-craft the last gear item that broke."),
@@ -131,7 +133,8 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=_COMMANDS,
     panels=(mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
-            mining_forge_spec(), mining_skills_spec(), mining_titles_spec()),
+            mining_forge_spec(), mining_skills_spec(), mining_titles_spec(),
+            mining_workshop_spec(), mining_home_spec()),
     settings=(),
     stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE,
             MINING_EQUIPMENT_STORE, MINING_GEAR_WEAR_STORE,

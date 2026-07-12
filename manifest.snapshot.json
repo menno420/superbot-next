@@ -5086,6 +5086,26 @@
           "value": "ti_hub"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "ws_quickcraft"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "ws_back"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "ho_build"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "ho_hub"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "warn"
@@ -6653,6 +6673,16 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining.titles"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.workshop"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.home"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -9251,14 +9281,14 @@
       "handler:mining.ascend_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.build_route": {
+        "module": "sb.domain.mining.service"
       },
-      "handler:mining.buildable_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.buildable_view": {
+        "module": "sb.domain.mining.service"
       },
-      "handler:mining.buildlist_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.buildlist_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.buy_route": {
         "module": "sb.domain.mining.service"
@@ -9293,7 +9323,7 @@
       "handler:mining.grid_view_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.home_pending": {
+      "handler:mining.home_build_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:mining.how_to_pending": {
@@ -9323,6 +9353,9 @@
       "handler:mining.render_forge": {
         "module": "sb.domain.mining.panels"
       },
+      "handler:mining.render_home": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.render_hub": {
         "module": "sb.domain.mining.panels"
       },
@@ -9333,6 +9366,9 @@
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.render_vault": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.render_workshop": {
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.repair_route": {
@@ -9383,7 +9419,10 @@
       "handler:mining.vaultupgrade_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.workshop_pending": {
+      "handler:mining.workshop_craft_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.workshop_hub_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:moderation.modlogs_view": {
@@ -10466,6 +10505,9 @@
       "panel:mining.forge": {
         "module": "sb.domain.mining.panels"
       },
+      "panel:mining.home": {
+        "module": "sb.domain.mining.panels"
+      },
       "panel:mining.hub": {
         "module": "sb.domain.mining.panels"
       },
@@ -10476,6 +10518,9 @@
         "module": "sb.domain.mining.panels"
       },
       "panel:mining.vault": {
+        "module": "sb.domain.mining.panels"
+      },
+      "panel:mining.workshop": {
         "module": "sb.domain.mining.panels"
       },
       "panel:moderation.hub": {
@@ -10747,6 +10792,9 @@
       },
       "provider:leaderboard.category_options": {
         "module": "sb.domain.community.panels"
+      },
+      "provider:mining.workshop_craft_options": {
+        "module": "sb.domain.mining.panels"
       },
       "provider:role.hub_overview": {
         "module": "sb.domain.role.panels"
@@ -12535,7 +12583,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d5cd1f3cf710fd77899f1f155e0a9833fdaadd4795e42715e9837dd7b298848a",
+  "stable_hash": "sha256:082cad4fb6dda0d269259d6adf26577f333024a8e6c5c91b76357170557a59b6",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -39682,10 +39730,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.build_pending"
+            "$ref": "handler:mining.build_route"
           },
           "slash_common": false,
-          "summary": "Build a structure.",
+          "summary": "Build / craft an item from recipes: !build [<item>].",
           "usage": "!build",
           "usage_weight": 1.0
         },
@@ -39706,10 +39754,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.buildlist_pending"
+            "$ref": "handler:mining.buildlist_route"
           },
           "slash_common": false,
-          "summary": "List built structures.",
+          "summary": "List every craftable structure/gear recipe.",
           "usage": "!buildlist",
           "usage_weight": 1.0
         },
@@ -39730,10 +39778,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.buildable_pending"
+            "$ref": "handler:mining.buildable_view"
           },
           "slash_common": false,
-          "summary": "What you can build now.",
+          "summary": "What you can build now from your resources.",
           "usage": "!buildable",
           "usage_weight": 1.0
         },
@@ -40191,10 +40239,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.home_pending"
+            "$ref": "panel:mining.home"
           },
           "slash_common": false,
-          "summary": "Your home structure.",
+          "summary": "Open your Home — build it to personalize your Character card.",
           "usage": "!home",
           "usage_weight": 1.0
         },
@@ -40215,10 +40263,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.workshop_pending"
+            "$ref": "panel:mining.workshop"
           },
           "slash_common": false,
-          "summary": "The repair workshop.",
+          "summary": "Open the workshop — repair worn gear, craft replacements.",
           "usage": "!workshop",
           "usage_weight": 1.0
         },
@@ -40439,7 +40487,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.workshop_pending"
+                "$ref": "panel:mining.workshop"
               },
               "label": "🔨 Workshop",
               "modal": null,
@@ -40793,7 +40841,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.workshop_pending"
+                "$ref": "panel:mining.workshop"
               },
               "label": "↩ Workshop",
               "modal": null,
@@ -41151,6 +41199,226 @@
           "subsystem": "mining",
           "timeout_s": 180,
           "title": "🏆 Titles",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "ws_quickcraft",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.quickcraft_route"
+              },
+              "label": "🔁 Quick-craft last broken",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ws_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.workshop_hub_pending"
+              },
+              "label": "↩ Workshop",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!workshop` reply is a fully live-state-parameterized embed built in the view (views/mining/workshop_panel.py build_workshop_embed: the 🧰 Equipped gear condition/repair lines, the 🛠️ Craft gear list + the `All {n} gear recipes` pointer, and the dynamic `Balance: {n} 🪙` footer — goldens/mining/sweep_workshop.json pins the fresh-player bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub / vault / forge live-overview precedent). The craft select's options ride the declared provider; the renderer patches only the embed and the 🔁 Quick-craft disabled flag (disabled with no last-broken item). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "ws_craft"
+                  ],
+                  [
+                    "ws_quickcraft",
+                    "ws_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.workshop",
+          "renderer_override": {
+            "$ref": "handler:mining.render_workshop"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "Craft gear from resources…",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:mining.workshop_craft_pending"
+              },
+              "options_source": {
+                "$ref": "provider:mining.workshop_craft_options"
+              },
+              "page_size": 25,
+              "placeholder": "Craft gear from resources…",
+              "selector_id": "ws_craft",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "🔧 Workshop",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "ho_build",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.home_build_pending"
+              },
+              "label": "🏠 Build",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ho_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!home` reply is a fully live-state-parameterized embed built in the view (views/mining/home_panel.py build_home_embed: the Level `{level_name} ({level}/{max})` line, the cosmetic-backdrop blurb, and the Next-cost `{materials} + {coins} 🪙` field / maxed state — goldens/mining/sweep_home.json pins the not-built bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub / vault / forge live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "ho_build",
+                    "ho_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.home",
+          "renderer_override": {
+            "$ref": "handler:mining.render_home"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "🏠 Home",
           "usage_weight": 1.0
         }
       ],

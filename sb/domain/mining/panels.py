@@ -65,9 +65,18 @@ from sb.spec.panels import (
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
-from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
+from sb.spec.refs import (
+    HandlerRef,
+    PanelRef,
+    ProviderRef,
+    is_registered,
+    panel,
+    provider,
+)
 
 __all__ = [
     "CARD_PANEL_ID",
@@ -76,6 +85,8 @@ __all__ = [
     "FORGE_PANEL_ID",
     "SKILLS_PANEL_ID",
     "TITLES_PANEL_ID",
+    "WORKSHOP_PANEL_ID",
+    "HOME_PANEL_ID",
     "PACK_SOFT_CAP",
     "ensure_panel_refs",
     "install_mining_panels",
@@ -85,6 +96,8 @@ __all__ = [
     "mining_forge_spec",
     "mining_skills_spec",
     "mining_titles_spec",
+    "mining_workshop_spec",
+    "mining_home_spec",
 ]
 
 HUB_PANEL_ID = "mining.hub"
@@ -93,6 +106,8 @@ VAULT_PANEL_ID = "mining.vault"
 FORGE_PANEL_ID = "mining.forge"
 SKILLS_PANEL_ID = "mining.skills"
 TITLES_PANEL_ID = "mining.titles"
+WORKSHOP_PANEL_ID = "mining.workshop"
+HOME_PANEL_ID = "mining.home"
 
 #: the shipped shared author-locked nav-view footer literal (the
 #: games/farm/community `_PANEL_FOOTER`).
@@ -188,7 +203,7 @@ def mining_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="mi_workshop", label="🔨 Workshop",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.workshop_pending"),
+                handler=PanelRef(WORKSHOP_PANEL_ID),
                 custom_id_override="mining:workshop"),
             PanelActionSpec(
                 action_id="mi_how_to", label="📖 How-to",
@@ -303,8 +318,8 @@ def _vault_modal_handlers() -> dict[str, HandlerRef]:
 def _forge_button_handlers() -> dict[str, HandlerRef]:
     """Pending terminal for the forge's 🔥 Build button — the structure BUILD
     write rides the deferred structures build system (the `!build` command stays
-    a D-0043 pending terminal this slice); the ↩ Workshop button reuses the
-    existing ``mining.workshop_pending`` (the workshop hub is slice 6). Registered
+    a D-0043 pending terminal this slice); the ↩ Workshop button opens the
+    now-live ``mining.workshop`` panel (slice 6). Registered
     at IMPORT (module bottom), never ensure-only (#111 doctrine). No golden drives
     a forge click, so the terminal copy is unpinned."""
     from sb.domain.operator_spine import pending_handler
@@ -345,7 +360,7 @@ def mining_forge_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="fo_workshop", label="↩ Workshop",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("mining.workshop_pending")),
+                handler=PanelRef(WORKSHOP_PANEL_ID)),
         ),
         # the shipped standard nav row: 📚 Help + "↩ Games"
         # (nav:help / nav:hub:games — both pinned by the golden).
@@ -644,6 +659,308 @@ async def _render_titles(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed)
 
 
+#: the craft-select options provider id (registered at import in _register_refs).
+_WORKSHOP_CRAFT_OPTIONS = "mining.workshop_craft_options"
+
+
+def _ensure_workshop_craft_provider() -> ProviderRef:
+    """The Workshop craft select's rich options — the shipped
+    ``views/mining/workshop_panel.py`` ``_CraftSelect`` rows verbatim: the
+    equippable recipes annotated craftable-now, sorted (craftable-first, then
+    name), the top 25 rendered as ``{Name} — {materials}`` (a ``✅`` emoji only
+    when the player can craft it now). A fresh player owns nothing → all 39
+    gear recipes are not-craftable → the first 25 alphabetically, no emoji
+    (goldens/mining/sweep_workshop pins the 25 option bytes)."""
+    ref = ProviderRef(_WORKSHOP_CRAFT_OPTIONS)
+    if not is_registered(ref):
+        @provider(_WORKSHOP_CRAFT_OPTIONS)
+        async def workshop_craft_options(ctx: object):
+            from sb.domain.mining import store, workshop
+            from sb.domain.mining.recipes import load_recipes
+
+            uid = int(getattr(getattr(ctx, "actor", None), "user_id", 0) or 0)
+            gid = int(getattr(ctx, "guild_id", 0) or 0)
+            inventory = await store.get_mining_inventory(uid, gid)
+            options = []
+            for g in sorted(workshop.craftable_gear(load_recipes(), inventory),
+                            key=lambda g: (not g.craftable, g.name)):
+                opt = {
+                    "label": (f"{g.name.title()} — "
+                              f"{workshop.describe_materials(g.materials)}")[:100],
+                    "value": g.name,
+                }
+                if g.craftable:
+                    opt["emoji"] = "✅"
+                options.append(opt)
+            return tuple(options)
+    return ref
+
+
+def _workshop_button_handlers() -> dict[str, HandlerRef]:
+    """Pending terminals for the Workshop panel's deferred lanes — the craft
+    select's material→product write and the ↩ Workshop sub-hub ride the deferred
+    structures/panel port (D-0043); the LIVE lanes (`!repair`, `!quickcraft`,
+    the 🔁 Quick-craft button) already carry the audited moves. Registered at
+    IMPORT (module bottom), never ensure-only (#111 doctrine). No golden drives
+    a workshop click, so the terminal copy is unpinned."""
+    from sb.domain.operator_spine import pending_handler
+
+    return {
+        "craft": pending_handler(
+            "mining.workshop_craft_pending",
+            "🛠️ Crafting gear from the dropdown rides the deep-system panel "
+            "port (D-0043) — " + _D0043_TAIL),
+        "hub": pending_handler(
+            "mining.workshop_hub_pending",
+            "🔧 The Workshop sub-hub rides the deep-system panel port (D-0043) "
+            "— repair now with `!repair <item>`, or `!craft <item>`."),
+    }
+
+
+def mining_workshop_spec() -> PanelSpec:
+    """The shipped 🔧 Workshop panel (views/mining/workshop_panel.py
+    ``MiningWorkshopView`` + ``build_workshop_embed``) — an ephemeral (session)
+    child of the mining hub: a provider-fed gear-craft select + 🔁 Quick-craft
+    last broken + ↩ Workshop mint session `<cid:N>` ids, and the live
+    equipped-gear / craftable-gear / balance embed rides a renderer override
+    (goldens/mining/sweep_workshop.json pins every byte: the MINING_COLOR
+    dark-grey frame, the 🧰 Equipped gear + 🛠️ Craft gear fields, the balance
+    footer, the 25-option craft select, the disabled 🔁 Quick-craft + ↩ Workshop
+    row, and the standard nav row 📚 Help + ↩ Games)."""
+    return PanelSpec(
+        panel_id=WORKSHOP_PANEL_ID,
+        subsystem="mining",
+        title="🔧 Workshop",
+        audience=Audience.INVOKER,
+        # MINING_COLOR = discord.Color.dark_grey() (utils/ui_constants.py); the
+        # live fields + balance footer ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
+        # so no panel_anchors row — the shipped HubView child send).
+        session_lifecycle=True,
+        selectors=(
+            SelectorSpec(
+                selector_id="ws_craft", kind=SelectorKind.ENTITY,
+                on_select=HandlerRef("mining.workshop_craft_pending"),
+                options_source=_ensure_workshop_craft_provider(),
+                placeholder="Craft gear from resources…",
+                empty_state="Craft gear from resources…",
+                audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="ws_quickcraft",
+                label="🔁 Quick-craft last broken",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("mining.quickcraft_route"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="ws_back", label="↩ Workshop",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("mining.workshop_hub_pending")),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden).
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("mining.render_workshop"),
+        justification=(
+            "the shipped `!workshop` reply is a fully live-state-parameterized "
+            "embed built in the view (views/mining/workshop_panel.py "
+            "build_workshop_embed: the 🧰 Equipped gear condition/repair lines, "
+            "the 🛠️ Craft gear list + the `All {n} gear recipes` pointer, and "
+            "the dynamic `Balance: {n} 🪙` footer — goldens/mining/"
+            "sweep_workshop.json pins the fresh-player bytes), read-parameterized "
+            "state outside the static TextBlock/FieldsBlock vocabulary (the "
+            "mining hub / vault / forge live-overview precedent). The craft "
+            "select's options ride the declared provider; the renderer patches "
+            "only the embed and the 🔁 Quick-craft disabled flag (disabled with "
+            "no last-broken item). Every component stays grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("ws_craft",),
+            ("ws_quickcraft", "ws_back"),
+        )),)),
+    )
+
+
+async def _render_workshop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped live workshop embed
+    (equipped-gear condition/repair lines, craftable-gear list, balance footer;
+    see justification) and the disabled-when-no-last-broken 🔁 Quick-craft
+    button. A fresh player owns nothing / has nothing equipped / never broke a
+    tool → `Nothing equipped yet.` + `▫️ Nothing craftable …` + `All 39 gear
+    recipes` + `Balance: 0 🪙` and a DISABLED Quick-craft — the bytes
+    goldens/mining/sweep_workshop.json pins."""
+    from sb.domain.economy.store import get_coins
+    from sb.domain.mining import equipment as _eq
+    from sb.domain.mining import store, workshop
+    from sb.domain.mining.recipes import load_recipes
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    inventory = await store.get_mining_inventory(uid, gid)
+    equipped = await store.get_equipment(uid, gid)
+    wear = await store.get_gear_wear(uid, gid)
+    last_broken = await store.get_last_broken(uid, gid)
+    balance = await get_coins(uid, gid)
+
+    gear_lines: list[str] = []
+    for slot in _eq.SLOTS:
+        item = equipped.get(slot)
+        if not item:
+            continue
+        maximum = _eq.max_durability(item)
+        if maximum is None:
+            gear_lines.append(f"**{item.title()}** — does not wear")
+            continue
+        remaining = wear.get(item, maximum)
+        line = f"**{item.title()}** {workshop.durability_bar(remaining, maximum)}"
+        cost = workshop.repair_cost(item, remaining)
+        if cost is not None:
+            line += f" — repair {cost} 🪙"
+        gear_lines.append(line)
+    fields: list[tuple[str, str, bool]] = [
+        ("🧰 Equipped gear",
+         "\n".join(gear_lines) if gear_lines else "Nothing equipped yet.",
+         False)]
+    if last_broken:
+        fields.append((
+            "💥 Last broken",
+            f"**{last_broken.title()}** — hit 🔁 Quick-craft to replace it.",
+            False))
+    craftables = workshop.craftable_gear(load_recipes(), inventory)
+    if craftables:
+        ready = [g for g in craftables if g.craftable]
+        lines = [f"✅ **{g.name.title()}** — "
+                 f"{workshop.describe_materials(g.materials)}" for g in ready[:12]]
+        if not ready:
+            lines = ["▫️ Nothing craftable from your current resources."]
+        lines.append(
+            f"📖 All **{len(craftables)}** gear recipes: the Recipe browser "
+            "(`!recipes`).")
+        fields.append(("🛠️ Craft gear", "\n".join(lines), False))
+    embed = _dc_replace(
+        rendered.embed, title="🔧 Workshop", fields=tuple(fields),
+        footer=(f"Balance: {balance} 🪙  •  !repair <item> · !craft <item> · "
+                "!quickcraft"))
+    components = tuple(
+        _dc_replace(c, disabled=True)
+        if (not last_broken
+            and getattr(c, "custom_id", "").endswith(".ws_quickcraft"))
+        else c
+        for c in rendered.components)
+    return _dc_replace(rendered, embed=embed, components=components)
+
+
+def _home_button_handlers() -> dict[str, HandlerRef]:
+    """Pending terminal for the Home panel's 🏠 Build button — the structure
+    BUILD write (coin + material sink → level raise) rides the deferred
+    structures build port (D-0043). Registered at IMPORT (module bottom), never
+    ensure-only (#111 doctrine). No golden drives a home click, so the terminal
+    copy is unpinned."""
+    from sb.domain.operator_spine import pending_handler
+
+    return {
+        "build": pending_handler(
+            "mining.home_build_pending",
+            "🏠 Building your Home rides the deep-system structures build port "
+            "(D-0043) — " + _D0043_TAIL),
+    }
+
+
+def mining_home_spec() -> PanelSpec:
+    """The shipped 🏠 Home panel (views/mining/home_panel.py ``MiningHomeView``
+    + ``build_home_embed``) — an ephemeral (session) child of the mining hub:
+    the 🏠 Build + ↩ Mining Hub buttons mint session `<cid:N>` ids, and the live
+    built-level / backdrop-blurb / next-cost embed rides a renderer override
+    (goldens/mining/sweep_home.json pins every byte: the MINING_COLOR dark-grey
+    frame, the Level / What it does / Next fields, the build-prompt footer, the
+    🏠 Build + ↩ Mining Hub row and the standard nav row 📚 Help + ↩ Games)."""
+    return PanelSpec(
+        panel_id=HOME_PANEL_ID,
+        subsystem="mining",
+        title="🏠 Home",
+        audience=Audience.INVOKER,
+        # MINING_COLOR = discord.Color.dark_grey() (utils/ui_constants.py); the
+        # live fields + build-prompt footer ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
+        # so no panel_anchors row — the shipped HubView child send).
+        session_lifecycle=True,
+        actions=(
+            PanelActionSpec(
+                action_id="ho_build", label="🏠 Build",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("mining.home_build_pending")),
+            PanelActionSpec(
+                action_id="ho_hub", label="↩ Mining Hub",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden).
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("mining.render_home"),
+        justification=(
+            "the shipped `!home` reply is a fully live-state-parameterized embed "
+            "built in the view (views/mining/home_panel.py build_home_embed: the "
+            "Level `{level_name} ({level}/{max})` line, the cosmetic-backdrop "
+            "blurb, and the Next-cost `{materials} + {coins} 🪙` field / maxed "
+            "state — goldens/mining/sweep_home.json pins the not-built bytes), "
+            "read-parameterized state outside the static TextBlock/FieldsBlock "
+            "vocabulary (the mining hub / vault / forge live-overview precedent). "
+            "Every component stays grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("ho_build", "ho_hub"),
+        )),)),
+    )
+
+
+async def _render_home(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped live home embed
+    (built-level line, cosmetic-backdrop blurb, next-build cost / maxed state,
+    and the build-prompt footer; see justification). Reads get_structures → the
+    Home's built level (a fresh player reads level 0 off the store's no-row
+    default → the not-built card goldens/mining/sweep_home.json pins)."""
+    from sb.domain.mining import store, structures, workshop
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    built = await store.get_structures(uid, gid)
+    level = built.get(structures.HOME, 0)
+    fields: list[tuple[str, str, bool]] = [
+        ("Level",
+         f"**{structures.level_name(structures.HOME, level)}** "
+         f"({level}/{structures.MAX_HOME_LEVEL})", False),
+        ("What it does",
+         "A built Home gives your **Character card** a personalized backdrop "
+         "— each level a richer one. Purely cosmetic.", False)]
+    cost = structures.build_cost(structures.HOME, level)
+    if cost is None:
+        fields.append((
+            "Maxed",
+            "Your Home is at its grandest — the Grand Hall backdrop is yours.",
+            False))
+        footer = "↩ Mining Hub"
+    else:
+        nxt = structures.level_name(structures.HOME, level + 1)
+        fields.append((
+            f"Next: {nxt}",
+            f"{workshop.describe_materials(cost.materials)} + "
+            f"**{cost.coins}** 🪙", False))
+        footer = "🏠 Build  •  ↩ Mining Hub"
+    embed = _dc_replace(rendered.embed, title="🏠 Home",
+                        fields=tuple(fields), footer=footer)
+    return _dc_replace(rendered, embed=embed)
+
+
 def mining_vault_spec() -> PanelSpec:
     """The shipped 🏦 Mining Vault panel (views/mining/vault_panel.py
     ``MiningVaultView`` + ``build_vault_embed``) — an ephemeral (session)
@@ -831,6 +1148,16 @@ def _titles_factory() -> PanelSpec:
     return mining_titles_spec()
 
 
+@panel(WORKSHOP_PANEL_ID)
+def _workshop_factory() -> PanelSpec:
+    return mining_workshop_spec()
+
+
+@panel(HOME_PANEL_ID)
+def _home_factory() -> PanelSpec:
+    return mining_home_spec()
+
+
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
@@ -838,6 +1165,9 @@ def _register_refs() -> None:
     _vault_modal_handlers()
     _forge_button_handlers()
     _skills_button_handlers()
+    _workshop_button_handlers()
+    _home_button_handlers()
+    _ensure_workshop_craft_provider()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
     if not is_registered(HandlerRef("mining.render_card")):
@@ -850,6 +1180,10 @@ def _register_refs() -> None:
         handler("mining.render_skills")(_render_skills)
     if not is_registered(HandlerRef("mining.render_titles")):
         handler("mining.render_titles")(_render_titles)
+    if not is_registered(HandlerRef("mining.render_workshop")):
+        handler("mining.render_workshop")(_render_workshop)
+    if not is_registered(HandlerRef("mining.render_home")):
+        handler("mining.render_home")(_render_home)
     if not is_registered(PanelRef(HUB_PANEL_ID)):
         panel(HUB_PANEL_ID)(_hub_factory)
     if not is_registered(PanelRef(CARD_PANEL_ID)):
@@ -862,13 +1196,18 @@ def _register_refs() -> None:
         panel(SKILLS_PANEL_ID)(_skills_factory)
     if not is_registered(PanelRef(TITLES_PANEL_ID)):
         panel(TITLES_PANEL_ID)(_titles_factory)
+    if not is_registered(PanelRef(WORKSHOP_PANEL_ID)):
+        panel(WORKSHOP_PANEL_ID)(_workshop_factory)
+    if not is_registered(PanelRef(HOME_PANEL_ID)):
+        panel(HOME_PANEL_ID)(_home_factory)
 
 
 def install_mining_panels() -> tuple[PanelSpec, ...]:
     out = []
     for spec in (mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
                  mining_forge_spec(), mining_skills_spec(),
-                 mining_titles_spec()):
+                 mining_titles_spec(), mining_workshop_spec(),
+                 mining_home_spec()):
         try:
             out.append(register_panel(spec))
         except ValueError as exc:

@@ -1,5 +1,11 @@
 # Deep-mining ladder claim — lane `slice1-equip-loadout-character`
 
+> **LADDER COMPLETE (2026-07-12T20:07:06Z)** — all six slices delivered as
+> stacked PRs (#286 → #289 → #292 → #296 → #299 → #300). All 26 mining
+> deep-system commands are ported; the mining `PENDING` dict is empty. The
+> row-bearing writes across the ladder stay deferred (D-0043) until the one
+> post-ladder capture run mints their goldens (see slice-6 card 💡).
+
 This lane claims the WHOLE deep-mining port ladder (all six planned slices)
 so parallel sessions don't duplicate any rung. Slice 1 is in flight as this
 branch's PR; slices 2–6 are claimed-ahead by the same lane. One bullet per
@@ -10,4 +16,4 @@ slice, each parseable by `check_claims` (backticked token + ISO date).
 - `slice3-vault-stash` · **deep-mining slice 3 — vault/stash/unstash/vaultupgrade/mineinv [IN FLIGHT — this branch, stacked on #289]** — vault safe-stash + capacity coin-sink: stash/unstash/vaultupgrade/stash-all ops + mining_vault store + vault_level column + the session mining.vault PanelSpec; migrations 0044-0045; re-home 4 `_unmapped` sweeps into gated `mining` (mineinv already re-homed #250) · area: sb/domain/mining/, sb/manifest/mining.py, migrations/, parity/ · 2026-07-12T17:37:07Z
 - `slice4-forge-repair-craft` · **deep-mining slice 4 — forge/repair/quickcraft/cook/use [IN FLIGHT — this branch, stacked on #292]** — workshop/campfire/consumable crafting: repair/craft/quickcraft/cook/use ops + forge build + mining_structures store + last_broken_item column + the session mining.forge PanelSpec; migrations 0046-0047; re-home 5 `_unmapped` sweeps into gated `mining` · area: sb/domain/mining/, sb/manifest/mining.py, migrations/, parity/ · 2026-07-12T18:21:38Z
 - `slice5-skills-titles` · **deep-mining slice 5 — skills/skill/titles [IN FLIGHT — this branch, stacked on #296]** — skill tree + earned-title identity: the `mining.skills` + `mining.titles` session PanelSpecs (render-only parity surface) + the `!skill` branch-picker guard + the pure `titles.py` model + `equipped_title` column; migration 0047; re-home 3 `_unmapped` sweeps into gated `mining` (gate 444 → 447); the argful spend/respec/title-equip writes stay deferred (D-0043) · area: sb/domain/mining/, sb/manifest/mining.py, migrations/, parity/ · 2026-07-12T19:05:19Z
-- `deep-mining-slice6-build-workshop-home` · **deep-mining slice 6 — build/buildlist/buildable/workshop/home** — base building + workshop/home · area: sb/domain/mining/, sb/manifest/mining.py, migrations/, parity/ · 2026-07-12 16:16:28Z
+- `slice6-build-workshop-home` · **deep-mining slice 6 (FINAL) — build/buildlist/buildable/workshop/home [DELIVERED — PR #300, stacked on #299; ladder COMPLETE]** — structures/workshop/home: the `!build`/`!buildlist` recipe embed + `!buildable` guard + the session `mining.workshop` (provider-fed craft select) & `mining.home` PanelSpecs (render-only parity surface) + the Home structure on the existing `mining_structures` table (no new migration); re-home 5 `_unmapped` sweeps into gated `mining` (gate 447 → 452); after this the mining PENDING dict is EMPTY (all 26 deep-system keys ported); the argful build/craft + structure-build writes stay deferred (D-0043) · area: sb/domain/mining/, sb/manifest/mining.py, parity/ · 2026-07-12T19:49:44Z

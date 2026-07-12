@@ -101,6 +101,38 @@ def describe_materials(materials: dict[str, int]) -> str:
     return ", ".join(f"{qty}× {mat}" for mat, qty in sorted(materials.items()))
 
 
+def gear_recipes(recipes: dict[str, dict[str, int]]) -> list[CraftableGear]:
+    """The equippable subset of *recipes*, unfiltered (for "all recipes").
+
+    Ported verbatim from the oracle ``workshop.gear_recipes``: the structure
+    recipes (stone hut / wooden house / gold statue / diamond throne / giant
+    fortress) are NOT equippable, so the 44-row catalogue narrows to the 39
+    gear recipes, sorted by name."""
+    return [
+        CraftableGear(name, dict(mats))
+        for name, mats in sorted(recipes.items())
+        if equipment.is_equippable(name)
+    ]
+
+
+def craftable_gear(
+    recipes: dict[str, dict[str, int]],
+    inventory: dict[str, int],
+) -> list[CraftableGear]:
+    """Equippable recipes annotated with whether *inventory* can craft them
+    now (the Workshop's 🛠️ Craft-gear field + craft select source)."""
+    return [
+        CraftableGear(
+            g.name,
+            g.materials,
+            craftable=all(
+                inventory.get(mat, 0) >= qty for mat, qty in g.materials.items()
+            ),
+        )
+        for g in gear_recipes(recipes)
+    ]
+
+
 __all__ = [
     "REPAIR_REASON",
     "REPAIR_RATE",
@@ -115,4 +147,6 @@ __all__ = [
     "repair_cost",
     "durability_bar",
     "describe_materials",
+    "gear_recipes",
+    "craftable_gear",
 ]
