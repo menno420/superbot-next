@@ -45,6 +45,10 @@ def test_hub_spec_shape_matches_the_goldens():
     assert select.selector_id == "subsystem_select"
     assert select.custom_id_override == "settings_hub.subsystem_select"
     assert select.placeholder == "Open a settings group…"
+    # the group select NAVIGATES read-only (the shipped SettingsHubView
+    # navigation, ported as a read subset) — not the pending terminal.
+    from sb.spec.refs import HandlerRef as _HRef
+    assert select.on_select == _HRef("settings.open_group")
     # the shipped 19-group actionable roster, order verbatim.
     values = [o["value"] for o in select.options_source]
     assert values == [
@@ -231,7 +235,8 @@ def test_panel_and_handler_refs_registered():
     assert is_registered(ProviderRef("settings.hub_fields"))
     assert is_registered(ProviderRef("settings.access_fields"))
     for name in ("settings.render_hub", "settings.render_access",
-                 "settings.access_view", "settings.group_pending",
+                 "settings.access_view", "settings.open_group",
+                 "settings.group_pending",
                  "settings.needs_setup_pending", "settings.invalid_pending",
                  "settings.missing_bindings_pending", "settings.audit_pending",
                  "settings.command_access_pending",
@@ -281,3 +286,115 @@ def test_clicks_land_on_the_polite_pending_terminal():
         SimpleNamespace(args={}, guild_id=1)))
     assert reply.outcome == BLOCKED
     assert "Command Access panel" in reply.user_message
+
+
+# --- the group-select read-only navigation (settings.open_group) ---------------------
+
+
+class TestGroupSelectNavigation:
+    """The Settings-hub group select navigates read-only to a group's
+    operator-spine hub (welcome/counters/security/automod/image_moderation)
+    and lands on the pending terminal for every other group — the write
+    seam (per-group edit) is never touched (mirrors help.open_category)."""
+
+    @staticmethod
+    def _handler():
+        from sb.domain.settings import handlers
+        from sb.spec.refs import HandlerRef, resolve as resolve_ref
+
+        handlers.ensure_handler_refs()
+        return resolve_ref(HandlerRef("settings.open_group"))
+
+    @staticmethod
+    def _ensure_real_operator_hubs():
+        # import the real manifests (idempotent) so the registry carries the
+        # genuine hub specs — never a fake ensure_hub (which would re-register
+        # a panel id with a differing spec and corrupt the global registry).
+        import importlib
+
+        for name in ("welcome", "counters", "security", "automod",
+                     "image_moderation"):
+            importlib.import_module(f"sb.manifest.{name}")
+
+    def test_group_with_an_operator_hub_navigates_to_it(self, monkeypatch):
+        import sb.kernel.panels.engine as engine
+
+        self._ensure_real_operator_hubs()
+        opened: list[str] = []
+
+        async def fake_open(ref, req):
+            opened.append(ref.name)
+
+        monkeypatch.setattr(engine, "open_panel", fake_open)
+        handler = self._handler()
+
+        class Req:
+            args = {"values": ("welcome",)}
+
+        # navigation returns None (open_panel took over) and opened the
+        # subsystem's READ-ONLY hub — no mutation, no Reply.
+        assert run(handler(Req())) is None
+        assert opened == ["welcome.hub"]
+
+    def test_every_operator_hub_group_navigates(self, monkeypatch):
+        import sb.kernel.panels.engine as engine
+        from sb.domain.operator_spine import operator_hub_subsystems
+
+        self._ensure_real_operator_hubs()
+        assert {"welcome", "counters", "security", "automod",
+                "image_moderation"} <= operator_hub_subsystems()
+
+        opened: list[str] = []
+
+        async def fake_open(ref, req):
+            opened.append(ref.name)
+
+        monkeypatch.setattr(engine, "open_panel", fake_open)
+        handler = self._handler()
+
+        for sub in ("welcome", "counters", "security", "automod",
+                    "image_moderation"):
+            class Req:
+                args = {"values": (sub,)}
+
+            assert run(handler(Req())) is None
+        assert opened == ["welcome.hub", "counters.hub", "security.hub",
+                          "automod.hub", "image_moderation.hub"]
+
+    def test_group_without_an_operator_hub_stays_pending(self, monkeypatch):
+        import sb.kernel.panels.engine as engine
+        from sb.spec.outcomes import BLOCKED
+
+        opened: list[str] = []
+
+        async def fake_open(ref, req):     # must NOT be called
+            opened.append(ref.name)
+
+        monkeypatch.setattr(engine, "open_panel", fake_open)
+        handler = self._handler()
+
+        # `moderation` has a custom action hub (ban/kick modals), NOT an
+        # operator-spine read-only hub — the select must not open it.
+        class Req:
+            args = {"values": ("moderation",)}
+
+        reply = run(handler(Req()))
+        assert reply.outcome == BLOCKED
+        assert "per-group settings page" in reply.user_message
+        assert opened == []      # read-only: no navigation, no write seam
+
+    def test_empty_selection_stays_pending(self, monkeypatch):
+        import sb.kernel.panels.engine as engine
+        from sb.spec.outcomes import BLOCKED
+
+        async def fake_open(ref, req):
+            raise AssertionError("open_panel must not fire on empty values")
+
+        monkeypatch.setattr(engine, "open_panel", fake_open)
+        handler = self._handler()
+
+        class Req:
+            args = {}
+
+        reply = run(handler(Req()))
+        assert reply.outcome == BLOCKED
