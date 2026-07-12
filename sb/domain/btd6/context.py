@@ -23,7 +23,12 @@ NAMED SUCCESSOR PORTS (D-0046): the ``btd6_facts`` DB pass + live NK
 event rows/restrictions/freshness, CT relic/tile grounding, upgrade
 detail + path/parent-tower grounding, minion/sub-tower and crosspath
 pricing passes, and conversation-carryover facts (needs the K10 history
-scanner armed at the composition root)."""
+scanner armed at the composition root). Also parked (freeplay-scaling
+adjacent, functions this focused port never carried): the oracle's
+deterministic "HP of <bloon> at round N" reply and the richer
+"Round N — RBE, cash & XP" round-economy grounding block with its
+freeplay recompute — the ported ``_render_bloon`` MOAB-class scaling
+note (below) is the only context-side freeplay consumer here."""
 
 from __future__ import annotations
 
@@ -33,6 +38,7 @@ from dataclasses import dataclass
 from sb.domain.btd6 import (
     dataset,
     difficulty_costs,
+    freeplay,
     interactions,
     keywords,
     paragon_degrees,
@@ -275,6 +281,27 @@ def _render_bloon(entry: dataset.BloonEntry) -> list[str]:
                 f"(source: {_dataset_label()})",
             ),
         )
+    # Shipped MOAB-class late-game/freeplay grounding note (oracle bloon
+    # fact renderer; the oracle's separate deterministic "HP of <bloon> at
+    # round N" reply stays a named successor — context.py docstring).
+    health = entry.health
+    if entry.category == "moab_class" and isinstance(health, int):
+        mult100 = freeplay.moab_class_health_multiplier(100)
+        if mult100 is not None:
+            r100_hp = int(round(health * mult100))
+            rbe100 = freeplay.bloon_rbe_at_round(entry.id, 100)
+            rbe_bit = f", {rbe100:,} RBE" if isinstance(rbe100, int) else ""
+            lines.append(
+                _cap(
+                    f"[btd6_bloon] {canonical} — late-game/freeplay scaling: "
+                    f"MOAB-class health ramps from round 81 (×{mult100:g} by "
+                    f"round 100, steepening sharply past 100), so {health:,} "
+                    f"HP holds only through round 80; it first appears on "
+                    f"round 100 at {r100_hp:,} HP{rbe_bit}. Runtime ramp "
+                    f"(health + spawned-tree RBE), not in the game files "
+                    f"(source: {_dataset_label()}).",
+                ),
+            )
     if entry.description:
         lines.append(
             _cap(
