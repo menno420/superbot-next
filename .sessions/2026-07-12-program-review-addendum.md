@@ -1,6 +1,6 @@
 # 2026-07-12 — program-review addendum (post-review resolutions, snapshot-respecting)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · high · docs/audit (Q-0194)
 
@@ -57,4 +57,20 @@ than smoothed over.
 
 ## Close-out
 
-(to be written at flip)
+Delivered as PR #310 (`docs/program-review-addendum`), docs-only, 3 files:
+the appended addendum (`docs/review/program-review-2026-07-12.md`, 128
+insertions / 0 deletions — the original snapshot is byte-untouched, confirmed
+by `git diff --numstat`), this card, and one telemetry row appended as the
+file's true last line. Bucketing that held at HEAD `5ca477b`: RESOLVED #7
+(deathmatch ported, `check_parity_depth` OK 51/50 exit 0) + #2 (deploy
+packaging, #266); PARTIAL #1 (runbook landed #264, execution still owner-gated);
+LIVE #3/#4/#5/#6 + governance/platform rosterless, each re-verified open.
+Two disagreements with supplied expectations were recorded rather than smoothed:
+the `_unmapped` pool was measured on disk at 15 (all fishing) and the deathmatch
+birth `5050b8f` was cited from the wave-9 card because the shallow local clone
+(44 commits) cannot resolve it from git log. Local gates pre-push: pytest 2043
+passed / 8 skipped; `bootstrap.py check --strict` clean of `[stamp]` findings
+(the three D-ID restamps the first draft introduced were resolved by citing
+`docs/decisions.md:326/:368/:388` line anchors instead of the bare IDs — the
+predecessor review's proven fix), leaving only the designed born-red card HOLD,
+cleared by this flip. Opened READY; auto-merge NOT armed.
