@@ -12,10 +12,20 @@ from __future__ import annotations
 
 from sb.domain.mining import service as _service
 from sb.domain.mining.ops import register_ops
-from sb.domain.mining.panels import mining_card_spec, mining_hub_spec
+from sb.domain.mining.panels import (
+    mining_card_spec,
+    mining_hub_spec,
+    mining_vault_spec,
+)
 from sb.domain.mining.store import (
+    MINING_EQUIPMENT_STORE,
+    MINING_GEAR_WEAR_STORE,
     MINING_INVENTORY_STORE,
+    MINING_LOADOUT_STORE,
     MINING_PLAYER_STATE_STORE,
+    MINING_VAULT_STORE,
+    MINING_WORLD_STORE,
+    PLAYER_SKILLS_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -63,18 +73,32 @@ _COMMANDS = (
     _pending("buildable", "What you can build now."),
     _pending("use", "Use a consumable item."),
     _pending("cook", "Cook fish at a campfire."),
-    _pending("equip", "Equip a tool or gear piece."),
-    _pending("unequip", "Unequip a gear slot."),
-    _pending("gear", "Your equipped gear."),
-    _pending("loadout", "Gear loadout presets.", ("loadouts",)),
-    _pending("character", "Your character sheet.", ("profile", "char")),
-    _pending("descend", "Descend to a deeper mining band."),
-    _pending("ascend", "Return toward the surface."),
-    _pending("mineworld", "The shared mining world grid."),
-    _pending("vault", "Your vault."),
-    _pending("stash", "Stash resources in the vault."),
-    _pending("unstash", "Withdraw from the vault."),
-    _pending("vaultupgrade", "Upgrade vault capacity."),
+    # --- slice-1 port (LIVE): equipment / loadout presets / character sheet
+    #     over the EffectiveStats read model (deathmatch/casino defer, D-0045).
+    _cmd("equip", HandlerRef("mining.equip_route"),
+         "Equip a tool or gear piece."),
+    _cmd("unequip", HandlerRef("mining.unequip_route"),
+         "Unequip a gear slot."),
+    _cmd("gear", HandlerRef("mining.gear_view"), "Your equipped gear."),
+    _cmd("loadout", HandlerRef("mining.loadout_route"),
+         "Gear loadout presets.", ("loadouts",)),
+    _cmd("character", HandlerRef("mining.character_view"),
+         "Your character sheet.", ("profile", "char")),
+    # --- slice-2 port (LIVE): depth traversal + shared world seed --------
+    _cmd("descend", HandlerRef("mining.descend_route"),
+         "Descend to a deeper mining band."),
+    _cmd("ascend", HandlerRef("mining.ascend_route"),
+         "Return toward the surface."),
+    _cmd("mineworld", HandlerRef("mining.mineworld_route"),
+         "The shared mining world seed."),
+    _cmd("vault", PanelRef("mining.vault"),
+         "Open your vault — a safe stash separate from your pack."),
+    _cmd("stash", HandlerRef("mining.stash_route"),
+         "Stash an item into your vault."),
+    _cmd("unstash", HandlerRef("mining.unstash_route"),
+         "Withdraw an item from your vault."),
+    _cmd("vaultupgrade", HandlerRef("mining.vaultupgrade_route"),
+         "Buy one vault-capacity tier with coins."),
     _pending("skills", "Your skill tree."),
     _pending("skill", "Spend a skill point."),
     _pending("titles", "Your earned titles."),
@@ -95,9 +119,12 @@ MANIFEST = SubsystemManifest(
     key="mining",
     version=1,
     commands=_COMMANDS,
-    panels=(mining_hub_spec(), mining_card_spec()),
+    panels=(mining_hub_spec(), mining_card_spec(), mining_vault_spec()),
     settings=(),
-    stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE),
+    stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE,
+            MINING_EQUIPMENT_STORE, MINING_GEAR_WEAR_STORE,
+            MINING_LOADOUT_STORE, PLAYER_SKILLS_STORE,
+            MINING_WORLD_STORE, MINING_VAULT_STORE),
     events=(),
     capabilities=(),
 )

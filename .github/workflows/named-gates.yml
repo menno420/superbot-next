@@ -10,7 +10,12 @@
 #   code-quality        — pytest under the pinned interpreter (§6 gate 1).
 #   manifest-validate   — compile + snapshot drift + namespace + escape
 #                         hatches + schema-growth ledger (§6 gate 2; A-19
-#                         puts check_escape_hatches INSIDE this gate).
+#                         puts check_escape_hatches INSIDE this gate) +
+#                         the ORDER 016 runtime smoke (headless
+#                         boot-and-wire: refs/panels/EventBus graph —
+#                         tools/check_runtime_smoke.py; riding INSIDE this
+#                         required gate makes it required without a
+#                         ruleset edit).
 #   architecture        — symbol-shadowing + adapter no-skip + config-seam
 #                         + metric-cardinality passes (§6 gate 3).
 #   sim-gate            — sim-reviewed-or-exempt (§6 gate 4 / §2.10.6).
@@ -66,6 +71,8 @@ jobs:
         run: python3 tools/check_schema_growth.py
       - name: Amendment registry
         run: python3 tools/check_amendments.py
+      - name: Runtime smoke (ORDER 016 — headless boot + wiring graph)
+        run: python3 tools/check_runtime_smoke.py
 
   architecture:
     runs-on: ubuntu-latest

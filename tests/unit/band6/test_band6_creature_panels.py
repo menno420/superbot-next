@@ -91,6 +91,12 @@ def test_hub_spec_shape_matches_the_golden():
     assert by_id["creature_dex"].label == "Dex"
     assert by_id["creature_dex"].emoji == "📖"
     assert by_id["creature_dex"].style is ActionStyle.SECONDARY
+    # the shipped hub Dex button opened the INTERACTIVE element-filter view
+    # (CreatureDexView), so it routes to the declarative browse panel — NOT
+    # the static `!dex` card. Repointing never touches the rendered bytes
+    # (label/emoji/style above are the golden-pinned wire fields).
+    from sb.spec.refs import PanelRef
+    assert by_id["creature_dex"].handler == PanelRef("creature.dex")
     assert by_id["creature_challenge"].label == "Challenge"
     assert by_id["creature_challenge"].emoji == "⚔️"
     assert by_id["creature_challenge"].style is ActionStyle.PRIMARY
@@ -110,9 +116,9 @@ def test_specs_pass_the_compile_fences():
     from sb.kernel.panels.compile import check_panel
 
     for build in (panels.creature_hub_spec, panels.dex_card_spec,
-                  panels.collectors_card_spec, panels.record_card_spec,
-                  panels.battletop_card_spec, panels.challenge_spec,
-                  panels.rules_card_spec):
+                  panels.dex_browse_spec, panels.collectors_card_spec,
+                  panels.record_card_spec, panels.battletop_card_spec,
+                  panels.challenge_spec, panels.rules_card_spec):
         check_panel(build())
 
 
@@ -244,6 +250,174 @@ def test_collectors_render_ranks_by_total_caught(monkeypatch, empty_world):
         "🥈 User 7 — **5** caught (4/36 creatures)")
 
 
+# --- the interactive dex: the shipped element-filter view, armed on the engine -----------
+#
+# Oracle: disbot/views/creature/menu.py CreatureDexView (one _ElementFilterSelect
+# + a Back button — NO sort, NO pagination) over build_dex_embed's per-creature
+# lines. The hub Dex button opened it; the `!dex` COMMAND sent the static grouped
+# card (goldens/creature/sweep_dex — an embed with no view). The browse conversion
+# arms the element FILTER through the shared BrowserView engine (D-0034); the flat
+# list + one-page indicator is the generic engine's chrome (owner hand-pass).
+
+
+def _dex_rows_for(collection: dict):
+    """Resolve the registered dex-rows provider against a ctx whose store
+    returns *collection* (the engine's browse-block items source)."""
+    from sb.domain.creature import panels
+    from sb.domain.creature import store as cs
+    from sb.spec.refs import ProviderRef, resolve
+
+    panels.ensure_panel_refs()
+    orig = cs.get_collection
+
+    async def get_collection(user_id, guild_id, conn=None):
+        return dict(collection)
+
+    cs.get_collection = get_collection
+    try:
+        provider = resolve(ProviderRef("creature.dex_rows"))
+        return run(provider(_ctx()))
+    finally:
+        cs.get_collection = orig
+
+
+def test_dex_line_is_the_shipped_per_creature_line_verbatim():
+    from sb.domain.creature.catalog import Creature
+    from sb.domain.creature.panels import dex_line
+
+    c = Creature(name="Cindling", element="Ember", rarity="Common",
+                 archetype="balanced", emoji="🔥")
+    # disbot/views/creature/embeds.py build_dex_embed, verbatim.
+    assert dex_line(c, 3) == "🔥 **Cindling** ×3"
+    assert dex_line(c, None) == "🔥 Cindling — *not yet caught*"
+    assert dex_line(c, 0) == "🔥 Cindling — *not yet caught*"
+
+
+def test_dex_row_carries_the_declared_filter_key_and_line():
+    from sb.domain.creature.catalog import Creature
+    from sb.domain.creature.panels import dex_row
+
+    c = Creature(name="Infernox", element="Ember", rarity="Epic",
+                 archetype="tank", emoji="🔥")
+    caught = dex_row(c, 2)
+    # exactly the keys the dex ListSpec names: the element FILTER value +
+    # the display line. NO sort key (the shipped dex declares no sort).
+    assert caught == {"element": "Ember", "_line": "🔥 **Infernox** ×2"}
+    uncaught = dex_row(c, None)
+    assert uncaught["element"] == "Ember"
+    assert uncaught["_line"] == "🔥 Infernox — *not yet caught*"
+
+
+def test_dex_browse_spec_declares_the_oracle_algebra():
+    from sb.domain.creature import catalog
+    from sb.domain.creature.panels import dex_browse_spec
+    from sb.spec.panels import Audience, FooterMode, ListBlock
+    from sb.spec.refs import PanelRef
+
+    spec = dex_browse_spec()
+    assert spec.panel_id == "creature.dex"
+    assert spec.title == "🐾 Creature Dex"
+    assert spec.audience is Audience.INVOKER
+    assert spec.frame.style_token == "green"          # CREATURE_COLOR
+    assert spec.frame.footer_mode is FooterMode.SUBSYSTEM
+    assert spec.session_lifecycle is True             # a timeout view, never anchored
+    assert spec.renderer_override is None              # grammar-render → the auto-arm hook
+    # the shipped Back button (CreatureDexView had one → the menu).
+    assert spec.navigation.parent == PanelRef("creature.hub")
+    block = spec.body[0]
+    assert isinstance(block, ListBlock)
+    ls = block.list_spec
+    # the element FILTER, derived EXACTLY as the oracle ELEMENTS
+    # (dict.fromkeys over the catalog) — the golden's dex field order.
+    assert ls.filter_options == tuple(
+        dict.fromkeys(c.element for c in catalog.CREATURES))
+    assert ls.filter_options == (
+        "Ember", "Stone", "Gust", "Tide", "Spark", "Bramble")
+    # NO sort (the shipped view had no sort control) — never invented.
+    assert ls.sort_options == ()
+    assert ls.default_sort == ""
+
+
+def test_dex_browse_auto_arms_the_element_filter():
+    from sb.domain.creature.panels import dex_browse_spec
+    from sb.kernel.panels import browserview as bv
+
+    spec = dex_browse_spec()
+    state = bv.default_browse_state(spec)
+    # declaring a filter_options set arms the surface on open (no filter,
+    # page 0, the browse ListBlock at body index 0).
+    assert state is not None
+    assert state.panel_id == "creature.dex"
+    assert state.block == 0
+    assert state.filter == bv.ALL_FILTER
+    assert state.sort == ""
+    assert state.page == 0
+
+
+def test_dex_rows_provider_emits_element_grouped_catalog(empty_world):
+    from sb.domain.creature import catalog
+
+    rows = _dex_rows_for({})
+    # one row per catalog creature.
+    assert len(rows) == len(catalog.CREATURES) == 36
+    # GROUPED by element in the oracle's field order, six per element.
+    elements = [r["element"] for r in rows]
+    assert elements[:6] == ["Ember"] * 6
+    assert elements[6:12] == ["Stone"] * 6
+    order = list(dict.fromkeys(elements))
+    assert order == ["Ember", "Stone", "Gust", "Tide", "Spark", "Bramble"]
+    # every creature not-yet-caught in the empty world.
+    assert all("not yet caught" in r["_line"] for r in rows)
+
+
+def test_dex_rows_provider_reflects_the_caught_count(empty_world):
+    rows = _dex_rows_for({"Cindling": 4})
+    by_line = {r["_line"] for r in rows}
+    assert "🔥 **Cindling** ×4" in by_line
+    # the rest stay not-yet-caught.
+    assert sum(1 for r in rows if "not yet caught" in r["_line"]) == 35
+
+
+def test_dex_browse_filter_keeps_only_that_element(empty_world):
+    from sb.kernel.panels import browserview as bv
+
+    rows = _dex_rows_for({})
+    for element in ("Ember", "Stone", "Gust", "Tide", "Spark", "Bramble"):
+        kept = bv.filter_items(rows, element)
+        assert len(kept) == 6, element
+        assert all(r["element"] == element for r in kept)
+    # the All pseudo-value is passthrough — every creature.
+    assert len(bv.filter_items(rows, bv.ALL_FILTER)) == 36
+
+
+def test_dex_browse_paginates_every_creature_without_truncation(empty_world):
+    from sb.domain.creature.panels import dex_browse_spec
+    from sb.kernel.panels import browserview as bv
+
+    spec = dex_browse_spec()
+    ls = spec.body[0].list_spec
+    rows = _dex_rows_for({})
+    # the all-view pages (18/page) so the 36-line list never overflows the
+    # engine's 1024-char description budget — every creature stays visible.
+    seen: list[str] = []
+    page = 0
+    while True:
+        slice_rows, page_count, clamped = bv.browse_page(
+            rows, ls, bv.BrowseState("creature.dex", 0, "", bv.ALL_FILTER, page))
+        seen.extend(r["_line"] for r in slice_rows)
+        rendered = "\n".join(r["_line"] for r in slice_rows)
+        assert len(rendered) <= 1024            # within the engine's list budget
+        if page >= page_count - 1:
+            break
+        page += 1
+    assert page_count == 2                       # 36 / 18
+    assert len(seen) == 36 and len(set(seen)) == 36
+    # a single-element filter is one page (six creatures ≤ the page size).
+    _, ember_pages, _ = bv.browse_page(
+        rows, ls, bv.BrowseState("creature.dex", 0, "", "Ember", 0))
+    assert ember_pages == 1
+
+
 # --- the challenge: content-only send + opponent lock + declined terminal ---------------
 
 
@@ -327,11 +501,15 @@ def test_refs_registered_and_manifest_routes():
 
     panels.ensure_panel_refs()
     service.ensure_handler_refs()
-    for pid in ("creature.hub", "creature.dex_card",
+    for pid in ("creature.hub", "creature.dex_card", "creature.dex",
                 "creature.collectors_card", "creature.record_card",
                 "creature.battletop_card", "creature.challenge",
                 "creature.rules_card"):
         assert is_registered(PanelRef(pid)), pid
+    # the interactive dex's provider + per-row line renderer.
+    from sb.spec.refs import ProviderRef
+    assert is_registered(ProviderRef("creature.dex_rows"))
+    assert is_registered(HandlerRef("creature.render_dex_line"))
     for name in ("creature.render_hub", "creature.render_dex",
                  "creature.render_collectors", "creature.render_record",
                  "creature.render_battletop", "creature.render_challenge",
@@ -352,6 +530,7 @@ def test_refs_registered_and_manifest_routes():
     assert by_name["creatures"].route == PanelRef("creature.hub")
     assert by_name["cbattle"].route == HandlerRef("creature.cbattle_route")
     assert {p.panel_id for p in MANIFEST.panels} == {
-        "creature.hub", "creature.dex_card", "creature.collectors_card",
-        "creature.record_card", "creature.battletop_card",
-        "creature.challenge", "creature.rules_card"}
+        "creature.hub", "creature.dex_card", "creature.dex",
+        "creature.collectors_card", "creature.record_card",
+        "creature.battletop_card", "creature.challenge",
+        "creature.rules_card"}

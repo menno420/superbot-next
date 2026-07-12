@@ -53,7 +53,8 @@ jobs:
             check_escape_hatches check_intent_survival check_lockfile_fresh \
             check_metric_cardinality check_migrations check_money_race \
             check_namespace \
-            check_no_skip check_rollback_disposition check_schema_growth \
+            check_no_skip check_rollback_disposition check_runtime_smoke \
+            check_schema_growth \
             check_sim_gate check_slash_cap check_symbol_shadowing \
             check_verified_live; do
             echo "::group::${checker}"
@@ -87,3 +88,22 @@ jobs:
       - run: pip install pip-audit
       - name: Audit the resolved lock
         run: pip-audit -r requirements.lock --require-hashes --disable-pip
+
+  build-image:
+    # Deploy-packaging smoke: build the container image on every PR so a broken
+    # Dockerfile (or a stale/unhashable requirements.lock) is caught here, not
+    # at release time. Build only — the image is NOT pushed. NOT a required
+    # check (the merge ruleset is fixed); the release workflow owns tag+push.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: false
+          tags: superbot-next:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

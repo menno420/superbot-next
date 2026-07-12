@@ -28,6 +28,30 @@
 - **Recurring actions run through the skill index.** `docs/SKILLS.md` names
   every kit-shipped skill and when to reach for it — check it before
   improvising a procedure or repo-searching "how do we do X here".
+- **Skills self-propagate — the registration reflex.** A recurring action
+  with no skill — or a skill whose body doesn't actually cover it — is a
+  gap to register, not to route around: the standard move is to **add or
+  extend the skill** — a registry entry, not ad-hoc prose — via the growth
+  loop prose workflow → index row → promoted skill (`docs/SKILLS.md`
+  § "Growing the set"). The boundary: skill bodies, grounds, and index rows
+  are free to ship directly, flagged self-initiated on the run report;
+  **binding working-agreement text and executable config** (this file,
+  `CLAUDE.md`-level rules, hooks, settings) route through
+  `docs/question-router.md` as a proposal — never self-applied — unless the
+  owner directs the change live in-session, recorded with its provenance id
+  ("Changing the rules" below; superbot Q-0194 · Q-0106 · Q-0172).
+- **Evidence — verify, don't trust.** A record is a claim; the live surface
+  is the proof — probe the registry/API/tree before acting on any recorded
+  state (probe-not-record). The committed **tree wins over a self-report**:
+  heartbeat/registry `kit:` lines chronically lag the target repo's tree by
+  1–3 releases — verify against the tree. A red or green **check is judged
+  by its job log, never its name** (alias/mirror jobs red without measuring
+  anything; a designed hold is not a failure). Staleness-sensitive reads are
+  **cross-checked before acting** (MCP PR-state reads observed ~25 min
+  stale — confirm merge/CI state via git fetch or the Actions runs). A green
+  check that contradicts visible evidence is **a bug in the CHECK, not a
+  clearance** (PL-006). Every load-bearing claim cites a commit / PR / tag /
+  run.
 - When a doc and a source file disagree: the source file wins — read the code, fix the doc in the same change; a checker that reports green against visible drift is itself the bug (PL-006 source-wins / false-green)
 
 ## Autonomy rails — act vs. ask
