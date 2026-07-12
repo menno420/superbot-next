@@ -33,9 +33,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 class TestImportedCorpus:
     def test_corpus_golden_count(self):
         # 465 imported at the source pin + 2 minted modal-submit goldens
-        # (D-0073 corpus-schema growth; parity.yml source.minted_goldens).
+        # (D-0073) + 4 minted kernel-band goldens (D-0075;
+        # parity.yml source.minted_goldens).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 467
+        assert len(goldens) == 471
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -55,7 +56,8 @@ class TestImportedCorpus:
         assert source["repo"] == "menno420/superbot"
         assert source["sha"] == "7f7628e12f3b89c5c2a1fbdcfb039787df269e20"
         assert source["goldens"] == 465     # the IMPORT pin (verbatim corpus)
-        assert source["minted_goldens"] == 2  # D-0073 modal-submit mints
+        # 2 D-0073 modal-submit mints + 4 D-0075 kernel-band mints
+        assert source["minted_goldens"] == 6
 
 
 # ----------------------------------------------------- real-tree gate state
@@ -78,12 +80,18 @@ class TestRealTreeIsGreen:
         for name, status in parity["subsystems"].items():
             if status == "ported":
                 assert name in ratchet, name
-        assert parity["kernel"]["status"] == "pending"
+        # the kernel coverage home flipped with the D-0075 kernel-band
+        # goldens — same one-way door, same mandatory ratchet row.
+        assert parity["kernel"]["status"] == "ported"
+        assert "kernel" in ratchet
 
     def test_roster_matches_golden_dirs_both_directions(self):
+        # parity/goldens/kernel/ is the kernel coverage home's dir
+        # (D-0075) — the ONE golden dir that is never a subsystems row.
         parity = load_parity_yml()
         dirs = {d.name for d in GOLDENS_ROOT.iterdir() if d.is_dir()}
-        assert set(parity["subsystems"]) == dirs
+        assert set(parity["subsystems"]) | {"kernel"} == dirs
+        assert "kernel" not in parity["subsystems"]
 
 
 # ------------------------------------------------------- coverage extraction
@@ -240,6 +248,147 @@ class TestDepthRules:
         row = updated["depth"]["ratchet"]["xp"]
         assert row["events"] == 9  # committed floor kept
         assert row["tables"] == 1  # grew to the measured count
+
+
+# ------------------------------------------------ the kernel coverage home
+def _kernel_fixture(status="ported"):
+    """A parity doc + docs tree for the kernel home (A-16 clause 3 as a
+    pseudo-subsystem, D-0075)."""
+    parity = _parity_fixture()
+    parity["kernel"] = {
+        "status": status,
+        "events": ["audit.action_recorded", "command.dispatched"],
+        "tables": ["audit_log", "event_outbox", "idempotency_keys"],
+    }
+    docs = _docs_fixture()
+    docs["kernel"] = [
+        {
+            "steps": [{"events": [{"event": "audit.action_recorded"},
+                                  {"event": "command.dispatched"}]}],
+            "db_delta": {"audit_log": {"added": []},
+                         "event_outbox": {"added": []}},
+        }
+    ]
+    return parity, docs
+
+
+class TestKernelHome:
+    def test_kernel_dir_without_home_section_is_r1(self):
+        parity = _parity_fixture()
+        docs = _docs_fixture()
+        docs["kernel"] = []
+        problems = check(parity, docs, _snapshot_fixture())
+        assert any("R1" in p and "coverage-home section" in p
+                   for p in problems)
+
+    def test_kernel_dir_never_needs_a_subsystems_row(self):
+        parity, docs = _kernel_fixture(status="pending")
+        problems = check(parity, docs, _snapshot_fixture())
+        assert not any("parity/goldens/kernel/" in p and "subsystems row" in p
+                       for p in problems)
+
+    def test_kernel_bad_status_is_r1(self):
+        parity, docs = _kernel_fixture(status="porting")
+        problems = check(parity, docs, _snapshot_fixture())
+        assert any("R1 kernel" in p and "porting" in p for p in problems)
+
+    def test_kernel_r2_floor_over_its_own_lists(self):
+        # idempotency_keys is declared in the kernel home, covered by no
+        # kernel-band golden, and not exempt — the flip reds.
+        parity, docs = _kernel_fixture()
+        parity["depth"]["ratchet"]["kernel"] = {
+            "events": 2, "tables": 2, "settings": 0}
+        problems = check(parity, docs, _snapshot_fixture())
+        assert any("R2 kernel" in p and "table:idempotency_keys" in p
+                   for p in problems)
+        assert not any("R2 kernel" in p and "event:" in p for p in problems)
+
+    def test_kernel_r2_exemption_satisfies_the_floor(self):
+        parity, docs = _kernel_fixture()
+        parity["depth"]["exemptions"] = {
+            "kernel": [{"surface": "table:idempotency_keys",
+                        "reason": "time-driven: task-lane writers only"}]
+        }
+        parity["depth"]["ratchet"]["kernel"] = {
+            "events": 2, "tables": 2, "settings": 0}
+        problems = check(parity, docs, _snapshot_fixture())
+        assert problems == []
+
+    def test_kernel_r3_ported_requires_ratchet_row(self):
+        parity, docs = _kernel_fixture()
+        parity["depth"]["exemptions"] = {
+            "kernel": [{"surface": "table:idempotency_keys",
+                        "reason": "time-driven: task-lane writers only"}]
+        }
+        problems = check(parity, docs, _snapshot_fixture())
+        assert any("R3 kernel" in p and "no depth.ratchet row" in p
+                   for p in problems)
+
+    def test_kernel_r3_counts_never_decrease(self):
+        parity, docs = _kernel_fixture()
+        parity["depth"]["ratchet"]["kernel"] = {
+            "events": 5, "tables": 2, "settings": 0}
+        problems = check(parity, docs, _snapshot_fixture())
+        assert any("R3 kernel" in p and "5 -> 2" in p for p in problems)
+
+    def test_kernel_r4_ratchet_row_on_pending_is_a_reverted_flip(self):
+        parity, docs = _kernel_fixture(status="pending")
+        parity["depth"]["ratchet"]["kernel"] = {
+            "events": 2, "tables": 2, "settings": 0}
+        problems = check(parity, docs, _snapshot_fixture())
+        assert any("R4 kernel" in p and "one-way door" in p for p in problems)
+
+    def test_write_ratchet_mints_the_kernel_row(self):
+        parity, docs = _kernel_fixture()
+        updated = write_ratchet(parity, docs)
+        assert updated["depth"]["ratchet"]["kernel"] == {
+            "events": 2, "tables": 2, "settings": 0}
+
+    def test_write_ratchet_skips_a_pending_kernel(self):
+        parity, docs = _kernel_fixture(status="pending")
+        updated = write_ratchet(parity, docs)
+        assert "kernel" not in updated["depth"]["ratchet"]
+
+    def test_real_tree_kernel_floor_is_satisfied(self):
+        """The committed tree: every kernel.events/tables surface is either
+        exercised by a kernel-band golden or exempt under an existing
+        reason class (the real-tree green test checks this too — this one
+        names the dimension)."""
+        parity = load_parity_yml()
+        docs = golden_docs()
+        covered = covered_surfaces(docs.get("kernel", []))
+        exempt = {row["surface"]
+                  for row in parity["depth"]["exemptions"]["kernel"]}
+        for event in parity["kernel"]["events"]:
+            assert event in covered["events"], event
+        for table in parity["kernel"]["tables"]:
+            assert (table in covered["tables"]
+                    or f"table:{table}" in exempt), table
+
+    def test_gate_driver_includes_a_ported_kernel(self, capsys, monkeypatch):
+        """run_gate treats the kernel home as a pseudo-subsystem: a ported
+        kernel's goldens are REQUIRED-green (denominator-checked), a
+        pending kernel is expected-red reported."""
+        import tools.run_golden_parity as rgp
+
+        monkeypatch.setattr(rgp, "_load_parity_yml", lambda: {
+            "subsystems": {"xp": "pending"},
+            "kernel": {"status": "ported"},
+        })
+        monkeypatch.setattr(rgp, "_replay_binding", lambda: (object(), ""))
+        kernel_count = rgp._golden_counts()["kernel"]
+        assert kernel_count >= 1
+
+        async def _fake_replay_corpus(only_subsystems, *, verbose_failures=8):
+            assert only_subsystems == {"kernel"}
+            results = {f"kernel.case{i}": ("kernel", True, [])
+                       for i in range(kernel_count)}
+            return results, {}
+
+        monkeypatch.setattr(rgp, "_replay_corpus", _fake_replay_corpus)
+        assert run_gate() == 0
+        out = capsys.readouterr().out
+        assert "gate: GREEN" in out
 
 
 # ------------------------------------------- the comment-preserving writer
@@ -426,7 +575,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "467 goldens" in out
+        assert "471 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

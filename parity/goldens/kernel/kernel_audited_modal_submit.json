@@ -1,0 +1,175 @@
+{
+ "case_id": "kernel.audited_modal_submit",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "submit_strategy",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "btd6_strategy_submitted",
+     "new_value": {
+      "submit_strategy": {
+       "message": "\u2705 Strategy **#1** submitted for review \u2014 staff (or the AI reviewer) will look at it soon.",
+       "strategy_id": 1
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "submit_strategy": {}
+     },
+     "scope": "guild",
+     "subsystem": "btd6",
+     "target": "btd6.submit_strategy"
+    }
+   ]
+  },
+  "btd6_strategies": {
+   "added": [
+    {
+     "approval_model": null,
+     "approval_provider": null,
+     "approval_status": "pending",
+     "approved_by": null,
+     "approved_by_id": null,
+     "common_failures": [],
+     "created_at": "<ts>",
+     "current_guild_id": "<guild>",
+     "difficulty": null,
+     "hero": "Geraldo",
+     "id": 1,
+     "map": "Bloody Puddles",
+     "mode": "CHIMPS",
+     "origin_guild_id": "<guild>",
+     "origin_metadata": {},
+     "round_range": null,
+     "source_links": [],
+     "steps": [],
+     "submitted_by": "<@member>",
+     "submitter_display_snapshot": "MemberActor",
+     "submitter_identity_state": "present",
+     "summary": "Sniper spam early, sell into 4-2-0 Super Monkey before round 80.",
+     "title": "CHIMPS Bloody Puddles 4-2-0 Super Monkey",
+     "towers": [],
+     "updated_at": "<ts>",
+     "upgrade_paths": [],
+     "version": 1,
+     "visibility": "guild"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "btd6_strategy_submitted",
+      "new_value": {
+       "submit_strategy": {
+        "message": "\u2705 Strategy **#1** submitted for review \u2014 staff (or the AI reviewer) will look at it soon.",
+        "strategy_id": 1
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "submit_strategy": {}
+      },
+      "scope": "guild",
+      "subsystem": "btd6",
+      "target": "btd6.submit_strategy"
+     },
+     "status": "pending"
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "KERNEL-BAND golden (D-0075, minted by capture_case with the kernel-surface strip INVERTED \u2014 this document deliberately PINS the NEW kernel's spine contract as a regression tripwire, not oracle bytes): the audited btd6.submit_strategy K7 op behind the D-0073 modal submit \u2014 one audit_log row (mutation_type btd6_strategy_submitted, leg rollup detail), its audit.action_recorded event_outbox row, and the command.dispatched trace on the MODAL surface",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "\u2705 Submitted as strategy `#1` (`submitted`). Staff can review with `!btd6 pending`.",
+      "flags": 64
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "btd6.strategy_submit.open_strategy_form",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "modal"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "btd6.strategy_form",
+    "fields": {
+     "hero": "Geraldo",
+     "map": "Bloody Puddles",
+     "mode": "CHIMPS",
+     "summary": "Sniper spam early, sell into 4-2-0 Super Monkey before round 80.",
+     "title": "CHIMPS Bloody Puddles 4-2-0 Super Monkey"
+    },
+    "kind": "modal",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "kernel"
+}

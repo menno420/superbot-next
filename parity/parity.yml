@@ -52,7 +52,13 @@ source:
   # byte verified against the ORACLE's StrategySubmitModal (views/btd6/
   # strategy_submit.py, search_code reconstruction @8214200a — the default
   # branch can be AHEAD of the corpus sha above; caveat ledgered in D-0073).
-  minted_goldens: 2
+  # D-0075 minted the four KERNEL-BAND goldens (goldens/kernel/ — the D-0073
+  # procedure with the strip INVERTED): they deliberately PIN the NEW
+  # kernel's spine contract (audit_log / event_outbox / command.dispatched
+  # bytes) as regression tripwires — kernel-band docs are exempt from the
+  # kernel-surface-drift drop at diff time (sb/adapters/parity/
+  # dispositions.py), so kernel drift goes red HERE instead of nowhere.
+  minted_goldens: 6
 
 # Every parity/goldens/<dir> has exactly one row here (checker-enforced both
 # directions). `_unmapped` holds the mechanical sweep cases not yet attributed
@@ -110,10 +116,15 @@ subsystems:
   xp: ported
 
 # A-16 clause 3: kernel/governance-owned surfaces (owned by no port band's
-# manifest) get their own coverage home. Status flips when K-band goldens
-# land; the surface list is data here so the checker stays DB-free.
+# manifest) get their own coverage home. The surface list is data here so
+# the checker stays DB-free. FLIPPED ported with the D-0075 kernel-band
+# goldens (parity/goldens/kernel/ — the kernel home's OWN golden dir, never
+# a subsystems row): the four mints pin the NEW kernel's spine contract
+# (audit_log / event_outbox / command.dispatched bytes, strip inverted) as
+# required-green regression tripwires; the uncovered tables carry
+# depth.exemptions.kernel rows below. Same one-way door as every flip.
 kernel:
-  status: pending
+  status: ported
   events:
     - audit.action_recorded
     - command.dispatched
@@ -474,6 +485,58 @@ depth:
           pinned — goldens/_unmapped/sweep_shop.json replays the shipped
           shop picker open (the <cid:N> select + the car/toolkit/suit
           options) and buys nothing"
+    # KERNEL — the A-16 clause-3 coverage home's own floor (D-0075): the
+    # kernel-band goldens (goldens/kernel/) cover audit_log + event_outbox
+    # + both kernel events; the remaining kernel tables have NO
+    # capture-reachable interaction ingress in this schema epoch — their
+    # writers are the kernel's un-armed task/ops lanes (none is wired into
+    # the composition root's SUBSCRIBE_ROSTER/task set yet), so no golden
+    # (imported or minted) can carry a row. Each row dies when its lane
+    # arms with an interaction- or capture-reachable writer.
+    kernel:
+      - surface: "table:idempotency_keys"
+        reason: "ops-not-behavior: no domain op rides DURABLE_ONCE in this
+          schema epoch (every CompoundOpSpec is NATURAL_KEY — grep
+          idempotency= across sb/domain), so the engine's once() guard
+          never writes; the table's only writers are the kernel's own
+          task/ops lanes (due-queue claims, invariant sweep, credential
+          rotation, privacy erasure — sb/kernel/db/idempotency.py
+          callers), none armed at the composition root; op-level dedup
+          BEHAVIOR is pinned via audit_log's mutation_id conflict key on
+          the kernel-band goldens"
+      - surface: "table:sb_due_queue"
+        reason: "time-driven: due-queue rows are minted by the K8
+          scheduler's task lane (sb/kernel/scheduler/due_queue.py), a
+          tasks-loop surface out of capture scope — no interaction
+          ingress writes it"
+      - surface: "table:sb_drafts"
+        reason: "ops-not-behavior: the K9 draft pipeline (Final Review /
+          rung-4 orchestration staging, sb/kernel/draft/) is an
+          owner-approval ops surface with no armed interaction ingress in
+          this epoch — nothing at the composition root stages a draft"
+      - surface: "table:sb_quarantine"
+        reason: "time-driven: quarantine rows are written only by the S12
+          invariant sweep's soft-quarantine leg
+          (sb/kernel/invariants/sweep.py), a tasks-loop surface out of
+          capture scope"
+      - surface: "table:sb_invariant_sweep_log"
+        reason: "time-driven: sweep-log rows are written only by the S12
+          invariant sweep loop (sb/kernel/invariants/sweep.py), out of
+          capture scope"
+      - surface: "table:sb_credential_rotation"
+        reason: "ops-not-behavior: rotation rows are written only by the
+          spec-12 credential-rotation cadence
+          (sb/kernel/credentials/), an ops lane never driven by an
+          interaction"
+      - surface: "table:ai_decision_audit"
+        reason: "env-keyed-integration: decision-audit rows are minted by
+          the NL routing lane, which runs unarmed in the capture/replay
+          world (AI disabled + deterministic provider; the live-NL leg is
+          key-gated — OWNER-ACTION 5), so no kernel-band mint can carry a
+          row; the imported corpus's old-bot deny rows are dropped by the
+          kernel-surface-drift disposition, and the table's first
+          row-bearing golden lands with an NL-armed capture (the
+          ai_review_log precedent verbatim)"
     proof_channel:
       # proof_channel's three goldens (and the sibling _unmapped prize
       # sweeps) all pin the shipped "#proof not found" guard — the
@@ -661,6 +724,7 @@ depth:
     image_moderation: {events: 1, tables: 2, settings: 0}
     inventory: {events: 1, tables: 2, settings: 0}
     karma: {events: 2, tables: 4, settings: 0}
+    kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
