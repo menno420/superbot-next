@@ -15,9 +15,7 @@ from __future__ import annotations
 
 import logging
 
-from sb.domain.games import store, xp as game_xp
-from sb.kernel.interaction.handler_kit import Reply
-from sb.spec.outcomes import SUCCESS
+from sb.domain.games import store
 from sb.spec.refs import HandlerRef, handler, is_registered
 
 logger = logging.getLogger("sb.domain.games.service")
@@ -25,23 +23,7 @@ logger = logging.getLogger("sb.domain.games.service")
 __all__ = [
     "recover_escrow",
     "session_gc_fire",
-    "world_card_text",
 ]
-
-
-async def world_card_text(user_id: int, guild_id: int) -> str:
-    """The shipped world card (views/explore/world_card.py semantics,
-    text-rendered): shared world level from SUM(game_xp) through the ONE
-    curve + per-game standing lines."""
-    level, total = await game_xp.shared_level(user_id, guild_id)
-    rows = await store.game_xp_rows(user_id, guild_id)
-    lines = [f"🌍 **World level {level}** — {total:,} game XP total"]
-    if not rows:
-        lines.append("No game XP yet — play any game to start your track.")
-    for row in rows:
-        emoji, label = game_xp.game_display(str(row["game"]))
-        lines.append(f"{emoji} {label}: **{int(row['xp']):,}** XP")
-    return "\n".join(lines)
 
 
 async def _sweep_row(row: dict, *, reason: str) -> bool:
@@ -121,18 +103,9 @@ async def _session_gc_handler(ctx: object) -> dict:
     return await session_gc_fire(ctx)
 
 
-@handler("games.world_card_view")
-async def _world_card_view(req: object) -> Reply:
-    # The resolver's HandlerRef leg reads .outcome/.user_message off the
-    # reply (resolve.py); a raw dict crashes the surface into a BUG envelope.
-    actor = getattr(req, "actor", None)
-    uid = int(getattr(actor, "user_id", 0) or 0)
-    gid = int(getattr(req, "guild_id", 0) or 0)
-    return Reply(SUCCESS, await world_card_text(uid, gid))
-
-
 def ensure_service_refs() -> None:
+    # the !worldcard read surface moved onto the games.world_card PANEL at
+    # the parity flip (goldens/games/sweep_worldcard pins the shipped
+    # embed card, not a text reply) — games.world_card_view is retired.
     if not is_registered(HandlerRef("games.session_gc_fire")):
         handler("games.session_gc_fire")(_session_gc_handler)
-    if not is_registered(HandlerRef("games.world_card_view")):
-        handler("games.world_card_view")(_world_card_view)

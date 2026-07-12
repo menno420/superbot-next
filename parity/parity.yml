@@ -474,6 +474,57 @@ depth:
           pinned — goldens/_unmapped/sweep_shop.json replays the shipped
           shop picker open (the <cid:N> select + the car/toolkit/suit
           options) and buys nothing"
+    games:
+      # games' four goldens are the read/render hub family (the 🎮 hub
+      # prefix+slash pair + the re-homed 🗺️ Explore hub + 🪪 world card)
+      # — the row owns the band-6 SUBSTRATE (the game_state checkpoint
+      # store, the shared game_xp track, the guild_settings tournament
+      # flag) whose write lanes run inside the CHILD game subsystems;
+      # its own surfaces are read-only opens.
+      - surface: "table:game_state"
+        reason: "covered-elsewhere: the checkpoint store's write bytes
+          are pinned by the sibling blackjack oracles (goldens/blackjack/
+          sweep_blackjack.json + blackjack_solo_round_hit.json carry the
+          game_state row — the shipped checkpoint the substrate persists
+          for every session game) and replay green through the PORTED
+          blackjack row; the games goldens are read-only panel opens"
+      - surface: "table:game_xp"
+        reason: "covered-elsewhere: the shared-track write bytes are
+          pinned by the named sibling mining-lane oracles
+          (goldens/_unmapped/sweep_fastmine.json / sweep_chop.json /
+          sweep_explore.json each carry a game_xp row — the shipped
+          award lane the substrate owns), pending their mining-band
+          re-home (the settings table:subsystem_bindings precedent:
+          the cited sibling pins the bytes from the _unmapped set); the
+          games goldens are read-only panel opens and the world card's
+          zero-XP empty state pins the table's no-row epoch from the
+          read side (goldens/games/sweep_worldcard)"
+      - surface: "table:guild_settings"
+        reason: "covered-elsewhere: the tournament-flag KV rides the
+          shared shipped guild_settings table whose write bytes are
+          pinned by the sibling oracle goldens/rps_tournament/
+          sweep_rpsregister.json (the active_tournament row — the very
+          key the games TOURNAMENT_FLAG_STORE declares) and replay
+          green through the PORTED rps_tournament row (the settings
+          table:settings precedent verbatim)"
+      - surface: "event:game_xp.awarded"
+        reason: "covered-elsewhere: the advisory fires only from the
+          audited game-XP award lane (sb/domain/games/xp.award_in_txn),
+          whose write bytes are pinned by the named sibling oracles
+          above (sweep_fastmine / sweep_chop / sweep_explore game_xp
+          rows); the shipped bot published no tap-able bus event on
+          those flows, so no imported golden can carry the event — its
+          first live golden lands with the mining-band flip (the
+          settings.changed / xp.level_up unreachable-surface precedent)"
+      - surface: "event:game_xp.level_up"
+        reason: "covered-elsewhere: the advisory fires only from the
+          same award lane when the derived level crosses a threshold —
+          every capture awarded single-digit game XP at level 0 (the
+          sibling game_xp rows above pin xp<=4), and the shipped bot
+          published no tap-able bus event at all, so no imported golden
+          can carry the event; its first live golden lands with a
+          threshold-crossing mining-band capture (the xp.level_up
+          precedent verbatim)"
     proof_channel:
       # proof_channel's three goldens (and the sibling _unmapped prize
       # sweeps) all pin the shipped "#proof not found" guard — the

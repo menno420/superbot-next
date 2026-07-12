@@ -3180,64 +3180,79 @@
    },
    "value": 0
   },
-  "games:games.world:LayoutSpec.pages": {
+  "games:games.hub:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     {
      "rows": [
       [
-       "world_mine",
-       "world_fish",
-       "world_farm",
-       "world_creatures"
+       "ga_blackjack",
+       "ga_casino",
+       "ga_deathmatch",
+       "ga_rps_tournament"
       ],
       [
-       "world_deathmatch",
-       "world_casino",
-       "world_card"
+       "ga_mining",
+       "ga_fishing",
+       "ga_creature",
+       "ga_farm",
+       "ga_counting"
+      ],
+      [
+       "ga_chain"
       ]
      ]
     }
    ]
   },
-  "games:games.world:PageSpec.rows": {
+  "games:games.hub:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     [
-     "world_mine",
-     "world_fish",
-     "world_farm",
-     "world_creatures"
+     "ga_blackjack",
+     "ga_casino",
+     "ga_deathmatch",
+     "ga_rps_tournament"
     ],
     [
-     "world_deathmatch",
-     "world_casino",
-     "world_card"
+     "ga_mining",
+     "ga_fishing",
+     "ga_creature",
+     "ga_farm",
+     "ga_counting"
+    ],
+    [
+     "ga_chain"
     ]
    ]
   },
-  "games:games.world:PanelSpec.layout": {
+  "games:games.hub:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: games parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": {
     "pages": [
      {
       "rows": [
        [
-        "world_mine",
-        "world_fish",
-        "world_farm",
-        "world_creatures"
+        "ga_blackjack",
+        "ga_casino",
+        "ga_deathmatch",
+        "ga_rps_tournament"
        ],
        [
-        "world_deathmatch",
-        "world_casino",
-        "world_card"
+        "ga_mining",
+        "ga_fishing",
+        "ga_creature",
+        "ga_farm",
+        "ga_counting"
+       ],
+       [
+        "ga_chain"
        ]
       ]
      }
@@ -3245,6 +3260,12 @@
    }
   },
   "games:games:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "games:games:SubsystemManifest.commands/CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
