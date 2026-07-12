@@ -1,8 +1,8 @@
 # 2026-07-12 — deep-mining WRITE-PARITY lane — claim + WP-1 delivery
 
-> **Status:** active (WP-1 IN FLIGHT — the born-red claim PR #306 is being
-> converted into the WP-1 slice PR: the equip/unequip/loadout write goldens are
-> minted and the two mining exemptions retired. WP-2..6 stay PLANNED.)
+> **Status:** complete (WP-1 DELIVERED — the born-red claim PR #306 is now the
+> WP-1 slice PR: 5 equip/unequip/loadout write goldens minted, the two mining
+> exemptions retired, gate + all checkers green. WP-2..6 stay PLANNED.)
 
 ## WP-1 delivery (equip / unequip / loadout save·apply·delete)
 
@@ -30,7 +30,7 @@ equip/unequip/loadout). Retired `depth.exemptions.mining` `table:mining_equipmen
 + `table:mining_loadout_presets`; ratchet mining tables 5 → 7. Corpus 474 → 479
 (minted 12 → 17). No product-code change (parity/ + parity.yml + count pins only).
 
-- **📊 Model:** opus-4.8 · high · scoping (Q-0194)
+- **📊 Model:** opus-4.8 · high · feature build (Q-0194)
 
 ## Scope
 
