@@ -377,7 +377,7 @@ enforcement, which arrives with the named engine ports. This matches
 | welcome_card_enabled | none | KEEP/parked — consumer = the welcome-card image renderer, unported | sb/manifest/welcome.py:49-52 |
 | welcome_min_account_age_days | none | KEEP/parked — consumer = the A-14 screening lane ("A-14 screening input" is the declared hint), unported | sb/manifest/welcome.py:53-55 |
 
-### VERDICT 010 — settle-once architecture guard (approve, contract c): PARKED
+### VERDICT 010 — settle-once architecture guard (approve, contract c): PARKED → BUILT
 
 Verified: no settle-once checker exists in `tools/` (22+ `check_*`
 scripts, none enforce the invariant), and the verdict's contract (c) —
@@ -394,6 +394,24 @@ Adjacent-but-different guard already live: `tools/check_money_race.py`
 superbot-side one-liner the verdict names (`check_consistency.py:1151`
 `roots += ("cogs/",)`) targets the READ-ONLY sibling — routed to the
 fleet manager via this record, not actionable here.
+
+**BUILD NOTE (the named successor, landed — D-0079, PR #295):**
+`tools/check_settle_once.py` ships the parked slice on the park's own
+terms — warn-first per Q-0105, the #133 `clear_active()` rowcount gate
+as the reference fence, and the scope rule honored by DERIVATION (a
+root = a money-fixpoint function carrying a literal `@workflow("…")`
+decorator; money functions reachable from no leg are their own WARN
+class, so the cogs/-drift failure mode reds as "undeclared money
+path" instead of silently escaping the roster). Measured at HEAD:
+`settle_once: 29 roots — RC:13 CAS:11 CW:3 allowlisted:1 known-risk:1
+warn:0` — the one allowlisted root is rps `_record_solo_play`
+(stateless single leg), the one ledgered KNOWN RISK is karma
+`_record_give` (unlocked cooldown/cap reads + unconditioned
+`credit_karma` upsert — loud on every run, never called safe). Four
+stale-row-is-RED ledgers (SETTLE_SITES / REARM_SITES / ALLOWLIST /
+KNOWN_RISKS), red-then-green tests over the pre-#133 and gc-refund
+defect shapes in `tests/unit/invariants/test_check_settle_once.py`,
+and the ci.yml checkers-loop word.
 
 ### VERDICT 012 — doc-cite checker spec (approve): BUILT (this PR)
 
