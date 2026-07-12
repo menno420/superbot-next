@@ -25,8 +25,7 @@ facts ingested, every builder renders the shipped EMPTY state — which is
 also this build's true state, so the copy stays honest.
 
 Deviations from the oracle, ledgered here (all on golden-UNPINNED paths):
-* the boss-fight estimator (`!btd6 estimate <query>`) is a successor —
-  only the golden-pinned bare-usage card is served.
+* (none — the ledger emptied when the boss-fight estimator ported.)
 
 (Freeplay MOAB scaling — formerly the first ledgered deviation — is
 PORTED: ``round_rbe`` recomputes ``effective_rbe`` via the
@@ -41,6 +40,13 @@ answers them in the shipped order via :func:`for_map` / :func:`for_mode`,
 and test-intent renders the matched canonicals. In the oracle, matched
 maps/modes additionally feed the ``btd6_facts`` DB grounding pass — that
 pass rides D-0046 with the rest of live ingestion.)
+
+(The boss-fight estimator — formerly the second and last ledgered
+deviation — is PORTED: :func:`estimate_card` renders the query branch of
+shipped ``cogs/btd6/_builders.build_estimate_embed`` verbatim over
+:mod:`sb.domain.btd6.estimator` (itself anchor-verified against the
+oracle's own module executed over the committed data); the bare-usage
+branch stays the golden-pinned :func:`estimate_usage_card`.)
 """
 
 from __future__ import annotations
@@ -851,6 +857,46 @@ def estimate_usage_card() -> RenderedEmbed:
             "• `<tower> vs <boss> [tier]` — e.g. "
             "`super monkey 0-4-0 vs bloonarius t5`\n"
             "• `counters <boss> [tier]` — the most cost-efficient towers"),
+        style_token="blurple")
+
+
+def estimate_card(query: str) -> RenderedEmbed:
+    """The shipped ``build_estimate_embed`` query branch, verbatim — a
+    single estimate (``<tower> vs <boss> [tier]``) or the cheapest-counters
+    ranking, computed by :mod:`sb.domain.btd6.estimator`."""
+    from sb.domain.btd6 import estimator as est
+
+    req = est.parse_request(query)
+    if req.mode == "single":
+        estimate = est.resolve_and_estimate(
+            req.tower_query,
+            req.boss_query,
+            req.tier,
+            req.map_query,
+        )
+        if estimate is not None:
+            body = est.format_estimate_text(estimate)
+        else:
+            body = (
+                "I couldn't resolve that — try `<tower> vs <boss> [tier]`. "
+                f"(Read tower=`{req.tower_query}`, boss=`{req.boss_query}`, "
+                f"tier {req.tier}.)"
+            )
+    else:
+        boss = est.find_boss(req.boss_query)
+        if boss is None:
+            body = (
+                f"I don't have a boss matching `{req.boss_query}`. "
+                "Bosses: Bloonarius, Lych, Vortex, Dreadbloon, "
+                "Blastapopoulos, Phayze, Diamondback."
+            )
+        else:
+            rows = est.cheapest_counters(boss.id, req.tier, limit=5)
+            body = est.format_counters_text(rows, boss.canonical or boss.id,
+                                            req.tier)
+    return RenderedEmbed(
+        title="🎯 BTD6 boss-fight estimate",
+        description=body,
         style_token="blurple")
 
 
