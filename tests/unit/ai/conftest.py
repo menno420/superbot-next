@@ -80,6 +80,19 @@ def _reset_ai_state():
     manifest = sys.modules.get("sb.manifest.ai")
     if manifest is not None:
         manifest.ENSURE_REFS()
+        # ENSURE_REFS ends in _readers.install_ai_platform() — a
+        # COMPOSITION-ROOT reader install, not an import-time
+        # registration (sb/manifest/ai.py runs it only inside the hook).
+        # Since #213's integration suite imports sb.manifest.ai at
+        # session start, this branch fires under the CANONICAL order too
+        # — the reader seams must end un-armed exactly like the kernel
+        # plumbing below, or the deny-when-unconfigured suites inherit a
+        # DB-backed policy reader over a closed pool.
+        policy.reset_policy_for_tests()
+        memory.reset_memory_ports_for_tests()
+        orchestration.reset_profile_key_reader_for_tests()
+        instructions.reset_profile_reader_for_tests()
+        nl_engine.reset_nl_engine_for_tests()
     # kernel plumbing last — these end un-armed even after a re-arm
     flags.reset_flags_for_tests()
     routing.clear_overrides()
