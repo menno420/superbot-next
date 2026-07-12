@@ -1,6 +1,6 @@
 # 2026-07-12 — rps tournament "already registered" copy → oracle verbatim
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Opus 4.8 · high · parity copy-drift fix, red-then-green
 
@@ -39,7 +39,7 @@ guard.
 
 ## Evidence
 
-- `python3 -m pytest tests/` — 1729 passed / 8 skipped (was 1728; +1 new test).
+- `python3 -m pytest tests/` — 1728 passed / 8 skipped (includes the new test).
 - `python3 tools/run_golden_parity.py --gate` — GREEN, all 412 goldens across
   51 ported subsystems replay clean (zero golden movement — no golden covers
   this refusal).
