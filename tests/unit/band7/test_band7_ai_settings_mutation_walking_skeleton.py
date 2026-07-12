@@ -389,3 +389,94 @@ def test_kv_serialization_is_the_read_path_inverse():
     assert _serialize(spec_for_key("ai_cooldown_seconds"), 60) == "60"
     assert _serialize(spec_for_key("ai_default_provider"),
                       "openai") == "openai"
+
+
+# --- VERDICT 009 AIP-07: enum/preset picks refresh the page ------------------------
+
+
+def _pick_req(args):
+    from types import SimpleNamespace
+
+    return SimpleNamespace(args=args, guild_id="1", origin=None)
+
+
+def _drive_pick(monkeypatch, handler_name, args, *, outcome=None):
+    """Drive one widget pick handler with the write leg + refresh stubbed —
+    returns (reply, refreshed_with) so the tests assert the sibling
+    posture: refresh on a landed write, NO refresh on a failed one."""
+    from types import SimpleNamespace
+
+    from sb.domain.ai import settings_widgets as sw
+    from sb.spec.outcomes import SUCCESS
+
+    result = SimpleNamespace(outcome=outcome or SUCCESS, before=None,
+                             user_message=None)
+    refreshed = []
+
+    async def _write(req, spec, value):
+        return result
+
+    async def _refresh(req):
+        refreshed.append(req)
+
+    async def _current(guild_id, spec):
+        return spec.default
+
+    monkeypatch.setattr(sw, "_write_setting", _write)
+    monkeypatch.setattr(sw, "_refresh_settings_page", _refresh)
+    monkeypatch.setattr(sw, "_current_value", _current)
+    reply = run(getattr(sw, handler_name)(_pick_req(args)))
+    return reply, refreshed
+
+
+def test_enum_pick_refreshes_settings_page(monkeypatch):
+    """AIP-07: the enum select pick refreshes the page after the write
+    lands (the toggle/reset/text/number sibling posture) — the stale
+    current-value highlight is the defect this pins."""
+    from sb.spec.outcomes import SUCCESS
+
+    reply, refreshed = _drive_pick(
+        monkeypatch, "settings_enum_pick",
+        {"setting": "ai_default_provider", "values": ("openai",)})
+    assert reply.outcome == SUCCESS
+    assert reply.user_message == "✅ Updated `ai_default_provider` = `'openai'`."
+    assert len(refreshed) == 1
+
+
+def test_preset_pick_refreshes_settings_page(monkeypatch):
+    from sb.spec.outcomes import SUCCESS
+
+    reply, refreshed = _drive_pick(
+        monkeypatch, "settings_preset_pick",
+        {"setting": "ai_cooldown_seconds", "session_action": "preset_2"})
+    assert reply.outcome == SUCCESS
+    assert reply.user_message == ("✅ Updated `ai_cooldown_seconds` = `30` "
+                             "(was `30`).")
+    assert len(refreshed) == 1
+
+
+def test_enum_and_preset_picks_skip_refresh_on_failed_write(monkeypatch):
+    """A failed write returns the error ack WITHOUT a refresh — the same
+    early-return arm every sibling carries."""
+    from sb.spec.outcomes import BLOCKED
+
+    for handler, args in (
+            ("settings_enum_pick",
+             {"setting": "ai_default_provider", "values": ("openai",)}),
+            ("settings_preset_pick",
+             {"setting": "ai_cooldown_seconds",
+              "session_action": "preset_2"})):
+        reply, refreshed = _drive_pick(monkeypatch, handler, args,
+                                       outcome=BLOCKED)
+        assert reply.outcome == BLOCKED
+        assert refreshed == []
+
+
+def test_hub_spec_title_is_the_neutral_base_form():
+    """AIP-08: the declared PanelSpec.title never renders live (the
+    ai.render_hub override swaps the whole embed for the DYNAMIC
+    `{✅|⚠️|💤} AI Platform` one) — the spec declares the neutral base
+    form instead of pinning one transient state."""
+    from sb.domain.ai.panels import ai_hub_spec
+
+    assert ai_hub_spec().title == "AI Platform"
