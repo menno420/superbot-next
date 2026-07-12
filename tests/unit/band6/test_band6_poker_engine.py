@@ -425,6 +425,70 @@ def test_orphaned_dead_layer_is_refunded_not_burned():
     assert got == {0: 3}  # the refund is a return of dead money, not a "win"
 
 
+def test_uncontested_win_caps_at_matched_chips_and_refunds_excess():
+    # Chip-mis-allocation regression (Codex P2 on engine.py:478).  Same
+    # correctness family as the orphaned-dead-layer P1, but on the *uncontested*
+    # award path (everyone but one folds → single winner).  When the lone
+    # survivor is all-in for LESS than a folded opponent posted, table stakes
+    # cap what they can win from that opponent at the matched amount; the
+    # opponent's unmatched over-commit must be refunded, not awarded.
+    #
+    # Layout: heads-up P0=1, P1=3, button=0.  P0 (button = SB) posts the small
+    # blind all-in for 1; P1 posts the big blind (2); P1 then folds facing
+    # nothing to call (the big-blind option — a legal, if irrational, fold).
+    # Contributions are {0:1, 1:2}.  P0 can only win what P1 matched against
+    # P0's 1-chip contribution, so P0 collects 1 (own) + 1 (matched) = 2; P1's
+    # unmatched 1 chip refunds.  Correct result: P0 stack 2, P1 stack 2.
+    g = PokerGame(_players(1, 3), button=0, rng=_seed(7))
+    g.begin_hand()
+    # Heads-up the button/SB acts first, but P0 is all-in from the blind, so the
+    # action skips straight to P1 (BB), who faces nothing to call.
+    assert g.current == 1
+    assert g.to_call() == 0
+    before = sum(p.stack + p.committed_hand for p in g.players)
+    assert before == 4
+    g.act(Action.FOLD)  # P1 (BB) folds with nothing to call
+    assert g.stage == Stage.COMPLETE
+    assert g.pot_total == 3  # 1 (P0 SB all-in) + 2 (P1 BB)
+    # P0 wins only the matched 2 chips; P1's unmatched blind chip comes back.
+    assert g.players[0].stack == 2  # own 1 + 1 matched from P1
+    assert g.players[1].stack == 2  # 1 left after the blind + 1 refunded
+    # Pot-conservation invariant: total table chips are unchanged.
+    assert sum(p.stack for p in g.players) == 4
+    # The uncontested award reflects only the matched pot, not the refund.
+    got = {r.user_id: r.amount for r in g.results}
+    assert got == {0: 2}  # P0 won 2; the refund to P1 is not a "win"
+
+
+def test_uncontested_win_pays_full_pot_when_winner_matched_everyone():
+    # Guard the common case against over-refunding: when the lone survivor
+    # contributed at least as much as every folded player, nothing is unmatched
+    # and they collect the entire pot (dead blinds included), exactly as before.
+    # Three-handed, equal deep stacks: P0 raises, P1 (SB) calls, P2 (BB) folds
+    # its posted blind; P0 (the survivor after P1 also folds) took the pot.
+    g = PokerGame(_players(100, 100, 100), button=0, rng=_seed(40))
+    g.begin_hand()
+    g.act(Action.RAISE, raise_to=6)  # P0 raises to 6
+    g.act(Action.CALL)  # P1 (SB) calls to 6
+    g.act(Action.FOLD)  # P2 (BB) folds, leaving its 2-chip blind
+    # Now heads-up on the flop; P1 checks, P0 checks... instead P1 folds so P0
+    # wins uncontested with everyone matched-or-less against P0's 6.
+    assert g.stage == Stage.FLOP
+    g.act(Action.CHECK)  # P1 checks
+    g.act(Action.RAISE, raise_to=10)  # P0 bets 10
+    g.act(Action.FOLD)  # P1 folds → P0 wins uncontested
+    assert g.stage == Stage.COMPLETE
+    # Pot = P0 16 + P1 6 + P2 2 (dead blind) = 24; P0 out-committed both
+    # opponents, so nothing is unmatched: P0 takes the whole 24.
+    assert g.pot_total == 24
+    assert g.players[0].stack == 100 - 16 + 24  # 108
+    assert g.players[1].stack == 100 - 6  # 94
+    assert g.players[2].stack == 100 - 2  # 98 (folded blind stays lost)
+    assert sum(p.stack for p in g.players) == 300
+    got = {r.user_id: r.amount for r in g.results}
+    assert got == {0: 24}
+
+
 def test_split_pot_even():
     # Heads-up dead heat, even pot → clean split, no odd chip.
     g = PokerGame(_players(100, 100), button=0, rng=_seed(26))

@@ -9,16 +9,36 @@ names, so no symbol rename was needed) plus one non-behavioral addition: the
 table-state reader (the clean headless shape downstream goldens / the
 table-flow layer consume).
 
-The betting/pot semantics are the oracle's, with **one deliberate deviation**
-(a chip-conservation correctness fix, not a payout/balance change): in
-:meth:`_settle_showdown`, a side-pot layer reached only by *folded* players
-(no un-folded contender is eligible to win it) is **refunded to its
-contributors** instead of being silently dropped.  The oracle burns that
-uncalled money, so a chip can vanish — e.g. stacks ``P0=1, P1=1, P2=3`` with a
-folded all-in blind leaves a 1-chip orphan layer, breaking ``sum(winnings) ==
-pot_total``.  ⚑ The same bug exists upstream in the oracle and should be
-flagged to the Ideas Lab / fixed upstream; this port cannot faithfully carry a
-chip-nonconservation bug into a play-money table.
+The betting/pot semantics are the oracle's, with **two deliberate deviations**
+(both chip-allocation correctness fixes of the same family — uncalled money is
+returned to its contributor, never burned or mis-awarded — not payout/balance
+changes):
+
+1. **Showdown dead side-pot layer** — in :meth:`_settle_showdown`, a side-pot
+   layer reached only by *folded* players (no un-folded contender is eligible
+   to win it) is **refunded to its contributors** instead of being silently
+   dropped.  The oracle burns that uncalled money, so a chip can vanish — e.g.
+   stacks ``P0=1, P1=1, P2=3`` with a folded all-in blind leaves a 1-chip
+   orphan layer, breaking ``sum(winnings) == pot_total``.
+
+2. **Uncontested-award over-collection** — in :meth:`_award_uncontested` (the
+   everyone-folds path), the lone survivor collects from each other
+   contributor only the chips that contributor **matched** against the
+   survivor's own contribution; a folded player's unmatched over-commit is
+   **refunded**.  The oracle awards the full ``pot_total`` here, so a survivor
+   who is all-in for less than a folded opponent posted is handed the
+   opponent's unmatched chip — e.g. heads-up ``P0=1, P1=3`` where ``P0`` posts
+   the small blind all-in for 1 and ``P1`` posts the big blind (2) then folds
+   facing nothing to call: the oracle gives ``P0`` all 3 chips, but table
+   stakes cap ``P0`` at 2 (own 1 + 1 matched) with ``P1``'s extra blind chip
+   refunded.  The two paths are disjoint (exactly one runs per hand), so there
+   is no double-refund.
+
+⚑ Both bugs almost certainly exist upstream in the oracle (the uncontested
+path carries the same defect) and should be flagged to the Ideas Lab / fixed
+upstream — the coordinator is tracking those upstream fixes on the owner's
+Ideas Lab queue.  This port cannot faithfully carry a chip-mis-allocation bug
+into a play-money table.
 
 Owns one poker *table* of seated players and drives a hand through its betting
 rounds (preflop → flop → turn → river → showdown), including blinds, the
@@ -474,7 +494,26 @@ class PokerGame:
     def _award_uncontested(self) -> None:
         winner_idx = next(i for i, p in enumerate(self.players) if p.in_hand)
         winner = self.players[winner_idx]
-        pot = self.pot_total
+        win_commit = winner.committed_hand
+        # Table stakes: the lone survivor can only collect, from each other
+        # contributor, up to what that contributor *matched* against the
+        # winner's own contribution.  If the winner is all-in for less than a
+        # folded player posted (e.g. a short all-in blind and the over-poster
+        # folds facing nothing to call), the folded player's unmatched
+        # over-commit is uncalled money — refund it rather than award it.
+        # DEVIATION from the verbatim oracle (same chip-conservation family as
+        # the _settle_showdown dead-layer refund; disjoint code path, so no
+        # double-refund).  The oracle awards the full pot here and thereby
+        # mis-allocates the unmatched chip.  See PR note / ⚑.
+        pot = win_commit  # the winner's own chips always come back
+        for i, p in enumerate(self.players):
+            if i == winner_idx:
+                continue
+            matched = min(p.committed_hand, win_commit)
+            pot += matched
+            excess = p.committed_hand - matched
+            if excess > 0:
+                p.stack += excess
         winner.stack += pot
         self.results = [PotResult(user_id=winner.user_id, amount=pot, hand_label=None)]
         self.log.append(f"{winner.name} wins {pot} (everyone else folded).")
