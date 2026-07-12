@@ -262,6 +262,79 @@ def scan_emit_sites(root: Path) -> list[tuple[str, int, str]]:
     return sites
 
 
+# --- the real-plugin boot proof (ORDER 002 game-plugin contract) ----------------
+
+
+def plugin_boot_problems(host_manifests: list) -> list[str]:
+    """Boot the IN-TREE exemplar (``examples/superbot-plugin-hello``) headless
+    against the COMMITTED ``plugins.lock.json`` pin — the real ``load_plugins``
+    call ``sb.app.main`` step 9b makes, minus a pip install.
+
+    Static-green-but-boot-broken is exactly this gate's remit, and a plugin
+    is the sharpest case: the in-tree corpus can be statically perfect while
+    the committed pin has drifted from the real manifest (a spec facet grew
+    without a re-pin), so the one external plugin the host ships cannot boot
+    against its own lock. This proves entry-point discovery + the committed
+    pin verify + the v1 facet fence + the joint host+plugin compile all admit
+    the real manifest, and that its declared panel registers.
+
+    The entry point is CONSTRUCTED (its ``.load()`` imports the real module —
+    import == ref registration): the exemplar is in-tree, not a pip-installed
+    dist, so this stays hermetic (no install, no network — the same
+    pyyaml-only environment the rest of the gate runs in). Called AFTER the
+    in-tree W-rules so the plugin's refs never leak into leg-A's corpus hash
+    (the main.py step-9b ordering: plugins load after the host is armed)."""
+    import importlib
+
+    exemplar = _REPO_ROOT / "examples" / "superbot-plugin-hello"
+    if not (exemplar / "superbot_plugin_hello" / "manifest.py").exists():
+        return []  # exemplar absent from this checkout — nothing to prove
+    if str(exemplar) not in sys.path:
+        sys.path.insert(0, str(exemplar))
+
+    from sb.app import plugin_host
+    from sb.app.panel_host import register_manifest_panels
+    from sb.kernel.panels.registry import get_panel
+
+    module_name = "superbot_plugin_hello.manifest"
+    try:
+        module = importlib.import_module(module_name)
+    except Exception as exc:  # noqa: BLE001 — the finding IS the report
+        return [f"plugin-boot: exemplar import failed — {exc!r}"]
+    ensure = getattr(module, "ENSURE_REFS", None)
+    if callable(ensure):
+        ensure()  # re-arm the plugin's own refs (the host re-arm skips plugins)
+
+    class _Dist:
+        name = "superbot-plugin-hello"
+        version = "0.1.0"
+
+    class _EntryPoint:
+        name = "hello"
+        value = module_name
+        dist = _Dist()
+
+        def load(self):
+            return importlib.import_module(module_name)
+
+    pins = plugin_host.read_pins(_REPO_ROOT / plugin_host.PINS_FILENAME)
+    report = plugin_host.load_plugins(
+        host_manifests, pins=pins, entry_points=(_EntryPoint(),))
+    if report.violations:
+        return [f"plugin-boot: {v}" for v in report.violations]
+    if not any(getattr(m, "key", None) == "hello" for m in report.manifests):
+        return ["plugin-boot: the exemplar admitted 0 manifests "
+                "(expected the 'hello' subsystem)"]
+    register_manifest_panels(list(report.manifests))
+    try:
+        get_panel("hello.home")
+    except LookupError:
+        return ["plugin-boot: hello.home is declared by the exemplar but NOT "
+                "registered after register_manifest_panels (the band-1 "
+                "LookupError class)"]
+    return []
+
+
 # --- the headless boot (the I/O shell) -------------------------------------------
 
 
@@ -313,13 +386,19 @@ def run_smoke(snapshot_path: Path) -> list[str]:
     emit_sites = scan_emit_sites(_REPO_ROOT / "sb")
     problems += unknown_emit_names(emit_sites, KNOWN_EVENTS)
 
+    # 6. the real-plugin boot (main.py step 9b) — AFTER the in-tree wiring so
+    #    the plugin's refs never leak into leg-A's corpus hash.
+    plugin_problems = plugin_boot_problems(manifests)
+    problems += plugin_problems
+
     if not problems:
         print(f"check_runtime_smoke: clean — {len(manifests)} manifest(s), "
               f"{index_size} dispatch target(s), {panel_count} panel(s), "
               f"{len(armed)} roster module(s), "
               f"{len(bus.subscribed_names())} subscribed event name(s), "
               f"{len(emit_sites)} static emit site(s), "
-              f"{len(KNOWN_EVENTS)} declared event(s)")
+              f"{len(KNOWN_EVENTS)} declared event(s), "
+              "+1 real plugin exemplar (hello) booted against its pin")
     return problems
 
 
