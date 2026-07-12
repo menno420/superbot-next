@@ -49,11 +49,26 @@ __all__ = [
 _HUB_PROVIDER = "inventory.hub_overview"
 _LINE_RENDERER = "inventory.render_line"
 
+
+def _ctx_target(ctx: object) -> int:
+    """The viewed member — the shipped ``UnifiedInventoryView.target``
+    threading: ``!inventory @user`` opens the hub with ``inv_target`` in the
+    request args, and the session-click adapter replays the OPEN's args on
+    every category click (``EphemeralComponent.args``), so detail panels
+    render the TARGET's items, not the clicker's (the shipped
+    ``self._hub.target`` semantic). Falls back to the actor."""
+    params = getattr(ctx, "params", {}) or {}
+    target = int(params.get("inv_target", 0) or 0)
+    return target or int(getattr(getattr(ctx, "actor", None), "user_id", 0)
+                         or 0)
+
 # The shipped category population is STATIC catalogue metadata (+ the
 # "Other" catch-all) — so the hub's per-category buttons are declarable.
-# Deviation from shipped (D-0034): every category button always shows
-# (no per-render count badge / non-empty filtering); an empty category's
-# detail panel renders its empty_state.
+# The shipped `_add_category_buttons` showed one button per NON-EMPTY
+# category (clear_items + the ordered non-empty fold) — the hub's
+# renderer_override drops empty-category buttons per render (the D-0068
+# component-drop lane); parity/goldens/inventory/sweep_inventory.json pins
+# the zero-component empty-inventory wire shape.
 _CATEGORIES: tuple[str, ...] = (
     "Mining Materials", "Crafted Items", "Tools", "Fishing",
     "Collectibles", "Economy Items", "Other",
@@ -99,8 +114,7 @@ def _ensure_hub_provider() -> ProviderRef:
             from sb.domain.inventory import service
 
             guild_id = int(getattr(ctx, "guild_id", 0) or 0)
-            user_id = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
-                          or 0)
+            user_id = _ctx_target(ctx)
             grouped = await service.build_combined_inventory(user_id, guild_id)
             if not grouped:
                 return (("🎒 Inventory",
@@ -120,8 +134,7 @@ def _ensure_detail_provider(category: str) -> ProviderRef:
             from sb.domain.inventory import service
 
             guild_id = int(getattr(ctx, "guild_id", 0) or 0)
-            user_id = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
-                          or 0)
+            user_id = _ctx_target(ctx)
             grouped = await service.build_combined_inventory(user_id, guild_id)
             items = grouped.get(_category, [])
             if not items:
@@ -151,7 +164,10 @@ def inventory_hub_spec() -> PanelSpec:
         subsystem="inventory",
         title="🎒 Inventory",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        # the shipped accent — ECONOMY_COLOR (discord.Color.gold()); the
+        # shipped footer is a literal outside FooterMode's vocabulary
+        # (renderer_override below, the treasury/cleanup-hub precedent).
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
         body=(
             TextBlock("The unified item browser — one catalogue across "
                       "economy, mining, fishing, and collectibles, grouped "
@@ -160,7 +176,32 @@ def inventory_hub_spec() -> PanelSpec:
             FieldsBlock(provider=_ensure_hub_provider()),
         ),
         actions=tuple(actions),
-        navigation=NavigationSpec(),
+        # the shipped UnifiedInventoryView carried ONLY its own category
+        # buttons (a timeout BaseView — no nav row); the golden pins the
+        # zero-component empty state.
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        # the shipped view was ctx-bound and timeout-based (view-local
+        # button callbacks, no persistent custom_ids) — run-minted ids,
+        # never a panel_anchors row (the golden's db_delta carries none).
+        session_lifecycle=True,
+        renderer_override=HandlerRef("inventory.render_hub"),
+        justification=(
+            "the shipped hub embed (disbot/cogs/inventory_cog.py "
+            "UnifiedInventoryView.build_hub_embed) is state-dependent on "
+            "every surface — outside the grammar's static vocabulary. The "
+            "override delegates the COMPONENTS to render_panel and adjusts: "
+            "the target-parameterized TITLE (\"🎒 {display_name}'s "
+            "Inventory\"), the state-dependent DESCRIPTION (the category "
+            "preview lines, or the empty-state literal 'No items yet — go "
+            "mining with `!mine` or visit `!shop`!'), the FOOTER literal "
+            "('Select a category below to view details.'), the target-"
+            "avatar THUMBNAIL (set_thumbnail(target.display_avatar.url)), "
+            "the FIELDS dropped (the shipped embed had none — the declared "
+            "FieldsBlock preview renders as the shipped DESCRIPTION), and "
+            "the COMPONENT DROP of empty-category buttons (the shipped "
+            "_add_category_buttons added one button per NON-EMPTY category "
+            "— parity/goldens/inventory/sweep_inventory.json pins the "
+            "empty-inventory zero-component shape)."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
             tuple(f"open_{category_slug(c)}" for c in _CATEGORIES[:5]),
             tuple(f"open_{category_slug(c)}" for c in _CATEGORIES[5:]),
@@ -194,6 +235,62 @@ def category_detail_specs() -> tuple[PanelSpec, ...]:
             navigation=NavigationSpec(parent=PanelRef("inventory.hub")),
         ))
     return tuple(specs)
+
+
+async def _member_display(user_id: int, guild_id: int) -> tuple[str, str]:
+    """(display name, avatar url) through the guild-directory read port —
+    for PanelRef-routed opens (the economy hub's 🎒 Inventory button) that
+    carry no origin message. Degrades to ("", "") when no directory is
+    armed — never invented data (the economy-hub precedent)."""
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        member = await guild_directory().member_info(guild_id, user_id)
+    except Exception:  # noqa: BLE001 — no directory ⇒ no name/thumbnail
+        return "", ""
+    return member.tag.rsplit("#", 1)[0], member.display_avatar_url
+
+
+@handler("inventory.render_hub")
+async def _render_hub(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the shipped hub embed verbatim (see the spec's
+    justification): target-name title, gold accent, avatar thumbnail, the
+    state-dependent description, the footer literal, no fields; components
+    delegate to render_panel then DROP the empty-category buttons (the
+    shipped one-button-per-non-empty-category fold)."""
+    import dataclasses
+
+    from sb.domain.inventory import service
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    base = await render_panel(spec, ctx)
+    params = getattr(ctx, "params", {}) or {}
+    invoker = int(getattr(ctx.actor, "user_id", 0) or 0)
+    target = int(params.get("inv_target", 0) or 0) or invoker
+    name = str(params.get("inv_name", "") or "")
+    icon = str(params.get("inv_icon", "") or "")
+    if not name:        # PanelRef-routed open (no command params)
+        name, icon = await _member_display(target, int(ctx.guild_id or 0))
+        if not name:
+            name = f"<@{target}>"
+    grouped = await service.build_combined_inventory(
+        target, int(ctx.guild_id or 0))
+    if not grouped:
+        description = ("No items yet — go mining with `!mine` or visit "
+                       "`!shop`!")
+    else:
+        description = "\n".join(service.render_hub_lines(grouped))
+    embed = RenderedEmbed(
+        title=f"🎒 {name}'s Inventory",
+        description=description,
+        footer="Select a category below to view details.",
+        style_token=spec.frame.style_token,
+        thumbnail_ref=icon)
+    # canonical-id matching (overrides run before _mint_ephemeral).
+    keep = {f"{spec.panel_id}.open_{category_slug(c)}"
+            for c in _CATEGORIES if c in grouped}
+    components = tuple(c for c in base.components if c.custom_id in keep)
+    return dataclasses.replace(base, embed=embed, components=components)
 
 
 @panel("inventory.hub")
@@ -234,8 +331,12 @@ def install_inventory_panels() -> tuple[PanelSpec, ...]:
 def ensure_panel_refs() -> None:
     from sb.spec.refs import PanelRef as _P, is_registered as _is, panel as _panel
 
+    from sb.spec.refs import HandlerRef as _H, handler as _handler
+
     _ensure_hub_provider()
     _ensure_line_renderer()
+    if not _is(_H("inventory.render_hub")):
+        _handler("inventory.render_hub")(_render_hub)
     for cat in _CATEGORIES:
         _ensure_detail_provider(cat)
         pid = _detail_panel_id(cat)
