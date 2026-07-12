@@ -28,8 +28,9 @@ red-then-green tests + the ci.yml checkers-loop word + this paperwork
   (money dominated by the first branch after an atomic consume — the
   #133 / gc_sweep shape), RC (FOR-UPDATE/advisory-fenced load + gating
   state consumed in the same txn); else WARN unless ledgered.
-- Measured at HEAD `291caec`: **29 roots — RC:13 CAS:11 CW:3
-  allowlisted:1 known-risk:1 warn:0**, undeclared:0. Every ledger row
+- Measured at HEAD `291caec`: **29 roots — RC:15 CAS:9 CW:3
+  allowlisted:1 known-risk:1 warn:0**, undeclared:0 (counts are post
+  the in-PR codex tightening below). Every ledger row
   verified against source before being added. The one KNOWN RISK is
   karma `_record_give` (unlocked cooldown/cap reads + unconditioned
   `credit_karma` upsert, sb/domain/karma/ops.py:138-229) — loud on
@@ -39,7 +40,7 @@ red-then-green tests + the ci.yml checkers-loop word + this paperwork
   tournament_open→set_active, farm collect→set_farm, economy
   daily/work→cooldown anchors), ALLOWLIST (rps `_record_solo_play`),
   KNOWN_RISKS (karma).
-- `tests/unit/invariants/test_check_settle_once.py` — 18 hermetic pins:
+- `tests/unit/invariants/test_check_settle_once.py` — 20 hermetic pins:
   RED on the pre-#133 free-branch credit, the ungated gc refund, the
   unfenced load-then-settle; GREEN on the shipped shapes verbatim;
   stale-ledger RED for all four tables; re-arm green/stale; the
@@ -48,14 +49,31 @@ red-then-green tests + the ci.yml checkers-loop word + this paperwork
 - `.github/workflows/ci.yml` — `check_settle_once` in the checkers loop
   (alphabetical, after check_schema_growth).
 
+## Codex return — SUBSTANTIVE + VERIFIED (not phantom)
+
+The @codex review on #298 answered the posted question with a REAL
+false negative: an unrelated `if` interposed between the bound consume
+(`deleted = await delete_checkpoint_by_id(...)`) and an ungated credit
+classified `cas` under the original first-branch-arms approximation.
+Verified per Q-0120 by reproducing the fixture red through the analyze
+seam BEFORE fixing. Fixed in-PR: CAS dominance now requires the branch
+test to reference the name bound to the consume's result (or perform
+the consume inline); rebinding a name kills its stale binding; the
+binding survives unrelated branches. The laundered shape is a permanent
+red pin (`GC_LAUNDERED`), its green twin (`PAYOUT_INTERPOSED_GATED`)
+pins that a later gating branch still arms. Reclassification fallout:
+rps+blackjack `tournament_abort` CAS→RC — the honest mechanism there is
+the `lock_rows_for_settlement` + `delete_checkpoint_by_id` row
+consumption, not the unused `clear_active` result.
+
 ## Honest boundaries (in the checker's Q-0105 header)
 
-CAS dominance is approximated as "the first branch after an atomic
-consume guards its surviving paths" — no dataflow, so a rowcount bound
-ignored across an unrelated branch can fool it (the @codex question on
-the PR head). Fences propagate from helpers even when conditional
-inside them. The lint pins the PROVEN shapes; it is not a general
-concurrency analyzer.
+CAS dominance is name-binding approximated — still no full dataflow, so
+a consume result laundered through a SECOND binding (`ok = deleted`) or
+a container escapes the test (the graduation lane's next tightening
+candidate). Fences propagate from helpers even when conditional inside
+them. The lint pins the PROVEN shapes; it is not a general concurrency
+analyzer.
 
 ## Verification
 

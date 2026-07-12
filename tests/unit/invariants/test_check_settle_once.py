@@ -215,6 +215,52 @@ async def _record_solo_stand(conn, ctx):
     return balance
 '''
 
+# The #298 codex false-negative shape: the consume result IS bound, but an
+# UNRELATED `if` sits between the consume and an ungated credit. The
+# original first-branch-arms approximation classified this `cas`; the
+# name-binding tightening must WARN it (the credit never tests `deleted`).
+GC_LAUNDERED = '''
+from sb.domain.games import store, wager
+from sb.spec.refs import workflow
+
+
+@workflow("demo.record_gc_sweep_row")
+async def _record_gc_sweep_row(conn, ctx):
+    row = dict(ctx.params["row"])
+    bet = int((row.get("state") or {}).get("bet", 0) or 0)
+    deleted = await store.delete_checkpoint_by_id(conn,
+                                                  row_id=int(row["id"]))
+    if ctx.params.get("emit_trace"):
+        ctx.params["_trace"] = True
+    balance = await wager.credit_in_txn(
+        conn, guild_id=int(row["guild_id"]), user_id=int(row["user_id"]),
+        amount=bet, reason="games:gc_refund", actor_id=int(row["user_id"]))
+    return balance
+'''
+
+# The green twin: an unrelated `if` interposes, but the LATER branch that
+# gates the credit references the bound consume result — the binding must
+# survive the unrelated branch and still CAS-arm its own test.
+PAYOUT_INTERPOSED_GATED = '''
+from sb.domain.games import tournament_flag, wager
+from sb.spec.refs import workflow
+
+
+@workflow("demo.record_tournament_payout")
+async def _record_tournament_payout(conn, ctx):
+    gid = int(ctx.guild_id or 0)
+    winner = int(ctx.params["winner_id"])
+    cleared = await tournament_flag.clear_active(conn, guild_id=gid)
+    if ctx.params.get("emit_trace"):
+        ctx.params["_trace"] = True
+    if not cleared:
+        return 0
+    balance = await wager.credit_in_txn(
+        conn, guild_id=gid, user_id=winner, amount=100,
+        reason="demo:tournament_free_reward", actor_id=winner)
+    return balance
+'''
+
 # A tournament-open leg (no money) whose set_active call is the ledgered
 # re-arm site.
 OPEN_LEG = '''
@@ -296,6 +342,17 @@ class TestRedOnProvenPreFixShapes:
             "a plain-SELECT load before the settle must NOT pass as "
             "row-consumption — the fence is the point")
 
+    def test_interposed_unrelated_if_does_not_launder_cas(self):
+        # the #298 codex finding, pinned red: an `if` that never references
+        # the bound rowcount must NOT spend the consume and CAS-bless the
+        # ungated credit behind it.
+        report = analyze_sources(_modules(GC_LAUNDERED), FIX_SETTLE_SITES)
+        root = _root(report, "_record_gc_sweep_row")
+        assert root.klass == "warn", (
+            "an unrelated interposed branch laundered an ungated credit "
+            "into a CAS pass — the name-binding tightening regressed")
+        assert any(nm == "credit_in_txn" for _, nm in root.warn_events)
+
     def test_unledgered_warn_prints_but_exits_zero(self):
         sources = _modules(PAYOUT_PRE_133)
         analyzer = SettleAnalyzer(sources, FIX_SETTLE_SITES)
@@ -318,6 +375,15 @@ class TestGreenOnShippedShapes:
     def test_gc_delete_then_if_classifies_cas(self):
         report = analyze_sources(_modules(GC_GATED), FIX_SETTLE_SITES)
         assert _root(report, "_record_gc_sweep_row").klass == "cas"
+
+    def test_consume_binding_survives_unrelated_branch(self):
+        # the tightening's green twin: `cleared` bound, an unrelated `if`
+        # interposes, then `if not cleared:` gates — still CAS.
+        report = analyze_sources(_modules(PAYOUT_INTERPOSED_GATED),
+                                 FIX_SETTLE_SITES)
+        root = _root(report, "_record_tournament_payout")
+        assert root.klass == "cas"
+        assert root.warn_events == []
 
     def test_fenced_load_plus_consume_classifies_rc(self):
         report = analyze_sources(_modules(SOLO_RC), FIX_SETTLE_SITES)

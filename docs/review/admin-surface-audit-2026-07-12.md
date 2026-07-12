@@ -403,8 +403,12 @@ root = a money-fixpoint function carrying a literal `@workflow("…")`
 decorator; money functions reachable from no leg are their own WARN
 class, so the cogs/-drift failure mode reds as "undeclared money
 path" instead of silently escaping the roster). Measured at HEAD:
-`settle_once: 29 roots — RC:13 CAS:11 CW:3 allowlisted:1 known-risk:1
-warn:0` — the one allowlisted root is rps `_record_solo_play`
+`settle_once: 29 roots — RC:15 CAS:9 CW:3 allowlisted:1 known-risk:1
+warn:0` (post the in-PR codex tightening: CAS dominance requires the
+branch test to reference the name bound to the consume's result, so an
+unrelated interposed `if` cannot launder an ungated credit; rps+bj
+tournament_abort honestly reclassified CAS→RC) — the one allowlisted
+root is rps `_record_solo_play`
 (stateless single leg), the one ledgered KNOWN RISK is karma
 `_record_give` (unlocked cooldown/cap reads + unconditioned
 `credit_karma` upsert — loud on every run, never called safe). Four

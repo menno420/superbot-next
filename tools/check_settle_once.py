@@ -27,10 +27,11 @@ Provenance / reliability header (per CLAUDE.md Q-0105 adopt-with-kill-switch):
      CW  conditional-write — money moves only through self-detecting
          one-statement conditional writes (try_debit_* / the debit
          composites that raise-or-None on shortfall);
-     CAS check-and-set — the money mutation is dominated by a branch taken
-         right after an atomic consume (delete rowcount / conditional-write
-         result: the #133 clear_active gate, the gc_sweep delete-then-if
-         shape, the try_debit-then-branch transfer shape);
+     CAS check-and-set — the money mutation is dominated by a branch whose
+         test references the NAME an atomic consume's result was bound to,
+         or performs the consume inline (delete rowcount / conditional-
+         write result: the #133 clear_active gate, the gc_sweep
+         delete-then-if shape, the try_debit-then-branch transfer shape);
      RC  row-consumption — a FOR-UPDATE/advisory-fenced load precedes the
          money call AND the txn consumes/rewrites gating state (row delete
          or state upsert reachable from the leg) — the escrow-settle and
@@ -51,15 +52,19 @@ Provenance / reliability header (per CLAUDE.md Q-0105 adopt-with-kill-switch):
   tools/check_doc_cites.py:9-18).
 - Deliberately pragmatic (documented false-negative surface, the
   check_money_race posture): resolution is name/import based; CAS
-  dominance is approximated as "the FIRST branch after an atomic consume
-  guards its surviving paths" (no dataflow — a rowcount bound ignored
-  across an unrelated branch can fool it); a fence anywhere in a helper
-  marks the caller's path fenced even if conditional in the helper; the
-  RC "consumes gating state" test accepts any non-money DELETE/UPDATE/
-  upsert reachable from the leg. The lint pins the PROVEN shapes (#133,
-  gc_sweep, the wager composites, the #217 fenced loads); it is not a
-  general concurrency analyzer.
-- Added: 2026-07-12 (the D-0078 named successor slice).
+  dominance is NAME-BINDING approximated — an `if` arms only when its
+  test references the name bound to a consume's result or contains the
+  consume call itself (the #298 codex tightening; a first-branch-arms
+  version was fooled by an unrelated interposed `if`) — still no full
+  dataflow: a consume result laundered through a SECOND binding
+  (`ok = deleted`) or a container escapes the test; a fence anywhere in
+  a helper marks the caller's path fenced even if conditional in the
+  helper; the RC "consumes gating state" test accepts any non-money
+  DELETE/UPDATE/upsert reachable from the leg. The lint pins the PROVEN
+  shapes (#133, gc_sweep, the wager composites, the #217 fenced loads);
+  it is not a general concurrency analyzer.
+- Added: 2026-07-12 (the D-0078 named successor slice); CAS name-binding
+  tightening same day (PR #298 review — verified real, fixture pinned).
 
 Run: python3 tools/check_settle_once.py
 """
@@ -243,19 +248,34 @@ class SettleReport:
 @dataclass
 class _State:
     fenced: bool = False           # FOR-UPDATE / advisory fence on this path
-    consume_seen: bool = False     # atomic consume result awaiting its branch
+    #: names BOUND to an atomic consume's result, awaiting their branch
+    #: (``deleted = await delete_checkpoint_by_id(...)`` binds "deleted") —
+    #: the #298 codex tightening: an `if` only CAS-arms when its test
+    #: references one of these names (or contains the consume call itself),
+    #: so an unrelated interposed branch no longer launders an ungated
+    #: credit into a false CAS pass.
+    consume_names: set[str] = field(default_factory=set)
     cas: bool = False              # path dominated by a post-consume branch
 
     def copy(self) -> "_State":
-        return _State(self.fenced, self.consume_seen, self.cas)
+        return _State(self.fenced, set(self.consume_names), self.cas)
 
 
 def _merge(survivors: list[_State]) -> _State:
+    names = set(survivors[0].consume_names)
+    for s in survivors[1:]:
+        names &= s.consume_names
     return _State(
         fenced=all(s.fenced for s in survivors),
-        consume_seen=all(s.consume_seen for s in survivors),
+        consume_names=names,
         cas=all(s.cas for s in survivors),
     )
+
+
+def _names_in(node: ast.AST | None) -> set[str]:
+    if node is None:
+        return set()
+    return {sub.id for sub in ast.walk(node) if isinstance(sub, ast.Name)}
 
 
 class SettleAnalyzer(Analyzer):
@@ -356,27 +376,44 @@ class SettleAnalyzer(Analyzer):
                     events.append(("rc", call.lineno, name))
                 else:
                     events.append((None, call.lineno, name))
-            if name in self.arming_names:
-                state.consume_seen = True
 
         def run_calls(node: ast.AST | None, state: _State) -> None:
             for call in _calls_in(node):
                 event(call, state)
 
+        def has_arming_call(node: ast.AST | None) -> bool:
+            return any(c.name in self.arming_names for c in _calls_in(node))
+
         def walk(stmts: list[ast.stmt], state: _State) -> tuple[_State, bool]:
             for stmt in stmts:
-                if isinstance(stmt, ast.If):
+                if isinstance(stmt, ast.Assign):
+                    run_calls(stmt, state)
+                    targets = {t.id for t in stmt.targets
+                               if isinstance(t, ast.Name)}
+                    if has_arming_call(stmt.value):
+                        # the consume's result is BOUND — a later branch
+                        # referencing this name is its check-and-set test.
+                        state.consume_names |= targets
+                    else:
+                        # rebinding kills a stale consume binding.
+                        state.consume_names -= targets
+                elif isinstance(stmt, ast.If):
                     run_calls(stmt.test, state)
-                    armed = state.consume_seen
+                    referenced = _names_in(stmt.test) & state.consume_names
+                    # the #298 codex tightening: the branch CAS-arms ONLY
+                    # when its test references a bound consume result (or
+                    # performs the consume inline, e.g. a walrus/direct
+                    # call) — an unrelated interposed `if` arms nothing.
+                    armed = bool(referenced) or has_arming_call(stmt.test)
                     body_state = state.copy()
                     else_state = state.copy()
                     if armed:
-                        # the first branch after an atomic consume is
-                        # treated as testing its result — both arms (and
-                        # therefore any fall-through survivor) are
-                        # check-and-set dominated; the consume is spent.
+                        # both arms (and therefore any fall-through
+                        # survivor) are check-and-set dominated; the
+                        # referenced binding is spent.
                         for s in (body_state, else_state):
-                            s.cas, s.consume_seen = True, False
+                            s.cas = True
+                            s.consume_names -= referenced
                     body_state, body_term = walk(stmt.body, body_state)
                     else_state, else_term = walk(stmt.orelse, else_state)
                     survivors = []
