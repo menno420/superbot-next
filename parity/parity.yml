@@ -763,26 +763,15 @@ depth:
       # systems (equipment/wear/energy/grid/vault/structures/skills/
       # forge/workshop/titles/loadouts/descend-ascend/character) ride
       # the D-0043 named successor port.
-      - surface: "table:mining_player_state"
-        reason: "guard-only-capture: the depth writers ARE
-          corpus-expressible (!descend / !ascend) but the imported sweep
-          drove only their bare fresh-player invocations, and both pin
-          the shipped GUARD bytes with no row —
-          goldens/mining/sweep_descend.json (\"can't descend any
-          deeper. Equip a brighter light to descend to Cavern (needs
-          depth access 1).\" — the light-gated depth_access refusal) and
-          goldens/mining/sweep_ascend.json (\"is already at the
-          Surface.\") — so every captured case pins the refusal byte and
-          the row-bearing GEARED descent exists in no imported golden
-          (D-0069; the class's own record: a future geared capture
-          deletes it). The read side IS golden-pinned row-less
-          (sweep_fastmine / sweep_explore / sweep_minemenu render the
-          depth-0 \"🌳 Surface (depth 0/3)\" byte off the store's no-row
-          default); descend/ascend are LIVE this slice (slice 2 —
-          descend_route / ascend_route in sb/domain/mining/service.py),
-          their sweeps re-homed into the gated mining row, but the
-          not-moved refusal path they pin is a pure read (no write, no
-          audit row), so the store stays declared-but-guard-only"
+      # table:mining_player_state is NO LONGER exempt — WP-2 mining
+      # WRITE-PARITY (this PR) RETIRED it: vault_level rides
+      # mining_player_state, and the funded `!vaultupgrade` capture
+      # (goldens/mining/mining_vault_upgrade_write.json) drives a row-bearing
+      # db_delta on it (vault_level 0->1), so the table is COVERED, not exempt
+      # — the D-0069 class's own exit ("the first row-bearing golden lands with
+      # an argful capture"). The depth face (!descend / !ascend geared writes)
+      # is WP-3's coverage; the per-table exemption is retired by the first
+      # row-bearing delta on the table, which is this vaultupgrade capture.
       # Slice-1 equipment/wear/loadout/skills port declared four write-store
       # tables as mining surfaces, pinned only by bare/guard sweeps. WP-1
       # mining WRITE-PARITY (this PR) RETIRED the mining_equipment +
@@ -821,28 +810,14 @@ depth:
           owner reseed exists in no imported golden — goldens pin the
           write-free read path only, so the table cannot be covered until an
           admin-reseed capture lands"
-      # Slice-3 vault port (this PR): the per-player safe stash is a declared
-      # mining surface, but every imported sweep drove only the bare guard —
-      # sweep_stash / sweep_unstash pin the usage prompts, sweep_vault renders
-      # the empty-vault card off the no-row default, sweep_vaultupgrade pins the
-      # insufficient-funds refusal (a pure read) — so no golden carries a
-      # mining_vault row. (vault_level rides mining_player_state, already held.)
-      - surface: "table:mining_vault"
-        reason: "guard-only-capture: the deposit write lane IS
-          corpus-expressible (!stash <owned item> [n]) but the imported sweep
-          drove only the bare !stash / !unstash, pinning the usage bytes
-          (\"Specify what to stash, e.g. `!stash diamond 5` — or `!vault`.\" /
-          \"Specify what to withdraw, …\") with no row
-          (goldens/mining/sweep_stash.json, sweep_unstash.json); the bare
-          !vault renders the empty-vault card off the store's no-row default
-          (goldens/mining/sweep_vault.json — \"0/30 item types (tier 0)\",
-          \"Stored value: 0\") and !vaultupgrade pins the insufficient-funds
-          refusal computed as a PURE READ (get_vault_level + get_coins, no
-          write; goldens/mining/sweep_vaultupgrade.json — \"A vault upgrade
-          costs **2000** 🪙 — you only have **0** 🪙.\"); the row-bearing
-          deposit / funded upgrade exists in no imported golden — goldens pin
-          write-free guard paths only, so the table cannot be covered until an
-          argful stash capture lands (D-0069 class)"
+      # table:mining_vault is NO LONGER exempt — WP-2 mining WRITE-PARITY
+      # (this PR) RETIRED it: the argful !stash / !unstash and the !vault -> 📦
+      # Stash All Ore click captures
+      # (goldens/mining/mining_{stash,unstash,stash_all}_write.json) drive
+      # row-bearing db_delta on mining_vault (deposit add / withdraw remove /
+      # stash-all add), so the table is COVERED, not exempt — the D-0069
+      # class's own exit ("the first row-bearing golden lands with an argful
+      # capture").
       # Slice-4 forge/workshop port (this PR): the per-player built structure
       # levels are a declared mining surface, but the imported sweep drove only
       # the bare `!forge` — which renders the not-built card off the store's
@@ -1074,7 +1049,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 3, tables: 9, settings: 0}
+    mining: {events: 4, tables: 13, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
