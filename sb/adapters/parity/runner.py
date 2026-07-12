@@ -169,6 +169,37 @@ CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     # essential entry's ensure_setup_channel find branch, exactly the
     # -advanced/-status lane above).
     "sweep.slash_setup": {"superbot-setup": 700_000_000_000_000_902},
+    # the channel-ops sweep re-home: every mutation that NAMES `test`
+    # targeted the SAME leaked channel the alphabetically-earlier
+    # `_unmapped` sweep.create/bulkcreate/clone captures minted (trap 17
+    # READ-only, extended to the golden-pinned mutation verbs — the id
+    # renders `<msg:1>`, the reply `<msg:2>`). `sweep.create` reads it too:
+    # its get-before-create name walk finds `test`, so the new channel is
+    # de-duped to `test-2` (goldens/channel/sweep_create pins the rename).
+    "sweep.del": {"test": 700_000_000_000_000_901},
+    "sweep.bulkdelete": {"test": 700_000_000_000_000_901},
+    "sweep.rename": {"test": 700_000_000_000_000_901},
+    "sweep.topic": {"test": 700_000_000_000_000_901},
+    "sweep.clone": {"test": 700_000_000_000_000_901},
+    "sweep.set": {"test": 700_000_000_000_000_901},
+    "sweep.create": {"test": 700_000_000_000_000_901},
+    "sweep.channelinfo": {"test": 700_000_000_000_000_901},
+}
+
+#: CAPTURE-WORLD CHANNEL LISTING, reconstructed (world state — the list
+#: flavor of the trap-17 gateway-cache leak): the shipped `!list`
+#: enumerated discord.py's guild channel cache, which at capture time held
+#: the 4 world channels PLUS the channels the alphabetically-earlier
+#: sweeps created (economy-log auto-provision + the bulkcreate/clone/
+#: create `test`/`test`/`test-2` leaks) — an ordering with DUPLICATE names
+#: the name→id leaked_channels dict cannot express, so the listing rides
+#: its own per-case seed (the #163→#167 reseed lane, extended from the
+#: name-keyed cache to the ordered listing). Seeded/CLEARED at every case
+#: head (trap 20: runner-seeded, never accumulated). Each entry is
+#: (category | None, (channel names in the shipped order)).
+CAPTURE_WORLD_CHANNEL_LISTS: dict[str, tuple[tuple[str | None, tuple[str, ...]], ...]] = {
+    "sweep.list": ((None, ("economy-log", "test", "test", "test-2",
+                           "general", "commands", "mod-log", "audit-log")),),
 }
 
 
@@ -268,6 +299,11 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
     # reset_case_state() cleared the map; seed only what this case's
     # capture saw. In-memory, so it never appears in any db_delta.
     harness.leaked_channels.update(CAPTURE_WORLD_CHANNELS.get(case.id, {}))
+
+    # capture-world CHANNEL LISTING (CAPTURE_WORLD_CHANNEL_LISTS above) —
+    # reset_case_state() cleared the override; seed only what this case's
+    # `!list` enumerated. In-memory, so it never appears in any db_delta.
+    harness.channel_list_override = CAPTURE_WORLD_CHANNEL_LISTS.get(case.id)
 
     # capture-world FISHING WEATHER (CAPTURE_WORLD_WEATHER above) —
     # seeded OR cleared at every case so the override never leaks across

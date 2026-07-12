@@ -5826,6 +5826,16 @@
           "value": "channel.hub"
         },
         {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.list_card"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.info_card"
+        },
+        {
           "source": "sb/manifest/cleanup.py",
           "subsystem": "cleanup",
           "value": "cleanup.hub"
@@ -8292,13 +8302,46 @@
       "handler:chain.usage_view": {
         "module": "sb.domain.chain.service"
       },
+      "handler:channel.bulkcreate": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.bulkdelete": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.channelinfo": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.clone": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.create": {
+        "module": "sb.domain.channel.handlers"
+      },
       "handler:channel.create_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:channel.del": {
+        "module": "sb.domain.channel.handlers"
       },
       "handler:channel.delete_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:channel.evt": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.info_card_render": {
+        "module": "sb.domain.channel.panels"
+      },
+      "handler:channel.list": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.list_card_render": {
+        "module": "sb.domain.channel.panels"
+      },
       "handler:channel.lock": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.move": {
         "module": "sb.domain.channel.handlers"
       },
       "handler:channel.move_pending": {
@@ -8307,13 +8350,25 @@
       "handler:channel.ops_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:channel.permissions": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.rename": {
+        "module": "sb.domain.channel.handlers"
+      },
       "handler:channel.render_hub": {
         "module": "sb.domain.channel.panels"
       },
       "handler:channel.restrict_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:channel.set": {
+        "module": "sb.domain.channel.handlers"
+      },
       "handler:channel.slowmode": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.topic": {
         "module": "sb.domain.channel.handlers"
       },
       "handler:channel.unlock": {
@@ -9754,6 +9809,12 @@
         "module": "sb.domain.chain.panels"
       },
       "panel:channel.hub": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.info_card": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.list_card": {
         "module": "sb.domain.channel.panels"
       },
       "panel:cleanup.hub": {
@@ -12027,7 +12088,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:59635087dfb75a2b37a1ea7d8325e80d94e9589ddb2bd837691e268769b7f98f",
+  "stable_hash": "sha256:ce22e626a5622effe4420b2adb80ea42c755a8bdc64da54cc6df8630e9de7ac2",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -21584,7 +21645,7 @@
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21599,16 +21660,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.set"
           },
           "slash_common": false,
-          "summary": "Channel op `set` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `set`.",
+          "usage": "!set",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21623,16 +21684,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.evt"
           },
           "slash_common": false,
-          "summary": "Channel op `evt` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `evt`.",
+          "usage": "!evt",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21647,16 +21708,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.create"
           },
           "slash_common": false,
-          "summary": "Channel op `create` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `create`.",
+          "usage": "!create",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21671,16 +21732,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.bulkdelete"
           },
           "slash_common": false,
-          "summary": "Channel op `bulkdelete` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `bulkdelete`.",
+          "usage": "!bulkdelete",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21695,16 +21756,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.del"
           },
           "slash_common": false,
-          "summary": "Channel op `del` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `del`.",
+          "usage": "!del",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21719,16 +21780,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.list"
           },
           "slash_common": false,
-          "summary": "Channel op `list` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `list`.",
+          "usage": "!list",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21743,16 +21804,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.clone"
           },
           "slash_common": false,
-          "summary": "Channel op `clone` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `clone`.",
+          "usage": "!clone",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21767,11 +21828,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.move"
           },
           "slash_common": false,
-          "summary": "Channel op `move` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `move`.",
+          "usage": "!move",
           "usage_weight": 1.0
         },
         {
@@ -21824,7 +21885,7 @@
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21839,16 +21900,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.channelinfo"
           },
           "slash_common": false,
-          "summary": "Channel op `channelinfo` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `channelinfo`.",
+          "usage": "!channelinfo",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21863,11 +21924,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.rename"
           },
           "slash_common": false,
-          "summary": "Channel op `rename` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `rename`.",
+          "usage": "!rename",
           "usage_weight": 1.0
         },
         {
@@ -21900,7 +21961,7 @@
           "aliases": [
             "settopic"
           ],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21915,16 +21976,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.topic"
           },
           "slash_common": false,
-          "summary": "Channel op `topic` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `topic`.",
+          "usage": "!topic",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21939,16 +22000,16 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.permissions"
           },
           "slash_common": false,
-          "summary": "Channel op `permissions` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `permissions`.",
+          "usage": "!permissions",
           "usage_weight": 1.0
         },
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
           "capability": "channel",
           "capability_required": "",
           "cooldown": null,
@@ -21963,11 +22024,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:channel.ops_pending"
+            "$ref": "handler:channel.bulkcreate"
           },
           "slash_common": false,
-          "summary": "Channel op `bulkcreate` (port-armed later).",
-          "usage": "",
+          "summary": "Channel op `bulkcreate`.",
+          "usage": "!bulkcreate",
           "usage_weight": 1.0
         }
       ],
@@ -22202,6 +22263,82 @@
           "subsystem": "channel",
           "timeout_s": 180,
           "title": "🛠️ Channel Management Panel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed is data-parameterized (the guild channel enumeration / one channel's metadata read at send time — channel_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed (goldens/channel/sweep_list + sweep_channelinfo pin the bytes).",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.list_card",
+          "renderer_override": {
+            "$ref": "handler:channel.list_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "Categories and Channels",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "yellow",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed is data-parameterized (the guild channel enumeration / one channel's metadata read at send time — channel_cog.py); grammar TextBlocks are static. Zero components; the renderer composes only the embed (goldens/channel/sweep_list + sweep_channelinfo pin the bytes).",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.info_card",
+          "renderer_override": {
+            "$ref": "handler:channel.info_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "",
           "usage_weight": 1.0
         }
       ],

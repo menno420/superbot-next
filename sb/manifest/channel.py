@@ -56,6 +56,24 @@ _ROUTES = {
     "slowmode": HandlerRef("channel.slowmode"),
     "lock": HandlerRef("channel.lock"),
     "unlock": HandlerRef("channel.unlock"),
+    # the channel-ops sweep re-home: the 13 declared-but-pending mutations
+    # leave the pending terminal for real handlers over the
+    # ChannelStateActions port + the list/info read ports (goldens/channel/
+    # sweep_{bulkcreate,bulkdelete,channelinfo,clone,create,del,evt,list,
+    # move,permissions,rename,set,topic} pin the bytes).
+    "del": HandlerRef("channel.del"),
+    "bulkdelete": HandlerRef("channel.bulkdelete"),
+    "bulkcreate": HandlerRef("channel.bulkcreate"),
+    "rename": HandlerRef("channel.rename"),
+    "topic": HandlerRef("channel.topic"),
+    "clone": HandlerRef("channel.clone"),
+    "set": HandlerRef("channel.set"),
+    "create": HandlerRef("channel.create"),
+    "evt": HandlerRef("channel.evt"),
+    "permissions": HandlerRef("channel.permissions"),
+    "move": HandlerRef("channel.move"),
+    "list": HandlerRef("channel.list"),
+    "channelinfo": HandlerRef("channel.channelinfo"),
 }
 
 _OPS = (
@@ -90,7 +108,9 @@ MANIFEST = SubsystemManifest(
     key="channel",
     version=1,
     commands=tuple(_cmd(n, a) for n, a in _OPS),
-    panels=(_panels.channel_hub_spec(),),
+    panels=(_panels.channel_hub_spec(),
+            _panels.channel_list_card_spec(),
+            _panels.channel_info_card_spec()),
     settings=(), stores=(), events=(CHANNEL_LIFECYCLE_EVENT,),
     capabilities=(),
 )

@@ -40,20 +40,32 @@ from datetime import datetime, timezone
 from typing import Protocol, runtime_checkable
 
 __all__ = [
+    "ChannelInfo",
+    "ChannelListing",
     "ChannelOverwrite",
     "ChannelStateActions",
     "EVT_CHANNEL_LIFECYCLE",
     "SEND_MESSAGES_BIT",
+    "VIEW_CHANNEL_BIT",
     "active_actions",
+    "channel_info",
+    "clone_summary",
+    "create_summary",
+    "delete_summary",
     "emit_channel_audit",
     "emit_channel_lifecycle",
     "install_channel_actions",
+    "install_channel_info",
+    "install_channel_listing",
     "install_channel_lookup",
+    "list_channels",
     "overwrite_summary",
+    "rename_summary",
     "reset_channel_ports_for_tests",
     "resolve_channel",
     "slowmode_summary",
     "subscribe",
+    "topic_clear_summary",
 ]
 
 logger = logging.getLogger(__name__)
@@ -66,6 +78,12 @@ EVT_CHANNEL_LIFECYCLE = "channel.lifecycle_changed"
 #: overwrite pair's only permission key (goldens/channel/sweep_lock pins
 #: allow "0"/deny "2048"; sweep_unlock the inverse).
 SEND_MESSAGES_BIT = 2048
+
+#: discord.Permissions.view_channel (read_messages) bit — the shipped
+#: `!set`/`!create` grant pair's only permission key (goldens/channel/
+#: sweep_set pins allow "1024"/deny "0" on the role overwrite, the audit
+#: `[read_messages]` summary; sweep_create the same grant AT creation).
+VIEW_CHANNEL_BIT = 1024
 
 
 def _utcnow() -> datetime:
@@ -127,6 +145,18 @@ class ChannelStateActions(Protocol):
             parent_id: int | None, reason: str | None) -> int: ...
     async def delete_channel(self, channel_id: int, *,
                              reason: str | None) -> None: ...
+    async def rename_channel(self, channel_id: int, *, name: str,
+                             reason: str | None) -> None: ...
+    async def set_topic(self, channel_id: int, *, topic: str | None,
+                        reason: str | None) -> None: ...
+    async def clone_channel(
+            self, guild_id: int, *, name: str, topic: str | None,
+            nsfw: bool, rate_limit_per_user: int,
+            default_auto_archive_duration: int,
+            default_thread_rate_limit_per_user: int,
+            parent_id: int | None,
+            overwrites: tuple[ChannelOverwrite, ...],
+            reason: str | None) -> int: ...
     async def create_invite(self, channel_id: int, *, max_age: int,
                             max_uses: int, temporary: bool, unique: bool,
                             reason: str | None) -> str: ...
@@ -141,6 +171,7 @@ class _NoActions:
 
     set_slowmode = set_overwrite = _refuse
     create_text_channel = delete_channel = create_invite = _refuse
+    rename_channel = set_topic = clone_channel = _refuse
 
 
 _actions: ChannelStateActions = _NoActions()  # type: ignore[assignment]
@@ -179,6 +210,71 @@ async def resolve_channel(guild_id: int, token: str) -> int | None:
     return await _lookup(int(guild_id), token)
 
 
+# --- the channel READ ports (list / info) -----------------------------------------
+
+
+@dataclass(frozen=True)
+class ChannelInfo:
+    """One channel's metadata for the ``!channelinfo`` embed — the shipped
+    read over the gateway guild cache (channel_cog.py: type/category/
+    position/topic/created/id/overwrites). goldens/channel/
+    sweep_channelinfo pins the default shape (a text channel, no category,
+    position 0, no topic, no overwrites)."""
+
+    channel_id: int
+    name: str
+    kind: str = "text"
+    category: str | None = None
+    position: int = 0
+    topic: str | None = None
+    nsfw: bool = False
+    rate_limit_per_user: int = 0
+    default_auto_archive_duration: int = 1440
+    default_thread_rate_limit_per_user: int = 0
+    overwrites: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ChannelListing:
+    """One category's channels for the ``!list`` embed (channel_cog.py:
+    the ``Categories and Channels`` grouping). ``category`` is None for the
+    uncategorized bucket the golden renders as ``— Uncategorized —``."""
+
+    category: str | None
+    channels: tuple[str, ...]
+
+
+_info = None      # async (guild_id, channel_id, name) -> ChannelInfo | None
+_listing = None   # async (guild_id) -> tuple[ChannelListing, ...]
+
+
+def install_channel_info(info) -> None:
+    """info: async (guild_id, channel_id, name) -> ChannelInfo | None —
+    the ``!channelinfo`` metadata read over the gateway guild cache."""
+    global _info
+    _info = info
+
+
+async def channel_info(guild_id: int, channel_id: int,
+                       name: str) -> "ChannelInfo | None":
+    if _info is None:
+        return None
+    return await _info(int(guild_id), int(channel_id), name)
+
+
+def install_channel_listing(listing) -> None:
+    """listing: async (guild_id) -> tuple[ChannelListing, ...] — the
+    ``!list`` category/channel enumeration over the gateway guild cache."""
+    global _listing
+    _listing = listing
+
+
+async def list_channels(guild_id: int) -> tuple["ChannelListing", ...]:
+    if _listing is None:
+        return ()
+    return tuple(await _listing(int(guild_id)))
+
+
 def subscribe(bus) -> None:
     """Composition-root/harness obligation (the band-2 fan-out roster):
     gives this module the bus its audit/lifecycle facts ride."""
@@ -187,10 +283,12 @@ def subscribe(bus) -> None:
 
 
 def reset_channel_ports_for_tests() -> None:
-    global _actions, _lookup, _bus
+    global _actions, _lookup, _bus, _info, _listing
     _actions = _NoActions()  # type: ignore[assignment]
     _lookup = None
     _bus = None
+    _info = None
+    _listing = None
 
 
 # --- the shipped summary phrases (channel_lifecycle_service._summary) --------------
@@ -212,11 +310,48 @@ def overwrite_summary(perm_keys: tuple[str, ...], target_id: int, *,
                       total: int = 1,
                       target_type: str = "role") -> str:
     """``set overwrite [{keys}] on {n} channel(s) for {who}{suffix}``
-    verbatim (goldens/channel/sweep_lock + sweep_unlock pin the byte)."""
+    verbatim (goldens/channel/sweep_lock + sweep_unlock pin the byte;
+    sweep_set + sweep_create pin the ``[read_messages] … for role
+    <@&admin>`` grant variant)."""
     keys = ", ".join(sorted(perm_keys)) or "(none)"
     who = f"{target_type} {target_id}"
     return (f"set overwrite [{keys}] on {channels} channel(s) "
             f"for {who}{_suffix(applied, total)}")
+
+
+def delete_summary(*, channels: int = 1, applied: int = 1,
+                   total: int = 1) -> str:
+    """``delete {n} channel(s){suffix}`` verbatim (goldens/channel/
+    sweep_del + sweep_bulkdelete pin the byte)."""
+    return f"delete {channels} channel(s){_suffix(applied, total)}"
+
+
+def create_summary(*, channels: int = 1, applied: int = 1,
+                   total: int = 1) -> str:
+    """``create {n} text channel(s){suffix}`` verbatim (goldens/channel/
+    sweep_bulkcreate + sweep_create pin the byte)."""
+    return f"create {channels} text channel(s){_suffix(applied, total)}"
+
+
+def clone_summary(source: str, dest: str, *, applied: int = 1,
+                  total: int = 1) -> str:
+    """``clone channel {src!r} → {dst!r}{suffix}`` verbatim (goldens/
+    channel/sweep_clone pins the byte)."""
+    return f"clone channel {source!r} → {dest!r}{_suffix(applied, total)}"
+
+
+def rename_summary(old: str, new: str, *, applied: int = 1,
+                   total: int = 1) -> str:
+    """``rename channel {old!r} → {new!r}{suffix}`` verbatim (goldens/
+    channel/sweep_rename pins the byte)."""
+    return f"rename channel {old!r} → {new!r}{_suffix(applied, total)}"
+
+
+def topic_clear_summary(name: str, *, applied: int = 1,
+                        total: int = 1) -> str:
+    """``clear topic of channel {name!r}{suffix}`` verbatim (goldens/
+    channel/sweep_topic pins the byte)."""
+    return f"clear topic of channel {name!r}{_suffix(applied, total)}"
 
 
 # --- the best-effort event companions ----------------------------------------------

@@ -275,6 +275,14 @@ class Harness:
         #: constant snowflake; the Normalizer knows neither, so the id
         #: renders as `<msg:N>` exactly like the golden's.
         self.leaked_channels: dict[str, int] = {}
+        #: CAPTURE-WORLD CHANNEL LISTING (runner-seeded per case, cleared at
+        #: every case head) — the ordered category→channel-names grouping the
+        #: shipped `!list` enumerated over discord.py's guild cache at
+        #: capture time (channels an alphabetically-earlier sweep created
+        #: leaked in, so the listing carries duplicate names the leaked-id
+        #: dict cannot — the trap-17 leak's list flavor, READ-only). None ⇒
+        #: the default world listing.
+        self.channel_list_override: tuple | None = None
         self._index: dict[tuple[str, Surface], TargetRef] = {}
         self._real_time: Any = None
         self._bus: Any = None
@@ -561,6 +569,39 @@ class Harness:
 
         install_channel_actions(ParityChannelStateActions(self.http))
         install_channel_lookup(_world_channel_resolver)
+        # the channel READ ports (`!list` enumeration + `!channelinfo`
+        # metadata) over the SAME capture-world guild cache: the listing is
+        # the runner-seeded per-case grouping (default = the world channels
+        # uncategorized), and one channel's metadata degrades to the
+        # discord.py defaults a freshly-leaked text channel carried
+        # (goldens/channel/sweep_list + sweep_channelinfo pin the bytes).
+        from sb.domain.channel.service import (
+            ChannelInfo,
+            ChannelListing,
+            install_channel_info,
+            install_channel_listing,
+        )
+
+        list_override_ref = self  # capture the harness for the per-case seed
+
+        async def _world_channel_info(guild_id: int, channel_id: int,
+                                      name: str) -> ChannelInfo:
+            del guild_id
+            return ChannelInfo(channel_id=int(channel_id), name=str(name))
+
+        install_channel_info(_world_channel_info)
+
+        async def _world_channel_listing(guild_id: int):
+            del guild_id
+            override = list_override_ref.channel_list_override
+            if override is not None:
+                return tuple(ChannelListing(category=cat,
+                                            channels=tuple(names))
+                             for cat, names in override)
+            return (ChannelListing(category=None,
+                                   channels=tuple(world_channels)),)
+
+        install_channel_listing(_world_channel_listing)
         # the setup workspace + advisor read seams: the overwrite-map
         # member/role inputs ride the SAME capture-world guild view the
         # role ports read (goldens/setup/sweep_setup pins the four
@@ -700,6 +741,7 @@ class Harness:
         panel_engine.reset_panel_engine_for_tests()      # sessions + presenter
         reset_resolver_ports_for_tests()                 # seen ids + ports
         self.leaked_channels.clear()                     # per-case seed (runner)
+        self.channel_list_override = None                # per-case seed (runner)
         self._arm_capture_ports()                        # re-arm what we own
 
     # ------------------------------------------------------------------ drive

@@ -744,11 +744,64 @@ class ParityChannelStateActions:
 
     async def delete_channel(self, channel_id: int, *,
                              reason: str | None) -> None:
-        # fake_http.delete_channel verbatim (goldens/_unmapped/sweep_del
-        # pins `{"channel_id": "<msg:1>", "reason": null}`, no payload).
+        # fake_http.delete_channel verbatim (goldens/channel/sweep_del +
+        # sweep_bulkdelete pin `{"channel_id": "<msg:1>", "reason": null}`,
+        # no payload).
         self._transport.record(
             "delete_channel",
             {"channel_id": int(channel_id), "reason": reason})
+
+    async def rename_channel(self, channel_id: int, *, name: str,
+                             reason: str | None) -> None:
+        # fake_http.edit_channel verbatim: a channel rename is the
+        # channel-edit PATCH carrying only `name` (goldens/channel/
+        # sweep_rename pins args {channel_id, reason:null} payload {name}).
+        self._transport.record(
+            "edit_channel",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"name": str(name)})
+
+    async def set_topic(self, channel_id: int, *, topic: str | None,
+                        reason: str | None) -> None:
+        # fake_http.edit_channel verbatim: a topic change is the
+        # channel-edit PATCH carrying only `topic` (goldens/channel/
+        # sweep_topic pins args {channel_id, reason:null} payload
+        # {topic:null} for the clear leg).
+        self._transport.record(
+            "edit_channel",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"topic": topic})
+
+    async def clone_channel(self, guild_id: int, *, name: str,
+                            topic: str | None, nsfw: bool,
+                            rate_limit_per_user: int,
+                            default_auto_archive_duration: int,
+                            default_thread_rate_limit_per_user: int,
+                            parent_id: int | None, overwrites: tuple,
+                            reason: str | None) -> int:
+        # fake_http.create_channel verbatim, the CLONE body: discord.py's
+        # TextChannel.clone sends the full text-channel option set
+        # (name/topic/nsfw/rate_limit_per_user/default_auto_archive/
+        # default_thread_rate_limit/parent_id/permission_overwrites) —
+        # goldens/channel/sweep_clone pins all eight payload keys with the
+        # source channel's config; the created id mints off the same
+        # allocator as message ids (the clone reply normalizes `<msg:2>`).
+        cid = int(self._transport._ids.allocate())  # noqa: SLF001 — same module family
+        self._transport.record(
+            "create_channel",
+            {"guild_id": int(guild_id), "type": 0, "reason": reason},
+            {"name": str(name), "topic": topic, "nsfw": bool(nsfw),
+             "rate_limit_per_user": int(rate_limit_per_user),
+             "default_auto_archive_duration":
+                 int(default_auto_archive_duration),
+             "default_thread_rate_limit_per_user":
+                 int(default_thread_rate_limit_per_user),
+             "parent_id": parent_id,
+             "permission_overwrites": [
+                 {"allow": int(ow.allow), "deny": int(ow.deny),
+                  "id": int(ow.target_id), "type": int(ow.target_type)}
+                 for ow in overwrites]})
+        return cid
 
     async def create_invite(self, channel_id: int, *, max_age: int,
                             max_uses: int, temporary: bool, unique: bool,
