@@ -538,6 +538,9 @@ async def _record_vault_upgrade(conn, ctx: WorkflowContext) -> LegOutcome:
     from sb.domain.mining import capacity
 
     uid, gid, _ = _ids(ctx)
+    # Fence concurrent upgrades for this player BEFORE the level read → the
+    # debit + level bump serialize (no double-charge / lost tier — #217).
+    await store.lock_vault_upgrade_slot(conn, user_id=uid, guild_id=gid)
     level = await store.get_vault_level(uid, gid, conn=conn)
     cost = capacity.vault_upgrade_cost(level)
     if cost is None:

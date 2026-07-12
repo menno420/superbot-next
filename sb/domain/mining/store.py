@@ -30,6 +30,7 @@ __all__ = [
     "update_vault_item",
     "get_vault_level",
     "set_vault_level",
+    "lock_vault_upgrade_slot",
     "get_depth",
     "set_depth",
     "record_depth",
@@ -451,6 +452,23 @@ async def get_vault_level(user_id: int, guild_id: int,
         "guild_id=$2", (str(user_id), guild_id), conn=conn)
     return int(row["vault_level"]) if row and row["vault_level"] is not None \
         else 0
+
+
+async def lock_vault_upgrade_slot(conn: Any, *, user_id: int,
+                                  guild_id: int) -> None:
+    """Fence concurrent `!vaultupgrade` attempts for one (user, guild) against
+    a first-insert / read-then-settle double-charge (the #213/#217 doctrine;
+    lock_new_checkpoint_slot precedent). ``vault_upgrade`` reads the current
+    vault_level (to size the coin cost), debits, then bumps the level — a
+    read-then-settle over a natural-key row that may not exist yet (a fresh
+    player has no mining_player_state row), so FOR UPDATE alone can lock
+    nothing. A transaction-scoped advisory lock keyed on the SAME (guild, user)
+    pair serializes two racing upgrades: the loser blocks here until the
+    winner's txn commits, then re-reads the winner's committed level and its
+    debit is sized against the raised cost. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:vault_upgrade:{guild_id}:{user_id}",), conn=conn)
 
 
 async def set_vault_level(conn: Any, *, user_id: int, guild_id: int,
