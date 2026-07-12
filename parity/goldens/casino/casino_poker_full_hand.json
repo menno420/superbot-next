@@ -15,7 +15,7 @@
   }
  },
  "harness_version": 1,
- "notes": "minted (D-0073): a full headless Texas Hold'em hand \u2014 lobby \u2192 seat \u2192 deal \u2192 check/call betting rounds \u2192 showdown, public spectator embed pinned per action (per-player ephemeral hands ride the owner-armed live step, D-0045)",
+ "notes": "minted (D-0073): a full headless Texas Hold'em hand — lobby → seat → deal → check/call betting rounds → showdown, public spectator embed pinned per action (per-player ephemeral hands ride the owner-armed live step, D-0045)",
  "seed": 42,
  "steps": [
   {
@@ -34,7 +34,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83e\ude91"
+           "name": "🪑"
           },
           "label": "Join",
           "style": 3,
@@ -45,7 +45,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udeaa"
+           "name": "🚪"
           },
           "label": "Leave",
           "style": 2,
@@ -56,7 +56,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u25b6\ufe0f"
+           "name": "▶️"
           },
           "label": "Start",
           "style": 1,
@@ -67,7 +67,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uddd1\ufe0f"
+           "name": "🗑️"
           },
           "label": "Close",
           "style": 4,
@@ -81,19 +81,19 @@
       "embeds": [
        {
         "color": 10181046,
-        "description": "**Texas Hold'em**, group play. Press **Join** to take a seat \u2014 you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips \u00b7 Blinds 5/10 \u00b7 up to 8 seats.",
+        "description": "**Texas Hold'em**, group play. Press **Join** to take a seat — you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips · Blinds 5/10 · up to 8 seats.",
         "fields": [
          {
           "inline": false,
           "name": "Seated (1/8)",
-          "value": "\ud83d\udc51 AdminActor"
+          "value": "👑 AdminActor"
          }
         ],
         "flags": 0,
         "footer": {
          "text": "Host AdminActor starts when ready."
         },
-        "title": "\u2660 Poker Table \u2014 open!",
+        "title": "♠ Poker Table — open!",
         "type": "rich"
        }
       ],
@@ -149,7 +149,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83e\ude91"
+           "name": "🪑"
           },
           "label": "Join",
           "style": 3,
@@ -160,7 +160,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udeaa"
+           "name": "🚪"
           },
           "label": "Leave",
           "style": 2,
@@ -171,7 +171,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u25b6\ufe0f"
+           "name": "▶️"
           },
           "label": "Start",
           "style": 1,
@@ -182,7 +182,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uddd1\ufe0f"
+           "name": "🗑️"
           },
           "label": "Close",
           "style": 4,
@@ -195,19 +195,19 @@
       "embeds": [
        {
         "color": 10181046,
-        "description": "**Texas Hold'em**, group play. Press **Join** to take a seat \u2014 you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips \u00b7 Blinds 5/10 \u00b7 up to 8 seats.",
+        "description": "**Texas Hold'em**, group play. Press **Join** to take a seat — you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips · Blinds 5/10 · up to 8 seats.",
         "fields": [
          {
           "inline": false,
           "name": "Seated (2/8)",
-          "value": "\ud83d\udc51 AdminActor\n\u2022 MemberActor"
+          "value": "👑 AdminActor\n• MemberActor"
          }
         ],
         "flags": 0,
         "footer": {
          "text": "Host AdminActor starts when ready."
         },
-        "title": "\u2660 Poker Table \u2014 open!",
+        "title": "♠ Poker Table — open!",
         "type": "rich"
        }
       ],
@@ -250,7 +250,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -261,7 +261,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Call 5",
           "style": 1,
@@ -272,7 +272,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Raise to 20",
           "style": 3,
@@ -283,7 +283,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Raise to 25 (pot)",
           "style": 3,
@@ -294,7 +294,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 1000",
           "style": 3,
@@ -310,7 +310,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -321,7 +321,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -340,11 +340,11 @@
          {
           "inline": false,
           "name": "Board",
-          "value": "\u2014"
+          "value": "—"
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "15"
          },
          {
@@ -355,14 +355,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "\u25b6 AdminActor \u2014 995 chips\nMemberActor \u2014 990 chips"
+          "value": "▶ AdminActor — 995 chips\nMemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -403,7 +403,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -414,7 +414,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -425,7 +425,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Raise to 20",
           "style": 3,
@@ -436,7 +436,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Raise to 30 (pot)",
           "style": 3,
@@ -447,7 +447,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 1000",
           "style": 3,
@@ -463,7 +463,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -474,7 +474,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -492,11 +492,11 @@
          {
           "inline": false,
           "name": "Board",
-          "value": "\u2014"
+          "value": "—"
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -507,14 +507,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+          "value": "AdminActor — 990 chips\n▶ MemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -555,7 +555,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -566,7 +566,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -577,7 +577,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 10",
           "style": 3,
@@ -588,7 +588,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 20 (pot)",
           "style": 3,
@@ -599,7 +599,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 990",
           "style": 3,
@@ -615,7 +615,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -626,7 +626,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -648,7 +648,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -659,14 +659,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+          "value": "AdminActor — 990 chips\n▶ MemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -707,7 +707,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -718,7 +718,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -729,7 +729,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 10",
           "style": 3,
@@ -740,7 +740,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 20 (pot)",
           "style": 3,
@@ -751,7 +751,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 990",
           "style": 3,
@@ -767,7 +767,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -778,7 +778,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -800,7 +800,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -811,14 +811,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "\u25b6 AdminActor \u2014 990 chips\nMemberActor \u2014 990 chips"
+          "value": "▶ AdminActor — 990 chips\nMemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -859,7 +859,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -870,7 +870,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -881,7 +881,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 10",
           "style": 3,
@@ -892,7 +892,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 20 (pot)",
           "style": 3,
@@ -903,7 +903,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 990",
           "style": 3,
@@ -919,7 +919,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -930,7 +930,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -952,7 +952,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -963,14 +963,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+          "value": "AdminActor — 990 chips\n▶ MemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -1011,7 +1011,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -1022,7 +1022,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -1033,7 +1033,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 10",
           "style": 3,
@@ -1044,7 +1044,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 20 (pot)",
           "style": 3,
@@ -1055,7 +1055,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 990",
           "style": 3,
@@ -1071,7 +1071,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -1082,7 +1082,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -1104,7 +1104,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -1115,14 +1115,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "\u25b6 AdminActor \u2014 990 chips\nMemberActor \u2014 990 chips"
+          "value": "▶ AdminActor — 990 chips\nMemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -1163,7 +1163,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -1174,7 +1174,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -1185,7 +1185,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 10",
           "style": 3,
@@ -1196,7 +1196,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 20 (pot)",
           "style": 3,
@@ -1207,7 +1207,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 990",
           "style": 3,
@@ -1223,7 +1223,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -1234,7 +1234,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -1256,7 +1256,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -1267,14 +1267,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+          "value": "AdminActor — 990 chips\n▶ MemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -1315,7 +1315,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -1326,7 +1326,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -1337,7 +1337,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 10",
           "style": 3,
@@ -1348,7 +1348,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 20 (pot)",
           "style": 3,
@@ -1359,7 +1359,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 990",
           "style": 3,
@@ -1375,7 +1375,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -1386,7 +1386,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -1408,7 +1408,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -1419,14 +1419,14 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "\u25b6 AdminActor \u2014 990 chips\nMemberActor \u2014 990 chips"
+          "value": "▶ AdminActor — 990 chips\nMemberActor — 990 chips"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+         "text": "Blinds 5/10 · Texas Hold'em"
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],
@@ -1467,7 +1467,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udff3\ufe0f"
+           "name": "🏳️"
           },
           "label": "Fold",
           "style": 4,
@@ -1478,7 +1478,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\u2705"
+           "name": "✅"
           },
           "label": "Check",
           "style": 1,
@@ -1489,7 +1489,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\u2b06\ufe0f"
+           "name": "⬆️"
           },
           "label": "Bet 0",
           "style": 3,
@@ -1500,7 +1500,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udd25"
+           "name": "🔥"
           },
           "label": "Bet 0 (pot)",
           "style": 3,
@@ -1511,7 +1511,7 @@
           "disabled": true,
           "emoji": {
            "id": null,
-           "name": "\ud83d\udca5"
+           "name": "💥"
           },
           "label": "All-in 0",
           "style": 3,
@@ -1527,7 +1527,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83c\udccf"
+           "name": "🃏"
           },
           "label": "Deal next hand",
           "style": 3,
@@ -1538,7 +1538,7 @@
           "disabled": false,
           "emoji": {
            "id": null,
-           "name": "\ud83d\uded1"
+           "name": "🛑"
           },
           "label": "End table",
           "style": 4,
@@ -1560,7 +1560,7 @@
          },
          {
           "inline": false,
-          "name": "\ud83d\udcb0 Pot",
+          "name": "💰 Pot",
           "value": "20"
          },
          {
@@ -1571,11 +1571,11 @@
          {
           "inline": false,
           "name": "Players",
-          "value": "AdminActor \u2014 1010 chips\nMemberActor \u2014 990 chips"
+          "value": "AdminActor — 1010 chips\nMemberActor — 990 chips"
          },
          {
           "inline": false,
-          "name": "\ud83c\udfc6 Result",
+          "name": "🏆 Result",
           "value": "AdminActor wins 20 with Two Pair."
          }
         ],
@@ -1583,7 +1583,7 @@
         "footer": {
          "text": "Host: press \"Deal next hand\". Hands aren't restart-safe."
         },
-        "title": "\u2660 Poker Table",
+        "title": "♠ Poker Table",
         "type": "rich"
        }
       ],

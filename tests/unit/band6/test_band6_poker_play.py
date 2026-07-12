@@ -13,7 +13,9 @@ adapter.
 from __future__ import annotations
 
 import asyncio
+import json
 import random
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -265,3 +267,47 @@ def test_dispatch_end_blocked_mid_hand():
     assert _action("poker_end", ADMIN).outcome == BLOCKED
     assert get_game(CH) is not None
     close_table(CH)
+
+
+# --------------------------------------------------- minted-golden integrity
+_GOLDEN_PATH = (Path(__file__).resolve().parents[3]
+                / "parity" / "goldens" / "casino"
+                / "casino_poker_full_hand.json")
+
+
+def _walk(node):
+    """Yield every (key, value) pair and every scalar reachable in a doc."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield k, v
+            yield from _walk(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _walk(v)
+
+
+def test_full_hand_golden_leaks_no_hole_cards():
+    """The public spectator embed is the ONLY poker surface the minted golden
+    pins — the private per-seat hand (hole cards) rides the owner-armed live
+    step, so the golden must expose ZERO hole-card data for any seat."""
+    raw = _GOLDEN_PATH.read_text(encoding="utf-8")
+    doc = json.loads(raw)
+    # no snapshot 'hole' array and no private "Your cards" field ever reach
+    # the public capture (defence in depth against a projection regression).
+    for key, _value in _walk(doc):
+        assert key != "hole", "engine hole-card array leaked into the golden"
+    assert "Your cards" not in raw, "private hand field leaked into the golden"
+    assert '"hole"' not in raw
+
+
+def test_full_hand_golden_is_canonically_encoded():
+    """Byte-provenance guard: the minted golden must use the canonical capture
+    writer (parity/run.py: indent=1, sort_keys=True, ensure_ascii=False) so a
+    re-capture never emits a spurious \\uXXXX re-encoding diff and the file
+    stays byte-consistent with every sibling golden."""
+    raw = _GOLDEN_PATH.read_text(encoding="utf-8")
+    # ensure_ascii=False emits raw UTF-8 (♠ · — → 👑 …), never \uXXXX escapes.
+    assert "\\u" not in raw, "golden was serialized with ensure_ascii=True"
+    canonical = json.dumps(json.loads(raw), indent=1, sort_keys=True,
+                           ensure_ascii=False) + "\n"
+    assert raw == canonical, "golden is not byte-canonical for its content"
