@@ -98,7 +98,7 @@ subsystems:
   project_moon: ported
   projectmoon: ported
   proof_channel: ported
-  quicksetup: pending
+  quicksetup: ported
   role: ported
   rps_tournament: ported
   security: ported
@@ -877,6 +877,7 @@ depth:
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
     proof_channel: {events: 1, tables: 2, settings: 0}
+    quicksetup: {events: 0, tables: 0, settings: 0}
     role: {events: 3, tables: 5, settings: 0}
     rps_tournament: {events: 1, tables: 3, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
