@@ -31,26 +31,28 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (470/470) — curated
+    """Every golden on disk yields a replayable case (474/474) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
-    − 3 retired: sweep_cog.json, the deploy-ops `!cog` capture, plus
+    + the 1 D-0079 creature-battle case + the 4 browse-interaction minted
+    cases − 3 retired: sweep_cog.json, the deploy-ops `!cog` capture, plus
     sweep_query_logs.json / sweep_recent_errors.json, the run-order-dependent
     log-ring captures — each retired to the _sweep_skips entry it always
-    belonged under — parity.yml source.retired_goldens)."""
+    belonged under — parity.yml source.retired_goldens). The four
+    browse-interaction goldens are curated typed cases (their opening hub
+    click rides component_index + a fixture_sql seed), so they source from
+    CURATED_CASES, not reconstruction."""
     from sb.adapters.parity.cases import load_replay_cases
 
     cases = load_replay_cases(GOLDENS_ROOT)
     golden_count = sum(1 for _ in GOLDENS_ROOT.glob("*/*.json"))
     # 465 imported (parity.yml source pin) + 2 minted (D-0073) + 4 (D-0075)
-    # + 1 (D-0079 creature battle) − 3 retired (sweep_cog.json +
-    # sweep_query_logs.json + sweep_recent_errors.json — parity.yml
-    # source.retired_goldens)
-    # + 1 minted casino poker play-layer (D-0073 procedure) − 3 retired
+    # + 1 (D-0079 creature battle) + 1 minted casino poker play-layer
+    # (D-0073 procedure) + 4 (browse-interaction, 2026-07-12) − 3 retired
     # (sweep_cog.json + sweep_query_logs.json + sweep_recent_errors.json —
     # parity.yml source.retired_goldens)
-    assert golden_count == 470
+    assert golden_count == 474
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
@@ -68,6 +70,47 @@ def test_reconstruction_round_trips_inputs():
     # the rebuilt steps describe back to the golden's own input docs
     described = [_describe_step(s) for s in case.steps]
     assert described == [s["input"] for s in golden["steps"]]
+
+
+def test_select_click_values_round_trip():
+    """A SELECT click round-trips its chosen ``values`` through the
+    reconstruct → describe vocabulary — the browse sort/filter selects + the
+    dex element filter the browse-interaction goldens arm (the modal-`fields`
+    twin on the click kind)."""
+    from parity.harness.runner import _describe_step
+    from sb.adapters.parity.cases import reconstruct_case
+
+    golden = {
+        "case_id": "probe.select", "subsystem": "inventory",
+        "steps": [{"input": {
+            "kind": "click", "persona": "member",
+            "custom_id": "nav:browse:sort:inventory.cat_x:0:0:-1:0",
+            "target_message": 1, "values": ["-quantity"]}}],
+    }
+    case = reconstruct_case(golden)
+    assert case is not None
+    assert case.steps[0].values == ("-quantity",)
+    assert _describe_step(case.steps[0]) == golden["steps"][0]["input"]
+
+
+def test_value_less_click_stays_value_less():
+    """A button click (page next/prev, the blackjack Hit) carries no
+    ``values`` — its describe-back omits the key, so the vocabulary growth is
+    additive-only for the existing value-less clicks."""
+    from parity.harness.runner import _describe_step
+    from sb.adapters.parity.cases import reconstruct_case
+
+    golden = {
+        "case_id": "probe.button", "subsystem": "inventory",
+        "steps": [{"input": {
+            "kind": "click", "persona": "member",
+            "custom_id": "nav:browse:next:inventory.cat_x:0:0:-1:0",
+            "target_message": 1}}],
+    }
+    case = reconstruct_case(golden)
+    assert case is not None
+    assert case.steps[0].values is None
+    assert "values" not in _describe_step(case.steps[0])
 
 
 def test_load_replay_cases_with_report_counts_unreconstructable_goldens(

@@ -73,10 +73,26 @@ source:
   # kernel-spine surfaces STRIPPED (audit_log / event_outbox /
   # command.dispatched); the per-player ephemeral hands stay the owner-armed
   # live step (D-0045), so only the headless-shaped public surface is minted.
-  minted_goldens: 8
+  # The browse-interaction batch (2026-07-12) minted FOUR more via the same
+  # capture_case + kernel-spine-strip procedure — the first MULTI-STEP
+  # click/select goldens for the shared BrowserView engine (D-0034):
+  # goldens/inventory/inventory_browse_{sort_quantity,filter_ore,
+  # page_next_prev}.json + goldens/creature/creature_dex_filter_element.json.
+  # They are curated typed cases (parity/cases/curated.py — session hub
+  # buttons need component_index + the inventory seed needs fixture_sql, the
+  # blackjack-click precedent), each opening the panel then driving a
+  # `nav:browse:*` sort/filter/page click or the dex element-filter select and
+  # pinning the RE-RENDERED panel; they close the corpus's interaction blind
+  # spot (before: one button click corpus-wide, the selects untested). Like
+  # the kernel band these pin the NEW BrowserView's contract (there is no old
+  # bot oracle — the shipped chrome differed, an owner presentation hand-pass
+  # ledgered in the panel specs), so they are regression tripwires: a
+  # deliberate render change re-mints them in the same PR, an accidental one
+  # goes red in the gate.
+  minted_goldens: 12
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 470). The first retirement (2026-07-12
+  # imported + minted − retired = 474). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
