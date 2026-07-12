@@ -1,6 +1,6 @@
 # 2026-07-12 — deploy packaging (container image + release workflow)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus 4.8 · high · deploy packaging (Q-0194 / ORDER 012)
 
@@ -49,6 +49,40 @@ Deliverables (exact paths — the runbook lane references them):
 6. CI `build-image` job (non-required) + `release.yml` (GHCR build+tag).
 7. Green `pytest tests/` + `check --strict`; push; open READY PR; flip card
    complete.
+
+## Shipped (PR #266, branch `deploy/container-packaging`)
+
+Files added: `Dockerfile`, `.dockerignore`, `docker-compose.yml`,
+`.env.example`, `railway.json`, `.github/workflows/release.yml`. Files
+changed: `.github/workflows/ci.yml` (added a non-required `build-image` job;
+existing jobs untouched), `.gitignore` (ignore local `.env`, keep the
+template), this card + its telemetry row.
+
+## Evidence
+
+- `pytest tests/ -q` = **1727 passed, 8 skipped** (matches the CI-shape run;
+  the runtime-dep suites skip without asyncpg/aiohttp/discord installed).
+- `manifest_compile` green (48 manifests); the full committed checker fleet
+  (20 checkers) green; `bootstrap.py check --strict` green apart from this
+  card's own designed born-red hold while `in-progress` (now flipped).
+- **Local `docker build` validated** (the sandbox proxy CA had to be plumbed
+  into the build to reach PyPI — that plumbing is validation-only, never
+  committed): the image built cleanly and `pip install --require-hashes
+  --no-cache-dir -r requirements.lock` pulled ALL manylinux wheels
+  (asyncpg / pydantic-core / yarl / multidict / propcache — cp311), so NO
+  compiler or `-dev` apt package is needed. The built image runs as `appuser`
+  from `/app`, carries `migrations/` + `tools/` + `manifest.snapshot.json` +
+  `curl`, and `python3 -m sb` (with `SB_VERIFY_BOOT=true`) boots through
+  config → data-plane → `db_init`, failing only because no Postgres was
+  reachable in the test — proving the entrypoint, import graph, and config
+  parsing all work inside the image.
+
+## ⚑ Owner-gated (flagged, not self-applied)
+
+- GHCR package `ghcr.io/menno420/superbot-next` visibility + deploy
+  pull-access (inherits repo visibility on first release push).
+- Railway project / service variables / first deploy — no deploy step is
+  automated; cutover stays a manual owner action per the runbook.
 
 ## 💡 Session idea
 
