@@ -1,9 +1,22 @@
 """DIAGNOSTIC subsystem manifest — the operator status surface at the
-shipped shape (parity flip; goldens/diagnostic, 37 goldens):
+shipped shape (parity flip; goldens/diagnostic, 43 goldens):
 
 * ``diagnostics`` — the shipped 🔧 Diagnostics Hub (band-1 route kept,
   hub reshaped oracle-wins).
 * ``latency`` — the shipped Bot Latency card.
+* the shipped DiagnosticCog tool commands (the wave-9 re-home;
+  disbot/cogs/diagnostic_cog.py): ``lifecycle`` [lc] (the
+  ``!platform lifecycle`` card's shortcut), ``check_database``
+  [checkdb], ``find_command`` [findcmd], ``list_commands_detailed``
+  [listcmds] (the ◀ Prev / Next ▶ registry paginator panel),
+  ``test_notification`` [testnotify] and ``validate_json_files``
+  [validatejson]. Three of the bare names (and their checkdb / findcmd
+  / listcmds aliases) sit in the shipped bootstrap allowlist
+  (sb/namespace/bootstrap.py — the K6 channel-access classifier);
+  declaring them ACTIVATES those shipped roster rows — K1's command
+  claims key on (value, surface, parent_group), so the bare
+  ``lifecycle`` and the grouped ``platform lifecycle`` are distinct
+  reservations and check_namespace stays clean.
 * ``platform`` (BOTH) — the shipped 🛰 Platform hub; the bare front door
   is a HandlerRef (undeclared/unported subcommand tokens get the honest
   refusal), so the slash twin declares ``DeferMode.NONE`` explicitly
@@ -17,7 +30,11 @@ shipped shape (parity flip; goldens/diagnostic, 37 goldens):
 NOT declared: ``platform health/runtime/slow/startup/status`` — the
 capture skipped those five as nondeterministic process-state views
 (parity/goldens/_sweep_skips.json), so declaring them would mean
-inventing bytes; the root handler answers the honest refusal instead."""
+inventing bytes; the root handler answers the honest refusal instead.
+``query_logs`` / ``recent_errors`` are NOT declared either — their
+sweeps embedded run-order-dependent live log-ring lines and were
+RETIRED under the 2026-07-12 corpus ruling (the same process-state
+class; parity/parity.yml source.retired_goldens)."""
 
 from __future__ import annotations
 
@@ -71,6 +88,75 @@ MANIFEST = SubsystemManifest(
             capability="diagnostic",
             summary="Bot WebSocket latency.",
             usage="!latency",
+        ),
+        # --- the shipped DiagnosticCog tool commands (wave-9 re-home:
+        # goldens/diagnostic/sweep_lifecycle, sweep_check_database,
+        # sweep_find_command, sweep_list_commands_detailed,
+        # sweep_test_notification, sweep_validate_json_files pin the
+        # bytes; names/aliases oracle-verbatim, diagnostic_cog.py).
+        CommandSpec(
+            name="lifecycle",
+            kind=CommandKind.PREFIX,
+            aliases=("lc",),
+            route=HandlerRef("diagnostic.lifecycle_view"),
+            audience_tier=_TIER,
+            capability="diagnostic",
+            summary="Lifecycle state (phase, pending request, recent "
+                    "events).",
+            usage="!lifecycle",
+        ),
+        CommandSpec(
+            name="check_database",
+            kind=CommandKind.PREFIX,
+            aliases=("checkdb",),
+            route=HandlerRef("diagnostic.check_database_view"),
+            audience_tier=_TIER,
+            capability="diagnostic",
+            summary="Verify that all expected PostgreSQL tables exist.",
+            usage="!check_database",
+        ),
+        CommandSpec(
+            name="find_command",
+            kind=CommandKind.PREFIX,
+            aliases=("findcmd",),
+            route=HandlerRef("diagnostic.find_command_view"),
+            audience_tier=_TIER,
+            capability="diagnostic",
+            summary="Search for commands by keyword in their name or "
+                    "description.",
+            usage="!find_command <keyword>",
+        ),
+        CommandSpec(
+            name="list_commands_detailed",
+            kind=CommandKind.PREFIX,
+            aliases=("listcmds",),
+            route=PanelRef("diagnostic.command_list"),
+            audience_tier=_TIER,
+            capability="diagnostic",
+            summary="List all registered commands with details, "
+                    "paginated by cog.",
+            usage="!list_commands_detailed",
+        ),
+        CommandSpec(
+            name="test_notification",
+            kind=CommandKind.PREFIX,
+            aliases=("testnotify",),
+            route=HandlerRef("diagnostic.test_notification_view"),
+            audience_tier=_TIER,
+            capability="diagnostic",
+            summary="Send a test notification via the webhook reporter.",
+            usage="!test_notification",
+        ),
+        CommandSpec(
+            name="validate_json_files",
+            kind=CommandKind.PREFIX,
+            aliases=("validatejson",),
+            route=HandlerRef("diagnostic.validate_json_view"),
+            audience_tier=_TIER,
+            capability="diagnostic",
+            summary="Validate the structure of all JSON files in the "
+                    "data directory.",
+            usage="!validate_json_files",
         ),
         CommandSpec(
             name="platform",
