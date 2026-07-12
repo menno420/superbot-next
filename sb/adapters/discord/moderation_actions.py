@@ -29,15 +29,44 @@ try:  # pragma: no cover — discord is absent in CI containers by design
 except ImportError:
     discord = None  # type: ignore[assignment]
 
-__all__ = ["DiscordModerationActions", "DiscordModerationReadinessReader"]
+__all__ = [
+    "DiscordModerationActions",
+    "DiscordModerationReadinessReader",
+    "GuildNotAllowedError",
+]
+
+
+class GuildNotAllowedError(RuntimeError):
+    """A moderation EFFECT was requested against a guild that is NOT the
+    single allowed test guild. Raised BEFORE any Discord call — the live
+    adapter mutates ONLY the test guild, so a test-plane process running on
+    the production token can never kick/ban/timeout a PRODUCTION-guild member.
+    The engine classifies this loud raise as PARTIAL + an operator finding
+    (the not-installed-port posture), never a silent mutation."""
+
+    def __init__(self, guild_id: int, allowed_guild_id: int) -> None:
+        self.guild_id = int(guild_id)
+        self.allowed_guild_id = int(allowed_guild_id)
+        super().__init__(
+            f"moderation effect REFUSED: guild {guild_id} is not the allowed "
+            f"test guild {allowed_guild_id} — the live adapter mutates ONLY "
+            f"the test guild (a test-plane process on the production token "
+            f"must never action a production-guild member).")
 
 
 class DiscordModerationActions:
     """The concrete guild-action adapter. ``bot`` duck-types
-    ``get_guild``/``fetch_user`` (discord.py ``commands.Bot``)."""
+    ``get_guild``/``fetch_user`` (discord.py ``commands.Bot``).
 
-    def __init__(self, bot: object) -> None:
+    ``allowed_guild_id`` is the SINGLE test guild this adapter may mutate: a
+    hard per-call allow-list. Every guild-scoped effect (timeout/kick/ban/
+    unban) refuses when its ``guild_id`` is not that guild — the SB_DATA_PLANE
+    gate protects the DB, this allow-list protects real guild members from a
+    test-plane process that still holds the production gateway token."""
+
+    def __init__(self, bot: object, *, allowed_guild_id: int) -> None:
         self._bot = bot
+        self._allowed_guild_id = int(allowed_guild_id)
 
     def _require_discord(self):
         if discord is None:
@@ -45,6 +74,10 @@ class DiscordModerationActions:
         return discord
 
     def _guild(self, guild_id: int):
+        # HARD test-guild allow-list — refuse ANY non-allowed guild before a
+        # single Discord call touches a member.
+        if int(guild_id) != self._allowed_guild_id:
+            raise GuildNotAllowedError(guild_id, self._allowed_guild_id)
         guild = self._bot.get_guild(int(guild_id))
         if guild is None:
             raise RuntimeError(f"guild {guild_id} is not available")
@@ -75,25 +108,28 @@ class DiscordModerationActions:
                          delete_message_days: int) -> None:
         discord = self._require_discord()
         guild = self._guild(guild_id)
-        # Shipped rule (moderation_service.ban / ParityModerationActions):
-        # discord.py takes SECONDS; the kwarg is passed ONLY when a purge
-        # window is configured (oracle default 0 = no purge, kwarg omitted).
-        if int(delete_message_days) > 0:
-            await guild.ban(
-                discord.Object(int(user_id)), reason=reason,
-                delete_message_seconds=int(delete_message_days) * 86400)
-        else:
-            await guild.ban(discord.Object(int(user_id)), reason=reason)
+        # discord.py 2.x fills an OMITTED ``delete_message_seconds`` with
+        # 86400 (deletes a FULL DAY) — so "no purge" must be pinned EXPLICITLY
+        # to 0 on the wire, never omitted; omitting it would delete messages,
+        # the OPPOSITE of the oracle's default-0 no-purge intent. (The parity
+        # RECORDING twin ParityModerationActions omits the kwarg on the days==0
+        # path on purpose — a different, correct wire-recording shape; this is
+        # the LIVE effect, so it pins the value.)
+        await guild.ban(
+            discord.Object(int(user_id)), reason=reason,
+            delete_message_seconds=int(delete_message_days) * 86400)
 
     async def unban_member(self, guild_id: int, user_id: int, *,
                            reason: str) -> None:
-        # Shipped unban: fetch the user THEN unban (a banned user is not in
-        # the guild, so guild.unban needs a resolved snowflake — the oracle's
-        # bot.fetch_user()→guild.unban() order; goldens/moderation/sweep_unban
-        # pins get_user then unban).
+        # The DOMAIN already ``fetch_user()``s the banned id immediately
+        # before this call (sb/domain/moderation/ops.py — reproducing the
+        # oracle's get_user→unban wire order; goldens/moderation/sweep_unban
+        # pins get_user then unban). discord.py 2.x ``Guild.unban`` accepts a
+        # bare Snowflake, so the adapter unbans DIRECTLY — no second get_user
+        # REST round-trip.
+        discord = self._require_discord()
         guild = self._guild(guild_id)
-        user = await self._bot.fetch_user(int(user_id))
-        await guild.unban(user, reason=reason)
+        await guild.unban(discord.Object(int(user_id)), reason=reason)
 
     async def fetch_user(self, user_id: int):
         return await self._bot.fetch_user(int(user_id))

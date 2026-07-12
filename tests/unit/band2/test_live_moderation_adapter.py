@@ -24,11 +24,16 @@ from types import SimpleNamespace
 import pytest
 
 from sb.adapters.discord import moderation_actions as mod_actions
-from sb.adapters.discord.moderation_actions import DiscordModerationActions
+from sb.adapters.discord.moderation_actions import (
+    DiscordModerationActions,
+    GuildNotAllowedError,
+)
 
 run = asyncio.run
 
 _FIXED_NOW = datetime(2026, 7, 12, 12, 0, 0, tzinfo=timezone.utc)
+_GUILD = 1
+_OTHER_GUILD = 999
 
 
 class _FakeObject:
@@ -101,11 +106,15 @@ def _fake_discord(monkeypatch):
     monkeypatch.setattr(mod_actions, "discord", _FakeDiscord)
 
 
+def _actions(guild: _FakeGuild, bot: _FakeBot | None = None):
+    return DiscordModerationActions(bot or _FakeBot(guild),
+                                    allowed_guild_id=_GUILD)
+
+
 def test_timeout_passes_reason_and_future_until():
     member = _FakeMember()
     guild = _FakeGuild(member)
-    actions = DiscordModerationActions(_FakeBot(guild))
-    run(actions.timeout_member(1, 103, minutes=5, reason="spam"))
+    run(_actions(guild).timeout_member(_GUILD, 103, minutes=5, reason="spam"))
     (call,) = member.calls
     verb, until, reason = call
     assert verb == "timeout"
@@ -117,8 +126,7 @@ def test_timeout_passes_reason_and_future_until():
 
 def test_kick_passes_bare_snowflake_and_reason():
     guild = _FakeGuild()
-    actions = DiscordModerationActions(_FakeBot(guild))
-    run(actions.kick_member(1, 103, reason="rule 3"))
+    run(_actions(guild).kick_member(_GUILD, 103, reason="rule 3"))
     (call,) = guild.calls
     verb, snowflake, reason = call
     assert verb == "kick"
@@ -126,48 +134,50 @@ def test_kick_passes_bare_snowflake_and_reason():
     assert reason == "rule 3"
 
 
-def test_ban_omits_delete_seconds_when_days_zero():
+def test_ban_pins_delete_seconds_to_zero_on_no_purge():
     guild = _FakeGuild()
-    actions = DiscordModerationActions(_FakeBot(guild))
-    run(actions.ban_member(1, 103, reason="raid", delete_message_days=0))
+    run(_actions(guild).ban_member(_GUILD, 103, reason="raid",
+                                   delete_message_days=0))
     (call,) = guild.calls
     verb, snowflake, reason, kwargs = call
     assert verb == "ban"
     assert isinstance(snowflake, _FakeObject) and snowflake.id == 103
     assert reason == "raid"
-    # oracle default 0 = no purge → the kwarg is NOT passed
-    assert kwargs == {}
+    # discord.py 2.x fills an OMITTED kwarg with 86400 (a full day), so
+    # "no purge" MUST be pinned EXPLICITLY to 0 — never omitted.
+    assert kwargs == {"delete_message_seconds": 0}
 
 
-def test_ban_passes_delete_seconds_only_when_days_positive():
+def test_ban_passes_delete_seconds_when_days_positive():
     guild = _FakeGuild()
-    actions = DiscordModerationActions(_FakeBot(guild))
-    run(actions.ban_member(1, 103, reason="raid", delete_message_days=7))
+    run(_actions(guild).ban_member(_GUILD, 103, reason="raid",
+                                   delete_message_days=7))
     (call,) = guild.calls
     _, _, _, kwargs = call
     # discord.py takes SECONDS; 7 days * 86400
     assert kwargs == {"delete_message_seconds": 7 * 86400}
 
 
-def test_unban_does_fetch_then_unban_in_order():
+def test_unban_does_exactly_one_unban_and_no_fetch():
     guild = _FakeGuild()
     bot = _FakeBot(guild)
-    actions = DiscordModerationActions(bot)
-    run(actions.unban_member(1, 103, reason="appeal"))
-    # fetch-then-unban ORDER: the user is fetched BEFORE guild.unban
-    assert bot.order == ["get_guild:1", "fetch_user:103"]
+    run(_actions(guild, bot).unban_member(_GUILD, 103, reason="appeal"))
+    # the DOMAIN owns the pre-fetch — the adapter must NOT re-fetch (one
+    # get_user round-trip total, not two): NO bot.fetch_user here.
+    assert bot.fetched == []
+    assert "fetch_user:103" not in bot.order
     (call,) = guild.calls
-    verb, user, reason = call
+    verb, snowflake, reason = call
     assert verb == "unban"
-    assert isinstance(user, _FakeUser) and user.id == 103
+    # a bare snowflake, not a fetched user object
+    assert isinstance(snowflake, _FakeObject) and snowflake.id == 103
     assert reason == "appeal"
 
 
 def test_fetch_user_delegates_to_bot():
     guild = _FakeGuild()
     bot = _FakeBot(guild)
-    actions = DiscordModerationActions(bot)
-    user = run(actions.fetch_user(103))
+    user = run(_actions(guild, bot).fetch_user(103))
     assert isinstance(user, _FakeUser) and user.id == 103
     assert bot.fetched == [103]
 
@@ -175,6 +185,30 @@ def test_fetch_user_delegates_to_bot():
 def test_dm_member_fetches_then_sends():
     guild = _FakeGuild()
     bot = _FakeBot(guild)
-    actions = DiscordModerationActions(bot)
-    run(actions.dm_member(103, "you were warned"))
+    run(_actions(guild, bot).dm_member(103, "you were warned"))
     assert bot.fetched == [103]
+
+
+# --- the test-guild allow-list (SAFETY) -----------------------------------
+
+def test_effect_methods_refuse_a_non_allowed_guild():
+    guild = _FakeGuild(_FakeMember())
+    actions = _actions(guild)  # allowed guild is _GUILD, not _OTHER_GUILD
+    with pytest.raises(GuildNotAllowedError):
+        run(actions.timeout_member(_OTHER_GUILD, 103, minutes=5, reason="x"))
+    with pytest.raises(GuildNotAllowedError):
+        run(actions.kick_member(_OTHER_GUILD, 103, reason="x"))
+    with pytest.raises(GuildNotAllowedError):
+        run(actions.ban_member(_OTHER_GUILD, 103, reason="x",
+                               delete_message_days=0))
+    with pytest.raises(GuildNotAllowedError):
+        run(actions.unban_member(_OTHER_GUILD, 103, reason="x"))
+    # the refusal is BEFORE any Discord call — nothing was mutated
+    assert guild.calls == []
+
+
+def test_allowed_guild_passes_through():
+    guild = _FakeGuild(_FakeMember())
+    actions = _actions(guild)
+    run(actions.kick_member(_GUILD, 103, reason="ok"))
+    assert [c[0] for c in guild.calls] == ["kick"]
