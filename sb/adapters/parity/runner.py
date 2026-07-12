@@ -117,6 +117,23 @@ CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
 #: Name → constant snowflake; the Normalizer knows neither name nor id,
 #: so the id renders `<msg:N>` exactly like the golden's. Seeded/CLEARED
 #: at every case head (trap 20: runner-seeded, never accumulated).
+#: CAPTURE-WORLD FISHING WEATHER, reconstructed (world state — the
+#: wall-clock flavor of the reseed lane): the shipped weather pick is
+#: derived from the CALENDAR DATE (utils/fishing/weather.py — a
+#: sha256-seeded weighted pick over today's UTC date), and the capture
+#: harness never patched ``datetime.now`` — so the capture run read the
+#: capture MACHINE's real day and goldens/fishing/sweep_fish pins that
+#: day's condition (🌧️ Rain; rain-pick days bracket the corpus capture
+#: window — 2026-07-01/02/04/05/09 under the reconstructed table). The
+#: replay's frozen per-case clock lands on a clear-sky date, so the
+#: capture-day condition is seeded per observing case and CLEARED at
+#: every case head (trap 20: runner-seeded, never accumulated — the
+#: #163→#167 reseed lane, extended from settings rows / process memory
+#: to the shipped unpatched-wall-clock read).
+CAPTURE_WORLD_WEATHER: dict[str, str] = {
+    "sweep.fish": "rain",
+}
+
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     "sweep.xpimport": {"test": 700_000_000_000_000_901},
     # the channel-state sweeps target the SAME leaked `test` channel
@@ -228,6 +245,13 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
     # reset_case_state() cleared the map; seed only what this case's
     # capture saw. In-memory, so it never appears in any db_delta.
     harness.leaked_channels.update(CAPTURE_WORLD_CHANNELS.get(case.id, {}))
+
+    # capture-world FISHING WEATHER (CAPTURE_WORLD_WEATHER above) —
+    # seeded OR cleared at every case so the override never leaks across
+    # replayed cases (trap 20 mode-dependence). In-memory, no db_delta.
+    from sb.domain.fishing.weather import seed_weather_for_replay
+
+    seed_weather_for_replay(CAPTURE_WORLD_WEATHER.get(case.id))
 
     before: dict[str, Any] = {}
     pool = None

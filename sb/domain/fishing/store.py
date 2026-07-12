@@ -1,5 +1,8 @@
-"""fishing_catch_log CRUD (band 6) — the dex/trophy record, shipped
-075/095 shape, NAME_STABLE, MEMBER_ID delete erasure."""
+"""fishing_catch_log + fishing_energy CRUD (band 6) — the dex/trophy
+record (shipped 075/095 shape) and the per-(user, guild) cast-energy bar
+(shipped 088 shape); both NAME_STABLE, MEMBER_ID delete erasure. Plain
+CRUD only — the energy regen math and the cast cost live in
+sb/domain/fishing/energy.py (the shipped layering, verbatim)."""
 
 from __future__ import annotations
 
@@ -17,8 +20,11 @@ from sb.spec.versioning import (
 
 __all__ = [
     "FISHING_CATCH_LOG_STORE",
+    "FISHING_ENERGY_STORE",
     "get_catch_log",
+    "get_fishing_energy",
     "record_catch",
+    "set_fishing_energy",
     "top_fishers",
     "top_trophies",
 ]
@@ -37,9 +43,50 @@ FISHING_CATCH_LOG_STORE = register_store(StoreSpec(
 ))
 
 
+FISHING_ENERGY_STORE = register_store(StoreSpec(
+    table="fishing_energy",
+    sole_writer=EngineRef("fishing.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="fishing_energy",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("fishing.erase_subject_energy"),
+))
+
+
 @engine("fishing.store")
 def _store_marker() -> str:
     return "sb/domain/fishing/store.py"
+
+
+async def get_fishing_energy(user_id: int, guild_id: int,
+                             conn: Any = None) -> tuple[int, int]:
+    """(energy, energy_updated_at) — table defaults for a row-less player
+    (full bar, epoch-0 stamp: settles to the cap on first read; the
+    shipped ``utils/db/games/fishing_energy.py`` default posture). A
+    PLAIN read — the open is not a money lane (energy is game pacing,
+    never coins) and the shipped read carried no lock."""
+    row = await fetchone(
+        "SELECT energy, energy_updated_at FROM fishing_energy WHERE "
+        "user_id=$1 AND guild_id=$2", (user_id, guild_id), conn=conn)
+    if row is None:
+        return 60, 0
+    return int(row["energy"]), int(row["energy_updated_at"])
+
+
+async def set_fishing_energy(user_id: int, guild_id: int, energy: int,
+                             updated_at: int, conn: Any = None) -> None:
+    """Upsert the settled pair (the shipped ``_SET_ENERGY_SQL`` shape)."""
+    await execute(
+        "INSERT INTO fishing_energy (user_id, guild_id, energy, "
+        "energy_updated_at) VALUES ($1,$2,$3,$4) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET "
+        "energy = EXCLUDED.energy, "
+        "energy_updated_at = EXCLUDED.energy_updated_at",
+        (user_id, guild_id, energy, updated_at), conn=conn)
 
 
 async def record_catch(conn: Any, *, user_id: int, guild_id: int,
@@ -96,6 +143,16 @@ async def top_trophies(guild_id: int, known_species: list[str],
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_catch_log WHERE user_id=$1", (user_id,),
+        conn=conn)
+    try:
+        return int(str(result).rsplit(" ", 1)[-1])
+    except (ValueError, AttributeError):
+        return 0
+
+
+async def erase_subject_energy(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM fishing_energy WHERE user_id=$1", (user_id,),
         conn=conn)
     try:
         return int(str(result).rsplit(" ", 1)[-1])

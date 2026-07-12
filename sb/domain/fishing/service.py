@@ -1,6 +1,10 @@
-"""Fishing handlers (band 6) — the core cast route + dex/leaderboard/
-trophy reads; rod/bait/craft/venue/structure surfaces are honest pending
-terminals until the gear systems port (D-0043 successor work)."""
+"""Fishing handlers (band 6) — the shipped cast-open lane (energy gate →
+spend → the waiting-for-a-bite panel), the Reel commit route +
+dex/leaderboard/trophy reads; rod/bait/craft/venue/structure surfaces are
+honest pending terminals until the gear systems port (D-0043 successor
+work). ``goldens/fishing/sweep_fish.json`` pins the cast-open bytes
+(the spent ``fishing_energy`` row + the panel); the dex embed lives on
+``fishing.log`` (sb/domain/fishing/panels.py)."""
 
 from __future__ import annotations
 
@@ -14,14 +18,65 @@ from sb.kernel.interaction.handler_kit import (
 __all__ = ["Reply", "ensure_handler_refs"]
 
 
+def _fmt_wait(seconds: int) -> str:
+    """Human "ready in" — ``45s`` / ``2m 05s`` (the shipped
+    services/fishing_workflow.py helper)."""
+    if seconds < 60:
+        return f"{seconds}s"
+    return f"{seconds // 60}m {seconds % 60:02d}s"
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
     if is_registered(HandlerRef("fishing.fish_route")):
         return
 
+    @handler("fishing.cast_open")
+    async def cast_open(req) -> Reply:
+        """!fish / the hub Cast button — the shipped ``begin_cast`` lane
+        (services/fishing_workflow.py: settle → out of energy? → spend)
+        ahead of the waiting-for-a-bite panel. The energy spend is the
+        shipped direct game-state write (autocommit, non-money — the
+        mining-energy posture); the golden pins the spent row."""
+        import dataclasses
+
+        from sb.domain.fishing import energy as energy_mod
+        from sb.domain.fishing import store
+        from sb.domain.fishing.panels import CAST_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.kernel.workflow.context import SYSTEM_CLOCK
+        from sb.spec.refs import PanelRef
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        now = int(SYSTEM_CLOCK().timestamp())
+        cur, ts = await store.get_fishing_energy(uid, gid)
+        state = energy_mod.EnergyState(cur, ts)
+        settled = energy_mod.settle(state, now)
+        if not energy_mod.can_cast(settled):
+            wait = energy_mod.regen_seconds_for(state, now,
+                                                energy_mod.CAST_COST)
+            return Reply(BLOCKED,
+                         "🎣 You're out of energy — let the line rest. "
+                         f"Ready to cast again in **{_fmt_wait(wait)}**.")
+        spent = energy_mod.spend(state, now)
+        await store.set_fishing_energy(uid, gid, spent.current,
+                                       spent.updated_at)
+        await open_panel(
+            PanelRef(CAST_PANEL_ID),
+            dataclasses.replace(
+                req, args={**dict(req.args),
+                           "cast_energy": spent.current}))
+        return Reply(SUCCESS, None)
+
     @handler("fishing.fish_route")
     async def fish_route(req) -> Reply:
+        """The cast panel's Reel button — commits the catch through the
+        audited ``fishing.cast`` K7 op (dex upsert + materials + game XP
+        in one leg txn). The shipped live-timing layer (bite delay /
+        fake-out / escape) rides the D-0043 successor port — see the
+        panels module under-port ledger."""
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
 
@@ -43,26 +98,6 @@ def _register() -> None:
                      "across 7 size bands.\n`!fish` cast a line · "
                      "`!fishlog` your dex · `!fishtop` top anglers · "
                      "`!trophies` biggest catches")
-
-    @handler("fishing.log_view")
-    async def log_view(req) -> Reply:
-        from sb.domain.fishing import catalog, store
-
-        uid = int(getattr(req.actor, "user_id", 0) or 0)
-        rows = await store.get_catch_log(uid, int(req.guild_id or 0))
-        total = len(catalog.SPECIES)
-        if not rows:
-            return Reply(SUCCESS,
-                         f"🎣 Your fish dex is empty (0/{total}) — try "
-                         "`!fish`!")
-        lines = [f"🎣 **Your fish dex** — {len(rows)}/{total} species"]
-        for r in rows:
-            species = catalog.species_by_name(str(r["species"]))
-            emoji = species.emoji if species else "🐟"
-            best = (f" (best {float(r['best_weight']):.2f} kg)"
-                    if float(r["best_weight"]) > 0 else "")
-            lines.append(f"{emoji} **{r['species']}** ×{r['count']}{best}")
-        return Reply(SUCCESS, "\n".join(lines))
 
     @handler("fishing.top_view")
     async def top_view(req) -> Reply:

@@ -145,6 +145,14 @@ async def _erase_catch_log(conn, ctx: WorkflowContext) -> LegOutcome:
                       before={}, after={"rows": rows})
 
 
+@workflow("fishing.erase_subject_energy")
+async def _erase_energy(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_energy(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_energy", True),
+                      before={}, after={"rows": rows})
+
+
 _XP_EMITS = (
     EventEmitSpec("game_xp.awarded",
                   WorkflowRef("games.game_xp_awarded_payload"),
@@ -167,6 +175,7 @@ _OPS = (CAST,)
 _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
+    ("fishing.erase_subject_energy", _erase_energy),
 )
 
 

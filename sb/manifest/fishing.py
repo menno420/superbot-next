@@ -5,9 +5,13 @@ are honest pending terminals riding the D-0043 named successor port."""
 
 from __future__ import annotations
 
+from sb.domain.fishing import panels as _panels
 from sb.domain.fishing import service as _service
 from sb.domain.fishing.ops import register_ops
-from sb.domain.fishing.store import FISHING_CATCH_LOG_STORE
+from sb.domain.fishing.store import (
+    FISHING_CATCH_LOG_STORE,
+    FISHING_ENERGY_STORE,
+)
 from sb.kernel.panels.registry import register_panel
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -39,15 +43,16 @@ def fishing_hub_spec() -> PanelSpec:
                         "land in your pack (sell or cook them); the "
                         "biggest of each species is your trophy."),),
         actions=(
+            # Cast runs the shipped begin_cast lane (energy gate → spend →
+            # the waiting panel — "🎣 Cast launches the minigame in place")
             PanelActionSpec(action_id="fishing_cast", label="Cast",
                             emoji="🎣", style=ActionStyle.SUCCESS,
                             audience_tier="user",
-                            handler=HandlerRef("fishing.fish_route"),
+                            handler=HandlerRef("fishing.cast_open"),
                             result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(action_id="fishing_log", label="Fish Dex",
                             emoji="📖", audience_tier="user",
-                            handler=HandlerRef("fishing.log_view"),
-                            result_render=ResultRender.RESULT_CARD),
+                            handler=PanelRef("fishing.log")),
             PanelActionSpec(action_id="fishing_trophies",
                             label="Trophies", emoji="🏆",
                             audience_tier="user",
@@ -80,11 +85,11 @@ def _pending(name: str, summary: str,
 
 
 _COMMANDS = (
-    _cmd("fish", HandlerRef("fishing.fish_route"),
-         "Cast a line — one instant catch roll."),
+    _cmd("fish", HandlerRef("fishing.cast_open"),
+         "Cast a line — wait for the bite, then reel."),
     _cmd("fishing", PanelRef("fishing.hub"), "Open the fishing hub.",
          ("fishmenu",)),
-    _cmd("fishlog", HandlerRef("fishing.log_view"),
+    _cmd("fishlog", PanelRef("fishing.log"),
          "Your fish dex — every species you've caught.", ("fishdex",)),
     _cmd("fishtop", HandlerRef("fishing.top_view"),
          "Top anglers by total catches.", ("topfishers",)),
@@ -119,9 +124,9 @@ MANIFEST = SubsystemManifest(
     key="fishing",
     version=1,
     commands=_COMMANDS,
-    panels=(fishing_hub_spec(),),
+    panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec()),
     settings=(),
-    stores=(FISHING_CATCH_LOG_STORE,),
+    stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE),
     events=(),
     capabilities=(),
 )
@@ -137,6 +142,7 @@ def _ensure_refs() -> None:
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _service.ensure_handler_refs()
+    _panels.ensure_panel_refs()
     if not is_registered(_P("fishing.hub")):
         _panel("fishing.hub")(_hub_factory)
     register_ops()

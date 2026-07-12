@@ -4363,6 +4363,11 @@
           "value": "fishing_trophies"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_reel"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "wisdom"
@@ -5585,6 +5590,16 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.hub"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.cast_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.log"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -7053,6 +7068,11 @@
           "value": "fishing_catch_log"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_energy"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "game_state"
@@ -8155,6 +8175,9 @@
       "handler:fishing.boathouse_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:fishing.cast_open": {
+        "module": "sb.domain.fishing.service"
+      },
       "handler:fishing.craftbait_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -8185,11 +8208,14 @@
       "handler:fishing.forecast_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:fishing.log_view": {
-        "module": "sb.domain.fishing.service"
-      },
       "handler:fishing.menu_view": {
         "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.render_cast": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.render_log": {
+        "module": "sb.domain.fishing.panels"
       },
       "handler:fishing.rod_pending": {
         "module": "sb.domain.operator_spine"
@@ -9151,8 +9177,14 @@
       "panel:farm.shop": {
         "module": "sb.domain.farm.panels"
       },
+      "panel:fishing.cast_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
       "panel:fishing.hub": {
         "module": "sb.manifest.fishing"
+      },
+      "panel:fishing.log": {
+        "module": "sb.domain.fishing.panels"
       },
       "panel:four_twenty.overview": {
         "module": "sb.domain.four_twenty.panels"
@@ -10267,6 +10299,9 @@
       "workflow:fishing.erase_subject_catch_log": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.erase_subject_energy": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_cast": {
         "module": "sb.domain.fishing.ops"
       },
@@ -10924,6 +10959,14 @@
         },
         "subsystem": "fishing"
       },
+      "fishing_energy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_energy",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
       "game_state": {
         "checkpoint_class": "session",
         "invariant_tag": "game_state",
@@ -11215,7 +11258,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:0c60f5341fce942d883a3fe59326bb7a197db6cbf80c815f4dfb9f62a48b9b8b",
+  "stable_hash": "sha256:96f3406104264231623b63dd6db3d2dc327c23524a5f05100e311c11b169e524",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -27371,10 +27414,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.fish_route"
+            "$ref": "handler:fishing.cast_open"
           },
           "slash_common": false,
-          "summary": "Cast a line — one instant catch roll.",
+          "summary": "Cast a line — wait for the bite, then reel.",
           "usage": "!fish",
           "usage_weight": 1.0
         },
@@ -27423,7 +27466,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.log_view"
+            "$ref": "panel:fishing.log"
           },
           "slash_common": false,
           "summary": "Your fish dex — every species you've caught.",
@@ -27903,7 +27946,7 @@
               "emoji": "🎣",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.fish_route"
+                "$ref": "handler:fishing.cast_open"
               },
               "label": "Cast",
               "modal": null,
@@ -27928,7 +27971,7 @@
               "emoji": "📖",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.log_view"
+                "$ref": "panel:fishing.log"
               },
               "label": "Fish Dex",
               "modal": null,
@@ -28015,6 +28058,124 @@
           "timeout_s": 180,
           "title": "🎣 Fishing",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "fishing_reel",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.fish_route"
+              },
+              "label": "🎣 Waiting for a bite…",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "You cast a line from the shoreline… 🏖️\n*Watch the water — hit **Reel** the moment it bites, but not before!*"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "two shipped surfaces sit outside the grammar's vocabulary (goldens/fishing/sweep_fish pins both): (1) the FOOTER interpolates the venue profile and the invoker's LIVE settled energy gauge ('🏖️ Shore · ⚡ 58/60 [▰▰▰▰▰▰▰▰▰▰]', views/fishing/cast_view.py footer = profile + energy.bar) — outside FooterMode's vocabulary (the farm balance-footer precedent); (2) the WEATHER FIELD is the day's shared condition rendered only when it moves a cast knob (cast_view's clear-is-silent conditional; name '{emoji} {name}', value '*{blurb}* ({effect_text})') — day-keyed state outside the static TextBlock/FieldsBlock vocabulary. Description, color and the component stay grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fishing_reel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.cast_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_cast"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped fishdex embed is read-parameterized end to end (views/fishing/menu.py; goldens/fishing/sweep_fishlog pins the bytes): the TITLE carries the invoker's display name ('🎣 AdminActor's Fishing Log'), the description interpolates discovered/total/level, and the per-venue fields render the live dex (caught ×count · trophy / not yet caught / locked) against the level-banded species catalog — all outside the static grammar vocabulary. Zero components; the renderer only composes the embed.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.log",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_log"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -28045,6 +28206,34 @@
             "$ref": "engine:fishing.store"
           },
           "table": "fishing_catch_log",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_energy"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_energy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_energy",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
