@@ -68,7 +68,13 @@ EXPOSE 8080
 
 # Probe the readiness gate the app is contractually required to bind. curl
 # --fail turns a non-2xx (e.g. 503-while-DRAINING) into a non-zero exit.
+# Target the IPv6 loopback `[::1]` to MATCH the app's default bind
+# (HEALTH_HOST=`::`, IPv6 dual-stack): if the app bound `::` at all — a boot
+# precondition — then IPv6 loopback is up, so `[::1]` reaches it regardless of
+# the host's IPV6_V6ONLY setting. `localhost`/`127.0.0.1` would work only when
+# the `::` socket accepts IPv4-mapped (IPV6_V6ONLY=0), and slim's /etc/hosts
+# maps `localhost` to 127.0.0.1 only.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl --fail --silent http://localhost:8080/ready || exit 1
+    CMD curl --fail --silent http://[::1]:8080/ready || exit 1
 
 CMD ["python3", "-m", "sb"]

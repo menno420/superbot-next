@@ -77,6 +77,29 @@ template), this card + its telemetry row.
   reachable in the test — proving the entrypoint, import graph, and config
   parsing all work inside the image.
 
+## @codex triage (Q-0120-verified, per ORDER 010 / Q-0259)
+
+Asked @codex one sharp question (PR #266 comment): is the healthcheck's
+`localhost` target safe against the app's `HEALTH_HOST=::` (IPv6) bind? Its
+reply:
+
+- Its ACTION CLAIM was PHANTOM (standing calibration): it said it "committed
+  `e488d8c Harden container healthcheck loopback`" and "opened a PR". Verified
+  false — `git cat-file -t e488d8c` = "Not a valid object name",
+  `git ls-remote origin deploy/container-packaging` = my `831c554` unchanged,
+  no external commit landed on the PR head. Nothing to reconcile.
+- Its SUBSTANTIVE finding was ACCEPTED (re-derived, not pulled): switch the
+  container + compose HEALTHCHECK from `http://localhost:8080/ready` to
+  `http://[::1]:8080/ready`. Rationale, empirically checked: the app binds
+  `::` (IPv6 dual-stack) — a boot precondition — so wherever it boots, IPv6
+  loopback is up and `[::1]` reaches it independent of `IPV6_V6ONLY`;
+  `localhost`/`127.0.0.1` work only when the `::` socket accepts IPv4-mapped
+  (`IPV6_V6ONLY=0`), and I confirmed `python:3.11-slim`'s `/etc/hosts` maps
+  `localhost` to `127.0.0.1` only (no `::1` line). `[::1]` covers strictly
+  more cases. `railway.json` is unaffected (Railway probes the service port
+  over its own network, not loopback). curl is present in the final image
+  (`command -v curl` = `/usr/bin/curl`), so the HEALTHCHECK can run.
+
 ## ⚑ Owner-gated (flagged, not self-applied)
 
 - GHCR package `ghcr.io/menno420/superbot-next` visibility + deploy
