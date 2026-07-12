@@ -149,6 +149,22 @@ CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     "sweep.slowmode": {"test": 700_000_000_000_000_901},
     "sweep.lock": {"test": 700_000_000_000_000_901},
     "sweep.unlock": {"test": 700_000_000_000_000_901},
+    # the D-0030 channel-ops batch: every remaining channel-state sweep
+    # drove the SAME leaked `test` channel (goldens/channel/ — each
+    # channel id renders `<msg:1>` except bulkcreate/clone, whose
+    # created channel takes the earlier/later draw; trap 17 READ-only,
+    # extended to the golden-pinned delete/edit/clone verbs and the
+    # directory reads — the creates stay recorded in their own cases).
+    "sweep.bulkdelete": {"test": 700_000_000_000_000_901},
+    "sweep.channelinfo": {"test": 700_000_000_000_000_901},
+    "sweep.clone": {"test": 700_000_000_000_000_901},
+    # sweep.create finds `test` TAKEN and mints `test-2` (the shipped
+    # collision-safe create — the golden pins the rename suffix).
+    "sweep.create": {"test": 700_000_000_000_000_901},
+    "sweep.del": {"test": 700_000_000_000_000_901},
+    "sweep.rename": {"test": 700_000_000_000_000_901},
+    "sweep.set": {"test": 700_000_000_000_000_901},
+    "sweep.topic": {"test": 700_000_000_000_000_901},
     # the trap-17 leaked WORKSPACE itself (the setup flip): the
     # alphabetically-earlier `sweep.setup` capture case CREATED
     # #superbot-setup (goldens/setup/sweep_setup.json records the
@@ -176,6 +192,27 @@ CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     # essential entry's ensure_setup_channel find branch, exactly the
     # -advanced/-status lane above).
     "sweep.slash_setup": {"superbot-setup": 700_000_000_000_000_902},
+}
+
+#: CAPTURE-WORLD LEAKED ROSTER, reconstructed (world state — the
+#: DIRECTORY-read flavor of the trap-17 leak): the ORDERED (name, id)
+#: pairs the capture gateway cache held beyond the world's own four
+#: channels at a case's head, for the ChannelDirectory roster reads.
+#: A dict cannot carry the DUPLICATE names the `!list` capture saw
+#: (`test` twice — sweep.bulkcreate's create and sweep.clone's clone
+#: both named `test`, and sweep.create's dedup had already minted
+#: `test-2`), hence pairs. Ids ascend in creation order so the
+#: (position 0, id) sort renders goldens/channel/sweep_list's field
+#: verbatim: `economy-log` (the shipped boot's #economy-log
+#: auto-provision, D-0031) then test/test/test-2, then the world four.
+#: Cases absent here fall back to their CAPTURE_WORLD_CHANNELS map.
+CAPTURE_WORLD_CHANNEL_ROSTER: dict[str, tuple[tuple[str, int], ...]] = {
+    "sweep.list": (
+        ("economy-log", 700_000_000_000_000_901),
+        ("test", 700_000_000_000_000_902),
+        ("test", 700_000_000_000_000_903),
+        ("test-2", 700_000_000_000_000_904),
+    ),
 }
 
 
@@ -275,6 +312,10 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
     # reset_case_state() cleared the map; seed only what this case's
     # capture saw. In-memory, so it never appears in any db_delta.
     harness.leaked_channels.update(CAPTURE_WORLD_CHANNELS.get(case.id, {}))
+    # the ordered directory-roster flavor (CAPTURE_WORLD_CHANNEL_ROSTER
+    # above) — the ChannelDirectory falls back to the name map when a
+    # case has no explicit roster.
+    harness.leaked_roster.extend(CAPTURE_WORLD_CHANNEL_ROSTER.get(case.id, ()))
 
     # capture-world FISHING WEATHER (CAPTURE_WORLD_WEATHER above) —
     # seeded OR cleared at every case so the override never leaks across

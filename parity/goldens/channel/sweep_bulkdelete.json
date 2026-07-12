@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.channelinfo",
+ "case_id": "sweep.bulkdelete",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1844939397,
+     "last_xp": 1838831260,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,57 +45,19 @@
    "calls": [
     {
      "args": {
+      "channel_id": "<msg:1>",
+      "reason": null
+     },
+     "method": "delete_channel"
+    },
+    {
+     "args": {
       "channel_id": "<#general>"
      },
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": null,
-      "embeds": [
-       {
-        "color": 16705372,
-        "fields": [
-         {
-          "inline": true,
-          "name": "Type",
-          "value": "text"
-         },
-         {
-          "inline": true,
-          "name": "Category",
-          "value": "None"
-         },
-         {
-          "inline": true,
-          "name": "Position",
-          "value": "0"
-         },
-         {
-          "inline": false,
-          "name": "Topic",
-          "value": "No topic set."
-         },
-         {
-          "inline": true,
-          "name": "Created",
-          "value": "<ts>"
-         },
-         {
-          "inline": true,
-          "name": "ID",
-          "value": "<msg:1>"
-         },
-         {
-          "inline": false,
-          "name": "Overwrites",
-          "value": "No overwrites."
-         }
-        ],
-        "flags": 0,
-        "title": "Channel Info — test",
-        "type": "rich"
-       }
-      ],
+      "content": "✅ Deleted: test.\n",
       "tts": false
      }
     },
@@ -110,6 +72,36 @@
    ],
    "events": [
     {
+     "event": "audit.action_recorded",
+     "payload": {
+      "actor_id": "<@admin>",
+      "actor_type": "admin",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "channel_delete",
+      "new_value": "delete 1 channel(s) (1/1 applied)",
+      "occurred_at": "<ts>",
+      "prev_value": null,
+      "scope": "guild",
+      "subsystem": "channel",
+      "target": "channel:<msg:1>"
+     }
+    },
+    {
+     "event": "channel.lifecycle_changed",
+     "payload": {
+      "applied": [
+       "<msg:1>"
+      ],
+      "failed": [],
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "occurred_at": "<ts>",
+      "operation": "delete",
+      "outcome": "success"
+     }
+    },
+    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -122,11 +114,11 @@
     }
    ],
    "input": {
-    "content": "!channelinfo test",
+    "content": "!bulkdelete test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "channel"
 }

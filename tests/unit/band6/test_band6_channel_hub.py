@@ -144,7 +144,10 @@ def test_manifest_declares_the_menu_and_keeps_the_op_roster():
             "rename", "slowmode", "topic", "permissions",
             "bulkcreate"} <= set(by_name)
     assert by_name["slowmode"].aliases == ("slow",)
-    (spec,) = MANIFEST.panels
+    # the hub + the two D-0030 read-only info cards.
+    assert [p.panel_id for p in MANIFEST.panels] == [
+        "channel.hub", "channel.info_card", "channel.list_card"]
+    spec = MANIFEST.panels[0]
     assert spec.panel_id == "channel.hub"
     # the strays re-home declared the shipped lifecycle event (goldens/
     # channel/sweep_slowmode + sweep_lock + sweep_unlock cover it);

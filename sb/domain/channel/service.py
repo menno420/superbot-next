@@ -24,12 +24,18 @@ create/delete surface: ``create_text_channel`` (overwrites passed AT
 creation — the oracle's guild_resources.ensure_channel create path) and
 ``delete_channel`` (NotFound-as-success adapter contract; name/id guards
 stay in the calling domain — the oracle's delete_setup_channel). The
-remaining lifecycle operations (rename/move/reorder/clone/set_topic)
-stay on their pending terminals until their own slices port them.
+D-0030 successor slice itself (the channel-ops batch re-home) armed the
+remaining lifecycle verbs — ``rename_channel`` / ``set_topic`` /
+``move_channel`` (all ``edit_channel`` PATCHes on the wire) and
+``clone_channel`` (the discord.py ``TextChannel.clone()`` guild-channel
+POST carrying the SOURCE channel's full option set) — plus the
+:class:`ChannelDirectory` READ port (the shipped commands' gateway-cache
+reads: guild channel roster, per-channel metadata, role names).
 
 These handlers write NO db rows (the oracle's channel ops were pure
 Discord state + events) — there is no DB leg, so no effect-after-record
-reversibility question arises and the compensator allowlist stays EMPTY.
+reversibility question arises and the compensator allowlist stays EMPTY
+(the #207 channel-service posture; D-0065/D-0077 never enter).
 """
 
 from __future__ import annotations
@@ -40,20 +46,32 @@ from datetime import datetime, timezone
 from typing import Protocol, runtime_checkable
 
 __all__ = [
+    "ChannelDirectory",
     "ChannelOverwrite",
+    "ChannelSnapshot",
     "ChannelStateActions",
     "EVT_CHANNEL_LIFECYCLE",
+    "READ_MESSAGES_BIT",
     "SEND_MESSAGES_BIT",
     "active_actions",
+    "active_directory",
+    "clone_summary",
+    "collision_safe_name",
+    "create_summary",
+    "delete_summary",
     "emit_channel_audit",
     "emit_channel_lifecycle",
     "install_channel_actions",
+    "install_channel_directory",
     "install_channel_lookup",
+    "move_summary",
     "overwrite_summary",
+    "rename_summary",
     "reset_channel_ports_for_tests",
     "resolve_channel",
     "slowmode_summary",
     "subscribe",
+    "topic_summary",
 ]
 
 logger = logging.getLogger(__name__)
@@ -66,6 +84,11 @@ EVT_CHANNEL_LIFECYCLE = "channel.lifecycle_changed"
 #: overwrite pair's only permission key (goldens/channel/sweep_lock pins
 #: allow "0"/deny "2048"; sweep_unlock the inverse).
 SEND_MESSAGES_BIT = 2048
+
+#: discord.Permissions.read_messages (view_channel) bit — the shipped
+#: !create / !set access-overwrite key (goldens/channel/sweep_create +
+#: sweep_set pin allow "1024").
+READ_MESSAGES_BIT = 1024
 
 
 def _utcnow() -> datetime:
@@ -88,6 +111,56 @@ class ChannelOverwrite:
     target_type: int
     allow: int
     deny: int
+
+
+@dataclass(frozen=True)
+class ChannelSnapshot:
+    """One channel's gateway-cache view (the shipped commands' reads:
+    ``str(channel.type)`` / ``category`` / ``position`` / ``topic`` /
+    ``created_at`` / the clone option set). ``category`` is the display
+    NAME (``channel.category.name``); ``parent_id`` the wire id the
+    clone/create payloads carry. Defaults mirror discord.py's own text
+    channel defaults (``default_auto_archive_duration`` 1440 — the value
+    goldens/channel/sweep_clone pins in the clone POST)."""
+
+    channel_id: int
+    name: str
+    kind: str = "text"                # str(channel.type)
+    position: int = 0
+    category: str | None = None
+    parent_id: int | None = None
+    topic: str | None = None
+    nsfw: bool = False
+    rate_limit_per_user: int = 0
+    default_auto_archive_duration: int = 1440
+    default_thread_rate_limit_per_user: int = 0
+    created_at: datetime | None = None
+    overwrites: tuple[ChannelOverwrite, ...] = ()
+
+
+@runtime_checkable
+class ChannelDirectory(Protocol):
+    """Adapter-implemented gateway-cache READS (kernel-defined port) —
+    the shipped cog's ``ctx.guild`` walks (``guild.channels`` /
+    ``get_channel`` / ``guild.roles``). ``list_channels`` returns the
+    discord.py presentation order (sorted by ``(position, id)`` — the
+    order goldens/channel/sweep_list pins); ``list_roles`` returns
+    ``(role_id, name)`` pairs for the RoleConverter's id/name legs."""
+
+    async def list_channels(self, guild_id: int) -> tuple[ChannelSnapshot, ...]: ...
+    async def get_channel(self, guild_id: int,
+                          channel_id: int) -> ChannelSnapshot | None: ...
+    async def list_roles(self, guild_id: int) -> tuple[tuple[int, str], ...]: ...
+
+
+class _NoDirectory:
+    async def _refuse(self, *_a, **_k):
+        raise RuntimeError(
+            "ChannelDirectory not installed — the composition root must "
+            "install the discord adapter's implementation "
+            "(sb/domain/channel/service.install_channel_directory)")
+
+    list_channels = get_channel = list_roles = _refuse
 
 
 @runtime_checkable
@@ -130,6 +203,15 @@ class ChannelStateActions(Protocol):
     async def create_invite(self, channel_id: int, *, max_age: int,
                             max_uses: int, temporary: bool, unique: bool,
                             reason: str | None) -> str: ...
+    async def rename_channel(self, channel_id: int, *, name: str,
+                             reason: str | None) -> None: ...
+    async def set_topic(self, channel_id: int, *, topic: str | None,
+                        reason: str | None) -> None: ...
+    async def move_channel(self, channel_id: int, *, category_id: int,
+                           reason: str | None) -> None: ...
+    async def clone_channel(self, guild_id: int, *, name: str,
+                            source: ChannelSnapshot,
+                            reason: str | None) -> int: ...
 
 
 class _NoActions:
@@ -141,9 +223,11 @@ class _NoActions:
 
     set_slowmode = set_overwrite = _refuse
     create_text_channel = delete_channel = create_invite = _refuse
+    rename_channel = set_topic = move_channel = clone_channel = _refuse
 
 
 _actions: ChannelStateActions = _NoActions()  # type: ignore[assignment]
+_directory: ChannelDirectory = _NoDirectory()  # type: ignore[assignment]
 _lookup = None                                # async (guild_id, name) -> int|None
 _bus = None
 
@@ -155,6 +239,15 @@ def install_channel_actions(actions: ChannelStateActions) -> None:
 
 def active_actions() -> ChannelStateActions:
     return _actions
+
+
+def install_channel_directory(directory: ChannelDirectory) -> None:
+    global _directory
+    _directory = directory
+
+
+def active_directory() -> ChannelDirectory:
+    return _directory
 
 
 def install_channel_lookup(lookup) -> None:
@@ -187,8 +280,9 @@ def subscribe(bus) -> None:
 
 
 def reset_channel_ports_for_tests() -> None:
-    global _actions, _lookup, _bus
+    global _actions, _directory, _lookup, _bus
     _actions = _NoActions()  # type: ignore[assignment]
+    _directory = _NoDirectory()  # type: ignore[assignment]
     _lookup = None
     _bus = None
 
@@ -217,6 +311,70 @@ def overwrite_summary(perm_keys: tuple[str, ...], target_id: int, *,
     who = f"{target_type} {target_id}"
     return (f"set overwrite [{keys}] on {channels} channel(s) "
             f"for {who}{_suffix(applied, total)}")
+
+
+def create_summary(count: int, *, kind: str = "text",
+                   category: str | None = None, applied: int = 1,
+                   total: int = 1) -> str:
+    """``create {n} {kind} channel(s){where}{suffix}`` verbatim
+    (channel_lifecycle_service._summary — goldens/channel/
+    sweep_bulkcreate + sweep_create pin ``create 1 text channel(s)
+    (1/1 applied)``; the ``where`` clause is the category branch, never
+    driven by a golden — reconstructed shape)."""
+    where = f" in category {category}" if category else ""
+    return f"create {count} {kind} channel(s){where}{_suffix(applied, total)}"
+
+
+def delete_summary(count: int, *, applied: int = 1, total: int = 1) -> str:
+    """``delete {n} channel(s){suffix}`` verbatim (goldens/channel/
+    sweep_del + sweep_bulkdelete pin ``delete 1 channel(s) (1/1
+    applied)``)."""
+    return f"delete {count} channel(s){_suffix(applied, total)}"
+
+
+def rename_summary(old: str, new: str, *, applied: int = 1,
+                   total: int = 1) -> str:
+    """``rename channel {old!r} → {new!r}{suffix}`` verbatim
+    (goldens/channel/sweep_rename pins the byte)."""
+    return f"rename channel {old!r} → {new!r}{_suffix(applied, total)}"
+
+
+def clone_summary(source: str, new: str, *, applied: int = 1,
+                  total: int = 1) -> str:
+    """``clone channel {src!r} → {dst!r}{suffix}`` verbatim
+    (goldens/channel/sweep_clone pins the byte)."""
+    return f"clone channel {source!r} → {new!r}{_suffix(applied, total)}"
+
+
+def topic_summary(name: str, *, clear: bool, applied: int = 1,
+                  total: int = 1) -> str:
+    """``{clear topic of|set topic of} channel {name!r}{suffix}``
+    verbatim (goldens/channel/sweep_topic pins the clear byte)."""
+    verb = "clear topic of" if clear else "set topic of"
+    return f"{verb} channel {name!r}{_suffix(applied, total)}"
+
+
+def move_summary(count: int, category_id: int, *, applied: int = 1,
+                 total: int = 1) -> str:
+    """``move {n} channel(s) to category {id}{suffix}`` verbatim
+    (channel_lifecycle_service._summary — no golden drives the success
+    branch; sweep_move pins only the not-found guard)."""
+    return (f"move {count} channel(s) to category {category_id}"
+            f"{_suffix(applied, total)}")
+
+
+def collision_safe_name(name: str, taken: set[str]) -> str:
+    """The service create leg's collision-safe naming (the oracle's
+    ``_create_channel`` — 'Create a single channel with a collision-safe
+    name'): a taken name gains a ``-{n}`` suffix from 2 upward.
+    goldens/channel/sweep_create pins the one observable datapoint
+    (`test` taken → `test-2`, reply suffix ``(renamed to "test-2")``)."""
+    if name not in taken:
+        return name
+    n = 2
+    while f"{name}-{n}" in taken:
+        n += 1
+    return f"{name}-{n}"
 
 
 # --- the best-effort event companions ----------------------------------------------
