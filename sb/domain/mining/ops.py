@@ -448,6 +448,138 @@ async def _record_reseed_world(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"seed": seed})
 
 
+# --- vault write legs (slice 3): the shipped services/mining_workflow.py
+# vault_deposit / vault_withdraw / vault_deposit_all_resources / vault_upgrade
+# verbatim, re-homed onto the audited one-leg one-txn seam. NO golden drives an
+# argful stash/unstash/stash-all or a FUNDED upgrade — the guard bytes in
+# service.py (the stash/unstash usage prompts + the insufficient-funds refusal,
+# a pure read) are the only parity surface, so mining_vault stays guard-only
+# (depth.exemptions.mining) ----------------------------------------------------
+
+
+@workflow("mining.record_stash")
+async def _record_stash(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!stash <item> [n]` — move *qty* of *item* from the active pack into the
+    safe vault. Both legs (inventory debit + vault credit) commit in ONE txn so
+    a mid-move failure can never duplicate or lose the items."""
+    uid, gid, _ = _ids(ctx)
+    item = _item_from(ctx)
+    qty = _qty_from(ctx)
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    have = inventory.get(item, 0)
+    if have < qty:
+        owned = f"only **{have}× {item}**" if have else f"no **{item}**"
+        raise ValidatorError(f"You have {owned} to deposit.")
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=item, delta=-qty)
+    await store.update_vault_item(conn, user_id=uid, guild_id=gid,
+                                  item=item, delta=qty)
+    return LegOutcome(
+        step=StepResult(uid, "stash", True), before={},
+        after={"item": item, "qty": qty,
+               "message": f"Deposited **{qty}× {item}** into your vault — "
+                          "safe and out of your pack."})
+
+
+@workflow("mining.record_unstash")
+async def _record_unstash(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!unstash <item> [n]` — move *qty* of *item* from the safe vault back
+    into the active pack (the symmetric inverse of the deposit)."""
+    uid, gid, _ = _ids(ctx)
+    item = _item_from(ctx)
+    qty = _qty_from(ctx)
+    vault = await store.get_vault(uid, gid, conn=conn)
+    have = vault.get(item, 0)
+    if have < qty:
+        owned = f"only **{have}× {item}**" if have else f"no **{item}**"
+        raise ValidatorError(f"Your vault holds {owned}.")
+    await store.update_vault_item(conn, user_id=uid, guild_id=gid,
+                                  item=item, delta=-qty)
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=item, delta=qty)
+    return LegOutcome(
+        step=StepResult(uid, "unstash", True), before={},
+        after={"item": item, "qty": qty,
+               "message": f"Withdrew **{qty}× {item}** from your vault back "
+                          "into your pack."})
+
+
+@workflow("mining.record_stash_all")
+async def _record_stash_all(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The 📦 Stash All Ore convenience — tuck every raw resource into the vault
+    in ONE txn (gear/tools/treasure stay in the pack; only sellable resources
+    move). Shipped ``vault_deposit_all_resources`` verbatim."""
+    uid, gid, _ = _ids(ctx)
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    resources = market.sellable_inventory(inventory)
+    if not resources:
+        raise ValidatorError(
+            "You have no raw resources to stash — go mine some!")
+    for name, qty, _price in resources:
+        await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                       item=name, delta=-qty)
+        await store.update_vault_item(conn, user_id=uid, guild_id=gid,
+                                      item=name, delta=qty)
+    moved = ", ".join(f"{qty}× {name}" for name, qty, _price in resources)
+    return LegOutcome(
+        step=StepResult(uid, "stash_all", True), before={},
+        after={"message": f"Stashed {moved} into your vault."})
+
+
+@workflow("mining.record_vault_upgrade")
+async def _record_vault_upgrade(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!vaultupgrade` — buy one vault-capacity tier (the §7.5 coin sink):
+    debit the rising upgrade cost and raise ``vault_level`` by one in ONE txn
+    (the buy precedent — the coin debit is economy-audited, the balance event
+    emits after commit). The handler gates the maxed / insufficient-funds cases
+    out as pure reads before this leg runs (no write, no audit row — the
+    guard-byte parity path), so the raises here are defensive."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.mining import capacity
+
+    uid, gid, _ = _ids(ctx)
+    # Fence concurrent upgrades for this player BEFORE the level read → the
+    # debit + level bump serialize (no double-charge / lost tier — #217).
+    await store.lock_vault_upgrade_slot(conn, user_id=uid, guild_id=gid)
+    level = await store.get_vault_level(uid, gid, conn=conn)
+    cost = capacity.vault_upgrade_cost(level)
+    if cost is None:
+        cap = capacity.vault_capacity(level)
+        raise ValidatorError(
+            f"Your vault is already at its maximum capacity "
+            f"(**{cap}** item types).")
+    try:
+        balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=cost,
+            reason=market.VAULT_UPGRADE_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        held = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"A vault upgrade costs **{cost}** 🪙 — you only have "
+            f"**{held}** 🪙.") from None
+    await store.set_vault_level(conn, user_id=uid, guild_id=gid,
+                               level=level + 1)
+    new_cap = capacity.vault_capacity(level + 1)
+    ctx.params["_balance_changes"] = [
+        (uid, -cost, balance, market.VAULT_UPGRADE_REASON)]
+    return LegOutcome(
+        step=StepResult(uid, "vault_upgrade", True), before={},
+        after={"cost": cost, "balance": balance,
+               "message": f"Vault upgraded to capacity **{new_cap}** item "
+                          f"types for **{cost}** 🪙. Balance: "
+                          f"**{balance}** 🪙."})
+
+
+@workflow("mining.erase_subject_vault")
+async def _erase_vault(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_vault(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_vault", True),
+                      before={}, after={"rows": rows})
+
+
 @workflow("mining.erase_subject_equipment")
 async def _erase_equipment(conn, ctx: WorkflowContext) -> LegOutcome:
     subject = int(ctx.params["subject_user_id"])
@@ -549,10 +681,18 @@ DESCEND = _op("mining.descend", "mining_descended", "mining.record_descend",
 ASCEND = _op("mining.ascend", "mining_ascended", "mining.record_ascend", ())
 RESEED_WORLD = _op("mining.reseed_world", "mining_world_reseeded",
                    "mining.record_reseed_world", ())
+STASH = _op("mining.stash", "mining_stashed", "mining.record_stash", ())
+UNSTASH = _op("mining.unstash", "mining_unstashed", "mining.record_unstash",
+              ())
+STASH_ALL = _op("mining.stash_all", "mining_stashed_all",
+                "mining.record_stash_all", ())
+VAULT_UPGRADE = _op("mining.vault_upgrade", "mining_vault_upgraded",
+                    "mining.record_vault_upgrade", _BALANCE_EMITS)
 
 _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
-        DESCEND, ASCEND, RESEED_WORLD)
+        DESCEND, ASCEND, RESEED_WORLD,
+        STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -570,6 +710,11 @@ _REF_TABLE = (
     ("mining.record_descend", _record_descend),
     ("mining.record_ascend", _record_ascend),
     ("mining.record_reseed_world", _record_reseed_world),
+    ("mining.record_stash", _record_stash),
+    ("mining.record_unstash", _record_unstash),
+    ("mining.record_stash_all", _record_stash_all),
+    ("mining.record_vault_upgrade", _record_vault_upgrade),
+    ("mining.erase_subject_vault", _erase_vault),
     ("mining.erase_subject_inventory", _erase_inventory),
     ("mining.erase_subject_state", _erase_state),
     ("mining.erase_subject_equipment", _erase_equipment),

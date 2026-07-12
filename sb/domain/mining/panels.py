@@ -72,15 +72,18 @@ from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
 __all__ = [
     "CARD_PANEL_ID",
     "HUB_PANEL_ID",
+    "VAULT_PANEL_ID",
     "PACK_SOFT_CAP",
     "ensure_panel_refs",
     "install_mining_panels",
     "mining_card_spec",
     "mining_hub_spec",
+    "mining_vault_spec",
 ]
 
 HUB_PANEL_ID = "mining.hub"
 CARD_PANEL_ID = "mining.card"
+VAULT_PANEL_ID = "mining.vault"
 
 #: the shipped shared author-locked nav-view footer literal (the
 #: games/farm/community `_PANEL_FOOTER`).
@@ -267,6 +270,138 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+def _vault_modal_handlers() -> dict[str, HandlerRef]:
+    """Pending terminals for the vault's modal-driven move buttons — the
+    📥 Deposit / 📤 Withdraw modals ride the deep-system panel port (D-0043);
+    the LIVE command lane (`!stash` / `!unstash`) already carries the same
+    audited move. Registered at IMPORT (module bottom), never ensure-only
+    (#111 doctrine). No golden drives a vault click, so the terminal copy is
+    unpinned."""
+    from sb.domain.operator_spine import pending_handler
+
+    return {
+        "deposit": pending_handler(
+            "mining.vault_deposit_pending",
+            "📥 The vault deposit modal rides the deep-system panel port "
+            "(D-0043) — deposit now with `!stash <item> [n]`."),
+        "withdraw": pending_handler(
+            "mining.vault_withdraw_pending",
+            "📤 The vault withdraw modal rides the deep-system panel port "
+            "(D-0043) — withdraw now with `!unstash <item> [n]`."),
+    }
+
+
+def mining_vault_spec() -> PanelSpec:
+    """The shipped 🏦 Mining Vault panel (views/mining/vault_panel.py
+    ``MiningVaultView`` + ``build_vault_embed``) — an ephemeral (session)
+    child of the mining hub: the five move buttons mint session `<cid:N>`
+    ids (never the anchored `mining:<x>` overrides the hub carries), and the
+    live capacity/stored-value/empty-state embed rides a renderer override
+    (goldens/mining/sweep_vault pins every byte: the MINING_COLOR dark-grey
+    frame, the 📦 Capacity + empty-state fields, the stored-value footer, the
+    2×2+1 button rows and the standard nav row 📚 Help + ↩ Games)."""
+    return PanelSpec(
+        panel_id=VAULT_PANEL_ID,
+        subsystem="mining",
+        title="🏦 Mining Vault",
+        audience=Audience.INVOKER,
+        # MINING_COLOR = discord.Color.dark_grey() (utils/ui_constants.py); the
+        # live fields + stored-value footer ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
+        # so no panel_anchors row — the shipped HubView child send).
+        session_lifecycle=True,
+        actions=(
+            PanelActionSpec(
+                action_id="va_deposit", label="📥 Deposit",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.vault_deposit_pending")),
+            PanelActionSpec(
+                action_id="va_withdraw", label="📤 Withdraw",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("mining.vault_withdraw_pending")),
+            PanelActionSpec(
+                action_id="va_stash_all", label="📦 Stash All Ore",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("mining.stash_all_route"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="va_upgrade", label="⬆️ Upgrade",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.vaultupgrade_route"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="va_hub", label="↩ Mining Hub",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden).
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("mining.render_vault"),
+        justification=(
+            "the shipped `!vault` reply is a fully live-state-parameterized "
+            "embed built in the view (views/mining/vault_panel.py "
+            "build_vault_embed: the 📦 Capacity `{used}/{cap} item types "
+            "(tier {level})` line, the empty-state / grouped-stored fields, "
+            "and the dynamic `Stored value: {n}` footer — "
+            "goldens/mining/sweep_vault pins the bytes), read-parameterized "
+            "state outside the static TextBlock/FieldsBlock vocabulary (the "
+            "mining hub's own live-overview precedent). Every component stays "
+            "grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("va_deposit", "va_withdraw"),
+            ("va_stash_all", "va_upgrade"),
+            ("va_hub",),
+        )),)),
+    )
+
+
+async def _render_vault(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped live vault embed
+    (capacity line, empty-state / stored listing, stored-value footer; see
+    justification). Stored value uses the resource/fish sell valuation (the
+    same D-0043 item-catalog boundary the hub's 💰 Wealth field draws — the
+    shipped ``items.total_value`` also valued tools/gear/treasure); the golden
+    pins the empty-vault **0**. The grouped-by-kind listing rides the deferred
+    item taxonomy, so a non-empty vault renders one flat 📦 Stored field."""
+    from sb.domain.mining import capacity, market, store
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    vault = await store.get_vault(uid, gid)
+    level = await store.get_vault_level(uid, gid)
+    status = capacity.vault_status(vault, level)
+    fields: list[tuple[str, str, bool]] = [
+        ("📦 Capacity",
+         f"{status.used}/{status.cap} item types (tier {level})", False)]
+    nudge = capacity.vault_warning(status)
+    if nudge:
+        fields.append(("​", nudge, False))
+    if not vault:
+        fields.append((
+            "Your vault is empty",
+            "A vault is a **safe stash** for your loot, kept separate from "
+            "your mining pack.\nUse **📥 Deposit** (or `!stash <item> [n]`) "
+            "to tuck something away.", False))
+    else:
+        fields.append((
+            "📦 Stored",
+            "\n".join(f"**{name.title()}** ×{qty}"
+                      for name, qty in sorted(vault.items())), False))
+    stored_value = sum(qty * (market.sell_price(item) or 0)
+                       for item, qty in vault.items())
+    embed = _dc_replace(
+        rendered.embed, title="🏦 Mining Vault", fields=tuple(fields),
+        footer=(f"Stored value: {stored_value}  •  📥 Deposit · "
+                "📤 Withdraw · 📦 Stash All Ore · ⬆️ Upgrade"))
+    return _dc_replace(rendered, embed=embed)
+
+
 async def _render_hub(spec: PanelSpec, ctx) -> object:
     """renderer_override — grammar render + the shipped display-name
     title, live overview fields and footer literal (see justification)."""
@@ -323,23 +458,33 @@ def _card_factory() -> PanelSpec:
     return mining_card_spec()
 
 
+@panel(VAULT_PANEL_ID)
+def _vault_factory() -> PanelSpec:
+    return mining_vault_spec()
+
+
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _pending_button_handlers()
+    _vault_modal_handlers()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
     if not is_registered(HandlerRef("mining.render_card")):
         handler("mining.render_card")(_render_card)
+    if not is_registered(HandlerRef("mining.render_vault")):
+        handler("mining.render_vault")(_render_vault)
     if not is_registered(PanelRef(HUB_PANEL_ID)):
         panel(HUB_PANEL_ID)(_hub_factory)
     if not is_registered(PanelRef(CARD_PANEL_ID)):
         panel(CARD_PANEL_ID)(_card_factory)
+    if not is_registered(PanelRef(VAULT_PANEL_ID)):
+        panel(VAULT_PANEL_ID)(_vault_factory)
 
 
 def install_mining_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for spec in (mining_hub_spec(), mining_card_spec()):
+    for spec in (mining_hub_spec(), mining_card_spec(), mining_vault_spec()):
         try:
             out.append(register_panel(spec))
         except ValueError as exc:

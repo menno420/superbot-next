@@ -5011,6 +5011,31 @@
           "value": "mi_how_to"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "va_deposit"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "va_withdraw"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "va_stash_all"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "va_upgrade"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "va_hub"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "warn"
@@ -6560,6 +6585,11 @@
           "value": "mining.card"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.vault"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
@@ -7729,6 +7759,11 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining_world"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_vault"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -9206,9 +9241,6 @@
       "handler:mining.mine_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.mineinv_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:mining.mineworld_route": {
         "module": "sb.domain.mining.service"
       },
@@ -9219,6 +9251,9 @@
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.render_hub": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.render_vault": {
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.repair_pending": {
@@ -9239,8 +9274,11 @@
       "handler:mining.skills_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.stash_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.stash_all_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.stash_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.stats_view": {
         "module": "sb.domain.mining.service"
@@ -9251,17 +9289,20 @@
       "handler:mining.unequip_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.unstash_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.unstash_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.use_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.vault_pending": {
+      "handler:mining.vault_deposit_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.vaultupgrade_pending": {
+      "handler:mining.vault_withdraw_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.vaultupgrade_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.workshop_pending": {
         "module": "sb.domain.operator_spine"
@@ -10343,6 +10384,9 @@
       "panel:mining.hub": {
         "module": "sb.domain.mining.panels"
       },
+      "panel:mining.vault": {
+        "module": "sb.domain.mining.panels"
+      },
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
       },
@@ -11354,6 +11398,9 @@
       "workflow:mining.erase_subject_state": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.erase_subject_vault": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.explore": {
         "module": "sb.domain.mining.ops"
       },
@@ -11405,7 +11452,19 @@
       "workflow:mining.record_sell_all": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_stash": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_stash_all": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_unequip": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_unstash": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_vault_upgrade": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.reseed_world": {
@@ -11423,7 +11482,19 @@
       "workflow:mining.sell_all": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.stash": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.stash_all": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.unequip": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.unstash": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.vault_upgrade": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:moderation.action_payload": {
@@ -12139,6 +12210,14 @@
         },
         "subsystem": "mining"
       },
+      "mining_vault": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_vault",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
       "mining_world": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "mining_world",
@@ -12342,7 +12421,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b7572be50d4d11ff666c35c89ca52a83537a91d8d57309bcb95c3420bece48e4",
+  "stable_hash": "sha256:8cb34d51976a34656beb0e558bee4c6f237c0879c806e961f892bcbad1ff6bfe",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -39806,10 +39885,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.vault_pending"
+            "$ref": "panel:mining.vault"
           },
           "slash_common": false,
-          "summary": "Your vault.",
+          "summary": "Open your vault — a safe stash separate from your pack.",
           "usage": "!vault",
           "usage_weight": 1.0
         },
@@ -39830,10 +39909,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.stash_pending"
+            "$ref": "handler:mining.stash_route"
           },
           "slash_common": false,
-          "summary": "Stash resources in the vault.",
+          "summary": "Stash an item into your vault.",
           "usage": "!stash",
           "usage_weight": 1.0
         },
@@ -39854,10 +39933,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.unstash_pending"
+            "$ref": "handler:mining.unstash_route"
           },
           "slash_common": false,
-          "summary": "Withdraw from the vault.",
+          "summary": "Withdraw an item from your vault.",
           "usage": "!unstash",
           "usage_weight": 1.0
         },
@@ -39878,10 +39957,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.vaultupgrade_pending"
+            "$ref": "handler:mining.vaultupgrade_route"
           },
           "slash_common": false,
-          "summary": "Upgrade vault capacity.",
+          "summary": "Buy one vault-capacity tier with coins.",
           "usage": "!vaultupgrade",
           "usage_weight": 1.0
         },
@@ -40379,6 +40458,186 @@
           "timeout_s": 180,
           "title": "",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "va_deposit",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.vault_deposit_pending"
+              },
+              "label": "📥 Deposit",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "va_withdraw",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.vault_withdraw_pending"
+              },
+              "label": "📤 Withdraw",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "va_stash_all",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.stash_all_route"
+              },
+              "label": "📦 Stash All Ore",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "va_upgrade",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.vaultupgrade_route"
+              },
+              "label": "⬆️ Upgrade",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "va_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!vault` reply is a fully live-state-parameterized embed built in the view (views/mining/vault_panel.py build_vault_embed: the 📦 Capacity `{used}/{cap} item types (tier {level})` line, the empty-state / grouped-stored fields, and the dynamic `Stored value: {n}` footer — goldens/mining/sweep_vault pins the bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub's own live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "va_deposit",
+                    "va_withdraw"
+                  ],
+                  [
+                    "va_stash_all",
+                    "va_upgrade"
+                  ],
+                  [
+                    "va_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.vault",
+          "renderer_override": {
+            "$ref": "handler:mining.render_vault"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "🏦 Mining Vault",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -40576,6 +40835,34 @@
             "$ref": "engine:mining.store"
           },
           "table": "mining_world",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_vault"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_vault",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_vault",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
