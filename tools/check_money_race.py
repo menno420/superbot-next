@@ -111,17 +111,11 @@ ALLOWLIST: dict[tuple[str, str, str], str] = {
 
 # Sites the checker judges REAL members of the defect class — ledgered, never
 # whitelisted as safe. Loud on every run; red only when stale.
-KNOWN_RISKS: dict[tuple[str, str, str], str] = {
-    ("sb/domain/games/wager.py", "enter_tournament_in_txn", "B"):
-        "SUSPECTED REAL BUG (F-001/F-002 class, the #217 buy_chicken "
-        "first-insert shape): the entry-fee debit + natural-key entry-row "
-        "upsert has NO advisory slot lock and NO existence check — two "
-        "concurrent entries by the SAME user (rps register_player's "
-        "duplicate guard is in-memory and yields at awaits) both debit the "
-        "fee and collapse into ONE entry row: one fee vanishes (not in the "
-        "pot, not refunded by abort). Fix shape: lock_new_checkpoint_slot + "
-        "existence check under the lock (the #213 solo_start precedent).",
-}
+# (enter_tournament_in_txn's row cleared 2026-07-12: fixed with
+# lock_new_checkpoint_slot + existence check before the debit — the #213
+# solo_start precedent — proven red-then-green on real Postgres in
+# tests/integration/test_tournament_entry_race.py.)
+KNOWN_RISKS: dict[tuple[str, str, str], str] = {}
 
 
 # ------------------------------------------------------------------- models
