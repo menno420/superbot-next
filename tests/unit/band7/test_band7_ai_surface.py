@@ -436,6 +436,9 @@ def test_ai_manifest_imports_and_registers():
     panel_ids = {p.panel_id for p in manifest.MANIFEST.panels}
     assert panel_ids == {
         "ai.hub", "ai.settings", "ai.card",
+        # the COMPONENT-ingress card twin (VERDICT 009 AIP-02
+        # consumption): same embeds + the family "AI home" back-route.
+        "ai.card_nav",
         # the settings-mutation slice: the shipped chooser PAGES + the
         # S6/S7 edit widget pages (+ the modal-arming slice's free-text
         # editor page).

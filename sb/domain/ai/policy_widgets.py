@@ -240,7 +240,11 @@ async def policy_preview_pick(req) -> Reply | None:
         user_role_ids=tuple(getattr(req.actor, "role_ids", ()) or ()),
         title="AI policy preview", category_id=category_id,
         include_context=False)
-    await _open_page(req, "ai.card", {"_card": embed})
+    from sb.domain.ai.service import card_panel_id
+
+    # the preview pick is COMPONENT ingress -> the card carries the
+    # family "AI home" back-route (VERDICT 009 AIP-02 consumption).
+    await _open_page(req, card_panel_id(req), {"_card": embed})
     return None
 
 

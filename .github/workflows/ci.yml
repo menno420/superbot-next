@@ -48,7 +48,8 @@ jobs:
           set -e
           for checker in \
             check_amendments check_config_usage check_cost_posture \
-            check_credential_lifecycle check_data_lifecycle check_egress \
+            check_credential_lifecycle check_data_lifecycle \
+            check_doc_cites check_egress \
             check_escape_hatches check_intent_survival check_lockfile_fresh \
             check_metric_cardinality check_migrations check_money_race \
             check_namespace \
