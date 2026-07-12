@@ -424,6 +424,37 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                         "guild %d ONLY): live kick/ban/timeout/unban + "
                         "guild.me readiness", test_guild_id)
 
+            # the role EFFECT ports (SLICE 2 of the live-guild-effects lane)
+            # ride the SAME gate as moderation above — same double gate
+            # (SB_DATA_PLANE=="test" + explicit SB_APPCMD_SYNC_GUILD_ID), the
+            # SAME test-guild id as the hard per-call allow-list. Live
+            # add/remove role, create/delete role, and reaction-role
+            # fetch_message/add_reaction — the test guild ONLY. Prod arming is
+            # the OWNER'S CUT-3 gate: with no test-guild id (prod) these ports
+            # stay un-installed, so the role lanes write their rows + copy but
+            # perform NO Discord effect until the owner flips prod himself.
+            from sb.adapters.discord.role_actions import (
+                DiscordGuildRoleActions,
+                DiscordRoleMessageOps,
+                DiscordRoleProvisioning,
+            )
+            from sb.domain.role.service import (
+                install_message_ops,
+                install_role_actions,
+                install_role_provisioning,
+            )
+
+            install_role_actions(
+                DiscordGuildRoleActions(bot, allowed_guild_id=test_guild_id))
+            install_role_provisioning(
+                DiscordRoleProvisioning(bot, allowed_guild_id=test_guild_id))
+            install_message_ops(
+                DiscordRoleMessageOps(bot, allowed_guild_id=test_guild_id))
+            logger.info("role EFFECT ports ARMED (test plane, guild %d ONLY): "
+                        "live add/remove role + create/delete role + "
+                        "reaction-role fetch_message/add_reaction",
+                        test_guild_id)
+
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;
         #      whether anything syncs is step 13's gated decision.

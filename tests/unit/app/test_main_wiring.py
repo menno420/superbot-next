@@ -78,6 +78,45 @@ class TestModerationTestGuildGate:
                 in src)
 
 
+class TestRoleEffectPortsGate:
+    """The live role EFFECT ports (SLICE 2 of the live-guild-effects lane) ride
+    the SAME test-plane + test-guild gate as moderation (main.py step 10a): the
+    three ports (add/remove role, create/delete role, reaction-role
+    fetch_message/add_reaction) are armed ONLY inside the
+    ``if test_guild_id is not None:`` block and each concrete adapter is
+    constructed WITH that test guild id as its hard allow-list. Prod arming is
+    the owner's CUT-3 gate — the prod root leaves all three ports un-installed."""
+
+    def test_role_ports_install_only_under_the_test_guild_gate(self):
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        # armed adjacent to moderation, under the SAME single gate
+        assert "test_guild_id = moderation_test_guild(cfg)" in src
+        # each of the three role ports installed with the allow-list guild id
+        assert ("install_role_actions(\n"
+                "                DiscordGuildRoleActions(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+        assert ("install_role_provisioning(\n"
+                "                DiscordRoleProvisioning(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+        assert ("install_message_ops(\n"
+                "                DiscordRoleMessageOps(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+
+    def test_role_installs_sit_inside_the_gate_block(self):
+        # the wiring fact: the role installs live BELOW the gate line and the
+        # `if test_guild_id is not None:` guard — never at prod-reachable
+        # top level of step 10.
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        gate_at = src.index("if test_guild_id is not None:")
+        for needle in ("install_role_actions(", "install_role_provisioning(",
+                       "install_message_ops("):
+            assert src.index(needle) > gate_at, needle
+
+
 class TestEscrowRecoveryRoster:
     def test_roster_matches_the_domain_constants(self):
         from sb.domain.blackjack import ops as blackjack_ops
