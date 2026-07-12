@@ -2108,6 +2108,16 @@
     "aliases": [],
     "group": "",
     "name": "setup-unskip"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setupadvanced"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setupdescribe"
    }
   ],
   "starboard": [

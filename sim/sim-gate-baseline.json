@@ -6019,6 +6019,18 @@
    },
    "value": 25
   },
+  "setup:setupadvanced:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setupdescribe:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
   "setup:ticket:WizardSectionSpec.order": {
    "provenance": {
     "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"

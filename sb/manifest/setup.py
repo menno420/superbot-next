@@ -21,9 +21,21 @@ DELIBERATELY NOT DECLARED (goldens are the spec):
 * ``/setup-delegate`` / ``/setup-undelegate`` — capture-skipped
   (``parity/goldens/_sweep_skips.json``: "unsupported required option
   type user"); no golden exists on either surface (trap 28).
-* ``!setupadvanced`` / ``!setupdescribe`` prefix twins — their sweeps
-  remain in ``_unmapped`` (the leaked-workspace re-home is successor
-  work); the slash family carries the setup row's declared surface.
+RE-HOMED (wave-9 leaked-workspace slice):
+
+* ``!setupadvanced`` / ``!setupdescribe`` prefix twins — the shipped
+  message-command siblings of the ``setup-*`` slash family
+  (cogs/setup/_wizard_entry.py + cogs/setup/_describe_entry.py). Their
+  sweeps left ``_unmapped`` for ``goldens/setup/`` byte-green:
+  ``!setupadvanced`` rides the SAME ``setup.advanced_open`` route as
+  ``/setup-advanced`` (the depth-chooser workspace + the in_progress
+  session row + the setup.session.started audit companion — the Reply
+  lands as a channel notice on the prefix surface, the interaction
+  response on slash; goldens/setup/sweep_setupadvanced vs
+  sweep_slash_setup-advanced pin the twin shapes). ``!setupdescribe``
+  carried no ``description`` argument, so it answers with the shipped
+  guidance prompt and nothing else (``setup.describe_prompt``;
+  goldens/setup/sweep_setupdescribe pins the bare line).
 """
 
 from __future__ import annotations
@@ -85,6 +97,30 @@ MANIFEST = SubsystemManifest(
             reply_visibility=ReplyVisibility.EPHEMERAL,
             summary="Describe your server; get setup suggestions.",
             usage="/setup-describe description:<text>",
+            audience_tier="administrator",
+            capability="setup",
+        ),
+        # --- the shipped prefix twins (cogs/setup/_wizard_entry.py +
+        # cogs/setup/_describe_entry.py), joined at the wave-9
+        # leaked-workspace re-home: goldens/setup/sweep_setupadvanced,
+        # sweep_setupdescribe pin the bytes.
+        CommandSpec(
+            name="setupadvanced",
+            kind=CommandKind.PREFIX,
+            route=HandlerRef("setup.advanced_open"),
+            defer_mode=DeferMode.NONE,
+            summary="Open the advanced setup wizard (power users).",
+            usage="!setupadvanced",
+            audience_tier="administrator",
+            capability="setup",
+        ),
+        CommandSpec(
+            name="setupdescribe",
+            kind=CommandKind.PREFIX,
+            route=HandlerRef("setup.describe_prompt"),
+            defer_mode=DeferMode.NONE,
+            summary="How to describe your server for setup suggestions.",
+            usage="!setupdescribe",
             audience_tier="administrator",
             capability="setup",
         ),

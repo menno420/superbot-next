@@ -84,6 +84,18 @@
    },
    "value": 0
   },
+  "setup:setupadvanced:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setupdescribe:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
   "setup:setup-status:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"

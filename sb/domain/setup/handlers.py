@@ -227,6 +227,25 @@ def _register() -> None:
                          dataclasses.replace(req, args=args))
         return None
 
+    @handler("setup.describe_prompt")
+    async def describe_prompt(req) -> Reply:
+        """``!setupdescribe`` — the shipped prefix twin
+        (cogs/setup/_describe_entry.py): the message command carried no
+        structured ``description`` argument, so the oracle answered with
+        the guidance prompt and did nothing else — NO advisor run, NO
+        session touch, NO audit companion (goldens/setup/
+        sweep_setupdescribe pins the bare prompt + the empty setup-side
+        db_delta). The slash ``/setup-describe`` twin
+        (setup.describe_entry) is the arg-bearing path that runs the
+        advisor; this prefix entry is only the how-to line."""
+        del req
+        return Reply(
+            SUCCESS,
+            "Describe your server in a sentence or two and I'll "
+            "propose how to wire it up — e.g. `a small gaming "
+            "community; #mod-logs is for moderation logging and "
+            "#welcome greets new members`.")
+
 
 _register()
 
