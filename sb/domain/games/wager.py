@@ -34,8 +34,10 @@ from dataclasses import dataclass
 from sb.domain.economy import service as economy_service
 from sb.domain.economy import store as economy_store
 from sb.domain.games import store
+from sb.kernel.interaction.errors import ValidatorError
 
 __all__ = [
+    "AlreadyEnteredError",
     "EscrowResult",
     "STAKE_KEY",
     "SettleResult",
@@ -52,6 +54,22 @@ __all__ = [
 #: Payload key under which each escrow / entry row records the staked
 #: amount. Shared with the session_gc refund sweep — keep it ``bet``.
 STAKE_KEY = "bet"
+
+
+class AlreadyEnteredError(ValidatorError):
+    """Duplicate tournament entry, refused at the DB fence BEFORE the fee
+    debit — the oracle's dedup refusal (its guard sits ahead of the fee
+    check: disbot/cogs/rps_tournament_cog.py try_register_player /
+    disbot/utils/tournaments.py), with the oracle's user copy verbatim
+    (disbot/views/rps/registration.py). Only reachable when two entries
+    for the same user race past a caller's in-memory roster guard (rps
+    register_player yields at awaits before its roster append) — the
+    sequential duplicate is refused by that guard first. A domain refusal
+    (D-0060 shape): classifies USER_ERROR/BLOCKED with the message
+    rendered bare, rolling the caller's txn back — nothing was debited."""
+
+    def __init__(self, message: str = "You're already registered!"):
+        super().__init__("", message)
 
 
 @dataclass(frozen=True)
@@ -228,12 +246,32 @@ async def enter_tournament_in_txn(conn, *, guild_id: int, user_id: int,
                                   extra_state: dict | None = None) -> int:
     """Debit the entry fee and write the recovery row in the caller's txn
     (closing the shipped lost-fee window). Returns the new balance;
-    fee<=0 = free entry (no debit, no row)."""
+    fee<=0 = free entry (no debit, no row). Raises
+    :class:`AlreadyEnteredError` (rolling the caller's txn back, nothing
+    debited) when the user already holds an entry row for *subsystem*."""
     if fee <= 0:
         return await economy_store.get_coins(user_id, guild_id, conn=conn)
     state = {STAKE_KEY: fee}
     if extra_state:
         state.update(extra_state)
+    # F-001/F-002-class fence (the #217 buy_chicken first-insert shape,
+    # #221 KNOWN_RISKS row): FOR UPDATE cannot lock an entry row that does
+    # not exist yet, so two concurrent entries by the SAME user (rps
+    # register_player's duplicate guard is in-memory and yields at awaits)
+    # could both debit the fee while their upserts collapsed into ONE
+    # natural-key row — one fee vanished (not in the settlement pot, never
+    # refunded). The transaction-scoped advisory lock serializes the two
+    # entries on the SAME (guild, user, subsystem) triple the existence
+    # check reads (the #213 lock_new_checkpoint_slot solo_start
+    # precedent, identical acquisition order: advisory slot lock →
+    # game_state row read → economy row write); the loser blocks here
+    # until the winner's txn resolves, then SEES the committed entry row
+    # and is refused BEFORE any money moves.
+    await store.lock_new_checkpoint_slot(
+        conn, guild_id=guild_id, user_id=user_id, subsystem=subsystem)
+    if await store.fetch_user_checkpoint(guild_id, user_id, subsystem,
+                                         conn=conn) is not None:
+        raise AlreadyEnteredError()
     balance = await _debit(conn, guild_id=guild_id, user_id=user_id,
                            amount=fee, reason=reason, actor_id=user_id)
     await store.upsert_checkpoint(
