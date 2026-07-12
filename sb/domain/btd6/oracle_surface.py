@@ -414,11 +414,51 @@ async def cmd_ops_source_disable(req) -> Reply:
     return _toggle_source_reply(argv[0])
 
 
-async def cmd_ops_seed(req) -> Reply:
-    return Reply(BLOCKED,
-                 "🌱 The Postgres data-blob store (`btd6_data_blobs` seed) "
-                 "is the ingestion successor port — this build serves the "
-                 "committed dataset files directly.")
+async def cmd_ops_seed(req) -> Reply | None:
+    """`!btd6 ops seed-data` / legacy `!btd6ops seed-data` — the shipped
+    admin seed terminal (cogs/btd6/_ops_helpers.py seed_embed over
+    btd6_data_service.seed_postgres_from_files, oracle sequence
+    verbatim): capture content drift BEFORE seeding, upsert every bundled
+    file through the ONE audited ``btd6.seed_data`` op (administrator
+    K6 floor), then reload the live dataset (the file-backend flavor:
+    drop the dataset + stats caches post-commit) and send the receipt.
+    No golden drives this lane (parity/goldens/_sweep_skips.json pins the
+    capture skip — bulk 6.8MB dataset embed, zero oracle value); the
+    receipt bytes are pinned by unit tests against the reconstructed
+    oracle source instead."""
+    from sb.domain.btd6 import dataset, oracle_cards as cards, stats
+    from sb.kernel.workflow import engine
+    from sb.spec.refs import WorkflowRef
+
+    # shipped ordering: what's about to change, read BEFORE the seed —
+    # None on the file backend (this build's only backend).
+    changed = dataset.content_drift()
+    params: dict = {}
+    result = await engine.run(WorkflowRef("btd6.seed_data"),
+                              _ctx_from_req(req, params))
+    if result.outcome != SUCCESS:
+        return Reply(result.outcome,
+                     result.user_message or "Couldn't seed the data store.")
+    count = int(params.get("_seed_count") or 0)
+    if count == 0:
+        await _card(req, cards.seed_empty_card())
+        return None
+    # the shipped "re-warm + drop the dataset cache" tail (PR #676 —
+    # seed-data applies immediately, no restart), file-backend flavor:
+    # the committed files ARE the serving store, so the reload is the
+    # in-process cache drop. Post-commit by construction (the op already
+    # returned SUCCESS).
+    dataset.reset_cache()
+    stats.reset_stats_cache()
+    served = ""
+    try:
+        served = dataset.game_version()
+        if served == "unknown":
+            served = ""
+    except Exception:  # noqa: BLE001 — version is decoration on the receipt
+        pass
+    await _card(req, cards.seed_receipt_card(count, served, changed))
+    return None
 
 
 async def cmd_ops_announcechannel(req) -> Reply:

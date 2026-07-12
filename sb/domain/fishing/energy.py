@@ -5,7 +5,7 @@ rule-of-three note kept the two copies separate).
 
 Pure functions only — no DB, no Discord. The persisted state is
 ``(energy:int, updated_at:unix)`` on the ``fishing_energy`` table
-(migration 0034, shipped 088 shape); *effective* energy at any instant is
+(migration 0035, shipped 088 shape); *effective* energy at any instant is
 computed from elapsed time by :func:`settle` (a stored value + a
 timestamp, never a background ticker — the shipped ADR-001/002 posture).
 ``goldens/fishing/sweep_fish.json`` pins the spent fresh-bar row

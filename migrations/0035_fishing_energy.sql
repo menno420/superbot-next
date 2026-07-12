@@ -1,4 +1,4 @@
--- 0034: fishing_energy — the per-(user, guild) cast-energy bar (old repo
+-- 0035: fishing_energy — the per-(user, guild) cast-energy bar (old repo
 -- disbot/migrations/088_fishing_energy.sql, imported NAME_STABLE; DDL
 -- reconstructed fragment-by-fragment via search_code). Consumer: the
 -- `!fish` cast open (fishing.cast_open settles then spends CAST_COST

@@ -32,5 +32,6 @@
  "0031_ai_orchestration_profile.sql": "sha256:06a8e6caa94c15e49e847888e8ab8ae8e2e2f2b45f44281777ca484ecf21a370",
  "0032_ticket_admin.sql": "sha256:af1019a355723a6e8f8104d5c52796a0fe1e32463669afb999b90418a7655311",
  "0033_starboard.sql": "sha256:49e8b860404157f6c2cb5718a5ae1f379cdb1f04dd18125fc53b9edc603e62ce",
- "0034_fishing_energy.sql": "sha256:c5bbb0d3e1e4757336ee6a65a6c392f2bd11b46e11c292204ca333fc03e44cc9"
+ "0034_btd6_data_blobs.sql": "sha256:937800e7a60e7fd3b0954b5ea2b729bd05b4bbd192ca562f643eddd2e488dc20",
+ "0035_fishing_energy.sql": "sha256:69fd37a7f9b773ae9e351cac50ae0a39b00a0defddbe741f04d39b2d21a462c5"
 }

@@ -355,6 +355,27 @@ depth:
     # minted goldens/btd6/btd6_strategy_form_submit{,_minimal}.json now
     # CARRY the insert — the ratchet climbed (btd6 tables 3 → 4). The
     # `modal-driven` class itself stays (the ai rows above still ride it).
+    btd6:
+      # btd6's 103 goldens pin the unified `!btd6` tree + the legacy
+      # alias trees + the minted strategy-form pair; the seed terminal's
+      # write target is the ONE declared surface no golden can carry.
+      - surface: "table:btd6_data_blobs"
+        reason: "dataset-scale: the table's ONLY writer is the audited
+          btd6.seed_data op behind the `!btd6 ops seed-data` /
+          `!btd6ops seed-data` admin terminals, and the capture sweep
+          EXCLUDED both forms by design (parity/goldens/_sweep_skips.json
+          'btd6 ops seed-data' / 'btd6ops seed-data': 'bulk data seed —
+          the golden would embed the whole versioned BTD6 dataset (6.8MB)
+          already pinned by btd6_data_blobs.sha256 provenance (compat
+          item 9); zero oracle value over the data files themselves' —
+          the class's own definition, verbatim), so no imported golden
+          can carry a btd6_data_blobs row and any FUTURE capture would
+          re-embed the committed dataset the repo already pins
+          file-for-file (sb/domain/btd6/data/); the write bytes are
+          pinned by unit tests against the reconstructed oracle seed loop
+          (tests/unit/band7/test_band7_btd6_seed_data.py) and the
+          real-Postgres integration leg
+          (tests/integration/test_btd6_seed_data.py) instead"
     chain:
       # chain's seven goldens are guard/usage bytes + the Chain Manager
       # empty-state open — the sweep drove every `!chain` subcommand
