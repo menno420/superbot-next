@@ -1,6 +1,6 @@
 # 2026-07-12 — arm the creature dex browse surface (D-0034, slice 3)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Opus 4.8 · high · feature build (D-0034 slice 3 — dex/creature)
 
