@@ -43,6 +43,13 @@ BANNED_METHODS = frozenset({
 ALLOWED_RECEIVERS = frozenset({
     "emitter", "_emitter", "responder", "_presenter", "bus", "_bus",
     "self", "store", "hook", "supervisor", "reader",
+    # the domain-side guild-action PORT binding convention (`actions =
+    # active_actions()` — sb/domain/moderation/ops.py, sb/domain/setup/
+    # service.py): the D-0077 ChannelStateActions port deliberately
+    # carries the corpus verb `create_text_channel`, which shadows
+    # discord.py's Guild method — the fence bans raw discord objects,
+    # not the ports themselves (docstring above).
+    "actions",
 })
 
 

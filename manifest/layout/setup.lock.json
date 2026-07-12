@@ -2,79 +2,179 @@
  "entries": {
   "setup:channels:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 40
   },
   "setup:cleanup:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 60
   },
   "setup:cog_routing:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 70
   },
   "setup:final_review:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 90
   },
   "setup:logging_presets:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 45
   },
   "setup:moderation:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 65
   },
   "setup:preset_select:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 25
   },
   "setup:role_templates:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 56
   },
   "setup:roles:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 55
   },
+  "setup:setup-advanced:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup-describe:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup-hub:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup-reset:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup-skip:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup-status:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup-unskip:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": 0
+  },
+  "setup:setup.suggestions_card:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "accept_high_confidence",
+       "review_one_by_one",
+       "reject_ai_suggestions",
+       "rerun_deterministic"
+      ],
+      [
+       "stage_final_review"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.suggestions_card:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "accept_high_confidence",
+     "review_one_by_one",
+     "reject_ai_suggestions",
+     "rerun_deterministic"
+    ],
+    [
+     "stage_final_review"
+    ]
+   ]
+  },
+  "setup:setup.suggestions_card:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: setup parity flip carries the shipped review-panel ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "accept_high_confidence",
+        "review_one_by_one",
+        "reject_ai_suggestions",
+        "rerun_deterministic"
+       ],
+       [
+        "stage_final_review"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "setup:setup:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
    },
    "value": 0
   },
   "setup:setup:SubsystemManifest.wizard_sections/WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 90
   },
   "setup:setup:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 25
   },
   "setup:ticket:WizardSectionSpec.order": {
    "provenance": {
-    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec \u00a79.3)"
+    "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 72
   }

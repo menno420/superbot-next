@@ -24,21 +24,36 @@ This handler exists for the DB-first leg shape only; whenever the create
 leg sits after a DB leg it MUST declare
 ``compensator=WorkflowRef("setup.compensate_create_channel")``.
 
-No spec is declared here yet: declaring the setup compound op is the
-flip lane's move (the setup/quicksetup goldens stay parked on D-0030/
-trap-17 until then), so the compensator-invariant sweep
-(tests/unit/workflow/test_compensator_invariant.py) picks this module up
-the moment the first spec lands."""
+The setup flip (this slice) declared the compound ops — and took the
+D-0065 create-BEFORE-DB shape D-0077's contrast clause sanctioned: the
+oracle's own sequencing (views/setup/essential_setup.py +
+wizard.open_setup_workspace: resume READ → ensure_setup_channel → the
+workspace channel.send → only then the session writes) runs the Discord
+calls INSIDE the record leg, BEFORE the row upsert — a failed row write
+aborts the txn and leaves channel + card standing, exactly like the
+oracle (which never rollback-deleted its workspace). No leg therefore
+declares ``compensator=`` and the allowlist stays EMPTY; the
+``setup.compensate_create_channel`` handler below stays the RULED class
+for any FUTURE DB-first leg shape (D-0077's mandate binds the moment a
+create leg sits after a committed DB leg)."""
 
 from __future__ import annotations
 
 import logging
 
 from sb.kernel.workflow.context import LegOutcome, WorkflowContext
+from sb.kernel.workflow.registry import REGISTRY
 from sb.kernel.workflow.result import StepResult
+from sb.kernel.workflow.spec import (
+    CompoundOpSpec,
+    IdempotencyPosture,
+    LegKind,
+    LegSpec,
+    WorkflowLane,
+)
 from sb.spec.refs import WorkflowRef, workflow
 
-__all__ = ["ensure_ops_refs"]
+__all__ = ["ensure_ops_refs", "register_ops"]
 
 logger = logging.getLogger("sb.domain.setup")
 
@@ -91,9 +106,142 @@ async def _compensate_create_channel(conn, ctx: WorkflowContext) -> LegOutcome:
                           "channel_id": cid, "deleted": deleted})
 
 
+# --- the session-write legs (the flip's D-0065-shaped record legs) -----------------
+
+@workflow("setup.record_session_started")
+async def _record_session_started(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The ``/setup-hub`` entry's session mint — the shipped
+    ``start_session`` upsert (status ``pending``, no workspace pointers;
+    goldens/setup/sweep_slash_setup-hub pins the row)."""
+    from sb.domain.setup import store
+
+    guild_id = int(ctx.guild_id or 0)
+    await store.upsert_session(
+        conn, guild_id=guild_id,
+        guild_name=str(ctx.params.get("guild_name", "")),
+        owner_id=int(ctx.params.get("owner_id", 0) or 0),
+        setup_status="pending", setup_channel_id=None,
+        setup_message_id=None, current_step=None)
+    return LegOutcome(
+        step=StepResult(0, "record_session_started", True),
+        before=None, after="pending")
+
+
+@workflow("setup.record_workspace_open")
+async def _record_workspace_open(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The ``/setup-advanced`` wizard entry — the ORACLE SEQUENCING
+    verbatim (wizard.open_setup_workspace, the D-0077 contrast clause):
+    ensure the private workspace (find = the gateway-cache name hit with
+    ZERO wire calls; miss = ONE create_text_channel POST with the
+    overwrite map at creation), post the depth-chooser anchor INTO it,
+    and only then upsert the session row with the minted pointers
+    (status ``in_progress``, ``current_step="depth"`` —
+    goldens/setup/sweep_slash_setup-advanced pins row + card + reply).
+    Create-BEFORE-DB: a failed row write aborts the txn and leaves
+    channel + card standing (the oracle never rollback-deleted); NO
+    compensator is declared, per D-0077's D-0065-shape clause."""
+    from sb.domain.setup import service, store
+    from sb.domain.setup.panels import HUB_PANEL_ID
+
+    guild_id = int(ctx.guild_id or 0)
+    invoker = int(getattr(ctx.actor, "user_id", 0) or 0)
+    channel_id, created = await service.ensure_setup_channel(guild_id, invoker)
+    if created:
+        # the D-0077 stash contract — the id a (future) compensating
+        # delete would be guarded on; unused by this D-0065-shaped op.
+        ctx.params["_created_channel_id"] = int(channel_id)
+    req = ctx.params.get("_workspace_request")
+    message_id = None
+    if req is not None:
+        message_id = await service.post_panel_to_channel(
+            HUB_PANEL_ID, req, channel_id)
+    await store.upsert_session(
+        conn, guild_id=guild_id,
+        guild_name=str(ctx.params.get("guild_name", "")),
+        owner_id=int(ctx.params.get("owner_id", 0) or 0),
+        setup_status="in_progress", setup_channel_id=int(channel_id),
+        setup_message_id=int(message_id) if message_id else None,
+        current_step="depth")
+    ctx.params["_workspace_channel_id"] = int(channel_id)
+    ctx.params["_workspace_message_id"] = (int(message_id)
+                                           if message_id else None)
+    return LegOutcome(
+        step=StepResult(0, "record_workspace_open", True),
+        before=None, after="pending")
+
+
+# --- privacy erasure body (the store-declared ref; flag-18 discipline) --------------
+
+@workflow("setup.erase_subject_session")
+async def _erase_subject_session(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.domain.setup import store
+
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.scrub_subject_session(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_session", True),
+                      before={}, after={"scrubbed_rows": rows})
+
+
+# --- the op specs -------------------------------------------------------------------
+
+#: both entries mint/refresh ONE row keyed on the guild (ON CONFLICT
+#: upsert) — intrinsically once (NATURAL_KEY). ``audit_verb`` carries the
+#: shipped mutation vocabulary (services/setup_session.py
+#: ``_emit_session_audit`` — ``mutation_type="setup.session.started"``,
+#: ``new_value="pending"``).
+START_SESSION = CompoundOpSpec(
+    op_key="setup.start_session", domain="setup", lane=WorkflowLane.DOMAIN,
+    authority_ref="",                 # ADMIN floor (the shipped owner/admin gate)
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_session_started"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.started")
+
+OPEN_WORKSPACE = CompoundOpSpec(
+    op_key="setup.open_workspace", domain="setup", lane=WorkflowLane.DOMAIN,
+    authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_workspace_open"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.started")
+
+_OPS = (START_SESSION, OPEN_WORKSPACE)
+
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
+    ("setup.record_session_started", _record_session_started),
+    ("setup.record_workspace_open", _record_workspace_open),
+    ("setup.erase_subject_session", _erase_subject_session),
 )
+
+
+def _op_runner(op: CompoundOpSpec):
+    async def _run(ctx):  # P2-resolution marker; the engine resolves via REGISTRY
+        from sb.kernel.workflow import engine
+
+        return await engine.run(op, ctx)
+    return _run
+
+
+def _register_op_markers() -> None:
+    from sb.spec.refs import is_registered
+    from sb.spec.refs import workflow as _workflow
+
+    for op in _OPS:
+        if not is_registered(WorkflowRef(op.op_key)):
+            _workflow(op.op_key)(_op_runner(op))
+
+
+def register_ops() -> None:
+    for op in _OPS:
+        try:
+            REGISTRY.register(op)
+        except ValueError as exc:
+            if "duplicate CompoundOpSpec" not in str(exc):
+                raise
+    _register_op_markers()
 
 
 def ensure_ops_refs() -> None:
@@ -103,3 +251,4 @@ def ensure_ops_refs() -> None:
     for name, fn in _REF_TABLE:
         if not is_registered(WorkflowRef(name)):
             _workflow(name)(fn)
+    register_ops()
