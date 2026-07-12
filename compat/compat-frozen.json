@@ -1355,10 +1355,47 @@
   "general": [
    {
     "aliases": [
+     "8ball"
+    ],
+    "group": "",
+    "name": "eightball"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "fact"
+   },
+   {
+    "aliases": [
      "gmenu"
     ],
     "group": "",
     "name": "generalmenu"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "greet"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "joke"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "motivate"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "quote"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "trivia"
    }
   ],
   "help": [

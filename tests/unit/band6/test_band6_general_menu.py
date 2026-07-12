@@ -92,20 +92,53 @@ def test_panel_and_handler_refs_registered():
         assert is_registered(HandlerRef(name)), name
 
 
-def test_manifest_declares_the_menu_entry_point():
+def test_manifest_declares_the_menu_and_prefix_entry_points():
     from sb.manifest.general import MANIFEST
     from sb.spec.refs import HandlerRef
 
     assert MANIFEST.key == "general"
-    (cmd,) = MANIFEST.commands
-    assert cmd.name == "generalmenu"
-    assert cmd.aliases == ("gmenu",)
-    assert cmd.route == HandlerRef("general.menu_view")
-    (spec,) = MANIFEST.panels
-    assert spec.panel_id == "general.menu"
+    by_name = {c.name: c for c in MANIFEST.commands}
+    assert set(by_name) == {"generalmenu", "fact", "joke", "quote",
+                            "trivia", "motivate", "eightball", "greet"}
+    assert by_name["generalmenu"].aliases == ("gmenu",)
+    assert by_name["generalmenu"].route == HandlerRef("general.menu_view")
+    # the shipped decorators: only eightball carried an alias.
+    assert by_name["eightball"].aliases == ("8ball",)
+    for name in ("fact", "joke", "quote", "trivia", "motivate", "greet"):
+        assert by_name[name].aliases == ()
+        assert by_name[name].route == HandlerRef(f"general.{name}_cmd")
+    panel_ids = [p.panel_id for p in MANIFEST.panels]
+    assert panel_ids == ["general.menu", "general.card",
+                         "general.trivia_card"]
     # R2 stays vacuous for general: no declared events/stores/settings.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()
+
+
+def test_prefix_command_draw_trajectories_match_the_goldens():
+    """The seed-42 pick + XP bytes the re-homed goldens pin: ONE
+    module-global choice draw per command, then the chat-award
+    randint(15, 25) — see the manifest docstring's XP-byte note."""
+    import random as _random
+
+    from sb.domain.general import content as c
+
+    cases = (
+        (c.FACTS, "The first computer bug was an actual bug — a moth "
+                  "found in a Harvard Mark II in 1947.", 16),
+        (c.JOKES, "I'm on a seafood diet — I see food and I eat it.", 16),
+        (c.QUOTES, '"The greatest glory in living lies not in never '
+                   'falling, but in rising every time we fall." '
+                   "— Nelson Mandela", 16),
+        (c.TRIVIA, "In what year did World War II end? || 1945.", 16),
+        (c.GREETINGS, "Hello!", 15),
+        (c.MOTIVATIONS, "Believe in yourself and all that you are!", 15),
+        (c.EIGHTBALL, "No.", 15),
+    )
+    for pool, want_pick, want_xp in cases:
+        _random.seed(42)
+        assert _random.choice(pool) == want_pick
+        assert _random.randint(15, 25) == want_xp
 
 
 # --- the handlers: thin content reads ------------------------------------------------
