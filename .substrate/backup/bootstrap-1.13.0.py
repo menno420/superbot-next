@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.14.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.13.0 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -18,7 +18,6 @@ from dataclasses import asdict, dataclass, field, fields
 from dataclasses import dataclass, field
 from datetime import date
 from datetime import date as _led_date
-from datetime import date, datetime
 from datetime import date, datetime, timezone
 from datetime import datetime, timedelta, timezone
 from datetime import datetime, timezone
@@ -90,7 +89,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.14.0"
+KIT_VERSION = "1.13.0"
 
 
 def _new_project_id() -> str:
@@ -792,123 +791,9 @@ def owner_action_block_example() -> str:
         "WHAT: flip the example setting to on\n"
         "WHERE: Settings → Example → the toggle\n"
         "HOW: one checkbox\n"
-        "RISK: ↩️ reversible — flip the toggle back to undo\n"
         "WHY-IT-MATTERS: the lane stalls without it\n"
         "UNBLOCKS: the next slice starts moving the moment it's done\n"
         "VERIFIED-NEEDED: attempted via the API — 403, owner-only surface\n"
-    )
-
-
-# ── Owner-facing output — the owner-assist standard (grounded-skills §3) ────
-#
-# Taught in control/README.md § "Owner-assist output standard" (canonical
-# home) and the collaboration-model / CONSTITUTION / question-router
-# doctrine. The structured-choice phrases are ALSO the /intake skill body's
-# Q-0263.2 pins (engine.skills.skills._INTAKE_BODY) — one home, so skill
-# text, template text, and enforcer cannot drift; agreement is pinned by
-# tests/test_owner_assist.py. Enforced (advisory-only, §8 Q2=B) by
-# check_owner_actions.
-#
-# Risk-class tokens are the BASE characters (no VS16 emoji selector) so the
-# scan matches both the plain and the emoji-presentation spellings adopters
-# write (`"↩" in "↩️ reversible"` is True).
-
-RISK_CLASS_LABEL = "RISK:"
-RISK_CLASS_TOKENS = ("✅", "↩", "⚠")
-OWNER_ACTION_BLOCK_TOKEN = "⚑ OWNER-ACTION"
-# Q-0263.2 pinned phrases — a decision put to the owner is options A/B(/C)
-# with a **bolded recommendation**, answerable with one letter; an ask that
-# requires the owner to parse, derive, or transform anything is a drafting
-# defect, never an owner task.
-STRUCTURED_CHOICE_PHRASES = (
-    "**bolded recommendation**",
-    "answerable with one letter",
-    "parse, derive, or transform",
-)
-# The destination anti-pattern (the Q-0263 incident class): a WHERE: value
-# naming a settings-like surface with no deep shape at all — no URL, no
-# click-path arrow, no path. "Settings → Rules → the main ruleset" is fine;
-# a bare "go to settings" is not.
-VAGUE_DESTINATION_WORDS = ("settings", "console", "dashboard", "portal", "admin")
-DESTINATION_SHAPE_MARKS = ("http", "→", "/", ">")
-
-
-def risk_class_line_example() -> str:
-    """Canonical ``RISK:`` line — one class token + how to undo."""
-    return "RISK: ↩️ reversible — delete the variable to undo.\n"
-
-
-def structured_choice_example() -> str:
-    """Canonical structured-choice question (the Q-0263.2 shape)."""
-    return (
-        "Q1 — Default channel for large owner-facing outputs?\n"
-        "  A) Rendered link + 3-line digest in chat.\n"
-        "  B) Full text in chat every time.\n"
-        "  RECOMMENDATION: A — one tap on a phone; B stays the fallback.\n"
-    )
-
-
-# ── docs/CAPABILITIES.md — the venue-scoped capability ledger (§4.2) ─────────
-#
-# Taught in the planted ledger (CAPABILITIES.md.tmpl § "Append log"):
-#   - YYYY-MM-DD · capability|wall · <venue> · finding · evidence · workaround
-# The `·` is U+00B7 (the protocol's separator). The venue token scopes a
-# finding to where it was verified — the grounded-skills evidence base
-# (fleet night review 2026-07-12) saw ONE operation behave three ways in one
-# night depending on venue, so a flat CAN/CANNOT ledger is wrong somewhere by
-# construction. BACKWARD-COMPATIBLE: the older five-field form without a
-# venue token stays valid — readers treat it as venue `any` and enforcers
-# never flag it (an old line must not become advisory noise). Enforced
-# (advisory-only) by check_capability_xref; the kit-owned seed block between
-# the fence markers below is refreshed at upgrade by
-# engine.upgrade.refresh_capability_seed — the ONLY channel that reaches a
-# consumer-edited ledger (--apply-docs never covers one).
-
-CAPABILITY_VENUE_TOKENS = (
-    "owner-live",
-    "autonomous-project",
-    "routine-fired",
-    "subagent",
-    "any",
-)
-CAPABILITY_ENTRY_TAGS = ("capability", "wall")
-# The taught append-line format — the template carries this string verbatim
-# (test-pinned agreement, the owner-assist shared-pin precedent), so the
-# writer half and the enforcer half cannot drift.
-CAPABILITY_LOG_TAUGHT_FORMAT = (
-    "- YYYY-MM-DD · capability|wall · <venue> · finding · evidence · workaround"
-)
-# An append-log entry line: a leading ISO date, then the ·-separated fields.
-CAPABILITY_LOG_LINE_RE = re.compile(r"^- (20\d{2}-\d{2}-\d{2}) · (.+)$")
-# What field 3 looks like when the writer MEANT a venue: one lowercase
-# hyphenated token, no spaces. A field-3 value with spaces is an old-format
-# finding and is never judged (fail open).
-CAPABILITY_VENUE_SHAPE_RE = re.compile(r"^[a-z][a-z-]{2,}$")
-# Seed rows carry a per-row freshness stamp (§4.2b) — no freshness data
-# means confidently stale, which is worse than ignorant.
-CAPABILITY_LAST_VERIFIED_RE = re.compile(r"LAST-VERIFIED:\s*(20\d{2}-\d{2}-\d{2})")
-# The kit-owned seed fence (§4.2c): upgrade re-renders ONLY the block between
-# these markers inside a consumer-edited ledger; everything outside — the
-# append log, all consumer text — is preserved byte-for-byte. Prefix-matched
-# by the refresher so a future tweak to the warning wording cannot orphan an
-# existing fence.
-CAPABILITY_SEED_BEGIN_PREFIX = "<!-- substrate-kit:capability-seed BEGIN"
-CAPABILITY_SEED_END_PREFIX = "<!-- substrate-kit:capability-seed END"
-CAPABILITY_SEED_BEGIN = (
-    CAPABILITY_SEED_BEGIN_PREFIX
-    + " — kit-owned, refreshed at upgrade. Append your findings BELOW the"
-    " fence (## Append log), never inside it. -->"
-)
-CAPABILITY_SEED_END = CAPABILITY_SEED_END_PREFIX + " -->"
-
-
-def capability_log_line_example(*, venue: str | None = "routine-fired") -> str:
-    """Canonical append-log entry (``venue=None`` renders the legacy 5-field form)."""
-    venue_field = f" {venue} ·" if venue else ""
-    return (
-        f"- 2026-07-12 · wall ·{venue_field} fire_trigger on a cross-session"
-        " binding refused · exact error: not enabled for this organization ·"
-        " workaround: fire from the owning session\n"
     )
 
 
@@ -2644,24 +2529,6 @@ parser for every free-text shape an ask can take. Input-gated like every
 checker — engages only when the ``control/`` protocol is present and the
 file's ``⚑ needs-owner`` value is something other than ``none``. Stdlib
 only; unreadable files fail open.
-
-Owner-assist output standard (grounded-skills slice 4, plan §3/§7.4;
-added 2026-07-12, §8 Q2=B advisory-first): two further advisory findings
-extend the same contract —
-
-- ``owner-action-risk-class`` — an ``⚑ OWNER-ACTION`` block whose
-  contiguous text carries no risk-class token (``✅ / ↩️ / ⚠️`` — the
-  maintainer-profile standing rule: a risk class on every manual step).
-- ``owner-action-vague-destination`` — a ``WHERE:`` value naming a
-  settings-like surface with no deep shape at all (no URL, no click-path
-  arrow, no path): the "go to settings" anti-pattern from the Q-0263
-  incident. Deep values ("Settings → Rules → …", a URL, a repo path)
-  never fire.
-
-Reliability of the two new checks (PL-008): UNVERIFIED — confirm their
-findings against ground truth a few times across sessions before trusting
-them; **delete these two checks if they prove unreliable over multiple
-sessions.** Both are advisory-only by the same contract as the fields nag.
 """
 
 
@@ -2689,48 +2556,6 @@ def _needs_owner_value(text: str) -> str | None:
     line = text[idx:].splitlines()[0]
     _, _, value = line.partition(":")
     return value.strip()
-
-
-# The canonical WHERE label (one spelling — no lenient alternates exist).
-_WHERE_LABEL = OWNER_ACTION_FIELDS[1][0]
-
-
-def _unrisked_block_count(text: str) -> int:
-    """Return how many ⚑ OWNER-ACTION blocks carry no risk-class token.
-
-    A block is the contiguous paragraph after its ``⚑ OWNER-ACTION`` marker
-    (up to the first blank line or the next marker) — a risk token elsewhere
-    in the file never vouches for a block that lacks one.
-    """
-    count = 0
-    for segment in text.split(OWNER_ACTION_BLOCK_TOKEN)[1:]:
-        block = segment.split("\n\n", 1)[0]
-        if not any(token in block for token in RISK_CLASS_TOKENS):
-            count += 1
-    return count
-
-
-def _vague_destinations(text: str) -> list[str]:
-    """Return WHERE: values that name a surface without any deep shape.
-
-    Fires only on the intersection of *both* signals — a settings-like word
-    (``VAGUE_DESTINATION_WORDS``) AND no shape mark at all
-    (``DESTINATION_SHAPE_MARKS``: URL, click-path arrow, path separator) —
-    so "Settings → Rules → …", any URL, and any repo path stay clean, and a
-    value like "any channel" (no surface word) never fires either.
-    """
-    vague: list[str] = []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped.startswith(_WHERE_LABEL):
-            continue
-        value = stripped.partition(":")[2].strip()
-        lowered = value.lower()
-        if any(word in lowered for word in VAGUE_DESTINATION_WORDS) and not any(
-            mark in value for mark in DESTINATION_SHAPE_MARKS
-        ):
-            vague.append(value)
-    return vague
 
 
 def check_owner_actions(
@@ -2781,35 +2606,6 @@ def check_owner_actions(
                     "yourself or cite the exact wall — VERIFIED-NEEDED; "
                     "assumption-based asks are banned), and withdraw stale "
                     "asks.",
-                ),
-            )
-        # Owner-assist output standard (slice 4) — advisory, same contract.
-        unrisked = _unrisked_block_count(text)
-        if unrisked:
-            findings.append(
-                Finding(
-                    rel,
-                    "owner-action-risk-class",
-                    f"{unrisked} ⚑ OWNER-ACTION block(s) carry no risk-class "
-                    "token — every manual step names its class (✅ safe / "
-                    "read-only · ↩️ reversible, say how to undo · ⚠️ "
-                    "irreversible / destructive), e.g. a `RISK:` line per "
-                    "block (control/README.md § Owner-assist output "
-                    "standard).",
-                ),
-            )
-        vague = _vague_destinations(text)
-        if vague:
-            findings.append(
-                Finding(
-                    rel,
-                    "owner-action-vague-destination",
-                    "WHERE: names a surface without a deep destination "
-                    f"({'; '.join(vague)}) — name the exact destination: a "
-                    "deep URL, a console path to the exact field "
-                    "(Surface → section → field), or a repo path + line; "
-                    'never a bare "go to settings" (control/README.md § '
-                    "Owner-assist output standard).",
                 ),
             )
     return findings
@@ -3398,30 +3194,6 @@ Input-gated on the ``control/`` protocol and per heartbeat file, like
 every control-band checker. Pure stdlib — no ``subprocess`` (§3.2); it
 only reads the heartbeat files the fast lane already validates plus the
 planted capability ledger. Unreadable files fail open (no verdict).
-
-**Slice-5 extensions (grounded-skills plan §4.2d, added 2026-07-12;
-§8 Q2=B advisory-first).** Two more advisory families, extending this
-checker IN PLACE (the twice-proven pattern — slice 2 check_skill_grounds,
-slice 4 check_owner_actions):
-
-- **Append-log grammar** (the writer half is the planted template; both
-  consume ``engine.grammar``'s capability-ledger constants):
-  ``capability-log-malformed`` — an append-log bullet that does not open
-  ``- YYYY-MM-DD · capability|wall · …``; ``capability-log-venue-unknown``
-  — a venue-shaped field-3 token that is not one of the grammar's venue
-  tokens. BACKWARD-COMPATIBLE by contract: an old five-field line without
-  a venue token is read as venue ``any`` and NEVER flagged.
-- **Staleness** (§4.2b): ``capability-entry-stale`` — a dated ledger entry
-  (append-log line, or a seed row's ``LAST-VERIFIED:`` stamp) older than
-  the config's ``cadence.staleness_days`` (default 14) whose surface the
-  NEWEST session card cites — a claim, not a fact; re-verify with one
-  cheap attempt and APPEND the result (THE DISCOVERY RULE step 5).
-
-Reliability of the slice-5 checks (PL-008): UNVERIFIED — confirm their
-findings against ground truth a few times across sessions before trusting
-them; **delete these checks if they prove unreliable over multiple
-sessions.** They are advisory-only by the same contract as the original
-xref and must never count toward an exit code.
 """
 
 
@@ -3612,193 +3384,11 @@ def _ledger_sides(text: str) -> tuple[set[str], set[str]]:
     return _tokens("\n".join(wall_parts)), _tokens("\n".join(cap_parts))
 
 
-def _log_grammar_findings(rel: str, text: str) -> list[Finding]:
-    """Grammar-check the ledger's append-log bullets (slice 5, advisory).
-
-    Old-format compatibility is a hard contract: a five-field line without a
-    venue token parses clean (field 3 carries spaces → an old-format finding,
-    never judged as a venue). Only a venue-SHAPED field-3 token outside the
-    grammar's venue set flags, and only date/tag misses flag as malformed.
-    Continuation lines (indented wraps) are skipped like ``_ledger_sides``
-    skips nothing — they never start ``- ``.
-    """
-    findings: list[Finding] = []
-    in_log = False
-    for line in text.splitlines():
-        if line.startswith("## "):
-            in_log = "append log" in line.lower()
-            continue
-        if not in_log or not line.startswith("- "):
-            continue
-        match = CAPABILITY_LOG_LINE_RE.match(line)
-        if not match:
-            findings.append(
-                Finding(
-                    rel,
-                    "capability-log-malformed",
-                    "append-log entry does not open `- YYYY-MM-DD · "
-                    "capability|wall · …` — the taught grammar is "
-                    f"`{CAPABILITY_LOG_TAUGHT_FORMAT}` "
-                    "(src/engine/grammar.py); date the entry so the "
-                    f"staleness rule can read it: {line[:60]!r}",
-                ),
-            )
-            continue
-        fields = [f.strip() for f in line.split("·")]
-        tag = fields[1].lower() if len(fields) > 1 else ""
-        if not any(t in tag for t in CAPABILITY_ENTRY_TAGS):
-            findings.append(
-                Finding(
-                    rel,
-                    "capability-log-malformed",
-                    "append-log entry's second field names neither "
-                    "`capability` nor `wall` — the ledger's two sides key on "
-                    f"that tag ({CAPABILITY_LOG_TAUGHT_FORMAT}): "
-                    f"{line[:60]!r}",
-                ),
-            )
-            continue
-        if len(fields) > 2:
-            candidate = fields[2]
-            if (
-                CAPABILITY_VENUE_SHAPE_RE.match(candidate)
-                and candidate not in CAPABILITY_VENUE_TOKENS
-            ):
-                findings.append(
-                    Finding(
-                        rel,
-                        "capability-log-venue-unknown",
-                        f"append-log entry names venue {candidate!r}, which "
-                        "is not a grammar venue token "
-                        f"({' · '.join(CAPABILITY_VENUE_TOKENS)}) — fix the "
-                        "token, or drop the field to write the legacy "
-                        "five-field form (read as venue `any`).",
-                    ),
-                )
-    return findings
-
-
-def _dated_entries(text: str) -> list[tuple[date, str]]:
-    """Return ``(date, entry_text)`` per dated ledger bullet.
-
-    Two dated shapes exist: append-log bullets (leading ISO date) and seed
-    rows carrying a ``LAST-VERIFIED: YYYY-MM-DD`` stamp (§4.2b). A bullet's
-    indented continuation lines belong to it — the distinctive tokens the
-    citation scan matches usually live there. Unparseable dates are skipped
-    (fail open — a malformed date is the grammar check's finding, never
-    fabricated staleness).
-    """
-    entries: list[tuple[date, str]] = []
-
-    def flush(bullet: list[str]) -> None:
-        if not bullet:
-            return
-        block = "\n".join(bullet)
-        match = CAPABILITY_LOG_LINE_RE.match(bullet[0])
-        if match is not None:
-            stamp = match.group(1)
-        else:
-            verified = CAPABILITY_LAST_VERIFIED_RE.search(block)
-            if verified is None:
-                return
-            stamp = verified.group(1)
-        try:
-            entry_date = datetime.strptime(stamp, "%Y-%m-%d").date()
-        except ValueError:
-            return
-        entries.append((entry_date, block))
-
-    bullet: list[str] = []
-    for line in text.splitlines():
-        if line.startswith("- "):
-            flush(bullet)
-            bullet = [line]
-        elif bullet and line.strip() and line[:1] in (" ", "\t"):
-            bullet.append(line)  # indented continuation of the bullet above
-        else:
-            flush(bullet)
-            bullet = []
-    flush(bullet)
-    return entries
-
-
-def _newest_session_card(target: Path, sessions_dir: str) -> tuple[str, str] | None:
-    """Return ``(relpath, text)`` of the newest date-named session card.
-
-    Newest by FILENAME (cards are ``YYYY-MM-DD-<slug>.md``, so lexicographic
-    order is date order) — never by mtime, which a fresh CI checkout
-    flattens. ``None`` when no card exists or the newest is unreadable
-    (fail open).
-    """
-    root = target / sessions_dir
-    if not root.is_dir():
-        return None
-    cards = sorted(
-        p for p in root.glob("*.md") if re.match(r"20\d{2}-\d{2}-\d{2}", p.name)
-    )
-    if not cards:
-        return None
-    newest = cards[-1]
-    try:
-        text = newest.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return None
-    rel = (
-        str(newest.relative_to(target))
-        if newest.is_relative_to(target)
-        else str(newest)
-    )
-    return rel, text
-
-
-def _stale_citation_findings(
-    ledger_rel: str,
-    ledger_text: str,
-    card: tuple[str, str] | None,
-    staleness_days: int,
-    today: date,
-) -> list[Finding]:
-    """Flag stale ledger entries the newest session card cites (§4.2d ii).
-
-    Coarse by the module's own contract: "cites" is distinctive-token
-    overlap between the entry and the card (the same ``_anchors`` machinery
-    as the OWNER-ACTION xref), so a false nudge costs one glance. No card,
-    no dated entries, or nothing distinctive → no verdict.
-    """
-    if card is None:
-        return []
-    card_rel, card_text = card
-    card_tokens = _tokens(card_text)
-    findings: list[Finding] = []
-    for entry_date, entry_text in _dated_entries(ledger_text):
-        if (today - entry_date).days <= staleness_days:
-            continue
-        anchors = _anchors(entry_text)
-        if not anchors:
-            continue
-        if len(anchors & card_tokens) >= min(2, len(anchors)):
-            findings.append(
-                Finding(
-                    ledger_rel,
-                    "capability-entry-stale",
-                    f"ledger entry dated {entry_date.isoformat()} is older "
-                    f"than the staleness window ({staleness_days}d) and "
-                    f"{card_rel} cites its surface — an aged entry is a "
-                    "claim, not a fact (THE DISCOVERY RULE step 5): "
-                    "re-verify with one cheap attempt and APPEND the "
-                    "result (re-verifications append, never edit).",
-                ),
-            )
-    return findings
-
-
 def check_capability_xref(
     target: Path,
     *,
     status_files: Sequence[str] | None = None,
     capabilities_relpath: str = CAPABILITIES_RELPATH,
-    config: Any = None,
-    today: date | None = None,
 ) -> list[Finding]:
     """Return advisory findings cross-referencing owner asks vs the ledger.
 
@@ -3807,16 +3397,6 @@ def check_capability_xref(
     ledger's Walls/Capabilities sides. Emits ``owner-ask-wall-unrecorded``
     when the wall is nowhere in the ledger (or the ledger is absent), and
     ``owner-ask-capability-resolved`` when only the capability side matches.
-
-    Slice-5 extensions (see module docstring): the ledger's append-log lines
-    are grammar-checked against ``engine.grammar``'s capability constants
-    (``capability-log-malformed`` / ``capability-log-venue-unknown``; old
-    five-field lines are never flagged), and dated entries older than
-    ``config.cadence['staleness_days']`` (default 14, the triggers.py
-    default-on-missing pattern) that the newest session card in
-    ``config.sessions_dir`` cites emit ``capability-entry-stale``. ``today``
-    is injectable for tests.
-
     Advisory by contract — callers must never count these toward an exit
     code (see module docstring). Empty when the ``control/`` protocol is
     absent; fail-open on unreadable files and anchor-less asks.
@@ -3838,21 +3418,6 @@ def check_capability_xref(
     )
 
     findings: list[Finding] = []
-    if ledger_text is not None:
-        findings += _log_grammar_findings(capabilities_relpath, ledger_text)
-        staleness_days = 14
-        sessions_dir = ".sessions"
-        if config is not None:
-            cadence = getattr(config, "cadence", None) or {}
-            staleness_days = int(cadence.get("staleness_days", 14))
-            sessions_dir = getattr(config, "sessions_dir", "") or ".sessions"
-        findings += _stale_citation_findings(
-            capabilities_relpath,
-            ledger_text,
-            _newest_session_card(target, sessions_dir),
-            staleness_days,
-            today if today is not None else date.today(),
-        )
     for rel in relpaths:
         path = target / rel
         if not path.is_file():
@@ -8670,8 +8235,7 @@ checks). Everything else is ordered steps.
    commit (superseded CI runs are the dominant Actions cost).
 5. Close-out docs, into the SAME card: what shipped (paths + commits);
    Capability delta — new capability or wall discovered? Append it to
-   `docs/CAPABILITIES.md` (dated, with its venue token, exact error or
-   proof, workaround — below the seed fence, never inside it); every
+   `docs/CAPABILITIES.md` (dated, exact error or proof, workaround); every
    ⚑ needs-owner ask carries the OWNER-ACTION fields (WHAT / WHERE / HOW /
    WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED — attempted, or the exact
    wall; see `control/README.md`) — Withdraw stale asks; groom one idea
@@ -8828,71 +8392,6 @@ Known failure modes + fixes:
 Declared capabilities: edit (version homes + CHANGELOG + docs), run (build +
 git + gh)."""
 
-_INTAKE_BODY = """\
-Turn a fragmented owner ask about ${project_name} into a verified fuller
-picture before building. Executable wrapper around the understand-and-reflect
-doctrine (`CONSTITUTION.md` working agreement) — not new policy. Provenance:
-superbot router Q-0254 (owner-directed 2026-07-07, graduated to the kit's
-CONSTITUTION/collaboration-model templates the same day) plus the Q-0263.2
-paste-ready-questions directive. Invoke on any non-trivial, non-mechanical
-owner ask — especially a fragmented or associative one.
-
-## What this does
-
-The owner builds ideas iteratively and in fragments by design — a rough
-draft now, more shape later — and relies on the agent to reason a partial
-idea forward to its fuller form (`docs/owner-profile.md`). This skill runs
-that step as a procedure: one inline restate that pays off twice —
-verification (a wrong assumption stated now costs one correction; found
-after an hour of building it costs the hour) and idea-expansion (the
-filled-in picture is itself new material the owner reasons against and
-redirects).
-
-## Invocation
-
-/intake <the ask, or a pointer to it>
-
-## Instructions
-
-1. CONSOLIDATE — reduce the fragmented ask to its few MAIN IDEAS (usually
-   1–3). Name each in one line. The owner thinks associatively on purpose;
-   consolidation is your half of the contract. Idea order is not
-   implementation order — capture side ideas, never derail on them.
-2. RESTATE — state back, inline in your first substantive response (never
-   as a separate blocking question), the fuller picture you built from the
-   ask: the implied specs, the surrounding constraints, the likely intended
-   scope, and the follow-on the owner probably wants but didn't spell out.
-3. MAP — map each main idea to known step patterns via the skill index
-   (`docs/SKILLS.md`): which existing skill/playbook/checklist covers it,
-   which parts are genuinely new. Cite the exact skill or doc per idea, and
-   check `docs/CAPABILITIES.md` before assuming any wall.
-4. POSSIBILITY SPACE — when the ask starts from uncertain feasibility ("I
-   don't know if this is even possible" is a normal starting point, not an
-   edge case), surface what is achievable and by what approaches FIRST,
-   before committing to a direction. Target: the most advanced capability
-   reachable by the simplest, most efficient implementation.
-5. DECIDE-AND-FLAG — decide every reversible-until-a-gate call yourself
-   (recommendation + one-line rationale + a flag on the run report). Route
-   to the owner only genuine product/intent ambiguity, as a structured
-   choice — options A/B(/C), a **bolded recommendation**, one-line
-   rationale, answerable with one letter. Never an ask that requires the
-   owner to parse, derive, or transform anything (that is a drafting
-   defect, not an owner task). With no live owner, append the question to
-   `docs/question-router.md` instead of skipping it or guessing.
-
-A trivial or fully-unambiguous ask stays exempt: a one-line "doing X
-because Y" suffices — the same calibration as the doctrine itself. A big or
-vague idea earns a dedicated research pass (a delegated subagent, reviewed
-the same session) or its own session, never an answer from memory alone.
-
-## Report format
-
-Print: MAIN IDEAS (numbered) · FULLER PICTURE (short prose) · MAP (idea →
-skill/pattern/new) · [POSSIBILITY SPACE if triggered] · DECISIONS FLAGGED ·
-QUESTIONS FOR OWNER (structured choices, or `none`).
-
-Declared capabilities: read (the index, the ledger, the profile)."""
-
 _QUALITY_GATE_BODY = """\
 Prove a change is good before pushing ${project_name}.
 
@@ -9014,15 +8513,6 @@ SKILLS: list[dict] = [
             "gh release view vX.Y.Z",
             "python3 dist/bootstrap.py currency",
         ],
-    },
-    {
-        "name": "intake",
-        "description": "Turn a fragmented owner ask into main ideas, a restated "
-        "fuller picture, a skill-index map, and structured-choice owner "
-        "questions — before building (understand-and-reflect, executable).",
-        "capabilities": [],
-        "body": _INTAKE_BODY,
-        "grounds": [],
     },
     {
         "name": "quality-gate",
@@ -13831,239 +13321,11 @@ def apply_doc_improvements(
     return lines
 
 
-# ── Capability-ledger seed refresh (grounded-skills slice 5, plan §4.2c) ────
-#
-# docs/CAPABILITIES.md is consumer-edited BY DESIGN (appending findings is
-# the point), so hash classification parks it `consumer-edited`/`diverged`
-# forever and --apply-docs never reaches it. The marker-fenced kit-owned
-# SEED block is the answer: upgrade re-renders ONLY the block between the
-# grammar.py fence markers, preserving every byte outside the fence (the
-# append log, all consumer prose). A fence the consumer modified is NEVER
-# clobbered — it downgrades to an upgrade-report line telling them what to
-# do. This is the ONLY channel by which new fleet-wide seeds reach an
-# adopter's ledger.
-
-CAPABILITIES_TEMPLATE = "CAPABILITIES.md.tmpl"
-
-# The Q-0270 collapse note (plan §7.5 accept criterion): travels on the
-# upgrade report whenever the seed-refresh step ran.
-CAPABILITY_POSTURE_COLLAPSE_NOTE = (
-    "This upgrade ships the venue-scoped capability ledger (grounded-skills "
-    "§4.2): entries carry a venue token (owner-live · autonomous-project · "
-    "routine-fired · subagent · any) and the ledger's kit-owned seed block "
-    "carries the posture decision rule. If this repo carries a local prose "
-    "copy of the boot-triad/venue-posture rule (superbot Q-0270), that copy "
-    "is now superseded by docs/CAPABILITIES.md's posture rule — collapse the "
-    "local copy into a pointer."
-)
-
-
-def _capability_fence(text: str) -> str | None:
-    """Return the marker-fenced seed block of ``text`` (markers inclusive).
-
-    Markers are matched by their grammar.py prefixes (never the full warning
-    wording, so a future tweak cannot orphan an existing fence). ``None``
-    when either marker is absent or they are out of order — an unmatched
-    fence is treated exactly like no fence (fail safe, never a guess).
-    """
-    lines = text.splitlines(keepends=True)
-    begin = end = None
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if begin is None and stripped.startswith(CAPABILITY_SEED_BEGIN_PREFIX):
-            begin = i
-        elif begin is not None and stripped.startswith(CAPABILITY_SEED_END_PREFIX):
-            end = i
-            break
-    if begin is None or end is None:
-        return None
-    return "".join(lines[begin : end + 1])
-
-
-_LEGACY_SEED_START = "## THE DISCOVERY RULE"
-_APPEND_LOG_HEADING = "## Append log"
-
-
-def _line_start_index(text: str, prefix: str, from_index: int = 0) -> int:
-    """Index of the first LINE starting with ``prefix``, at/after ``from_index``.
-
-    Line-anchored on purpose: the fence's own warning text names
-    ``## Append log`` mid-line, so a bare ``find`` would anchor inside the
-    BEGIN marker instead of at the heading.
-    """
-    if from_index == 0 and text.startswith(prefix):
-        return 0
-    idx = text.find("\n" + prefix, from_index)
-    return -1 if idx == -1 else idx + 1
-
-
-def _legacy_seed_segment(rendered: str) -> str | None:
-    """Return a pre-fence template render's kit-owned seed segment.
-
-    The pre-slice-5 ledger had no fence; its kit-owned region ran from the
-    discovery rule through the seeded Capabilities/Walls rows, i.e. from
-    ``## THE DISCOVERY RULE`` up to (not including) ``## Append log``. A
-    consumer who only ever appended below (the designed edit pattern) still
-    carries this segment byte-for-byte, which is what lets the first
-    post-fence upgrade adopt the fence automatically.
-    """
-    start = _line_start_index(rendered, _LEGACY_SEED_START)
-    if start == -1:
-        return None
-    end = _line_start_index(rendered, _APPEND_LOG_HEADING, start)
-    if end == -1 or end <= start:
-        return None
-    return rendered[start:end]
-
-
-def _fence_replacement(new_render: str) -> str | None:
-    """Return the new render's fence block plus its trailing separator.
-
-    Runs from the BEGIN-marker line, past the END-marker line, up to (not
-    including) the ``## Append log`` heading line — so a legacy-segment
-    replacement lands with the same blank-line spacing the template ships.
-    """
-    begin = _line_start_index(new_render, CAPABILITY_SEED_BEGIN_PREFIX)
-    if begin == -1:
-        return None
-    end_marker = _line_start_index(new_render, CAPABILITY_SEED_END_PREFIX, begin)
-    if end_marker == -1:
-        return None
-    end = _line_start_index(new_render, _APPEND_LOG_HEADING, end_marker)
-    if end == -1 or end <= begin:
-        return None
-    return new_render[begin:end]
-
-
-def refresh_capability_seed(
-    root: Path,
-    config: Config,
-    backend: Any,
-    rows: list[dict[str, str]],
-    old_templates: dict[str, str] | None,
-    new_templates: dict[str, str] | None = None,
-) -> list[str]:
-    """Refresh the kit-owned fenced seed block of a consumer-edited ledger.
-
-    Covenant (plan §4.2c): ONLY the block between the grammar.py fence
-    markers is ever rewritten; everything outside — the ``## Append log``
-    and all consumer text — is preserved byte-for-byte. Cases:
-
-    - doc fence == new template's fence → already current (report line).
-    - doc fence == OLD template's fence (consumer never touched inside) →
-      refreshed in place.
-    - doc fence differs from both → consumer modified inside the fence, or
-      the old templates are unavailable — DOWNGRADE to a report line, never
-      clobber.
-    - no fence at all (pre-slice-5 ledger): when the doc still carries the
-      old template's rendered seed segment verbatim, the fence is adopted
-      automatically (segment → new fenced block); otherwise a report line
-      explains the one-time hand-adoption.
-
-    Only ``consumer-edited``/``diverged`` classifications are touched:
-    ``unchanged``/``missing`` need nothing (identical render / replanted by
-    adopt) and ``template-improved`` is consumer-untouched, covered whole-file
-    by ``--apply-docs``. The consumer's recorded doc hash is deliberately NOT
-    re-recorded after a fence refresh — the file remains consumer-owned and
-    must keep classifying that way.
-    """
-    row = next(
-        (r for r in rows if r.get("template") == CAPABILITIES_TEMPLATE),
-        None,
-    )
-    if row is None:
-        return []
-    rel = row["relpath"]
-    if row["class"] in (CLASS_UNCHANGED, CLASS_MISSING):
-        return []
-    if row["class"] == CLASS_IMPROVED:
-        return [
-            f"capability-seed: {rel} is consumer-untouched — the whole file "
-            "(fence included) refreshes via `upgrade --apply-docs`; no "
-            "fence-only refresh needed.",
-        ]
-    path = root / rel
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return [
-            f"capability-seed: {rel} unreadable — fence refresh skipped.",
-        ]
-    context = _upgrade_context(root, backend)
-    templates = new_templates if new_templates is not None else load_templates()
-    if CAPABILITIES_TEMPLATE not in templates:
-        return []
-    new_render = _render_planted(
-        templates[CAPABILITIES_TEMPLATE],
-        CAPABILITIES_TEMPLATE,
-        context,
-    )
-    new_fence = _capability_fence(new_render)
-    if new_fence is None:
-        return []  # template carries no fence — nothing kit-owned to refresh
-    old_render = None
-    if old_templates and CAPABILITIES_TEMPLATE in old_templates:
-        old_render = _render_planted(
-            old_templates[CAPABILITIES_TEMPLATE],
-            CAPABILITIES_TEMPLATE,
-            context,
-        )
-    doc_fence = _capability_fence(text)
-    if doc_fence is not None:
-        if doc_fence == new_fence:
-            return [
-                f"capability-seed: {rel} fence already current — nothing to "
-                "refresh.",
-            ]
-        old_fence = _capability_fence(old_render) if old_render else None
-        if old_fence is not None and doc_fence == old_fence:
-            atomic_write_text(root / rel, text.replace(doc_fence, new_fence, 1))
-            return [
-                f"capability-seed: refreshed the kit-owned fenced seed block "
-                f"in {rel} (venue-scoped seeds at template@new); everything "
-                "outside the fence — the append log and all consumer text — "
-                "preserved byte-for-byte.",
-            ]
-        return [
-            f"capability-seed: NOT refreshed — the fenced seed block in {rel} "
-            "differs from the kit-form fence (edited inside the fence, or the "
-            "old templates are unavailable). The fence is kit-owned: move "
-            "your own findings BELOW the fence into the append log, restore "
-            "the block between the BEGIN/END markers to kit form (copy it "
-            "from the new template render), and the next upgrade refreshes "
-            "it automatically.",
-        ]
-    # No fence — a pre-slice-5 ledger. Adopt the fence when the old seed
-    # segment survives verbatim (the designed append-only edit pattern).
-    old_segment = _legacy_seed_segment(old_render) if old_render else None
-    replacement = _fence_replacement(new_render)
-    if old_segment and replacement and old_segment in text:
-        atomic_write_text(
-            root / rel,
-            text.replace(old_segment, replacement, 1),
-        )
-        return [
-            f"capability-seed: adopted the marker fence in {rel} — the "
-            "pre-fence kit seed section matched the old template exactly and "
-            "was replaced by the new fenced block; the append log and all "
-            "consumer text preserved byte-for-byte.",
-        ]
-    return [
-        f"capability-seed: {rel} carries no kit-owned seed fence and its "
-        "seed section does not match the old template — hand-adopt once: "
-        "replace your discovery-rule + Capabilities/Walls seed sections with "
-        "the fenced block (BEGIN/END markers) from the new template, keeping "
-        "your append log below it; afterwards upgrades refresh the fence "
-        "automatically.",
-    ]
-
-
 def upgrade_report_text(
     old_version: str,
     rows: list[dict[str, str]],
     applied: list[str],
     carveouts: list[str] | None = None,
-    capability_seed: list[str] | None = None,
 ) -> str:
     """Compose ``<state_dir>/upgrade-report.md``.
 
@@ -14125,15 +13387,6 @@ def upgrade_report_text(
                 "- carve-out scan: ran — no kit-owned live workflow "
                 "installed, nothing to scan.",
             ]
-    if capability_seed:
-        # Grounded-skills slice 5 (§4.2c): the fence-refresh outcome is
-        # report-file evidence like the carve-outs — a stdout-only line is
-        # too easy to lose, and the modified-fence downgrade instruction
-        # must reach the upgrade PR's body. The Q-0270 collapse note travels
-        # with the section (plan §7.5 accept criterion).
-        lines += ["", "## Capability-ledger seed refresh", ""]
-        lines += [f"- {line}" for line in capability_seed]
-        lines += ["", CAPABILITY_POSTURE_COLLAPSE_NOTE]
     if applied:
         lines += ["", "## Applied (--apply-docs)", ""]
         lines += [f"- {line}" for line in applied]
@@ -14286,12 +13539,6 @@ def run_apply_docs_posthoc(
             "apply-docs: no template-improved docs to apply — every planted "
             "doc is already current or consumer-owned.",
         )
-    # Mirror the in-run capability-seed refresh (grounded-skills slice 5,
-    # decide-and-flag: YES — an operator who skipped the in-run window must
-    # recover the fence refresh the same way they recover --apply-docs;
-    # idempotent, so a re-run reports "already current" and writes nothing).
-    seed_lines = refresh_capability_seed(root, config, backend, rows, old_templates)
-    report += seed_lines
     # The report rewrite must not drop the carve-out section (websites,
     # v1.9.0 wave): re-emit it from a read-only rescan of the installed
     # kit-owned workflows, and carry forward hits recorded in the report
@@ -14314,7 +13561,6 @@ def run_apply_docs_posthoc(
             rows,
             applied,
             carveout_lines,
-            capability_seed=seed_lines,
         ),
     )
     report.append(f"report: {report_rel}")
@@ -14437,15 +13683,6 @@ def run_upgrade(
             "post-hoc from the banked pre-upgrade archive (no rollback needed).",
         )
 
-    # (4b) Capability-ledger fenced-seed refresh (grounded-skills slice 5,
-    # §4.2c): runs UNCONDITIONALLY at upgrade (the way staged artifacts
-    # regenerate), because a consumer-edited docs/CAPABILITIES.md — every
-    # good adopter's, by design — is out of --apply-docs' reach forever.
-    # Only the marker-fenced kit-owned block is ever rewritten; a modified
-    # fence downgrades to a report line (see refresh_capability_seed).
-    seed_lines = refresh_capability_seed(root, config, backend, rows, old_templates)
-    report += seed_lines
-
     # (5) Replace the vendored file with the running (new) one — only when the
     # running entry actually IS a stamped single-file bootstrap (in the
     # source/pip layouts there is no single file to install).
@@ -14524,13 +13761,7 @@ def run_upgrade(
     report_rel = f"{config.state_dir}/{UPGRADE_REPORT_FILENAME}"
     atomic_write_text(
         root / report_rel,
-        upgrade_report_text(
-            old_version,
-            rows,
-            applied,
-            gate_carveout_lines,
-            capability_seed=seed_lines,
-        ),
+        upgrade_report_text(old_version, rows, applied, gate_carveout_lines),
     )
     report.append(f"report: {report_rel}")
 
@@ -15250,13 +14481,9 @@ def cmd_check(
     # close the discovery-rule loop, never reds a required check (see the
     # checker docstring). Runs on both lanes: the asks live in the heartbeat
     # files the fast lane already validates.
-    # Slice-5 extensions ride the same call (grounded-skills §4.2d): the
-    # config hands the checker its staleness window (cadence.staleness_days,
-    # default-on-missing) + sessions_dir for the newest-card citation scan.
     xref_advisories = check_capability_xref(
         target,
         status_files=config.heartbeat_files,
-        config=config,
     )
     # Setup-script contract (EAP §6.5): advisory-only, like every nudge
     # above — the planted scripts/env-setup.sh is host-owned after adopt,
@@ -16955,14 +16182,14 @@ def main(argv: list[str] | None = None) -> int:
 
 _TEMPLATES = {
     'AGENT_ORIENTATION.md.tmpl': '# ${project_name} — agent orientation & reading order\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The task reading-router: start here to find which\n> docs a given task needs. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Start every session\n\nThe boot set lives in the working agreement — `${agreement_home}` — and its\norientation guidance (one list, one home). This file is not boot reading —\nopen it when a task needs a route into the deeper docs.\n\n## Binding contracts\n\n- **Architecture / layering:** ${architecture_layers}\n- **Ownership** (who owns each write path): ${ownership_model}\n- **Mutation seam** (how writes are gated): ${mutation_seam}\n\n## Where things live\n\nDocumentation root(s): ${doc_roots}\n\nThe planted doc set (this router reaches every live doc — keep it that way):\n`docs/architecture.md` · `docs/ownership.md` · `docs/runtime_contracts.md` ·\n`docs/collaboration-model.md` · `docs/helper-policy.md` ·\n`docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·\n`docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·\n`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/SKILLS.md` ·\n`docs/ideas/README.md` — plus the root\n`CONSTITUTION.md` (the working agreement) and `.session-journal.md`.\n\nRecurring action? **`docs/SKILLS.md`** — the skill index — names every\nkit-shipped skill and when to reach for it; check it before improvising a\nprocedure.\n\n## Verifying any change\n\nSee the working agreement (`${agreement_home}`) and its verify guidance\n(one home, never two copies).\n',
-    'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/capabilities.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n<!-- substrate-kit:capability-seed BEGIN — kit-owned, refreshed at upgrade. Append your findings BELOW the fence (## Append log), never inside it. -->\n\n## Posture decision rule — establish your venue first\n\n- **Owner-live session:** assume NO special limitations apply — act and merge\n  directly (superbot Q-0269).\n- **Autonomous / routine-fired seat:** pre-route around every known stall\n  class recorded below; park only on a REAL denial, never preemptively\n  (superbot Q-0270 boot triad: model · venue · ability envelope).\n\nVenue tokens (every entry names where it was verified): `owner-live` ·\n`autonomous-project` · `routine-fired` · `subagent` · `any`. Capabilities are\n**venue-scoped, not global** — the same operation can work owner-live, be\norg-refused on a cross-session binding, and prompt-stall in a plain-started\nseat while never prompting in a Routine-spawned one (fleet night review,\n2026-07-12). A flat CAN/CANNOT ledger is wrong somewhere by construction.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded for\n   your venue.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   venue token, the evidence (exact error, or proof it worked) and the\n   workaround if one was found. An unrecorded discovery is re-paid by every\n   future session.\n5. **Staleness — re-verify what you build on**: an entry older than the\n   staleness window (config `cadence.staleness_days`, default 14) that your\n   work depends on is a **claim, not a fact** — re-verify it with one cheap\n   attempt and append the result. Re-verifications APPEND, never edit: a\n   refuted wall can self-resolve platform-side, and a ledger with no\n   freshness data is confidently stale — worse than ignorant.\n\n## Capabilities — verified working\n\n- `any` · **Media is readable**: a video is never "unviewable" — extract\n  frames (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images;\n  same idea for audio (transcribe) and PDFs (render pages). Try the recipe\n  before reporting a format wall. — LAST-VERIFIED: 2026-07-10\n- `any` · **Provisioned credentials**: the environment often carries\n  tokens/keys as env vars — `printenv` first; a missing-looking credential is\n  usually a missing *look*. — LAST-VERIFIED: 2026-07-10\n- `any` · **Release cutting despite the tag wall**: `workflow_dispatch` on\n  the release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n  — LAST-VERIFIED: 2026-07-12\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- `any` · **Tag push / release create via git**: HTTP 403 from the\n  environment\'s git proxy → use the workflow_dispatch release path.\n  — LAST-VERIFIED: 2026-07-12\n- `any` · **Branch deletion**: 403 on every path (git push `:branch` and\n  API) → owner deletes by hand / enables "Automatically delete head\n  branches". — LAST-VERIFIED: 2026-07-10\n- `any` · **`api.github.com` direct HTTP**: blocked → GitHub access is\n  MCP-tools-only. — LAST-VERIFIED: 2026-07-10\n- `any` · **Environment / Project creation**: owner-click actions in the\n  console — queue them as structured owner asks, never wait silently.\n  Routine/schedule creation is NO LONGER a blanket wall: `create_trigger`\n  arms routines agent-side (proven 2026-07-11); the console-only knobs\n  (model class, branch-push, auto-fix PRs) remain owner-only.\n  — LAST-VERIFIED: 2026-07-11\n- `subagent` · **Self-merge classifier**: sessions can be refused merging\n  owner-gated PRs while their other capabilities work — and the boundary\n  differs by venue (a child session was refused where a coordinator was\n  not). Record which venue hit which boundary. — LAST-VERIFIED: 2026-07-10\n- `any` · **GraphQL API quota**: tight — batch queries and prefer the\n  REST-backed MCP tools for bulk reads. — LAST-VERIFIED: 2026-07-10\n- `routine-fired` · **Silent prompt-stalls**: a permission prompt in an\n  unattended seat is a silent stall, and grant boundaries differ by venue —\n  the same tool call can be pre-granted in a Routine-spawned seat and prompt\n  in a plain-started one. Pre-route around recorded stall classes; verify\n  grants per venue, never globally. — LAST-VERIFIED: 2026-07-12\n\n<!-- substrate-kit:capability-seed END -->\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · <venue> · finding · evidence · workaround`\n(venue ∈ `owner-live` · `autonomous-project` · `routine-fired` · `subagent` ·\n`any`; older five-field lines without a venue token stay valid — read them\nas venue `any`.)\n\n(Hand-filled by sessions, per the discovery rule. Seed rows above are\nkit-owned — they refresh at upgrade between the fence markers; local\nfindings go here, below the fence.)\n',
+    'CAPABILITIES.md.tmpl': '# ${project_name} — session capabilities & walls\n\n> **Status:** `living-ledger`\n>\n> Generated by substrate-kit. What agent sessions in THIS environment can and\n> cannot do — **verified findings, never assumptions**. Read at session start\n> (it is in the orientation reading order); append at session close. Fleet\n> master copy: `menno420/fleet-manager` → `docs/capabilities.md` — sync new\n> fleet-wide findings there via the manager when cross-repo access allows.\n\n## Why this file exists\n\nSessions repeatedly fail to discover what they CAN do (claiming `.mp4`s\nunviewable though ffmpeg frame-extraction is standard; forgetting provisioned\nenv tokens exist) and stall on imagined walls — burning owner attention as\nhand reminders. This ledger makes capability knowledge durable across\nsessions: one session\'s discovery is every later session\'s starting fact.\n\n## THE DISCOVERY RULE\n\nBefore declaring anything impossible, and before assuming a tool or\ncredential is missing:\n\n1. **Check this file** — the capability or wall may already be recorded.\n2. **Check the environment** — `printenv` / list the available tools BEFORE\n   assuming no credentials exist (provisioned env tokens are routinely\n   forgotten, not absent).\n3. **Attempt once** — try the operation and capture the **exact** error text;\n   a guessed wall and a verified wall are different facts.\n4. **Append the finding same session** — capability or wall, dated, with the\n   evidence (exact error, or proof it worked) and the workaround if one was\n   found. An unrecorded discovery is re-paid by every future session.\n\n## Capabilities — verified working\n\n- **Media is readable**: a video is never "unviewable" — extract frames\n  (`ffmpeg -i in.mp4 -vf fps=1 frame_%04d.png`) and read the images; same\n  idea for audio (transcribe) and PDFs (render pages). Try the recipe before\n  reporting a format wall.\n- **Provisioned credentials**: the environment often carries tokens/keys as\n  env vars — `printenv` first; a missing-looking credential is usually a\n  missing *look*.\n- **Release cutting despite the tag wall**: `workflow_dispatch` on the\n  release workflow (with a version input) creates the tag in-Actions —\n  proven repeatedly fleet-wide after direct tag pushes 403\'d.\n\n## Walls — verified blocked (use the workaround; don\'t rediscover)\n\n- **Tag push / release create via git**: HTTP 403 from the environment\'s git\n  proxy → use the workflow_dispatch release path.\n- **Branch deletion**: 403 on every path (git push `:branch` and API) →\n  owner deletes by hand / enables "Automatically delete head branches".\n- **`api.github.com` direct HTTP**: blocked → GitHub access is MCP-tools-only.\n- **Environment / routine / Project creation**: owner-click actions in the\n  console — queue them under `⚑ needs-owner`, never wait silently.\n- **Self-merge classifier**: sessions can be refused merging owner-gated PRs\n  while their other capabilities work — and the boundary differs by session\n  kind (a child session was refused where a coordinator was not). Record\n  which kind of session hit which boundary.\n- **GraphQL API quota**: tight — batch queries and prefer the REST-backed\n  MCP tools for bulk reads.\n\n## Append log — newest first\n\nFormat: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.\n\n(Hand-filled by sessions, per the discovery rule. Seed walls/capabilities\nabove came from the fleet\'s lived 2026-07 findings; local ones go here.)\n',
     'CLAUDE.md.tmpl': "# ${project_name} — agent working agreement\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit from the staged interview. **NOT SOURCE OF TRUTH**\n> for code — source files always win. Re-render (`bootstrap render`) after the\n> interview fills more slots.\n\n## What this project is\n\n${project_name} is built in ${primary_language}.\n\n## Orientation — read first, in order\n\n1. This file — the working agreement.\n2. `HANDOFF.md` at repo root (when present) — the previous session's trail:\n   newest session card + where to pick up. Regenerated at every session\n   boot, untracked by design — read it before re-deriving history from\n   `git log`/`git show`; never commit or edit it.\n3. `docs/current-state.md` — what is true right now.\n\nThat is the whole boot set. Everything else is routed, **not front-loaded**\n(reading every planted doc up front buys ceremony, not context — measured):\nopen `docs/AGENT_ORIENTATION.md` when a task needs its reading route,\n`docs/SKILLS.md` (the skill index) **before improvising a procedure for a\nrecurring action**, and\n`docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring\nany wall or missing credential** — its discovery rule: check the file →\ncheck the env → attempt once + capture the exact error → append the finding\nsame session.\n\n## Kit machinery — search hygiene\n\n`bootstrap.py` (~12k generated lines) and `.substrate/` (kit state + a byte\nbackup of the previous dist) are substrate-kit machinery, not project code.\nExclude them from repo-wide searches: `grep -r --exclude=bootstrap.py\n--exclude-dir=.substrate …`, or ripgrep `rg -g '!bootstrap.py' -g\n'!.substrate' …`.\n\n## Architecture — layers & import rules\n\n${architecture_layers}\n\n## Verifying a change\n\nRun before every push:\n\n```\n${verify_command}\n```\n\n## How the maintainer works\n\n${owner_profile}\n\n## Workflow adoption\n\nCurrent adoption pace for the substrate workflow: **${integration_mode}**.\n",
-    'CONSTITUTION.md.tmpl': '# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session\'s goal end-to-end; don\'t ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner hands over fragments, not full\n  specs. Before substantive work, restate the fuller picture built from the\n  ask — the implied specs, and the possibility space when feasibility is\n  uncertain — inline in the first substantive response, never as a blocking\n  question. It catches a misread early, and the filled-in picture is itself\n  new material the owner redirects.\n- **Capabilities are discovered, never assumed.** Before declaring a wall or\n  a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →\n  check the environment → attempt once and capture the exact error → append\n  the finding same session.\n- **Recurring actions run through the skill index.** `docs/SKILLS.md` names\n  every kit-shipped skill and when to reach for it — check it before\n  improvising a procedure or repo-searching "how do we do X here".\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall — assumption-based\n  asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE\n  / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act directly.\n  Expire stale asks; fewer, clearer asks beat complete lists. Owner-facing\n  output follows the owner-assist standard — paste-ready finished values, a\n  risk class (✅ / ↩️ / ⚠️) on every manual step, decisions as structured\n  choices with a **bolded recommendation**, answerable with one letter\n  (standard: `control/README.md`).\n\n## Changing the rules — propose, don\'t apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),\ne.g. PL-001 decide-and-flag · PL-006 source-wins / false-green.\n**Cite PL-IDs — never copy ruling bodies into this repo** (the register is\nthe one home; a local copy is drift by construction). Repo-local rulings\nstay in `docs/decisions.md` / `docs/question-router.md`.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project\'s own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n',
+    'CONSTITUTION.md.tmpl': '# ${project_name} — constitution\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. The working agreement + autonomy rails. **NOT\n> SOURCE OF TRUTH** for code — source files always win. Rules state their\n> **current value only**; provenance lives in `docs/decisions.md` as [D-NNNN]\n> links and is never narrated inline.\n\n## Working agreement\n\n- **The goal comes first.** Achieve the session\'s goal end-to-end; don\'t ship\n  the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — no re-confirming.\n- **Understand-and-reflect.** The owner hands over fragments, not full\n  specs. Before substantive work, restate the fuller picture built from the\n  ask — the implied specs, and the possibility space when feasibility is\n  uncertain — inline in the first substantive response, never as a blocking\n  question. It catches a misread early, and the filled-in picture is itself\n  new material the owner redirects.\n- **Capabilities are discovered, never assumed.** Before declaring a wall or\n  a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →\n  check the environment → attempt once and capture the exact error → append\n  the finding same session.\n- **Recurring actions run through the skill index.** `docs/SKILLS.md` names\n  every kit-shipped skill and when to reach for it — check it before\n  improvising a procedure or repo-searching "how do we do X here".\n- When a doc and a source file disagree: ${drift_resolution}\n\n## Autonomy rails — act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task.\n- **Ask** before anything irreversible (data loss, external publish),\n  large / cross-cutting (architectural), or when the goal itself is\n  genuinely ambiguous. No live owner to ask? Record the question in\n  `docs/question-router.md` instead of skipping it or guessing.\n- **Owner attention is the scarcest resource.** Before routing anything to\n  the owner: attempt it yourself, or cite the exact wall — assumption-based\n  asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE\n  / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:\n  `control/README.md`) — phrased so a non-technical owner can act directly.\n  Expire stale asks; fewer, clearer asks beat complete lists.\n\n## Changing the rules — propose, don\'t apply\n\n- A binding rule in this file changes by **proposal**, never by silent edit:\n  record the decision in `docs/decisions.md`, cite it here as its [D-NNNN]\n  id, and let the owner (or the review ritual) confirm before the rule text\n  changes.\n- Every rule change ships with its provenance id. This file carries **no\n  history** — the ledger does; superseded rules are looked up there.\n\n## Program law\n\nRulings that bind **every** repo in this program live canonically in the\nsubstrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register\n(https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),\ne.g. PL-001 decide-and-flag · PL-006 source-wins / false-green.\n**Cite PL-IDs — never copy ruling bodies into this repo** (the register is\nthe one home; a local copy is drift by construction). Repo-local rulings\nstay in `docs/decisions.md` / `docs/question-router.md`.\n\n## Rails specific to ${project_name}\n\n(Hand-filled: the project\'s own hard rules, one bullet each, each citing its\n[D-NNNN]. Keep the whole hand-filled file under 150 lines.)\n',
     'SKILLS-index.md.tmpl': '# ${project_name} — skill index\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The table below renders FROM the kit\'s\n> `SKILLS` list — the same source that emits the skills — and regenerates\n> at adopt/upgrade, so it cannot hand-drift. **NOT SOURCE OF TRUTH** for\n> skill bodies: the installed `.claude/skills/<name>/SKILL.md` wins.\n\n## What this is\n\nThe registered skill set for ${project_name}: every recurring action that\nhas a defined, kit-shipped procedure. **Check this index before improvising\na workflow or repo-searching "how do we do X here"** — when a row covers\nthe action, invoke the skill (or read its installed body) instead of\nderiving the procedure from scratch.\n\n## The skills\n\n${skills_index}\n\n## Where the bodies live\n\n- **Installed (live):** `.claude/skills/<name>/SKILL.md` — invoke as\n  `/<name>`.\n- **Staged (regenerated at every adopt/upgrade):** the kit state dir\'s\n  `skills/` tree (default `.substrate/skills/`); install with\n  `python3 bootstrap.py skills --build`.\n- **Precedence:** a skill\'s declared capability **wins over the ambient\n  stance** (an invoked `session-close` may write the session log even under\n  a `review` stance); stances stay advisory for anything a skill has not\n  declared.\n\n## Growing the set\n\nThe skill set is kit-owned (the `SKILLS` list in the kit\'s\n`src/engine/skills/skills.py`) and this index regenerates from it — never\nhand-edit the table. A recurring action without a row here is a candidate\nskill: capture it as an idea (`docs/ideas/README.md`) or propose it\nupstream to the kit, and it reaches every adopter at the next release.\n',
     'ai-project-workflow.md.tmpl': "# ${project_name} — AI project workflow\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. The multi-agent pipeline: how ideas become work\n> and how sessions run. **NOT SOURCE OF TRUTH** — the binding contracts win.\n\n## Idea lifecycle\n\n```\ncaptured -> classified -> planned -> built -> verified\n```\n\nEvery idea ends implemented, planned, in discussion, or explicitly rejected —\nnever orphaned. Backlog + routing: `docs/ideas/README.md`.\n\n## Session workflow\n\n```\norient -> claim -> born-red card -> build -> verify -> close\n```\n\n1. **Orient** — working agreement, current state, task-specific reading route.\n2. **Claim** — declare your lane so parallel sessions don't collide.\n3. **Born-red card** — open the session record first, marked in-progress, so\n   the work is visible while it is still incomplete.\n4. **Build** — the goal, end-to-end.\n5. **Verify** — run `${verify_command}` before shipping.\n6. **Close** — flip the card complete; log the session, groom one idea, hand\n   off.\n\n## Handoff template\n\n(What the next session needs, four lines: state of the work · what is\nverified · what is still open · the first next step.)\n\n## Adoption pace\n\nCurrent substrate-workflow adoption: **${integration_mode}**.\n",
     'architecture.md.tmpl': '# ${project_name} — architecture\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Layering, invariants, and decomposition rules.\n> **NOT SOURCE OF TRUTH** for code — source files always win.\n\n## Layers & import rules\n\n${architecture_layers}\n\n| Layer | May import | Must NOT import |\n|---|---|---|\n| (one row per layer, expanded from the summary above) | | |\n\n## Invariants\n\n(The rules that must survive every refactor — write each one as a testable\nstatement, and name the check that enforces it where one exists.)\n\n## Namespace protection — two mechanisms, both required\n\nTwo separate mechanisms guard the namespace, and they catch different\nfailure classes:\n\n1. **A registry for runtime string identities** — event names, command\n   names, settings keys, and any other string that selects behavior at\n   runtime. Collisions here are invisible to static analysis.\n2. **A static AST pass for Python symbol shadowing** — a later top-level\n   `def` / `class` with the same name silently shadows the earlier one, and\n   no import fails.\n\nNeither mechanism subsumes the other. The registry cannot see symbol\nshadowing; the AST pass cannot see string-keyed dispatch. Do not delete one\nbelieving the other covers it.\n\n## Verifying a change\n\n```\n${verify_command}\n```\n',
-    'collaboration-model.md.tmpl': '# ${project_name} — collaboration model\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How the owner and agents work together. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## The model\n\n- **Goal first.** The owner designs and directs; agents build. Each session\n  achieves its goal end-to-end — not the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting; a\n  prompt is one input, never a command list.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — code, verify, ship —\n  without re-confirming.\n\n## Act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task (that is expected, not scope creep).\n- **Ask** when the change is irreversible (data loss / external publish),\n  large and cross-cutting (architectural), or the goal itself is genuinely\n  ambiguous.\n\n## Routing work to the owner\n\nThe owner is the scarcest resource in the program. An ask reaches the owner\nonly when the agent has **attempted the action itself** or can name the\n**exact wall** (error text, permission denial) proving only the owner can do\nit — assumption-based asks are banned. Every ask uses the OWNER-ACTION\nformat — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED\n(canonical: `control/README.md`) — phrased so a non-technical owner can act\ndirectly: one plain sentence, an exact click path, paste-ready text.\nWithdraw asks that have gone stale; fewer, clearer asks beat complete lists.\n\nEvery owner-facing OUTPUT — not just asks — follows the owner-assist output\nstandard (canonical: `control/README.md` § "Owner-assist output standard"):\nvalues arrive finished and paste-ready, with the exact link to where each\none goes (a full file in one copyable block — never a recipe the owner must\nderive); every manual step carries a risk class (✅ safe / ↩️ reversible /\n⚠️ irreversible); a decision put to the owner is a structured choice —\noptions A/B(/C) with a **bolded recommendation** and a one-line rationale,\nanswerable with one letter — never an ask that requires the owner to\nparse, derive, or transform anything; a large output ships as a control-plane\nrendered link plus a 3-line digest in chat, with full text in one copyable\nblock in chat as the fallback where the plane cannot render the repo yet.\n\n## Friction → guard\n\nAnything that interrupts a session\'s workflow — a stale file, a checker that\nlied, a footgun — is converted into the **cheapest enforcing prevention**\nbefore the session ends: checker / CI / test first, then hook, then written\nrule. Enforce, don\'t exhort.\n\n## Guiding questions\n\nDuring exploratory / brainstorming work, surface the single most useful\nquestion about the owner\'s idea that the agent genuinely cannot derive\nitself — rare and selective, never during routine execution, and only when\nthe answer would actually matter and be actionable. A big or vague idea\nearns a dedicated research pass or its own session before being answered\nfrom memory alone.\n\n## Program law\n\nThis model\'s program-wide form, and the rulings that bind every repo in the\nprogram, live canonically in the substrate-kit repo at\n`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001\ndecide-and-flag, PL-002 never-wait, PL-007 enforce-don\'t-exhort) and\n`docs/program/collaboration-model.md`\n(https://github.com/menno420/substrate-kit/tree/main/docs/program).\n**Cite PL-IDs — never copy ruling bodies into this repo.**\n\n## Drift & staleness\n\n- When a doc and a source file disagree: ${drift_resolution}\n- Staleness review cadence: ${staleness_review}\n',
-    'control-README.md.tmpl': '# Fleet coordination protocol — `control/`\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. Canonical spec: `menno420/superbot` →\n> `docs/planning/fleet-coordination-protocol-2026-07-09.md` (§1). Projects cannot talk to each\n> other directly — committed git files are the only shared medium; this directory is the bus.\n\n## The two files\n\n- `control/inbox.md` — ORDERS to this Project. **One writer: the manager** (appends via the\n  GitHub Contents API). Never edit this file.\n- `control/status.md` — STATE from this Project. **One writer: this Project** (overwrite it each\n  session).\n\n## The one rule that keeps it conflict-free\n\n**One writer per file.** The manager is the sole writer of `inbox.md`; this Project is the sole\nwriter of its own `status.md`. Two writers never touch the same file, so there are no merge\nconflicts. Everything is append-only / overwrite-own — forward-only git.\n\n## Multi-Project repos — per-lane heartbeats (optional extension)\n\nA SHARED repo can host several Projects ("lanes" — e.g. a mining lane and an exploration lane\ncohabiting one game repo). The one-writer rule scales by **splitting the heartbeat, never by\nsharing it**:\n\n- **One status file per lane** — `control/status-<lane>.md` (e.g. `control/status-mining.md` +\n  `control/status-exploration.md`). Each lane is the sole writer of its own file and overwrites\n  it as its session\'s deliberate LAST step; no lane ever edits another lane\'s heartbeat.\n- **`control/inbox.md` stays single** — the manager remains its one writer; a lane-specific\n  order names its lane in `do:`.\n- **Declare every lane heartbeat to the kit** — `substrate.config.json` →\n  `"heartbeat_files": ["control/status-mining.md", "control/status-exploration.md"]` (default\n  when unset: `["control/status.md"]`). The status checker then gates each listed file\n  independently (missing / heartbeat-less lane = strict RED; per-lane staleness warns), and the\n  Stop hook\'s overwrite reminder clears when any lane\'s heartbeat is fresh (it cannot know which\n  lane a session belongs to). An empty list falls back to the default — misconfiguration never\n  silently disables the gate.\n- **One command, not hand-edits** — a Project joining a SHARED repo runs\n  `bootstrap adopt --lane <name>`: it plants `control/status-<name>.md` (skip-if-exists),\n  declares it in `heartbeat_files`, and leaves `inbox.md`/`README.md` single — a second lane\n  never re-plants the first Project\'s files (the double-adoption fix).\n\n## Per-session ritual (every session, and every routine wake)\n\n- **FIRST:** git pull (a stale clone reads stale orders); read `control/inbox.md`; execute any\n  order whose status is `new`, in priority order (P0 before P1) — **claim it first** (see\n  "Claiming an order" below). An order\'s `do:` is a pointer to\n  a committed doc — read it. If an order is ambiguous or you disagree, do NOT guess: write it in\n  your status under `⚑ needs-owner` and proceed with the rest.\n- **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current\n  phase, health (green / red-by-design+why / broken+what), last-shipped PR, blockers, orders\n  acked/done, `⚑ needs-owner`. You report order progress ONLY here; never edit `inbox.md`\n  (the manager owns it — one writer per file).\n\nThe kit enforces this loop: `check` flags a missing or heartbeat-less `status.md`\n(strict = red), warns when the heartbeat goes stale, and the Stop hook reminds you when\n`status.md` was not overwritten this session.\n\n## Claiming an order — one executor per order (claim FIRST, build second)\n\nAn order\'s `status: new` is visible to every session that wakes, so two readers can both\nbelieve they are its executor — a realized failure, not a theoretical one (substrate-kit\nPRs #50/#51: two lanes independently executed the same ORDER 005 the same day, and a whole\nsession\'s work had to be reconciled as twins). The manager only flips `new→done` after\nseeing the status report; the claim covers the gap in between.\n\nBefore executing any `new` order:\n\n1. **Re-read the bus at origin/main HEAD** — `control/inbox.md` AND every sibling status\n   file (`control/status*.md`). If another lane\'s status already claims the order\n   (`claimed-by:` naming its id) or reports it in `done=`, stand down and pick other work.\n2. **Claim FIRST, on your own status file\'s orders line** — append\n   `claimed-by: <order-ids> <lane-or-session> <ISO8601>` — and land it on **main** BEFORE\n   any build work (a control-only fast-lane PR, or a direct commit where your rules allow\n   one). A claim that exists only on a branch is invisible; only main counts.\n3. **Re-read once more after the claim merges** — two claims can race in flight; the\n   tiebreak is the earliest claim merged to main. The loser withdraws its claim line in\n   its next status overwrite and stands down.\n4. **Claims expire** — a claim with no visible build activity (no open PR, no fresh\n   heartbeat referencing the order) after ~24h may be treated as abandoned and re-claimed;\n   note the takeover in your status `notes:`. A dead lane must never deadlock an order.\n\nWith an active claim the `orders:` line reads e.g.:\n`orders: acked=001-008 done=001-006 claimed-by: 007+008 coordinator-lane 2026-07-09T18:38Z`\n— the executor drops the `claimed-by:` annotation in the overwrite that moves those ids\ninto `done=`. One writer per file is preserved: you only ever claim on your OWN status.\n(Shipped by inbox ORDER 007 — the root-cause fix for the twin-execution failure; the\nritual was live-proven manually on this repo\'s own orders before graduating here.)\n\n## Claiming work (not an ORDER) — one file per claim under `control/claims/`\n\nOrder claims cover the inbox; **work claims** cover everything else two\nparallel sessions could both pick up — a coordinator-assigned slice, a\nself-initiated build, a shared-surface change. Before starting such work,\ncreate **one file per claim** — `control/claims/<branch-or-scope>.md`, a\nsingle bullet `` - `branch-or-scope` · **scope** — detail · YYYY-MM-DD `` —\nland it on main FAST (claims are `control/**` traffic and ride the CI fast\nlane), re-read the directory at HEAD, build, then **delete the file at\nsession close**. Per-file is the measured winner over any shared list (~98%\nmerge-conflict rate for shared-append vs 0% per-file — superbot\n`tools/sim/claim_layout_sim.py`); first claim merged to main wins a\ncollision; ~72h with no activity = abandoned, prune on sight. Full\nconvention + checker contract: `control/claims/README.md`. (`check` nags —\nadvisory-only — on unparseable, stale, duplicate, or legacy-located claims;\nlegacy homes `docs/owner/claims/` and root `claims/` are auto-detected\nduring the migration window, and a deliberate different home is pinned via\n`substrate.config.json` → `claims_dir`.)\n\n## `status.md` format (what you write every session — your heartbeat)\n\n```markdown\n# <project> · status\nupdated: <ISO8601>            # heartbeat — stale = the manager treats the Project as dark\nphase: <what I\'m doing right now, one line>\nhealth: green | red-by-design (<why>) | broken (<what>)\nkit: v<X.Y.Z> · check: green|red · engaged: yes|no   # kit self-report — see below\nlast-shipped: #<PR> — <one line>\nblockers: <what\'s stopping me, or `none`>\norders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]\n⚑ needs-owner: <a decision/action only the owner can give, or `none`>\nnotes: <anything the manager should know>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\nThe `kit:` line is the **substrate-coordinator visibility** channel (kit-lab reads it via the\nmanager relay — zero write access to this repo): `v<X.Y.Z>` = the vendored kit version this\nrepo actually runs (update it in the same session as every `bootstrap upgrade`); `check:` =\nthe latest `check --strict` verdict on this tree; `engaged:` = the post-adopt engagement gate\n(`yes` once no UNRENDERED banner/slot remains, live CI runs the gate, and the session loop\nhas engaged).\n\n## ⚑ needs-owner — the OWNER-ACTION item format (quality contract)\n\nThe owner is the scarcest resource in the program: every ask routed to the owner costs\nattention, and an unclear or unnecessary ask stalls your own lane on top of burning his.\n**Before routing ANYTHING to the owner, try it yourself or cite the exact wall** — an\nassumption-based ask ("agents probably can\'t do X") is banned; the bar is the capability\nledger (`docs/CAPABILITIES.md`) plus one real attempt with the captured error.\n\nEvery ⚑ needs-owner item carries ALL of these REQUIRED fields — inline on the item, or as a\nstructured block the item links to:\n\n```markdown\n⚑ OWNER-ACTION\nWHAT: <one plain sentence, zero jargon — the thing the owner does>\nWHERE: <exact click path or URL>\nHOW: <paste-ready text/values where applicable, or "click only">\nRISK: <one class per manual step — ✅ safe / read-only · ↩️ reversible (say how to undo) · ⚠️ irreversible / destructive>\nWHY-IT-MATTERS: <one sentence, in product terms>\nUNBLOCKS: <what starts moving the moment it\'s done>\nVERIFIED-NEEDED: <the attempt you made + the exact error/wall proving only the owner can do\nthis — never an assumption>\n```\n\nHygiene: **expire or withdraw stale asks every session** (an answered or obsolete ask left in\nthe list is drift), and **fewer, clearer asks beat complete lists**. `check` warns — advisory,\nnever exit-affecting — when a non-`none` ⚑ needs-owner list lacks these fields.\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## Owner-assist output standard — every owner-facing output, not just asks\n\nThe OWNER-ACTION block above covers the *needs-owner ask*; this standard\ncovers ALL output routed to the owner — reports, questions, values to paste,\nlinks. The contract in one line: **the owner never derives anything** — an\noutput that requires the owner to parse, derive, or transform anything is a\ndrafting defect, not an owner task.\n\n1. **Paste-ready, finished values.** Every value the owner must enter is\n   computed and printed final — `NAME=value`, the full command, the full\n   file body — never a recipe for deriving it. When the owner must paste\n   something, give the exact link to where it goes; a full file goes in ONE\n   copyable fenced block, directly in chat.\n2. **Exact destination, always.** Every action names its exact destination:\n   a deep URL, a console path to the exact field (surface → section →\n   field, e.g. `Railway → project → service → Variables`), or a repo path +\n   line. Never a bare "go to settings" — `check` nags that class (advisory).\n3. **Risk class on every manual step:** ✅ safe / read-only · ↩️ reversible\n   (say how to undo) · ⚠️ irreversible / destructive. One class per step,\n   stated on the step (the `RISK:` line in an OWNER-ACTION block).\n4. **Structured choices, recommendation first.** A decision put to the\n   owner is options A/B(/C) with a **bolded recommendation** and a one-line\n   rationale, answerable with one letter — never an ask that requires the\n   owner to parse, derive, or transform anything.\n5. **Large outputs: digest + rendered link, never a wall of text.** Default\n   delivery is a control-plane rendered link plus a 3-line digest in chat;\n   the fallback — full text in one copyable block directly in chat — applies\n   where the control plane cannot render the repo yet. Link rules: deep-link\n   the exact file, never the repo root; the rendered view for things the\n   owner should *read*, the GitHub blob URL for things the owner should\n   *edit*; post-merge, link `ref=main`; the control-plane render cache is\n   180 s — append `&refresh=1` when the owner must see a just-pushed change.\n\nWorked example — digest + rendered deep link + a six-field ask carrying its\nrisk class (every rule above in one output):\n\n```\n📄 Adopter-outcomes report — shipped (PR #247, merged b862e9a)\n\nDigest: before/after adoption is unmeasurable (9/10 adopters born <20h\nbefore their kit-install PR); false-claim audit near-clean (1 confirmed,\nself-corrected in 6 min); post-adoption time-to-ship baselines recorded.\n\nFull report (rendered, phone-readable):\nhttps://control-plane-production-abb0.up.railway.app/journal/substrate-kit/file?path=docs/reports/2026-07-11-adopter-outcomes-measurement.md\n\n⚑ OWNER-ACTION — set GITHUB_TOKEN on the control-plane service\nWHAT: paste one variable into Railway so private-repo pages stop degrading.\nWHERE: railway.app → project `websites` → service `control-plane` →\n       Variables → New Variable.\nHOW (paste-ready): name `GITHUB_TOKEN`, value = the fine-grained PAT you\n       created for the fleet\'s repos (contents: read). One paste, Save.\nRISK: ↩️ reversible — delete the variable to undo.\nWHY-IT-MATTERS: private-repo renders show "not-configured" banners until\n       this is set.\nUNBLOCKS: rendered file links + queue items for private repos.\nVERIFIED-NEEDED: attempted 2026-07-11 — raw fetch of a private path\n       returns 404 without a token (token-on-raw also verified NOT to\n       work, so the API fallback is the only private path).\n```\n\nGrammar source of truth: the risk-class tokens, the structured-choice phrases, and the vague-destination scan of this standard are kit-owned constants in the kit\'s `src/engine/grammar.py` — the SAME module the `check` enforcers AND the `/intake` skill pins consume, so writer, skill, and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_owner_assist.py`.\n\n## `inbox.md` order format (manager-written, append-only)\n\n```markdown\n## ORDER <nnn> · <ISO8601> · status: new     # manager flips new→done after seeing status done=\npriority: P0 | P1 | P2\ndo: <pointer to a committed doc/section + the ask, kept short>\nwhy: <one line>\ndone-when: <acceptance test>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## CI + auto-merge notes (learned live, 2026-07-09)\n\n- **Heartbeat commits ride a fast lane, not a `paths-ignore`.** A control-only diff (only\n  `control/**` files changed) must still *report* every required status check, or GitHub treats\n  the missing contexts as pending and auto-merge jams forever. The kit\'s planted\n  `substrate-gate.yml` therefore short-circuits GREEN inside the job on control-only diffs\n  instead of skipping the workflow — copy that pattern (an in-job early exit) into any other\n  heavy suite rather than adding `paths-ignore: [control/**]` to a workflow whose check is\n  required.\n- **API-authored PRs may not trigger CI.** A PR created purely through an app/integration token\n  (e.g. the GitHub Contents API + a REST PR create) can sit with **zero check runs** — required\n  checks then never report and the PR cannot auto-merge. The manager\'s canonical write path is\n  therefore a **direct Contents-API commit to the default branch of `inbox.md`** (it is the sole\n  writer, so no PR is needed). When this Project ships control changes by PR, push the branch\n  over git (a real `git push` triggers `pull_request`/`push` events) before or after creating\n  the PR, and verify the PR shows check runs before relying on auto-merge.\n',
+    'collaboration-model.md.tmpl': "# ${project_name} — collaboration model\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. How the owner and agents work together. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## The model\n\n- **Goal first.** The owner designs and directs; agents build. Each session\n  achieves its goal end-to-end — not the smallest safe slice.\n- **Session prompts are guidance, not orders.** Weigh every prompt (and every\n  cross-agent report) against source and the binding docs before acting; a\n  prompt is one input, never a command list.\n- **Approved plan = execute.** Once a plan is approved, finish it in the same\n  session, with the planning context still loaded — code, verify, ship —\n  without re-confirming.\n\n## Act vs. ask\n\n- **Act** on contained, reversible, verifiable changes — including a\n  root-cause fix discovered mid-task (that is expected, not scope creep).\n- **Ask** when the change is irreversible (data loss / external publish),\n  large and cross-cutting (architectural), or the goal itself is genuinely\n  ambiguous.\n\n## Routing work to the owner\n\nThe owner is the scarcest resource in the program. An ask reaches the owner\nonly when the agent has **attempted the action itself** or can name the\n**exact wall** (error text, permission denial) proving only the owner can do\nit — assumption-based asks are banned. Every ask uses the OWNER-ACTION\nformat — WHAT / WHERE / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED\n(canonical: `control/README.md`) — phrased so a non-technical owner can act\ndirectly: one plain sentence, an exact click path, paste-ready text.\nWithdraw asks that have gone stale; fewer, clearer asks beat complete lists.\n\n## Friction → guard\n\nAnything that interrupts a session's workflow — a stale file, a checker that\nlied, a footgun — is converted into the **cheapest enforcing prevention**\nbefore the session ends: checker / CI / test first, then hook, then written\nrule. Enforce, don't exhort.\n\n## Guiding questions\n\nDuring exploratory / brainstorming work, surface the single most useful\nquestion about the owner's idea that the agent genuinely cannot derive\nitself — rare and selective, never during routine execution, and only when\nthe answer would actually matter and be actionable. A big or vague idea\nearns a dedicated research pass or its own session before being answered\nfrom memory alone.\n\n## Program law\n\nThis model's program-wide form, and the rulings that bind every repo in the\nprogram, live canonically in the substrate-kit repo at\n`docs/program/rulings.md` (the [PL-NNN] register — e.g. PL-001\ndecide-and-flag, PL-002 never-wait, PL-007 enforce-don't-exhort) and\n`docs/program/collaboration-model.md`\n(https://github.com/menno420/substrate-kit/tree/main/docs/program).\n**Cite PL-IDs — never copy ruling bodies into this repo.**\n\n## Drift & staleness\n\n- When a doc and a source file disagree: ${drift_resolution}\n- Staleness review cadence: ${staleness_review}\n",
+    'control-README.md.tmpl': '# Fleet coordination protocol — `control/`\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. Canonical spec: `menno420/superbot` →\n> `docs/planning/fleet-coordination-protocol-2026-07-09.md` (§1). Projects cannot talk to each\n> other directly — committed git files are the only shared medium; this directory is the bus.\n\n## The two files\n\n- `control/inbox.md` — ORDERS to this Project. **One writer: the manager** (appends via the\n  GitHub Contents API). Never edit this file.\n- `control/status.md` — STATE from this Project. **One writer: this Project** (overwrite it each\n  session).\n\n## The one rule that keeps it conflict-free\n\n**One writer per file.** The manager is the sole writer of `inbox.md`; this Project is the sole\nwriter of its own `status.md`. Two writers never touch the same file, so there are no merge\nconflicts. Everything is append-only / overwrite-own — forward-only git.\n\n## Multi-Project repos — per-lane heartbeats (optional extension)\n\nA SHARED repo can host several Projects ("lanes" — e.g. a mining lane and an exploration lane\ncohabiting one game repo). The one-writer rule scales by **splitting the heartbeat, never by\nsharing it**:\n\n- **One status file per lane** — `control/status-<lane>.md` (e.g. `control/status-mining.md` +\n  `control/status-exploration.md`). Each lane is the sole writer of its own file and overwrites\n  it as its session\'s deliberate LAST step; no lane ever edits another lane\'s heartbeat.\n- **`control/inbox.md` stays single** — the manager remains its one writer; a lane-specific\n  order names its lane in `do:`.\n- **Declare every lane heartbeat to the kit** — `substrate.config.json` →\n  `"heartbeat_files": ["control/status-mining.md", "control/status-exploration.md"]` (default\n  when unset: `["control/status.md"]`). The status checker then gates each listed file\n  independently (missing / heartbeat-less lane = strict RED; per-lane staleness warns), and the\n  Stop hook\'s overwrite reminder clears when any lane\'s heartbeat is fresh (it cannot know which\n  lane a session belongs to). An empty list falls back to the default — misconfiguration never\n  silently disables the gate.\n- **One command, not hand-edits** — a Project joining a SHARED repo runs\n  `bootstrap adopt --lane <name>`: it plants `control/status-<name>.md` (skip-if-exists),\n  declares it in `heartbeat_files`, and leaves `inbox.md`/`README.md` single — a second lane\n  never re-plants the first Project\'s files (the double-adoption fix).\n\n## Per-session ritual (every session, and every routine wake)\n\n- **FIRST:** git pull (a stale clone reads stale orders); read `control/inbox.md`; execute any\n  order whose status is `new`, in priority order (P0 before P1) — **claim it first** (see\n  "Claiming an order" below). An order\'s `do:` is a pointer to\n  a committed doc — read it. If an order is ambiguous or you disagree, do NOT guess: write it in\n  your status under `⚑ needs-owner` and proceed with the rest.\n- **LAST (deliberate final step):** overwrite `control/status.md` — updated timestamp, current\n  phase, health (green / red-by-design+why / broken+what), last-shipped PR, blockers, orders\n  acked/done, `⚑ needs-owner`. You report order progress ONLY here; never edit `inbox.md`\n  (the manager owns it — one writer per file).\n\nThe kit enforces this loop: `check` flags a missing or heartbeat-less `status.md`\n(strict = red), warns when the heartbeat goes stale, and the Stop hook reminds you when\n`status.md` was not overwritten this session.\n\n## Claiming an order — one executor per order (claim FIRST, build second)\n\nAn order\'s `status: new` is visible to every session that wakes, so two readers can both\nbelieve they are its executor — a realized failure, not a theoretical one (substrate-kit\nPRs #50/#51: two lanes independently executed the same ORDER 005 the same day, and a whole\nsession\'s work had to be reconciled as twins). The manager only flips `new→done` after\nseeing the status report; the claim covers the gap in between.\n\nBefore executing any `new` order:\n\n1. **Re-read the bus at origin/main HEAD** — `control/inbox.md` AND every sibling status\n   file (`control/status*.md`). If another lane\'s status already claims the order\n   (`claimed-by:` naming its id) or reports it in `done=`, stand down and pick other work.\n2. **Claim FIRST, on your own status file\'s orders line** — append\n   `claimed-by: <order-ids> <lane-or-session> <ISO8601>` — and land it on **main** BEFORE\n   any build work (a control-only fast-lane PR, or a direct commit where your rules allow\n   one). A claim that exists only on a branch is invisible; only main counts.\n3. **Re-read once more after the claim merges** — two claims can race in flight; the\n   tiebreak is the earliest claim merged to main. The loser withdraws its claim line in\n   its next status overwrite and stands down.\n4. **Claims expire** — a claim with no visible build activity (no open PR, no fresh\n   heartbeat referencing the order) after ~24h may be treated as abandoned and re-claimed;\n   note the takeover in your status `notes:`. A dead lane must never deadlock an order.\n\nWith an active claim the `orders:` line reads e.g.:\n`orders: acked=001-008 done=001-006 claimed-by: 007+008 coordinator-lane 2026-07-09T18:38Z`\n— the executor drops the `claimed-by:` annotation in the overwrite that moves those ids\ninto `done=`. One writer per file is preserved: you only ever claim on your OWN status.\n(Shipped by inbox ORDER 007 — the root-cause fix for the twin-execution failure; the\nritual was live-proven manually on this repo\'s own orders before graduating here.)\n\n## Claiming work (not an ORDER) — one file per claim under `control/claims/`\n\nOrder claims cover the inbox; **work claims** cover everything else two\nparallel sessions could both pick up — a coordinator-assigned slice, a\nself-initiated build, a shared-surface change. Before starting such work,\ncreate **one file per claim** — `control/claims/<branch-or-scope>.md`, a\nsingle bullet `` - `branch-or-scope` · **scope** — detail · YYYY-MM-DD `` —\nland it on main FAST (claims are `control/**` traffic and ride the CI fast\nlane), re-read the directory at HEAD, build, then **delete the file at\nsession close**. Per-file is the measured winner over any shared list (~98%\nmerge-conflict rate for shared-append vs 0% per-file — superbot\n`tools/sim/claim_layout_sim.py`); first claim merged to main wins a\ncollision; ~72h with no activity = abandoned, prune on sight. Full\nconvention + checker contract: `control/claims/README.md`. (`check` nags —\nadvisory-only — on unparseable, stale, duplicate, or legacy-located claims;\nlegacy homes `docs/owner/claims/` and root `claims/` are auto-detected\nduring the migration window, and a deliberate different home is pinned via\n`substrate.config.json` → `claims_dir`.)\n\n## `status.md` format (what you write every session — your heartbeat)\n\n```markdown\n# <project> · status\nupdated: <ISO8601>            # heartbeat — stale = the manager treats the Project as dark\nphase: <what I\'m doing right now, one line>\nhealth: green | red-by-design (<why>) | broken (<what>)\nkit: v<X.Y.Z> · check: green|red · engaged: yes|no   # kit self-report — see below\nlast-shipped: #<PR> — <one line>\nblockers: <what\'s stopping me, or `none`>\norders: acked=<ids> done=<ids> [claimed-by: <ids> <lane-or-session> <ISO8601>]\n⚑ needs-owner: <a decision/action only the owner can give, or `none`>\nnotes: <anything the manager should know>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\nThe `kit:` line is the **substrate-coordinator visibility** channel (kit-lab reads it via the\nmanager relay — zero write access to this repo): `v<X.Y.Z>` = the vendored kit version this\nrepo actually runs (update it in the same session as every `bootstrap upgrade`); `check:` =\nthe latest `check --strict` verdict on this tree; `engaged:` = the post-adopt engagement gate\n(`yes` once no UNRENDERED banner/slot remains, live CI runs the gate, and the session loop\nhas engaged).\n\n## ⚑ needs-owner — the OWNER-ACTION item format (quality contract)\n\nThe owner is the scarcest resource in the program: every ask routed to the owner costs\nattention, and an unclear or unnecessary ask stalls your own lane on top of burning his.\n**Before routing ANYTHING to the owner, try it yourself or cite the exact wall** — an\nassumption-based ask ("agents probably can\'t do X") is banned; the bar is the capability\nledger (`docs/CAPABILITIES.md`) plus one real attempt with the captured error.\n\nEvery ⚑ needs-owner item carries ALL of these REQUIRED fields — inline on the item, or as a\nstructured block the item links to:\n\n```markdown\n⚑ OWNER-ACTION\nWHAT: <one plain sentence, zero jargon — the thing the owner does>\nWHERE: <exact click path or URL>\nHOW: <paste-ready text/values where applicable, or "click only">\nWHY-IT-MATTERS: <one sentence, in product terms>\nUNBLOCKS: <what starts moving the moment it\'s done>\nVERIFIED-NEEDED: <the attempt you made + the exact error/wall proving only the owner can do\nthis — never an assumption>\n```\n\nHygiene: **expire or withdraw stale asks every session** (an answered or obsolete ask left in\nthe list is drift), and **fewer, clearer asks beat complete lists**. `check` warns — advisory,\nnever exit-affecting — when a non-`none` ⚑ needs-owner list lacks these fields.\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## `inbox.md` order format (manager-written, append-only)\n\n```markdown\n## ORDER <nnn> · <ISO8601> · status: new     # manager flips new→done after seeing status done=\npriority: P0 | P1 | P2\ndo: <pointer to a committed doc/section + the ask, kept short>\nwhy: <one line>\ndone-when: <acceptance test>\n```\n\nGrammar source of truth: the tokens, field lists, and regexes of this format are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module the `check` enforcers consume, so writer and enforcer cannot drift; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n\n## CI + auto-merge notes (learned live, 2026-07-09)\n\n- **Heartbeat commits ride a fast lane, not a `paths-ignore`.** A control-only diff (only\n  `control/**` files changed) must still *report* every required status check, or GitHub treats\n  the missing contexts as pending and auto-merge jams forever. The kit\'s planted\n  `substrate-gate.yml` therefore short-circuits GREEN inside the job on control-only diffs\n  instead of skipping the workflow — copy that pattern (an in-job early exit) into any other\n  heavy suite rather than adding `paths-ignore: [control/**]` to a workflow whose check is\n  required.\n- **API-authored PRs may not trigger CI.** A PR created purely through an app/integration token\n  (e.g. the GitHub Contents API + a REST PR create) can sit with **zero check runs** — required\n  checks then never report and the PR cannot auto-merge. The manager\'s canonical write path is\n  therefore a **direct Contents-API commit to the default branch of `inbox.md`** (it is the sole\n  writer, so no PR is needed). When this Project ships control changes by PR, push the branch\n  over git (a real `git push` triggers `pull_request`/`push` events) before or after creating\n  the PR, and verify the PR shows check runs before relying on auto-merge.\n',
     'control-claims-README.md.tmpl': '# `control/claims/` — claim before build, one file per claim\n\n> **Status:** `binding`\n>\n> Local copy for ${project_name}. The kit-owned work-claim convention\n> (EAP program review 2026-07-10 §6.4 — the fleet\'s forked claim mechanisms\n> unified on the measured winner). Order claims are different and stay on\n> your heartbeat — see `control/README.md` § "Claiming an order".\n\n## What this is\n\nA lightweight **claim ledger** so parallel agent sessions don\'t duplicate each\nother\'s work. Several sessions can run at once; two of them picking up the\nsame task is pure waste. This directory makes "is someone already on this?"\nanswerable **before a PR exists** — the claim is the early in-flight signal,\nthe PR is the late one.\n\n## Why one file per claim (measured, not vibes)\n\nA shared "active work" list that every session appends to and prunes is a\nmerge-conflict machine: a real-`git merge` simulation\n(menno420/superbot `tools/sim/claim_layout_sim.py`) measured the shared-append\npattern at a **~98% conflict rate** under concurrent sessions; splitting by\nsector only halved it. **One file per claim is structurally conflict-free —\n0% at every concurrency level** — because two sessions never touch the same\nfile. The rule that preserves that 0%: **no hand-edited shared index**.\nDiscover claims with `ls control/claims/` — this README never lists them.\n\n## How to use it\n\n1. **Before starting work**, scan this directory AND the open PRs. If your\n   task is already claimed or in flight, coordinate or pick something else.\n2. **Create one claim file** — `control/claims/<branch-or-scope>.md` — with a\n   single bullet:\n   `` - `branch-or-scope` · **scope** — one-line detail · expected files/area · YYYY-MM-DD ``\n   (Keep the backticks around the branch/scope token and the ISO date — the\n   `check_claims` checker parses both; an unparseable claim is invisible to\n   its duplicate scan.)\n   Grammar source of truth: the bullet\'s regexes (backticked token + ISO date) are kit-owned constants in the kit\'s `src/engine/grammar.py` (EAP §6.8) — the SAME module `check_claims` consumes; agreement is pinned by the kit\'s `tests/test_grammar.py`.\n3. **Land the claim on main FAST** (claims are `control/**` traffic — they\n   ride the CI control fast lane), then re-read this directory at HEAD before\n   you build: if both lanes do this, the second claimer always sees the first.\n4. **Delete your own claim file at session close.** The durable record is the\n   PR and the living ledger — a claim is a whiteboard note, not an audit\n   trail.\n\n## Arbitration + expiry\n\n- **First claim merged to main wins** a collision — a deterministic tiebreak\n  beats re-litigating every race; the loser deletes its file and stands down.\n- **Claims expire**: a claim file older than ~72h with no visible build\n  activity may be treated as abandoned — prune it on sight (the checker nags\n  with `claims-stale`).\n\n## What the checker enforces (all advisory, never exit-affecting)\n\n`check` warns on: `claims-format` (no parseable bullet), `claims-stale`\n(older than the ~72h horizon), `claims-duplicate` (two files, one\nbranch/scope token), and `claims-legacy-location` (claims living in a\npre-unification home — `docs/owner/claims/` or root `claims/`; move them\nhere, or pin your deliberate location via `substrate.config.json` →\n`claims_dir`).\n\n## Not for inbox ORDERS\n\nAn inbox ORDER is claimed on your OWN heartbeat\'s `orders:` line\n(`claimed-by: <ids> <lane> <ISO8601>` — `control/README.md` § "Claiming an\norder"), never here: the heartbeat annotation preserves one-writer-per-file\nfor the order lifecycle the manager reconciles. This directory is for\n**work** — coordinator-assigned slices, self-initiated builds, anything that\nisn\'t an ORDER id.\n',
     'control-inbox.md.tmpl': '# ${project_name} · inbox\n\n> ORDERS to this Project. **ONE writer: the manager** — never edit this file. Report order\n> progress in `control/status.md` (`orders: acked=… done=…`). Protocol: `control/README.md`.\n\n*(no orders yet — the manager appends `## ORDER 001 · <ISO8601> · status: new` blocks here)*\n',
     'control-status.md.tmpl': '# ${project_name} · status\nupdated: (seeded at adopt — no real heartbeat yet: overwrite this whole file at your first session close)\nphase: adopted — first session not yet run\nhealth: green\nkit: v${kit_version} · check: red · engaged: no\nlast-shipped: none\nblockers: none\norders: acked= done=\n⚑ needs-owner: none\nnotes: seeded skeleton planted by substrate-kit adopt. This Project is the SOLE writer of this\nfile — overwrite it (never append) as the deliberate LAST step of every session, per\n`control/README.md`. `check` holds strict RED until the first real heartbeat replaces this seed.\nThe `kit:` line is your kit self-report (substrate-coordinator visibility): keep the version in\nsync with your vendored kit on every upgrade, `check:` = your last `check --strict` verdict,\n`engaged:` = the post-adopt engagement gate (yes once `check` reports ENGAGED/green live CI).\n',
@@ -16973,7 +16200,7 @@ _TEMPLATES = {
     'ideas-README.md.tmpl': '# ${project_name} — idea backlog & lifecycle\n\n> **Status:** `ideas`\n>\n> Generated by substrate-kit. Capture ideas here so they live in the repo, not in\n> chat. Nothing here is approved until it graduates. A **conveyor, not a graveyard**:\n> every idea ends implemented, on a roadmap, in discussion, or explicitly rejected.\n\n## Lifecycle\n\n```\n(1) INTAKE   capture the idea (raw -> captured)\n(2) MAP      name the owning area, rough size, rough risk\n(3) ROUTE    -> quick-win | structured plan | discuss-first (question router)\n(4) GROOM    pull one routable idea forward each session\n(5) OUTCOME  implemented | on a roadmap | in discussion | rejected\n```\n\n## Frontmatter — the idea-outcome record\n\nEvery idea file in this directory (README excepted) opens with a flat\nYAML-subset frontmatter block — the machine-readable outcome record\n("ideas that ship and survive"), so a sweep can score the backlog without\nparsing prose:\n\n```\n---\nstate: captured | routed | promoted | historical\norigin: lab | owner | consumer:<owner>/<repo>\nshipped_pr: null | <PR number in shipped_repo>\nshipped_repo: null | <owner>/<repo>\nmerged_date: null | YYYY-MM-DD\noutcome: open | shipped | survived | reverted | rejected\n---\n```\n\nConventions: `shipped`/`survived`/`reverted` require all three ship fields;\n`open`/`rejected` keep them null; `survived` means the merge is ≥ 30 days old\nwith no revert; name files `<slug>-YYYY-MM-DD.md` (the generation-date cohort\nkey) and link every file from this README. The prose keeps the story, the\nfrontmatter keeps the score.\n\n## Backlog\n\n(Captured ideas, each with a state and a next destination — none left at `raw`.)\n',
     'owner-profile.md.tmpl': "# ${project_name} — owner working profile\n\n> **Status:** `owner-guidance`\n>\n> Generated by substrate-kit. Captures the owner's **working style** so\n> agents collaborate well — never personal data. The person is not shipped\n> with the kit.\n\n## How the owner works\n\n${owner_profile}\n\n## Review ritual\n\n${review_ritual}\n\n## Privacy note\n\nThis doc records working style only: communication preferences, review\ncadence, decision boundaries, autonomy expectations. No contact details, no\npersonal history, nothing that identifies the person beyond their role on\n${project_name}. When in doubt, leave it out.\n",
     'ownership.md.tmpl': "# ${project_name} — ownership\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Which area / service / pipeline owns each\n> table, event, and write path. **NOT SOURCE OF TRUTH** for code — source\n> files always win.\n\n> **Steady state:** this doc's table is **generated** from store / manifest\n> specs where those exist — a projection, not hand-prose. This skeleton is\n> the interim hand-maintained form until that projection lands.\n\n## Ownership model\n\n${ownership_model}\n\n## Ownership table\n\n| Area | Owner (module / service) | Writes it owns | Notes |\n|---|---|---|---|\n| (one row per owned area) | | | |\n\n## New areas\n\n${new_area_ownership}\n",
-    'question-router.md.tmpl': '# ${project_name} — maintainer question router\n\n> **Status:** `owner-guidance`\n>\n> Generated by substrate-kit. Append-only `## Q-NNNN` blocks capture owner-intent\n> decisions and open questions. The interview writes here; confirmed answers route\n> into the durable docs. **Append only** (next free Q-number) — never rewrite history.\n> Any session may append a block, not only the interview — including an unattended\n> run that hits a genuinely useful, non-derivable question with no live owner to ask.\n\n## Block format\n\n```\n## Q-0001\n- **Area / Type / Priority / Status:** ...\n- **Question:** ...\n- **Why agents need this:** ...\n- **Options:** ...\n- **Safe default:** ...\n- **Maintainer answer:** (verbatim)\n- **Routing result:** (which doc / slot the answer landed in)\n```\n\nOptions are structured choices — A/B(/C) with a **bolded recommendation**\nand a one-line rationale, answerable with one letter; never a question that\nrequires the owner to parse, derive, or transform anything (the owner-assist\noutput standard, `control/README.md`).\n\n## Open questions\n\n(Unanswered Q-blocks live here until the maintainer decides; a blocking one gates\ngraduation.)\n',
+    'question-router.md.tmpl': '# ${project_name} — maintainer question router\n\n> **Status:** `owner-guidance`\n>\n> Generated by substrate-kit. Append-only `## Q-NNNN` blocks capture owner-intent\n> decisions and open questions. The interview writes here; confirmed answers route\n> into the durable docs. **Append only** (next free Q-number) — never rewrite history.\n> Any session may append a block, not only the interview — including an unattended\n> run that hits a genuinely useful, non-derivable question with no live owner to ask.\n\n## Block format\n\n```\n## Q-0001\n- **Area / Type / Priority / Status:** ...\n- **Question:** ...\n- **Why agents need this:** ...\n- **Options:** ...\n- **Safe default:** ...\n- **Maintainer answer:** (verbatim)\n- **Routing result:** (which doc / slot the answer landed in)\n```\n\n## Open questions\n\n(Unanswered Q-blocks live here until the maintainer decides; a blocking one gates\ngraduation.)\n',
     'repo-navigation-map.md.tmpl': '# ${project_name} — repo navigation map\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. Where things live; where new code goes. **NOT\n> SOURCE OF TRUTH** — the tree itself wins.\n\n## Where things live\n\n| Path | What lives there | New code goes here when… |\n|---|---|---|\n| (one row per top-level area) | | |\n\n## Documentation roots\n\n${doc_roots}\n\n## Placement rule of thumb\n\nBefore creating a new file, find the row above that matches it; if no row\nmatches, the map is stale — extend the table in the same change.\n',
     'runtime_contracts.md.tmpl': '# ${project_name} — runtime contracts\n\n> **Status:** `binding`\n>\n> Generated by substrate-kit. Lifecycle guarantees and failure modes. **NOT\n> SOURCE OF TRUTH** for code — source files always win.\n\n## Lifecycle guarantees\n\n### Startup\n\n(What is guaranteed initialized before work begins, and in what order.)\n\n### Steady state\n\n(The invariants that hold while the system is running — connection health,\nqueue bounds, cache coherence.)\n\n### Shutdown\n\n(What is flushed / persisted / cancelled on the way down, and in what order.)\n\n## Mutation seam\n\n${mutation_seam}\n\n## Failure modes\n\n(For each subsystem: what failing looks like from the outside, the blast\nradius, and the recovery step. One subsection per subsystem.)\n',
     'session-journal.md.tmpl': "# ${project_name} — session journal (process memory)\n\n> **Status:** `reference`\n>\n> Generated by substrate-kit. Cross-session working memory — a **guidebook, not a\n> log**. Per-session logs live in `.sessions/<date>-<slug>.md` (newest first);\n> older history archives out. Keep THIS file lean.\n\n## ⚡ Quick reference\n\n(Boot / run-checks / common-recovery commands for ${project_name}.)\n\n## Environment & boot runbook\n\n(How to bring a working dev/test environment up.)\n\n## Recurring problems + fixes\n\n(Known traps and their resolutions — so the next session doesn't re-discover them.)\n\n## Past mistakes to avoid\n\n(Things that went wrong before; don't repeat them.)\n\n## Candidate rules (not yet promoted)\n\n(Proposed working-agreement rules awaiting owner review.)\n",
