@@ -34,6 +34,12 @@ NAV_HELP_ID = "nav:help"
 NAV_HUB_ID_PREFIX = "nav:hub:"
 NAV_BACK_ID_PREFIX = "nav:back:"
 NAV_PAGE_ID_PREFIX = "nav:page:"
+# The shared BrowserView control family (D-0034) — the page-turn control's
+# richer sibling. Its {sort × filter × page} state space is combinatorial, so
+# these ids are PARSED at click time by the router (never pre-minted into the
+# static table), but they stay inside the nav namespace and route through the
+# ONE panel-engine seam. Grammar + codec live in sb.kernel.panels.browserview.
+NAV_BROWSE_ID_PREFIX = "nav:browse:"
 NAV_ROW = 4     # the shipped nav row
 
 

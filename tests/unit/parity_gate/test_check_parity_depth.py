@@ -33,6 +33,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 class TestImportedCorpus:
     def test_corpus_golden_count(self):
         # 465 imported at the source pin + 2 minted modal-submit goldens
+        # (D-0073) + 4 minted kernel-band goldens (D-0075) + 1 minted
+        # creature-battle golden (D-0079; parity.yml source.minted_goldens)
+        # − 3 retired (sweep_cog.json, the deploy-ops `!cog` capture, +
+        # sweep_query_logs.json / sweep_recent_errors.json, the
+        # run-order-dependent log-ring captures — parity.yml
         # (D-0073) + 4 minted kernel-band goldens (D-0075) + 1 minted casino
         # poker play-layer golden (D-0073 procedure; parity.yml
         # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
@@ -40,7 +45,7 @@ class TestImportedCorpus:
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 469
+        assert len(goldens) == 470
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -60,9 +65,11 @@ class TestImportedCorpus:
         assert source["repo"] == "menno420/superbot"
         assert source["sha"] == "7f7628e12f3b89c5c2a1fbdcfb039787df269e20"
         assert source["goldens"] == 465     # the IMPORT pin (verbatim corpus)
+        # 2 D-0073 modal-submit mints + 4 D-0075 kernel-band mints
+        # + 1 D-0079 creature-battle mint
         # 2 D-0073 modal-submit mints + 4 D-0075 kernel-band mints +
         # 1 casino poker play-layer mint (D-0073 procedure)
-        assert source["minted_goldens"] == 7
+        assert source["minted_goldens"] == 8
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -587,7 +594,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "469 goldens" in out
+        assert "470 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):
