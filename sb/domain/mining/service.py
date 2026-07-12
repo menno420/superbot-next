@@ -675,12 +675,102 @@ def _register() -> None:
                      "The whole grid regenerated; your position and explored "
                      "map carry over.")
 
+    @handler("mining.stash_route")
+    async def stash_route(req) -> Reply:
+        """`!stash [item] [amount]` — the shipped vault deposit (mining_cog.py
+        ``stash``; services/mining_workflow.py ``vault_deposit``). The bare
+        invocation answers the usage copy plain (goldens/mining/sweep_stash
+        pins the byte) — a pure read, no write; an argful call runs the audited
+        deposit op (inventory debit + vault credit in one txn) and prefixes the
+        invoker mention on success, sending a business refusal plain. The
+        row-bearing deposit exists in no imported golden
+        (depth.exemptions.mining guard-only-capture)."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to stash, e.g. `!stash diamond 5` "
+                         "— or `!vault`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.stash", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.unstash_route")
+    async def unstash_route(req) -> Reply:
+        """`!unstash [item] [amount]` — the shipped vault withdraw
+        (mining_cog.py ``unstash``; services/mining_workflow.py
+        ``vault_withdraw``). The bare invocation answers the usage copy plain
+        (goldens/mining/sweep_unstash pins the byte); an argful call runs the
+        audited withdraw op and prefixes the mention on success."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to withdraw, e.g. `!unstash diamond 5` "
+                         "— or `!vault`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.unstash", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.vaultupgrade_route")
+    async def vaultupgrade_route(req) -> Reply:
+        """`!vaultupgrade` — buy one vault-capacity tier (mining_cog.py
+        ``vaultupgrade``; services/mining_workflow.py ``vault_upgrade``). The
+        shipped handler always prefixes the mention (both ok and refusal). A
+        fresh player reads vault level 0 → cost 2000 and balance 0 → the
+        insufficient-funds refusal (goldens/mining/sweep_vaultupgrade pins
+        ``<@…> A vault upgrade costs **2000** 🪙 — you only have **0** 🪙.``) —
+        computed as a PURE READ (get_vault_level + get_coins) so the failed
+        attempt writes no coin ledger / audit row, exactly as the oracle's txn
+        rolls back. Only a funded upgrade runs the audited debit-and-bump op
+        (mining_player_state.vault_level write); that lane exists in no imported
+        golden (depth.exemptions.mining guard-only-capture)."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.mining import capacity, store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        level = await store.get_vault_level(uid, gid)
+        cost = capacity.vault_upgrade_cost(level)
+        if cost is None:
+            cap = capacity.vault_capacity(level)
+            return Reply(BLOCKED,
+                         f"<@{uid}> Your vault is already at its maximum "
+                         f"capacity (**{cap}** item types).")
+        balance = await get_coins(uid, gid)
+        if balance < cost:
+            return Reply(BLOCKED,
+                         f"<@{uid}> A vault upgrade costs **{cost}** 🪙 — "
+                         f"you only have **{balance}** 🪙.")
+        blocked, after = await _op_after(req, "mining.vault_upgrade")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.stash_all_route")
+    async def stash_all_route(req) -> Reply:
+        """The 🏦 Vault panel's 📦 Stash All Ore button — tuck every raw
+        resource into the vault in one txn (mining_workflow
+        ``vault_deposit_all_resources``). No command binds it and no golden
+        drives the click; the audited stash-all op carries the write, the
+        empty-pack case answers the shipped nudge plain."""
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        blocked, after = await _op_after(req, "mining.stash_all")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
 
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
 #: forge/workshop/titles/loadouts/character) is D-0043 successor work.
 PENDING = {
-    "mineinv": "pack detail panel",
     "build": "structures", "buildlist": "structures",
     "buildable": "structures", "use": "consumables", "cook": "campfire",
     # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
@@ -689,8 +779,12 @@ PENDING = {
     # descend / ascend / mineworld are LIVE (slice 2 port): descend_route /
     # ascend_route / mineworld_route in _register() carry the depth-traversal
     # + world-seed bytes, so they too leave the PENDING roster.
-    "vault": "vault", "stash": "vault",
-    "unstash": "vault", "vaultupgrade": "vault", "skills": "skills",
+    # vault / stash / unstash / vaultupgrade are LIVE (slice 3 port): the
+    # mining.vault session PanelSpec + stash_route / unstash_route /
+    # vaultupgrade_route carry the safe-stash + capacity-sink bytes.
+    # mineinv already routes to the live mining.inventory_view (re-homed #250),
+    # so it too leaves the PENDING roster.
+    "skills": "skills",
     "skill": "skills", "titles": "titles", "forge": "forge",
     "home": "structures", "workshop": "workshop", "repair": "workshop",
     "quickcraft": "workshop",

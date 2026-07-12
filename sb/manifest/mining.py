@@ -12,13 +12,18 @@ from __future__ import annotations
 
 from sb.domain.mining import service as _service
 from sb.domain.mining.ops import register_ops
-from sb.domain.mining.panels import mining_card_spec, mining_hub_spec
+from sb.domain.mining.panels import (
+    mining_card_spec,
+    mining_hub_spec,
+    mining_vault_spec,
+)
 from sb.domain.mining.store import (
     MINING_EQUIPMENT_STORE,
     MINING_GEAR_WEAR_STORE,
     MINING_INVENTORY_STORE,
     MINING_LOADOUT_STORE,
     MINING_PLAYER_STATE_STORE,
+    MINING_VAULT_STORE,
     MINING_WORLD_STORE,
     PLAYER_SKILLS_STORE,
 )
@@ -86,10 +91,14 @@ _COMMANDS = (
          "Return toward the surface."),
     _cmd("mineworld", HandlerRef("mining.mineworld_route"),
          "The shared mining world seed."),
-    _pending("vault", "Your vault."),
-    _pending("stash", "Stash resources in the vault."),
-    _pending("unstash", "Withdraw from the vault."),
-    _pending("vaultupgrade", "Upgrade vault capacity."),
+    _cmd("vault", PanelRef("mining.vault"),
+         "Open your vault — a safe stash separate from your pack."),
+    _cmd("stash", HandlerRef("mining.stash_route"),
+         "Stash an item into your vault."),
+    _cmd("unstash", HandlerRef("mining.unstash_route"),
+         "Withdraw an item from your vault."),
+    _cmd("vaultupgrade", HandlerRef("mining.vaultupgrade_route"),
+         "Buy one vault-capacity tier with coins."),
     _pending("skills", "Your skill tree."),
     _pending("skill", "Spend a skill point."),
     _pending("titles", "Your earned titles."),
@@ -110,12 +119,12 @@ MANIFEST = SubsystemManifest(
     key="mining",
     version=1,
     commands=_COMMANDS,
-    panels=(mining_hub_spec(), mining_card_spec()),
+    panels=(mining_hub_spec(), mining_card_spec(), mining_vault_spec()),
     settings=(),
     stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE,
             MINING_EQUIPMENT_STORE, MINING_GEAR_WEAR_STORE,
             MINING_LOADOUT_STORE, PLAYER_SKILLS_STORE,
-            MINING_WORLD_STORE),
+            MINING_WORLD_STORE, MINING_VAULT_STORE),
     events=(),
     capabilities=(),
 )

@@ -41,5 +41,7 @@
   "0040_mining_gear_wear.sql": "sha256:95f9684cd9b74db4a14d652c936af19b3e50b8a8339da41dff54751731a3263f",
   "0041_player_skills.sql": "sha256:3ba6b9f2ecdf092477915fecfbb881eb8b7d463976b1e8e16aab020469ef81e4",
   "0042_mining_loadout_presets.sql": "sha256:9bf6a1538cd4a6130be83bf6513cf5967ea91e0306daa5a459a30206dcb7af09",
-  "0043_mining_world.sql": "sha256:70e9a77cffaff51841f7b821bd2425cf9463b0639439f3d87dbd9917b058792d"
+  "0043_mining_world.sql": "sha256:70e9a77cffaff51841f7b821bd2425cf9463b0639439f3d87dbd9917b058792d",
+  "0044_mining_vault.sql": "sha256:26f04ab425749cadafc7577bc3709ca40d91058ba370ebed6013340886f4fcd7",
+  "0045_mining_vault_capacity.sql": "sha256:e794a9bdfe642e0cc55b4dc3e12f37ee8b737592f22868ed91b7027a22869e77"
 }

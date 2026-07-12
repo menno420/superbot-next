@@ -25,6 +25,11 @@ __all__ = [
     "MINING_LOADOUT_STORE",
     "PLAYER_SKILLS_STORE",
     "MINING_WORLD_STORE",
+    "MINING_VAULT_STORE",
+    "get_vault",
+    "update_vault_item",
+    "get_vault_level",
+    "set_vault_level",
     "get_depth",
     "set_depth",
     "record_depth",
@@ -140,6 +145,22 @@ MINING_WORLD_STORE = register_store(StoreSpec(
     # Per-guild world seed (guild_id-keyed config) — carries no member id,
     # so no subject-erasure body (the treasury/guild-config precedent).
     data_class=DataClass.NONE,
+))
+
+
+MINING_VAULT_STORE = register_store(StoreSpec(
+    table="mining_vault",
+    sole_writer=EngineRef("mining.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="mining_vault",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    # A per-player item-state store (TEXT user ids, mirrors mining_inventory);
+    # the vault_level capacity tier rides mining_player_state (no new table).
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("mining.erase_subject_vault"),
 ))
 
 
@@ -391,6 +412,60 @@ async def set_world_seed(conn: Any, *, guild_id: int, seed: int) -> None:
         (guild_id, seed), conn=conn)
 
 
+# --- mining_vault (per-player safe stash; TEXT user ids) + vault_level --------
+
+
+async def get_vault(user_id: int, guild_id: int,
+                    conn: Any = None) -> dict[str, int]:
+    """The player's vault contents for a guild (quantity > 0 only). Shipped
+    ``mining_vault.get_vault`` verbatim: zero-quantity rows (a fully-withdrawn
+    item) are filtered out so callers see only what is actually stored."""
+    rows = await fetchall(
+        "SELECT item_name, quantity FROM mining_vault WHERE user_id=$1 AND "
+        "guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return {str(r["item_name"]): int(r["quantity"])
+            for r in rows if int(r["quantity"]) > 0}
+
+
+async def update_vault_item(conn: Any, *, user_id: int, guild_id: int,
+                            item: str, delta: int) -> None:
+    """Add or subtract *delta* of *item* in the vault (floor 0) — the shipped
+    ``mining_vault.update_vault_item`` upsert, mirroring
+    ``update_mining_item`` so a deposit/withdraw is a symmetric pair of clamped
+    deltas (``-qty`` on one table, ``+qty`` on the other) inside ONE txn."""
+    await execute(
+        "INSERT INTO mining_vault (user_id, guild_id, item_name, quantity) "
+        "VALUES ($1,$2,$3,GREATEST(0,$4)) "
+        "ON CONFLICT (user_id, guild_id, item_name) DO UPDATE SET "
+        "quantity = GREATEST(0, mining_vault.quantity + $4)",
+        (str(user_id), guild_id, item, delta), conn=conn)
+
+
+async def get_vault_level(user_id: int, guild_id: int,
+                          conn: Any = None) -> int:
+    """The player's vault capacity tier (0 by default) — shipped
+    ``mining_player_state.get_vault_level``; a no-row player reads level 0
+    (base capacity)."""
+    row = await fetchone(
+        "SELECT vault_level FROM mining_player_state WHERE user_id=$1 AND "
+        "guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return int(row["vault_level"]) if row and row["vault_level"] is not None \
+        else 0
+
+
+async def set_vault_level(conn: Any, *, user_id: int, guild_id: int,
+                          level: int) -> None:
+    """Persist the player's *vault_level* (upsert; clamped >= 0) — the shipped
+    ``mining_player_state.set_vault_level`` write (the ``!vaultupgrade`` sink).
+    The target's ``updated_at`` is a BIGINT epoch column default, never a
+    TIMESTAMPTZ literal (the set_depth convention)."""
+    await execute(
+        "INSERT INTO mining_player_state (user_id, guild_id, vault_level) "
+        "VALUES ($1,$2,GREATEST(0,$3)) ON CONFLICT (user_id, guild_id) "
+        "DO UPDATE SET vault_level=GREATEST(0,$3)",
+        (str(user_id), guild_id, level), conn=conn)
+
+
 async def mining_totals(guild_id: int, limit: int = 10,
                         conn: Any = None) -> list[dict]:
     rows = await fetchall(
@@ -424,6 +499,13 @@ async def erase_subject_state(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM mining_player_state WHERE user_id=$1",
         (str(user_id),), conn=conn)
+    return _rc(result)
+
+
+async def erase_subject_vault(conn: Any, *, user_id: int) -> int:
+    # vault_level lives on mining_player_state (cleared by erase_subject_state).
+    result = await execute("DELETE FROM mining_vault WHERE user_id=$1",
+                           (str(user_id),), conn=conn)
     return _rc(result)
 
 
