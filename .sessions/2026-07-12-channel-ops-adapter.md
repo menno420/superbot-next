@@ -1,6 +1,6 @@
 # 2026-07-12 — channel-ops adapter enabler (the D-0030 named successor's port + twin + compensator ruling, D-0077)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Fable 5 · high · feature build (Q-0194 / ORDER 012)
 
