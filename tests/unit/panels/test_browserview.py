@@ -292,6 +292,21 @@ def test_controls_omit_filter_select_when_no_filter_options():
     assert [c.kind for c in controls if c.kind == "selector"] == ["selector"]  # sort only
 
 
+def test_default_browse_state_arms_the_declared_block():
+    # a spec whose first browsable block declares an algebra opens on its
+    # default_sort, no filter, page 0 — the render path's arming hook.
+    state = bv.default_browse_state(_panel())
+    assert state == BrowseState(
+        panel_id="inv.cat_tools", block=0, sort="name", filter=ALL_FILTER, page=0)
+
+
+def test_default_browse_state_is_none_without_a_browse_block():
+    # no ListSpec algebra ⇒ None ⇒ the byte-identical static render (no surface
+    # changes until it DECLARES options).
+    plain = ListSpec(page_size=2)      # no sort_options / filter_options
+    assert bv.default_browse_state(_panel(list_spec=plain)) is None
+
+
 def test_controls_button_custom_ids_carry_current_state():
     state = BrowseState("inv.cat_tools", 0, sort="quantity", filter="Mining", page=1)
     controls = _controls(state, 3)

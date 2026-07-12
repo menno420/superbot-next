@@ -230,6 +230,48 @@ def test_inventory_pure_helpers_are_shipped_orders():
     assert [t for t, _ in tiers] == ["Epic", "Rare", "Common", "Unknown"]
 
 
+def test_inventory_row_carries_the_declared_browse_algebra():
+    # the row the detail provider emits must carry EXACTLY the sort/filter
+    # keys the ListSpec declares — name (key), quantity (int), rarity (the
+    # RARITY_ORDER RANK so ascending is rarest-first), type (filter), plus the
+    # pre-rendered display line the item_render_ref emits.
+    from sb.domain.economy.catalogue import RARITY_ORDER
+    from sb.domain.inventory.service import inventory_row
+
+    row = inventory_row("diamond_axe", 4, {"rarity": "Epic", "type": "Tool",
+                                           "emoji": "🪓"})
+    assert row["name"] == "diamond_axe"
+    assert row["quantity"] == 4
+    assert row["rarity"] == RARITY_ORDER["Epic"]      # rank, not the string
+    assert row["type"] == "Tool"
+    assert row["_line"].endswith("`Epic`")            # rarity tag appended
+    assert "Diamond Axe" in row["_line"] and "× 4" in row["_line"]
+    # an unknown rarity ranks last (99), never a crash.
+    assert inventory_row("mystery", 1, {})["rarity"] == 99
+
+
+def test_detail_provider_emits_browse_rows_sorted_by_key(monkeypatch):
+    # the converted detail provider yields ROWS (not pre-rendered strings),
+    # pre-sorted by item key so the engine's stable sort breaks ties alpha.
+    import sb.domain.economy.store as econ
+    from sb.domain.inventory import panels, service
+
+    service.reset_inventory_ports_for_tests()
+
+    async def fake_inv(user_id, guild_id, conn=None):
+        return {"axe": 1, "iron pickaxe": 3, "toolkit": 5}
+
+    monkeypatch.setattr(econ, "get_inventory", fake_inv)
+    provider = panels._ensure_detail_provider("Tools")
+    from sb.spec.refs import resolve as resolve_ref
+
+    rows = asyncio.run(resolve_ref(provider)(SimpleNamespace(guild_id=1, actor=SimpleNamespace(user_id=42))))
+    service.reset_inventory_ports_for_tests()
+    assert all(isinstance(r, dict) and "_line" in r for r in rows)
+    # pre-sorted alpha by key (the tie-break the engine's stable sort inherits)
+    assert [r["name"] for r in rows] == ["axe", "iron pickaxe", "toolkit"]
+
+
 def test_manifests_validate():
     import sb.manifest.inventory as m_inv
     import sb.manifest.treasury as m_tre
