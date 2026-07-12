@@ -80,7 +80,10 @@ class TestRealTreeIsGreen:
         for name, status in parity["subsystems"].items():
             if status == "ported":
                 assert name in ratchet, name
-        assert parity["kernel"]["status"] == "pending"
+        # the kernel coverage home flipped with the D-0075 kernel-band
+        # goldens — same one-way door, same mandatory ratchet row.
+        assert parity["kernel"]["status"] == "ported"
+        assert "kernel" in ratchet
 
     def test_roster_matches_golden_dirs_both_directions(self):
         # parity/goldens/kernel/ is the kernel coverage home's dir
@@ -346,7 +349,6 @@ class TestKernelHome:
         updated = write_ratchet(parity, docs)
         assert "kernel" not in updated["depth"]["ratchet"]
 
-    @pytest.mark.skip(reason="armed by the flip commit")
     def test_real_tree_kernel_floor_is_satisfied(self):
         """The committed tree: every kernel.events/tables surface is either
         exercised by a kernel-band golden or exempt under an existing
