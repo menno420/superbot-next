@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.quickcraft",
+ "case_id": "sweep.cook",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1897248635,
+     "last_xp": 1897103721,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "<@<@admin>> Nothing has broken recently — craft or repair gear below.",
+      "content": "Specify a fish to cook, e.g. `!cook minnow` (needs a 🔥 Campfire).",
       "tts": false
      }
     },
@@ -77,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!quickcraft",
+    "content": "!cook",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "mining"
 }
