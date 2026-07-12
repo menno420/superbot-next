@@ -1,0 +1,1 @@
+- `claude/kit-upgrade-v1.13.0` · **kit upgrade** — vendor substrate-kit v1.12.1 → v1.13.0 (sha256-verified release asset) · bootstrap.py, substrate.config.json, .substrate/**, .sessions/ · 2026-07-12
