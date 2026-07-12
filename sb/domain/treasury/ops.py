@@ -46,16 +46,23 @@ def _now(ctx: WorkflowContext) -> int:
     return int(ctx.clock().timestamp())
 
 
-def _amount_from(ctx: WorkflowContext) -> int:
+def _amount_from(ctx: WorkflowContext, *, slot: int = 0) -> int:
+    """amount param > argv[slot] (the shipped positional amount slot).
+
+    POSITIONAL, never a scan: the shipped commands were
+    ``contribute(ctx, amount: int)`` — slot 0 — and ``grant(ctx, member:
+    discord.Member, amount: int)`` — slot 1 (disbot/cogs/treasury_cog.py);
+    discord.py bound each arg by POSITION. Scanning argv for the first
+    digit token let a bare snowflake target double-read as the AMOUNT on
+    `!treasury grant <bare_id> <amt>` (the #275 givexp misparse twin —
+    the pool-balance check caught it loudly, but the parse was wrong)."""
     from sb.kernel.interaction.errors import ValidatorError
 
     amount = ctx.params.get("amount")
-    argv = tuple(ctx.params.get("argv", ()) or ())
     if amount is None:
-        for token in argv:
-            if str(token).lstrip("-").isdigit():
-                amount = int(token)
-                break
+        argv = tuple(ctx.params.get("argv", ()) or ())
+        if len(argv) > slot:
+            amount = argv[slot]
     if amount is None:
         raise ValidatorError("amount", "➕ Give a number of coins.")
     try:
@@ -119,17 +126,28 @@ async def _record_disburse(conn, ctx: WorkflowContext) -> LegOutcome:
 
     actor, gid = _actor_id(ctx), int(ctx.guild_id or 0)
     target = ctx.params.get("target_id") or ctx.params.get("member")
-    argv = tuple(ctx.params.get("argv", ()) or ())
     if target is None:
-        for token in argv:
-            stripped = str(token).strip("<@!>")
-            if stripped.isdigit() and len(stripped) >= 15:
-                target = int(stripped)
-                break
+        # POSITIONAL, argv[0] only — the shipped signature was
+        # ``grant(ctx, member: discord.Member, amount: int)``
+        # (disbot/cogs/treasury_cog.py): MemberConverter bound the FIRST
+        # arg (mention or bare ID), never a later token.
+        argv = tuple(ctx.params.get("argv", ()) or ())
+        if argv:
+            token = str(argv[0])
+            stripped = token.strip("<@!>")
+            if stripped.isdigit():
+                target = stripped
+            else:
+                # bot1.py on_command_error BadArgument arm over
+                # commands.MemberNotFound, byte-for-byte (treasury_cog
+                # has no local error handler).
+                raise ValidatorError(
+                    "member",
+                    f'⚠️ Bad argument: Member "{token}" not found.')
     if target is None:
         raise ValidatorError("member", "Usage: `!treasury grant @member <amount>`")
     target = int(str(target).strip("<@!>"))
-    amount = _amount_from(ctx)
+    amount = _amount_from(ctx, slot=1)   # argv[1] is the amount slot
     now = _now(ctx)
 
     new_treasury = await store.try_debit_treasury(

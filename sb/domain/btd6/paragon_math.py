@@ -14,6 +14,13 @@ from dataclasses import dataclass
 MAX_DEGREE = 100
 TOTAL_POWER_FOR_MAX_DEGREE = 200_000
 
+# Extra-T5 sacrifice caps (shipped ``utils/btd6/paragon_math.py`` @7f7628e1
+# verbatim): only the Dart paragon may sacrifice one extra T5 in solo; co-op
+# splits the reserve across the team (up to 9). The calculator landing panel's
+# extra-T5 selector reads these to bound its options.
+SOLO_DART_MAX_EXTRA_T5 = 1
+COOP_MAX_EXTRA_T5 = 9
+
 _DART_PARAGON_ID = "apex_plasma_master"
 
 
@@ -145,12 +152,29 @@ def threshold(degree: int) -> int:
     return (50 * degree**3 + 5025 * degree**2 + 168324 * degree + 843000) // 600
 
 
+def game_mode_for(player_count: int) -> str:
+    """``"solo"`` for 1 player, ``"coop"`` for 2-4 (shipped verbatim)."""
+    return "solo" if player_count <= 1 else "coop"
+
+
+def max_extra_t5_count(game_mode: str, *, is_dart: bool) -> int:
+    """Max extra T5 sacrifices: solo Dart 1, solo other 0, co-op 9
+    (shipped verbatim)."""
+    if game_mode == "coop":
+        return COOP_MAX_EXTRA_T5
+    return SOLO_DART_MAX_EXTRA_T5 if is_dart else 0
+
+
 __all__ = [
     "BASE_PRICES_MEDIUM",
+    "COOP_MAX_EXTRA_T5",
     "MAX_DEGREE",
     "PARAGONS",
     "Paragon",
+    "SOLO_DART_MAX_EXTRA_T5",
     "TOTAL_POWER_FOR_MAX_DEGREE",
+    "game_mode_for",
+    "max_extra_t5_count",
     "resolve_paragon",
     "threshold",
 ]

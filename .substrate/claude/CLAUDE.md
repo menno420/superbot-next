@@ -12,6 +12,12 @@ superbot-next is built in Python.
 
 ## Orientation — read first, in order
 
+0. **Preflight — land on origin's HEAD before reading anything else:**
+   `git fetch origin main && git reset --hard origin/main` (or
+   `git checkout -B main origin/main`). A warm container clone can lag
+   origin by dozens of commits, and a stale clone reads stale orders.
+   Mechanics + safety notes: `docs/AGENT_ORIENTATION.md` § "Start every
+   session".
 1. This file — the working agreement.
 2. `HANDOFF.md` at repo root (when present) — the previous session's trail:
    newest session card + where to pick up. Regenerated at every session
@@ -27,7 +33,8 @@ recurring action**, and
 `docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring
 any wall or missing credential** — its discovery rule: check the file →
 check the env → attempt once + capture the exact error → append the finding
-same session.
+same session — and `docs/ROUTINES.md` (the wake-chain/trigger doctrine)
+**before arming, deleting, or auditing any scheduled trigger/routine**.
 
 ## Kit machinery — search hygiene
 
