@@ -1,6 +1,6 @@
 # 2026-07-12 — slice 5 port: skills / skill / titles (skill tree · earned titles)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · high · feature build (Q-0194)
 
@@ -58,4 +58,88 @@ Planned delivery:
 
 ## Verification (local, real Postgres, pristine DB)
 
-_Pending the born-red first push; filled on the flip-to-complete commit._
+- **golden-parity GATE GREEN — all 447 golden(s) across 51 ported
+  subsystem(s) replay clean** (was 444; the +3 re-home takes mining 29 → 32,
+  `_unmapped` 24 → 21), incl. sweep_skill / sweep_skills / sweep_titles. Each
+  verified byte-identical against the REAL handlers by a targeted `replay_case`
+  pass BEFORE the `git mv` (all three GREEN — the 🌳 Skill Tree card's
+  MINING_COLOR frame / Points "**0** available · 0 spent" / "Game level **0**
+  (points cap at **20** …)" / four "—" branch fields / "♻ Respec refunds all
+  for 200 🪙" footer / the 4-branch + respec·titles·hub button rows + nav row;
+  the 🏆 Titles card's Equipped "— none —" + 🔒 Locked (9) fields + earn-guidance
+  footer + ↩ Mining Hub button + nav; and the plain `!skill` branch-picker
+  guard), then again in the full gate after.
+- **check_parity_depth: OK — 51 subsystems (50 ported), kernel ported,
+  468 goldens** — NO new declared table surface: `player_skills` is already
+  declared + `guard-only-capture`-exempt (slice 1), and `equipped_title` rides
+  `mining_player_state` (a column, no new table, already exempt). No new
+  exemption row; R3 ratchet unchanged.
+- **check_migrations: clean (47)** — 0047_mining_equipped_title.sql appended to
+  `checksums.json`. **manifest_compile: green** (snapshot recompiled, 48
+  manifests).
+- **check_money_race: OK — 0 violations** — the coin-bearing ♻ Respec lane and
+  the point spend are DEFERRED (D-0043 pending terminals), so NO new
+  money-bearing op is introduced; the checker (which flags only functions that
+  transitively call the coin primitives) has nothing new to fence. The point
+  spend is not coin-bearing (it draws the derived level pool, not coins), so the
+  oracle's own self-service allocate carried no fence either.
+- **check_sim_gate: OK — 1333 [A] assignment(s), 523 auto-exempt below-floor**
+  — the new 7-action `mining.skills` panel exceeds the 4-action floor → three
+  legacy-seed Exempt overlay rows added to `manifest/layout/mining.lock.json`
+  (AMEND additively) + `--write-baseline` regenerated `sim/sim-gate-baseline.json`
+  (the slice-3 vault precedent). The 1-action `mining.titles` panel sits below
+  the floor → auto-exempt, NO overlay.
+- **pytest tests/unit: 1748 passed, 5 skipped** on a pristine DB, run SERIALLY
+  (`-p no:randomly`). `tests/unit/invariants/test_composition_parity.py` green
+  (the 3 now-removed `*_pending` refs — skill/skills/titles — pruned from the
+  burn-down; the skills-panel spend/respec pending terminals register at import
+  so they stay import-visible).
+- `bootstrap.py check --strict`: the only red was the by-design born-red HOLD
+  while this card declared `in-progress` — flipped `complete` in this final
+  commit; nothing else.
+
+### 3 re-homed goldens (git mv `_unmapped → mining`, subsystem flip only)
+sweep_skill, sweep_skills, sweep_titles — only the `"subsystem"` line changed
+(`_unmapped` → `mining`); asserted calls/events/db_delta bytes untouched
+(#193 law). sweep_skills is the third component-bearing mining golden (after the
+vault and forge cards); sweep_titles is the fourth. The argful `!skill <branch>`
+spend, the skills-panel branch/respec button clicks, and the titles select-menu
+equip stay deferred (D-0043 pending terminals), the write-free render/guard
+paths being the only parity surface.
+
+## 💡 Session idea
+
+Slice 5 declares the identity read surface (`player_skills` reads feed the skill
+panel + the title earn-checks; `equipped_title` is added but only ever read `NULL`
+this slice) yet — like every rung before it — every imported sweep drove only the
+bare invocation: `!skills` and `!titles` render the fresh-player card, `!skill`
+pins the branch-picker guard. So the row-bearing skill spend (`!skill mining`),
+the coin-scaled respec, and the equipped-title write land in NO golden. They
+join the growing `guard-only-capture` ledger (equip / loadout / wear / skill /
+geared-descend / world-reseed / vault / structures). The one capture run after
+the ladder completes should seed a persona with allocated skill points (a branch
+at 10/10 → an EARNED title), a deep `max_depth`, and a chosen `equipped_title`,
+drive one `!skill <branch>` spend, one `!skills` panel with non-zero allocation,
+and one `!titles` with an earned+equipped title (exercising the Earned field and
+the select-menu equip), mint the row-bearing goldens, and DELETE the
+`player_skills` + `mining_player_state` exemptions at once (the D-0069 class exit).
+
+## ⟲ Previous-session review
+
+(Covers `.sessions/2026-07-12-slice4-forge-repair-craft-port.md`, the slice-4
+forge/repair/quickcraft/cook/use port.) Its headline — PUSHED + PR GREEN,
+stacked on #296 — landed the workshop/campfire/consumable stack clean and
+CI-green first push. Two lessons carried directly into slice 5. First, its
+sim-gate note: the 2-action forge panel auto-exempted below the 4-action floor
+(no overlay), whereas slice-3's 5-action vault needed legacy-seed overlays + a
+regenerated baseline — slice 5's skills panel has SEVEN actions, so the vault
+recipe (three `mining.lock` overlay rows for `LayoutSpec.pages` / `PageSpec.rows`
+/ `PanelSpec.layout` + `--write-baseline`) was applied from minute one, while the
+1-action titles panel followed the forge path (auto-exempt). Second, its
+money-race discipline: every slice-4 write was advisory-fenced against the
+read-then-settle coin/material race; slice 5 instead DEFERS both write lanes
+(the coin-bearing respec and the point spend), so — confirmed by the checker —
+no new money-bearing function exists to fence, and the port stays as small as the
+three golden-pinned bare surfaces allow. The session-PanelSpec + renderer-override
+recipe proven across slices 2–4 is reused verbatim for both the skills and titles
+cards.
