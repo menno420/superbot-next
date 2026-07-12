@@ -50,7 +50,7 @@ from pathlib import Path
 logger = logging.getLogger("sb.app.main")
 
 __all__ = ["ESCROW_RECOVERY_SUBSYSTEMS", "SUBSCRIBE_ROSTER", "cli",
-           "guild_sync_target", "run_app"]
+           "guild_sync_target", "moderation_plane_armed", "run_app"]
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -122,6 +122,17 @@ def guild_sync_target(cfg: object) -> int | None:
                        "— guild sync NOT armed")
         return None
     return int(guild_id)
+
+
+def moderation_plane_armed(cfg: object) -> bool:
+    """Whether the LIVE moderation guild-action adapter (D-0049) may be armed
+    in THIS root: the test data plane ONLY. Mirrors ``guild_sync_target``'s
+    single ``SB_DATA_PLANE == "test"`` switch. Prod arming is the OWNER'S
+    CUT-3 gate — this root never arms the live effect on the prod plane, so a
+    live ``!ban``/``!kick`` on prod writes its row + copy but performs NO
+    Discord mutation (the not-installed port raises LOUDLY → PARTIAL) until
+    the owner flips prod himself."""
+    return str(getattr(cfg, "SB_DATA_PLANE", "") or "") == "test"
 
 
 def arm_subscribe_roster(bus: object) -> tuple[str, ...]:
@@ -376,6 +387,29 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         register_error_handlers(bot)
         install_channel_emitter(DiscordChannelEmitter(bot))
+
+        # 10a. the moderation guild-action port (D-0049 live successor) — the
+        #      moderation twin of the channel emitter above: live kick/ban/
+        #      timeout/unban + the guild.me 🤖 readiness read. TEST-PLANE-
+        #      GATED by a single explicit switch (moderation_plane_armed →
+        #      SB_DATA_PLANE == "test", exactly like guild_sync_target). Prod
+        #      arming is the OWNER'S CUT-3 gate: this root leaves the port
+        #      un-installed on prod, so a live !ban/!kick writes its row +
+        #      copy but performs NO Discord effect until the owner flips prod.
+        if moderation_plane_armed(cfg):
+            from sb.adapters.discord.moderation_actions import (
+                DiscordModerationActions,
+                DiscordModerationReadinessReader,
+            )
+            from sb.domain.moderation.service import (
+                install_moderation_actions,
+                install_moderation_readiness,
+            )
+
+            install_moderation_actions(DiscordModerationActions(bot))
+            install_moderation_readiness(DiscordModerationReadinessReader(bot))
+            logger.info("moderation guild-action port ARMED (test plane): "
+                        "live kick/ban/timeout/unban + guild.me readiness")
 
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;

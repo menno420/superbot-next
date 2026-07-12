@@ -41,6 +41,36 @@ class TestSubscribeRoster:
         assert "moderation.action_taken" in bus.subscriptions
 
 
+class TestModerationPlaneGate:
+    """The live moderation guild-action adapter (D-0049) is TEST-PLANE-GATED:
+    the composition root arms it (main.py step 10a) ONLY under
+    ``SB_DATA_PLANE == "test"``. Prod arming is the owner's CUT-3 gate — the
+    prod root leaves the port un-installed (a live !ban/!kick writes its row +
+    copy but performs NO Discord effect until the owner flips prod)."""
+
+    def test_gate_opens_only_on_the_test_plane(self):
+        from types import SimpleNamespace
+
+        assert app_main.moderation_plane_armed(
+            SimpleNamespace(SB_DATA_PLANE="test")) is True
+        # prod / unset / anything-but-test stays UNARMED
+        assert app_main.moderation_plane_armed(
+            SimpleNamespace(SB_DATA_PLANE="prod")) is False
+        assert app_main.moderation_plane_armed(
+            SimpleNamespace(SB_DATA_PLANE="")) is False
+        assert app_main.moderation_plane_armed(SimpleNamespace()) is False
+
+    def test_install_is_guarded_by_the_gate(self):
+        # the wiring fact: the step-10a install block is reached ONLY when the
+        # gate returns True — the source pairs the gated install with the
+        # test-plane predicate (a prod boot never constructs the live adapter).
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        assert "moderation_plane_armed(cfg)" in src
+        assert "install_moderation_actions(DiscordModerationActions(bot))" in src
+
+
 class TestEscrowRecoveryRoster:
     def test_roster_matches_the_domain_constants(self):
         from sb.domain.blackjack import ops as blackjack_ops
