@@ -7,9 +7,9 @@
 
 ## Start every session
 
-The boot set lives in `.claude/CLAUDE.md` § "Orientation — read first" (one
-list, one home). This file is not boot reading — open it when a task needs
-a route into the deeper docs.
+The boot set lives in the working agreement — `CONSTITUTION.md` — and its
+orientation guidance (one list, one home). This file is not boot reading —
+open it when a task needs a route into the deeper docs.
 
 ## Binding contracts
 
@@ -26,9 +26,15 @@ The planted doc set (this router reaches every live doc — keep it that way):
 `docs/collaboration-model.md` · `docs/helper-policy.md` ·
 `docs/repo-navigation-map.md` · `docs/ai-project-workflow.md` ·
 `docs/owner-profile.md` · `docs/current-state.md` · `docs/decisions.md` ·
-`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/ideas/README.md` — plus the root
+`docs/question-router.md` · `docs/CAPABILITIES.md` · `docs/SKILLS.md` ·
+`docs/ideas/README.md` — plus the root
 `CONSTITUTION.md` (the working agreement) and `.session-journal.md`.
+
+Recurring action? **`docs/SKILLS.md`** — the skill index — names every
+kit-shipped skill and when to reach for it; check it before improvising a
+procedure.
 
 ## Verifying any change
 
-See `.claude/CLAUDE.md` § "Verifying a change" (one home, never two copies).
+See the working agreement (`CONSTITUTION.md`) and its verify guidance
+(one home, never two copies).

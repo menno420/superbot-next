@@ -7,8 +7,8 @@ description: "Audit doc + session-log hygiene (bootstrap check) and summarize dr
 
 Audit superbot-next's documentation + session-log hygiene.
 
-1. Run `bootstrap check` — badges, link resolution, doc reachability, and the
-   required session-log markers.
+1. Run `python3 bootstrap.py check` — badges, link resolution, doc
+   reachability, and the required session-log markers.
 2. Summarize the drift: orphaned docs, missing badges, incomplete logs.
 3. Fix the small ones (link the orphan, badge the doc); capture the rest as ideas.
 

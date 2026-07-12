@@ -25,6 +25,9 @@
   a missing credential: check `docs/CAPABILITIES.md` (the verified ledger) →
   check the environment → attempt once and capture the exact error → append
   the finding same session.
+- **Recurring actions run through the skill index.** `docs/SKILLS.md` names
+  every kit-shipped skill and when to reach for it — check it before
+  improvising a procedure or repo-searching "how do we do X here".
 - When a doc and a source file disagree: the source file wins — read the code, fix the doc in the same change; a checker that reports green against visible drift is itself the bug (PL-006 source-wins / false-green)
 
 ## Autonomy rails — act vs. ask

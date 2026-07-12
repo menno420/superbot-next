@@ -21,7 +21,9 @@ superbot-next is built in Python.
 
 That is the whole boot set. Everything else is routed, **not front-loaded**
 (reading every planted doc up front buys ceremony, not context — measured):
-open `docs/AGENT_ORIENTATION.md` when a task needs its reading route, and
+open `docs/AGENT_ORIENTATION.md` when a task needs its reading route,
+`docs/SKILLS.md` (the skill index) **before improvising a procedure for a
+recurring action**, and
 `docs/CAPABILITIES.md` (the verified can/cannot ledger) **before declaring
 any wall or missing credential** — its discovery rule: check the file →
 check the env → attempt once + capture the exact error → append the finding
