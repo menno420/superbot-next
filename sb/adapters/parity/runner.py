@@ -179,6 +179,12 @@ CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     # `sweep.setup` itself is NOT seeded: its golden pins the CREATE.
     "sweep.slash_setup-advanced": {"superbot-setup": 700_000_000_000_000_902},
     "sweep.slash_setup-status": {"superbot-setup": 700_000_000_000_000_902},
+    # the `!setupadvanced` prefix twin rode the SAME leaked workspace
+    # (goldens/setup/sweep_setupadvanced sends the depth-chooser anchor
+    # into <msg:1> with ZERO channel calls of its own — the wizard
+    # entry's ensure_setup_channel find branch, exactly the slash lane
+    # above; `sweep.setup` remains the case that pins the CREATE).
+    "sweep.setupadvanced": {"superbot-setup": 700_000_000_000_000_902},
     # the quicksetup flip: the bare `/setup` slash sweep rode the SAME
     # leaked workspace (goldens/quicksetup/sweep_slash_setup records the
     # Step-1 card send into <msg:1> with ZERO channel calls — the
