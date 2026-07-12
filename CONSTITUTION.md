@@ -43,7 +43,11 @@
   asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE
   / HOW / WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED (format:
   `control/README.md`) — phrased so a non-technical owner can act directly.
-  Expire stale asks; fewer, clearer asks beat complete lists.
+  Expire stale asks; fewer, clearer asks beat complete lists. Owner-facing
+  output follows the owner-assist standard — paste-ready finished values, a
+  risk class (✅ / ↩️ / ⚠️) on every manual step, decisions as structured
+  choices with a **bolded recommendation**, answerable with one letter
+  (standard: `control/README.md`).
 
 ## Changing the rules — propose, don't apply
 

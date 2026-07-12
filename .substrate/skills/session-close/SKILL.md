@@ -40,7 +40,8 @@ checks). Everything else is ordered steps.
    commit (superseded CI runs are the dominant Actions cost).
 5. Close-out docs, into the SAME card: what shipped (paths + commits);
    Capability delta — new capability or wall discovered? Append it to
-   `docs/CAPABILITIES.md` (dated, exact error or proof, workaround); every
+   `docs/CAPABILITIES.md` (dated, with its venue token, exact error or
+   proof, workaround — below the seed fence, never inside it); every
    ⚑ needs-owner ask carries the OWNER-ACTION fields (WHAT / WHERE / HOW /
    WHY-IT-MATTERS / UNBLOCKS / VERIFIED-NEEDED — attempted, or the exact
    wall; see `control/README.md`) — Withdraw stale asks; groom one idea
