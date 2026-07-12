@@ -38,6 +38,14 @@ Docs-only diff: `docs/CAPABILITIES.md` append log, this card, and the
   born-red hold on this card's in-progress badge (flipped in the landing
   commit); docs-only diff, no pytest demanded by the gate.
 
+## 💡 Session idea
+
+The discovery rule's step 4 ("append the finding same session") failed
+silently in the karma-view session — nothing gates a session that USES an
+unrecorded capability without appending it. A cheap kit check could flag a
+session card that cites an oracle/tool route absent from
+`docs/CAPABILITIES.md`, turning the append rule from doctrine into a gate.
+
 ## ⟲ Previous-session review
 
 The `2026-07-12-karma-view-target-id.md` card recorded the oracle-clone
