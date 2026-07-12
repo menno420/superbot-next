@@ -36,11 +36,12 @@ trajectory so leaked in-memory tournament state matches the gate exactly.
   guard that the stranded-pot money-bug fix restored.
 - `parity/cases/curated.py` — the two typed curated cases (click steps carry
   `component_index`; the golden normalizes the session custom_ids away).
-- `parity/parity.yml` — `source.minted_goldens` 6 → 8 (import pin stays
-  465; on-disk corpus 468 → 470).
+- `parity/parity.yml` — `source.minted_goldens` 12 → 14 (import pin stays
+  465; on-disk corpus 474 → 476, after rebasing onto main's +4
+  browse-interaction mints).
 - `tests/unit/parity_adapter/test_replay_adapter.py` +
   `tests/unit/parity_gate/test_check_parity_depth.py` — the corpus count
-  pins (468 → 470, `minted_goldens` 6 → 8).
+  pins (474 → 476, `minted_goldens` 12 → 14).
 
 ## Deliberately NOT minted (harness determinism limits, ledgered)
 
@@ -62,10 +63,12 @@ trajectory so leaked in-memory tournament state matches the gate exactly.
 
 ## Evidence
 
-- `python3 tools/run_golden_parity.py --gate` — GREEN, 429/429 goldens
+- `python3 tools/run_golden_parity.py --gate` — GREEN, all 461 goldens
   across 51 ported subsystems replay clean (the +2 new goldens replay
-  record-then-green in the full-corpus trajectory).
-- `python3 tools/check_parity_depth.py` — OK, 470 goldens, no ratchet
+  record-then-green in the full-corpus trajectory; 476 on-disk − 15 pending
+  `_unmapped` = 461 ported, after rebasing onto main's mining slice-4/5/6
+  re-homes).
+- `python3 tools/check_parity_depth.py` — OK, 476 goldens, no ratchet
   movement (both goldens touch already-covered tables/events).
 - `python3 -m pytest tests/unit/parity_adapter tests/unit/parity_gate` —
   green with the new count pins.
