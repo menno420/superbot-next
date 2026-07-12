@@ -388,6 +388,82 @@ def _register() -> None:
             footer=f"Balance: {balance} 🪙  •  !sell <item> [n] · "
                    "!sellall · !buy <item>"))
 
+    async def _buildlist_card(req) -> Reply:
+        """The shipped `!buildlist` reply (mining_cog.py ``buildlist``): the
+        SUCCESS_COLOR (green) `Available Structures` embed listing every recipe
+        in the shipped catalogue order as `**{Name}**: Requires {mats}` (the
+        material list is the recipe's insertion order, NOT sorted), footer
+        `Tip: !minemenu → 📖 Recipes browses and crafts by category.`
+        (goldens/mining/sweep_buildlist pins every byte)."""
+        from sb.domain.mining.recipes import load_recipes
+        from sb.kernel.panels.render import RenderedEmbed
+
+        lines = [
+            f"**{name.title()}**: Requires "
+            + ", ".join(f"{mat}: {amt}" for mat, amt in reqs.items())
+            for name, reqs in load_recipes().items()
+        ]
+        return await _card(req, RenderedEmbed(
+            title="Available Structures", description="\n".join(lines),
+            style_token="green",
+            footer="Tip: !minemenu → 📖 Recipes browses and crafts by "
+                   "category."))
+
+    @handler("mining.build_route")
+    async def build_route(req) -> Reply:
+        """`!build [*structure]` (alias `craft`) — shipped arg-optional
+        (mining_cog.py ``build(self, ctx, *, structure: str = None)``): with NO
+        structure it invokes `!buildlist` (the Available Structures embed —
+        goldens/mining/sweep_build pins the identical bytes); an argful
+        `!build <item>` runs the shared atomic craft write (materials → product)
+        which rides the deferred structures/craft port — no golden drives it —
+        so it stays an honest D-0043 pending terminal (the argful cook/use
+        precedent)."""
+        if _no_args(req):
+            return await _buildlist_card(req)
+        return Reply(BLOCKED,
+                     "🏗️ `!build <item>` / `!craft` crafting rides the mining "
+                     "structures/craft build lane — the deep mining port is "
+                     "named successor work (D-0043); the core loop "
+                     "(mine/chop/explore/sell/buy) is live.")
+
+    @handler("mining.buildlist_route")
+    async def buildlist_route(req) -> Reply:
+        """`!buildlist` — the Available Structures embed (see _buildlist_card;
+        goldens/mining/sweep_buildlist pins the bytes)."""
+        return await _buildlist_card(req)
+
+    @handler("mining.buildable_view")
+    async def buildable_view(req) -> Reply:
+        """`!buildable` — list only what the player's inventory can currently
+        build (mining_cog.py ``buildable``). A fresh player (empty pack) can
+        afford nothing → the plain refusal
+        (goldens/mining/sweep_buildable pins ``You currently don't have enough
+        resources to build anything.``) — a PURE READ. The row-bearing
+        non-empty branch (the `{name}'s Buildable Structures` embed) exists in
+        no imported golden."""
+        from sb.domain.mining.recipes import load_recipes
+        from sb.domain.mining.store import get_mining_inventory
+        from sb.kernel.panels.render import RenderedEmbed
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        inventory = await get_mining_inventory(uid, gid)
+        can_build = [
+            name for name, reqs in load_recipes().items()
+            if all(inventory.get(item, 0) >= amt
+                   for item, amt in reqs.items())
+        ]
+        if not can_build:
+            return Reply(BLOCKED,
+                         "You currently don't have enough resources to build "
+                         "anything.")
+        name = _author_name(req) or await _member_name(uid, gid)
+        return await _card(req, RenderedEmbed(
+            title=f"{name}'s Buildable Structures",
+            description="\n".join(s.title() for s in can_build),
+            style_token="green"))
+
     @handler("mining.equip_route")
     async def equip_route(req) -> Reply:
         """`!equip [*item]` — shipped arg-optional (mining_cog.py
@@ -878,9 +954,17 @@ def _register() -> None:
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
 #: forge/workshop/titles/loadouts/character) is D-0043 successor work.
-PENDING = {
-    "build": "structures", "buildlist": "structures",
-    "buildable": "structures",
+PENDING: dict[str, str] = {
+    # build / buildlist / buildable are LIVE (slice 6 port): build_route /
+    # buildlist_route / buildable_view in _register() carry the Available
+    # Structures recipe embed + the fresh-player "not enough resources" guard
+    # (the argful `!build <item>` / craft write stays a D-0043 pending
+    # terminal). home / workshop are LIVE (slice 6 port): the mining.home +
+    # mining.workshop session PanelSpecs carry the not-built Home card + the
+    # Workshop craft/repair panel bytes (the 🏠 Build structure write, the
+    # craft-select write, and the ↩ Workshop sub-hub stay deferred).
+    # This EMPTIES the mining deep-system PENDING roster — all 26 original
+    # deep-system commands are ported (the D-0043 ladder is complete).
     # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
     # their real handlers are the *_route / *_view registered in _register()
     # (mirroring the sell/buy/market lanes), so they leave the PENDING roster.
@@ -904,7 +988,6 @@ PENDING = {
     # The argful `!skill <branch>` spend, the skills-panel branch/respec button
     # clicks, and the titles select-menu equip stay deferred (D-0043 pending
     # terminals — no golden drives a skill/title write).
-    "home": "structures", "workshop": "workshop",
 }
 
 

@@ -48,9 +48,9 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     "handler:fishing.rodrecipes_pending",
     "handler:fishing.sail_pending",
     "handler:fishing.tidepool_pending",
-    "handler:mining.build_pending",
-    "handler:mining.buildable_pending",
-    "handler:mining.buildlist_pending",
+    # build/buildlist/buildable pruned by the slice-6 port — their real
+    # build_route / buildlist_route / buildable_view handlers register at
+    # module import.
     # equip/unequip/gear/loadout/character pruned by the slice-1 port —
     # their real *_route / *_view handlers register at module import.
     # descend/ascend/mineworld pruned by the slice-2 port — their real
@@ -63,8 +63,10 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     # mining.titles PanelSpecs + skill_route register at module import (the
     # skills-panel spend/respec pending terminals register at import in
     # panels.py, so they are import-visible too).
-    "handler:mining.home_pending",
-    "handler:mining.workshop_pending",
+    # home/workshop pruned by the slice-6 port — the mining.home +
+    # mining.workshop PanelSpecs register at module import (the home-build,
+    # workshop-craft, and workshop-hub pending terminals register at import in
+    # panels.py, so they are import-visible too).
     "panel:role.hub",
 })
 

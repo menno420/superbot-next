@@ -40,6 +40,7 @@ from sb.domain.mining import equipment
 #: ``(user, guild, structure, level)`` row in the generic ``mining_structures``
 #: table and shares the same build math.
 FORGE = "forge"
+HOME = "home"
 CAMPFIRE = "campfire"
 
 #: Gear at or below this tier index needs **no** forge (bronze=1, iron=2,
@@ -49,6 +50,11 @@ FREE_TIER_CEILING = 3
 
 #: The forge level shown in the panel / gate message per level.
 _FORGE_LEVEL_NAMES = ("(not built)", "Forge I", "Forge II")
+
+#: Home (slice 6) is purely cosmetic: each level unlocks a nicer Character-card
+#: backdrop. No gameplay gate — Home is a coin/material *sink* with a visible
+#: reward, never a wall. Ported verbatim from the oracle ``structures.py``.
+_HOME_LEVEL_NAMES = ("(not built)", "Cozy Cabin", "Stone Keep", "Grand Hall")
 
 #: Campfire (2026-06-22, owner-chosen): a cheap single-level structure that
 #: gates cooking fish into food (energy refill). A small coin + material sink,
@@ -74,6 +80,17 @@ _FORGE_BUILD_LADDER: tuple[BuildCost, ...] = (
     BuildCost(coins=8_000, materials={"gold": 20, "iron": 10}),
 )
 
+#: Home build ladder — a rising coin + material sink for the three cosmetic
+#: tiers (the pinned oracle defaults, docs/planning/home-numbers-2026-06-15.md).
+_HOME_BUILD_LADDER: tuple[BuildCost, ...] = (
+    # → Cozy Cabin (a warm backdrop)
+    BuildCost(coins=2_000, materials={"wood": 30, "stone": 20}),
+    # → Stone Keep (a cool stone backdrop)
+    BuildCost(coins=5_000, materials={"stone": 50, "iron": 15}),
+    # → Grand Hall (a regal backdrop)
+    BuildCost(coins=12_000, materials={"gold": 15, "diamond": 3}),
+)
+
 #: Campfire build ladder — one cheap level that unlocks cooking.
 _CAMPFIRE_BUILD_LADDER: tuple[BuildCost, ...] = (
     # → Campfire (unlocks !cook)
@@ -95,6 +112,7 @@ class StructureDef:
 _DEFS: dict[str, StructureDef] = {
     FORGE: StructureDef(FORGE, "Forge", _FORGE_BUILD_LADDER,
                         _FORGE_LEVEL_NAMES),
+    HOME: StructureDef(HOME, "Home", _HOME_BUILD_LADDER, _HOME_LEVEL_NAMES),
     CAMPFIRE: StructureDef(CAMPFIRE, "Campfire", _CAMPFIRE_BUILD_LADDER,
                            _CAMPFIRE_LEVEL_NAMES),
 }
@@ -104,6 +122,9 @@ STRUCTURES: tuple[str, ...] = tuple(_DEFS)
 #: Highest forge level (level 2 unlocks the diamond tier — the top of the gear
 #: ladder, so nothing above it needs a higher forge).
 MAX_FORGE_LEVEL = len(_FORGE_BUILD_LADDER)
+
+#: Highest Home level (the top cosmetic backdrop — the Grand Hall).
+MAX_HOME_LEVEL = len(_HOME_BUILD_LADDER)
 
 #: Highest Campfire level (a single buildable level).
 MAX_CAMPFIRE_LEVEL = len(_CAMPFIRE_BUILD_LADDER)
@@ -202,9 +223,11 @@ def tiers_unlocked_at(forge_level: int) -> tuple[str, ...]:
 
 __all__ = [
     "FORGE",
+    "HOME",
     "CAMPFIRE",
     "STRUCTURES",
     "MAX_FORGE_LEVEL",
+    "MAX_HOME_LEVEL",
     "MAX_CAMPFIRE_LEVEL",
     "FREE_TIER_CEILING",
     "BuildCost",
