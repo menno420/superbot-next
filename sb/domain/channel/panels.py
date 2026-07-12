@@ -47,7 +47,9 @@ from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
 __all__ = [
     "channel_hub_spec",
     "ensure_panel_refs",
+    "info_card_spec",
     "install_channel_panels",
+    "list_card_spec",
 ]
 
 # the shipped panel copy (main_panel.build_embed — the golden pins every
@@ -127,7 +129,52 @@ def channel_hub_spec() -> PanelSpec:
     )
 
 
-# --- renderer override ------------------------------------------------------------
+# --- the shipped read-only info embeds (the D-0030 batch re-home) -----------------
+#
+# The utility param-card pattern (#255): the shipped `!channelinfo` /
+# `!list` embeds are composed at the command body from live gateway
+# reads, so the handler owns every byte and the renderer only assembles.
+# Zero components, timeout-free plain sends — modeled as zero-action
+# session panels (never minted, never anchored).
+
+def _info_card_spec(panel_id: str, style_token: str,
+                    pinned_by: str) -> PanelSpec:
+    return PanelSpec(
+        panel_id=panel_id,
+        subsystem="channel",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token=style_token,
+                             footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef(f"{panel_id}_render"),
+        justification=(
+            "the shipped embed copy is live-data-parameterized (gateway "
+            "channel/category reads at send time — cogs/channel_cog.py); "
+            f"grammar TextBlocks are static ({pinned_by} pins the "
+            "bytes). Zero components; the renderer composes only the "
+            "embed."),
+    )
+
+
+def info_card_spec() -> PanelSpec:
+    """The shipped ``!channelinfo`` embed (channel_cog.channel_info —
+    WARNING_COLOR yellow; goldens/channel/sweep_channelinfo pins the
+    bytes)."""
+    return _info_card_spec("channel.info_card", "yellow",
+                           "goldens/channel/sweep_channelinfo")
+
+
+def list_card_spec() -> PanelSpec:
+    """The shipped ``!list`` categories+channels embed
+    (channel_cog.list_channels over views/channels/list_panel.py —
+    INFO_COLOR blue; goldens/channel/sweep_list pins the bytes)."""
+    return _info_card_spec("channel.list_card", "blue",
+                           "goldens/channel/sweep_list")
+
+
+# --- renderer overrides -----------------------------------------------------------
 
 async def _render_hub(spec: PanelSpec, ctx) -> object:
     """Grammar render + the shipped footer literal (see justification)."""
@@ -137,28 +184,67 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=_dc_replace(rendered.embed, footer=_FOOTER))
 
 
+async def _render_param_card(spec: PanelSpec, ctx) -> object:
+    """The shared param-driven info card (the utility #255 pattern):
+    title/description/fields arrive as open params; the accent rides the
+    spec's style_token (WARNING_COLOR yellow / INFO_COLOR blue)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    params = getattr(ctx, "params", {}) or {}
+    fields = tuple(tuple(f) for f in params.get("card_fields", ()) or ())
+    embed = RenderedEmbed(
+        title=str(params.get("card_title", "") or ""),
+        description=str(params.get("card_description", "") or ""),
+        fields=fields,
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 # --- registration -----------------------------------------------------------------
+
+_SPECS = {
+    "channel.hub": channel_hub_spec,
+    "channel.info_card": info_card_spec,
+    "channel.list_card": list_card_spec,
+}
+
+_RENDERERS = {
+    "channel.render_hub": _render_hub,
+    "channel.info_card_render": _render_param_card,
+    "channel.list_card_render": _render_param_card,
+}
+
 
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
-    if not is_registered(PanelRef("channel.hub")):
-        panel("channel.hub")(channel_hub_spec)
-    if not is_registered(HandlerRef("channel.render_hub")):
-        handler("channel.render_hub")(_render_hub)
+    for pid, factory in _SPECS.items():
+        if not is_registered(PanelRef(pid)):
+            panel(pid)(factory)
+    for name, fn in _RENDERERS.items():
+        if not is_registered(HandlerRef(name)):
+            handler(name)(fn)
 
 
 _register_refs()
 
 
 def install_channel_panels() -> tuple[PanelSpec, ...]:
-    spec = channel_hub_spec()
-    try:
-        return (register_panel(spec),)
-    except ValueError as exc:
-        if "already registered" in str(exc) or "duplicate" in str(exc):
-            return (spec,)
-        raise
+    out = []
+    for factory in _SPECS.values():
+        spec = factory()
+        try:
+            out.append(register_panel(spec))
+        except ValueError as exc:
+            if "already registered" in str(exc) or "duplicate" in str(exc):
+                out.append(spec)
+            else:
+                raise
+    return tuple(out)
 
 
 def ensure_panel_refs() -> None:
