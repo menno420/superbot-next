@@ -27,7 +27,7 @@ Verified at HEAD and recorded:
   EXECUTION is not done and stays owner-gated (LIVE).
 - LIVE — #3 backup/DR (restore-verify 0 runs, backup 4/4 skipped,
   `BACKUP_ENABLED` gate), #4 AI dark (`config.py:148/:166`), #5 live
-  effect adapters unarmed (D-0052(4)), #6 `_unmapped` pool = 15 fishing
+  effect adapters unarmed (`decisions.md:388`(4)), #6 `_unmapped` pool = 15 fishing
   goldens (`parity.yml:133` pending), governance/platform still rosterless.
 
 Docs-only: one addendum appended to the review + this card + telemetry
