@@ -7643,6 +7643,11 @@
           "value": "player_skills"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_world"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "mod_logs"
@@ -9037,8 +9042,8 @@
       "handler:logging.test_send": {
         "module": "sb.domain.server_logging.handlers"
       },
-      "handler:mining.ascend_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.ascend_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.build_pending": {
         "module": "sb.domain.operator_spine"
@@ -9061,8 +9066,8 @@
       "handler:mining.cook_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.descend_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.descend_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.equip_route": {
         "module": "sb.domain.mining.service"
@@ -9103,8 +9108,8 @@
       "handler:mining.mineinv_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.mineworld_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.mineworld_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.quickcraft_pending": {
         "module": "sb.domain.operator_spine"
@@ -11200,10 +11205,16 @@
       "workflow:mining.apply_loadout": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.ascend": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.delete_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.descend": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.equip": {
@@ -11239,10 +11250,16 @@
       "workflow:mining.record_apply_loadout": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_ascend": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_buy": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_delete_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_descend": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_equip": {
@@ -11255,6 +11272,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_mine": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_reseed_world": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_reset_inventory": {
@@ -11270,6 +11290,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_unequip": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.reseed_world": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.reset_inventory": {
@@ -12000,6 +12023,14 @@
         },
         "subsystem": "mining"
       },
+      "mining_world": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_world",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
       "mod_logs": {
         "checkpoint_class": "ledger",
         "invariant_tag": "mod_logs",
@@ -12195,7 +12226,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:894f31f6b9066be2cee006bf43b765f6152fd484547072e5f61316dbe376e9ea",
+  "stable_hash": "sha256:512542c6b2d55cffa334345f93da68b5b951c3dd612e7b466de860be174f0286",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -38858,7 +38889,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.descend_pending"
+            "$ref": "handler:mining.descend_route"
           },
           "slash_common": false,
           "summary": "Descend to a deeper mining band.",
@@ -38882,7 +38913,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.ascend_pending"
+            "$ref": "handler:mining.ascend_route"
           },
           "slash_common": false,
           "summary": "Return toward the surface.",
@@ -38906,10 +38937,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.mineworld_pending"
+            "$ref": "handler:mining.mineworld_route"
           },
           "slash_common": false,
-          "summary": "The shared mining world grid.",
+          "summary": "The shared mining world seed.",
           "usage": "!mineworld",
           "usage_weight": 1.0
         },
@@ -39674,6 +39705,32 @@
             "$ref": "engine:mining.store"
           },
           "table": "player_skills",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_world",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_world",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

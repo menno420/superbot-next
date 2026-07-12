@@ -583,6 +583,98 @@ def _register() -> None:
             ))
         return await _card_with_file(req, embed, "character.png")
 
+    @handler("mining.descend_route")
+    async def descend_route(req) -> Reply:
+        """`!descend` — the shipped depth move (mining_cog.py ``descend``;
+        services/mining_workflow.py ``descend``). The move is gated by the
+        equipped light's ``depth_access`` stat (persistent, not consumed):
+        a fresh gearless player reads all-zero stats and CANNOT descend, so
+        the bare invocation answers the mention-prefixed refusal
+        (goldens/mining/sweep_descend pins ``<@…> can't descend any deeper.
+        Equip a brighter light to descend to Cavern (needs depth access
+        1).``) — a pure read, no write, no audit row. A geared descent runs
+        the audited depth op (set_depth + one-time depth_record game XP) and
+        answers the moved position; that row-bearing lane exists in no
+        imported golden (depth.exemptions.mining guard-only-capture)."""
+        from sb.domain.mining import character, store, world
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        depth = await store.get_depth(uid, gid)
+        equipped = await store.get_equipment(uid, gid)
+        alloc = await store.get_skills(uid, gid)
+        stats = character.character_stats(equipped, alloc)
+        if world.descend(depth, stats) == depth:
+            return Reply(BLOCKED,
+                         f"<@{uid}> can't descend any deeper. "
+                         f"{world.descend_hint(stats)}")
+        blocked, after = await _op_after(req, "mining.descend")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.ascend_route")
+    async def ascend_route(req) -> Reply:
+        """`!ascend` — the shipped climb (mining_cog.py ``ascend``;
+        services/mining_workflow.py ``ascend``). A player at the Surface
+        cannot ascend, so the bare fresh-player invocation answers the
+        mention-prefixed refusal (goldens/mining/sweep_ascend pins ``<@…>
+        is already at the Surface.``) — a pure read, no write. Below the
+        Surface the audited op writes the new band and answers the moved
+        position (no imported golden drives it)."""
+        from sb.domain.mining import store, world
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        depth = await store.get_depth(uid, gid)
+        if world.ascend(depth) == depth:
+            return Reply(BLOCKED, f"<@{uid}> is already at the Surface.")
+        blocked, after = await _op_after(req, "mining.ascend")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.mineworld_route")
+    async def mineworld_route(req) -> Reply:
+        """`!mineworld [seed]` — the shipped shared-world seed (mining_cog.py
+        ``mineworld``). Bare: reads the guild's world seed (a guild with no
+        row defaults to ``seed = guild_id`` in the store) and answers the
+        seed-share copy plain (goldens/mining/sweep_mineworld pins the
+        default-seed byte with no row). With a numeric seed: the manage_guild
+        re-seed (ActorRef.is_guild_operator — the shipped
+        ``member_has_perms_or_owner(manage_guild=True)`` port home) runs the
+        audited reseed op; a non-manager is refused, an unparseable seed
+        degrades through the generic copy. The reseed WRITE exists in no
+        imported golden (depth.exemptions.mining guard-only-capture)."""
+        from sb.domain.mining import store
+
+        gid = int(req.guild_id or 0)
+        argv = [str(t) for t in tuple(req.args.get("argv", ()) or ())]
+        values = [str(t) for t in tuple(req.args.get("values", ()) or ())]
+        tokens = argv or values
+        if not tokens:
+            current = await store.get_world_seed(gid)
+            return Reply(SUCCESS,
+                         f"🌐 This server's mining world seed is "
+                         f"**{current}**. Everyone here roams the same "
+                         "world — share the seed to compare maps. Server "
+                         "managers can reseed with `!mineworld <number>`.")
+        try:
+            seed = int(tokens[0])
+        except ValueError:
+            return Reply(BLOCKED, _GENERIC_ERROR)
+        if not getattr(req.actor, "is_guild_operator", False):
+            return Reply(BLOCKED,
+                         "Only server managers can reseed the mining world.")
+        blocked, _after = await _op_after(req, "mining.reseed_world",
+                                          {"seed": seed})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS,
+                     f"🌐 Reseeded this server's mining world to **{seed}**. "
+                     "The whole grid regenerated; your position and explored "
+                     "map carry over.")
+
 
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
@@ -594,8 +686,10 @@ PENDING = {
     # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
     # their real handlers are the *_route / *_view registered in _register()
     # (mirroring the sell/buy/market lanes), so they leave the PENDING roster.
-    "descend": "depth bands", "ascend": "depth bands",
-    "mineworld": "world grid", "vault": "vault", "stash": "vault",
+    # descend / ascend / mineworld are LIVE (slice 2 port): descend_route /
+    # ascend_route / mineworld_route in _register() carry the depth-traversal
+    # + world-seed bytes, so they too leave the PENDING roster.
+    "vault": "vault", "stash": "vault",
     "unstash": "vault", "vaultupgrade": "vault", "skills": "skills",
     "skill": "skills", "titles": "titles", "forge": "forge",
     "home": "structures", "workshop": "workshop", "repair": "workshop",

@@ -377,6 +377,77 @@ async def _record_delete_loadout(conn, ctx: WorkflowContext) -> LegOutcome:
                "message": f"deleted the **{name}** loadout."})
 
 
+# --- descent / world-seed write legs (slice 2 — the shipped direct-lane depth
+# moves + owner re-seed, re-homed onto the audited K7 one-leg one-txn seam;
+# services/mining_workflow.py descend/ascend/reseed_world verbatim. NO golden
+# drives these WRITE paths — every imported sweep pins the bare guard/read byte
+# (goldens/mining/sweep_descend refuses at the Surface, sweep_ascend at the
+# Surface, sweep_mineworld reads the default seed) — so the guard/read bytes in
+# service.py are the only parity surface, and the tables stay guard-only
+# (depth.exemptions.mining) ---------------------------------------------------
+
+
+@workflow("mining.record_descend")
+async def _record_descend(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.domain.mining import character, world
+
+    uid, gid, now = _ids(ctx)
+    depth = await store.get_depth(uid, gid, conn=conn)
+    # Gear + allocated skill points: an unspent player reads {} ⇒ all-zero
+    # stats (the additive safety property), so a fresh player can't descend.
+    equipped = await store.get_equipment(uid, gid, conn=conn)
+    alloc = await store.get_skills(uid, gid, conn=conn)
+    stats = character.character_stats(equipped, alloc)
+    new_depth = world.descend(depth, stats)
+    if new_depth == depth:
+        # Defensive: the handler gates the not-moved case out before the op
+        # (it has no write and no audit row — the guard-byte parity path).
+        raise ValidatorError(
+            f"can't descend any deeper. {world.descend_hint(stats)}")
+    await store.set_depth(conn, user_id=uid, guild_id=gid, depth=new_depth)
+    if await store.record_depth(conn, user_id=uid, guild_id=gid,
+                                depth=new_depth):
+        ctx.params["_gxp"] = await game_xp.award_in_txn(
+            conn, user_id=uid, guild_id=gid, game=game_xp.GAME_MINING,
+            action="depth_record", now=now)
+    ctx.params["_balance_changes"] = []
+    return LegOutcome(
+        step=StepResult(uid, "descend", True), before={},
+        after={"depth": new_depth,
+               "message": f"descended to {world.describe_position(new_depth)}."})
+
+
+@workflow("mining.record_ascend")
+async def _record_ascend(conn, ctx: WorkflowContext) -> LegOutcome:
+    from sb.domain.mining import world
+
+    uid, gid, _ = _ids(ctx)
+    depth = await store.get_depth(uid, gid, conn=conn)
+    new_depth = world.ascend(depth)
+    if new_depth == depth:
+        raise ValidatorError("is already at the Surface.")
+    await store.set_depth(conn, user_id=uid, guild_id=gid, depth=new_depth)
+    return LegOutcome(
+        step=StepResult(uid, "ascend", True), before={},
+        after={"depth": new_depth,
+               "message": f"climbed up to "
+                          f"{world.describe_position(new_depth)}."})
+
+
+@workflow("mining.record_reseed_world")
+async def _record_reseed_world(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The owner `!mineworld <seed>` re-seed — a per-guild write
+    (mining_world; guild-keyed, no member data). The manage_guild gate
+    rides in the handler (ActorRef.is_guild_operator), the shipped
+    ``member_has_perms_or_owner(manage_guild=True)`` port home."""
+    uid, gid, _ = _ids(ctx)
+    seed = int(ctx.params["seed"])
+    await store.set_world_seed(conn, guild_id=gid, seed=seed)
+    return LegOutcome(
+        step=StepResult(uid, "reseed_world", True), before={},
+        after={"seed": seed})
+
+
 @workflow("mining.erase_subject_equipment")
 async def _erase_equipment(conn, ctx: WorkflowContext) -> LegOutcome:
     subject = int(ctx.params["subject_user_id"])
@@ -473,9 +544,15 @@ APPLY_LOADOUT = _op("mining.apply_loadout", "mining_loadout_applied",
                     "mining.record_apply_loadout", ())
 DELETE_LOADOUT = _op("mining.delete_loadout", "mining_loadout_deleted",
                      "mining.record_delete_loadout", ())
+DESCEND = _op("mining.descend", "mining_descended", "mining.record_descend",
+              _XP_EMITS)
+ASCEND = _op("mining.ascend", "mining_ascended", "mining.record_ascend", ())
+RESEED_WORLD = _op("mining.reseed_world", "mining_world_reseeded",
+                   "mining.record_reseed_world", ())
 
 _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
-        EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT)
+        EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
+        DESCEND, ASCEND, RESEED_WORLD)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -490,6 +567,9 @@ _REF_TABLE = (
     ("mining.record_save_loadout", _record_save_loadout),
     ("mining.record_apply_loadout", _record_apply_loadout),
     ("mining.record_delete_loadout", _record_delete_loadout),
+    ("mining.record_descend", _record_descend),
+    ("mining.record_ascend", _record_ascend),
+    ("mining.record_reseed_world", _record_reseed_world),
     ("mining.erase_subject_inventory", _erase_inventory),
     ("mining.erase_subject_state", _erase_state),
     ("mining.erase_subject_equipment", _erase_equipment),

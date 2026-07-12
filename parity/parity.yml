@@ -720,18 +720,21 @@ depth:
           corpus-expressible (!descend / !ascend) but the imported sweep
           drove only their bare fresh-player invocations, and both pin
           the shipped GUARD bytes with no row —
-          goldens/_unmapped/sweep_descend.json (\"can't descend any
+          goldens/mining/sweep_descend.json (\"can't descend any
           deeper. Equip a brighter light to descend to Cavern (needs
           depth access 1).\" — the light-gated depth_access refusal) and
-          sweep_ascend.json (\"is already at the Surface.\") — so every
-          captured case pins the refusal byte and the row-bearing GEARED
-          descent exists in no imported golden (D-0069; the class's own
-          record: a future geared capture deletes it). The read side IS
-          golden-pinned row-less (sweep_fastmine / sweep_explore /
-          sweep_minemenu render the depth-0 \"🌳 Surface (depth 0/3)\"
-          byte off the store's no-row default); descend/ascend stay
-          D-0043 pending terminals with their sweeps in _unmapped for
-          the deep-system successor"
+          goldens/mining/sweep_ascend.json (\"is already at the
+          Surface.\") — so every captured case pins the refusal byte and
+          the row-bearing GEARED descent exists in no imported golden
+          (D-0069; the class's own record: a future geared capture
+          deletes it). The read side IS golden-pinned row-less
+          (sweep_fastmine / sweep_explore / sweep_minemenu render the
+          depth-0 \"🌳 Surface (depth 0/3)\" byte off the store's no-row
+          default); descend/ascend are LIVE this slice (slice 2 —
+          descend_route / ascend_route in sb/domain/mining/service.py),
+          their sweeps re-homed into the gated mining row, but the
+          not-moved refusal path they pin is a pure read (no write, no
+          audit row), so the store stays declared-but-guard-only"
       # Slice-1 equipment/wear/loadout/skills port (this PR): the four new
       # write-store tables are declared mining surfaces, but every imported
       # sweep pinned ONLY the bare/guard invocation byte — no golden carries
@@ -766,6 +769,20 @@ depth:
           the character.png attachment filename with no row); the skill
           command itself stays a D-0043 pending terminal this slice — goldens
           pin write-free guard paths only, so the table cannot be covered"
+      # Slice-2 depth/world port (this PR): the per-guild world seed is a
+      # declared mining surface, but the imported sweep drove only the bare
+      # `!mineworld` READ — which returns the seed = guild_id default from
+      # the store's no-row path — so no golden carries a mining_world row.
+      - surface: "table:mining_world"
+        reason: "guard-only-capture: the reseed write lane IS
+          corpus-expressible (!mineworld <seed>, manage_guild-gated) but the
+          imported sweep drove only the bare !mineworld, pinning the
+          default-seed read byte (\"This server's mining world seed is
+          **<guild>**. …\") off the store's no-row default = guild_id
+          (goldens/mining/sweep_mineworld.json) with no row; the row-bearing
+          owner reseed exists in no imported golden — goldens pin the
+          write-free read path only, so the table cannot be covered until an
+          admin-reseed capture lands"
     proof_channel:
       # proof_channel's five goldens (the re-homed prize sweeps
       # included) all pin the shipped "#proof not found" guard — the
