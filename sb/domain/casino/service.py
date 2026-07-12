@@ -139,23 +139,114 @@ def _register() -> None:
 
     @handler("casino.poker_start")
     async def poker_start(req):
+        """Host presses ▶️ Start — DEAL the first hand through the ported
+        betting engine and open the public spectator + action panel (the
+        D-0045 successor: dealing is no longer a blocked terminal).  The
+        per-player private hole cards render as a pure projection of the one
+        engine snapshot (view.player_hand_view); their LIVE ephemeral
+        delivery is the owner-armed live-adapter step, deferred."""
+        from sb.domain.casino.game import start_game
+        from sb.domain.casino.panels import POKER_GAME_PANEL_ID
         from sb.domain.casino.table import MIN_PLAYERS, get_table
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
 
         lobby = get_table(int(req.channel_id or 0))
         if lobby is None or lobby.ended:
             return Reply(BLOCKED, "This table has closed.")
         if int(req.actor.user_id) != lobby.host_id:
             return Reply(BLOCKED, "Only the host can start the table.")
+        if lobby.started:
+            return Reply(BLOCKED, "This game has already started.")
         if len(lobby.seats) < MIN_PLAYERS:
             return Reply(BLOCKED,
                          f"Need at least {MIN_PLAYERS} players to start.")
-        # the game layer (dealing + per-player auto-updating ephemeral
-        # hands) arms with the live adapter — D-0045 successor note; the
-        # deck + evaluator are already aboard.
-        return Reply(BLOCKED,
-                     "♠ Dealing arms with the live adapter — per-player "
-                     "auto-updating hands have no headless shape yet. "
-                     "The deck and hand evaluator are already aboard.")
+        lobby.started = True
+        start_game(int(req.channel_id or 0), list(lobby.seats))
+        # the public spectator + action panel (CHANNEL_ANCHOR public send);
+        # the lobby message stays put but its Join/Start clicks are inert
+        # (guarded on ``lobby.started``).
+        await open_panel(PanelRef(POKER_GAME_PANEL_ID), req)
+        return Reply(SUCCESS, None)
+
+    @handler("casino.poker_action")
+    async def poker_action(req):
+        """A play button on the public game panel (session-lifecycle binding
+        → resolve() → here): run the mapped engine transition, then refresh
+        the public spectator view IN PLACE (the blackjack solo-table recipe).
+        Every click is gated to the seat whose turn it is — the host
+        end-controls to the host (the shipped per-click authority)."""
+        from sb.domain.casino.engine import Action, PokerError
+        from sb.domain.casino.game import end_game, get_game
+        from sb.domain.casino.table import close_table, get_table
+        from sb.domain.casino.view import raise_targets
+        from sb.kernel.panels.engine import refresh_session_view
+
+        channel_id = int(req.channel_id or 0)
+        game = get_game(channel_id)
+        if game is None:
+            return Reply(BLOCKED, "This hand has ended.")
+        action = str(req.args.get("session_action") or "")
+        uid = int(req.actor.user_id)
+        lobby = get_table(channel_id)
+        host_id = lobby.host_id if lobby is not None else 0
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+
+        # --- host end-of-hand controls ---------------------------------
+        if action in ("poker_deal_next", "poker_end"):
+            if uid != host_id:
+                return Reply(BLOCKED, "Only the host can do that.")
+            if not game.is_hand_over:
+                return Reply(BLOCKED, "Finish this hand first.")
+            if action == "poker_end":
+                end_game(channel_id)
+                if lobby is not None:
+                    close_table(channel_id)
+                await refresh_session_view(
+                    req, message_key=message_key, params={}, expire=True)
+                return Reply(SUCCESS, None)
+            try:
+                game.begin_hand()               # the shipped "Deal next hand"
+            except PokerError:
+                # fewer than two funded seats — the table folds (shipped).
+                end_game(channel_id)
+                if lobby is not None:
+                    close_table(channel_id)
+                await refresh_session_view(
+                    req, message_key=message_key, params={}, expire=True)
+                return Reply(SUCCESS,
+                             "♠ Not enough funded players — the table closed.")
+            await refresh_session_view(req, message_key=message_key, params={})
+            return Reply(SUCCESS, None)
+
+        # --- in-hand play actions (current seat only) ------------------
+        current = game.current_player
+        if current is None or int(current.user_id) != uid:
+            return Reply(BLOCKED, "It's not your turn.")
+        targets = raise_targets(game.snapshot())
+        try:
+            if action == "poker_fold":
+                game.act(Action.FOLD)
+            elif action == "poker_checkcall":
+                game.act(Action.CHECK if game.to_call() == 0 else Action.CALL)
+            elif action == "poker_raise_min":
+                game.act(Action.RAISE, raise_to=targets["min"])
+            elif action == "poker_raise_pot":
+                game.act(Action.RAISE, raise_to=targets["pot"])
+            elif action == "poker_allin":
+                game.act(Action.RAISE, raise_to=targets["max"])
+            else:
+                return Reply(BLOCKED, "This session has expired — "
+                                      "start a new one.")
+        except PokerError as exc:
+            return Reply(BLOCKED, f"♠ {exc}")
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params={})
+        if not refreshed:
+            return Reply(SUCCESS, "♠ Move recorded — "
+                                  "waiting for the table view.")
+        return Reply(SUCCESS, None)
 
     @handler("casino.poker_close")
     async def poker_close(req):

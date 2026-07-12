@@ -4213,6 +4213,41 @@
           "value": "poker_close"
         },
         {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_fold"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_checkcall"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_raise_min"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_raise_pot"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_allin"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_deal_next"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_end"
+        },
+        {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
           "value": "chain_create"
@@ -5835,6 +5870,11 @@
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino.poker_table"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino.poker_game"
         },
         {
           "source": "sb/manifest/chain.py",
@@ -8278,6 +8318,9 @@
       "handler:btd6.strategy_form_submit": {
         "module": "sb.domain.btd6.oracle_surface"
       },
+      "handler:casino.poker_action": {
+        "module": "sb.domain.casino.service"
+      },
       "handler:casino.poker_close": {
         "module": "sb.domain.casino.service"
       },
@@ -8294,6 +8337,9 @@
         "module": "sb.domain.casino.service"
       },
       "handler:casino.render_hub": {
+        "module": "sb.domain.casino.panels"
+      },
+      "handler:casino.render_poker_game": {
         "module": "sb.domain.casino.panels"
       },
       "handler:casino.render_poker_table": {
@@ -9824,6 +9870,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "panel:casino.hub": {
+        "module": "sb.domain.casino.panels"
+      },
+      "panel:casino.poker_game": {
         "module": "sb.domain.casino.panels"
       },
       "panel:casino.poker_table": {
@@ -12112,7 +12161,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:7da5336ea062ab3c1a4f657b79212db721f14f6f7a9c33cf35a16adee2b8bf51",
+  "stable_hash": "sha256:3a46d7f26e7a2ef3d366da291cc5e643e980e445388d5c60f3f1032ed2605ca4",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -21195,6 +21244,236 @@
           "subsystem": "casino",
           "timeout_s": 600,
           "title": "♠ Poker Table — open!",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "poker_fold",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🏳️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Fold",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_checkcall",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Check",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_raise_min",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "⬆️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Raise",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_raise_pot",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🔥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Raise (pot)",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_allin",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "💥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "All-in",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_deal_next",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🃏",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Deal next hand",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_end",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🛑",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "End table",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the whole embed is live betting-state copy (board / pot / hand number / seat stacks / the 🏆 showdown result — the shipped _refresh_public card) and the SeatView buttons carry per-turn labels/enablement derived from the engine snapshot (Check vs Call {n}, the three raise presets, the host Deal-next/End controls); grammar TextBlocks are static and PanelActionSpec has no dynamic-label/disabled vocabulary, so the override composes the embed + declared components with their snapshot-derived state (the blackjack solo-table delegation recipe). Play-chips only — no economy field anywhere.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "poker_fold",
+                    "poker_checkcall",
+                    "poker_raise_min",
+                    "poker_raise_pot",
+                    "poker_allin"
+                  ],
+                  [
+                    "poker_deal_next",
+                    "poker_end"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "casino.poker_game",
+          "renderer_override": {
+            "$ref": "handler:casino.render_poker_game"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "casino",
+          "timeout_s": 1800,
+          "title": "♠ Poker Table",
           "usage_weight": 1.0
         }
       ],

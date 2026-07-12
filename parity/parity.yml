@@ -58,10 +58,17 @@ source:
   # bytes) as regression tripwires — kernel-band docs are exempt from the
   # kernel-surface-drift drop at diff time (sb/adapters/parity/
   # dispositions.py), so kernel drift goes red HERE instead of nowhere.
-  minted_goldens: 6
+  # D-0073 procedure re-run for the casino poker PLAY layer: one minted
+  # golden (goldens/casino/poker_full_hand.json) pins a full headless
+  # Texas Hold'em hand — lobby → seat → deal → check/call betting rounds →
+  # showdown — as the public spectator embed captured per action, with the
+  # kernel-spine surfaces STRIPPED (audit_log / event_outbox /
+  # command.dispatched); the per-player ephemeral hands stay the owner-armed
+  # live step (D-0045), so only the headless-shaped public surface is minted.
+  minted_goldens: 7
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 468). The first retirement (2026-07-12
+  # imported + minted − retired = 469). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

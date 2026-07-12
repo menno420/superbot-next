@@ -1,0 +1,1603 @@
+{
+ "case_id": "casino.poker_full_hand",
+ "db_delta": {
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1984580097,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@admin>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "minted (D-0073): a full headless Texas Hold'em hand \u2014 lobby \u2192 seat \u2192 deal \u2192 check/call betting rounds \u2192 showdown, public spectator embed pinned per action (per-player ephemeral hands ride the owner-armed live step, D-0045)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83e\ude91"
+          },
+          "label": "Join",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udeaa"
+          },
+          "label": "Leave",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u25b6\ufe0f"
+          },
+          "label": "Start",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uddd1\ufe0f"
+          },
+          "label": "Close",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**Texas Hold'em**, group play. Press **Join** to take a seat \u2014 you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips \u00b7 Blinds 5/10 \u00b7 up to 8 seats.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Seated (1/8)",
+          "value": "\ud83d\udc51 AdminActor"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Host AdminActor starts when ready."
+        },
+        "title": "\u2660 Poker Table \u2014 open!",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!poker",
+    "kind": "command",
+    "persona": "admin"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83e\ude91"
+          },
+          "label": "Join",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udeaa"
+          },
+          "label": "Leave",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u25b6\ufe0f"
+          },
+          "label": "Start",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uddd1\ufe0f"
+          },
+          "label": "Close",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**Texas Hold'em**, group play. Press **Join** to take a seat \u2014 you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips \u00b7 Blinds 5/10 \u00b7 up to 8 seats.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Seated (2/8)",
+          "value": "\ud83d\udc51 AdminActor\n\u2022 MemberActor"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Host AdminActor starts when ready."
+        },
+        "title": "\u2660 Poker Table \u2014 open!",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:3>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Call 5",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Raise to 20",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Raise to 25 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 1000",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**AdminActor** to act.\n_MemberActor posts the big blind (10)._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "\u2014"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "15"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "\u25b6 AdminActor \u2014 995 chips\nMemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:3>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:4>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Raise to 20",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Raise to 30 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 1000",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**MemberActor** to act.\n_AdminActor calls 5._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "\u2014"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:6>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 10",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 20 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 990",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**MemberActor** to act.\n_MemberActor checks._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:7>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 10",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 20 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 990",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**AdminActor** to act.\n_MemberActor checks._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "\u25b6 AdminActor \u2014 990 chips\nMemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:8>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 10",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 20 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 990",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**MemberActor** to act.\n_AdminActor checks._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S  8S"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:9>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 10",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 20 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 990",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**AdminActor** to act.\n_MemberActor checks._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S  8S"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "\u25b6 AdminActor \u2014 990 chips\nMemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:10>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 10",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 20 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 990",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**MemberActor** to act.\n_AdminActor checks._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S  8S  6C"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "AdminActor \u2014 990 chips\n\u25b6 MemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:11>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 10",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 20 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 990",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**AdminActor** to act.\n_MemberActor checks._",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S  8S  6C"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "\u25b6 AdminActor \u2014 990 chips\nMemberActor \u2014 990 chips"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Blinds 5/10 \u00b7 Texas Hold'em"
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:12>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "type": 6
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:5>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:5>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udff3\ufe0f"
+          },
+          "label": "Fold",
+          "style": 4,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\u2705"
+          },
+          "label": "Check",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\u2b06\ufe0f"
+          },
+          "label": "Bet 0",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:8>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udd25"
+          },
+          "label": "Bet 0 (pot)",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:9>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\udca5"
+          },
+          "label": "All-in 0",
+          "style": 3,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:10>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83c\udccf"
+          },
+          "label": "Deal next hand",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:11>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "\ud83d\uded1"
+          },
+          "label": "End table",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "AdminActor wins 20 with Two Pair.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Board",
+          "value": "4H  3H  10S  8S  6C"
+         },
+         {
+          "inline": false,
+          "name": "\ud83d\udcb0 Pot",
+          "value": "20"
+         },
+         {
+          "inline": false,
+          "name": "Hand #",
+          "value": "1"
+         },
+         {
+          "inline": false,
+          "name": "Players",
+          "value": "AdminActor \u2014 1010 chips\nMemberActor \u2014 990 chips"
+         },
+         {
+          "inline": false,
+          "name": "\ud83c\udfc6 Result",
+          "value": "AdminActor wins 20 with Two Pair."
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Host: press \"Deal next hand\". Hands aren't restart-safe."
+        },
+        "title": "\u2660 Poker Table",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:6>",
+    "kind": "click",
+    "persona": "admin",
+    "target_message": 2
+   }
+  }
+ ],
+ "subsystem": "casino"
+}

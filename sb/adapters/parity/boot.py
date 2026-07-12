@@ -770,6 +770,8 @@ class Harness:
         """Reset cross-case in-memory state WITHOUT tearing down the
         composition (the runner calls this at each case head; the DB reset
         is the runner's own step)."""
+        from sb.domain.casino.game import reset_games_for_tests
+        from sb.domain.casino.table import reset_tables_for_tests
         from sb.kernel.interaction import cooldown as cooldown_mod
         from sb.kernel.interaction.resolve import reset_resolver_ports_for_tests
         from sb.kernel.panels import engine as panel_engine
@@ -777,6 +779,11 @@ class Harness:
         cooldown_mod.reset_for_tests()
         panel_engine.reset_panel_engine_for_tests()      # sessions + presenter
         reset_resolver_ports_for_tests()                 # seen ids + ports
+        # the poker lobby + in-hand registries are process-global cross-case
+        # state (one table/game per channel) — clear them per case so a
+        # `!poker` in one case never finds the prior case's live table.
+        reset_tables_for_tests()
+        reset_games_for_tests()
         self.leaked_channels.clear()                     # per-case seed (runner)
         self.leaked_roster.clear()                       # per-case seed (runner)
         self._arm_capture_ports()                        # re-arm what we own
