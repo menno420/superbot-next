@@ -310,7 +310,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 47,
+  "manifest_count": 48,
   "projections": {
     "events": {
       "ai.orchestration.category_changed": {
@@ -2313,6 +2313,14 @@
           "subsystem": "fishing",
           "surface": "prefix",
           "value": "fishery"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/four_twenty.py",
+          "subsystem": "four_twenty",
+          "surface": "prefix",
+          "value": "420"
         },
         {
           "kind": "command",
@@ -4344,6 +4352,21 @@
           "value": "fishing_trophies"
         },
         {
+          "source": "sb/manifest/four_twenty.py",
+          "subsystem": "four_twenty",
+          "value": "wisdom"
+        },
+        {
+          "source": "sb/manifest/four_twenty.py",
+          "subsystem": "four_twenty",
+          "value": "four_twenty_fact"
+        },
+        {
+          "source": "sb/manifest/four_twenty.py",
+          "subsystem": "four_twenty",
+          "value": "four_twenty_overview"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "games_blackjack"
@@ -5533,6 +5556,11 @@
           "value": "fishing.hub"
         },
         {
+          "source": "sb/manifest/four_twenty.py",
+          "subsystem": "four_twenty",
+          "value": "four_twenty.overview"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "games.hub"
@@ -5766,6 +5794,11 @@
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "value": "help.sub_general"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.sub_four_twenty"
         },
         {
           "source": "sb/manifest/help.py",
@@ -6725,6 +6758,11 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing"
+        },
+        {
+          "source": "sb/manifest/four_twenty.py",
+          "subsystem": "four_twenty",
+          "value": "four_twenty"
         },
         {
           "source": "sb/manifest/games.py",
@@ -8124,6 +8162,15 @@
       "handler:fishing.trophies_view": {
         "module": "sb.domain.fishing.service"
       },
+      "handler:four_twenty.fact_view": {
+        "module": "sb.domain.four_twenty.handlers"
+      },
+      "handler:four_twenty.panel_view": {
+        "module": "sb.domain.four_twenty.handlers"
+      },
+      "handler:four_twenty.wisdom_view": {
+        "module": "sb.domain.four_twenty.handlers"
+      },
       "handler:games.session_gc_fire": {
         "module": "sb.domain.games.service"
       },
@@ -9051,6 +9098,9 @@
       "panel:fishing.hub": {
         "module": "sb.manifest.fishing"
       },
+      "panel:four_twenty.overview": {
+        "module": "sb.domain.four_twenty.panels"
+      },
       "panel:games.hub": {
         "module": "sb.domain.games.panels"
       },
@@ -9157,6 +9207,9 @@
         "module": "sb.domain.help.service"
       },
       "panel:help.sub_fishing": {
+        "module": "sb.domain.help.service"
+      },
+      "panel:help.sub_four_twenty": {
         "module": "sb.domain.help.service"
       },
       "panel:help.sub_games": {
@@ -9631,6 +9684,9 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_fishing_0": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cmds_four_twenty_0": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cmds_games_0": {
@@ -11086,7 +11142,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:c05fcd85102f9fe62ae3e465c22dc2bf79838e5943ebda7fe78829b470c11007",
+  "stable_hash": "sha256:c897defb0f4998859b427a8f94233d171bc5e409b029383e828573014364568d",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -27569,6 +27625,178 @@
       "version": 1,
       "wizard_sections": []
     },
+    "four_twenty": {
+      "capabilities": [],
+      "commands": [
+        {
+          "aliases": [
+            "fourtwenty",
+            "fourtwenty420"
+          ],
+          "audience_tier": "user",
+          "capability": "four_twenty",
+          "capability_required": "",
+          "cooldown": {
+            "per_s": 10,
+            "rate": 3,
+            "scope": "user"
+          },
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "name": "420",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:four_twenty.panel_view"
+          },
+          "slash_common": false,
+          "summary": "Open the 🍃 420 panel — rotating wisdom and number trivia.",
+          "usage": "!420",
+          "usage_weight": 1.0
+        }
+      ],
+      "data_invariants": [],
+      "events": [],
+      "key": "four_twenty",
+      "panels": [
+        {
+          "actions": [
+            {
+              "action_id": "wisdom",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:four_twenty.wisdom_view"
+              },
+              "label": "🍃 Wisdom",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "four_twenty_fact",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:four_twenty.fact_view"
+              },
+              "label": "🔢 420 Fact",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "four_twenty_overview",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:four_twenty.overview"
+              },
+              "label": "↩ Overview",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "Take it easy. Pick an option below.\n\n**🍃 Wisdom** — a little relaxed wisdom\n**🔢 420 Fact** — number trivia for the curious\n\n_Tip: drop a `420` in chat and watch what happens._"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "leaf_green",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "wisdom",
+                    "four_twenty_fact"
+                  ],
+                  [
+                    "four_twenty_overview"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "four_twenty.overview",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "four_twenty",
+          "timeout_s": 300,
+          "title": "🍃 420",
+          "usage_weight": 1.0
+        }
+      ],
+      "settings": [],
+      "stores": [],
+      "version": 1,
+      "wizard_sections": []
+    },
     "games": {
       "capabilities": [],
       "commands": [
@@ -31293,6 +31521,53 @@
           "audience": "public",
           "body": [
             {
+              "text": "1 command(s), generated from the `four_twenty` manifest."
+            },
+            {
+              "provider": {
+                "$ref": "provider:sb.panels.help_cmds_four_twenty_0"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.cat_utility"
+            },
+            "show_help": false,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "help.sub_four_twenty",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "🍃 420 — commands",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
               "text": "Info, tools, and discovery commands."
             },
             {
@@ -31349,7 +31624,8 @@
               },
               "options_source": [
                 "🔧 Utility",
-                "💬 General"
+                "💬 General",
+                "🍃 420"
               ],
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",

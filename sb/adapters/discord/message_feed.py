@@ -13,6 +13,12 @@ TWO armed consumers ride the one listener:
   rng + the participation gate live in the domain core; the audited K7
   ``xp.award`` op does the writing.
 
+* the passive four_twenty easter egg (band 6) — the shipped
+  ``FourTwentyStage`` (pipeline order 50, AFTER the XP stage's 30): a 🍃
+  reaction + occasional one-liner when a human message mentions 420
+  (``handle_four_twenty``, guards inside; the domain service owns the
+  regex/cooldown/coin — goldens/four_twenty/sweep_420 pins the surface).
+
 Everything else on the message band stays DORMANT here, exactly as
 ledgered: the fuzzy typo re-dispatch (its band ports the corpus), the
 remaining passive on_message hooks (counting, chain — their live feeds are
@@ -42,8 +48,9 @@ from sb.kernel.interaction.request import Surface
 
 logger = logging.getLogger("sb.adapters.discord.message_feed")
 
-__all__ = ["arm_message_feed", "handle_chat_award", "handle_prefix_message",
-           "match_prefix_target", "observe_chat_message"]
+__all__ = ["arm_message_feed", "handle_chat_award", "handle_four_twenty",
+           "handle_prefix_message", "match_prefix_target",
+           "observe_chat_message"]
 
 #: The deepest qualified command path ("group sub sub") the matcher tries —
 #: the parity harness's exact bound.
@@ -193,6 +200,37 @@ async def handle_chat_award(message: object) -> object | None:
         return None
 
 
+async def handle_four_twenty(message: object) -> bool:
+    """The passive four_twenty consumer (band 6): the shipped
+    ``FourTwentyStage`` rule over every human GUILD message — commands
+    included (the corpus capture of ``!420`` itself fired it). Runs AFTER
+    the chat award, mirroring the shipped pipeline's XP(30) < 420(50)
+    stage order — the module-global RNG draws must land in that order (the
+    golden pins the seeded sequence). Never raises — the shipped stage
+    swallowed Discord failures (``except discord.HTTPException``), and an
+    uninstalled ReactionOps port must not break the message loop."""
+    author = getattr(message, "author", None)
+    if author is None or bool(getattr(author, "bot", False)):
+        return False
+    guild = getattr(message, "guild", None)
+    if guild is None or getattr(guild, "id", None) is None:
+        return False
+    channel_id = getattr(getattr(message, "channel", None), "id", None)
+    message_id = getattr(message, "id", None)
+    if channel_id is None or message_id is None:
+        return False
+    from sb.domain.four_twenty.service import handle_message
+
+    try:
+        return await handle_message(
+            guild_id=int(guild.id), channel_id=int(channel_id),
+            message_id=int(message_id),
+            content=str(getattr(message, "content", "") or ""))
+    except Exception:  # noqa: BLE001 — the feed never breaks the event loop
+        logger.warning("four_twenty stage fault", exc_info=True)
+        return False
+
+
 def arm_message_feed(bot: object, *, prefix: str) -> None:
     """Register the on_message listener (``bot.add_listener`` — additive,
     never replaces the Bot's own event). The composition root calls this
@@ -215,5 +253,6 @@ def arm_message_feed(bot: object, *, prefix: str) -> None:
         await observe_correction_reply(message)
         await handle_prefix_message(message, prefix=prefix)
         await handle_chat_award(message)
+        await handle_four_twenty(message)
 
     bot.add_listener(on_message, "on_message")

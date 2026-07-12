@@ -94,6 +94,11 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # (cogs/karma_cog.py _karma_card;
                               # goldens/karma/sweep_karma +
                               # karma_slash_card pin the accent)
+    "leaf_green": 5025616,    # Color.from_rgb(0x4C, 0xAF, 0x50) — the
+                              # shipped _FOUR_TWENTY_COLOR "leafy green"
+                              # overview embed (cogs/four_twenty_cog.py;
+                              # goldens/four_twenty/sweep_420 pins the
+                              # byte)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

@@ -573,6 +573,18 @@ class Harness:
         install_guild_source(_world_guild_source)
         install_role_provisioning(ParityRoleProvisioning(self.http))
         install_message_ops(ParityRoleMessageOps(self.http))
+        # the four_twenty passive-stage reaction port — the SAME add_reaction
+        # capture twin (fake_http's wire shape; goldens/four_twenty/
+        # sweep_420 pins the 🍃 call on the invoking message). The reset
+        # also clears the stage's per-channel cooldown map at every case
+        # head (trap 20: in-process state stays mode-independent).
+        from sb.domain.four_twenty.service import (
+            install_reaction_ops,
+            reset_four_twenty_ports_for_tests,
+        )
+
+        reset_four_twenty_ports_for_tests()
+        install_reaction_ops(ParityRoleMessageOps(self.http))
         # the AI operator-surface environment ports — capture-world twins
         # of the live root's installs (sb/adapters/discord/
         # ai_operator_ports.py): the support report's runtime lines are the
@@ -664,6 +676,7 @@ class Harness:
         from sb.domain.ai.review import observe_correction_reply
 
         inbound = SimpleNamespace(
+            id=message_id,
             author=SimpleNamespace(id=member.id, bot=False,
                                    display_name=member.name),
             guild=SimpleNamespace(id=self.world.guild_id),
@@ -704,6 +717,15 @@ class Harness:
 
             await handle_chat_message(int(member.id), self.world.guild_id,
                                       now=int(_time_mod.time()))
+        # the passive four_twenty stage — the live feed's leg, run AFTER
+        # the chat award exactly like arm_message_feed's on_message (the
+        # shipped pipeline ran XP order 30 before four_twenty order 50, so
+        # the module-global RNG draws land award-then-egg — the seeded
+        # sequence goldens/four_twenty/sweep_420 pins: coin 0.111 < 0.5,
+        # egg line index 2, ON the invoking `!420` message itself).
+        from sb.adapters.discord.message_feed import handle_four_twenty
+
+        await handle_four_twenty(inbound)
         await self._settle()
 
     async def invoke_slash(self, name: str,
@@ -877,6 +899,11 @@ class Harness:
             from sb.domain.role.service import reset_role_ports_for_tests
 
             reset_role_ports_for_tests()
+            from sb.domain.four_twenty.service import (
+                reset_four_twenty_ports_for_tests,
+            )
+
+            reset_four_twenty_ports_for_tests()
             cooldown_mod.reset_for_tests()
             lifecycle.reset_for_tests()
             # the AI seams this harness armed (K0 platform + operator ports
