@@ -112,9 +112,21 @@ async def _replay_corpus(only_subsystems: set[str] | None,
     return results, missing
 
 
+def _statuses_with_kernel(parity: dict) -> dict[str, str]:
+    """The subsystems roster PLUS the kernel coverage home (D-0075): the
+    `kernel:` section's status gates parity/goldens/kernel/ exactly like a
+    subsystem row gates its dir — required-green when ported, expected-red
+    reported when pending. Absent section = no kernel dir to gate."""
+    statuses = dict(parity.get("subsystems") or {})
+    kernel_status = (parity.get("kernel") or {}).get("status")
+    if kernel_status:
+        statuses["kernel"] = kernel_status
+    return statuses
+
+
 def run_gate() -> int:
     parity = _load_parity_yml()
-    subsystems: dict[str, str] = parity.get("subsystems") or {}
+    subsystems = _statuses_with_kernel(parity)
     ported = sorted(s for s, st in subsystems.items() if st == "ported")
     pending = sorted(s for s, st in subsystems.items() if st == "pending")
     counts = _golden_counts()
@@ -181,7 +193,7 @@ def run_gate() -> int:
 
 def run_report() -> int:
     parity = _load_parity_yml()
-    subsystems: dict[str, str] = parity.get("subsystems") or {}
+    subsystems = _statuses_with_kernel(parity)
     counts = _golden_counts()
     total = sum(counts.values())
     ported = sorted(s for s, st in subsystems.items() if st == "ported")

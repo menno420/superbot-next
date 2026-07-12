@@ -131,10 +131,21 @@ def _renumber_minted_refs(doc: dict[str, Any]) -> dict[str, Any]:
 
 def apply_dispositions(doc: dict[str, Any]) -> dict[str, Any]:
     """Return a deep copy of a golden document with every ruled disposition
-    applied. Call on BOTH expected and actual before diffing."""
+    applied. Call on BOTH expected and actual before diffing.
+
+    KERNEL-BAND documents (``subsystem == "kernel"`` — the parity.yml
+    `kernel` coverage home's own minted goldens, D-0075) skip the
+    kernel-surface-drift drop entirely: the disposition exists because
+    IMPORTED old-bot captures structurally never carry the new kernel's
+    spine surfaces, but the kernel band's whole point is to PIN those
+    surfaces (audit_log / event_outbox / command.dispatched bytes) so
+    kernel drift goes red somewhere. Applied to both docs symmetrically
+    like every other disposition (a fresh capture of a kernel case carries
+    ``subsystem: kernel`` too); the other ruled classes still apply."""
     dispositions = load_dispositions()
     out = copy.deepcopy(doc)
-    drift = dispositions.get("kernel-surface-drift")
+    kernel_band = doc.get("subsystem") == "kernel"
+    drift = None if kernel_band else dispositions.get("kernel-surface-drift")
     if drift and drift.get("encoding") == "normalizer":
         _drop_kernel_surfaces(out, list(drift.get("tables") or []),
                               list(drift.get("events") or []))

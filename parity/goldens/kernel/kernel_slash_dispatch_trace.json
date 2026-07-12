@@ -1,0 +1,200 @@
+{
+ "case_id": "kernel.slash_dispatch_trace",
+ "db_delta": {
+  "economy": {
+   "added": [
+    {
+     "daily_count": 0,
+     "daily_streak": 0,
+     "guild_id": "<guild>",
+     "last_daily": 0,
+     "last_worked": 0,
+     "user_id": "<@member>"
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "KERNEL-BAND golden (D-0075, strip inverted \u2014 pins the NEW kernel's spine contract): a SLASH panel dispatch \u2014 the command.dispatched trace (surface=slash, outcome=success) with ZERO audit_log/event_outbox rows: the economy hub's idempotent ensure write is the sanctioned un-audited autocommit lane (playbook 14e), and the kernel spine stays silent on non-op writes",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "economy:daily",
+          "disabled": false,
+          "label": "\ud83c\udf81 Daily",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "economy:work",
+          "disabled": false,
+          "label": "\ud83d\udcbc Work",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "economy:shop",
+          "disabled": false,
+          "label": "\ud83d\uded2 Shop",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "economy:balance",
+          "disabled": false,
+          "label": "\ud83d\udcb0 Balance",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "economy:inventory",
+          "disabled": false,
+          "label": "\ud83c\udf92 Inventory",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "economy:jobs",
+          "disabled": false,
+          "label": "\ud83d\udccb Jobs",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "economy:treasury",
+          "disabled": false,
+          "label": "\ud83c\udfdb\ufe0f Treasury",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "economy:overview",
+          "disabled": false,
+          "label": "\u21a9 Overview",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "\ud83d\udcda Help",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "author": {
+         "icon_url": "https://cdn.discordapp.com/embed/avatars/1.png",
+         "name": "MemberActor"
+        },
+        "color": 15844367,
+        "fields": [
+         {
+          "inline": true,
+          "name": "\ud83e\ude99 Coins",
+          "value": "0"
+         },
+         {
+          "inline": true,
+          "name": "\ud83c\udfc6 Level",
+          "value": "0"
+         },
+         {
+          "inline": true,
+          "name": "\ud83d\udd25 Daily Streak",
+          "value": "0"
+         },
+         {
+          "inline": true,
+          "name": "\ud83c\udf81 Daily",
+          "value": "\u2705 Available!"
+         },
+         {
+          "inline": true,
+          "name": "\ud83d\udcbc Work",
+          "value": "\u2705 Available!"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Use the buttons below to take actions."
+        },
+        "title": "\ud83d\udcb0 Economy Panel",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "economy",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "slash"
+     }
+    }
+   ],
+   "input": {
+    "kind": "slash",
+    "name": "economy",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "kernel"
+}

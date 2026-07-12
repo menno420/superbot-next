@@ -1,0 +1,202 @@
+{
+ "case_id": "kernel.audited_prefix_command",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@admin>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@admin>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2038024082,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@admin>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "KERNEL-BAND golden (D-0075, strip inverted \u2014 pins the NEW kernel's spine contract): an audited PREFIX dispatch (!createrole = the role effect lane + the message-driven xp.award chat op) \u2014 the xp.award audit_log row + its audit.action_recorded event_outbox row, the role lane's BUS audit.action_recorded (mutation_type role_create) + role.lifecycle_changed advisories, and the command.dispatched trace (surface=prefix, authority_ref=administrator)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "guild_id": "<guild>",
+      "reason": null
+     },
+     "method": "create_role",
+     "payload": {
+      "colors": {
+       "primary_color": 0
+      },
+      "hoist": false,
+      "mentionable": false,
+      "name": "test",
+      "permissions": "0"
+     }
+    },
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "\u2705 Created role **test**.",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "audit.action_recorded",
+     "payload": {
+      "actor_id": "<@admin>",
+      "actor_type": "admin",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "role_create",
+      "new_value": "create role 'test'",
+      "occurred_at": "<ts>",
+      "prev_value": null,
+      "scope": "guild",
+      "subsystem": "role",
+      "target": "role:<msg:1>"
+     }
+    },
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@admin>",
+      "authority_ref": "administrator",
+      "base_allowed": true,
+      "command_key": "createrole",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "role.lifecycle_changed",
+     "payload": {
+      "applied": [
+       "<msg:1>"
+      ],
+      "failed": [],
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "occurred_at": "<ts>",
+      "operation": "create",
+      "outcome": "success"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@admin>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!createrole test",
+    "kind": "command",
+    "persona": "admin"
+   }
+  }
+ ],
+ "subsystem": "kernel"
+}
