@@ -11,6 +11,7 @@ __all__ = [
     "RESOURCE_VALUES",
     "sell_price",
     "sellable_inventory",
+    "shop_listing",
 ]
 
 #: The shipped RESOURCE rows (items.py): commonness inverse of worth.
@@ -56,6 +57,14 @@ def sell_price(name: str) -> int | None:
     if key in RESOURCE_VALUES:
         return RESOURCE_VALUES[key]
     return _fish_values().get(key)
+
+
+def shop_listing() -> list[tuple[str, int]]:
+    """``[(item, price)]`` for the gear shop, ordered by price then name
+    — shipped ``utils/mining/market.shop_listing`` verbatim (the
+    ``!market`` embed's Buy-gear order; goldens/mining/sweep_market pins
+    the bytes)."""
+    return sorted(GEAR_SHOP.items(), key=lambda kv: (kv[1], kv[0]))
 
 
 def sellable_inventory(inventory: dict[str, int]

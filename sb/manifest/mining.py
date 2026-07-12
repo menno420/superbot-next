@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from sb.domain.mining import service as _service
 from sb.domain.mining.ops import register_ops
-from sb.domain.mining.panels import mining_hub_spec
+from sb.domain.mining.panels import mining_card_spec, mining_hub_spec
 from sb.domain.mining.store import (
     MINING_INVENTORY_STORE,
     MINING_PLAYER_STATE_STORE,
@@ -95,7 +95,7 @@ MANIFEST = SubsystemManifest(
     key="mining",
     version=1,
     commands=_COMMANDS,
-    panels=(mining_hub_spec(),),
+    panels=(mining_hub_spec(), mining_card_spec()),
     settings=(),
     stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE),
     events=(),

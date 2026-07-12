@@ -70,14 +70,17 @@ from sb.spec.panels import (
 from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
 
 __all__ = [
+    "CARD_PANEL_ID",
     "HUB_PANEL_ID",
     "PACK_SOFT_CAP",
     "ensure_panel_refs",
     "install_mining_panels",
+    "mining_card_spec",
     "mining_hub_spec",
 ]
 
 HUB_PANEL_ID = "mining.hub"
+CARD_PANEL_ID = "mining.card"
 
 #: the shipped shared author-locked nav-view footer literal (the
 #: games/farm/community `_PANEL_FOOTER`).
@@ -209,6 +212,46 @@ def mining_hub_spec() -> PanelSpec:
     )
 
 
+def mining_card_spec() -> PanelSpec:
+    """The generic one-embed reply card (the shipped ``ctx.send(embed=…)``)
+    — the ai.card/karma.card pattern for the mining read views
+    (``!market`` / ``!minestats``)."""
+    return PanelSpec(
+        panel_id=CARD_PANEL_ID,
+        subsystem="mining",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("mining.render_card"),
+        justification=(
+            "the shipped `!market` / `!minestats` replies are fully "
+            "live-state-parameterized embeds built in the handler "
+            "(mining_cog.py market_cmd's shop/sellables listing + dynamic "
+            "balance footer; the stats command's location/level/net-worth "
+            "fields — goldens/mining/sweep_market + sweep_minestats pin "
+            "the bytes). Zero components; the renderer presents the "
+            "handler-built RenderedEmbed verbatim (the ai.card/karma.card "
+            "precedent)."),
+    )
+
+
+async def _render_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — present the handler-built embed verbatim (the
+    ai.card ``_render_card`` shape, no attachment seam)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    embed = (getattr(ctx, "params", {}) or {}).get("_card")
+    if not isinstance(embed, RenderedEmbed):  # defensive: never a crash
+        embed = RenderedEmbed(title="", description="")
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed,
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 async def _render_hub(spec: PanelSpec, ctx) -> object:
     """renderer_override — grammar render + the shipped display-name
     title, live overview fields and footer literal (see justification)."""
@@ -260,24 +303,36 @@ def _hub_factory() -> PanelSpec:
     return mining_hub_spec()
 
 
+@panel(CARD_PANEL_ID)
+def _card_factory() -> PanelSpec:
+    return mining_card_spec()
+
+
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _pending_button_handlers()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
+    if not is_registered(HandlerRef("mining.render_card")):
+        handler("mining.render_card")(_render_card)
     if not is_registered(PanelRef(HUB_PANEL_ID)):
         panel(HUB_PANEL_ID)(_hub_factory)
+    if not is_registered(PanelRef(CARD_PANEL_ID)):
+        panel(CARD_PANEL_ID)(_card_factory)
 
 
 def install_mining_panels() -> tuple[PanelSpec, ...]:
-    spec = mining_hub_spec()
-    try:
-        return (register_panel(spec),)
-    except ValueError as exc:
-        if "already registered" in str(exc) or "duplicate" in str(exc):
-            return (spec,)
-        raise
+    out = []
+    for spec in (mining_hub_spec(), mining_card_spec()):
+        try:
+            out.append(register_panel(spec))
+        except ValueError as exc:
+            if "already registered" in str(exc) or "duplicate" in str(exc):
+                out.append(spec)
+            else:
+                raise
+    return tuple(out)
 
 
 def ensure_panel_refs() -> None:

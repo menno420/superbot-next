@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.minestats",
+ "case_id": "sweep.mineinv",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1794532676,
+     "last_xp": 1955671675,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -53,41 +53,16 @@
       "content": null,
       "embeds": [
        {
-        "color": 6323595,
-        "fields": [
-         {
-          "inline": false,
-          "name": "Location",
-          "value": "🌳 Surface (depth 0/3)"
-         },
-         {
-          "inline": false,
-          "name": "🎮 Game Level",
-          "value": "Level **0** — ▱▱▱▱▱ 0/100 XP"
-         },
-         {
-          "inline": true,
-          "name": "Total Items Collected",
-          "value": "0"
-         },
-         {
-          "inline": true,
-          "name": "Unique Items",
-          "value": "0"
-         },
-         {
-          "inline": true,
-          "name": "Net Worth",
-          "value": "0"
-         },
-         {
-          "inline": true,
-          "name": "Deepest",
-          "value": "🌳 Surface (depth 0/3)"
-         }
-        ],
+        "color": 15844367,
+        "description": "No items yet — go mining with `!mine` or visit `!shop`!",
         "flags": 0,
-        "title": "AdminActor's Mining Stats",
+        "footer": {
+         "text": "Select a category below to view details."
+        },
+        "thumbnail": {
+         "url": "https://cdn.discordapp.com/embed/avatars/1.png"
+        },
+        "title": "🎒 AdminActor's Inventory",
         "type": "rich"
        }
       ],
@@ -117,11 +92,11 @@
     }
    ],
    "input": {
-    "content": "!minestats",
+    "content": "!mineinv",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "mining"
 }

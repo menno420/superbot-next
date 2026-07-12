@@ -6188,6 +6188,11 @@
           "value": "mining.hub"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.card"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
@@ -8658,6 +8663,9 @@
       "handler:mining.quickcraft_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:mining.render_card": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.render_hub": {
         "module": "sb.domain.mining.panels"
       },
@@ -9701,6 +9709,9 @@
       },
       "panel:logging.status_card": {
         "module": "sb.domain.server_logging.panels"
+      },
+      "panel:mining.card": {
+        "module": "sb.domain.mining.panels"
       },
       "panel:mining.hub": {
         "module": "sb.domain.mining.panels"
@@ -11572,7 +11583,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:b574e851504e77b6ddcd2fc1e966c516f85049ee73d5bd4ec2d9ddfed11a85ce",
+  "stable_hash": "sha256:15572ad761ca8ebc33452520367a93301d6b95f7f95c797afb5dfa54883595c0",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -37901,6 +37912,44 @@
           "subsystem": "mining",
           "timeout_s": 180,
           "title": "⛏️ Mining Hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!market` / `!minestats` replies are fully live-state-parameterized embeds built in the handler (mining_cog.py market_cmd's shop/sellables listing + dynamic balance footer; the stats command's location/level/net-worth fields — goldens/mining/sweep_market + sweep_minestats pin the bytes). Zero components; the renderer presents the handler-built RenderedEmbed verbatim (the ai.card/karma.card precedent).",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "mining.card",
+          "renderer_override": {
+            "$ref": "handler:mining.render_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "",
           "usage_weight": 1.0
         }
       ],

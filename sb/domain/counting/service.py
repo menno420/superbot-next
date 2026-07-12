@@ -166,14 +166,23 @@ def _register() -> None:
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
 
+        from sb.domain.counting.ops import VALID_MODES
+
         argv = [str(a) for a in tuple(req.args.get("argv", ()) or ())]
         if not argv:
-            from sb.domain.counting.ops import VALID_MODES
-
             return Reply(BLOCKED,
                          "Usage: `!start_match <mode> [args]` — modes: "
                          + ", ".join(VALID_MODES) + ".")
         mode = argv[0].lower()
+        if mode not in VALID_MODES:
+            # the shipped in-cog mode guard, plain copy verbatim
+            # (cogs/counting_cog.py `if mode not in valid_modes`, sent
+            # with delete_after=10 — the delete tail is the ruled
+            # invoking-message-deletion class); goldens/counting/
+            # sweep_start_match pins the bytes (the trap-22 lane: the
+            # guard belongs in the handler, never a leg raise).
+            return Reply(BLOCKED, "Invalid mode. Available modes: "
+                                  + ", ".join(VALID_MODES) + ".")
         params: dict = {"channel_id": int(req.channel_id or 0),
                         "mode": mode}
         if mode == "multiples":
@@ -228,9 +237,24 @@ def _register() -> None:
         after = next(iter((result.after or {}).values()), {})
         return Reply(SUCCESS, after.get("message", "Match started."))
 
-    handler("counting.end_match_route")(_run_op(
-        "counting.disable_channel",
-        lambda req: {"channel_id": _target_channel(req)}))
+    @handler("counting.end_match_route")
+    async def end_match_route(req) -> Reply:
+        """!end_match [#channel] — the shipped in-cog no-match pre-check
+        (cogs/counting_cog.py: a state-dict lookup answers the plain
+        copy with delete_after=10 — the delete tail is the ruled
+        invoking-message-deletion class; goldens/counting/
+        sweep_end_match pins the bytes). Active matches run the audited
+        op unchanged (its in-txn guard untouched)."""
+        from sb.domain.counting import store
+
+        channel_id = _target_channel(req)
+        state = await store.get_state(int(req.guild_id or 0))
+        if str(channel_id) not in (state.get("channels") or {}):
+            return Reply(BLOCKED, "No active counting match found in "
+                                  "the specified channel.")
+        return await _run_op(
+            "counting.disable_channel",
+            lambda _req: {"channel_id": channel_id})(req)
     handler("counting.reset_route")(_run_op(
         "counting.reset_count",
         lambda req: {"channel_id": _target_channel(req)}))

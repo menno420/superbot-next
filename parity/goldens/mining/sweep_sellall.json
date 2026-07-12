@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.end_match",
+ "case_id": "sweep.sellall",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:2>",
+     "message_id": "<msg:1>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2030842862,
+     "last_xp": 2021483357,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "No active counting match found in the specified channel.",
+      "content": "<@<@admin>> You have no resources to sell — go mine some!",
       "tts": false
      }
     },
@@ -58,14 +58,6 @@
      "args": {
       "channel_id": "<#general>",
       "message_id": "<msg:1>",
-      "reason": null
-     },
-     "method": "delete_message"
-    },
-    {
-     "args": {
-      "channel_id": "<#general>",
-      "message_id": "<msg:2>",
       "reason": null
      },
      "method": "delete_message"
@@ -85,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!end_match __CHANNEL_COMMANDS__",
+    "content": "!sellall",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "mining"
 }
