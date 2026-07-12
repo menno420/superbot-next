@@ -496,3 +496,131 @@ Stated explicitly so absence of evidence is not mistaken for evidence:
 - Owner intent on cutover timing — not recorded anywhere in the repo.
 - Pre-#204 commit history (shallow local clone); pre-#204 claims cite
   docs/ledger entries rather than git log.
+
+---
+
+## Addendum — 2026-07-12 (post-review resolutions)
+
+> Everything ABOVE this line is the original point-in-time snapshot, audited
+> against main at `c792079`/`edfeca8` (#254/#255) and left untouched. This
+> addendum is a separate, later evidence log: it re-verifies each Q4 blocker and
+> named finding at main HEAD `5ca477b` (#308) and records only what CHANGED
+> since the snapshot. No finding above was edited. Every claim below was
+> re-measured at HEAD — file:line, PR number, or command output pasted verbatim.
+
+**Audit HEAD for this addendum:** `5ca477bbb9e816458df417d8ac8190959a7f3c0c`
+(`docs: CAPABILITIES — verified worker-session port-oracle path (#308)`).
+
+### RESOLVED at HEAD
+
+**Blocker #7 — deathmatch 50→51 birth (snapshot read: "in flight").** Landed.
+- `parity/parity.yml:148` now carries `  deathmatch: ported` (grep confirms the
+  roster row; the row also has its depth block at `:522` and its capabilities
+  entry `deathmatch: {events: 1, tables: 2, settings: 0}` at `:1052`).
+- Depth checker is green:
+  `$ python3 tools/check_parity_depth.py`
+  `check_parity_depth: OK — 51 subsystems (50 ported), kernel ported, 476 goldens`
+  (exit code `0`). The snapshot's "50/50 rows" is now 51 rows, 50 ported (the
+  51st row, `_unmapped`, is `pending` by design — see LIVE below).
+- Birth citation: PR **#261**, commit `5050b8f52c7dc447e9eef135d564ccfbec956725`,
+  "deathmatch row 51 born" — recorded in
+  `.sessions/2026-07-12-parity-rehomes-wave9.md:78` (the wave-9 wrap card).
+  Note on provenance: the local clone at this HEAD is shallow (44 commits), so
+  `git show 5050b8f` does not resolve and `git log -S "deathmatch: ported"`
+  attributes the row to the clone's earliest-visible commit (#260, a
+  shallow-boundary artifact) — the authoritative birth citation is the wave-9
+  card line above, not local git log.
+
+**Blocker #2 — zero deploy packaging (snapshot read: "no Dockerfile … zero
+hits").** Landed via PR **#266** (`1b08bc8` "deploy-packaging: container image
++ release workflow (Q4 blocker #2)"). All artifacts exist at HEAD:
+- `$ ls Dockerfile .dockerignore docker-compose.yml railway.json .github/workflows/release.yml`
+  → all five present (`Dockerfile` 3787 B, `.dockerignore` 1020 B,
+  `docker-compose.yml` 2204 B, `railway.json` 333 B, `release.yml` 2050 B).
+- `.github/workflows/ci.yml:92` defines the `build-image` job (builds the
+  container on every PR, `push: false` / `load: false`; deliberately NOT a
+  required check — the release workflow owns tag+push). The snapshot's
+  "no deploy packaging" finding no longer holds.
+
+### PARTIAL at HEAD (documentation closed, execution still LIVE)
+
+**Blocker #1 — cutover not executed.** Split verdict, stated precisely:
+- The **documentation gap is CLOSED**. `docs/operations/cutover-runbook.md`
+  (17605 B) and `docs/status/coverage-debt-2026-07-12.md` (1458 B) both exist at
+  HEAD, landed via PR **#264** (`2e448ee` "docs(operations): consolidated
+  CUT-2/CUT-3 cutover runbook + tooling wiring"). The snapshot's "no CUT-2/CUT-3
+  runbook" observation is superseded — the runbook now exists.
+- The **execution blocker REMAINS LIVE and owner-gated.** No CUT-2/CUT-3
+  cutover has been performed; the runbook is a plan, not a record. Do not read
+  "runbook exists" as "cutover done." The rollback playbook still forbids
+  cutover without a green restore witness (see Blocker #3, LIVE), which has
+  never been produced.
+
+### LIVE at HEAD (still open — re-verified open, not merely asserted)
+
+**Blocker #3 — backup / disaster-recovery never run.** Still true, owner-gated.
+- Measured via the GitHub Actions API at this HEAD: `restore-verify.yml` has
+  `total_count: 0` — **zero runs ever**. `backup-db.yml` has 4 runs, all with
+  `conclusion: skipped` (run numbers 1–4, event `schedule`).
+- Both workflows gate on the owner-set variable: `restore-verify.yml:45`
+  `if: vars.BACKUP_ENABLED == 'true'` and `backup-db.yml:57`
+  `if: vars.BACKUP_ENABLED == 'true'`. Unblocking requires the owner setting
+  `BACKUP_ENABLED=true` plus the DB secrets — owner action, no code change.
+
+**Blocker #4 — AI / NL leg dark (OWNER-ACTION 5).** Still true, owner-gated.
+- `sb/spec/config.py:148` `ConfigSpec("AI_ENABLED", ConfigType.BOOL, default=False, …)`.
+- `sb/spec/config.py:166` `SecretSpec("ANTHROPIC_API_KEY", ConfigType.SECRET, default=None, …)`.
+- Fail-closed by default; gates live-AI EVIDENCE, not code. Unblocking is
+  OWNER-ACTION 5 (set the key + flip `AI_ENABLED`).
+
+**Blocker #5 — live effect adapters unarmed.** Still true; another-lane /
+owner-track work.
+- The replay/parity root arms `ParityModerationActions` (records wire verbs
+  edit_member/kick/ban/unban), but the **LIVE composition root deliberately
+  arms no Discord guild-action adapter** — live moderation/role/channel effects
+  stay PARTIAL + "not-installed" finding until the live-adapter successor lands
+  (`docs/decisions.md:388`, the band-2 slice-1 findings decision, verdict item
+  (4), and its live-adapter-successors pointer at `docs/decisions.md:368`).
+  Effects are verified in replay, not against live Discord.
+
+**Blocker #6 — `_unmapped` golden pool.** Still an un-gated pool; count is now
+**15**, all fishing.
+- `parity/parity.yml:133` `  _unmapped: pending` (still a `pending` roster row,
+  not gated). The pool on disk is exactly 15 files:
+  `$ ls parity/goldens/_unmapped/*.json | wc -l` → `15`. Every one is a fishing
+  surface: `sweep_bait`, `sweep_boathouse`, `sweep_craftbait`, `sweep_craftcharm`,
+  `sweep_craftcurio`, `sweep_craftpearl`, `sweep_craftrod`, `sweep_curios`,
+  `sweep_dock`, `sweep_fishery`, `sweep_forecast`, `sweep_rod`, `sweep_rodrecipes`,
+  `sweep_sail`, `sweep_tidepool`. The snapshot's "74 (66 after #255)" figure was
+  measured at an earlier HEAD; the pool has since drained to these 15 fishing
+  goldens. Owner-gated: draining them turns on the fishing-deep port under the
+  deep-game go/no-go ruling (`docs/decisions.md:326`; `control/status.md`
+  ⚑ needs-owner item 1: "25 mining + 15 fishing goldens").
+
+**`governance` + `platform` subsystems still rosterless.** Still true.
+- Neither appears as a roster row in `parity/parity.yml`:
+  `$ grep -nE '^\s+(governance|platform):' parity/parity.yml` → no matches. The
+  only hits for those words are prose comments about A-16 clause 3
+  (kernel/governance-owned surfaces) at `parity/parity.yml:25` and `:185` — not
+  roster rows. They carry no parity disposition. Owner-track housekeeping
+  (snapshot Top-10 item 10: "give governance/platform written parity
+  dispositions").
+
+### One-line ledger
+
+| Item | Snapshot read | HEAD verdict | Proof |
+| --- | --- | --- | --- |
+| Blocker #7 deathmatch birth | in flight | RESOLVED | `parity.yml:148` ported; `check_parity_depth` OK 51/50, exit 0; #261 `5050b8f` |
+| Blocker #2 deploy packaging | zero packaging | RESOLVED | 5 files present; `ci.yml:92` build-image; #266 `1b08bc8` |
+| Blocker #1 cutover | not executed | PARTIAL | runbook present (#264 `2e448ee`); EXECUTION still LIVE, owner-gated |
+| Blocker #3 backup/DR | never run | LIVE (owner) | restore-verify 0 runs; backup 4/4 skipped; `BACKUP_ENABLED` gate |
+| Blocker #4 AI leg | dark | LIVE (owner) | `config.py:148` AI_ENABLED=False; `:166` ANTHROPIC_API_KEY=None |
+| Blocker #5 effect adapters | unarmed | LIVE (lane/owner) | `decisions.md:388`(4): live root arms no Discord guild-action adapter |
+| Blocker #6 `_unmapped` pool | 74/66 | LIVE (owner) | `parity.yml:133` pending; 15 fishing goldens on disk |
+| governance/platform roster | rosterless | LIVE (owner) | absent from `parity.yml` roster (comments only :25/:185) |
+
+*Method note: this addendum is an evidence log, not a re-review. Where a
+coordinator-supplied expectation disagreed with HEAD it was bucketed by what was
+observed — e.g. the `_unmapped` count was independently measured at 15 (all
+fishing) rather than trusted, and the deathmatch birth commit was cited from the
+wave-9 card because the shallow local clone cannot resolve `5050b8f` directly.*
