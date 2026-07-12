@@ -395,7 +395,7 @@ superbot-side one-liner the verdict names (`check_consistency.py:1151`
 `roots += ("cogs/",)`) targets the READ-ONLY sibling — routed to the
 fleet manager via this record, not actionable here.
 
-**BUILD NOTE (the named successor, landed — D-0079, PR #295):**
+**BUILD NOTE (the named successor, landed — D-0079, PR #298):**
 `tools/check_settle_once.py` ships the parked slice on the park's own
 terms — warn-first per Q-0105, the #133 `clear_active()` rowcount gate
 as the reference fence, and the scope rule honored by DERIVATION (a
