@@ -23,6 +23,7 @@ __all__ = [
     "build_combined_inventory",
     "group_by_rarity",
     "install_extra_inventory_source",
+    "inventory_row",
     "item_line",
     "render_hub_lines",
     "reset_inventory_ports_for_tests",
@@ -81,6 +82,36 @@ def item_line(item_key: str, qty: int, meta: dict) -> str:
     itype = meta.get("type", "Item")
     display_name = item_key.replace("_", " ").title()
     return f"{emoji} **{display_name}** × {qty} · {itype}"
+
+
+def inventory_row(item_key: str, qty: int, meta: dict) -> dict:
+    """One inventory item as a BROWSE ROW for the shared BrowserView engine
+    (§2.3; D-0034). Carries exactly the keys the detail panel's declared
+    ``ListSpec`` names:
+
+      * ``name`` — the item key (the shipped "item key alphabetical" name sort
+        and every tie-break);
+      * ``quantity`` — the int (the declared ``-quantity`` = highest-first
+        sort);
+      * ``rarity`` — the ``RARITY_ORDER`` RANK, so an ASCENDING sort is
+        rarest-first (the shipped grouping default; a raw rarity STRING would
+        sort alphabetically, not by tier);
+      * ``type`` — the filter value the declared ``filter_options`` match;
+      * ``_line`` — the pre-rendered display line the ``item_render_ref``
+        emits: the shipped ``item_line`` with the rarity tag the oracle's flat
+        (non-grouped) sort modes append (``…  `Rare```).
+
+    The rank lives in the row (not a custom ``sort_of``) because the engine
+    sorts each block with its DEFAULT field accessor — the surface arms the
+    declared algebra by shaping the row, never by threading a callback."""
+    rarity = meta.get("rarity", "Unknown")
+    return {
+        "name": item_key,
+        "quantity": int(qty),
+        "rarity": RARITY_ORDER.get(rarity, 99),
+        "type": meta.get("type", "Item"),
+        "_line": f"{item_line(item_key, qty, meta)}  `{rarity}`",
+    }
 
 
 def group_by_rarity(

@@ -61,6 +61,7 @@ __all__ = [
     "browse_controls",
     "browse_page",
     "decode",
+    "default_browse_state",
     "encode",
     "filter_items",
     "is_browse_id",
@@ -118,6 +119,28 @@ def browse_block_spec(spec, block: int):
         return blk.list_spec
     if isinstance(blk, TableBlock):
         return blk.table
+    return None
+
+
+def default_browse_state(spec) -> "BrowseState | None":
+    """The BrowseState a fresh OPEN should arm for *spec* (§2.3; D-0034): the
+    FIRST List/Table block that DECLARES a browse algebra (a non-empty
+    ``sort_options`` or ``filter_options``) opens on its ``default_sort``, no
+    filter, page 0 — so a surface makes its interactive sort/filter/page
+    controls live simply by DECLARING them (the render path's arming hook, the
+    page-turn nav's sibling). A spec with no browsable block returns None — the
+    byte-identical static render, so no un-declared surface changes."""
+    body = getattr(spec, "body", ())
+    for idx in range(len(body)):
+        block_spec = browse_block_spec(spec, idx)
+        if block_spec is None:
+            continue
+        if getattr(block_spec, "sort_options", ()) or getattr(
+                block_spec, "filter_options", ()):
+            return BrowseState(
+                panel_id=spec.panel_id, block=idx,
+                sort=getattr(block_spec, "default_sort", "") or "",
+                filter=ALL_FILTER, page=0)
     return None
 
 

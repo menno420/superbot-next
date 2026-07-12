@@ -297,6 +297,16 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
     else:
         # ``browse`` arms the shared BrowserView engine (D-0034) for the named
         # block — data re-resolved fresh at click time (§2.4), like every nav.
+        # On a fresh OPEN / nav-back (browse is None) a surface that DECLARES a
+        # browse algebra auto-arms its default browse state, so its interactive
+        # sort/filter/page controls are live from the very first render; a
+        # control click carries its own explicit BrowseState via _handle_browse
+        # and skips this default. A panel with no browsable block yields None —
+        # the byte-identical static render.
+        if browse is None:
+            from sb.kernel.panels import browserview
+
+            browse = browserview.default_browse_state(spec)
         rendered = await render_panel(spec, ctx, page=page, browse=browse)
     minted_ids: dict[str, str] = {}
     if spec.session_lifecycle:

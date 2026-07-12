@@ -21,9 +21,14 @@ DELIBERATELY NOT DECLARED (goldens are the spec):
 * ``/setup-delegate`` / ``/setup-undelegate`` — capture-skipped
   (``parity/goldens/_sweep_skips.json``: "unsupported required option
   type user"); no golden exists on either surface (trap 28).
-* ``!setupadvanced`` / ``!setupdescribe`` prefix twins — their sweeps
-  remain in ``_unmapped`` (the leaked-workspace re-home is successor
-  work); the slash family carries the setup row's declared surface.
+The ``!setupadvanced`` / ``!setupdescribe`` prefix twins ARE declared
+(the wave-9 stray re-home): the oracle shipped them as plain prefix
+commands in cogs/setup_cog.py (``name="setupadvanced"``, alias
+``advancedsetup``; ``name="setupdescribe"``, alias ``describesetup``)
+routing into the SAME wizard/describe entry bodies the slash family
+uses — the port routes them to the same handlers
+(goldens/setup/sweep_setupadvanced + sweep_setupdescribe pin the
+prefix bytes).
 """
 
 from __future__ import annotations
@@ -79,12 +84,33 @@ MANIFEST = SubsystemManifest(
             capability="setup",
         ),
         CommandSpec(
+            name="setupadvanced",
+            kind=CommandKind.PREFIX,
+            aliases=("advancedsetup",),
+            route=HandlerRef("setup.advanced_open"),
+            summary="Open or resume the advanced (linear) setup wizard.",
+            usage="!setupadvanced",
+            audience_tier="administrator",
+            capability="setup",
+        ),
+        CommandSpec(
             name="setup-describe",
             kind=CommandKind.SLASH,
             route=HandlerRef("setup.describe_entry"),
             reply_visibility=ReplyVisibility.EPHEMERAL,
             summary="Describe your server; get setup suggestions.",
             usage="/setup-describe description:<text>",
+            audience_tier="administrator",
+            capability="setup",
+        ),
+        CommandSpec(
+            name="setupdescribe",
+            kind=CommandKind.PREFIX,
+            aliases=("describesetup",),
+            route=HandlerRef("setup.describe_entry"),
+            summary="Describe your server in words; propose how to "
+                    "wire it to the bot.",
+            usage="!setupdescribe",
             audience_tier="administrator",
             capability="setup",
         ),
