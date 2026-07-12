@@ -81,6 +81,10 @@ class BloonEntry:
     immune_to: tuple[str, ...] = ()
     properties: tuple[str, ...] = ()
     children: str = ""
+    # structured spawn tree ({"bloon_id", "count", "modifiers"} rows) — the
+    # freeplay walk's edge list (oracle BloonEntry.children_list, verbatim
+    # parse posture: dict rows only).
+    children_list: tuple[dict[str, Any], ...] = ()
     health: int | None = None
     health_fortified: int | None = None
     rbe: int | None = None
@@ -243,6 +247,11 @@ def bloons() -> tuple[BloonEntry, ...]:
                 immune_to=tuple(str(i) for i in b.get("immune_to", ()) or ()),
                 properties=tuple(str(p) for p in b.get("properties", ()) or ()),
                 children=str(b.get("children", "") or ""),
+                children_list=tuple(
+                    dict(c)
+                    for c in b.get("children_list", ()) or ()
+                    if isinstance(c, dict)
+                ),
                 health=b.get("health"),
                 health_fortified=b.get("health_fortified"),
                 rbe=b.get("rbe"),

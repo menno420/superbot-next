@@ -25,11 +25,15 @@ facts ingested, every builder renders the shipped EMPTY state — which is
 also this build's true state, so the copy stays honest.
 
 Deviations from the oracle, ledgered here (all on golden-UNPINNED paths):
-* freeplay MOAB scaling (effective RBE, rounds 81+) is not recomputed —
-  RBE renders the wiki base only (the scaled recompute needs the spawn-
-  tree walk of ``bloon_rbe_at_round``, a named successor);
 * the boss-fight estimator (`!btd6 estimate <query>`) is a successor —
   only the golden-pinned bare-usage card is served.
+
+(Freeplay MOAB scaling — formerly the first ledgered deviation — is
+PORTED: ``round_rbe`` recomputes ``effective_rbe`` via the
+``sb/domain/btd6/freeplay.py`` spawn-tree walk, and the RBE / round /
+round-range cards render the shipped scaled shapes; the head's
+``roundset``/ABR parameter and single-round ``breakdown`` key are
+post-capture drift, ledgered in freeplay.py.)
 
 (The resolver's maps/modes matching — formerly the third ledgered
 deviation — is PORTED: the resolver matches them, ``deterministic_answer``
@@ -43,7 +47,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from sb.domain.btd6 import dataset
+from sb.domain.btd6 import dataset, freeplay
 from sb.kernel.panels.render import RenderedEmbed
 
 __all__ = [
@@ -195,10 +199,18 @@ def round_cash(round_start: int, round_end: int | None = None) -> dict:
 
 
 def round_rbe(round_start: int, round_end: int | None = None) -> dict:
-    """Wiki-base RBE (default set). The freeplay effective recompute
-    (rounds 81+ MOAB scaling + superceramics) is a ledgered successor —
-    ``scaled`` is always False here, so the render never CLAIMS a scaled
-    figure it did not compute."""
+    """Structured round-RBE contract (default set):
+
+    * ``base_rbe`` — the stored wiki-composition total at base bloon
+      health, the standard reference figure;
+    * ``effective_rbe`` — the same spawn tree recomputed with the two
+      freeplay rules (MOAB-class HP × the round's multiplier, ceramics →
+      superceramics) via :func:`freeplay.effective_round_rbe`; ``None``
+      when any group's bloon RBE is unknown. Verified at the canonical
+      anchor ``round_rbe(100)["effective_rbe"] == 67200`` (vs 55760 base).
+
+    A ``scaled`` flag is True when the two differ (per the oracle: over
+    the CAPPED ``per_round`` rows for a range — quirk carried)."""
     lo = round_start
     hi = round_start if round_end is None else round_end
     if lo > hi:
@@ -223,17 +235,33 @@ def round_rbe(round_start: int, round_end: int | None = None) -> dict:
                          f"{valid_min}-{valid_max}; missing: {missing[:10]}")}
     by_n = {int(r["round"]): r for r in rbe_rounds}
     if lo == hi:
+        entry = by_n[lo]
+        base = int(entry["rbe"])
+        effective = freeplay.effective_round_rbe(entry)
         return {"found": True, "single_round": True, "round": lo,
-                "base_rbe": int(by_n[lo]["rbe"]), "effective_rbe": None,
-                "scaled": False}
+                "base_rbe": base, "effective_rbe": effective,
+                "scaled": (effective is not None and base is not None
+                           and effective != base)}
     per_round = [{"round": int(r["round"]), "base_rbe": int(r["rbe"]),
-                  "effective_rbe": None}
+                  "effective_rbe": freeplay.effective_round_rbe(r)}
                  for r in in_range[:_ROUND_DETAIL_CAP]]
+    eff_each = [freeplay.effective_round_rbe(r) for r in in_range]
+    effective_total = (
+        sum(e for e in eff_each if e is not None)
+        if all(e is not None for e in eff_each)
+        else None
+    )
+    any_scaled = any(
+        row["effective_rbe"] is not None
+        and row["base_rbe"] is not None
+        and row["effective_rbe"] != row["base_rbe"]
+        for row in per_round
+    )
     return {"found": True, "single_round": False,
             "round_start": lo, "round_end": hi,
             "rounds_counted": hi - lo + 1,
             "base_rbe_total": sum(int(r["rbe"]) for r in in_range),
-            "effective_rbe_total": None, "scaled": False,
+            "effective_rbe_total": effective_total, "scaled": any_scaled,
             "per_round": per_round,
             "truncated": len(in_range) > _ROUND_DETAIL_CAP}
 
@@ -640,6 +668,16 @@ def income_card(round_start: int, round_end: int | None = None) -> RenderedEmbed
         footer=note, style_token="green")
 
 
+#: shipped scaled-render footer (_builders.build_rbe_embed scaling_note,
+#: verbatim; only set when ``scaled`` — the round-3 golden bytes carry no
+#: footer, matching).
+_RBE_SCALING_NOTE = (
+    "Effective RBE applies freeplay MOAB-class HP scaling + superceramic swap "
+    "(our model, verified BAD r100 = 67,200); base is the wiki composition at "
+    "base health. Identical through round 80."
+)
+
+
 def rbe_card(round_start: int, round_end: int | None = None) -> RenderedEmbed:
     res = round_rbe(round_start, round_end)
     if not res.get("found"):
@@ -647,22 +685,54 @@ def rbe_card(round_start: int, round_end: int | None = None) -> RenderedEmbed:
             title="🐵 BTD6 RBE — no data",
             description=res.get("note") or "No RBE data for that round range.",
             style_token="red")
+    scaled = res.get("scaled")
     if res.get("single_round"):
+        base = res.get("base_rbe")
+        eff = res.get("effective_rbe")
+        if scaled and eff is not None:
+            desc = (f"**{eff:,}** effective RBE (freeplay-scaled)\n"
+                    f"Wiki base (unscaled): **{base:,}**")
+        else:
+            desc = f"**{base:,}** RBE"
         return RenderedEmbed(
             title=f"🐵 BTD6 RBE — round {res['round']}",
-            description=f"**{res['base_rbe']:,}** RBE",
+            description=desc,
+            footer=_RBE_SCALING_NOTE if scaled else "",
             style_token="blue")
     lo, hi = res["round_start"], res["round_end"]
     rows, elided = _elide(res.get("per_round", []))
-    body = [f"{('r' + str(r['round'])):>5} │ {r['base_rbe']:>12,}" for r in rows]
-    if elided:
-        body.insert(len(body) - 9, f"{'⋮':>5} │ {'⋮':>12}")
-    table = _code_table(
-        f"{'round':>5} │ {'RBE':>12}", "──────┼──────────────", body)
-    totals = f"Total RBE — **{res['base_rbe_total']:,}**"
+    if scaled:
+        # shipped two-column render, incl. the dead inner '—' conditional
+        # (only reachable when effective_rbe is not None) — quirk carried.
+        body = [
+            (
+                f"{('r' + str(r['round'])):>5} │ {r['base_rbe']:>12,} │ "
+                f"{(r['effective_rbe'] if r['effective_rbe'] is not None else '—'):>12,}"
+                if r["effective_rbe"] is not None
+                else f"{('r' + str(r['round'])):>5} │ {r['base_rbe']:>12,} │ {'—':>12}"
+            )
+            for r in rows
+        ]
+        if elided:
+            body.insert(len(body) - 9, f"{'⋮':>5} │ {'⋮':>12} │ {'⋮':>12}")
+        table = _code_table(
+            f"{'round':>5} │ {'base RBE':>12} │ {'effective':>12}",
+            "──────┼──────────────┼──────────────", body)
+        eff_total = res.get("effective_rbe_total")
+        totals = f"Totals — base **{res['base_rbe_total']:,}**" + (
+            f", effective **{eff_total:,}**" if eff_total is not None else "")
+    else:
+        body = [f"{('r' + str(r['round'])):>5} │ {r['base_rbe']:>12,}"
+                for r in rows]
+        if elided:
+            body.insert(len(body) - 9, f"{'⋮':>5} │ {'⋮':>12}")
+        table = _code_table(
+            f"{'round':>5} │ {'RBE':>12}", "──────┼──────────────", body)
+        totals = f"Total RBE — **{res['base_rbe_total']:,}**"
     return RenderedEmbed(
         title=f"🐵 BTD6 RBE — rounds {lo}–{hi}",
         description=f"{totals} across {res['rounds_counted']} rounds.\n{table}",
+        footer=_RBE_SCALING_NOTE if scaled else "",
         style_token="blue")
 
 
@@ -699,6 +769,17 @@ def round_card(number: int, end_round: int | None = None) -> RenderedEmbed:
         embed = replace(embed, fields=embed.fields + (
             (f"Bloons this round — {total:,} spawned",
              _format_composition(groups), False),))
+    # shipped build_round_embed: freeplay-scaled RBE field on 81+ rounds
+    # where the recompute diverges (inline=False in the oracle).
+    rbe = round_rbe(number)
+    if (rbe.get("found") and rbe.get("scaled")
+            and rbe.get("effective_rbe") is not None):
+        embed = replace(embed, fields=embed.fields + (
+            ("Effective RBE (freeplay-scaled)",
+             (f"**{rbe['effective_rbe']:,}** — the round-{number} spawn at "
+              f"scaled health (MOAB-class HP ramp + superceramics). Wiki "
+              f"base (unscaled): {rbe['base_rbe']:,}."),
+             False),))
     return embed
 
 
@@ -712,7 +793,16 @@ def _round_range_card(round_start: int, round_end: int) -> RenderedEmbed:
             description=rbe.get("note") or "No round data for that range.",
             style_token="red")
     cash = round_cash(lo, hi)
-    rbe_by_round = {r["round"]: r["base_rbe"] for r in rbe.get("per_round", [])}
+    # shipped: the single RBE column shows the freeplay-effective figure
+    # where computed, the wiki base elsewhere.
+    rbe_by_round = {
+        r["round"]: (
+            r["effective_rbe"]
+            if r.get("effective_rbe") is not None
+            else r.get("base_rbe")
+        )
+        for r in rbe.get("per_round", [])
+    }
     cash_by_round = {r["round"]: r
                      for r in (cash.get("per_round", [])
                                if cash.get("found") else [])}
@@ -734,10 +824,17 @@ def _round_range_card(round_start: int, round_end: int) -> RenderedEmbed:
     table = _code_table(
         f"{'round':>5} │ {'RBE':>11} │ {'cash':>9} │ {'cumulative':>11}",
         "──────┼─────────────┼───────────┼─────────────", body)
-    head = f"**Rounds {lo}–{hi}** — total RBE **{rbe['base_rbe_total']:,}**"
+    base_total = rbe.get("base_rbe_total")
+    eff_total = rbe.get("effective_rbe_total")
+    rbe_total = (
+        eff_total if (rbe.get("scaled") and eff_total is not None) else base_total
+    )
+    head = f"**Rounds {lo}–{hi}** — total RBE **{rbe_total:,}**"
     if cash.get("found") and cash.get("range_cash") is not None:
         head += f", total cash **${cash['range_cash']:,.0f}**"
     footer = ["Standard/Medium, no income towers"]
+    if rbe.get("scaled"):
+        footer.append("RBE freeplay-scaled (rounds 81+)")
     if rbe.get("truncated") or (cash.get("found") and cash.get("truncated")):
         footer.append("breakdown truncated; totals are the full range")
     return RenderedEmbed(
