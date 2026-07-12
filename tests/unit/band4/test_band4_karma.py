@@ -272,6 +272,38 @@ def test_karma_card_text_field_set():
     assert "unranked" in unranked
 
 
+def test_card_view_target_binds_argv0_only():
+    """`!karma [@user]` — the shipped Optional MemberConverter bound
+    argv[0] only (karma_cog.py `karma(ctx, member: discord.Member | None
+    = None)`); mention or bare ID at slot 0 is the card target."""
+    from sb.domain.karma.handlers import _target_id
+
+    snowflake = 900000000000000103
+    assert _target_id((f"<@{snowflake}>",)) == snowflake
+    assert _target_id(("<@!7>", "trailing", "text")) == 7
+    assert _target_id((str(snowflake),)) == snowflake
+
+
+def test_card_view_deep_digit_token_never_becomes_the_target():
+    """REGRESSION: the first-digit-token scan bound a digit anywhere in
+    argv as the card target — `!karma some text 123456789012345678`
+    showed that user's card instead of the actor's."""
+    from sb.domain.karma.handlers import _target_id
+
+    assert _target_id(("some", "text", "123456789012345678")) is None
+    assert _target_id(("bob", "5")) is None
+
+
+def test_card_view_falls_back_to_actor_on_bad_or_missing_argv0():
+    """A non-convertible or absent argv[0] backtracks to None — the
+    shipped Optional-converter default (`member or ctx.author`), the
+    actor's own card. No BadArgument raise in this lane."""
+    from sb.domain.karma.handlers import _target_id
+
+    assert _target_id(()) is None
+    assert _target_id(("bob",)) is None
+
+
 def test_inv_k_spec_shape():
     from sb.domain.karma.invariants import karma_reconciliation_spec
     from sb.spec.invariants import InvariantKind, Severity
