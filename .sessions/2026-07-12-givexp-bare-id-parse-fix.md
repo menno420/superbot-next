@@ -90,6 +90,17 @@ fix (gate GREEN locally, see Evidence).
   clean HEAD AND gate GREEN with this fix applied) isolated it as
   environmental, not a regression.
 
+## Codex non-review (recorded per protocol)
+
+The @codex question on the final substantive head `ccdbf4d` (PR #275
+comment 4951964997 — whether collapsing the MemberConverter name legs
+into the MemberNotFound copy pins a capture-world artifact vs a live
+cached-member name-resolution lane) drew a usage-limit reply ("You have
+reached your Codex usage limits") — a NON-REVIEW; the question queues
+unanswered with the others in the control/status.md open-questions
+note. Merged on green without waiting per Q-0258; Q-0120 stands for
+any later reply.
+
 ## 💡 Session idea
 
 The first-digit-token argv scan is a repo-wide anti-pattern seeded by
