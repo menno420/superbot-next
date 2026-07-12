@@ -9403,6 +9403,9 @@
       "handler:settings.needs_setup_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:settings.open_group": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.render_access": {
         "module": "sb.domain.settings.panels"
       },
@@ -12112,7 +12115,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:7da5336ea062ab3c1a4f657b79212db721f14f6f7a9c33cf35a16adee2b8bf51",
+  "stable_hash": "sha256:54e072a587672fab05ad489ff5588e4adcf9f6c17dfcd2dfe18e7fc11acd7793",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -44928,7 +44931,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:settings.group_pending"
+                "$ref": "handler:settings.open_group"
               },
               "options_source": [
                 {

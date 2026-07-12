@@ -64,6 +64,31 @@ def _register() -> None:
     if is_registered(HandlerRef("settings.access_view")):
         return
 
+    @handler("settings.open_group")
+    async def open_group(req):
+        """The Settings-hub "Open a settings group…" select — the shipped
+        ``SettingsHubView`` group select NAVIGATED (read-only, never a
+        mutation) to each group's page. Restore that navigation as a
+        faithful READ SUBSET: open the group's read-only operator-spine hub
+        when one is ensured (welcome/counters/security/automod/
+        image_moderation); every other group keeps the honest pending
+        terminal until the settings-mutation panel slice ports the full
+        edit page. Read-only by construction — open_panel or BLOCKED, no
+        write seam (mirrors ``help.open_category``)."""
+        from sb.domain.operator_spine import has_operator_hub
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.outcomes import BLOCKED
+        from sb.spec.refs import PanelRef
+
+        values = tuple(req.args.get("values", ()) or ())
+        group = str(values[0]) if values else ""
+        if group and has_operator_hub(group):
+            await open_panel(PanelRef(f"{group}.hub"), req)
+            return None
+        # the per-group scalar edit + reset is the settings-mutation slice's
+        # port (write-seam-gated) — read-only nav lands here until then.
+        return Reply(BLOCKED, f"⚙️ The per-group settings page{_PENDING}")
+
     @handler("settings.access_view")
     async def access_view(req):
         """``!settings access`` — open the shipped Access Policy Explorer
