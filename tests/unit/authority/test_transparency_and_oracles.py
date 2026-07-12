@@ -110,27 +110,54 @@ def test_compiler_p4_is_armed_by_the_leaf():
     register_field_roles("AuthCommandSpec", name="S", surface="S", route="S",
                          authority_ref="S")
 
+    # clear_ref_table PURGES sb.manifest.* from sys.modules — snapshot the
+    # imported set so the teardown can restore it (the test_band5_role
+    # recipe): under the canonical order the #213 integration suite has
+    # already imported the WHOLE composition, so ending with a bare clear
+    # strands every import-time registration in the cached sb.domain.*
+    # modules (handler:channel.slowmode, handler:treasury.render_hub,
+    # workflow:games.balance_payload_0, ...) for all later-listed suites.
+    import importlib
+    import sys
+
+    manifest_names = [n for n in sys.modules if n.startswith("sb.manifest.")]
     clear_ref_table()
+    try:
+        @handler("authproof.noop")
+        def _noop():  # pragma: no cover
+            pass
 
-    @handler("authproof.noop")
-    def _noop():  # pragma: no cover
-        pass
+        from sb.spec.refs import HandlerRef
 
-    from sb.spec.refs import HandlerRef
+        def _manifest(ref):
+            return SubsystemManifest(
+                key="authproof",
+                commands=(AuthCommandSpec("authprobe",
+                                          route=HandlerRef("authproof.noop"),
+                                          authority_ref=ref),),
+            )
 
-    def _manifest(ref):
-        return SubsystemManifest(
-            key="authproof",
-            commands=(AuthCommandSpec("authprobe", route=HandlerRef("authproof.noop"),
-                                      authority_ref=ref),),
-        )
+        good = compile_manifests(manifests=[_manifest("moderator")])
+        assert good.ok, [dataclasses.astuple(v) for v in good.violations]
 
-    good = compile_manifests(manifests=[_manifest("moderator")])
-    assert good.ok, [dataclasses.astuple(v) for v in good.violations]
-
-    bad = compile_manifests(manifests=[_manifest("NotATier")])
-    assert not bad.ok
-    assert any(v.pass_name == "authority" and "bad_authority" in v.detail
-               for v in bad.violations)
-
-    clear_ref_table()
+        bad = compile_manifests(manifests=[_manifest("NotATier")])
+        assert not bad.ok
+        assert any(v.pass_name == "authority" and "bad_authority" in v.detail
+                   for v in bad.violations)
+    finally:
+        clear_ref_table()
+        # re-import + re-arm the purged manifests (the compiler P1 posture:
+        # domain modules stay cached so ENSURE_REFS restores their refs)...
+        for n in manifest_names:
+            mod = importlib.import_module(n)
+            hook = getattr(mod, "ENSURE_REFS", None)
+            if callable(hook):
+                hook()
+        # ...then RE-PURGE them, preserving clear_ref_table's documented
+        # post-state ("paired with purging sb.manifest modules so re-import
+        # re-registers"): the registrations above survive the purge, and
+        # later-listed suites that pin IMPORT-TIME composition effects
+        # (test_band5_role's granter-port fill, test_band5_platform's
+        # reader ports) still get the fresh import they rely on.
+        for n in manifest_names:
+            sys.modules.pop(n, None)

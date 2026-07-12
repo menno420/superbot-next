@@ -80,20 +80,22 @@ async def _counting_totals(guild_id: int) -> list[tuple[int, int]]:
     return sorted(totals.items(), key=lambda x: x[1], reverse=True)
 
 
-_provider_registered = False
-
-
 def register_provider_rows() -> None:
     """CountingProvider (alias countlb / counting_leaderboard) — the
-    shipped rank_providers rows; idempotent."""
-    global _provider_registered
-    if _provider_registered:
-        return
+    shipped rank_providers rows; idempotent by REGISTRY truth, not a
+    module latch: reset_providers_for_tests() wipes the registry while
+    this module stays cached, so a boolean once-latch would strand the
+    row un-re-armable (the #141 re-arm doctrine — guards must read the
+    world they guard)."""
     from sb.domain.community.rank_providers import (
         RankEntry,
         RankProvider,
+        get_provider,
         register_provider as _register,
     )
+
+    if get_provider("counting") is not None:
+        return
 
     async def _top(guild_id: int) -> list[RankEntry]:
         totals = await _counting_totals(guild_id)
@@ -116,7 +118,6 @@ def register_provider_rows() -> None:
                    "channel to appear here.",
         top=_top, member_rank=_member_rank),
         aliases=("countlb", "counting_leaderboard"))
-    _provider_registered = True
 
 
 # --- routes + views ---------------------------------------------------------------

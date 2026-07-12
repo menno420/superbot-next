@@ -57,4 +57,12 @@ def _ensure_refs() -> None:
     _handlers.ensure_handler_refs()
 
 
+# Import-time re-arm too, not ensure-only (the D-0025 P1 posture / the
+# ensure-only-registration gap class): after a clear_ref_table() the domain
+# modules stay cached — their module-bottom registrations can never re-fire
+# — so THIS module's re-import is the only registration pass a fresh
+# composition boot (Harness._load_manifests, the live root) runs. Both
+# hooks are is_registered-guarded, so the double call is free.
+_ensure_refs()
+
 ENSURE_REFS = _ensure_refs
