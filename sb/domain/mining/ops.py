@@ -572,6 +572,129 @@ async def _record_vault_upgrade(conn, ctx: WorkflowContext) -> LegOutcome:
                           f"**{balance}** 🪙."})
 
 
+# --- workshop / crafting write legs (slice 4): the shipped services/
+# mining_workflow.py repair / quick_craft verbatim, re-homed onto the audited
+# one-leg one-txn seam. NO golden drives a funded repair or a real quick-craft —
+# every imported sweep pins the bare guard/read byte (sweep_repair pins the usage
+# prompt, sweep_quickcraft pins the fresh-player "nothing broken" read off the
+# NULL last_broken_item), so the guard/read bytes in service.py are the only
+# parity surface. Both settles are advisory-fenced (lock_workshop_slot) against
+# the read-then-settle money/material race (check_money_race) --------------------
+
+
+@workflow("mining.record_repair")
+async def _record_repair(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!repair <item>` — repair *item* to full durability for coins: debit the
+    proportional cost and clear the wear row in ONE txn (the shipped RS02 order —
+    both legs commit or roll back together). Money-bearing (wager.debit_in_txn),
+    so the wear read that sizes the cost is advisory-fenced first."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.mining import equipment, workshop
+
+    uid, gid, _ = _ids(ctx)
+    item = _item_from(ctx)
+    if equipment.max_durability(item) is None:
+        raise ValidatorError(f"**{item}** doesn't wear out.")
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    if inventory.get(item, 0) < 1:
+        raise ValidatorError(f"You don't own a **{item}** to repair.")
+    # Fence concurrent repairs of this player's gear BEFORE the wear read →
+    # the debit + wear clear serialize (no double-charge — #217).
+    await store.lock_workshop_slot(conn, user_id=uid, guild_id=gid)
+    wear = await store.get_gear_wear(uid, gid, conn=conn)
+    if item not in wear:
+        raise ValidatorError(f"Your **{item}** is already at full durability.")
+    cost = workshop.repair_cost(item, wear[item])
+    if cost is None:
+        raise ValidatorError(f"**{item}** can't be repaired here.")
+    try:
+        balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=cost,
+            reason=workshop.REPAIR_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        held = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"Repairing **{item}** costs **{cost}** 🪙 — you only have "
+            f"**{held}** 🪙.") from None
+    await store.clear_gear_wear(conn, user_id=uid, guild_id=gid, item_name=item)
+    ctx.params["_balance_changes"] = [
+        (uid, -cost, balance, workshop.REPAIR_REASON)]
+    return LegOutcome(
+        step=StepResult(uid, "repair", True), before={},
+        after={"item": item, "cost": cost, "balance": balance,
+               "message": f"Repaired **{item}** to full durability for "
+                          f"**{cost}** 🪙. Balance: **{balance}** 🪙."})
+
+
+@workflow("mining.record_quick_craft")
+async def _record_quick_craft(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!quickcraft` — re-craft the last gear item that broke and auto-equip it
+    if its slot is free. Craft deltas + equip + marker clear commit in ONE txn
+    (the shipped RS02 order). Not money-bearing (materials, not coins), but the
+    material spend is advisory-fenced against a concurrent double-quick-craft.
+
+    The handler answers the fresh-player "nothing broken" read (NULL
+    last_broken_item) as a pure read before this leg runs — the only path any
+    golden pins (goldens/mining/sweep_quickcraft.json) — so this leg only ever
+    runs behind a genuinely broken item."""
+    from sb.domain.mining import equipment, recipes, structures
+
+    uid, gid, _ = _ids(ctx)
+    await store.lock_workshop_slot(conn, user_id=uid, guild_id=gid)
+    last = await store.get_last_broken(uid, gid, conn=conn)
+    if not last:
+        raise ValidatorError(
+            "Nothing has broken recently — craft or repair gear below.")
+    recipe = recipes.load_recipes().get(last)
+    if not recipe:
+        raise ValidatorError(f"No recipe for **{last}**.")
+    required = structures.forge_level_required(last)
+    if required > 0:
+        built = await store.get_structures(uid, gid, conn=conn)
+        if built.get(structures.FORGE, 0) < required:
+            needed = structures.forge_level_name(required)
+            tier = equipment.gear_tier(last)
+            raise ValidatorError(
+                f"Crafting **{last}** needs a **{needed}** 🔥 — build the "
+                f"Forge with `!forge` to unlock {tier}-tier gear.")
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    for mat, qty in recipe.items():
+        if inventory.get(mat, 0) < qty:
+            from sb.domain.mining import workshop
+
+            raise ValidatorError(
+                f"You don't have enough **{mat}** to craft **{last}** "
+                f"(needs {workshop.describe_materials(recipe)}).")
+    for mat, qty in recipe.items():
+        await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                       item=mat, delta=-qty)
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=last, delta=1)
+    message = f"Crafted **{last}**!"
+    slot = equipment.slot_for(last)
+    if slot is not None:
+        equipped = await store.get_equipment(uid, gid, conn=conn)
+        if slot not in equipped:
+            await store.equip_item(conn, user_id=uid, guild_id=gid, slot=slot,
+                                   item_name=last)
+            message = f"Crafted **{last}** and equipped it in the **{slot}** " \
+                      "slot!"
+    await store.set_last_broken(conn, user_id=uid, guild_id=gid, item=None)
+    return LegOutcome(
+        step=StepResult(uid, "quick_craft", True), before={},
+        after={"item": last, "message": message})
+
+
+@workflow("mining.erase_subject_structures")
+async def _erase_structures(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_structures(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_structures", True),
+                      before={}, after={"rows": rows})
+
+
 @workflow("mining.erase_subject_vault")
 async def _erase_vault(conn, ctx: WorkflowContext) -> LegOutcome:
     subject = int(ctx.params["subject_user_id"])
@@ -688,11 +811,16 @@ STASH_ALL = _op("mining.stash_all", "mining_stashed_all",
                 "mining.record_stash_all", ())
 VAULT_UPGRADE = _op("mining.vault_upgrade", "mining_vault_upgraded",
                     "mining.record_vault_upgrade", _BALANCE_EMITS)
+REPAIR = _op("mining.repair", "mining_repaired", "mining.record_repair",
+             _BALANCE_EMITS)
+QUICK_CRAFT = _op("mining.quick_craft", "mining_quick_crafted",
+                  "mining.record_quick_craft", ())
 
 _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
-        STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE)
+        STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
+        REPAIR, QUICK_CRAFT)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -714,6 +842,9 @@ _REF_TABLE = (
     ("mining.record_unstash", _record_unstash),
     ("mining.record_stash_all", _record_stash_all),
     ("mining.record_vault_upgrade", _record_vault_upgrade),
+    ("mining.record_repair", _record_repair),
+    ("mining.record_quick_craft", _record_quick_craft),
+    ("mining.erase_subject_structures", _erase_structures),
     ("mining.erase_subject_vault", _erase_vault),
     ("mining.erase_subject_inventory", _erase_inventory),
     ("mining.erase_subject_state", _erase_state),

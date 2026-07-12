@@ -14,6 +14,7 @@ from sb.domain.mining import service as _service
 from sb.domain.mining.ops import register_ops
 from sb.domain.mining.panels import (
     mining_card_spec,
+    mining_forge_spec,
     mining_hub_spec,
     mining_vault_spec,
 )
@@ -23,6 +24,7 @@ from sb.domain.mining.store import (
     MINING_INVENTORY_STORE,
     MINING_LOADOUT_STORE,
     MINING_PLAYER_STATE_STORE,
+    MINING_STRUCTURES_STORE,
     MINING_VAULT_STORE,
     MINING_WORLD_STORE,
     PLAYER_SKILLS_STORE,
@@ -71,8 +73,9 @@ _COMMANDS = (
     _pending("build", "Build a structure.", ("craft",)),
     _pending("buildlist", "List built structures."),
     _pending("buildable", "What you can build now."),
-    _pending("use", "Use a consumable item."),
-    _pending("cook", "Cook fish at a campfire."),
+    # --- slice-4 port (LIVE): workshop / campfire / consumables ------------
+    _cmd("use", HandlerRef("mining.use_route"), "Use a consumable item."),
+    _cmd("cook", HandlerRef("mining.cook_route"), "Cook fish at a campfire."),
     # --- slice-1 port (LIVE): equipment / loadout presets / character sheet
     #     over the EffectiveStats read model (deathmatch/casino defer, D-0045).
     _cmd("equip", HandlerRef("mining.equip_route"),
@@ -102,11 +105,13 @@ _COMMANDS = (
     _pending("skills", "Your skill tree."),
     _pending("skill", "Spend a skill point."),
     _pending("titles", "Your earned titles."),
-    _pending("forge", "The forge."),
+    _cmd("forge", PanelRef("mining.forge"),
+         "Open the Forge — build it to unlock higher-tier gear crafting."),
     _pending("home", "Your home structure."),
     _pending("workshop", "The repair workshop."),
-    _pending("repair", "Repair worn gear."),
-    _pending("quickcraft", "Craft the best available recipe."),
+    _cmd("repair", HandlerRef("mining.repair_route"), "Repair worn gear."),
+    _cmd("quickcraft", HandlerRef("mining.quickcraft_route"),
+         "Re-craft the last gear item that broke."),
     # shipped admin gate: member_has_perms_or_owner(administrator=True)
     # in-handler — the port home is the tier lane (deny copy is the
     # kernel's; unpinned — no golden drives the non-admin branch).
@@ -119,12 +124,14 @@ MANIFEST = SubsystemManifest(
     key="mining",
     version=1,
     commands=_COMMANDS,
-    panels=(mining_hub_spec(), mining_card_spec(), mining_vault_spec()),
+    panels=(mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
+            mining_forge_spec()),
     settings=(),
     stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE,
             MINING_EQUIPMENT_STORE, MINING_GEAR_WEAR_STORE,
             MINING_LOADOUT_STORE, PLAYER_SKILLS_STORE,
-            MINING_WORLD_STORE, MINING_VAULT_STORE),
+            MINING_WORLD_STORE, MINING_VAULT_STORE,
+            MINING_STRUCTURES_STORE),
     events=(),
     capabilities=(),
 )

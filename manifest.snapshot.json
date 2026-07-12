@@ -4973,6 +4973,16 @@
           "value": "va_hub"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "fo_build"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "fo_workshop"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "warn"
@@ -6507,6 +6517,11 @@
           "value": "mining.vault"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.forge"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "moderation.hub"
@@ -7681,6 +7696,11 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining_vault"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_structures"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -9098,8 +9118,8 @@
       "handler:mining.chop_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.cook_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.cook_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.descend_route": {
         "module": "sb.domain.mining.service"
@@ -9113,7 +9133,7 @@
       "handler:mining.fastmine_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.forge_pending": {
+      "handler:mining.forge_build_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:mining.gear_view": {
@@ -9143,10 +9163,13 @@
       "handler:mining.mineworld_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.quickcraft_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.quickcraft_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.render_card": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.render_forge": {
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.render_hub": {
@@ -9155,8 +9178,8 @@
       "handler:mining.render_vault": {
         "module": "sb.domain.mining.panels"
       },
-      "handler:mining.repair_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.repair_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.reset_inventory_route": {
         "module": "sb.domain.mining.service"
@@ -9191,8 +9214,8 @@
       "handler:mining.unstash_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.use_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.use_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.vault_deposit_pending": {
         "module": "sb.domain.operator_spine"
@@ -10268,6 +10291,9 @@
       "panel:mining.card": {
         "module": "sb.domain.mining.panels"
       },
+      "panel:mining.forge": {
+        "module": "sb.domain.mining.panels"
+      },
       "panel:mining.hub": {
         "module": "sb.domain.mining.panels"
       },
@@ -11282,6 +11308,9 @@
       "workflow:mining.erase_subject_state": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.erase_subject_structures": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.erase_subject_vault": {
         "module": "sb.domain.mining.ops"
       },
@@ -11292,6 +11321,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.mine": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.quick_craft": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_apply_loadout": {
@@ -11319,6 +11351,12 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_mine": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_quick_craft": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_repair": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_reseed_world": {
@@ -11349,6 +11387,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_vault_upgrade": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.repair": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.reseed_world": {
@@ -12094,6 +12135,14 @@
         },
         "subsystem": "mining"
       },
+      "mining_structures": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_structures",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
       "mining_vault": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "mining_vault",
@@ -12305,7 +12354,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:10d1a9439359540ada40519f356a0c21d9c2bf2f2d49c677a571df7be858c241",
+  "stable_hash": "sha256:71262f73ce5b0672a7dfc0a901f649b2c1481e16011c0ffce6019fcd83a16973",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -38795,7 +38844,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.use_pending"
+            "$ref": "handler:mining.use_route"
           },
           "slash_common": false,
           "summary": "Use a consumable item.",
@@ -38819,7 +38868,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.cook_pending"
+            "$ref": "handler:mining.cook_route"
           },
           "slash_common": false,
           "summary": "Cook fish at a campfire.",
@@ -39208,10 +39257,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.forge_pending"
+            "$ref": "panel:mining.forge"
           },
           "slash_common": false,
-          "summary": "The forge.",
+          "summary": "Open the Forge — build it to unlock higher-tier gear crafting.",
           "usage": "!forge",
           "usage_weight": 1.0
         },
@@ -39280,7 +39329,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.repair_pending"
+            "$ref": "handler:mining.repair_route"
           },
           "slash_common": false,
           "summary": "Repair worn gear.",
@@ -39304,10 +39353,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.quickcraft_pending"
+            "$ref": "handler:mining.quickcraft_route"
           },
           "slash_common": false,
-          "summary": "Craft the best available recipe.",
+          "summary": "Re-craft the last gear item that broke.",
           "usage": "!quickcraft",
           "usage_weight": 1.0
         },
@@ -39793,6 +39842,104 @@
           "timeout_s": 180,
           "title": "🏦 Mining Vault",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "fo_build",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.forge_build_pending"
+              },
+              "label": "🔥 Build",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fo_workshop",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.workshop_pending"
+              },
+              "label": "↩ Workshop",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!forge` reply is a fully live-state-parameterized embed built in the view (views/mining/forge_panel.py build_forge_embed: the Level `{level_name} ({level}/{max})` line, the Unlocks tiers list, the Next-cost field `{materials} + {coins} 🪙`, and the built/maxed footer — goldens/mining/sweep_forge.json pins the not-built bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub / vault live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fo_build",
+                    "fo_workshop"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.forge",
+          "renderer_override": {
+            "$ref": "handler:mining.render_forge"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "🔥 Forge",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -40018,6 +40165,34 @@
             "$ref": "engine:mining.store"
           },
           "table": "mining_vault",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_structures"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_structures",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_structures",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

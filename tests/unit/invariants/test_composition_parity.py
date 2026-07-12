@@ -55,15 +55,14 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     # their real *_route / *_view handlers register at module import.
     # descend/ascend/mineworld pruned by the slice-2 port — their real
     # descend_route / ascend_route / mineworld_route register at import.
-    "handler:mining.cook_pending",
-    "handler:mining.forge_pending",
+    # forge/repair/quickcraft/cook/use pruned by the slice-4 port — the
+    # mining.forge PanelSpec + repair_route / quickcraft_route / cook_route /
+    # use_route register at module import (the forge 🔥 Build pending terminal
+    # registers at import in panels.py, so it is import-visible too).
     "handler:mining.home_pending",
-    "handler:mining.quickcraft_pending",
-    "handler:mining.repair_pending",
     "handler:mining.skill_pending",
     "handler:mining.skills_pending",
     "handler:mining.titles_pending",
-    "handler:mining.use_pending",
     "handler:mining.workshop_pending",
     "panel:role.hub",
 })

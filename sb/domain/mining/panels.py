@@ -73,17 +73,20 @@ __all__ = [
     "CARD_PANEL_ID",
     "HUB_PANEL_ID",
     "VAULT_PANEL_ID",
+    "FORGE_PANEL_ID",
     "PACK_SOFT_CAP",
     "ensure_panel_refs",
     "install_mining_panels",
     "mining_card_spec",
     "mining_hub_spec",
     "mining_vault_spec",
+    "mining_forge_spec",
 ]
 
 HUB_PANEL_ID = "mining.hub"
 CARD_PANEL_ID = "mining.card"
 VAULT_PANEL_ID = "mining.vault"
+FORGE_PANEL_ID = "mining.forge"
 
 #: the shipped shared author-locked nav-view footer literal (the
 #: games/farm/community `_PANEL_FOOTER`).
@@ -291,6 +294,120 @@ def _vault_modal_handlers() -> dict[str, HandlerRef]:
     }
 
 
+def _forge_button_handlers() -> dict[str, HandlerRef]:
+    """Pending terminal for the forge's 🔥 Build button — the structure BUILD
+    write rides the deferred structures build system (the `!build` command stays
+    a D-0043 pending terminal this slice); the ↩ Workshop button reuses the
+    existing ``mining.workshop_pending`` (the workshop hub is slice 6). Registered
+    at IMPORT (module bottom), never ensure-only (#111 doctrine). No golden drives
+    a forge click, so the terminal copy is unpinned."""
+    from sb.domain.operator_spine import pending_handler
+
+    return {
+        "build": pending_handler(
+            "mining.forge_build_pending",
+            "🔥 Building the forge rides the deep-system structures build port "
+            "(D-0043) — " + _D0043_TAIL),
+    }
+
+
+def mining_forge_spec() -> PanelSpec:
+    """The shipped 🔥 Forge panel (views/mining/forge_panel.py ``MiningForgeView``
+    + ``build_forge_embed``) — an ephemeral (session) child of the mining hub:
+    the two buttons mint session `<cid:N>` ids, and the live built-level /
+    unlocked-tiers / next-cost embed rides a renderer override
+    (goldens/mining/sweep_forge.json pins every byte: the MINING_COLOR dark-grey
+    frame, the Level / Unlocks / Next fields, the build-prompt footer, the
+    🔥 Build + ↩ Workshop row and the standard nav row 📚 Help + ↩ Games)."""
+    return PanelSpec(
+        panel_id=FORGE_PANEL_ID,
+        subsystem="mining",
+        title="🔥 Forge",
+        audience=Audience.INVOKER,
+        # MINING_COLOR = discord.Color.dark_grey() (utils/ui_constants.py); the
+        # live fields + build-prompt footer ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
+        # so no panel_anchors row — the shipped HubView child send).
+        session_lifecycle=True,
+        actions=(
+            PanelActionSpec(
+                action_id="fo_build", label="🔥 Build",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("mining.forge_build_pending")),
+            PanelActionSpec(
+                action_id="fo_workshop", label="↩ Workshop",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("mining.workshop_pending")),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden).
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("mining.render_forge"),
+        justification=(
+            "the shipped `!forge` reply is a fully live-state-parameterized "
+            "embed built in the view (views/mining/forge_panel.py "
+            "build_forge_embed: the Level `{level_name} ({level}/{max})` line, "
+            "the Unlocks tiers list, the Next-cost field "
+            "`{materials} + {coins} 🪙`, and the built/maxed footer — "
+            "goldens/mining/sweep_forge.json pins the not-built bytes), "
+            "read-parameterized state outside the static TextBlock/FieldsBlock "
+            "vocabulary (the mining hub / vault live-overview precedent). Every "
+            "component stays grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("fo_build", "fo_workshop"),
+        )),)),
+    )
+
+
+async def _render_forge(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped live forge embed
+    (built-level line, unlocked-tiers list, next-build cost / maxed state, and
+    the build-prompt footer; see justification). Reads get_structures → the
+    forge's built level (a fresh player reads level 0 off the store's no-row
+    default → the not-built card goldens/mining/sweep_forge.json pins)."""
+    from sb.domain.mining import store, structures, workshop
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    built = await store.get_structures(uid, gid)
+    level = built.get(structures.FORGE, 0)
+    fields: list[tuple[str, str, bool]] = [
+        ("Level",
+         f"**{structures.forge_level_name(level)}** "
+         f"({level}/{structures.MAX_FORGE_LEVEL})", False)]
+    unlocked = structures.tiers_unlocked_at(level)
+    unlocked_text = ", ".join(t.title() for t in unlocked) if unlocked else "—"
+    fields.append((
+        "Unlocks (beyond free tiers)",
+        f"{unlocked_text}\nBronze · Iron · Silver gear, tools, and structures "
+        "craft without a forge.", False))
+    cost = structures.forge_build_cost(level)
+    if cost is None:
+        fields.append((
+            "Maxed",
+            "Your forge is at its highest level — it unlocks every gear tier.",
+            False))
+        footer = "↩ Mining Hub"
+    else:
+        nxt = structures.forge_level_name(level + 1)
+        nxt_tiers = structures.tiers_unlocked_at(level + 1)
+        gain = [t for t in nxt_tiers if t not in unlocked]
+        gain_text = f" → unlocks **{gain[-1]}-tier** gear" if gain else ""
+        fields.append((
+            f"Next: {nxt}{gain_text}",
+            f"{workshop.describe_materials(cost.materials)} + "
+            f"**{cost.coins}** 🪙", False))
+        footer = "🔥 Build  •  ↩ Mining Hub"
+    embed = _dc_replace(rendered.embed, title="🔥 Forge",
+                        fields=tuple(fields), footer=footer)
+    return _dc_replace(rendered, embed=embed)
+
+
 def mining_vault_spec() -> PanelSpec:
     """The shipped 🏦 Mining Vault panel (views/mining/vault_panel.py
     ``MiningVaultView`` + ``build_vault_embed``) — an ephemeral (session)
@@ -463,28 +580,39 @@ def _vault_factory() -> PanelSpec:
     return mining_vault_spec()
 
 
+@panel(FORGE_PANEL_ID)
+def _forge_factory() -> PanelSpec:
+    return mining_forge_spec()
+
+
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _pending_button_handlers()
     _vault_modal_handlers()
+    _forge_button_handlers()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
     if not is_registered(HandlerRef("mining.render_card")):
         handler("mining.render_card")(_render_card)
     if not is_registered(HandlerRef("mining.render_vault")):
         handler("mining.render_vault")(_render_vault)
+    if not is_registered(HandlerRef("mining.render_forge")):
+        handler("mining.render_forge")(_render_forge)
     if not is_registered(PanelRef(HUB_PANEL_ID)):
         panel(HUB_PANEL_ID)(_hub_factory)
     if not is_registered(PanelRef(CARD_PANEL_ID)):
         panel(CARD_PANEL_ID)(_card_factory)
     if not is_registered(PanelRef(VAULT_PANEL_ID)):
         panel(VAULT_PANEL_ID)(_vault_factory)
+    if not is_registered(PanelRef(FORGE_PANEL_ID)):
+        panel(FORGE_PANEL_ID)(_forge_factory)
 
 
 def install_mining_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for spec in (mining_hub_spec(), mining_card_spec(), mining_vault_spec()):
+    for spec in (mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
+                 mining_forge_spec()):
         try:
             out.append(register_panel(spec))
         except ValueError as exc:
