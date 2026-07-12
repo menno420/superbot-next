@@ -1,9 +1,11 @@
 # 2026-07-12 — deep-mining WRITE-PARITY lane — WP-3 depth/world/wear write goldens
 
-> **Status:** in flight (born red — session card + telemetry + claim planted
-> first; goldens minted next, card flips complete on the last commit). Stacked
-> on WP-2 (#312, branch `mining-write-parity-wp2`). Born-red first-commit CI red
-> is expected noise.
+> **Status:** complete (WP-3 DELIVERED — 5 depth/world/workshop write goldens
+> minted byte-identical, `mining_world` + `mining_gear_wear` exemptions retired
+> (ratchet mining `{events:4, tables:13→15}`), two two-txn `lock_workshop_slot`
+> concurrency regressions added (quickcraft item-dup + repair double-spend, both
+> RED→GREEN observed); gate GREEN (475 ported goldens) + all checkers green. PR
+> #317, stacked on #312.)
 
 - **📊 Model:** opus-4.8 · high · parity/golden-minting (Q-0194)
 
@@ -57,6 +59,23 @@ mirroring WP-2's `test_mining_vault_upgrade_race.py`:
   crafts, the other sees `last_broken` cleared → refuses) — no item duplication.
   Verified RED without the lock, GREEN with it.
 - **`repair`** — two concurrent repairs must serialize (no double coin spend).
+
+## 💡 Session idea
+
+The spec's WP-3 "gear-wear ADD via a geared-mine wear tick" was a phantom: the
+ported mine leg has NO wear tick — `set_gear_wear` has zero runtime write
+ingress in `sb/`, so `mining_gear_wear`'s ONLY write ingress is
+`clear_gear_wear` via `!repair` (the REMOVE face). A slice plan that names a
+terminal by its imagined write path can outrun what the port actually shipped;
+the durable rule is **trust the covered-surface set at HEAD + the live write
+ingress, not the spec's terminal list** — which is exactly why the coordinator's
+"trust HEAD, don't assume the spec's exact exemption list" instruction is the
+load-bearing one. It forced the WP-4 workshop fold-in (repair/quickcraft) up
+into WP-3, which turned out to be the only tractable path to retire
+`mining_gear_wear` at all — and it surfaced the priority `quick_craft` item-dup
+race a slice early. A follow-up worth a checker: flag any `depth.exemptions`
+`guard-only-capture` row whose named write ingress has no runtime call site, so
+the phantom is caught at the ledger, not at mint time.
 
 ## ⟲ Previous-session review
 
