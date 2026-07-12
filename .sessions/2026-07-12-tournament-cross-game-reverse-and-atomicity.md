@@ -95,21 +95,22 @@ summed stakes, payout reason oracle-verbatim. Refund
 (`blackjack:entry_refund`) is not deterministically reachable in a
 self-settling flow (fires only on the abort/forfeit branch) — noted, not
 pinned. Double-captured byte-identical post-disposition. Count pins
-reconciled: on-disk 476→477, `minted_goldens` 14→15 (`parity.yml` + the
-two count-pin tests).
+reconciled onto current `main` (post-rebase over the WP-1 mining
+write-parity goldens): on-disk 481→482, `minted_goldens` 19→20
+(`parity.yml` + the two count-pin tests).
 
 ## Evidence
 
-- `python3 -m pytest tests/ -q` — 2054 passed, 5 skipped (real Postgres,
-  throwaway local instance on :5433).
+- `python3 -m pytest tests/ -q` — 2055 passed, 5 skipped (real Postgres,
+  throwaway local instance; post-rebase over `main`).
 - `python3 -m pytest tests/unit/band6/test_band6_blackjack_tournament.py
   tests/unit/band6/test_band6_rps_tournament.py -q` — 30 passed.
 - `python3 -m pytest tests/unit/parity_adapter tests/unit/parity_gate -q`
   — 93 passed (the reconciled count pins).
-- `python3 tools/run_golden_parity.py --gate` — GREEN, all 462 golden(s)
+- `python3 tools/run_golden_parity.py --gate` — GREEN, all 467 golden(s)
   across 51 ported subsystems replay clean (+1 over baseline: the new
   paid-tournament golden replays in-trajectory).
-- `python3 tools/check_parity_depth.py` — OK, 477 goldens, no ratchet
+- `python3 tools/check_parity_depth.py` — OK, 482 goldens, no ratchet
   movement (the golden touches already-covered tables economy_audit_log/xp).
 - `python3 -m pytest tests/integration -q` — 11 passed.
 - `python3 bootstrap.py check --strict` — all checks pass.
