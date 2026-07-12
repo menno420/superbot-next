@@ -31,13 +31,14 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (485/485) — curated
+    """Every golden on disk yields a replayable case (490/490) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
     + the 1 D-0079 creature-battle case + the 4 browse-interaction minted
     cases + the 2 minted multi-step tournament-flow cases + the 5 WP-1
     mining write-parity minted cases + the 4 WP-2 mining vault write-parity
+    minted cases + the 5 WP-3 mining depth/world/workshop write-parity
     minted cases − 3 retired: sweep_cog.json, the
     deploy-ops `!cog` capture, plus
     sweep_query_logs.json / sweep_recent_errors.json, the run-order-dependent
@@ -55,9 +56,11 @@ def test_full_corpus_reconstructs():
     # (D-0073 procedure) + 4 (browse-interaction, 2026-07-12) + 2
     # (tournament-flow) + 5 (WP-1 mining write-parity: equip/unequip/loadout
     # save·apply·delete) + 4 (WP-2 mining vault write-parity: stash/unstash/
-    # stash-all/vaultupgrade) − 3 retired (sweep_cog.json + sweep_query_logs.json +
-    # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 485
+    # stash-all/vaultupgrade) + 5 (WP-3 mining depth/world/workshop write-parity:
+    # descend/ascend/reseed-world/repair/quickcraft) − 3 retired (sweep_cog.json +
+    # sweep_query_logs.json + sweep_recent_errors.json — parity.yml
+    # source.retired_goldens)
+    assert golden_count == 490
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 

@@ -1,0 +1,247 @@
+{
+ "case_id": "mining.descend_write",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    },
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "descend",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "mining_descended",
+     "new_value": {
+      "descend": {
+       "depth": 1,
+       "message": "descended to 🪨 Cavern (depth 1/3)."
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "descend": {}
+     },
+     "scope": "guild",
+     "subsystem": "mining",
+     "target": "mining.descend"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "mining_descended",
+      "new_value": {
+       "descend": {
+        "depth": 1,
+        "message": "descended to 🪨 Cavern (depth 1/3)."
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "descend": {}
+      },
+      "scope": "guild",
+      "subsystem": "mining",
+      "target": "mining.descend"
+     },
+     "status": "pending"
+    },
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "mining_player_state": {
+   "added": [
+    {
+     "depth": 1,
+     "equipped_title": null,
+     "guild_id": "<guild>",
+     "last_broken_item": null,
+     "max_depth": 1,
+     "updated_at": 0,
+     "user_id": "<@member>",
+     "vault_level": 0
+    }
+   ],
+   "removed": [
+    {
+     "depth": 0,
+     "equipped_title": null,
+     "guild_id": "<guild>",
+     "last_broken_item": null,
+     "max_depth": 1,
+     "updated_at": 0,
+     "user_id": "<@member>",
+     "vault_level": 0
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2054113849,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "geared !descend (torch equipped, max_depth pre-seeded so it is not record-setting) drives mining.descend -> record_descend: set_depth 0->1, no game-XP tail, and replies `<@u> descended to the Cavern band` — the depth-write face of mining_player_state (mining_cog.py descend copy verbatim)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "<@<@member>> descended to 🪨 Cavern (depth 1/3).",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "descend",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!descend",
+    "kind": "command",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

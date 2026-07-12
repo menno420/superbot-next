@@ -39,13 +39,14 @@ class TestImportedCorpus:
         # (2026-07-12) + 2 minted multi-step tournament-flow goldens + 5 minted
         # WP-1 mining write-parity goldens (equip/unequip/loadout
         # save·apply·delete) + 4 minted WP-2 mining vault write-parity goldens
-        # (stash/unstash/stash-all/vaultupgrade; parity.yml
-        # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
-        # `!cog` capture, + sweep_query_logs.json / sweep_recent_errors.json,
-        # the run-order-dependent log-ring captures — parity.yml
-        # source.retired_goldens, the 2026-07-12 corpus rulings).
+        # (stash/unstash/stash-all/vaultupgrade) + 5 minted WP-3 mining
+        # depth/world/workshop write-parity goldens (descend/ascend/reseed-world/
+        # repair/quickcraft; parity.yml source.minted_goldens) − 3 retired
+        # (sweep_cog.json, the deploy-ops `!cog` capture, + sweep_query_logs.json
+        # / sweep_recent_errors.json, the run-order-dependent log-ring captures —
+        # parity.yml source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 485
+        assert len(goldens) == 490
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -72,7 +73,9 @@ class TestImportedCorpus:
         # + 5 WP-1 mining write-parity mints (equip/unequip/loadout)
         # + 4 WP-2 mining vault write-parity mints (stash/unstash/
         # stash-all/vaultupgrade)
-        assert source["minted_goldens"] == 23
+        # + 5 WP-3 mining depth/world/workshop write-parity mints
+        # (descend/ascend/reseed-world/repair/quickcraft)
+        assert source["minted_goldens"] == 28
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -597,7 +600,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "485 goldens" in out
+        assert "490 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

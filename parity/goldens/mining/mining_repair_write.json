@@ -1,0 +1,277 @@
+{
+ "case_id": "mining.repair_write",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    },
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "repair",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "mining_repaired",
+     "new_value": {
+      "repair": {
+       "balance": 493,
+       "cost": 7,
+       "item": "pickaxe",
+       "message": "Repaired **pickaxe** to full durability for **7** 🪙. Balance: **493** 🪙."
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "repair": {}
+     },
+     "scope": "guild",
+     "subsystem": "mining",
+     "target": "mining.repair"
+    }
+   ]
+  },
+  "economy_audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "delta": -7,
+     "guild_id": "<guild>",
+     "id": 1,
+     "mutation_id": "<uuid>",
+     "new_balance": 493,
+     "occurred_at": "<ts>",
+     "reason": "mining:repair_gear",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "economy_balances": {
+   "added": [
+    {
+     "coins": 493,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ],
+   "removed": [
+    {
+     "coins": 500,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "mining_repaired",
+      "new_value": {
+       "repair": {
+        "balance": 493,
+        "cost": 7,
+        "item": "pickaxe",
+        "message": "Repaired **pickaxe** to full durability for **7** 🪙. Balance: **493** 🪙."
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "repair": {}
+      },
+      "scope": "guild",
+      "subsystem": "mining",
+      "target": "mining.repair"
+     },
+     "status": "pending"
+    },
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "mining_gear_wear": {
+   "removed": [
+    {
+     "durability": 30,
+     "guild_id": "<guild>",
+     "item_name": "pickaxe",
+     "updated_at": "<ts>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1783497691,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "argful !repair (owned + worn + funded) drives mining.repair -> record_repair: debits the 7-coin cost via wager.debit_in_txn and clears the mining_gear_wear row in one advisory-fenced txn, and replies with the shipped repair copy (cost 7, balance 493) — the remove face of mining_gear_wear (retires its guard-only-capture exemption; mining_workflow repair copy verbatim)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [],
+      "content": "<@<@member>> Repaired **pickaxe** to full durability for **7** 🪙. Balance: **493** 🪙.",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "repair",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "economy.balance_changed",
+     "payload": {
+      "delta": -7,
+      "guild_id": "<guild>",
+      "new_balance": 493,
+      "reason": "mining:repair_gear",
+      "user_id": "<@member>"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!repair pickaxe",
+    "kind": "command",
+    "persona": "member"
+   }
+  }
+ ],
+ "subsystem": "mining"
+}

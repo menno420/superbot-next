@@ -622,4 +622,139 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "— the funded-upgrade capture that covers the vault_level face of "
             "mining_player_state (retires its guard-only-capture exemption)"),
     ),
+    # ---------------------------------------------- mining WRITE-PARITY (WP-3)
+    # Argful depth / world / workshop writes (descend / ascend / mineworld reseed
+    # / repair / quickcraft) that DRIVE the mutation the imported bare-guard
+    # sweeps never reached (D-0069 class exit). Same personas as WP-1/2: member =
+    # 900000000000000102, admin (guild operator) = 900000000000000101, guild =
+    # 700000000000000001. economy_balances keys user_id as BIGINT (no quotes);
+    # the mining tables key user_id as TEXT (quoted). Each fixture_sql row is
+    # seeded BEFORE the before-snapshot, so only the terminal's own audited write
+    # lands in db_delta. Success copy is byte-identical to the oracle
+    # (mining_cog.py descend/ascend/mineworld, services/mining_workflow.py
+    # repair/quick_craft). These row-bearing captures retire the
+    # depth.exemptions.mining guard-only-capture rows for mining_world (reseed)
+    # and mining_gear_wear (repair's clear_gear_wear remove face — the ported
+    # mine leg has NO wear tick, so the reseed/repair captures are the only write
+    # ingress that touches these tables; the WP-4 workshop repair/quickcraft
+    # terminals fold in here per the spec's "may fold into WP-3").
+    GoldenCase(
+        id="mining.descend_write",
+        subsystem="mining",
+        # Equip a torch (depth_access 1) so the geared descend clears the
+        # gearless refusal, and pre-seed max_depth=1 so the descent is NOT
+        # record-setting (record_depth's `WHERE max_depth < depth` fails → no
+        # game-XP tail). The ported handler defers the XP/wear tail to the
+        # D-0043 port (service.py:29), so a non-record descend is the face that
+        # is byte-identical to the oracle mining_cog.py descend copy.
+        fixture_sql=(
+            "INSERT INTO mining_equipment (user_id, guild_id, slot, item_name) "
+            "VALUES ('900000000000000102', 700000000000000001, 'light', "
+            "'torch')",
+            "INSERT INTO mining_player_state (user_id, guild_id, depth, "
+            "max_depth) VALUES ('900000000000000102', 700000000000000001, 0, "
+            "1)",
+        ),
+        steps=(
+            Step(kind="command", content="!descend", persona="member"),
+        ),
+        notes=(
+            "geared !descend (torch equipped, max_depth pre-seeded so it is not "
+            "record-setting) drives mining.descend -> record_descend: set_depth "
+            "0->1, no game-XP tail, and replies `<@u> descended to the Cavern "
+            "band` — the depth-write face of mining_player_state (mining_cog.py "
+            "descend copy verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.ascend_write",
+        subsystem="mining",
+        # Seed the player below the surface (depth 1, max_depth 1) so the climb
+        # writes the surface band back.
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, depth, "
+            "max_depth) VALUES ('900000000000000102', 700000000000000001, 1, "
+            "1)",
+        ),
+        steps=(
+            Step(kind="command", content="!ascend", persona="member"),
+        ),
+        notes=(
+            "!ascend (depth 1 seeded) drives mining.ascend -> record_ascend: "
+            "set_depth 1->0 and replies `<@u> climbed up to the Surface band` — "
+            "the ascend depth-write face of mining_player_state (mining_cog.py "
+            "ascend copy verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.reseed_world_write",
+        subsystem="mining",
+        # No fixture: a fresh guild reads seed = guild_id; the admin persona is
+        # the guild operator (manage_guild), so the argful reseed runs the
+        # audited op and mints the first mining_world row.
+        steps=(
+            Step(kind="command", content="!mineworld 12345", persona="admin"),
+        ),
+        notes=(
+            "admin (guild operator) !mineworld 12345 drives mining.reseed_world "
+            "-> record_reseed_world: set_world_seed upserts the mining_world row "
+            "(seed 12345) and replies with the shipped reseed copy — the first "
+            "row-bearing reseed capture (retires the mining_world "
+            "guard-only-capture exemption; mining_cog.py mineworld copy "
+            "verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.repair_write",
+        subsystem="mining",
+        # Own the pickaxe (repair's ownership read), seed a worn wear row
+        # (durability 30 of 60 max -> cost = ceil(ceil(25*0.5)*30/60) = 7), and
+        # fund the balance (500 -> 493 after the debit). The wear row is a
+        # seeded pre-req; repair's clear_gear_wear removes it -> the `removed`
+        # face of mining_gear_wear.
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'pickaxe', 1)",
+            "INSERT INTO mining_gear_wear (user_id, guild_id, item_name, "
+            "durability) VALUES "
+            "('900000000000000102', 700000000000000001, 'pickaxe', 30)",
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 500)",
+        ),
+        steps=(
+            Step(kind="command", content="!repair pickaxe", persona="member"),
+        ),
+        notes=(
+            "argful !repair (owned + worn + funded) drives mining.repair -> "
+            "record_repair: debits the 7-coin cost via wager.debit_in_txn and "
+            "clears the mining_gear_wear row in one advisory-fenced txn, and "
+            "replies with the shipped repair copy (cost 7, balance 493) — the "
+            "remove face of mining_gear_wear (retires its guard-only-capture "
+            "exemption; mining_workflow repair copy verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.quick_craft_write",
+        subsystem="mining",
+        # Seed a broken item (last_broken_item = torch) + its recipe materials
+        # (torch = {wood: 2}); the light slot is free so quick_craft auto-equips
+        # the re-crafted torch.
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, "
+            "last_broken_item) VALUES "
+            "('900000000000000102', 700000000000000001, 'torch')",
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'wood', 2)",
+        ),
+        steps=(
+            Step(kind="command", content="!quickcraft", persona="member"),
+        ),
+        notes=(
+            "!quickcraft (last_broken=torch seeded, wood materials owned) drives "
+            "mining.quick_craft -> record_quick_craft: consumes the 2x wood, "
+            "adds the crafted torch to mining_inventory, auto-equips it in the "
+            "free light slot, and clears last_broken — all in one "
+            "advisory-fenced txn — and replies with the shipped quick_craft "
+            "auto-equip copy (mining_workflow quick_craft verbatim). The "
+            "material-consume + craft + auto-equip write faces of "
+            "mining_inventory / mining_equipment"),
+    ),
 )
