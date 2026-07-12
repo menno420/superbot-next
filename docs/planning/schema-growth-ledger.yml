@@ -859,6 +859,10 @@ entries:
     consumers: [sb/manifest/settings.py, sb/kernel/interaction/resolve.py]
     rejected_alternative: "per-handler interaction.response.defer calls"
     minted: 2026-07-08
+  CommandSpec.modal:
+    consumers: [tools/manifest_compile.py, sb/app/build_runtime.py, sb/adapters/parity/boot.py]
+    rejected_alternative: "the D-0054/D-0066 intermediating session page per slash-modal command (an extra button hop the shipped send_modal-as-initial-response app-command ingress never had — D-0073's ledgered deviation); first MANIFEST consumer is golden-blocked (sweep_slash_btd6_strat_submit pins the unregistered-slash SILENCE — D-0076)"
+    minted: 2026-07-12
   CommandSpec.cooldown:
     consumers: [sb/manifest/settings.py, sb/kernel/interaction/cooldown.py]
     rejected_alternative: "decorator-based @commands.cooldown (undeclared anti-abuse)"

@@ -147,6 +147,15 @@ def build_live_index(manifests: list) -> dict[tuple[str, Surface], TargetRef]:
                     index[(key, Surface.SLASH)] = TargetRef(key=key, spec=cmd)
                 if kind in ("prefix", "both"):
                     index[(key, Surface.PREFIX)] = TargetRef(key=key, spec=cmd)
+            # CommandSpec.modal (the G-10 command facet): the form's custom-id
+            # root routes the wire-type-5 SUBMIT back to the declaring command
+            # — request_from_modal tries (key, Surface.MODAL) BEFORE the panel
+            # static-table fallthrough. Key = the modal root (subsystem derives
+            # from its dot-prefix, the panel-binding twin), spec = the command
+            # (resolve() dispatches its route on surface=MODAL).
+            modal_id = str(getattr(getattr(cmd, "modal", None), "modal_id", "") or "")
+            if modal_id:
+                index[(modal_id, Surface.MODAL)] = TargetRef(key=modal_id, spec=cmd)
         for panel in getattr(manifest, "panels", ()) or ():
             panel_id = str(getattr(panel, "panel_id", "") or "")
             for action in getattr(panel, "actions", ()) or ():

@@ -221,11 +221,16 @@ def strategy_submit_spec() -> PanelSpec:
     """The strategy-submission page — the G-10 declaring surface for the
     shipped StrategySubmitModal twin (``btd6.strategy_form``).
 
-    ENGINE-SHAPE deviation, ledgered (D-0073): the shipped ingress was the
-    `/btd6 strat submit` app command calling ``send_modal`` directly
-    (disbot cogs/btd6/_unified.py strat_submit_slash) — CommandSpec carries
-    no modal facet on this engine (a Group-1 grammar amendment is the named
-    successor), so the form's declaring PanelActionSpec lives on this
+    ENGINE-SHAPE deviation, ledgered (D-0073; standing terms re-ruled
+    D-0076): the shipped ingress was the `/btd6 strat submit` app command
+    calling ``send_modal`` directly (disbot cogs/btd6/_unified.py
+    strat_submit_slash). The CommandSpec modal facet now EXISTS
+    (sb/spec/commands.py `modal`, D-0076 — the D-0073 named successor),
+    but DECLARING the `/btd6 strat submit` row stays GOLDEN-BLOCKED:
+    goldens/btd6/sweep_slash_btd6_strat_submit pins the unregistered-slash
+    SILENCE (zero calls, the #151 drop rule; the #218 trap-17 class of 30
+    `sweep_slash_btd6_*` pins) and a registered slash open records a
+    type-9 call — so the form's declaring PanelActionSpec stays on this
     session page (the D-0054/D-0066 intermediating-button posture). The
     page itself is engine copy no golden pins; the FORM and its submit
     bytes are the oracle's. `reply_visibility=EPHEMERAL` commits the

@@ -14,7 +14,16 @@ Group-1 grammar amendments carried: `enabled_when` (field 2, PredicateRef
 string form), `reply_visibility` (field 3), `defer_mode` (field 4, the
 optional variant), `cooldown`/CooldownSpec (field 5, amendment family G-4),
 `cost_posture`/`quota_ref` (fields 6-7, imported home sb/spec/cost.py),
-`slash_common` (field 8, D-5 essential tag, home sb/spec/governance.py).
+`slash_common` (field 8, D-5 essential tag, home sb/spec/governance.py),
+`modal` (the G-10 ModalSpec form body on the COMMAND facet — the D-0073
+named successor: a slash command that declares "this command opens modal X"
+verbatim, the shipped ``send_modal``-as-initial-response app-command ingress
+class [ORACLE cogs/btd6/_unified.py strat_submit_slash]; resolve()'s ACK
+boundary already duck-reads `defer_mode`/`modal` off the target spec, so the
+open/submit round-trip is the PanelActionSpec.modal lane unchanged — the
+compile fences live in tools/manifest_compile.py `_p6_semantic`
+[modal_ingress] and the submit re-entry index rows in
+sb/app/build_runtime.py + sb/adapters/parity/boot.py).
 
 `capability` is the capability-grouping field check_intent_survival /
 check_slash_cap duck-read (S15 note: "re-binds when band-1 mints a real
@@ -30,6 +39,7 @@ from dataclasses import dataclass
 
 from sb.spec.cost import CostPosture
 from sb.spec.outcomes import DeferMode, ReplyVisibility
+from sb.spec.panels import ModalSpec
 from sb.spec.roles import register_field_roles
 
 __all__ = [
@@ -92,6 +102,11 @@ class CommandSpec:
     enabled_when: str = ""                      # [S] PredicateRef string form ("" = constant-true)
     reply_visibility: ReplyVisibility | None = None  # [S] None => lane default (§3.4)
     defer_mode: DeferMode | None = None         # [S] None => surface-derived
+    modal: ModalSpec | None = None              # [S] G-10 on the command facet:
+    #     defer_mode==MODAL ⇒ modal is not None; SLASH-only (a prefix message
+    #     has no interaction response slot — the modal_ingress compile fence);
+    #     `route` is the SUBMIT re-entry's handler (surface=MODAL), the
+    #     PanelActionSpec.modal dispatch contract verbatim
     cooldown: CooldownSpec | None = None        # [S] G-4
     cost_posture: CostPosture = CostPosture.FREE  # [S] S11 home; role registered in cost.py
     quota_ref: str = ""                         # [S] S11 home
@@ -135,7 +150,7 @@ register_field_roles(
     "CommandSpec",
     name="S", kind="S", group="S", route="S", aliases="S", summary="S", usage="S",
     capability_required="S", audience_tier="S", capability="S",
-    enabled_when="S", reply_visibility="S", defer_mode="S", cooldown="S",
+    enabled_when="S", reply_visibility="S", defer_mode="S", modal="S", cooldown="S",
     help_section_order="A", usage_weight="O",
     # cost_posture / quota_ref / slash_common: registered at their owning
     # modules (sb/spec/cost.py S11, sb/spec/governance.py S15).

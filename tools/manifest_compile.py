@@ -493,6 +493,54 @@ def _p6_semantic(manifests: list, violations: list[Violation]) -> None:
                 flag(key, f"CommandSpec:{_get(cmd, 'name')}",
                      "never_strand: route must resolve to a PanelRef/justified "
                      "HandlerRef/WorkflowRef")
+
+        # -- modal_ingress (G-10 on the command facet — CommandSpec.modal) --------
+        # The panel-side G-10 fences (sb/kernel/panels/compile.py _check_modal +
+        # the defer_mode pairing) re-proved for the COMMAND declaring surface,
+        # plus the two command-only rules: SLASH-only (a prefix message carries
+        # no interaction response slot — the shipped ingress class was
+        # app-command-only, ORACLE cogs/btd6/_unified.py strat_submit_slash)
+        # and a dispatchable SUBMIT route (the modal re-entry dispatches the
+        # command's own route on surface=MODAL; a PanelRef there is a stranded
+        # form, and None dead-ends in the no-routable-ref envelope).
+        for cmd in commands:
+            name = _get(cmd, "name", "?")
+            locus = f"CommandSpec:{name}"
+            modal = _get(cmd, "modal", None)
+            defer = _get(cmd, "defer_mode", None)
+            defer_token = getattr(defer, "value", defer)
+            if modal is None:
+                if defer_token == "modal":
+                    flag(key, locus,
+                         "modal_ingress: defer_mode=modal requires a ModalSpec (G-10)")
+                continue
+            kind_field = _get(cmd, "surface", None) or _get(cmd, "kind", "both")
+            if str(kind_field) != "slash":
+                flag(key, locus,
+                     "modal_ingress: a modal-opening command must be kind=slash "
+                     "(a prefix message has no interaction response slot)")
+            if defer_token != "modal":
+                flag(key, locus,
+                     "modal_ingress: a declared modal requires defer_mode=modal "
+                     "(the open is the ACK — G-10)")
+            route = _get(cmd, "route", None)
+            if not isinstance(route, (HandlerRef, WorkflowRef)):
+                flag(key, locus,
+                     "modal_ingress: the submit re-entry dispatches the command's "
+                     "route — declare a HandlerRef/WorkflowRef (never a PanelRef)")
+            fields = list(_get(modal, "fields", ()) or ())
+            if not 1 <= len(fields) <= 5:
+                flag(key, locus,
+                     f"modal_ingress: ModalSpec {_get(modal, 'modal_id', '?')!r} has "
+                     f"{len(fields)} fields (Discord allows 1..5)")
+            field_ids = [str(_get(f, "field_id", "")) for f in fields]
+            if len(set(field_ids)) != len(field_ids):
+                flag(key, locus,
+                     f"modal_ingress: ModalSpec {_get(modal, 'modal_id', '?')!r} "
+                     "has duplicate field_ids")
+            if not _get(modal, "modal_id", None):
+                flag(key, locus, "modal_ingress: ModalSpec.modal_id is required "
+                     "(the custom-id root routes the submit)")
         declared_actions: dict[str, object] = {}
         declared_selectors: set[str] = set()
         for panel_spec in panels:
