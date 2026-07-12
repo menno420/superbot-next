@@ -92,7 +92,26 @@ Each gate has an exact check. A red or stale value means **do not proceed**.
 
 CUT-2 stages the migration and captures the Discord-side security config; it
 performs **no** live token swap. Ordering matters: **the public→private repo
-flip happens BEFORE any artifacts carry real balances** (item 3).
+flip is the FIRST CUT-2 step (C2.0), before ANY CUT-2 artifact is produced**
+(item 32 — "public→private flip BEFORE artifacts"). The sufficient boundary is
+*before any artifact that can carry production balances OR guild/user/
+permission data* — not merely "before real-balance artifacts": the import
+dry-run report (C2.1), the permission-census capture (C2.3), and the
+verify-import output/retained logs (C2.4) all carry guild/user/permission
+data, so every one of them must be produced under private visibility.
+(Resolves the C2.5-ordering question raised on this PR — the flip is promoted
+ahead of C2.1 rather than trailing at the end of CUT-2.)
+
+### C2.0 — Repo public→private flip  ·  ⚑ OWNER  (FIRST — before any CUT-2 artifact)
+
+Flip repo visibility public→private **before running any other CUT-2 step**,
+so no artifact carrying production balances or guild/user/permission data
+(import dry-run reports, census captures, verify-import logs) is ever produced
+under public visibility (item 32/item 3). Owner-only (repo admin). Note: the
+**source-built GHCR image** from G3 (`release.yml` → `ghcr.io/menno420/
+superbot-next`) does **not** need to be gated behind this flip — it carries
+source + pinned deps, NOT production data — which is why G3 (deploy packaging
+merged, image built) can legitimately precede C2.0 as a precondition.
 
 ### C2.1 — Prod-data import DRY-RUN  ·  AGENT (generation) / ⚑ OWNER (prod DSN)
 
@@ -161,12 +180,6 @@ Postgres/`asyncpg` runtime) are owner-provisioned — without a real DB the run
 stops at `db_init` (see §Tooling-wiring outcomes). This is the SAME proof
 `restore-verify.yml` runs weekly; a green here on the migration target is the
 import's correctness witness.
-
-### C2.5 — Repo public→private flip  ·  ⚑ OWNER  (BEFORE artifacts)
-
-Flip repo visibility public→private **before** any CI artifact can carry real
-balances (item 3). This precedes CUT-3 so no prod-data-bearing artifact is
-ever produced under public visibility. Owner-only (repo admin).
 
 ---
 
@@ -274,13 +287,13 @@ old-schema home) — the new `audit_log` spine never round-trips.
 | G4 | `SB_PROD_ATTEST` custody | **⚑ OWNER** | CL-5b ruled in `docs/decisions.md`; attest provisioned |
 | G5 | Same application-id (PG-5) | **⚑ OWNER** | prod token belongs to the censused app id |
 | G6 | Lockfile fresh | AGENT | `check_lockfile_fresh` green |
+| C2.0 | Public→private flip (FIRST) | **⚑ OWNER** | repo visibility private BEFORE any CUT-2 artifact; G3 source-built image not gated |
 | C2.1 | Prod-data import dry-run | AGENT / **⚑ OWNER** DSN | forward importer (CUT-2 build) dry-run vs restored snapshot |
 | C2.2 | Reaction-capture window | **⚑ OWNER** | window announced/opened on old bot |
 | C2.3a | Census GET sweep | **⚑ OWNER** | `GET /applications/{app}/guilds/{g}/commands/permissions` per guild (prod token) |
 | C2.3b | Census partition | AGENT | `permission_census.py --census census.json --rename-map rename-map.json` |
 | C2.3c | Census carry-verify | AGENT | `permission_census.py --census census.json --verify post-swap-census.json` |
 | C2.4 | verify-import | AGENT / **⚑ OWNER** DSN | `SB_VERIFY_BOOT=true SB_DATA_PLANE=test DATABASE_URL=<restored> python3 -m sb.app.verify_boot` |
-| C2.5 | Public→private flip | **⚑ OWNER** | repo visibility private BEFORE artifacts |
 | C3.1 | Freeze → delta → token swap | **⚑ OWNER** | swap `DISCORD_BOT_TOKEN_PRODUCTION` (same app id); `python3 -m sb` `SB_DATA_PLANE=prod` |
 | C3.2 | `cutover_flip_ts` write-once | **⚑ OWNER** | audited settings seam writes `platform.cutover_flip_ts` once |
 | C3.3 | Post-swap carry-verify | AGENT | `permission_census.py --verify` (blocking on loss) |

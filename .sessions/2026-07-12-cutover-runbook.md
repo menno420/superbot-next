@@ -28,9 +28,10 @@ plus the SLICE-4 tooling wiring the test plane allows:
 1. **docs/operations/cutover-runbook.md** — the consolidated CUT-2/CUT-3
    runbook. Preconditions/HARD GATES (G1 verified-restore, G2 backup, G3
    deploy packaging, G4 `SB_PROD_ATTEST`/CL-5b, G5 same-app-id/PG-5, G6
-   lockfile) each with its exact check; CUT-2 (C2.1 import dry-run · C2.2
-   reaction-capture window · C2.3 census GET+partition+carry-verify · C2.4
-   verify-import · C2.5 public→private flip BEFORE artifacts); CUT-3 (C3.1
+   lockfile) each with its exact check; CUT-2 (C2.0 public→private flip FIRST,
+   before any CUT-2 artifact · C2.1 import dry-run · C2.2 reaction-capture
+   window · C2.3 census GET+partition+carry-verify · C2.4 verify-import);
+   CUT-3 (C3.1
    freeze→delta→same-app-id token swap · C3.2 `platform.cutover_flip_ts`
    write-once · C3.3 post-swap carry-verify · C3.4 A-18 `--debt-list`
    publication · C3.5 N=7d rollback window · C3.6 day-8–10/A-20); a ROLLBACK
