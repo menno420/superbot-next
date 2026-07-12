@@ -1,6 +1,6 @@
 # 2026-07-12 — Coordinator seat close-out (owner ender v3.3, steps 4–5)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** fable-5
 
@@ -63,4 +63,9 @@ review pass cheaper.
 
 ## Close-out
 
-(filled at the flip — PR number, checks, landing state.)
+PR #301 (`close/coordinator-session-close-2026-07-12`), commit 1 `058c259`
+(status overwrite + born-red card + telemetry row), commit 2 this flip. The
+durable session REPORT is the PR body; landing per the repo's standing
+merge-on-green convention under the 6-check ruleset (`report`
+red-by-design, non-required) — final landing state recorded in the PR
+thread.
