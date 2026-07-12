@@ -24,6 +24,58 @@
    },
    "value": 0
   },
+  "creature:creature.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "creature_catch",
+       "creature_dex",
+       "creature_challenge",
+       "creature_ladder",
+       "creature_howto"
+      ]
+     ]
+    }
+   ]
+  },
+  "creature:creature.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "creature_catch",
+     "creature_dex",
+     "creature_challenge",
+     "creature_ladder",
+     "creature_howto"
+    ]
+   ]
+  },
+  "creature:creature.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "creature_catch",
+        "creature_dex",
+        "creature_challenge",
+        "creature_ladder",
+        "creature_howto"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "creature:creatures:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

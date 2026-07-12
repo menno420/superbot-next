@@ -4136,7 +4136,27 @@
         {
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
-          "value": "creature_top"
+          "value": "creature_challenge"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_ladder"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature_howto"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "cbattle_accept"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "cbattle_decline"
         },
         {
           "source": "sb/manifest/deathmatch.py",
@@ -5416,6 +5436,36 @@
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
           "value": "creature.hub"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.dex_card"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.collectors_card"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.record_card"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.battletop_card"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.challenge"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.rules_card"
         },
         {
           "source": "sb/manifest/deathmatch.py",
@@ -7786,9 +7836,6 @@
       "handler:counting.top_view": {
         "module": "sb.domain.counting.service"
       },
-      "handler:creature.battle_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:creature.battle_record_view": {
         "module": "sb.domain.creature.service"
       },
@@ -7798,13 +7845,43 @@
       "handler:creature.catch_route": {
         "module": "sb.domain.creature.service"
       },
+      "handler:creature.cbattle_route": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.challenge_accept": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:creature.challenge_decline": {
+        "module": "sb.domain.creature.service"
+      },
+      "handler:creature.challenge_pick_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:creature.dex_view": {
         "module": "sb.domain.creature.service"
       },
       "handler:creature.dextop_view": {
         "module": "sb.domain.creature.service"
       },
-      "handler:creature.menu_view": {
+      "handler:creature.render_battletop": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.render_challenge": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.render_collectors": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.render_dex": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.render_hub": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.render_record": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.rules_view": {
         "module": "sb.domain.creature.service"
       },
       "handler:deathmatch.challenge_route": {
@@ -8914,8 +8991,26 @@
       "panel:counting.rules_card": {
         "module": "sb.domain.counting.panels"
       },
+      "panel:creature.battletop_card": {
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.challenge": {
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.collectors_card": {
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.dex_card": {
+        "module": "sb.domain.creature.panels"
+      },
       "panel:creature.hub": {
-        "module": "sb.manifest.creature"
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.record_card": {
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.rules_card": {
+        "module": "sb.domain.creature.panels"
       },
       "panel:deathmatch.hub": {
         "module": "sb.domain.deathmatch.panels"
@@ -10991,7 +11086,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:2986f0fb7cc1422af6f5e79cfa60e36ab3e1684e6ed0ee51931c4d1ffc3ee5be",
+  "stable_hash": "sha256:c05fcd85102f9fe62ae3e465c22dc2bf79838e5943ebda7fe78829b470c11007",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -22948,7 +23043,7 @@
             "$ref": "handler:creature.dextop_view"
           },
           "slash_common": false,
-          "summary": "Top catchers by species collected.",
+          "summary": "Top collectors by total creatures caught.",
           "usage": "!dextop",
           "usage_weight": 1.0
         },
@@ -22970,10 +23065,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:creature.battle_pending"
+            "$ref": "handler:creature.cbattle_route"
           },
           "slash_common": false,
-          "summary": "Battle another player's creatures.",
+          "summary": "Challenge another member to a level-normalized creature PvP battle.",
           "usage": "!cbattle @player",
           "usage_weight": 1.0
         },
@@ -23075,7 +23170,7 @@
               "handler": {
                 "$ref": "handler:creature.dex_view"
               },
-              "label": "My Dex",
+              "label": "Dex",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -23086,7 +23181,32 @@
               "visible_when": ""
             },
             {
-              "action_id": "creature_top",
+              "action_id": "creature_challenge",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚔️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.challenge_pick_pending"
+              },
+              "label": "Challenge",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "creature_ladder",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
@@ -23098,11 +23218,36 @@
               "emoji": "🏆",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:creature.dextop_view"
+                "$ref": "handler:creature.battletop_view"
               },
-              "label": "Top Catchers",
+              "label": "Ladder",
               "modal": null,
               "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "creature_howto",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.rules_view"
+              },
+              "label": "How to play",
+              "modal": null,
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -23115,19 +23260,19 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Hunt wild creatures — rarity drives both how often they appear and how hard they are to catch. Your creature level (shared game XP) nudges the odds."
+              "text": "Catch from **36** original creatures across 6 elements. Rarer creatures show up less often and are harder to catch — fill out your dex, then battle other trainers in a level-normalized PvP where type matchups decide it.\n\n**🐾 Catch** — head into the wild\n**📖 Dex** — browse your collection by element\n**⚔️ Challenge** — battle another trainer\n**🏆 Ladder** — the server's top trainers\n**📖 How to play** — the rules"
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "green",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "two shipped surfaces sit outside the grammar's vocabulary (goldens/creature/sweep_creatures pins both): (1) the FOOTER is the shipped literal 'Only you can use this panel.' (views/creature/embeds.py build_menu_embed) — outside FooterMode's none/subsystem/provenance set (the casino/community precedent); (2) the 'Your progress' FIELD interpolates the invoker's LIVE collection count and creature level ('**0/36** creatures · level **1**') — read-parameterized state outside the static TextBlock/FieldsBlock vocabulary. Title, description, colors and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
@@ -23135,7 +23280,279 @@
                   [
                     "creature_catch",
                     "creature_dex",
-                    "creature_top"
+                    "creature_challenge",
+                    "creature_ladder",
+                    "creature_howto"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "creature.hub",
+          "renderer_override": {
+            "$ref": "handler:creature.render_hub"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "🐾 Creatures",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped dex is read-parameterized end to end (views/creature/embeds.py build_dex_embed: the display-name title, the counts/level description, the six per-element INLINE fields with per-creature caught/not-yet lines, the footer literal) — outside the static grammar vocabulary; zero components, the renderer only composes the embed (goldens/creature/sweep_dex pins the empty-state bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "creature.dex_card",
+          "renderer_override": {
+            "$ref": "handler:creature.render_dex"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Top Collectors board is read-parameterized (views/creature/embeds.py build_collectors_embed: medal-ranked member lines or the empty-state invitation) — outside the static grammar vocabulary; zero components (goldens/creature/sweep_dextop pins the empty-state bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "creature.collectors_card",
+          "renderer_override": {
+            "$ref": "handler:creature.render_collectors"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped battle record is read-parameterized (views/creature/embeds.py build_record_embed: the display-name title, the W/L/winrate description, the footer literal) — outside the static grammar vocabulary; zero components (goldens/creature/sweep_cbrecord pins the empty-state bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "creature.record_card",
+          "renderer_override": {
+            "$ref": "handler:creature.render_record"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Top Trainers ladder is read-parameterized (views/creature/embeds.py build_battletop_embed: medal-ranked member lines or the empty-state invitation) — outside the static grammar vocabulary; zero components (goldens/creature/sweep_cbattletop pins the empty-state bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "creature.battletop_card",
+          "renderer_override": {
+            "$ref": "handler:creature.render_battletop"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cbattle_accept",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚔️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.challenge_accept"
+              },
+              "label": "Accept",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cbattle_decline",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "❌",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:creature.challenge_decline"
+              },
+              "label": "Decline",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": ""
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped challenge message is a CONTENT-only send (no embed) whose copy interpolates both trainers' mentions ('{opponent} — {challenger} challenges you to a creature battle! …' — cogs/creature_battle_cog.py), and the view is locked to the CHALLENGED player, not the invoker (challenge.py BaseView author=opponent) — the override returns embed=None + the content line and sets invoker_lock to the opponent (both outside the grammar's vocabulary; the logging bind-picker content-only precedent). The declined terminal re-renders the shipped '❌ {name} declined the challenge.' edit with both buttons disabled. goldens/creature/sweep_cbattle pins the open bytes; the two buttons delegate to render_panel.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cbattle_accept",
+                    "cbattle_decline"
                   ]
                 ]
               }
@@ -23145,20 +23562,64 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:games.world"
-            },
-            "show_help": true,
-            "show_home": true,
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
-          "panel_id": "creature.hub",
-          "renderer_override": null,
+          "panel_id": "creature.challenge",
+          "renderer_override": {
+            "$ref": "handler:creature.render_challenge"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "creature",
           "timeout_s": 180,
-          "title": "🐾 Creatures",
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**The loop**\n1. **🐾 Catch** — head into the wild. A creature appears (rarer ones show up less often); the catch can succeed or it can flee.\n2. **📖 Dex** — every creature you've caught, browsable by element. Fill it out by catching the rarer elements and rarities.\n3. **⚔️ Challenge** — battle another trainer. Both teams are **normalized to level 50**, so it's about your collection and **type matchups**, never who ground more XP (anti-pay-to-win).\n\n**Good to know**\n• Catching and winning battles both award **creature XP** — no coins, nothing to lose.\n• You need **at least one creature** to battle, so catch first.\n• **🏆 Ladder** ranks the server's top trainers by wins."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "creature.rules_card",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "📖 How to play Creatures",
           "usage_weight": 1.0
         }
       ],

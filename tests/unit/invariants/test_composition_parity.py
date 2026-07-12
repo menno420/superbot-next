@@ -33,7 +33,6 @@ from pathlib import Path
 # a live RefUnresolved waiting to fire (see the ideas ledger). Burn down to
 # empty; never grow.
 _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
-    "handler:creature.battle_pending",
     "handler:fishing.bait_pending",
     "handler:fishing.boathouse_pending",
     "handler:fishing.craftbait_pending",

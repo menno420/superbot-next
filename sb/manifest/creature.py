@@ -1,71 +1,31 @@
-"""CREATURE subsystem manifest (band 6, checkpoint family) — catch +
-collection (the shipped creature-game v1, Q-0187) with the shipped
-command names verbatim; battle RECORD lane live, interactive battles
-pending (live adapter)."""
+"""CREATURE subsystem manifest (band 6 / parity flip) — the shipped
+creature-game v1 (Q-0187) command names verbatim: !creatures opens the
+shipped 🐾 hub panel; !dex/!dextop/!cbrecord/!cbattletop open the four
+shipped embed cards; !cbattle sends the Accept/Decline challenge
+(goldens/creature/ + the re-homed sweep_dextop pin every byte). !catch
+(alias hunt) is DECLARED though sweep-skipped in the imported corpus
+('unseeded private RNG in creature spawn selection' —
+parity/goldens/_sweep_skips.json): the skip is a capture-DETERMINISM
+artifact, not a no-analog D-0030 class (the treasury-grant /
+admin-restart precedent) — the golden-pinned hub Catch button routes
+the same audited lane and the golden-pinned dex/dextop copy advertises
+`!catch` verbatim. The battle RESOLUTION engine
+(utils/creatures/battle.py combat math) is successor-slice work:
+Accept is a declared pending terminal; the audited record lane
+(creature.record_battle_result) is live, waiting."""
 
 from __future__ import annotations
 
+from sb.domain.creature import panels as _panels
 from sb.domain.creature import service as _service
 from sb.domain.creature.ops import register_ops
 from sb.domain.creature.store import (
     CREATURE_BATTLE_STORE,
     CREATURE_COLLECTION_STORE,
 )
-from sb.kernel.panels.registry import register_panel
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
-from sb.spec.panels import (
-    ActionStyle,
-    Audience,
-    EmbedFrameSpec,
-    FooterMode,
-    LayoutSpec,
-    NavigationSpec,
-    PageSpec,
-    PanelActionSpec,
-    PanelSpec,
-    ResultRender,
-    TextBlock,
-)
-from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
-
-
-def creature_hub_spec() -> PanelSpec:
-    return PanelSpec(
-        panel_id="creature.hub",
-        subsystem="creature",
-        title="🐾 Creatures",
-        audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(TextBlock("Hunt wild creatures — rarity drives both how "
-                        "often they appear and how hard they are to "
-                        "catch. Your creature level (shared game XP) "
-                        "nudges the odds."),),
-        actions=(
-            PanelActionSpec(action_id="creature_catch", label="Catch",
-                            emoji="🐾", style=ActionStyle.SUCCESS,
-                            audience_tier="user",
-                            handler=HandlerRef("creature.catch_route"),
-                            result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(action_id="creature_dex", label="My Dex",
-                            emoji="📖", audience_tier="user",
-                            handler=HandlerRef("creature.dex_view"),
-                            result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(action_id="creature_top", label="Top Catchers",
-                            emoji="🏆", audience_tier="user",
-                            handler=HandlerRef("creature.dextop_view"),
-                            result_render=ResultRender.RESULT_CARD),
-        ),
-        navigation=NavigationSpec(parent=PanelRef("games.world")),
-        layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("creature_catch", "creature_dex", "creature_top"),)),)),
-    )
-
-
-@panel("creature.hub")
-def _hub_factory() -> PanelSpec:
-    return creature_hub_spec()
-
+from sb.spec.refs import HandlerRef, PanelRef
 
 MANIFEST = SubsystemManifest(
     key="creature",
@@ -94,13 +54,14 @@ MANIFEST = SubsystemManifest(
                     aliases=("topcatchers",),
                     route=HandlerRef("creature.dextop_view"),
                     audience_tier="user", capability="creature",
-                    summary="Top catchers by species collected.",
+                    summary="Top collectors by total creatures caught.",
                     usage="!dextop"),
         CommandSpec(name="cbattle", kind=CommandKind.PREFIX,
                     aliases=("creaturebattle",),
-                    route=HandlerRef("creature.battle_pending"),
+                    route=HandlerRef("creature.cbattle_route"),
                     audience_tier="user", capability="creature",
-                    summary="Battle another player's creatures.",
+                    summary="Challenge another member to a "
+                            "level-normalized creature PvP battle.",
                     usage="!cbattle @player"),
         CommandSpec(name="cbrecord", kind=CommandKind.PREFIX,
                     aliases=("battlerecord",),
@@ -115,7 +76,15 @@ MANIFEST = SubsystemManifest(
                     summary="The creature battle leaderboard.",
                     usage="!cbattletop"),
     ),
-    panels=(creature_hub_spec(),),
+    panels=(
+        _panels.creature_hub_spec(),
+        _panels.dex_card_spec(),
+        _panels.collectors_card_spec(),
+        _panels.record_card_spec(),
+        _panels.battletop_card_spec(),
+        _panels.challenge_spec(),
+        _panels.rules_card_spec(),
+    ),
     settings=(),
     stores=(CREATURE_COLLECTION_STORE, CREATURE_BATTLE_STORE),
     events=(),
@@ -128,13 +97,11 @@ register_ops()
 def _ensure_refs() -> None:
     from sb.domain.creature import ops as _ops
     from sb.domain.creature import store as _store
-    from sb.spec.refs import PanelRef as _P, panel as _panel
 
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _service.ensure_handler_refs()
-    if not is_registered(_P("creature.hub")):
-        _panel("creature.hub")(_hub_factory)
+    _panels.ensure_panel_refs()
     register_ops()
 
 
