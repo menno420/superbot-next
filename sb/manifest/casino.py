@@ -1,8 +1,11 @@
-"""CASINO subsystem manifest (band 6) — the shipped hub + poker
-declarations (parity key `casino`): !casino opens the hub; !poker
-(alias holdem) is DECLARED with the multiplayer-ephemeral-table
-orchestration riding the live adapter (the pure card model + hand
-evaluator are aboard — D-0045)."""
+"""CASINO subsystem manifest (band 6 / parity flip) — the shipped hub +
+poker declarations (parity key `casino`): !casino opens the shipped
+🎰 hub panel; !poker (alias holdem) launches the ♠ multiplayer table
+LOBBY in-channel (goldens/casino/sweep_casino + sweep_poker pin both
+opens). The GAME layer past the lobby — dealing + per-player
+auto-updating ephemeral hands — rides the live adapter (the pure card
+model + hand evaluator are aboard — D-0045). Play-chips only: no
+stores/events/settings (the goldens carry no economy rows)."""
 
 from __future__ import annotations
 
@@ -24,13 +27,13 @@ MANIFEST = SubsystemManifest(
                     usage="!casino"),
         CommandSpec(name="poker", kind=CommandKind.PREFIX,
                     aliases=("holdem",),
-                    route=HandlerRef("casino.poker_pending"),
+                    route=HandlerRef("casino.poker_open"),
                     audience_tier="user", capability="casino",
                     summary="Open a multiplayer Texas Hold'em table in "
                             "this channel.",
                     usage="!poker"),
     ),
-    panels=(_panels.casino_hub_spec(),),
+    panels=(_panels.casino_hub_spec(), _panels.poker_table_spec()),
     settings=(),
     stores=(),
     events=(),

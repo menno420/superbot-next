@@ -64,7 +64,7 @@ subsystems:
   automod: ported
   blackjack: ported
   btd6: ported
-  casino: pending
+  casino: ported
   chain: ported
   channel: ported
   cleanup: ported
@@ -608,6 +608,7 @@ depth:
     automod: {events: 1, tables: 2, settings: 0}
     blackjack: {events: 2, tables: 6, settings: 1}
     btd6: {events: 1, tables: 4, settings: 1}
+    casino: {events: 1, tables: 2, settings: 0}
     chain: {events: 1, tables: 2, settings: 0}
     channel: {events: 3, tables: 2, settings: 0}
     cleanup: {events: 1, tables: 3, settings: 0}

@@ -3901,12 +3901,32 @@
         {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
-          "value": "casino_poker"
+          "value": "casino_new_poker"
         },
         {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
-          "value": "casino_hand_ranks"
+          "value": "casino_roulette"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_join"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_leave"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_start"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_close"
         },
         {
           "source": "sb/manifest/chain.py",
@@ -5331,6 +5351,11 @@
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino.hub"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino.poker_table"
         },
         {
           "source": "sb/manifest/chain.py",
@@ -7578,10 +7603,28 @@
       "handler:btd6.strategy_form_submit": {
         "module": "sb.domain.btd6.oracle_surface"
       },
-      "handler:casino.hand_rank_view": {
+      "handler:casino.poker_close": {
         "module": "sb.domain.casino.service"
       },
-      "handler:casino.poker_pending": {
+      "handler:casino.poker_join": {
+        "module": "sb.domain.casino.service"
+      },
+      "handler:casino.poker_leave": {
+        "module": "sb.domain.casino.service"
+      },
+      "handler:casino.poker_open": {
+        "module": "sb.domain.casino.service"
+      },
+      "handler:casino.poker_start": {
+        "module": "sb.domain.casino.service"
+      },
+      "handler:casino.render_hub": {
+        "module": "sb.domain.casino.panels"
+      },
+      "handler:casino.render_poker_table": {
+        "module": "sb.domain.casino.panels"
+      },
+      "handler:casino.roulette_soon": {
         "module": "sb.domain.casino.service"
       },
       "handler:chain.create_route": {
@@ -8835,6 +8878,9 @@
       "panel:casino.hub": {
         "module": "sb.domain.casino.panels"
       },
+      "panel:casino.poker_table": {
+        "module": "sb.domain.casino.panels"
+      },
       "panel:chain.hub": {
         "module": "sb.domain.chain.panels"
       },
@@ -9293,6 +9339,9 @@
       },
       "provider:automod.hub_settings": {
         "module": "sb.domain.operator_spine"
+      },
+      "provider:casino.hub_fields": {
+        "module": "sb.domain.casino.panels"
       },
       "provider:cleanup.hub_fields": {
         "module": "sb.domain.cleanup.panels"
@@ -10942,7 +10991,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:60301ce2297bf47e54a9a4e1060ca1d96add8efaa0d6f0970219d349cd1ce88b",
+  "stable_hash": "sha256:2986f0fb7cc1422af6f5e79cfa60e36ab3e1684e6ed0ee51931c4d1ffc3ee5be",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19300,7 +19349,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:casino.poker_pending"
+            "$ref": "handler:casino.poker_open"
           },
           "slash_common": false,
           "summary": "Open a multiplayer Texas Hold'em table in this channel.",
@@ -19315,7 +19364,7 @@
         {
           "actions": [
             {
-              "action_id": "casino_poker",
+              "action_id": "casino_new_poker",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
@@ -19324,23 +19373,23 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "♠",
+              "emoji": "🃏",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:casino.poker_pending"
+                "$ref": "handler:casino.poker_open"
               },
-              "label": "Poker (Hold'em)",
+              "label": "New Poker Table",
               "modal": null,
-              "reply_visibility": null,
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "primary",
+              "style": "success",
               "usage_weight": 1.0,
               "visible_when": ""
             },
             {
-              "action_id": "casino_hand_ranks",
+              "action_id": "casino_roulette",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
@@ -19349,14 +19398,14 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "📜",
+              "emoji": "🎡",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:casino.hand_rank_view"
+                "$ref": "handler:casino.roulette_soon"
               },
-              "label": "Hand Rankings",
+              "label": "Roulette (soon)",
               "modal": null,
-              "reply_visibility": null,
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -19369,26 +19418,185 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Group card games — every player gets their own private table view. v1 seats multiplayer Texas Hold'em; roulette and friends dock into this hub as they land."
+              "text": "Group casino games you play together at one table — everyone gets their **own private, live-updating hand**.\n\nPick a game below. Typed shortcut: `!poker`."
+            },
+            {
+              "provider": {
+                "$ref": "provider:casino.hub_fields"
+              }
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "purple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "two shipped surfaces sit outside the grammar's vocabulary (goldens/casino/sweep_casino pins both): (1) the FOOTER is the shared invoker-lock literal 'Only you can interact with this panel.' — outside FooterMode's none/subsystem/provenance set (the community/utility/admin precedent); (2) the casino.hub.casino_roulette BUTTON ships disabled=True (views/casino/hub.py decorator 'Roulette (soon)') — PanelActionSpec has no disabled field, so the override sets it per-component by CANONICAL id (§2.9 item-9 lane; the override runs before the session mint on open AND before the refresh remap). Title, description, fields, colors and every other component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
-                    "casino_poker",
-                    "casino_hand_ranks"
+                    "casino_new_poker",
+                    "casino_roulette"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "casino.hub",
+          "renderer_override": {
+            "$ref": "handler:casino.render_hub"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "casino",
+          "timeout_s": 180,
+          "title": "🎰 Casino",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "poker_join",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪑",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_join"
+              },
+              "label": "Join",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_leave",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🚪",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_leave"
+              },
+              "label": "Leave",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_start",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "▶️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_start"
+              },
+              "label": "Start",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_close",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🗑️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_close"
+              },
+              "label": "Close",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [
+            {
+              "text": "**Texas Hold'em**, group play. Press **Join** to take a seat — you'll get a private hand that updates live as everyone plays.\n\nBuy-in: **1000** play-chips · Blinds 5/10 · up to 8 seats."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped lobby embed carries LIVE table state on two named surfaces (goldens/casino/sweep_poker pins the fresh-open bytes): the 'Seated (n/8)' FIELD interpolates the live seat count and the 👑-host seat legend, and the FOOTER interpolates the host's display name ('Host {name} starts when ready.') — both outside the grammar's static TextBlock / 2-tuple FieldsBlock vocabulary. The override delegates to the grammar renderer for every component and replaces only the embed fields + footer (the economy delegation recipe); a closed table re-renders the shipped terminal embed ('♠ Poker Table — closed') with the teardown reason as its description.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "poker_join",
+                    "poker_leave",
+                    "poker_start",
+                    "poker_close"
                   ]
                 ]
               }
@@ -19398,20 +19606,20 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:games.hub"
-            },
-            "show_help": true,
-            "show_home": true,
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
-          "panel_id": "casino.hub",
-          "renderer_override": null,
+          "panel_id": "casino.poker_table",
+          "renderer_override": {
+            "$ref": "handler:casino.render_poker_table"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "casino",
-          "timeout_s": 180,
-          "title": "🎰 Casino",
+          "timeout_s": 600,
+          "title": "♠ Poker Table — open!",
           "usage_weight": 1.0
         }
       ],

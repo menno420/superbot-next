@@ -106,6 +106,7 @@ HUB_NAV_LABELS: dict[str, str] = {
     "admin": "Administration",    # goldens/uxlab/sweep_slash_uxlab
     "moderation": "Moderation",   # goldens/cleanup/sweep_cleanup
     "community": "Community",     # goldens/ticket/sweep_ticket
+    "games": "Games",             # goldens/casino/sweep_casino
 }
 
 # Discord hard limits — engine-enforced (clamping is never a callsite courtesy).
