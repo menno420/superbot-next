@@ -43,9 +43,12 @@ Under-port ledger (no golden pins these corners):
   the rod/bait/venue systems.
 * the shipped ``active_casts`` one-line-in-the-water guard is process
   state of that timer layer — same successor.
-* the deepwater venue profile ("from the boat, out over the deep water",
-  ⛵) needs the sail lane (pending terminal) — every port cast is a
-  shore cast, exactly the shipped fresh-player posture the golden pins.
+* the venue (slice 1): the hub "Fishing from" field, the cast footer and
+  the ⛵ Set sail / Dock button now read/write the LIVE stored venue
+  (``fishing_venue``, no row → shore — a fresh player renders the
+  golden-pinned shore bytes verbatim); the cast LEG still rolls the
+  starter shore profile — the venue→cast wiring (deepwater species pool,
+  coral drop, minigame difficulty) rides the rod/bait/minigame rung.
 
 MONEY-RACE NOTE (#217 / coordinator ruling 2026-07-12): this module and
 the cast-open handler touch NO money primitive — fishing_energy is game
@@ -94,12 +97,6 @@ LOG_PANEL_ID = "fishing.log"
 HUB_PANEL_ID = "fishing.hub"
 CARD_PANEL_ID = "fishing.card"
 
-#: The shore venue's display identity (utils/fishing/venue.py
-#: SHORE_PROFILE — name="Shore", emoji="🏖️", blurb verbatim); the
-#: deepwater profile rides the sail successor (module docstring).
-SHORE_NAME = "Shore"
-SHORE_EMOJI = "🏖️"
-SHORE_BLURB = "Relaxed casting from the shoreline."
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
 #: bytes; ``where`` = "from the shoreline" — every port cast is shore).
@@ -170,7 +167,7 @@ def fishing_hub_spec() -> PanelSpec:
                 action_id="fishing_sail", label="Set sail / Dock",
                 emoji="⛵", style=ActionStyle.PRIMARY,
                 audience_tier="user",
-                handler=HandlerRef("fishing.sail_pending")),
+                handler=HandlerRef("fishing.sail_route")),
             PanelActionSpec(
                 action_id="fishing_rod", label="Rod", emoji="🎒",
                 style=ActionStyle.SECONDARY, audience_tier="user",
@@ -330,6 +327,7 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     open never spends."""
     from sb.domain.fishing import energy as energy_mod
     from sb.domain.fishing import store
+    from sb.domain.fishing import venue as venue_mod
     from sb.domain.fishing import weather as weather_mod
     from sb.kernel.panels.render import render_panel
     from sb.kernel.workflow.context import SYSTEM_CLOCK
@@ -340,12 +338,16 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     now = int(SYSTEM_CLOCK().timestamp())
     cur, ts = await store.get_fishing_energy(uid, gid)
     current = energy_mod.settle(energy_mod.EnergyState(cur, ts), now).current
+    # the LIVE stored venue (slice 1 — no row reads as shore, so a fresh
+    # player renders the golden-pinned shore bytes verbatim)
+    profile = venue_mod.profile_for(
+        await store.get_fishing_venue(uid, gid))
     w = weather_mod.current_weather()
     embed = _dc_replace(
         rendered.embed,
         fields=(
             ("Fishing from",
-             f"{SHORE_EMOJI} **{SHORE_NAME}** — {SHORE_BLURB}"),
+             f"{profile.emoji} **{profile.name}** — {profile.blurb}"),
             (f"Today's forecast: {w.emoji} {w.name}",
              f"*{w.blurb}* ({weather_mod.effect_text(w)})"),
             ("Energy", energy_mod.bar(int(current))),
@@ -375,20 +377,21 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
     cast-open handler (the write precedes the render — the golden's
     58/60 gauge is the POST-spend read)."""
     from sb.domain.fishing import energy as energy_mod
+    from sb.domain.fishing import store
+    from sb.domain.fishing import venue as venue_mod
     from sb.domain.fishing import weather as weather_mod
     from sb.kernel.panels.render import render_panel
 
     rendered = await render_panel(spec, ctx)
     params = getattr(ctx, "params", {}) or {}
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
     current = params.get("cast_energy")
     if current is None:
         # direct panel open (no cast-open hop) — honest settled read,
         # no spend.
-        from sb.domain.fishing import store
         from sb.kernel.workflow.context import SYSTEM_CLOCK
 
-        uid = int(getattr(ctx.actor, "user_id", 0) or 0)
-        gid = int(ctx.guild_id or 0)
         now = int(SYSTEM_CLOCK().timestamp())
         cur, ts = await store.get_fishing_energy(uid, gid)
         current = energy_mod.settle(energy_mod.EnergyState(cur, ts),
@@ -400,7 +403,12 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
         # (clear = silent) — cast_view.py verbatim.
         fields = ((f"{w.emoji} {w.name}",
                    f"*{w.blurb}* ({weather_mod.effect_text(w)})"),)
-    footer = (f"{SHORE_EMOJI} {SHORE_NAME} · "
+    # the LIVE stored venue in the footer (cast_view.py verbatim:
+    # `{profile.emoji} {profile.name} · {energy bar}`; a fresh no-row
+    # player reads shore — the golden-pinned bytes)
+    profile = venue_mod.profile_for(
+        await store.get_fishing_venue(uid, gid))
+    footer = (f"{profile.emoji} {profile.name} · "
               + energy_mod.bar(int(current)))
     embed = _dc_replace(rendered.embed, fields=fields, footer=footer)
     return _dc_replace(rendered, embed=embed)

@@ -1053,7 +1053,7 @@ depth:
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
     farm: {events: 1, tables: 2, settings: 0}
-    fishing: {events: 1, tables: 3, settings: 0}
+    fishing: {events: 1, tables: 4, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}
     games: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}

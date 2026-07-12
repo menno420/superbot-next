@@ -1,8 +1,10 @@
-"""fishing_catch_log + fishing_energy CRUD (band 6) — the dex/trophy
-record (shipped 075/095 shape) and the per-(user, guild) cast-energy bar
-(shipped 088 shape); both NAME_STABLE, MEMBER_ID delete erasure. Plain
-CRUD only — the energy regen math and the cast cost live in
-sb/domain/fishing/energy.py (the shipped layering, verbatim)."""
+"""fishing_catch_log + fishing_energy + fishing_venue CRUD (band 6) —
+the dex/trophy record (shipped 075/095 shape), the per-(user, guild)
+cast-energy bar (shipped 088 shape) and the per-(user, guild) current
+venue (shipped 094 shape); all NAME_STABLE, MEMBER_ID delete erasure.
+Plain CRUD only — the energy regen math and the cast cost live in
+sb/domain/fishing/energy.py, the venue keys + per-venue tuning in
+sb/domain/fishing/venue.py (the shipped layering, verbatim)."""
 
 from __future__ import annotations
 
@@ -21,10 +23,13 @@ from sb.spec.versioning import (
 __all__ = [
     "FISHING_CATCH_LOG_STORE",
     "FISHING_ENERGY_STORE",
+    "FISHING_VENUE_STORE",
     "get_catch_log",
     "get_fishing_energy",
+    "get_fishing_venue",
     "record_catch",
     "set_fishing_energy",
+    "set_fishing_venue",
     "top_fishers",
     "top_trophies",
 ]
@@ -54,6 +59,20 @@ FISHING_ENERGY_STORE = register_store(StoreSpec(
     bears_value=False,
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("fishing.erase_subject_energy"),
+))
+
+
+FISHING_VENUE_STORE = register_store(StoreSpec(
+    table="fishing_venue",
+    sole_writer=EngineRef("fishing.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="fishing_venue",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("fishing.erase_subject_venue"),
 ))
 
 
@@ -140,6 +159,28 @@ async def top_trophies(guild_id: int, known_species: list[str],
     return [dict(r) for r in rows]
 
 
+async def get_fishing_venue(user_id: int, guild_id: int,
+                            conn: Any = None) -> str:
+    """The player's current venue (``'shore'`` when no row exists yet —
+    the shipped ``utils/db/games/fishing_venue.py`` default posture). A
+    PLAIN read (venue is game state, never coins)."""
+    row = await fetchone(
+        "SELECT venue FROM fishing_venue WHERE user_id=$1 AND guild_id=$2",
+        (user_id, guild_id), conn=conn)
+    return str(row["venue"]) if row else "shore"
+
+
+async def set_fishing_venue(user_id: int, guild_id: int, venue: str,
+                            conn: Any = None) -> None:
+    """Set the player's current venue (insert the row or flip it — the
+    shipped ``_SET_VENUE_SQL`` upsert shape)."""
+    await execute(
+        "INSERT INTO fishing_venue (user_id, guild_id, venue) "
+        "VALUES ($1,$2,$3) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET venue = $3",
+        (user_id, guild_id, venue), conn=conn)
+
+
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_catch_log WHERE user_id=$1", (user_id,),
@@ -153,6 +194,16 @@ async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
 async def erase_subject_energy(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_energy WHERE user_id=$1", (user_id,),
+        conn=conn)
+    try:
+        return int(str(result).rsplit(" ", 1)[-1])
+    except (ValueError, AttributeError):
+        return 0
+
+
+async def erase_subject_venue(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM fishing_venue WHERE user_id=$1", (user_id,),
         conn=conn)
     try:
         return int(str(result).rsplit(" ", 1)[-1])

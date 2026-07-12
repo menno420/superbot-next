@@ -12,6 +12,7 @@ from sb.domain.fishing.panels import fishing_hub_spec
 from sb.domain.fishing.store import (
     FISHING_CATCH_LOG_STORE,
     FISHING_ENERGY_STORE,
+    FISHING_VENUE_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -44,10 +45,13 @@ _COMMANDS = (
     _cmd("trophies", HandlerRef("fishing.trophies_view"),
          "Trophy records — the biggest catches.",
          ("bigfish", "fishtrophy")),
-    # --- gear/venue/craft systems (the D-0043 named successor port) -------
-    _pending("forecast", "Today's fishing weather.",
-             ("fishforecast", "fishingweather")),
-    _pending("sail", "Set sail to the deepwater venue.", ("setsail",)),
+    # --- weather + venue (fishing depth slice 1 — LIVE) -------------------
+    _cmd("forecast", HandlerRef("fishing.forecast_view"),
+         "Today's fishing weather.",
+         ("fishforecast", "fishingweather")),
+    _cmd("sail", HandlerRef("fishing.sail_route"),
+         "Set sail to the deepwater venue.", ("setsail",)),
+    # --- gear/craft/structure systems (the D-0043 named successor port) ---
     _pending("rod", "The rod shop.", ("rodshop", "buyrod")),
     _pending("bait", "The bait shop.", ("baitshop", "buybait")),
     _pending("craftbait", "Craft bait from fish.", ("baitcraft",)),
@@ -75,7 +79,8 @@ MANIFEST = SubsystemManifest(
     panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec(),
             _panels.fishing_card_spec()),
     settings=(),
-    stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE),
+    stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE,
+            FISHING_VENUE_STORE),
     events=(),
     capabilities=(),
 )
