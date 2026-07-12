@@ -95,7 +95,19 @@ source:
   # refusal → !bjstart launch → per-entrant round → champion payout, self-
   # cleaning) and rps_tournament/rps_tournament_foreign_active_refusal (the
   # #277 cross-game guard — a foreign blackjack flag refuses !rpsregister).
-  minted_goldens: 14
+  # +1 minted the PAID-pot conservation golden (2026-07-12 money-review
+  # round-2, same D-0073 procedure) that #302's FREE-only flow left unpinned:
+  # blackjack/blackjack_tournament_paid_flow — open a fee-25 tournament → two
+  # pre-funded entrants Join → !bjstart debits each 25 (tournament:entry_fee)
+  # → per-entrant round → champion paid the pooled 50 pot
+  # (blackjack:tournament_win) + clear_active, self-cleaning. The golden's
+  # economy_audit_log rows ARE the conservation assertion: the two 25 debits
+  # sum to the single 50 payout (no coins minted or stranded on the paid
+  # leg). Entrants are pre-funded via fixture_sql (outside db_delta); the fee
+  # amount is the sim-pinned test value (the shipped fee is a user command
+  # arg, not an oracle constant), the pot is the summed stakes and the
+  # payout reason is oracle-verbatim.
+  minted_goldens: 15
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
   # imported + minted − retired = 476). The first retirement (2026-07-12
