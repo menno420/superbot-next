@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.list",
+ "case_id": "sweep.evt",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1887548595,
+     "last_xp": 2071445060,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,22 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": null,
-      "embeds": [
-       {
-        "color": 3447003,
-        "fields": [
-         {
-          "inline": false,
-          "name": "— Uncategorized —",
-          "value": " - economy-log\n - test\n - test\n - test-2\n - general\n - commands\n - mod-log\n - audit-log"
-         }
-        ],
-        "flags": 0,
-        "title": "Categories and Channels",
-        "type": "rich"
-       }
-      ],
+      "content": "Invalid action. Use \"create\" or \"delete\".",
       "tts": false
      }
     },
@@ -92,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!list",
+    "content": "!evt test test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "channel"
 }
