@@ -1,6 +1,8 @@
 # 2026-07-12 — ban compensator: withdraw the false history row on a never-landed ban
 
-> **Status:** `in-progress`
+> **Status:** `complete`
+
+- **📊 Model:** fable-class
 
 ## Scope
 
@@ -30,4 +32,32 @@ permanent — kick leaves its audit row too), every other band.
 Tests: `tests/unit/band2/test_band2_slice1.py`, following
 `test_kick_blocked_compensates` — refuse path withdraws the row, restore
 path never withdraws, missing handle no-ops, non-NotFound propagates, and
-the BAN leg-wiring pin.
+the BAN leg-wiring pin. Full suite green (2007 passed, 13 skipped);
+check_symbol_shadowing / check_namespace / check_no_skip /
+check_config_usage all pass.
+
+## 💡 Session idea
+
+The domain now classifies the port's discord exceptions by NAME in three
+places (role/service.py sweep, role/automation.py `_classify_exception`,
+and this compensator) with the same "guarded band-2 pattern; discord is
+absent in-container" comment re-derived each time. A tiny shared helper —
+`sb/kernel/interaction/errors.py::is_discord_not_found(exc)` (name + MRO
+match, one docstring citing the layer fence) — would make the idiom
+greppable and stop the next lane from inventing a fourth variant with a
+subtly different match (e.g. missing the MRO walk automation.py does for
+HTTPException).
+
+## ⟲ previous-session review
+
+The ORDER-004 live-drive evidence card was a model handoff for this exact
+slice: its ⚑ follow-up named the broken symbol (`_compensate_ban`), the
+correct twin (`_compensate_kick`'s `withdraw_mod_log_rows` shape), the
+test target directory, AND framed the real decision ("kick-style
+claim-withdrawal on a refused APPLY vs the restore posture for a
+later-leg failure") as the oracle-fidelity question it is — this session
+only had to answer it, not rediscover it. One gap: the card said the
+refused ban leaves "mod_logs ban row + audit_log member_banned" without
+flagging that the audit row is LEDGER (intentionally permanent, kick's
+compensator leaves its own) — a reader without the kick precedent could
+have over-scoped the fix into un-writing the audit trail.
