@@ -1,6 +1,6 @@
 # 2026-07-12 — sim-lab verdict consumption: V009/V010/V012/V013 dispositioned, AIP-02/03 fixed, check_doc_cites shipped
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Fable · high · feature build + docs (Q-0194)
 
@@ -48,11 +48,11 @@ recorded in the consumption section appended to
 
 ## Evidence
 
-- `python3 -m pytest tests/ -q` → 1744 passed, 2 skipped (pre-doc run);
-  re-run at close-out.
+- `python3 -m pytest tests/ -q` → 1751 passed, 2 skipped (close-out run,
+  post forward-merge of #265/#271/#273/#274).
 - `python3 tools/run_golden_parity.py --gate` on real Postgres 16 →
-  **GREEN, 412/412** goldens across 51 ported subsystems, with the
-  AIP-02/03 changes in place.
+  **GREEN, 425/425** goldens across 51 ported subsystems, with the
+  AIP-02/03 changes in place (412/412 pre-merge run also green).
 - Full committed checker fleet green incl. the new `check_doc_cites`.
 
 ## ⟲ Previous-session review
