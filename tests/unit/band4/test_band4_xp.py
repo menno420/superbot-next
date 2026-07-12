@@ -141,6 +141,94 @@ def test_award_leg_refuses_non_positive(monkeypatch):
         run(ops._record_award(None, _ctx({"target_id": 7, "amount": "nope"})))
 
 
+def test_award_argv_parse_is_positional(monkeypatch):
+    """`!givexp <member> <amount>` — argv[0] is the member slot, argv[1]
+    the amount (the shipped MemberConverter/int positional binding)."""
+    from sb.domain.xp import ops
+
+    snowflake = 900000000000000103
+
+    # mention + amount (the golden-pinned lane stays byte-identical)
+    fake = FakeXpStore().install(monkeypatch)
+    out = run(ops._record_award(
+        None, _ctx({"argv": (f"<@{snowflake}>", "3")})))
+    assert out.after["delta"] == 3
+    assert fake.rows[(snowflake, 1)]["xp"] == 3
+
+    # bare ID + amount (the golden-unpinned defect lane)
+    fake2 = FakeXpStore().install(monkeypatch)
+    out2 = run(ops._record_award(
+        None, _ctx({"argv": (str(snowflake), "12")})))
+    assert out2.after["delta"] == 12
+    assert fake2.rows[(snowflake, 1)]["xp"] == 12
+
+    # nickname-mention form <@!id>
+    fake3 = FakeXpStore().install(monkeypatch)
+    out3 = run(ops._record_award(
+        None, _ctx({"argv": (f"<@!{snowflake}>", "7")})))
+    assert out3.after["delta"] == 7
+    assert fake3.rows[(snowflake, 1)]["xp"] == 7
+
+
+def test_award_bare_id_never_becomes_the_amount(monkeypatch):
+    """REGRESSION: the first-digit-token scan awarded the snowflake ITSELF
+    (~9e17 XP) on `!givexp <bare_user_id> <amount>`."""
+    from sb.domain.xp import ops
+
+    snowflake = 900000000000000103
+    fake = FakeXpStore().install(monkeypatch)
+    out = run(ops._record_award(
+        None, _ctx({"argv": (str(snowflake), "5")})))
+    assert out.after["delta"] == 5          # not 900000000000000103
+    assert out.after["new_xp"] == 5
+    assert fake.rows[(snowflake, 1)]["xp"] == 5
+    # and the target is the snowflake, not the amount
+    assert (5, 1) not in fake.rows
+
+
+def test_award_argv_failure_copy(monkeypatch):
+    from sb.domain.xp import ops
+    from sb.kernel.interaction.errors import ValidatorError
+
+    FakeXpStore().install(monkeypatch)
+
+    # unknown-member name leg: the shipped MemberConverter raised
+    # MemberNotFound and bot1.py's BadArgument arm sent this copy.
+    with pytest.raises(ValidatorError) as exc:
+        run(ops._record_award(None, _ctx({"argv": ("somename", "5")})))
+    assert exc.value.user_copy == '⚠️ Bad argument: Member "somename" not found.'
+
+    # garbage amount at argv[1]
+    with pytest.raises(ValidatorError) as exc2:
+        run(ops._record_award(None, _ctx({"argv": ("<@7>", "lots")})))
+    assert exc2.value.user_copy == "❌ Amount must be a whole number of XP."
+
+    # amount-only (one arg): no amount slot at argv[1] — amount copy, and
+    # the lone digit token must NOT be double-read as the amount
+    with pytest.raises(ValidatorError) as exc3:
+        run(ops._record_award(None, _ctx({"argv": ("42",)})))
+    assert exc3.value.user_copy == "❌ Amount must be a whole number of XP."
+
+
+def test_reset_argv_parse_is_positional(monkeypatch):
+    """`!resetxp <bare_id>` resolves argv[0]; an unresolvable name never
+    silently falls back to the actor (the shipped converter raised)."""
+    from sb.domain.xp import ops
+    from sb.kernel.interaction.errors import ValidatorError
+
+    snowflake = 900000000000000103
+    fake = FakeXpStore({(snowflake, 1): {"xp": 50, "level": 0,
+                                         "messages": 1, "last_xp": 0}}
+                       ).install(monkeypatch)
+    out = run(ops._record_reset(None, _ctx({"argv": (str(snowflake),)})))
+    assert out.after["rows_removed"] == 1
+    assert (snowflake, 1) not in fake.rows
+
+    with pytest.raises(ValidatorError) as exc:
+        run(ops._record_reset(None, _ctx({"argv": ("somename",)})))
+    assert exc.value.user_copy == '⚠️ Bad argument: Member "somename" not found.'
+
+
 def test_levelup_payload_is_conditional():
     from sb.domain.xp import ops
 

@@ -1,5 +1,5 @@
 """Unit coverage for the pure creature PvP battle engine
-(sb/domain/creature/battle.py) — the verbatim oracle combat math (D-0078).
+(sb/domain/creature/battle.py) — the verbatim oracle combat math (D-0079).
 
 Pure stdlib + the catalog dataclass, no DB / no discord, so it runs in the
 guarded-import unit lane. Pins the type chart, stat derivation, level

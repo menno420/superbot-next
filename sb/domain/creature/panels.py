@@ -57,7 +57,7 @@ utils/creatures/battle.py combat math ported to
 sb/domain/creature/battle.py + views/creature_battle/render.py ported to
 battle_service.build_result_view) and records the result through the
 audited creature.record_battle_result lane — the challenge card's
-``resolved`` stage renders the outcome embed in place (D-0078).
+``resolved`` stage renders the outcome embed in place (D-0079).
 """
 
 from __future__ import annotations
@@ -178,7 +178,7 @@ _RULES_DESCRIPTION = (
 # honest refusal, never silent; challenge directly with `!cbattle
 # @member` meanwhile). The Accept battle-resolution terminal is NO LONGER
 # pending — it ports here as the real auto-resolve handler
-# (creature.challenge_accept in service.py; D-0078). Registered at module
+# (creature.challenge_accept in service.py; D-0079). Registered at module
 # import AND from ensure_panel_refs (the #141 doctrine).
 def _register_pending() -> tuple[HandlerRef, ...]:
     from sb.domain.operator_spine import pending_handler as _pending
@@ -571,7 +571,7 @@ async def _render_challenge(spec: PanelSpec, ctx) -> object:
     renders the shipped decline edit (both buttons disabled — the shipped
     ``item.disabled = True`` walk), ``resolved`` renders the auto-resolve
     outcome (the battle embed, or the go-catch nudge when a fighter has no
-    team) with the buttons disabled (D-0078)."""
+    team) with the buttons disabled (D-0079)."""
     from sb.kernel.panels.render import RenderedEmbed, render_panel
 
     rendered = await render_panel(spec, ctx)

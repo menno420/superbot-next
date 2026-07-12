@@ -1,5 +1,5 @@
 """Creature PvP battle service (band 6) — the read boundary between a
-player's collection and the pure battle engine (D-0078).
+player's collection and the pure battle engine (D-0079).
 
 Ported from the shipped ``services/creature_battle_service.py`` (corpus sha
 7f7628e1): load each player's owned-creature pool from the collection log,
@@ -111,7 +111,7 @@ async def resolve_pvp(challenger_id: int, opponent_id: int, guild_id: int,
     collection, or one with no catalog-known creatures) — the caller surfaces
     the :data:`NO_TEAM_MSG` nudge. Both teams build at
     :data:`NORMALIZED_LEVEL`. *rng* is injectable so the resolution is
-    deterministic + golden-replayable (D-0078); it defaults to an unseeded
+    deterministic + golden-replayable (D-0079); it defaults to an unseeded
     :class:`random.Random`, mirroring the oracle's injectable seam.
     """
     rng = rng if rng is not None else random.Random()

@@ -58,7 +58,7 @@ source:
   # bytes) as regression tripwires — kernel-band docs are exempt from the
   # kernel-surface-drift drop at diff time (sb/adapters/parity/
   # dispositions.py), so kernel drift goes red HERE instead of nowhere.
-  # D-0078 minted the seventh — goldens/creature/creature_battle_accept
+  # D-0079 minted the seventh — goldens/creature/creature_battle_accept
   # (the creature PvP battle port): a curated challenge -> Accept click
   # flow (parity/cases/curated.py) whose Accept auto-resolves the 6v6 and
   # records the W/L pair + battle-win game-xp, captured via
@@ -485,7 +485,7 @@ depth:
           golden-pinned empty-state reads (goldens/creature/sweep_dex +
           sweep_creatures + the re-homed sweep_dextop), and the table's
           first row-bearing golden lands with a seeded-RNG capture"
-      # table:creature_battle_record is NO LONGER exempt — the D-0078
+      # table:creature_battle_record is NO LONGER exempt — the D-0079
       # battle port landed its first row-bearing golden
       # (goldens/creature/creature_battle_accept: challenge -> Accept
       # auto-resolves the 6v6 and records the W/L pair), exactly the

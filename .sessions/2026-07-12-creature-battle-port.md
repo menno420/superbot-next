@@ -33,7 +33,7 @@ auto-resolve-on-accept battle. Three slices on one branch,
 
 ## Design ruling
 
-`[D-0078]` — auto-resolve-on-accept battle port; the battle RNG is seeded
+`[D-0079]` — auto-resolve-on-accept battle port; the battle RNG is seeded
 deterministically from the battle inputs (guild, challenger, opponent,
 clock) so the resolution is replayable/goldenable, using the injectable-rng
 seam the oracle already exposes.
@@ -69,7 +69,7 @@ Three slices on `port/creature-battle`, committed in order:
    cases.
 3. `parity/goldens/creature/creature_battle_accept.json` (capture_case)
    + parity.yml (minted 6→7, exemption retired, ratchet up) + the
-   [D-0078] ledger entry.
+   [D-0079] ledger entry.
 
 PR parked READY, never self-merged; all required gates green.
 

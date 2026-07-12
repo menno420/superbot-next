@@ -138,7 +138,7 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         # both fighters own a full one-per-element team so the 6v6 resolves
         # (the collection-log writer — !catch — is capture-skipped for
         # unseeded RNG, so the pool is fixture-seeded, like the stateful
-        # game cases; D-0078). Seeded BEFORE the before-snapshot, so the
+        # game cases; D-0079). Seeded BEFORE the before-snapshot, so the
         # rows never appear in db_delta — only the battle's own writes do.
         fixture_sql=(
             "INSERT INTO creature_collection_log "
@@ -168,7 +168,7 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
                 mentions=("second_member",),
             ),
             # only the challenged player (second_member) may Accept — the
-            # first component on the challenge card (D-0078).
+            # first component on the challenge card (D-0079).
             Step(
                 kind="click",
                 target_message=1,

@@ -1,6 +1,6 @@
 """Unit coverage for the creature PvP battle SERVICE seam
 (sb/domain/creature/battle_service.py) — the resolve read-path + the pure
-outcome-card presentation helpers (D-0078). No DB: the collection reader is
+outcome-card presentation helpers (D-0079). No DB: the collection reader is
 monkeypatched over the store, like the band-6 fakes pattern.
 """
 

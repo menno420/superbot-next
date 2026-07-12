@@ -1,0 +1,48 @@
+# .dockerignore — trim the build context. The image needs the FULL runtime
+# checkout (sb/, migrations/, tools/, manifest.snapshot.json, requirements*,
+# pyproject.toml — see the Dockerfile header), so those are deliberately KEPT.
+# Everything below is VCS/CI/test/doc weight or secrets that must never enter a
+# layer. Conservative on purpose: keeping a stray file is harmless, wrongly
+# excluding a boot-path file is a runtime failure.
+
+# VCS / CI / editor
+.git
+.gitignore
+.github
+
+# Tests (the runtime never imports tests/)
+tests
+
+# Docs & session/telemetry surfaces (not needed at runtime)
+docs
+.sessions
+telemetry
+
+# Python caches / build artifacts
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.egg-info
+build
+dist
+
+# Virtualenvs
+.venv
+venv
+env
+
+# Secrets & local env files — MUST NOT enter the image (.env.example is kept)
+.env
+.env.*
+!.env.example
+
+# Docker/compose meta (no need to ship into the image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.yaml

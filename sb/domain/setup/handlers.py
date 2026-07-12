@@ -27,6 +27,19 @@ _DETERMINISTIC_NOTE = (
     "suggestions below are still safe to review and apply."
 )
 
+#: shipped copy, verbatim (cogs/setup/_describe_entry.py _EMPTY_HINT —
+#: the description-less prompt both entry ingresses share:
+#: ``open_describe_from_prefix``'s ``if not text: await
+#: ctx.send(_EMPTY_HINT)`` pins the prefix bytes in
+#: goldens/setup/sweep_setupdescribe; the slash twin sent the same
+#: string ephemerally, unreachable there because the option is
+#: required).
+_EMPTY_HINT = (
+    "Describe your server in a sentence or two and I'll propose how to "
+    "wire it up — e.g. `a small gaming community; #mod-logs is for "
+    "moderation logging and #welcome greets new members`."
+)
+
 
 async def _guild_identity(guild_id: int) -> tuple[str, int]:
     """(guild_name, owner_id) through the utility guild-directory port —
@@ -96,12 +109,15 @@ def _register() -> None:
 
     @handler("setup.advanced_open")
     async def advanced_open(req) -> Reply:
-        """``/setup-advanced`` (and the shipped ``!setupadvanced`` twin's
-        shape) — the linear wizard entry: the K7 ``setup.open_workspace``
-        op ensures the workspace, posts the depth-chooser anchor into it
-        and upserts the in_progress session row (oracle sequencing,
+        """``/setup-advanced`` / ``!setupadvanced`` (both ingresses ride
+        this one handler, the oracle's shared wizard-entry body) — the
+        linear wizard entry: the K7 ``setup.open_workspace`` op ensures
+        the workspace, posts the depth-chooser anchor into it and
+        upserts the in_progress session row (oracle sequencing,
         create-before-DB — ops.py); the entry replies transiently with
-        the jump link (goldens/setup/sweep_slash_setup-advanced)."""
+        the jump link (goldens/setup/sweep_slash_setup-advanced pins the
+        ephemeral type-4; goldens/setup/sweep_setupadvanced pins the
+        prefix plain-send twin of the same copy)."""
         from sb.domain.setup import service
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
@@ -205,20 +221,37 @@ def _register() -> None:
                      "slice.")
 
     @handler("setup.describe_entry")
-    async def describe_entry(req) -> None:
-        """``/setup-describe`` — defer (resolve()'s AUTO ack, the shipped
-        ``defer(ephemeral=True)``), run the advisor, follow up with the
-        review card. The AI advisor lane is key-gated OFF in this build
-        (the shipped build_advisor fallback), so the DETERMINISTIC branch
-        answers — with the shipped unused-description note when a
-        description was given (goldens/setup/sweep_slash_setup-describe
-        pins note + card)."""
+    async def describe_entry(req) -> Reply | None:
+        """``/setup-describe`` / ``!setupdescribe`` — defer (resolve()'s
+        AUTO ack, the shipped ``defer(ephemeral=True)``; prefix no-op),
+        run the advisor, follow up with the review card. The shipped
+        empty-description guard answers FIRST (``_clean_description`` →
+        ``if not text``): the prefix twin takes rest-of-line text, so a
+        bare ``!setupdescribe`` gets the ``_EMPTY_HINT`` prompt and runs
+        no advisor (goldens/setup/sweep_setupdescribe pins the byte).
+        The AI advisor lane is key-gated OFF in this build (the shipped
+        build_advisor fallback), so the DETERMINISTIC branch answers —
+        with the shipped unused-description note when a description was
+        given (goldens/setup/sweep_slash_setup-describe pins note +
+        card)."""
         from sb.domain.setup import plan
         from sb.domain.setup.panels import SUGGESTIONS_PANEL_ID
         from sb.kernel.panels.engine import open_panel
         from sb.spec.refs import PanelRef
 
-        description = str(req.args.get("description", "") or "")
+        raw = req.args.get("description")
+        if raw is None:
+            # prefix ingress: the rest-of-line text (the shipped
+            # ``*, description: str`` consume-rest parameter).
+            raw = req.args.get("text", "")
+        description = str(raw or "").strip()
+        if not description:
+            # shipped guard, verbatim (the channel-handlers BLOCKED
+            # posture for shipped guard copy — trap 22's handler-owned
+            # lane; the strip stands in for _clean_description, whose
+            # 600-char clamp is advisor-input hygiene the deterministic
+            # lane never reads).
+            return Reply(BLOCKED, _EMPTY_HINT)
         draft = await plan.suggest(int(req.guild_id or 0))
         note = _DETERMINISTIC_NOTE if description else None
         args = {**dict(req.args or {}),

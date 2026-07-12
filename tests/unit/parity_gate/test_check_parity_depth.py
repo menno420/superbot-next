@@ -34,7 +34,7 @@ class TestImportedCorpus:
     def test_corpus_golden_count(self):
         # 465 imported at the source pin + 2 minted modal-submit goldens
         # (D-0073) + 4 minted kernel-band goldens (D-0075) + 1 minted
-        # creature-battle golden (D-0078; parity.yml source.minted_goldens)
+        # creature-battle golden (D-0079; parity.yml source.minted_goldens)
         # − 3 retired (sweep_cog.json, the deploy-ops `!cog` capture, +
         # sweep_query_logs.json / sweep_recent_errors.json, the
         # run-order-dependent log-ring captures — parity.yml
@@ -61,7 +61,7 @@ class TestImportedCorpus:
         assert source["sha"] == "7f7628e12f3b89c5c2a1fbdcfb039787df269e20"
         assert source["goldens"] == 465     # the IMPORT pin (verbatim corpus)
         # 2 D-0073 modal-submit mints + 4 D-0075 kernel-band mints
-        # + 1 D-0078 creature-battle mint
+        # + 1 D-0079 creature-battle mint
         assert source["minted_goldens"] == 7
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the

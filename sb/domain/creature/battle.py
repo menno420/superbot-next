@@ -17,7 +17,7 @@ The v1 ruleset (owner design, sim-validated — verbatim):
 - **Stats are derived, not stored**: a creature's budget =
   ``RARITY_BUDGET[rarity]`` split across HP/ATK/DEF/SPD by its archetype's
   weights. NO EffectiveStats/equipment coupling — creature battle stats are
-  fully self-contained (D-0078).
+  fully self-contained (D-0079).
 - **4 moves each**: a reliable **Normal** hit, a stronger **element** hit,
   and two **self-buff** status moves (+DEF / +ATK, capped).
 - **Teams of 6**, one of each element; the lead fights until it faints, then
@@ -28,7 +28,7 @@ The v1 ruleset (owner design, sim-validated — verbatim):
 
 Pure + stdlib-only and deterministic given a seeded :class:`random.Random`,
 so the whole engine is unit-testable and golden-replayable (the caller seeds
-the RNG deterministically — D-0078).
+the RNG deterministically — D-0079).
 """
 
 from __future__ import annotations

@@ -16,7 +16,7 @@ over the ported panels (sb/domain/creature/panels.py):
   posture: no invented data, the guard simply cannot fire).
 * Decline — the shipped '❌ {name} declined the challenge.' in-place
   edit (refresh_session_view, buttons disabled, session expired).
-* Accept — the shipped AUTO-RESOLVE (D-0078): build both teams,
+* Accept — the shipped AUTO-RESOLVE (D-0079): build both teams,
   run the pure engine (sb/domain/creature/battle.py), write the W/L
   pair + battle-win xp through the audited creature.record_battle_result
   lane, and re-render the card as the outcome embed (settle-once via
@@ -158,7 +158,7 @@ def _register() -> None:
         audited record lane (creature.record_battle_result) write the W/L
         pair + the winner's battle-win game-xp in ONE txn, and re-render the
         challenge card in place as the outcome embed (settle-once via the
-        session teardown — the deathmatch challenge-card lineage; D-0078).
+        session teardown — the deathmatch challenge-card lineage; D-0079).
 
         The battle RNG is seeded deterministically from the battle inputs so
         the resolution is replayable/goldenable (the oracle's injectable-rng
