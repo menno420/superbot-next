@@ -689,11 +689,14 @@ class ParityChannelStateActions:
     sweep_lock + sweep_unlock pin the shapes verbatim; a channel CREATE
     is a ``create_channel`` POST whose payload carries the overwrite set
     AT creation with INT masks and whose reply mints a channel id off
-    the SAME allocator as message ids — goldens/_unmapped/
-    sweep_setup.json + sweep_create pin the shape, the created id
+    the SAME allocator as message ids — goldens/setup/sweep_setup.json +
+    goldens/channel/sweep_create pin the shape, the created id
     normalizing as ``<msg:1>``; a channel DELETE is ``delete_channel``
-    with the bare channel_id+reason args — goldens/_unmapped/sweep_del +
-    sweep_bulkdelete pin it). Without this the replay composition root
+    with the bare channel_id+reason args — goldens/channel/sweep_del +
+    sweep_bulkdelete pin it; renames/topic/moves are ``edit_channel``
+    PATCHes and a CLONE re-sends the source's full option set —
+    goldens/channel/sweep_rename + sweep_topic + sweep_clone pin
+    those). Without this the replay composition root
     leaves the not-installed port raising, so every channel-state op
     degrades to the honest refusal — a harness gap, not bot behavior."""
 
@@ -729,7 +732,7 @@ class ParityChannelStateActions:
         # payload — name, parent_id (None when no category, exactly what
         # discord.py sends) and the overwrite set AT creation, each
         # entry {allow, deny, id, type} with INT masks (discord.py's
-        # guild.create_text_channel body; goldens/_unmapped/
+        # guild.create_text_channel body; goldens/setup/
         # sweep_setup.json pins all four entries).
         cid = int(self._transport._ids.allocate())  # noqa: SLF001 — same module family
         self._transport.record(
@@ -744,11 +747,71 @@ class ParityChannelStateActions:
 
     async def delete_channel(self, channel_id: int, *,
                              reason: str | None) -> None:
-        # fake_http.delete_channel verbatim (goldens/_unmapped/sweep_del
-        # pins `{"channel_id": "<msg:1>", "reason": null}`, no payload).
+        # fake_http.delete_channel verbatim (goldens/channel/sweep_del +
+        # sweep_bulkdelete pin `{"channel_id": "<msg:1>",
+        # "reason": null}`, no payload).
         self._transport.record(
             "delete_channel",
             {"channel_id": int(channel_id), "reason": reason})
+
+    async def rename_channel(self, channel_id: int, *, name: str,
+                             reason: str | None) -> None:
+        # a rename is a channel-edit PATCH carrying only `name`
+        # (goldens/channel/sweep_rename pins the shape).
+        self._transport.record(
+            "edit_channel",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"name": str(name)})
+
+    async def set_topic(self, channel_id: int, *, topic: str | None,
+                        reason: str | None) -> None:
+        # a topic change is a channel-edit PATCH carrying only `topic` —
+        # a CLEAR rides as an explicit null (goldens/channel/sweep_topic
+        # pins `{"topic": null}`).
+        self._transport.record(
+            "edit_channel",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"topic": topic if topic is None else str(topic)})
+
+    async def move_channel(self, channel_id: int, *, category_id: int,
+                           reason: str | None) -> None:
+        # a category move is a channel-edit PATCH carrying `parent_id`
+        # (discord.py `channel.edit(category=...)`; no golden drives the
+        # success branch — goldens/channel/sweep_move pins only the
+        # not-found guard).
+        self._transport.record(
+            "edit_channel",
+            {"channel_id": int(channel_id), "reason": reason},
+            {"parent_id": int(category_id)})
+
+    async def clone_channel(self, guild_id: int, *, name: str, source,
+                            reason: str | None) -> int:
+        # fake_http.create_channel again, but the discord.py
+        # `TextChannel.clone()` body: the SOURCE channel's full option
+        # set travels with the new name (goldens/channel/sweep_clone
+        # pins all eight keys — default_auto_archive_duration 1440,
+        # default_thread_rate_limit_per_user 0, nsfw false,
+        # rate_limit_per_user 0, topic null for the capture's leaked
+        # `test` source). Created id off the SHARED allocator, exactly
+        # like create_text_channel above.
+        cid = int(self._transport._ids.allocate())  # noqa: SLF001 — same module family
+        self._transport.record(
+            "create_channel",
+            {"guild_id": int(guild_id), "type": 0, "reason": reason},
+            {"default_auto_archive_duration":
+                 int(source.default_auto_archive_duration),
+             "default_thread_rate_limit_per_user":
+                 int(source.default_thread_rate_limit_per_user),
+             "name": str(name),
+             "nsfw": bool(source.nsfw),
+             "parent_id": source.parent_id,
+             "permission_overwrites": [
+                 {"allow": int(ow.allow), "deny": int(ow.deny),
+                  "id": int(ow.target_id), "type": int(ow.target_type)}
+                 for ow in source.overwrites],
+             "rate_limit_per_user": int(source.rate_limit_per_user),
+             "topic": source.topic})
+        return cid
 
     async def create_invite(self, channel_id: int, *, max_age: int,
                             max_uses: int, temporary: bool, unique: bool,

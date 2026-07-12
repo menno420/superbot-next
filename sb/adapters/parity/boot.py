@@ -184,6 +184,65 @@ class _WorldGuildDirectory:
         )
 
 
+class _WorldChannelDirectory:
+    """The channel-domain gateway-cache READ port over the capture world
+    (the D-0030 batch) — the same guild channel/role state the old
+    harness's real ConnectionState held at capture time: the world's
+    four GUILD_CREATE channels (positions 1..4 —
+    ``World._channel_payload``'s len-after-insert values) plus the
+    runner-seeded leaked roster at position 0 (fake_http's create
+    response carried no position), sorted ``(position, id)`` exactly
+    like discord.py's presentation order. Metadata defaults are
+    discord.py's own text-channel defaults — the capture channels never
+    carried a topic/category/overwrite (goldens/channel/sweep_list,
+    sweep_channelinfo and sweep_clone pin the observable bytes)."""
+
+    _DISCORD_EPOCH_MS = 1_420_070_400_000
+
+    def __init__(self, harness: "Harness") -> None:
+        self._harness = harness
+
+    def _snap(self, name: str, cid: int, position: int):
+        from datetime import datetime, timezone
+
+        from sb.domain.channel.service import ChannelSnapshot
+
+        ms = (int(cid) >> 22) + self._DISCORD_EPOCH_MS
+        return ChannelSnapshot(
+            channel_id=int(cid), name=str(name), position=int(position),
+            created_at=datetime.fromtimestamp(ms / 1000, tz=timezone.utc))
+
+    def _snapshots(self):
+        world = self._harness.world
+        roster = list(self._harness.leaked_roster)
+        if not roster:
+            roster = list(self._harness.leaked_channels.items())
+        snaps = [self._snap(name, cid, 0) for name, cid in roster]
+        if world is not None:
+            snaps.extend(
+                self._snap(name, cid, idx)
+                for idx, (name, cid) in enumerate(world.channels.items(),
+                                                  start=1))
+        snaps.sort(key=lambda s: (s.position, s.channel_id))
+        return tuple(snaps)
+
+    async def list_channels(self, guild_id: int):
+        del guild_id
+        return self._snapshots()
+
+    async def get_channel(self, guild_id: int, channel_id: int):
+        del guild_id
+        for snap in self._snapshots():
+            if snap.channel_id == int(channel_id):
+                return snap
+        return None
+
+    async def list_roles(self, guild_id: int):
+        # world._guild_payload verbatim: @everyone (the guild id) + Admin.
+        return ((int(guild_id or 0), "@everyone"),
+                (_ADMIN_ROLE_ID, "Admin"))
+
+
 class _WorldPerms(SimpleNamespace):
     """Duck guild_permissions — undeclared flags read False."""
 
@@ -275,6 +334,13 @@ class Harness:
         #: constant snowflake; the Normalizer knows neither, so the id
         #: renders as `<msg:N>` exactly like the golden's.
         self.leaked_channels: dict[str, int] = {}
+        #: CAPTURE-WORLD LEAKED ROSTER (runner-seeded per case, cleared at
+        #: every case head) — the ORDERED (name, id) pairs the capture
+        #: gateway cache held beyond the world's own four channels, for
+        #: the ChannelDirectory roster reads (goldens/channel/sweep_list
+        #: needs DUPLICATE names — `test` twice — which the resolution
+        #: map above cannot carry).
+        self.leaked_roster: list[tuple[str, int]] = []
         self._index: dict[tuple[str, Surface], TargetRef] = {}
         self._real_time: Any = None
         self._bus: Any = None
@@ -556,11 +622,23 @@ class Harness:
         # `_unmapped` sweep.create capture).
         from sb.domain.channel.service import (
             install_channel_actions,
+            install_channel_directory,
             install_channel_lookup,
         )
 
         install_channel_actions(ParityChannelStateActions(self.http))
         install_channel_lookup(_world_channel_resolver)
+        # the ChannelDirectory READ port (the D-0030 batch) — the same
+        # capture-world gateway cache, as ordered SNAPSHOTS: leaked
+        # channels ride position 0 (fake_http's create response never
+        # carried a position) and the world's four ride 1..4 (the
+        # World._channel_payload len-after-insert values), so the
+        # (position, id) sort reproduces discord.py's presentation order
+        # byte-for-byte (goldens/channel/sweep_list pins `economy-log,
+        # test, test, test-2, general, commands, mod-log, audit-log`;
+        # sweep_channelinfo pins the leaked `test` at Position 0 with a
+        # snowflake-derived Created timestamp).
+        install_channel_directory(_WorldChannelDirectory(self))
         # the setup workspace + advisor read seams: the overwrite-map
         # member/role inputs ride the SAME capture-world guild view the
         # role ports read (goldens/setup/sweep_setup pins the four
@@ -700,6 +778,7 @@ class Harness:
         panel_engine.reset_panel_engine_for_tests()      # sessions + presenter
         reset_resolver_ports_for_tests()                 # seen ids + ports
         self.leaked_channels.clear()                     # per-case seed (runner)
+        self.leaked_roster.clear()                       # per-case seed (runner)
         self._arm_capture_ports()                        # re-arm what we own
 
     # ------------------------------------------------------------------ drive
@@ -972,6 +1051,11 @@ class Harness:
             reset_utility_ports_for_tests()
             reset_cleanup_ports_for_tests()
             reset_xp_ports_for_tests()
+            from sb.domain.channel.service import (
+                reset_channel_ports_for_tests,
+            )
+
+            reset_channel_ports_for_tests()
             from sb.domain.role.service import reset_role_ports_for_tests
 
             reset_role_ports_for_tests()
