@@ -402,13 +402,15 @@ depth:
     # the cleanup row, so its `!word add test` prohibited_words db_delta
     # row now covers the table on the row itself.
     counting:
-      # counting's three goldens are read/render surfaces (the two
-      # guard-byte reads + the Counting Manager inactive-state open) —
-      # the capture guild never had an active counting channel, so
-      # every state-touching sweep pinned the "Counting game is not set
-      # up for this channel." refusal (goldens/counting/sweep_count_info
-      # + sweep_counttop; the sibling _unmapped sweep_reset_count +
-      # sweep_toggle_reset_on_wrong_count pin the same guard byte).
+      # counting's eight goldens are read/render surfaces (the
+      # guard-byte reads, the static rules card + the Counting Manager
+      # inactive-state open) — the capture guild never had an active
+      # counting channel, so every state-touching sweep pinned the
+      # "Counting game is not set up for this channel." refusal
+      # (goldens/counting/sweep_count_info + sweep_counttop; the
+      # re-homed sweep_reset_count + sweep_toggle_reset_on_wrong_count
+      # + sweep_set_skip_numbers + sweep_toggle_turns pin the same
+      # guard byte).
       - surface: "table:counting_state"
         reason: "select-driven: the only capture-reachable write ingress
           is the Counting Manager's run-minted Enable-Here mode pick
@@ -680,8 +682,8 @@ depth:
           D-0043 pending terminals with their sweeps in _unmapped for
           the deep-system successor"
     proof_channel:
-      # proof_channel's three goldens (and the sibling _unmapped prize
-      # sweeps) all pin the shipped "#proof not found" guard — the
+      # proof_channel's five goldens (the re-homed prize sweeps
+      # included) all pin the shipped "#proof not found" guard — the
       # capture guild carried no #proof channel and no proof_channel
       # binding (oracle schemas.py declares the `proof` resource
       # OPTIONAL), so the lock-write lane behind the guard never ran in
@@ -695,7 +697,7 @@ depth:
           the harness's #general) — every prize-family capture stopped
           at the shipped not-found guard, whose bytes ARE pinned
           (goldens/proof_channel/sweep_timedprize.json +
-          goldens/_unmapped/sweep_+prize.json / sweep_-prize.json), so
+          goldens/proof_channel/sweep_+prize.json / sweep_-prize.json), so
           no imported golden can carry a lock row; the table's first
           live golden lands with a #proof-provisioned capture alongside
           the channel-ops slice"
