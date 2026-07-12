@@ -318,11 +318,49 @@ _apply_unban = _apply_action_leg("moderation.apply_unban", "unban")
 
 @workflow("moderation.compensate_ban")
 async def _compensate_ban(conn, ctx: WorkflowContext) -> LegOutcome:
-    """Ban's compensator: unban restores membership eligibility."""
+    """Ban's compensator (fork E; conn=None — opens its own txn on the
+    refuse path): unban restores membership eligibility when a LATER leg
+    failed after the ban actually landed. When the unban itself reports
+    NotFound, the ban NEVER landed (a Discord-refused apply — the ORDER
+    004 live-drive compensator probe): there is no member state to
+    restore, only the false durable CLAIM to un-write, so the fallback is
+    kick's row-withdraw twin — the DB matches the oracle (disbot
+    moderation_service.ban: Discord call first, row only after success —
+    a refused ban writes NO row). NotFound is matched by NAME (the
+    guarded band-2 pattern, role/automation.py _classify_exception —
+    discord is absent in-container); any other unban failure still
+    propagates so the engine records `partial` honestly."""
     target_id = int(ctx.params.get("_target_id", 0))
-    await service.active_actions().unban_member(
-        int(ctx.guild_id or 0), target_id,
-        reason="compensating failed ban flow")
+    try:
+        await service.active_actions().unban_member(
+            int(ctx.guild_id or 0), target_id,
+            reason="compensating failed ban flow")
+    except Exception as exc:
+        if type(exc).__name__ != "NotFound":
+            raise
+        from sb.kernel.db import pool
+
+        row_id = int(ctx.params.get("_ban_row_id", 0) or 0)
+        withdrawn = 0
+        if row_id:
+            async with pool.transaction() as txn:
+                withdrawn = await store.withdraw_mod_log_rows(
+                    txn, ids=(row_id,))
+        try:
+            from sb.kernel.observability.findings import record_operator_finding
+
+            record_operator_finding(
+                source="workflow:moderation.ban", severity="warning",
+                summary=(f"ban of <@{target_id}> never landed on Discord "
+                         f"(compensating unban NotFound) — {withdrawn} "
+                         f"history row(s) withdrawn"),
+                detail="", correlation_id=None)
+        except Exception:  # noqa: BLE001 — findings are observability only
+            pass
+        return LegOutcome(step=StepResult(0, "compensate_ban", True),
+                          before={},
+                          after={"withdrawn_rows": withdrawn,
+                                 "ban_never_landed": target_id})
     return LegOutcome(step=StepResult(0, "compensate_ban", True),
                       before={}, after={"compensated": "ban"})
 
