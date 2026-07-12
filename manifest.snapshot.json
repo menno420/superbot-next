@@ -8446,7 +8446,7 @@
         "module": "sb.domain.creature.service"
       },
       "handler:creature.challenge_accept": {
-        "module": "sb.domain.operator_spine"
+        "module": "sb.domain.creature.service"
       },
       "handler:creature.challenge_decline": {
         "module": "sb.domain.creature.service"
@@ -12027,7 +12027,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:59635087dfb75a2b37a1ea7d8325e80d94e9589ddb2bd837691e268769b7f98f",
+  "stable_hash": "sha256:1e9d0a3f069dce7821a6c425aa92e82ba7322e9537a6b1024fe95c3effb15dff",
   "subsystems": {
     "admin": {
       "capabilities": [],
