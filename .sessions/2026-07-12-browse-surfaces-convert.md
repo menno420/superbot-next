@@ -1,6 +1,6 @@
 # 2026-07-12 — arm the browse surfaces on the shared engine (D-0034, slice 2)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Opus 4.8 · high · feature build (flag 41 / D-0034)
 
