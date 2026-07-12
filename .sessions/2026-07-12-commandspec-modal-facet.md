@@ -80,14 +80,19 @@ byte-stable · sim-gate zero lock churn · ratchet untouched ·
 compensator allowlist EMPTY (no ops) · no new exemption or disposition
 classes.
 
-## Evidence (full ladder, serial, real Postgres)
+## Evidence (full ladder, serial, real Postgres — run TWICE)
 
-- gate: **GREEN — 342/342 across 44 ported** (unchanged from #229's
-  counts); check_parity_depth OK — 50 subsystems (43 ported), kernel
-  ported, 471 goldens.
-- report: **348/471 green, 471/471 replayable** — byte-identical to the
-  pre-slice baseline (zero behavior change proven, not asserted).
-- full pytest: **1586 passed / 2 skipped**.
+- At the #229 base (59e2e22): gate GREEN 342/342 across 44 ported;
+  report 348/471 green, 471/471 replayable — byte-identical to the
+  pre-slice baseline; full pytest 1586 passed / 2 skipped.
+- Re-run at the branch head after forward-merging origin/main
+  (95b6fda — #230 games flip + #231 wrap-up landed mid-slice;
+  manifest.snapshot.json resolved by `manifest_compile --write`,
+  telemetry keep-both): gate **GREEN — 346/346 across 45 ported**;
+  check_parity_depth OK — 50 subsystems (44 ported), kernel ported,
+  471 goldens; report **352/471 green, 471/471 replayable** (the +4 are
+  #230's flips — this slice moves nothing); full pytest
+  **1591 passed / 2 skipped**.
 - named gates all clean: schema-growth, namespace, compat (pin
   byte-stable), amendments, sim-gate, no-skip, escape-hatches,
   symbol-shadowing, intent-survival, slash-cap, config-usage,
