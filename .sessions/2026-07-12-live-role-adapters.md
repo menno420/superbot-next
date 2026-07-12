@@ -77,10 +77,42 @@ so it bases off #263's head branch rather than main (a separate main branch
 would conflict). Reuses `GuildNotAllowedError` from #263's
 `moderation_actions.py`.
 
+## Codex review round (PR #278)
+
+Codex left four valid findings on head `bae724a`; all four fixed here:
+- **P2 — guild-view not wired.** The mutation ports were armed but no live
+  `install_guild_source` was installed, so `service.guild_view` returned None
+  and every role effect blocked BEFORE reaching the adapters (!deleterole
+  handlers.py:479, !assignroles :378, XP role sync service.py:505). There is
+  an EXISTING installer (`sb.domain.role.service.install_guild_source`, a
+  plain async `(guild_id) -> guild | None` callable — no Protocol class); the
+  parity root installs a fake world guild. Added `DiscordGuildSource`
+  (cache-only `bot.get_guild`, the SAME test-guild fence — a non-allowed guild
+  reads as None, the unarmed posture, never a raise since `guild_view` is a
+  read the handlers branch on) and wired `install_guild_source` under the SAME
+  gate. NOT shared with moderation (its adapter resolves the guild directly);
+  the setup domain has a SEPARATE `install_workspace_member_source` port the
+  parity root happens to feed the same world guild — a live successor there
+  would reuse the `DiscordGuildSource` CLASS but install its OWN port.
+- **P2 — NotFound not translated.** `MessageOps.fetch_message` now catches
+  `discord.NotFound` (an HTTPException) and re-raises `LookupError`, so the
+  bind handler's shipped "Message not found" branch (handlers.py:163-166)
+  fires instead of the id escaping as a transient failure; other HTTP errors
+  propagate.
+- **P3 — reaction double-fetch.** `add_reaction` now reacts through
+  `channel.get_partial_message(id)` (no second REST read) — the bind flow
+  already fetched the message; matches the parity twin recording only
+  `add_reaction`.
+- **P3 — role-specific refusal copy.** `GuildNotAllowedError` gains an
+  `effect` param (default `"moderation"`, byte-identical to SLICE 1); the role
+  fences pass `effect="role"`, so a role refusal the handlers echo
+  (handlers.py:167 `⚠️ {exc}`) reads "role effect REFUSED", not
+  "moderation effect REFUSED".
+
 ## Evidence
 
-- `python3 -m pytest tests/` — **1750 passed, 8 skipped** (+12: 9 role
-  contract tests + 3 wiring assertions; the 8 skips are the pre-existing
+- `python3 -m pytest tests/` — **1754 passed, 8 skipped** (+16 over base: 13
+  role contract tests + 3 wiring assertions; the 8 skips are the pre-existing
   suite skips, unchanged).
 - `python3 bootstrap.py check --strict` — the ONLY exit-affecting finding is
   the born-red HOLD on this card (by design; green on the flip to complete).

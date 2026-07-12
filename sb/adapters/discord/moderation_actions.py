@@ -37,18 +37,25 @@ __all__ = [
 
 
 class GuildNotAllowedError(RuntimeError):
-    """A moderation EFFECT was requested against a guild that is NOT the
+    """A live guild EFFECT was requested against a guild that is NOT the
     single allowed test guild. Raised BEFORE any Discord call — the live
     adapter mutates ONLY the test guild, so a test-plane process running on
-    the production token can never kick/ban/timeout a PRODUCTION-guild member.
+    the production token can never touch a PRODUCTION guild's members/roles.
     The engine classifies this loud raise as PARTIAL + an operator finding
-    (the not-installed-port posture), never a silent mutation."""
+    (the not-installed-port posture), never a silent mutation.
 
-    def __init__(self, guild_id: int, allowed_guild_id: int) -> None:
+    Shared across the live-guild-effects lane: ``effect`` names the effect
+    domain so the copy the handlers echo reads accurately per subsystem
+    ("moderation effect REFUSED" for D-0049, "role effect REFUSED" for the
+    role slice, ...) — the default keeps the moderation copy byte-identical."""
+
+    def __init__(self, guild_id: int, allowed_guild_id: int, *,
+                 effect: str = "moderation") -> None:
         self.guild_id = int(guild_id)
         self.allowed_guild_id = int(allowed_guild_id)
+        self.effect = str(effect)
         super().__init__(
-            f"moderation effect REFUSED: guild {guild_id} is not the allowed "
+            f"{effect} effect REFUSED: guild {guild_id} is not the allowed "
             f"test guild {allowed_guild_id} — the live adapter mutates ONLY "
             f"the test guild (a test-plane process on the production token "
             f"must never action a production-guild member).")

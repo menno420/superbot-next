@@ -27,6 +27,7 @@ import pytest
 from sb.adapters.discord import role_actions as role_mod
 from sb.adapters.discord.role_actions import (
     DiscordGuildRoleActions,
+    DiscordGuildSource,
     DiscordRoleMessageOps,
     DiscordRoleProvisioning,
     GuildNotAllowedError,
@@ -53,11 +54,16 @@ class _FakeColour:
         self.value = int(value)
 
 
+class _FakeNotFound(Exception):
+    """Stand-in for ``discord.NotFound`` (an HTTPException, not LookupError)."""
+
+
 class _FakeDiscord:
     """Minimal fake of the ``discord`` module the adapters read off."""
 
     Object = _FakeObject
     Colour = _FakeColour
+    NotFound = _FakeNotFound
 
 
 class _FakeMember:
@@ -88,6 +94,18 @@ class _FakeMessage:
         self.reactions.append(emoji)
 
 
+class _FakePartialMessage:
+    """Stand-in for ``channel.get_partial_message(id)`` — reacts with no
+    REST fetch."""
+
+    def __init__(self, message_id: int) -> None:
+        self.id = int(message_id)
+        self.reactions: list[str] = []
+
+    async def add_reaction(self, emoji):
+        self.reactions.append(emoji)
+
+
 class _FakeGuild:
     def __init__(self, member: _FakeMember | None = None,
                  role: _FakeRole | None = None) -> None:
@@ -107,14 +125,24 @@ class _FakeGuild:
 
 
 class _FakeChannel:
-    def __init__(self, guild, message: _FakeMessage | None = None) -> None:
+    def __init__(self, guild, message: _FakeMessage | None = None, *,
+                 raise_not_found: bool = False) -> None:
         self.guild = guild
         self._message = message
+        self._raise_not_found = raise_not_found
         self.fetched: list[int] = []
+        self.partials: list[_FakePartialMessage] = []
 
     async def fetch_message(self, message_id):
         self.fetched.append(int(message_id))
+        if self._raise_not_found:
+            raise _FakeNotFound("Unknown Message")
         return self._message
+
+    def get_partial_message(self, message_id):
+        partial = _FakePartialMessage(message_id)
+        self.partials.append(partial)
+        return partial
 
 
 class _FakeBot:
@@ -208,14 +236,32 @@ def test_fetch_message_reads_the_message_in_the_allowed_guild():
     assert channel.fetched == [60]
 
 
-def test_add_reaction_fetches_then_reacts():
+def test_add_reaction_uses_partial_message_with_no_second_fetch():
     message = _FakeMessage()
     channel = _FakeChannel(SimpleNamespace(id=_GUILD), message)
     ops = DiscordRoleMessageOps(_FakeBot(channel=channel),
                                 allowed_guild_id=_GUILD)
     run(ops.add_reaction(50, 60, "✅"))
-    assert channel.fetched == [60]
-    assert message.reactions == ["✅"]
+    # the bind flow already fetched the message; add_reaction must NOT
+    # re-fetch — it reacts through a partial message (one add_reaction call,
+    # zero extra get_message reads), matching the parity twin.
+    assert channel.fetched == []
+    assert len(channel.partials) == 1
+    assert channel.partials[0].id == 60
+    assert channel.partials[0].reactions == ["✅"]
+    assert message.reactions == []
+
+
+def test_fetch_message_translates_notfound_to_lookuperror():
+    # a deleted/wrong message id: channel.fetch_message raises
+    # discord.NotFound (an HTTPException) — the adapter re-raises LookupError
+    # so the bind handler's shipped "Message not found" branch (which catches
+    # LookupError) fires, instead of the id escaping as a transient failure.
+    channel = _FakeChannel(SimpleNamespace(id=_GUILD), raise_not_found=True)
+    ops = DiscordRoleMessageOps(_FakeBot(channel=channel),
+                                allowed_guild_id=_GUILD)
+    with pytest.raises(LookupError):
+        run(ops.fetch_message(50, 60))
 
 
 # --- the test-guild allow-list (SAFETY) ------------------------------------
@@ -264,3 +310,33 @@ def test_message_ops_refuse_a_channel_with_no_resolvable_guild():
         run(ops.fetch_message(50, 60))
     with pytest.raises(GuildNotAllowedError):
         run(ops.add_reaction(50, 60, "✅"))
+
+
+def test_refusal_copy_reads_as_a_role_effect_not_moderation():
+    # the role handlers echo the RuntimeError text (handlers.py:167
+    # `⚠️ {exc}`), so the shared allow-list error must name the ROLE effect —
+    # a role refusal misreported as "moderation effect REFUSED" is the bug.
+    actions = DiscordGuildRoleActions(_FakeBot(_FakeGuild()),
+                                      allowed_guild_id=_GUILD)
+    with pytest.raises(GuildNotAllowedError) as excinfo:
+        run(actions.add_role(_OTHER_GUILD, 103, 777, reason="x"))
+    assert str(excinfo.value).startswith("role effect REFUSED")
+    assert excinfo.value.effect == "role"
+
+
+# --- DiscordGuildSource (the guild-VIEW read seam) -------------------------
+
+def test_guild_source_returns_the_cache_guild_for_the_allowed_guild():
+    guild = _FakeGuild()
+    source = DiscordGuildSource(_FakeBot(guild), allowed_guild_id=_GUILD)
+    # the real gateway-cache Guild IS the duck guild the role automation reads
+    assert run(source(_GUILD)) is guild
+
+
+def test_guild_source_returns_none_for_a_non_allowed_guild():
+    guild = _FakeGuild()
+    source = DiscordGuildSource(_FakeBot(guild), allowed_guild_id=_GUILD)
+    # a non-allowed guild reads as None (the effect stays BLOCKED, the unarmed
+    # posture) — never a raise, because guild_view is a read the handlers
+    # branch on (`if guild is None`); a raise would escape as a transient fail.
+    assert run(source(_OTHER_GUILD)) is None

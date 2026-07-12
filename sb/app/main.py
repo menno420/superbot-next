@@ -435,10 +435,12 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             # perform NO Discord effect until the owner flips prod himself.
             from sb.adapters.discord.role_actions import (
                 DiscordGuildRoleActions,
+                DiscordGuildSource,
                 DiscordRoleMessageOps,
                 DiscordRoleProvisioning,
             )
             from sb.domain.role.service import (
+                install_guild_source,
                 install_message_ops,
                 install_role_actions,
                 install_role_provisioning,
@@ -450,10 +452,18 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                 DiscordRoleProvisioning(bot, allowed_guild_id=test_guild_id))
             install_message_ops(
                 DiscordRoleMessageOps(bot, allowed_guild_id=test_guild_id))
+            # the guild-VIEW read seam: without it service.guild_view returns
+            # None and every role-effect surface stays blocked BEFORE it
+            # reaches the mutation ports above (!deleterole/!assignroles/XP
+            # role sync) — so the mutation ports are inert without this. The
+            # real gateway-cache Guild is the duck guild; a non-allowed guild
+            # reads as None (blocked), the SAME test-guild fence.
+            install_guild_source(
+                DiscordGuildSource(bot, allowed_guild_id=test_guild_id))
             logger.info("role EFFECT ports ARMED (test plane, guild %d ONLY): "
                         "live add/remove role + create/delete role + "
-                        "reaction-role fetch_message/add_reaction",
-                        test_guild_id)
+                        "reaction-role fetch_message/add_reaction + the "
+                        "gateway-cache guild view", test_guild_id)
 
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;

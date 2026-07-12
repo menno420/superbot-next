@@ -47,6 +47,7 @@ except ImportError:
 
 __all__ = [
     "DiscordGuildRoleActions",
+    "DiscordGuildSource",
     "DiscordRoleMessageOps",
     "DiscordRoleProvisioning",
     "GuildNotAllowedError",
@@ -70,9 +71,12 @@ class _GuildAllowList:
 
     def _guild(self, guild_id: int):
         # HARD test-guild allow-list — refuse ANY non-allowed guild before a
-        # single Discord call touches a role or member.
+        # single Discord call touches a role or member. ``effect="role"`` so
+        # the copy the role handlers echo (handlers.py:167 `⚠️ {exc}`) reads
+        # "role effect REFUSED", not the moderation default.
         if int(guild_id) != self._allowed_guild_id:
-            raise GuildNotAllowedError(guild_id, self._allowed_guild_id)
+            raise GuildNotAllowedError(guild_id, self._allowed_guild_id,
+                                       effect="role")
         guild = self._bot.get_guild(int(guild_id))
         if guild is None:
             raise RuntimeError(f"guild {guild_id} is not available")
@@ -157,22 +161,65 @@ class DiscordRoleMessageOps(_GuildAllowList):
         guild = getattr(channel, "guild", None)
         guild_id = int(getattr(guild, "id", 0) or 0)
         if guild_id != self._allowed_guild_id:
-            raise GuildNotAllowedError(guild_id, self._allowed_guild_id)
+            raise GuildNotAllowedError(guild_id, self._allowed_guild_id,
+                                       effect="role")
         if channel is None:  # pragma: no cover — guild check already refused
             raise RuntimeError(f"channel {channel_id} is not available")
         return channel
 
     async def fetch_message(self, channel_id: int, message_id: int) -> None:
-        self._require_discord()
+        discord = self._require_discord()
         channel = self._channel(channel_id)
         # mirrors the oracle's ctx.fetch_message(message_id) existence read
         # (captured as get_message); the port returns None (the bind flow adds
         # the reaction through add_reaction below, a separate call).
-        await channel.fetch_message(int(message_id))
+        try:
+            await channel.fetch_message(int(message_id))
+        except discord.NotFound as exc:
+            # a deleted/wrong message id is a USER-INPUT error, not a
+            # transient Discord failure: the bind handler catches LookupError
+            # for its shipped "Message not found" branch
+            # (handlers.py:163-166), so translate discord.NotFound (an
+            # HTTPException, NOT a LookupError) here and let every other HTTP
+            # error propagate as the transient failure it is.
+            raise LookupError(str(exc)) from exc
 
     async def add_reaction(self, channel_id: int, message_id: int,
                            emoji: str) -> None:
         self._require_discord()
         channel = self._channel(channel_id)
-        message = await channel.fetch_message(int(message_id))
-        await message.add_reaction(emoji)
+        # the bind flow ALREADY fetched the message (fetch_message above)
+        # before writing the binding, so a partial message adds the reaction
+        # with NO second REST read — matching the parity twin, which records
+        # only an add_reaction call (transport.py ParityRoleMessageOps).
+        await channel.get_partial_message(int(message_id)).add_reaction(emoji)
+
+
+class DiscordGuildSource:
+    """The LIVE guild-view read seam (installed via
+    ``sb.domain.role.service.install_guild_source``): resolves a duck guild
+    (roles/members/me — the shape the role automation, preflight, and
+    diagnostics read) from the gateway CACHE, ``bot.get_guild(guild_id)``.
+    Without it ``service.guild_view`` returns None and every role-effect
+    surface stays honestly blocked BEFORE it reaches the mutation adapters
+    (!deleterole handlers.py:479, !assignroles :378, XP role sync
+    service.py:505) — so arming the mutation ports without this leaves those
+    valid test-guild effects unarmed.
+
+    The real discord.py ``Guild`` IS the duck guild (the parity root builds a
+    FAKE one only because it has no gateway). Cache-only — no REST fetch. The
+    test-guild allow-list is applied as a READ gate: a non-allowed guild
+    returns None (the effect stays blocked, the unarmed posture), never a
+    raise — ``guild_view`` is a read the handlers branch on (`if guild is
+    None`), so a raise would escape as a transient failure. The mutation
+    adapters keep their hard ``GuildNotAllowedError`` raise as defense in
+    depth."""
+
+    def __init__(self, bot: object, *, allowed_guild_id: int) -> None:
+        self._bot = bot
+        self._allowed_guild_id = int(allowed_guild_id)
+
+    async def __call__(self, guild_id: int):
+        if int(guild_id) != self._allowed_guild_id:
+            return None
+        return self._bot.get_guild(int(guild_id))

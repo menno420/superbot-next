@@ -103,6 +103,12 @@ class TestRoleEffectPortsGate:
         assert ("install_message_ops(\n"
                 "                DiscordRoleMessageOps(bot, "
                 "allowed_guild_id=test_guild_id))") in src
+        # the guild-VIEW read seam is armed under the SAME gate — without it
+        # service.guild_view returns None and the mutation ports above are
+        # inert (every role-effect surface stays blocked before reaching them).
+        assert ("install_guild_source(\n"
+                "                DiscordGuildSource(bot, "
+                "allowed_guild_id=test_guild_id))") in src
 
     def test_role_installs_sit_inside_the_gate_block(self):
         # the wiring fact: the role installs live BELOW the gate line and the
@@ -113,7 +119,7 @@ class TestRoleEffectPortsGate:
         src = inspect.getsource(app_main.run_app)
         gate_at = src.index("if test_guild_id is not None:")
         for needle in ("install_role_actions(", "install_role_provisioning(",
-                       "install_message_ops("):
+                       "install_message_ops(", "install_guild_source("):
             assert src.index(needle) > gate_at, needle
 
 
