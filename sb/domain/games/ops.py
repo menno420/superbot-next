@@ -113,14 +113,18 @@ _balance_payload_1 = workflow("games.balance_payload_1")(_balance_builder(1))
 
 @workflow("games.game_xp_awarded_payload")
 def _gxp_awarded_payload(ctx: WorkflowContext, result) -> dict | None:
+    # Payload keys are the corpus shape: goldens/mining/sweep_fastmine /
+    # sweep_chop / sweep_explore pin {action, amount, game, guild_id,
+    # total, user_id} (`amount` = the post-cap award, `total` = the new
+    # per-game xp) — the first live game_xp.awarded goldens the games
+    # row's parity.yml exemption promised for the mining-band flip.
     award = ctx.params.get("_gxp")
     if award is None or getattr(award, "amount", 0) <= 0:
         return None
     return {"guild_id": int(ctx.guild_id or 0),
             "user_id": int(getattr(ctx.actor, "user_id", 0) or 0),
             "game": award.game, "action": award.action,
-            "delta": int(award.amount), "new_game_xp": int(award.new_game_xp),
-            "new_total_xp": int(award.new_total_xp)}
+            "amount": int(award.amount), "total": int(award.new_game_xp)}
 
 
 @workflow("games.game_xp_levelup_payload")

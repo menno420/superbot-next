@@ -1,76 +1,25 @@
-"""MINING subsystem manifest (band 6, checkpoint family) — the FULL
-shipped command surface verbatim (37 commands): the core loop
-(mine/chop/explore/sell/sellall/buy + reads) is live over the audited K7
-lanes; the deep systems are honest pending terminals riding the D-0043
-named successor port."""
+"""MINING subsystem manifest (band 6, checkpoint family / parity flip) —
+the FULL shipped command surface verbatim (37 commands): the core loop
+(fastmine/chop/explore/sell/sellall/buy + reads + the admin reset) is
+live over the audited K7 lanes with the shipped reply bytes
+(goldens/mining/ pin them — see sb/domain/mining/service.py); `!mine`
+carries the capture-pinned grid-navigator artifact copy; the deep
+systems are honest pending terminals riding the D-0043 named successor
+port. The hub panel is the shipped MiningHubView byte-for-byte
+(sb/domain/mining/panels.py)."""
 
 from __future__ import annotations
 
 from sb.domain.mining import service as _service
 from sb.domain.mining.ops import register_ops
+from sb.domain.mining.panels import mining_hub_spec
 from sb.domain.mining.store import (
     MINING_INVENTORY_STORE,
     MINING_PLAYER_STATE_STORE,
 )
-from sb.kernel.panels.registry import register_panel
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
-from sb.spec.panels import (
-    ActionStyle,
-    Audience,
-    EmbedFrameSpec,
-    FooterMode,
-    LayoutSpec,
-    NavigationSpec,
-    PageSpec,
-    PanelActionSpec,
-    PanelSpec,
-    ResultRender,
-    TextBlock,
-)
-from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
-
-
-def mining_hub_spec() -> PanelSpec:
-    return PanelSpec(
-        panel_id="mining.hub",
-        subsystem="mining",
-        title="⛏️ Mining",
-        audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(TextBlock("Dig for ore, chop wood, explore — then sell "
-                        "your haul at the market. Deeper bands hold "
-                        "richer ore."),),
-        actions=(
-            PanelActionSpec(action_id="mining_mine", label="Mine",
-                            emoji="⛏️", style=ActionStyle.SUCCESS,
-                            audience_tier="user",
-                            handler=HandlerRef("mining.mine_route"),
-                            result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(action_id="mining_chop", label="Chop",
-                            emoji="🪓", audience_tier="user",
-                            handler=HandlerRef("mining.chop_route"),
-                            result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(action_id="mining_explore", label="Explore",
-                            emoji="🧭", audience_tier="user",
-                            handler=HandlerRef("mining.explore_route"),
-                            result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(action_id="mining_sell_all", label="Sell All",
-                            emoji="💰", style=ActionStyle.PRIMARY,
-                            audience_tier="user",
-                            handler=HandlerRef("mining.sellall_route"),
-                            result_render=ResultRender.RESULT_CARD),
-        ),
-        navigation=NavigationSpec(parent=PanelRef("games.world")),
-        layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("mining_mine", "mining_chop", "mining_explore",
-             "mining_sell_all"),)),)),
-    )
-
-
-@panel("mining.hub")
-def _hub_factory() -> PanelSpec:
-    return mining_hub_spec()
+from sb.spec.refs import HandlerRef, PanelRef
 
 
 def _cmd(name: str, route, summary: str, aliases: tuple[str, ...] = (),
@@ -90,7 +39,9 @@ def _pending(name: str, summary: str,
 _COMMANDS = (
     _cmd("minemenu", PanelRef("mining.hub"), "Open the mining hub."),
     _cmd("mine", HandlerRef("mining.mine_route"),
-         "One mining swing — roll ore loot."),
+         "Open the grid Mine navigator — roam the world and dig."),
+    _cmd("fastmine", HandlerRef("mining.fastmine_route"),
+         "One quick mining swing — no buttons."),
     _cmd("chop", HandlerRef("mining.chop_route"), "Chop wood."),
     _cmd("explore", HandlerRef("mining.explore_route"),
          "Explore the caves for a random find."),
@@ -107,7 +58,6 @@ _COMMANDS = (
     _cmd("minestats", HandlerRef("mining.stats_view"),
          "Your mining stats."),
     # --- deep systems (the D-0043 named successor port) -------------------
-    _pending("fastmine", "Grid dig (fast mine)."),
     _pending("build", "Build a structure.", ("craft",)),
     _pending("buildlist", "List built structures."),
     _pending("buildable", "What you can build now."),
@@ -133,7 +83,12 @@ _COMMANDS = (
     _pending("workshop", "The repair workshop."),
     _pending("repair", "Repair worn gear."),
     _pending("quickcraft", "Craft the best available recipe."),
-    _pending("reset_inventory", "Admin: reset a mining inventory."),
+    # shipped admin gate: member_has_perms_or_owner(administrator=True)
+    # in-handler — the port home is the tier lane (deny copy is the
+    # kernel's; unpinned — no golden drives the non-admin branch).
+    _cmd("reset_inventory", HandlerRef("mining.reset_inventory_route"),
+         "Admin: reset a member's mining inventory (this guild).",
+         tier="administrator"),
 )
 
 MANIFEST = SubsystemManifest(
@@ -153,14 +108,13 @@ _service.install_inventory_source()
 
 def _ensure_refs() -> None:
     from sb.domain.mining import ops as _ops
+    from sb.domain.mining import panels as _panels
     from sb.domain.mining import store as _store
-    from sb.spec.refs import PanelRef as _P, panel as _panel
 
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _service.ensure_handler_refs()
-    if not is_registered(_P("mining.hub")):
-        _panel("mining.hub")(_hub_factory)
+    _panels.ensure_panel_refs()
     register_ops()
 
 

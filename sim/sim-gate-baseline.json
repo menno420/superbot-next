@@ -4229,6 +4229,76 @@
    },
    "value": 0
   },
+  "mining:mining.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: mining parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "mi_mine",
+       "mi_harvest",
+       "mi_explore_hub"
+      ],
+      [
+       "mi_character",
+       "mi_gear",
+       "mi_workshop"
+      ],
+      [
+       "mi_how_to"
+      ]
+     ]
+    }
+   ]
+  },
+  "mining:mining.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: mining parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "mi_mine",
+     "mi_harvest",
+     "mi_explore_hub"
+    ],
+    [
+     "mi_character",
+     "mi_gear",
+     "mi_workshop"
+    ],
+    [
+     "mi_how_to"
+    ]
+   ]
+  },
+  "mining:mining.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: mining parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "mi_mine",
+        "mi_harvest",
+        "mi_explore_hub"
+       ],
+       [
+        "mi_character",
+        "mi_gear",
+        "mi_workshop"
+       ],
+       [
+        "mi_how_to"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "mining:quickcraft:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

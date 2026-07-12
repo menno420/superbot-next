@@ -1,11 +1,39 @@
-"""Mining handlers (band 6) — core-loop routes + reads + the inventory
-merge source, and honest pending terminals for the deep systems
+"""Mining handlers (band 6 / parity flip) — the SHIPPED core-loop reply
+bytes verbatim (goldens/mining pin them), the reads, the inventory merge
+source, and honest pending terminals for the deep systems
 (equipment/wear, energy, grid, vault, structures, skills, forge,
 workshop, titles, loadouts, descend/ascend, character — the D-0043
-named successor port)."""
+named successor port).
+
+Shipped command mapping (disbot/cogs/mining_cog.py, oracle-verbatim):
+
+* ``!fastmine`` — \"One quick mining swing — no buttons (the old
+  !fastmine, reborn)\" — runs the swing and answers
+  ``{mention} mined **{amount}x {found}** in {describe_position(depth)}!``
+  (goldens/mining/sweep_fastmine pins the bytes).
+* ``!chop`` — ``{mention} chopped wood and collected {amount}x wood!``
+  (goldens/mining/sweep_chop; the cog line is UNbolded — the hub panel's
+  harvest lane bolded the amount, a different shipped surface).
+* ``!explore`` — ``{mention} {text}\\n_{describe_position(depth)}_``
+  (goldens/mining/sweep_explore).
+* ``!mine`` — \"Open the grid Mine navigator — roam the world and dig\":
+  the grid dig system is D-0043 successor work, and in the CAPTURE world
+  the shipped open RAISED — every captured ``!mine`` pins bot1.py's
+  global on_command_error copy (goldens/mining/sweep_mine), so the
+  prefix lane carries that capture-pinned literal (the xp ``!rank`` /
+  moderation timeout precedent, playbook 11b/18b).
+* ``!reset_inventory @member`` — admin, guild-scoped:
+  ``{member.name}'s inventory has been reset.``
+  (goldens/mining/sweep_reset_inventory).
+
+The shipped ``result.xp_note`` / wear-note tails append only on level-up
+or a wear event — no golden carries one (every capture awarded
+single-digit game XP at level 0 on fresh gearless players), and the
+note surfaces ride the D-0043 equipment/wear port."""
 
 from __future__ import annotations
 
+import re as _re
 
 from sb.spec.outcomes import BLOCKED, SUCCESS
 from sb.kernel.interaction.handler_kit import (
@@ -14,6 +42,15 @@ from sb.kernel.interaction.handler_kit import (
 )
 
 __all__ = ["Reply", "ensure_handler_refs", "install_inventory_source"]
+
+#: bot1.py on_command_error's generic fallback, verbatim — the copy the
+#: shipped bot sent when a command raised anything unclassified. The
+#: capture world's ``!mine`` grid-navigator open raised there, so every
+#: captured ``!mine`` pins this byte (goldens/mining/sweep_mine); the
+#: shipped MemberConverter raise on an unparseable ``!reset_inventory``
+#: target degrades through the same copy (unpinned, the starboard
+#: converter-failure posture).
+_GENERIC_ERROR = "⚠️ An unexpected error occurred. Please try again."
 
 
 async def _mining_inventory_source(user_id: int, guild_id: int) -> dict:
@@ -56,15 +93,107 @@ def _run_op(ref: str):
     return route
 
 
+async def _op_after(req, op_key: str, params: dict | None = None):
+    """Run a one-leg mining op; (outcome-reply, after) — reply is None on
+    SUCCESS so the caller composes the shipped copy from `after`."""
+    from sb.kernel.workflow import engine
+    from sb.spec.refs import WorkflowRef
+
+    result = await engine.run(WorkflowRef(op_key),
+                              _ctx_from_req(req, dict(params or {})))
+    if result.outcome != SUCCESS:
+        return (Reply(result.outcome,
+                      result.user_message or "Couldn't do that."), {})
+    return (None, next(iter((result.after or {}).values()), {}))
+
+
+#: member mention / bare id — the shipped MemberConverter's mention lane
+#: (the moderation `_MENTION` shape).
+_MENTION = _re.compile(r"^<@!?(\d{15,20})>$|^(\d{15,20})$")
+
+
+async def _member_name(user_id: int, guild_id: int) -> str:
+    """The target's name through the guild-directory read port (the
+    economy/karma author-line recipe); degrades to the mention — never
+    invented data."""
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        member = await guild_directory().member_info(guild_id, user_id)
+    except Exception:  # noqa: BLE001 — no directory ⇒ mention fallback
+        return f"<@{user_id}>"
+    return member.tag.rsplit("#", 1)[0] or f"<@{user_id}>"
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
     if is_registered(HandlerRef("mining.mine_route")):
         return
 
-    handler("mining.mine_route")(_run_op("mining.mine"))
-    handler("mining.chop_route")(_run_op("mining.harvest"))
-    handler("mining.explore_route")(_run_op("mining.explore"))
+    @handler("mining.mine_route")
+    async def mine_route(req) -> Reply:
+        """Shipped `!mine` opened the grid Mine navigator — a D-0043
+        deep-system surface whose capture-world open RAISED; the corpus
+        pins bot1.py's generic copy for every `!mine` (goldens/mining/
+        sweep_mine — no swing, no rows, no game XP). The quick swing the
+        old port answered here is the SHIPPED `!fastmine` lane (below)."""
+        return Reply(BLOCKED, _GENERIC_ERROR)
+
+    @handler("mining.fastmine_route")
+    async def fastmine_route(req) -> Reply:
+        from sb.domain.mining.world import describe_position
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        blocked, after = await _op_after(req, "mining.mine")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS,
+                     f"<@{uid}> mined **{after.get('amount', 0)}x "
+                     f"{after.get('found', '')}** in "
+                     f"{describe_position(int(after.get('depth', 0)))}!")
+
+    @handler("mining.chop_route")
+    async def chop_route(req) -> Reply:
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        blocked, after = await _op_after(req, "mining.harvest")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS,
+                     f"<@{uid}> chopped wood and collected "
+                     f"{after.get('amount', 0)}x wood!")
+
+    @handler("mining.explore_route")
+    async def explore_route(req) -> Reply:
+        from sb.domain.mining.world import describe_position
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        blocked, after = await _op_after(req, "mining.explore")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS,
+                     f"<@{uid}> {after.get('description', '')}\n"
+                     f"_{describe_position(int(after.get('depth', 0)))}_")
+
+    @handler("mining.reset_inventory_route")
+    async def reset_inventory_route(req) -> Reply:
+        """Admin `!reset_inventory @member` — guild-scoped (shipped PR
+        M3). The administrator gate rides the manifest tier (the shipped
+        in-handler `member_has_perms_or_owner` check's port home); an
+        unparseable target degrades through the bot1.py generic copy
+        (the shipped MemberConverter raise — starboard posture)."""
+        argv = [str(t) for t in tuple(req.args.get("argv", ()) or ())]
+        match = _MENTION.match(argv[0].strip()) if argv else None
+        if match is None:
+            return Reply(BLOCKED, _GENERIC_ERROR)
+        subject = int(match.group(1) or match.group(2))
+        blocked, _after = await _op_after(
+            req, "mining.reset_inventory", {"subject_user_id": subject})
+        if blocked is not None:
+            return blocked
+        name = await _member_name(subject, int(req.guild_id or 0))
+        return Reply(SUCCESS, f"{name}'s inventory has been reset.")
+
     handler("mining.sell_route")(_run_op("mining.sell"))
     handler("mining.sellall_route")(_run_op("mining.sell_all"))
     handler("mining.buy_route")(_run_op("mining.buy"))
@@ -115,7 +244,7 @@ def _register() -> None:
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
 #: forge/workshop/titles/loadouts/character) is D-0043 successor work.
 PENDING = {
-    "fastmine": "grid dig", "mineinv": "pack detail panel",
+    "mineinv": "pack detail panel",
     "build": "structures", "buildlist": "structures",
     "buildable": "structures", "use": "consumables", "cook": "campfire",
     "equip": "equipment", "unequip": "equipment", "gear": "equipment",
@@ -125,7 +254,7 @@ PENDING = {
     "unstash": "vault", "vaultupgrade": "vault", "skills": "skills",
     "skill": "skills", "titles": "titles", "forge": "forge",
     "home": "structures", "workshop": "workshop", "repair": "workshop",
-    "quickcraft": "workshop", "reset_inventory": "admin reset",
+    "quickcraft": "workshop",
 }
 
 

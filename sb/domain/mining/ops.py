@@ -32,7 +32,15 @@ __all__ = ["SELL_REASON", "register_ops", "set_rng_for_tests"]
 SELL_REASON = "mining:sell_ore"
 BUY_REASON = "mining:buy_gear"
 
-_rng: random.Random = random.Random()
+# The loot draws ride the MODULE-GLOBAL `random` stream, shipped verbatim
+# (disbot/utils/mining/rewards.py drew from bare `random`; the capture
+# harness seeded it per case, and sb/adapters/parity/runner.py reseeds the
+# same stream at every case head — the #163→#167 reseed lane's RNG flavor,
+# trap 20/35c). goldens/mining/sweep_fastmine (iron ×1), sweep_chop
+# (wood ×3) and sweep_explore (got_lost) pin the seed-42 trajectory
+# through these exact draw shapes. A private Random() here would fork the
+# stream and diff every loot byte.
+_rng: random.Random = random  # type: ignore[assignment]
 
 
 def set_rng_for_tests(rng: random.Random) -> None:
@@ -129,6 +137,7 @@ async def _record_explore(conn, ctx: WorkflowContext) -> LegOutcome:
     ctx.params["_gxp"] = award
     return LegOutcome(step=StepResult(uid, "explore", True), before={},
                       after={"item": item, "delta": delta,
+                             "description": description, "depth": depth,
                              "message": f"🧭 You {description}"})
 
 
@@ -214,6 +223,20 @@ async def _record_buy(conn, ctx: WorkflowContext) -> LegOutcome:
                                         f"**{balance}** 🪙."})
 
 
+@workflow("mining.record_reset_inventory")
+async def _record_reset_inventory(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The shipped admin `!reset_inventory @member` — a guild-scoped
+    wipe of the target's mining pack (mining_cog.py: \"reset a user's
+    inventory in THIS guild (PR M3 — guild-scoped)\"); distinct from the
+    account-wide GDPR erasure leg below."""
+    uid, gid, _ = _ids(ctx)
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.reset_player_inventory(conn, user_id=subject,
+                                              guild_id=gid)
+    return LegOutcome(step=StepResult(uid, "reset_inventory", True),
+                      before={}, after={"rows": rows, "subject": subject})
+
+
 @workflow("mining.erase_subject_inventory")
 async def _erase_inventory(conn, ctx: WorkflowContext) -> LegOutcome:
     subject = int(ctx.params["subject_user_id"])
@@ -267,8 +290,10 @@ SELL_ALL = _op("mining.sell_all", "mining_sold", "mining.record_sell_all",
                _BALANCE_EMITS)
 BUY = _op("mining.buy", "mining_gear_bought", "mining.record_buy",
           _BALANCE_EMITS)
+RESET_INVENTORY = _op("mining.reset_inventory", "mining_inventory_reset",
+                      "mining.record_reset_inventory", ())
 
-_OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY)
+_OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -277,6 +302,7 @@ _REF_TABLE = (
     ("mining.record_sell", _record_sell),
     ("mining.record_sell_all", _record_sell_all),
     ("mining.record_buy", _record_buy),
+    ("mining.record_reset_inventory", _record_reset_inventory),
     ("mining.erase_subject_inventory", _erase_inventory),
     ("mining.erase_subject_state", _erase_state),
 )
