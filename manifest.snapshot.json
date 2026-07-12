@@ -1054,6 +1054,14 @@
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "surface": "prefix",
+          "value": "paragon"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "surface": "prefix",
           "value": "btd6ref"
         },
         {
@@ -4183,6 +4191,26 @@
           "value": "open_strategy_form"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "calc"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "requirements"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "stats"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "back"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino_new_poker"
@@ -4211,6 +4239,41 @@
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "poker_close"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_fold"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_checkcall"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_raise_min"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_raise_pot"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_allin"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_deal_next"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "poker_end"
         },
         {
           "source": "sb/manifest/chain.py",
@@ -5744,6 +5807,11 @@
         {
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
+          "value": "ai.card_nav"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
           "value": "ai.policy_chooser"
         },
         {
@@ -5917,6 +5985,11 @@
           "value": "btd6.strategy_submit"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6.paragon"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino.hub"
@@ -5925,6 +5998,11 @@
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino.poker_table"
+        },
+        {
+          "source": "sb/manifest/casino.py",
+          "subsystem": "casino",
+          "value": "casino.poker_game"
         },
         {
           "source": "sb/manifest/chain.py",
@@ -6005,6 +6083,11 @@
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
           "value": "creature.dex_card"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
+          "value": "creature.dex"
         },
         {
           "source": "sb/manifest/creature.py",
@@ -8094,6 +8177,9 @@
       "handler:ai.render_card": {
         "module": "sb.domain.ai.panels"
       },
+      "handler:ai.render_card_nav": {
+        "module": "sb.domain.ai.panels"
+      },
       "handler:ai.render_chooser": {
         "module": "sb.domain.ai.panels"
       },
@@ -8364,6 +8450,9 @@
       "handler:btd6.ops_usage_view": {
         "module": "sb.domain.btd6.service"
       },
+      "handler:btd6.paragon_pending": {
+        "module": "sb.domain.btd6.service"
+      },
       "handler:btd6.ref_ct_pending": {
         "module": "sb.domain.btd6.service"
       },
@@ -8395,6 +8484,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_hub": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "handler:btd6.render_paragon": {
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.strat_audit_view": {
@@ -8430,6 +8522,9 @@
       "handler:btd6.strategy_form_submit": {
         "module": "sb.domain.btd6.oracle_surface"
       },
+      "handler:casino.poker_action": {
+        "module": "sb.domain.casino.service"
+      },
       "handler:casino.poker_close": {
         "module": "sb.domain.casino.service"
       },
@@ -8446,6 +8541,9 @@
         "module": "sb.domain.casino.service"
       },
       "handler:casino.render_hub": {
+        "module": "sb.domain.casino.panels"
+      },
+      "handler:casino.render_poker_game": {
         "module": "sb.domain.casino.panels"
       },
       "handler:casino.render_poker_table": {
@@ -8674,7 +8772,7 @@
         "module": "sb.domain.creature.service"
       },
       "handler:creature.challenge_accept": {
-        "module": "sb.domain.operator_spine"
+        "module": "sb.domain.creature.service"
       },
       "handler:creature.challenge_decline": {
         "module": "sb.domain.creature.service"
@@ -8698,6 +8796,9 @@
         "module": "sb.domain.creature.panels"
       },
       "handler:creature.render_dex": {
+        "module": "sb.domain.creature.panels"
+      },
+      "handler:creature.render_dex_line": {
         "module": "sb.domain.creature.panels"
       },
       "handler:creature.render_hub": {
@@ -9579,6 +9680,9 @@
       "handler:settings.needs_setup_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:settings.open_group": {
+        "module": "sb.domain.settings.handlers"
+      },
       "handler:settings.render_access": {
         "module": "sb.domain.settings.panels"
       },
@@ -9903,6 +10007,9 @@
       "panel:ai.card": {
         "module": "sb.domain.ai.panels"
       },
+      "panel:ai.card_nav": {
+        "module": "sb.domain.ai.panels"
+      },
       "panel:ai.hub": {
         "module": "sb.domain.ai.panels"
       },
@@ -9993,10 +10100,16 @@
       "panel:btd6.hub": {
         "module": "sb.domain.btd6.panels"
       },
+      "panel:btd6.paragon": {
+        "module": "sb.domain.btd6.panels"
+      },
       "panel:btd6.strategy_submit": {
         "module": "sb.domain.btd6.panels"
       },
       "panel:casino.hub": {
+        "module": "sb.domain.casino.panels"
+      },
+      "panel:casino.poker_game": {
         "module": "sb.domain.casino.panels"
       },
       "panel:casino.poker_table": {
@@ -10051,6 +10164,9 @@
         "module": "sb.domain.creature.panels"
       },
       "panel:creature.collectors_card": {
+        "module": "sb.domain.creature.panels"
+      },
+      "panel:creature.dex": {
         "module": "sb.domain.creature.panels"
       },
       "panel:creature.dex_card": {
@@ -10592,6 +10708,9 @@
       },
       "provider:counting.enable_mode_options": {
         "module": "sb.domain.counting.panels"
+      },
+      "provider:creature.dex_rows": {
+        "module": "sb.domain.creature.panels"
       },
       "provider:diagnostic.automation_rule_options": {
         "module": "sb.domain.diagnostic.panels"
@@ -12464,7 +12583,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:28dafd83d63eea9aadcaecdfaa6a05325820dd4848be5fcc975b5faab41bfd57",
+  "stable_hash": "sha256:082cad4fb6dda0d269259d6adf26577f333024a8e6c5c91b76357170557a59b6",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -14630,6 +14749,52 @@
           "usage_weight": 1.0
         },
         {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the same live-state-parameterized operator embeds as ai.card (built by sb/domain/ai/operator_cards.py / the preview picks), presented on the COMPONENT ingress where the shipped bot kept the panel view attached (views/ai/panel.py edit_message(view=self)) — the engine's card page carries the family's ↩ AI home route instead (ENGINE-SHAPE deviation, ledgered: VERDICT 009 AIP-02 consumption). The override swaps ONLY the embed/attachments onto the grammar render (which owns the nav row); no golden pins these clicks.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI home",
+                "route": {
+                  "$ref": "panel:ai.hub"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.card_nav",
+          "renderer_override": {
+            "$ref": "handler:ai.render_card_nav"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
           "actions": [
             {
               "action_id": "policy_channel",
@@ -15458,7 +15623,7 @@
             "style_token": "",
             "thumbnail_ref": ""
           },
-          "justification": "the shipped enum widget prompt + placeholder carry the picked setting's name ('Pick a new value for `ai.<name>`:' / 'Pick a new value for <name>…' — views/settings/subsystem_view.py dispatch_edit_setting + edit_enum.build_enum_select_view) — per-open copy outside the static grammar. The override delegates to the grammar renderer and replaces ONLY the description and the select placeholder.",
+          "justification": "the shipped enum widget prompt + placeholder carry the picked setting's name ('Pick a new value for `<name>`:' / 'Pick a new value for <name>…' — views/settings/subsystem_view.py dispatch_edit_setting + edit_enum.build_enum_select_view) — per-open copy outside the static grammar. The override delegates to the grammar renderer and replaces ONLY the description and the select placeholder.",
           "layout": {
             "pages": [
               {
@@ -19760,6 +19925,30 @@
           "help_section_order": 0,
           "kind": "prefix",
           "modal": null,
+          "name": "paragon",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:btd6.paragon"
+          },
+          "slash_common": false,
+          "summary": "Open the BTD6 Paragon degree calculator.",
+          "usage": "!paragon",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "btd6",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
           "name": "btd6ref",
           "quota_ref": "",
           "reply_visibility": null,
@@ -21095,6 +21284,373 @@
           "timeout_s": 180,
           "title": "Submit BTD6 strategy",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "calc",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "label": "🧮 Calculate degree",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "requirements",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "label": "🎯 Requirements",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "stats",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "label": "📊 Stats",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:btd6.hub"
+              },
+              "label": "↩ BTD6",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped paragon landing embed carries an arbitrary footer ('Solo: 1 extra T5 (Dart only) · Co-op: up to 9 · totems are uncapped') and three STATIC fields — both outside FooterMode and the block grammar's provider-fed field vocabulary — and the component row mixes a LINK button (🌐 Web calculator, no custom_id) with the session's minted dispatch ids. The override delegates the roster/players/difficulty/extra-T5 selectors + the four dispatch buttons to the grammar renderer, replaces ONLY the embed, and injects the link button (goldens/btd6/sweep_paragon pins every byte).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "paragon"
+                  ],
+                  [
+                    "players"
+                  ],
+                  [
+                    "difficulty"
+                  ],
+                  [
+                    "tier5"
+                  ],
+                  [
+                    "calc",
+                    "requirements",
+                    "stats",
+                    "back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "btd6.paragon",
+          "renderer_override": {
+            "$ref": "handler:btd6.render_paragon"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "options_source": [
+                {
+                  "default": true,
+                  "description": "Dart Monkey",
+                  "label": "Apex Plasma Master",
+                  "value": "apex_plasma_master"
+                },
+                {
+                  "default": false,
+                  "description": "Boomerang Monkey",
+                  "label": "Glaive Dominus",
+                  "value": "glaive_dominus"
+                },
+                {
+                  "default": false,
+                  "description": "Ninja Monkey",
+                  "label": "Ascended Shadow",
+                  "value": "ascended_shadow"
+                },
+                {
+                  "default": false,
+                  "description": "Monkey Buccaneer",
+                  "label": "Navarch of the Seas",
+                  "value": "navarch_of_the_seas"
+                },
+                {
+                  "default": false,
+                  "description": "Monkey Sub",
+                  "label": "Nautic Siege Core",
+                  "value": "nautic_siege_core"
+                },
+                {
+                  "default": false,
+                  "description": "Engineer Monkey",
+                  "label": "Master Builder",
+                  "value": "master_builder"
+                },
+                {
+                  "default": false,
+                  "description": "Wizard Monkey",
+                  "label": "Magus Perfectus",
+                  "value": "magus_perfectus"
+                },
+                {
+                  "default": false,
+                  "description": "Monkey Ace",
+                  "label": "Goliath Doomship",
+                  "value": "goliath_doomship"
+                },
+                {
+                  "default": false,
+                  "description": "Tack Shooter",
+                  "label": "Crucible of Steel and Flame",
+                  "value": "crucible_of_steel_and_flame"
+                },
+                {
+                  "default": false,
+                  "description": "Spike Factory",
+                  "label": "Mega Massive Munitions Factory",
+                  "value": "mega_massive_munitions_factory"
+                },
+                {
+                  "default": false,
+                  "description": "Bomb Shooter",
+                  "label": "Ballistic Obliteration Missile Bunker (B.O.M.B.)",
+                  "value": "ballistic_obliteration_missile_bunker"
+                },
+                {
+                  "default": false,
+                  "description": "Ice Monkey",
+                  "label": "Herald of Everfrost",
+                  "value": "herald_of_everfrost"
+                },
+                {
+                  "default": false,
+                  "description": "Druid",
+                  "label": "Root of all Nature",
+                  "value": "root_of_all_nature"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Choose a paragon…",
+              "selector_id": "paragon",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "options_source": [
+                {
+                  "default": true,
+                  "label": "Solo (1 player)",
+                  "value": "1"
+                },
+                {
+                  "default": false,
+                  "label": "Co-op (2 players)",
+                  "value": "2"
+                },
+                {
+                  "default": false,
+                  "label": "Co-op (3 players)",
+                  "value": "3"
+                },
+                {
+                  "default": false,
+                  "label": "Co-op (4 players)",
+                  "value": "4"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Players…",
+              "selector_id": "players",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "options_source": [
+                {
+                  "default": false,
+                  "label": "Easy (0.85x)",
+                  "value": "easy"
+                },
+                {
+                  "default": true,
+                  "label": "Medium (1.0x)",
+                  "value": "medium"
+                },
+                {
+                  "default": false,
+                  "label": "Hard (1.08x)",
+                  "value": "hard"
+                },
+                {
+                  "default": false,
+                  "label": "Impoppable (1.2x)",
+                  "value": "impoppable"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Difficulty…",
+              "selector_id": "difficulty",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:btd6.paragon_pending"
+              },
+              "options_source": [
+                {
+                  "default": true,
+                  "label": "0 extra T5",
+                  "value": "0"
+                },
+                {
+                  "default": false,
+                  "label": "1 extra T5",
+                  "value": "1"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Extra T5s…",
+              "selector_id": "tier5",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "btd6",
+          "timeout_s": 180,
+          "title": "🔮 Paragon Calculator",
+          "usage_weight": 1.0
         }
       ],
       "settings": [
@@ -21501,6 +22057,236 @@
           "subsystem": "casino",
           "timeout_s": 600,
           "title": "♠ Poker Table — open!",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "poker_fold",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🏳️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Fold",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_checkcall",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Check",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_raise_min",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "⬆️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Raise",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_raise_pot",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🔥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Raise (pot)",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_allin",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "💥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "All-in",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_deal_next",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🃏",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "Deal next hand",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "poker_end",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🛑",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:casino.poker_action"
+              },
+              "label": "End table",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the whole embed is live betting-state copy (board / pot / hand number / seat stacks / the 🏆 showdown result — the shipped _refresh_public card) and the SeatView buttons carry per-turn labels/enablement derived from the engine snapshot (Check vs Call {n}, the three raise presets, the host Deal-next/End controls); grammar TextBlocks are static and PanelActionSpec has no dynamic-label/disabled vocabulary, so the override composes the embed + declared components with their snapshot-derived state (the blackjack solo-table delegation recipe). Play-chips only — no economy field anywhere.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "poker_fold",
+                    "poker_checkcall",
+                    "poker_raise_min",
+                    "poker_raise_pot",
+                    "poker_allin"
+                  ],
+                  [
+                    "poker_deal_next",
+                    "poker_end"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "casino.poker_game",
+          "renderer_override": {
+            "$ref": "handler:casino.render_poker_game"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "casino",
+          "timeout_s": 1800,
+          "title": "♠ Poker Table",
           "usage_weight": 1.0
         }
       ],
@@ -25125,7 +25911,7 @@
               "emoji": "📖",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:creature.dex_view"
+                "$ref": "panel:creature.dex"
               },
               "label": "Dex",
               "modal": null,
@@ -25305,6 +26091,68 @@
           "subsystem": "creature",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "",
+                "empty_state": "No creatures in the dex yet.",
+                "filter_options": [
+                  "Ember",
+                  "Stone",
+                  "Gust",
+                  "Tide",
+                  "Spark",
+                  "Bramble"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:creature.render_dex_line"
+                },
+                "max_pages": 10,
+                "page_size": 18,
+                "sort_options": []
+              },
+              "provider": {
+                "$ref": "provider:creature.dex_rows"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:creature.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "creature.dex",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "🐾 Creature Dex",
           "usage_weight": 1.0
         },
         {
@@ -28940,7 +29788,7 @@
         {
           "audit_intent": "economy_log_channel",
           "binding_name": "log_channel",
-          "description": "Operator-facing audit channel for economy mutations. Recommended for any guild that runs the economy actively.",
+          "description": "Operator-facing audit channel for economy mutations.  Recommended for any guild that runs the economy actively.",
           "intent": "log_channel",
           "kind": "channel",
           "offer_on_enable": true,
@@ -33102,7 +33950,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "73 command(s), generated from the `btd6` manifest."
+              "text": "74 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
@@ -33157,7 +34005,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "73 command(s), generated from the `btd6` manifest."
+              "text": "74 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
@@ -33212,7 +34060,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "73 command(s), generated from the `btd6` manifest."
+              "text": "74 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
@@ -33267,7 +34115,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "73 command(s), generated from the `btd6` manifest."
+              "text": "74 command(s), generated from the `btd6` manifest."
             },
             {
               "provider": {
@@ -36382,10 +37230,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36443,10 +37291,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36505,10 +37353,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36566,10 +37414,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36627,10 +37475,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36688,10 +37536,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36747,10 +37595,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -46228,7 +47076,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:settings.group_pending"
+                "$ref": "handler:settings.open_group"
               },
               "options_source": [
                 {
@@ -51708,7 +52556,7 @@
           "edit_weight": 1.0,
           "external_side_effects": false,
           "group": "",
-          "hint": "Seconds between XP awards per user. Zero disables the cooldown (not recommended in active guilds).",
+          "hint": "Seconds between XP awards per user.  Zero disables the cooldown (not recommended in active guilds).",
           "input_hint": "numeric_presets",
           "keyed_secret": "",
           "legacy_keys": [],

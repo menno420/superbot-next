@@ -50,7 +50,7 @@ from pathlib import Path
 logger = logging.getLogger("sb.app.main")
 
 __all__ = ["ESCROW_RECOVERY_SUBSYSTEMS", "SUBSCRIBE_ROSTER", "cli",
-           "guild_sync_target", "run_app"]
+           "guild_sync_target", "moderation_test_guild", "run_app"]
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -122,6 +122,20 @@ def guild_sync_target(cfg: object) -> int | None:
                        "— guild sync NOT armed")
         return None
     return int(guild_id)
+
+
+def moderation_test_guild(cfg: object) -> int | None:
+    """The single test guild the LIVE moderation adapter (D-0049) may mutate,
+    or None when the port must stay un-installed. TWO gates, both explicit and
+    the SAME pair ``guild_sync_target`` rides: ``SB_DATA_PLANE == "test"``
+    (DB protection) AND an explicit ``SB_APPCMD_SYNC_GUILD_ID`` (the hard
+    test-guild allow-list handed to the adapter). Returns None — port stays
+    un-installed — on the prod plane or with no test-guild id, so a live
+    ``!ban``/``!kick`` on prod writes its row + copy but performs NO Discord
+    mutation (the not-installed port raises LOUDLY → PARTIAL) until the owner
+    flips prod himself (the CUT-3 gate). Reusing the app-command sync guild id
+    keeps ONE test-guild identity for every test-plane live effect."""
+    return guild_sync_target(cfg)
 
 
 def arm_subscribe_roster(bus: object) -> tuple[str, ...]:
@@ -376,6 +390,146 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         register_error_handlers(bot)
         install_channel_emitter(DiscordChannelEmitter(bot))
+
+        # 10a. the moderation guild-action port (D-0049 live successor) — the
+        #      moderation twin of the channel emitter above: live kick/ban/
+        #      timeout/unban + the guild.me 🤖 readiness read. DOUBLE-GATED,
+        #      a single explicit switch (moderation_test_guild → the SAME
+        #      SB_DATA_PLANE=="test" + SB_APPCMD_SYNC_GUILD_ID gate that
+        #      guild_sync_target rides):
+        #        (1) SB_DATA_PLANE == "test" protects the DB, AND
+        #        (2) an explicit test-guild id is REQUIRED and handed to the
+        #            adapter as a hard per-call allow-list — the bot still
+        #            holds the PRODUCTION gateway token, so without this a
+        #            test-plane process could kick/ban a real guild's members.
+        #      Prod arming is the OWNER'S CUT-3 gate: with no test-guild id
+        #      (prod) the port stays un-installed, so a live !ban/!kick writes
+        #      its row + copy but performs NO Discord effect until the owner
+        #      flips prod himself.
+        test_guild_id = moderation_test_guild(cfg)
+        if test_guild_id is not None:
+            from sb.adapters.discord.moderation_actions import (
+                DiscordModerationActions,
+                DiscordModerationReadinessReader,
+            )
+            from sb.domain.moderation.service import (
+                install_moderation_actions,
+                install_moderation_readiness,
+            )
+
+            install_moderation_actions(
+                DiscordModerationActions(bot, allowed_guild_id=test_guild_id))
+            install_moderation_readiness(DiscordModerationReadinessReader(bot))
+            logger.info("moderation guild-action port ARMED (test plane, "
+                        "guild %d ONLY): live kick/ban/timeout/unban + "
+                        "guild.me readiness", test_guild_id)
+
+            # the role EFFECT ports (SLICE 2 of the live-guild-effects lane)
+            # ride the SAME gate as moderation above — same double gate
+            # (SB_DATA_PLANE=="test" + explicit SB_APPCMD_SYNC_GUILD_ID), the
+            # SAME test-guild id as the hard per-call allow-list. Live
+            # add/remove role, create/delete role, and reaction-role
+            # fetch_message/add_reaction — the test guild ONLY. Prod arming is
+            # the OWNER'S CUT-3 gate: with no test-guild id (prod) these ports
+            # stay un-installed, so the role lanes write their rows + copy but
+            # perform NO Discord effect until the owner flips prod himself.
+            from sb.adapters.discord.role_actions import (
+                DiscordGuildRoleActions,
+                DiscordGuildSource,
+                DiscordRoleMessageOps,
+                DiscordRoleProvisioning,
+            )
+            from sb.domain.role.service import (
+                install_guild_source,
+                install_message_ops,
+                install_role_actions,
+                install_role_provisioning,
+            )
+
+            install_role_actions(
+                DiscordGuildRoleActions(bot, allowed_guild_id=test_guild_id))
+            install_role_provisioning(
+                DiscordRoleProvisioning(bot, allowed_guild_id=test_guild_id))
+            install_message_ops(
+                DiscordRoleMessageOps(bot, allowed_guild_id=test_guild_id))
+            # the guild-VIEW read seam: without it service.guild_view returns
+            # None and every role-effect surface stays blocked BEFORE it
+            # reaches the mutation ports above (!deleterole/!assignroles/XP
+            # role sync) — so the mutation ports are inert without this. The
+            # real gateway-cache Guild is the duck guild; a non-allowed guild
+            # reads as None (blocked), the SAME test-guild fence.
+            install_guild_source(
+                DiscordGuildSource(bot, allowed_guild_id=test_guild_id))
+            logger.info("role EFFECT ports ARMED (test plane, guild %d ONLY): "
+                        "live add/remove role + create/delete role + "
+                        "reaction-role fetch_message/add_reaction + the "
+                        "gateway-cache guild view", test_guild_id)
+
+            # the channel EFFECT ports (SLICE 3 of the live-guild-effects lane,
+            # the final adapter slice) ride the SAME gate as moderation + role
+            # above — same double gate (SB_DATA_PLANE=="test" + explicit
+            # SB_APPCMD_SYNC_GUILD_ID), the SAME test-guild id as the hard
+            # per-call allow-list. TWO SEPARATE ports: the channel domain's
+            # ChannelStateActions (live slowmode/overwrite/create/delete/
+            # invite/rename/topic/move/clone + the channel NAME lookup + the
+            # ChannelDirectory gateway-cache READS the converter ladder walks)
+            # and proof_channel's OWN ChannelPermActions (live prize
+            # lock/unlock). Prod arming is the OWNER'S CUT-3 gate:
+            # with no test-guild id (prod) these ports stay un-installed, so the
+            # channel lanes write their rows + copy but perform NO Discord effect
+            # until the owner flips prod himself.
+            from sb.adapters.discord.channel_actions import (
+                DiscordChannelDirectory,
+                DiscordChannelLookup,
+                DiscordChannelStateActions,
+                DiscordProofChannelActions,
+            )
+            from sb.domain.channel.service import (
+                install_channel_actions,
+                install_channel_directory,
+                install_channel_lookup,
+            )
+            from sb.domain.proof_channel.service import (
+                install_channel_actions as install_proof_channel_actions,
+            )
+
+            install_channel_actions(
+                DiscordChannelStateActions(bot, allowed_guild_id=test_guild_id))
+            # the gateway-cache READ seam: without it every directory-led
+            # channel lane (!del/!rename/!topic/!move/!clone/!permissions/
+            # !channelinfo/!list/!bulkdelete/!create) refuses at _NoDirectory
+            # BEFORE reaching the mutation port above — the role slice's
+            # guild-view lesson (the mutation ports are inert without the
+            # read seam). A non-allowed guild READS as empty (soft fence).
+            install_channel_directory(
+                DiscordChannelDirectory(bot, allowed_guild_id=test_guild_id))
+            install_channel_lookup(
+                DiscordChannelLookup(bot, allowed_guild_id=test_guild_id))
+            install_proof_channel_actions(
+                DiscordProofChannelActions(bot, allowed_guild_id=test_guild_id))
+            logger.info("channel EFFECT ports ARMED (test plane, guild %d "
+                        "ONLY): live slowmode/overwrite/create/delete/invite/"
+                        "rename/topic/move/clone + channel directory reads + "
+                        "channel-name lookup + proof-channel prize lock/unlock",
+                        test_guild_id)
+
+            # the utility/diagnostic READ seams (the same ledgered §4.1
+            # not-armed gap family) ride the SAME gate: the gateway-cache
+            # guild/member census behind !serverinfo/!serverstats + the
+            # avatar/user-info/panel member cards, and the ws-latency read
+            # behind !latency (`bot.latency` — the shipped heartbeat read).
+            # READS ONLY, never a mutation; the guild directory refuses any
+            # non-test guild as NOT-ARMED (the polite pre-arm copy).
+            from sb.adapters.discord.utility_reads import DiscordGuildDirectory
+            from sb.domain.diagnostic.handlers import install_ws_latency_reader
+            from sb.domain.utility.service import install_guild_directory
+
+            install_guild_directory(
+                DiscordGuildDirectory(bot, allowed_guild_id=test_guild_id))
+            install_ws_latency_reader(lambda: bot.latency)
+            logger.info("utility/diagnostic READ seams ARMED (test plane, "
+                        "guild %d ONLY): gateway-cache guild/member census + "
+                        "ws latency", test_guild_id)
 
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;

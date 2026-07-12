@@ -79,6 +79,7 @@ MANIFEST = SubsystemManifest(
     panels=(
         _panels.creature_hub_spec(),
         _panels.dex_card_spec(),
+        _panels.dex_browse_spec(),
         _panels.collectors_card_spec(),
         _panels.record_card_spec(),
         _panels.battletop_card_spec(),

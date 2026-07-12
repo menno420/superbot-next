@@ -220,6 +220,15 @@ MANIFEST = SubsystemManifest(
                     route=PanelRef("btd6.hub"), audience_tier="user",
                     capability="btd6",
                     summary="Open the BTD6 panel.", usage="!btd6menu"),
+        # The shipped self-contained `!paragon` front door (oracle
+        # cogs/paragon_cog.py — its OWN small cog, not a `!btd6` subcommand,
+        # to keep the btd6 cog under the 800-LOC ceiling): opens the BTD6
+        # Paragon degree calculator panel (goldens/btd6/sweep_paragon).
+        CommandSpec(name="paragon", kind=CommandKind.PREFIX,
+                    route=PanelRef("btd6.paragon"), audience_tier="user",
+                    capability="btd6",
+                    summary="Open the BTD6 Paragon degree calculator.",
+                    usage="!paragon"),
         # The legacy alias trees below dispatch the SAME oracle handlers as
         # the unified `!btd6` tree — the goldens (sweep_btd6ref_* /
         # sweep_btd6strat_* / sweep_btd6events_* / sweep_btd6ops_*, re-homed
@@ -321,7 +330,8 @@ MANIFEST = SubsystemManifest(
              "Set/clear the BTD6 new-version announcement channel (admin)."),
     ),
     panels=(_panels.btd6_hub_spec(), _panels.card_spec(),
-            _panels.ctteam_spec(), _panels.strategy_submit_spec()),
+            _panels.ctteam_spec(), _panels.strategy_submit_spec(),
+            _panels.paragon_spec()),
     settings=_SETTINGS,
     stores=(BTD6_STRATEGIES_STORE, BTD6_DATA_BLOBS_STORE),
     events=(),

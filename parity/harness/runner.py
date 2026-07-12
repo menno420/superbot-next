@@ -193,6 +193,15 @@ def _describe_step(step: Step) -> dict[str, Any]:
     elif step.kind == "click":
         doc["custom_id"] = step.custom_id
         doc["target_message"] = step.target_message
+        # a SELECT click carries its chosen value(s) in the interaction's
+        # ``values`` array (the ordinary select round-trip — browse
+        # sort/filter selects, the dex element filter); serialize them so the
+        # golden self-documents WHAT was picked, not just that a control was
+        # clicked (the D-0073 modal-`fields` precedent — the select-driven
+        # replay vocabulary the browse-interaction goldens arm). A value-less
+        # button click (page next/prev, the blackjack Hit) omits the key.
+        if step.values is not None:
+            doc["values"] = list(step.values)
     elif step.kind == "modal":
         # wire-type-5 submit: the static G-10 modal_id root + the field
         # values (D-0073 corpus-schema growth; sorted for canonical docs).
