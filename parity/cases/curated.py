@@ -214,6 +214,55 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "spectator embed pinned per action (per-player ephemeral hands "
             "ride the owner-armed live step, D-0045)"),
     ),
+    # --------------------------------------------------------- blackjack
+    GoldenCase(
+        id="blackjack.tournament_full_flow",
+        subsystem="blackjack",
+        steps=(
+            # open a free, single-round tournament (fee 0, rounds 1)
+            Step(kind="command", content="!bjtournament 0 1", persona="admin"),
+            # member signs up via the 🃏 Join button
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+            # member clicks Join again → the duplicate-registration refusal
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+            # a second player signs up → the roster reaches two
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="second_member"),
+            # admin launches: per-entrant welcome + first round table view
+            Step(kind="command", content="!bjstart", persona="admin"),
+            # each entrant Stands their single round (Stand = 2nd button)
+            Step(kind="click", target_message=3, component_index=1,
+                 persona="member"),
+            Step(kind="click", target_message=5, component_index=1,
+                 persona="second_member"),
+        ),
+        notes=(
+            "full tournament wire: open → Join button sign-ups (incl. the "
+            "'You're already registered!' duplicate refusal) → !bjstart "
+            "launch → per-entrant round → all-done settle → champion payout "
+            "+ results embed (self-cleaning: end_tournament + clear_active)"
+        ),
+    ),
+    # ----------------------------------------------------- rps tournament
+    GoldenCase(
+        id="rps.tournament_foreign_active_refusal",
+        subsystem="rps_tournament",
+        # a live blackjack tournament owns the shared active_tournament flag
+        fixture_sql=(
+            "INSERT INTO guild_settings (guild_id, key, value) "
+            "VALUES (700000000000000001, 'active_tournament', 'blackjack')",
+        ),
+        steps=(
+            Step(kind="command", content="!rpsregister", persona="admin"),
+        ),
+        notes=(
+            "cross-game guard (#277): !rpsregister refuses to open on top of "
+            "a foreign (blackjack) tournament with the oracle-verbatim copy — "
+            "the regression lock for the stranded-pot money bug"
+        ),
+    ),
     # ------------------------------------------------------------ events
     GoldenCase(
         id="moderation.warn_flow",
