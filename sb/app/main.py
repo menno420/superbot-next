@@ -465,6 +465,41 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                         "reaction-role fetch_message/add_reaction + the "
                         "gateway-cache guild view", test_guild_id)
 
+            # the channel EFFECT ports (SLICE 3 of the live-guild-effects lane,
+            # the final adapter slice) ride the SAME gate as moderation + role
+            # above — same double gate (SB_DATA_PLANE=="test" + explicit
+            # SB_APPCMD_SYNC_GUILD_ID), the SAME test-guild id as the hard
+            # per-call allow-list. TWO SEPARATE ports: the channel domain's
+            # ChannelStateActions (live slowmode/overwrite/create/delete/invite
+            # + the channel NAME lookup) and proof_channel's OWN ChannelPermActions
+            # (live prize lock/unlock). Prod arming is the OWNER'S CUT-3 gate:
+            # with no test-guild id (prod) these ports stay un-installed, so the
+            # channel lanes write their rows + copy but perform NO Discord effect
+            # until the owner flips prod himself.
+            from sb.adapters.discord.channel_actions import (
+                DiscordChannelLookup,
+                DiscordChannelStateActions,
+                DiscordProofChannelActions,
+            )
+            from sb.domain.channel.service import (
+                install_channel_actions,
+                install_channel_lookup,
+            )
+            from sb.domain.proof_channel.service import (
+                install_channel_actions as install_proof_channel_actions,
+            )
+
+            install_channel_actions(
+                DiscordChannelStateActions(bot, allowed_guild_id=test_guild_id))
+            install_channel_lookup(
+                DiscordChannelLookup(bot, allowed_guild_id=test_guild_id))
+            install_proof_channel_actions(
+                DiscordProofChannelActions(bot, allowed_guild_id=test_guild_id))
+            logger.info("channel EFFECT ports ARMED (test plane, guild %d "
+                        "ONLY): live slowmode/overwrite/create/delete/invite + "
+                        "channel-name lookup + proof-channel prize lock/unlock",
+                        test_guild_id)
+
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;
         #      whether anything syncs is step 13's gated decision.

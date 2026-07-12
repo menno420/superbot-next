@@ -123,6 +123,48 @@ class TestRoleEffectPortsGate:
             assert src.index(needle) > gate_at, needle
 
 
+class TestChannelEffectPortsGate:
+    """The live channel EFFECT ports (SLICE 3 of the live-guild-effects lane,
+    the final adapter slice) ride the SAME test-plane + test-guild gate as
+    moderation + role (main.py step 10a). TWO SEPARATE ports: the channel
+    domain's ChannelStateActions (+ the channel-name lookup) and proof_channel's
+    OWN ChannelPermActions — all armed ONLY inside the
+    ``if test_guild_id is not None:`` block, each concrete adapter constructed
+    WITH that test guild id as its hard allow-list. Prod arming is the owner's
+    CUT-3 gate — the prod root leaves every channel port un-installed."""
+
+    def test_channel_ports_install_only_under_the_test_guild_gate(self):
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        # armed adjacent to moderation + role, under the SAME single gate
+        assert "test_guild_id = moderation_test_guild(cfg)" in src
+        # the channel-state actions + the name lookup, each with the allow-list
+        assert ("install_channel_actions(\n"
+                "                DiscordChannelStateActions(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+        assert ("install_channel_lookup(\n"
+                "                DiscordChannelLookup(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+        # proof_channel's OWN install_channel_actions (aliased to avoid the
+        # name clash with the channel domain's) with the allow-list
+        assert ("install_proof_channel_actions(\n"
+                "                DiscordProofChannelActions(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+
+    def test_channel_installs_sit_inside_the_gate_block(self):
+        # the wiring fact: the channel installs live BELOW the gate line and the
+        # `if test_guild_id is not None:` guard — never at prod-reachable top
+        # level of step 10.
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        gate_at = src.index("if test_guild_id is not None:")
+        for needle in ("install_channel_actions(", "install_channel_lookup(",
+                       "install_proof_channel_actions("):
+            assert src.index(needle) > gate_at, needle
+
+
 class TestEscrowRecoveryRoster:
     def test_roster_matches_the_domain_constants(self):
         from sb.domain.blackjack import ops as blackjack_ops
