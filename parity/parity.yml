@@ -89,10 +89,22 @@ source:
   # ledgered in the panel specs), so they are regression tripwires: a
   # deliberate render change re-mints them in the same PR, an accidental one
   # goes red in the gate.
-  minted_goldens: 12
+  # WP-1 mining WRITE-PARITY minted FIVE more (2026-07-12) via the same
+  # capture_case procedure — the first ROW-BEARING mining write goldens:
+  # goldens/mining/mining_{equip,unequip,loadout_save,loadout_apply,
+  # loadout_delete}_write.json. Each is a curated typed case
+  # (parity/cases/curated.py) whose argful !equip / !unequip / !loadout
+  # save·apply·delete DRIVES the audited mining.equip/unequip/save_loadout/
+  # apply_loadout/delete_loadout op, so the mining_equipment /
+  # mining_loadout_presets row-level db_delta is pinned (retiring their
+  # depth.exemptions.mining guard-only-capture rows). The success reply is
+  # the shipped `<@u> ` mention + oracle copy (mining_workflow verbatim);
+  # the audited kernel-spine rows ride the same kernel-surface-drift drop as
+  # every domain golden.
+  minted_goldens: 17
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 474). The first retirement (2026-07-12
+  # imported + minted − retired = 479). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

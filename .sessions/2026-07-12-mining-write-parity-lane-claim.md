@@ -1,7 +1,34 @@
-# 2026-07-12 — deep-mining WRITE-PARITY lane — claim (born-red placeholder)
+# 2026-07-12 — deep-mining WRITE-PARITY lane — claim + WP-1 delivery
 
-> **Status:** HOLD (born-red — lane-claim placeholder; NO implementation. Awaits
-> the owner checkpoint before any write-golden / handler work begins.)
+> **Status:** active (WP-1 IN FLIGHT — the born-red claim PR #306 is being
+> converted into the WP-1 slice PR: the equip/unequip/loadout write goldens are
+> minted and the two mining exemptions retired. WP-2..6 stay PLANNED.)
+
+## WP-1 delivery (equip / unequip / loadout save·apply·delete)
+
+Pure capture — the write legs are already live (`sb/domain/mining/ops.py`
+`record_equip/unequip/save_loadout/apply_loadout/delete_loadout`, routed argful
+in `service.py`). Minted 5 row-bearing curated goldens via the sanctioned
+`sb/adapters/parity/runner.capture_case` procedure (the D-0073/D-0079 mint path —
+`parity/run.py` boots the OLD oracle bot and does not run in this repo):
+
+- `mining.equip_write` — `!equip iron pickaxe` (inventory-seeded) → +mining_equipment
+  tool-slot row; `<@u> equipped **Iron Pickaxe** in the **tool** slot.`
+- `mining.unequip_write` — `!unequip tool` (equip-seeded) → −mining_equipment row;
+  `<@u> cleared the **tool** slot.`
+- `mining.loadout_save_write` — `!loadout save mining` (equip-seeded) →
+  +mining_loadout_presets row; `<@u> saved your current gear as the **mining**
+  loadout (1 slot).`
+- `mining.loadout_apply_write` — `!loadout apply combat` (preset+inventory-seeded)
+  → +mining_equipment weapon-slot row; `<@u> equipped the **combat** loadout
+  (1 slot).`
+- `mining.loadout_delete_write` — `!loadout delete combat` (preset-seeded) →
+  −mining_loadout_presets row; `<@u> deleted the **combat** loadout.`
+
+Reply copy is byte-identical to the oracle (`services/mining_workflow.py`
+equip/unequip/loadout). Retired `depth.exemptions.mining` `table:mining_equipment`
++ `table:mining_loadout_presets`; ratchet mining tables 5 → 7. Corpus 474 → 479
+(minted 12 → 17). No product-code change (parity/ + parity.yml + count pins only).
 
 - **📊 Model:** opus-4.8 · high · scoping (Q-0194)
 
