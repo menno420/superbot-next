@@ -144,6 +144,43 @@ def test_action_button_plan_and_raise_targets():
     assert t["max"] >= t["min"] and t["pot"] >= t["min"]
 
 
+def _oracle_pot_preset(cb, mr, pot_total, committed_round, stack):
+    """The oracle's own quick-bet ``pot`` raise-TO, verbatim: a raise-TO of the
+    whole ``pot_total`` clamped into the legal window — menno420/superbot
+    disbot/views/casino/poker_table.py ``pot_raise = min(max(lo, pot_total), hi)``
+    with ``lo = raise["min"] = min(current_bet+min_raise, max_to)`` and
+    ``hi = raise["max"] = committed_round + stack``."""
+    max_to = committed_round + stack
+    lo = min(cb + mr, max_to)
+    hi = max_to
+    return min(max(lo, pot_total), hi)
+
+
+def test_raise_pot_preset_matches_oracle_pot_definition():
+    # Representative mid-hand states (current_bet, min_raise, pot_total,
+    # committed_round, stack).  Third one (open bet, current_bet==0) is where the
+    # old current_bet+pot_total formula happened to coincide; the rest are where
+    # it over-offered by current_bet.
+    states = [
+        dict(cb=10, mr=10, pot_total=15, committed_round=5, stack=995),   # preflop SB v BB
+        dict(cb=0, mr=10, pot_total=200, committed_round=0, stack=500),   # flop open bet
+        dict(cb=50, mr=50, pot_total=200, committed_round=0, stack=500),  # flop facing 50
+        dict(cb=30, mr=20, pot_total=100, committed_round=10, stack=490), # preflop facing raise
+    ]
+    for s in states:
+        snap = {
+            "current": 0,
+            "players": [{"committed_round": s["committed_round"], "stack": s["stack"]}],
+            "current_bet": s["cb"],
+            "min_raise": s["mr"],
+            "pot_total": s["pot_total"],
+        }
+        expected = _oracle_pot_preset(
+            s["cb"], s["mr"], s["pot_total"], s["committed_round"], s["stack"],
+        )
+        assert pv.raise_targets(snap)["pot"] == expected, s
+
+
 # ------------------------------------------------------------- panel spec
 def test_poker_game_panel_spec():
     from sb.domain.casino.panels import POKER_GAME_PANEL_ID, poker_game_spec
