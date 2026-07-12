@@ -14,8 +14,12 @@ from sb.domain.mining import service as _service
 from sb.domain.mining.ops import register_ops
 from sb.domain.mining.panels import mining_card_spec, mining_hub_spec
 from sb.domain.mining.store import (
+    MINING_EQUIPMENT_STORE,
+    MINING_GEAR_WEAR_STORE,
     MINING_INVENTORY_STORE,
+    MINING_LOADOUT_STORE,
     MINING_PLAYER_STATE_STORE,
+    PLAYER_SKILLS_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -63,11 +67,17 @@ _COMMANDS = (
     _pending("buildable", "What you can build now."),
     _pending("use", "Use a consumable item."),
     _pending("cook", "Cook fish at a campfire."),
-    _pending("equip", "Equip a tool or gear piece."),
-    _pending("unequip", "Unequip a gear slot."),
-    _pending("gear", "Your equipped gear."),
-    _pending("loadout", "Gear loadout presets.", ("loadouts",)),
-    _pending("character", "Your character sheet.", ("profile", "char")),
+    # --- slice-1 port (LIVE): equipment / loadout presets / character sheet
+    #     over the EffectiveStats read model (deathmatch/casino defer, D-0045).
+    _cmd("equip", HandlerRef("mining.equip_route"),
+         "Equip a tool or gear piece."),
+    _cmd("unequip", HandlerRef("mining.unequip_route"),
+         "Unequip a gear slot."),
+    _cmd("gear", HandlerRef("mining.gear_view"), "Your equipped gear."),
+    _cmd("loadout", HandlerRef("mining.loadout_route"),
+         "Gear loadout presets.", ("loadouts",)),
+    _cmd("character", HandlerRef("mining.character_view"),
+         "Your character sheet.", ("profile", "char")),
     _pending("descend", "Descend to a deeper mining band."),
     _pending("ascend", "Return toward the surface."),
     _pending("mineworld", "The shared mining world grid."),
@@ -97,7 +107,9 @@ MANIFEST = SubsystemManifest(
     commands=_COMMANDS,
     panels=(mining_hub_spec(), mining_card_spec()),
     settings=(),
-    stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE),
+    stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE,
+            MINING_EQUIPMENT_STORE, MINING_GEAR_WEAR_STORE,
+            MINING_LOADOUT_STORE, PLAYER_SKILLS_STORE),
     events=(),
     capabilities=(),
 )

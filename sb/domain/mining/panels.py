@@ -164,12 +164,14 @@ def mining_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="mi_character", label="🧍 Character",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("mining.character_pending"),
+                handler=HandlerRef("mining.character_view"),
+                result_render=ResultRender.RESULT_CARD,
                 custom_id_override="mining:character"),
             PanelActionSpec(
                 action_id="mi_gear", label="🧰 Gear",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.gear_pending"),
+                handler=HandlerRef("mining.gear_view"),
+                result_render=ResultRender.RESULT_CARD,
                 custom_id_override="mining:gear"),
             PanelActionSpec(
                 action_id="mi_workshop", label="🔨 Workshop",
@@ -239,14 +241,27 @@ def mining_card_spec() -> PanelSpec:
 
 async def _render_card(spec: PanelSpec, ctx) -> object:
     """renderer_override — present the handler-built embed verbatim (the
-    ai.card ``_render_card`` shape, no attachment seam)."""
-    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+    ai.card ``_render_card`` shape). When the handler set an ``_attachment``
+    filename (the shipped ``!gear`` / ``!character`` paper-doll sends), the
+    card carries a single ``RenderedAttachment`` — the parity transport
+    collapses the whole payload to ``{"_files": [filename]}`` (the
+    multipart-serializer information loss, goldens/mining/sweep_gear +
+    sweep_character; the PNG bytes are never compared)."""
+    from sb.kernel.panels.render import (
+        RenderedAttachment,
+        RenderedEmbed,
+        RenderedPanel,
+    )
 
-    embed = (getattr(ctx, "params", {}) or {}).get("_card")
+    params = getattr(ctx, "params", {}) or {}
+    embed = params.get("_card")
     if not isinstance(embed, RenderedEmbed):  # defensive: never a crash
         embed = RenderedEmbed(title="", description="")
+    filename = params.get("_attachment")
+    attachments = ((RenderedAttachment(filename=str(filename)),)
+                   if filename else ())
     return RenderedPanel(
-        panel_id=spec.panel_id, embed=embed,
+        panel_id=spec.panel_id, embed=embed, attachments=attachments,
         invoker_lock=getattr(ctx.actor, "user_id", None),
         timeout_s=spec.timeout_s, audience=spec.audience.value,
         anchor_policy=spec.anchor_policy.value)

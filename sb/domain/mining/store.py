@@ -20,11 +20,27 @@ from sb.spec.versioning import (
 __all__ = [
     "MINING_INVENTORY_STORE",
     "MINING_PLAYER_STATE_STORE",
+    "MINING_EQUIPMENT_STORE",
+    "MINING_GEAR_WEAR_STORE",
+    "MINING_LOADOUT_STORE",
+    "PLAYER_SKILLS_STORE",
     "get_depth",
     "get_mining_inventory",
     "mining_totals",
     "reset_player_inventory",
     "update_mining_item",
+    "get_equipment",
+    "equip_item",
+    "unequip_slot",
+    "get_gear_wear",
+    "set_gear_wear",
+    "clear_gear_wear",
+    "save_loadout",
+    "get_loadout",
+    "list_loadouts",
+    "delete_loadout",
+    "get_skills",
+    "set_skill_points",
 ]
 
 MINING_INVENTORY_STORE = register_store(StoreSpec(
@@ -54,9 +70,195 @@ MINING_PLAYER_STATE_STORE = register_store(StoreSpec(
 ))
 
 
+MINING_EQUIPMENT_STORE = register_store(StoreSpec(
+    table="mining_equipment",
+    sole_writer=EngineRef("mining.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="mining_equipment",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("mining.erase_subject_equipment"),
+))
+
+MINING_GEAR_WEAR_STORE = register_store(StoreSpec(
+    table="mining_gear_wear",
+    sole_writer=EngineRef("mining.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="mining_gear_wear",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("mining.erase_subject_gear_wear"),
+))
+
+MINING_LOADOUT_STORE = register_store(StoreSpec(
+    table="mining_loadout_presets",
+    sole_writer=EngineRef("mining.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="mining_loadout_presets",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("mining.erase_subject_loadouts"),
+))
+
+PLAYER_SKILLS_STORE = register_store(StoreSpec(
+    table="player_skills",
+    sole_writer=EngineRef("mining.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="player_skills",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("mining.erase_subject_skills"),
+))
+
+
 @engine("mining.store")
 def _store_marker() -> str:
     return "sb/domain/mining/store.py"
+
+
+# --- mining_equipment CRUD (TEXT user ids — matches mining_inventory) --------
+
+
+async def get_equipment(user_id: int, guild_id: int,
+                        conn: Any = None) -> dict[str, str]:
+    """``{slot: item_name}`` for the user's equipped gear in a guild."""
+    rows = await fetchall(
+        "SELECT slot, item_name FROM mining_equipment WHERE user_id=$1 AND "
+        "guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return {str(r["slot"]): str(r["item_name"]) for r in rows}
+
+
+async def equip_item(conn: Any, *, user_id: int, guild_id: int, slot: str,
+                     item_name: str) -> None:
+    """Equip *item_name* into *slot* (upsert — one item per slot)."""
+    await execute(
+        "INSERT INTO mining_equipment (user_id, guild_id, slot, item_name) "
+        "VALUES ($1,$2,$3,$4) ON CONFLICT (user_id, guild_id, slot) "
+        "DO UPDATE SET item_name=$4, equipped_at=now()",
+        (str(user_id), guild_id, slot, item_name), conn=conn)
+
+
+async def unequip_slot(conn: Any, *, user_id: int, guild_id: int,
+                       slot: str) -> None:
+    """Clear *slot* for the user in a guild."""
+    await execute(
+        "DELETE FROM mining_equipment WHERE user_id=$1 AND guild_id=$2 AND "
+        "slot=$3", (str(user_id), guild_id, slot), conn=conn)
+
+
+# --- mining_gear_wear CRUD (keyed by NAME; row absent = full durability) -----
+
+
+async def get_gear_wear(user_id: int, guild_id: int,
+                        conn: Any = None) -> dict[str, int]:
+    """``{item_name: remaining}`` for the user's worn gear (rows that exist)."""
+    rows = await fetchall(
+        "SELECT item_name, durability FROM mining_gear_wear WHERE user_id=$1 "
+        "AND guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return {str(r["item_name"]): int(r["durability"]) for r in rows}
+
+
+async def set_gear_wear(conn: Any, *, user_id: int, guild_id: int,
+                        item_name: str, durability: int) -> None:
+    """Set the remaining durability of *item_name* (upsert)."""
+    await execute(
+        "INSERT INTO mining_gear_wear (user_id, guild_id, item_name, "
+        "durability) VALUES ($1,$2,$3,$4) ON CONFLICT "
+        "(user_id, guild_id, item_name) DO UPDATE SET durability=$4, "
+        "updated_at=now()",
+        (str(user_id), guild_id, item_name, durability), conn=conn)
+
+
+async def clear_gear_wear(conn: Any, *, user_id: int, guild_id: int,
+                          item_name: str) -> None:
+    """Delete the wear row for *item_name* (break/repair → full durability)."""
+    await execute(
+        "DELETE FROM mining_gear_wear WHERE user_id=$1 AND guild_id=$2 AND "
+        "item_name=$3", (str(user_id), guild_id, item_name), conn=conn)
+
+
+# --- mining_loadout_presets CRUD (a preset = the rows sharing a name) --------
+
+
+async def save_loadout(conn: Any, *, user_id: int, guild_id: int, name: str,
+                       slots: dict[str, str]) -> None:
+    """Replace the preset *name* with *slots* (``{slot: item_name}``).
+
+    DELETE-then-INSERT per slot: any previously-saved slot not present in
+    *slots* is dropped, so saving an empty mapping clears the preset.
+    """
+    await execute(
+        "DELETE FROM mining_loadout_presets WHERE user_id=$1 AND guild_id=$2 "
+        "AND name=$3", (str(user_id), guild_id, name), conn=conn)
+    for slot, item_name in slots.items():
+        await execute(
+            "INSERT INTO mining_loadout_presets (user_id, guild_id, name, "
+            "slot, item_name) VALUES ($1,$2,$3,$4,$5)",
+            (str(user_id), guild_id, name, slot, item_name), conn=conn)
+
+
+async def get_loadout(user_id: int, guild_id: int, name: str,
+                      conn: Any = None) -> dict[str, str]:
+    """``{slot: item_name}`` for the saved preset *name* (``{}`` if none)."""
+    rows = await fetchall(
+        "SELECT slot, item_name FROM mining_loadout_presets WHERE user_id=$1 "
+        "AND guild_id=$2 AND name=$3", (str(user_id), guild_id, name),
+        conn=conn)
+    return {str(r["slot"]): str(r["item_name"]) for r in rows}
+
+
+async def list_loadouts(user_id: int, guild_id: int,
+                        conn: Any = None) -> list[str]:
+    """The player's saved preset names, alphabetically."""
+    rows = await fetchall(
+        "SELECT DISTINCT name FROM mining_loadout_presets WHERE user_id=$1 "
+        "AND guild_id=$2 ORDER BY name", (str(user_id), guild_id), conn=conn)
+    return [str(r["name"]) for r in rows]
+
+
+async def delete_loadout(conn: Any, *, user_id: int, guild_id: int,
+                         name: str) -> int:
+    """Delete the preset *name*; return the number of slot rows removed."""
+    rows = await fetchall(
+        "DELETE FROM mining_loadout_presets WHERE user_id=$1 AND guild_id=$2 "
+        "AND name=$3 RETURNING slot", (str(user_id), guild_id, name),
+        conn=conn)
+    return len(rows)
+
+
+# --- player_skills CRUD (BIGINT user ids — derives from the game-XP level) ---
+
+
+async def get_skills(user_id: int, guild_id: int,
+                     conn: Any = None) -> dict[str, int]:
+    """``{branch: points}`` for spent branches (zero-point branches filtered)."""
+    rows = await fetchall(
+        "SELECT branch, points FROM player_skills WHERE user_id=$1 AND "
+        "guild_id=$2", (int(user_id), guild_id), conn=conn)
+    return {str(r["branch"]): int(r["points"]) for r in rows
+            if int(r["points"]) > 0}
+
+
+async def set_skill_points(conn: Any, *, user_id: int, guild_id: int,
+                           branch: str, points: int) -> None:
+    """Set the *absolute* allocated points for *branch* (clamped ``>= 0``)."""
+    await execute(
+        "INSERT INTO player_skills (user_id, guild_id, branch, points) "
+        "VALUES ($1,$2,$3,GREATEST(0,$4)) ON CONFLICT "
+        "(user_id, guild_id, branch) DO UPDATE SET points=GREATEST(0,$4)",
+        (int(user_id), guild_id, branch, points), conn=conn)
 
 
 async def get_mining_inventory(user_id: int, guild_id: int,
@@ -146,6 +348,32 @@ async def erase_subject_state(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM mining_player_state WHERE user_id=$1",
         (str(user_id),), conn=conn)
+    return _rc(result)
+
+
+async def erase_subject_equipment(conn: Any, *, user_id: int) -> int:
+    result = await execute("DELETE FROM mining_equipment WHERE user_id=$1",
+                           (str(user_id),), conn=conn)
+    return _rc(result)
+
+
+async def erase_subject_gear_wear(conn: Any, *, user_id: int) -> int:
+    result = await execute("DELETE FROM mining_gear_wear WHERE user_id=$1",
+                           (str(user_id),), conn=conn)
+    return _rc(result)
+
+
+async def erase_subject_loadouts(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM mining_loadout_presets WHERE user_id=$1",
+        (str(user_id),), conn=conn)
+    return _rc(result)
+
+
+async def erase_subject_skills(conn: Any, *, user_id: int) -> int:
+    # player_skills.user_id is BIGINT (derives from the game-XP level).
+    result = await execute("DELETE FROM player_skills WHERE user_id=$1",
+                           (int(user_id),), conn=conn)
     return _rc(result)
 
 

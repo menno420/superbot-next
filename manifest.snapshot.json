@@ -7623,6 +7623,26 @@
           "value": "mining_player_state"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_equipment"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_gear_wear"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining_loadout_presets"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "player_skills"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "mod_logs"
@@ -9032,8 +9052,8 @@
       "handler:mining.buy_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.character_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.character_view": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.chop_route": {
         "module": "sb.domain.mining.service"
@@ -9044,8 +9064,8 @@
       "handler:mining.descend_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.equip_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.equip_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.explore_route": {
         "module": "sb.domain.mining.service"
@@ -9056,8 +9076,8 @@
       "handler:mining.forge_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.gear_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.gear_view": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.grid_view_pending": {
         "module": "sb.domain.operator_spine"
@@ -9071,8 +9091,8 @@
       "handler:mining.inventory_view": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.loadout_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.loadout_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.market_view": {
         "module": "sb.domain.mining.service"
@@ -9122,8 +9142,8 @@
       "handler:mining.titles_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.unequip_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.unequip_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.unstash_pending": {
         "module": "sb.domain.operator_spine"
@@ -11177,10 +11197,31 @@
       "workflow:karma.tombstone_subject_audit": {
         "module": "sb.domain.karma.ops"
       },
+      "workflow:mining.apply_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.delete_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.equip": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.erase_subject_equipment": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.erase_subject_gear_wear": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.erase_subject_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.erase_subject_loadouts": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.erase_subject_skills": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.erase_subject_state": {
@@ -11195,7 +11236,16 @@
       "workflow:mining.mine": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_apply_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_buy": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_delete_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_equip": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_explore": {
@@ -11210,19 +11260,31 @@
       "workflow:mining.record_reset_inventory": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_save_loadout": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_sell": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_sell_all": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_unequip": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.reset_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.save_loadout": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.sell": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.unequip": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:moderation.action_payload": {
@@ -11898,9 +11960,33 @@
         },
         "subsystem": "karma"
       },
+      "mining_equipment": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_equipment",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
+      "mining_gear_wear": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_gear_wear",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
       "mining_inventory": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "mining_inventory",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
+      },
+      "mining_loadout_presets": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "mining_loadout_presets",
         "sole_writer": {
           "$ref": "engine:mining.store"
         },
@@ -11929,6 +12015,14 @@
           "$ref": "engine:diagnostic.store"
         },
         "subsystem": "diagnostic"
+      },
+      "player_skills": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "player_skills",
+        "sole_writer": {
+          "$ref": "engine:mining.store"
+        },
+        "subsystem": "mining"
       },
       "prohibited_words": {
         "checkpoint_class": "aggregate",
@@ -12101,7 +12195,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:03064ef1a269efce54a8001a4e9f85c9fe753bf882c91ad192b12613fdb7e8a9",
+  "stable_hash": "sha256:894f31f6b9066be2cee006bf43b765f6152fd484547072e5f61316dbe376e9ea",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -38639,7 +38733,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.equip_pending"
+            "$ref": "handler:mining.equip_route"
           },
           "slash_common": false,
           "summary": "Equip a tool or gear piece.",
@@ -38663,7 +38757,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.unequip_pending"
+            "$ref": "handler:mining.unequip_route"
           },
           "slash_common": false,
           "summary": "Unequip a gear slot.",
@@ -38687,7 +38781,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.gear_pending"
+            "$ref": "handler:mining.gear_view"
           },
           "slash_common": false,
           "summary": "Your equipped gear.",
@@ -38713,7 +38807,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.loadout_pending"
+            "$ref": "handler:mining.loadout_route"
           },
           "slash_common": false,
           "summary": "Gear loadout presets.",
@@ -38740,7 +38834,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.character_pending"
+            "$ref": "handler:mining.character_view"
           },
           "slash_common": false,
           "summary": "Your character sheet.",
@@ -39226,7 +39320,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.character_pending"
+                "$ref": "handler:mining.character_view"
               },
               "label": "🧍 Character",
               "modal": null,
@@ -39251,7 +39345,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.gear_pending"
+                "$ref": "handler:mining.gear_view"
               },
               "label": "🧰 Gear",
               "modal": null,
@@ -39468,6 +39562,118 @@
             "$ref": "engine:mining.store"
           },
           "table": "mining_player_state",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_equipment"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_equipment",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_equipment",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_gear_wear"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_gear_wear",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_gear_wear",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_loadouts"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "mining_loadout_presets",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "mining_loadout_presets",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:mining.erase_subject_skills"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "player_skills",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:mining.store"
+          },
+          "table": "player_skills",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
