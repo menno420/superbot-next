@@ -133,6 +133,24 @@ async def _card(req, embed) -> Reply:
     return Reply(SUCCESS, None)
 
 
+async def _card_with_file(req, embed, filename: str) -> Reply:
+    """Present one read card carrying a single file attachment (the shipped
+    ``ctx.send(embed=…, file=discord.File(…, filename=…))`` — the paper-doll
+    sends). The parity transport collapses any attachment-bearing panel to
+    ``{"_files": [filename]}`` (the multipart-serializer information loss both
+    capture and replay share — goldens/mining/sweep_gear pins
+    ``character_doll.png``, sweep_character pins ``character.png``)."""
+    import dataclasses
+
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef("mining.card"), dataclasses.replace(
+        req, args={**dict(req.args), "_card": embed,
+                   "_attachment": filename}))
+    return Reply(SUCCESS, None)
+
+
 def _durability_bar(remaining: int, maximum: int) -> str:
     """A 5-segment ``▰▰▰▱▱ 23/60`` bar — shipped
     ``utils/mining/workshop.durability_bar`` verbatim (the ``!minestats``
@@ -370,6 +388,201 @@ def _register() -> None:
             footer=f"Balance: {balance} 🪙  •  !sell <item> [n] · "
                    "!sellall · !buy <item>"))
 
+    @handler("mining.equip_route")
+    async def equip_route(req) -> Reply:
+        """`!equip [*item]` — shipped arg-optional (mining_cog.py
+        ``equip(self, ctx, *, item: str = None)``): the bare invocation
+        answers the usage copy plain (goldens/mining/sweep_equip pins the
+        bytes); argful calls run the audited equip op and prefix the
+        invoker mention (the shipped ``ctx.send(f"{mention} …")`` success
+        lane), while a business-rule refusal (can't-equip / don't-own)
+        sends plain."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to equip, e.g. `!equip iron "
+                         "pickaxe`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.equip", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.unequip_route")
+    async def unequip_route(req) -> Reply:
+        """`!unequip [*slot]` — the bare invocation answers the usage copy
+        plain, enumerating ``equipment.SLOTS`` in order
+        (goldens/mining/sweep_unequip pins the bytes); argful calls run
+        the audited unequip op and prefix the mention on success."""
+        from sb.domain.mining import equipment
+
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify a slot to clear: "
+                         f"{', '.join(equipment.SLOTS)}.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.unequip", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.loadout_route")
+    async def loadout_route(req) -> Reply:
+        """`!loadout [action] [*name]` (aliases: loadouts) — the bare
+        invocation (verb ∈ {"", list, ls}) with NO saved loadouts answers
+        the pinned prompt plain (goldens/mining/sweep_loadout); with
+        loadouts it lists them prefixed with the mention. The
+        save/apply/delete verbs run their audited ops (each prefixes the
+        mention on success, sends the per-verb prompt or business refusal
+        plain); a bare ``!loadout <name>`` applies that preset."""
+        from sb.domain.mining import store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        argv = [str(t) for t in tuple(req.args.get("argv", ()) or ())]
+        verb = (argv[0].strip().lower() if argv else "")
+        name = " ".join(argv[1:]).strip()
+
+        if verb in ("", "list", "ls"):
+            names = await store.list_loadouts(uid, gid)
+            if not names:
+                return Reply(BLOCKED,
+                             "You have no saved loadouts yet. Equip some "
+                             "gear, then `!loadout save <name>` (e.g. "
+                             "`mining`).")
+            listed = ", ".join(f"**{n}**" for n in names)
+            return Reply(SUCCESS,
+                         f"<@{uid}> your loadouts: {listed}\n"
+                         "Swap with `!loadout <name>`.")
+
+        if verb == "save":
+            if not name:
+                return Reply(BLOCKED,
+                             "Name it, e.g. `!loadout save mining`.")
+            op_key, arg = "mining.save_loadout", name
+        elif verb in ("delete", "del", "remove", "rm"):
+            if not name:
+                return Reply(BLOCKED,
+                             "Which one? e.g. `!loadout delete mining`.")
+            op_key, arg = "mining.delete_loadout", name
+        elif verb == "apply":
+            if not name:
+                return Reply(BLOCKED,
+                             "Which one? e.g. `!loadout apply mining`.")
+            op_key, arg = "mining.apply_loadout", name
+        else:
+            # Bare `!loadout <name>` is the common case: apply that loadout.
+            op_key = "mining.apply_loadout"
+            arg = " ".join(argv).strip()
+
+        blocked, after = await _op_after(req, op_key, {"loadout_name": arg})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.gear_view")
+    async def gear_view(req) -> Reply:
+        """`!gear` — the shipped gear embed + paper-doll send
+        (mining_cog.py ``gear``; views/mining/gear_panel.py builds the
+        ``🧍 {name}'s Gear`` embed and attaches ``character_doll.png``).
+        The parity transport records only the attachment filename
+        (goldens/mining/sweep_gear pins ``{"_files": ["character_doll.png"]}``);
+        the embed layout + PNG bytes are dropped by the multipart
+        serializer on both capture and replay."""
+        from sb.domain.mining import equipment as _eq
+        from sb.domain.mining import store
+        from sb.kernel.panels.render import RenderedEmbed
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        equipped = await store.get_equipment(uid, gid)
+        wear = await store.get_gear_wear(uid, gid)
+        name = _author_name(req) or await _member_name(uid, gid)
+        fields: list[tuple[str, str, bool]] = []
+        for slot in _eq.SLOTS:
+            held = equipped.get(slot)
+            if held:
+                maximum = _eq.max_durability(held)
+                cond = (f"  {_durability_bar(wear.get(held, maximum), maximum)}"
+                        if maximum is not None else "")
+                fields.append((slot.title(), f"{held.title()}{cond}", True))
+            else:
+                fields.append((slot.title(), "*(empty)*", True))
+        stats = _eq.compute_stats(equipped)
+        lines = [f"{label}: **+{value}**"
+                 for label, value in _eq.describe_stats(stats)]
+        fields.append(("Stats",
+                       "\n".join(lines) or "No bonuses yet — equip some "
+                       "gear!", False))
+        progress = _eq.set_progress(equipped)
+        active = _eq.active_set_tier(equipped)
+        if active:
+            fields.append(("✨ Set bonus",
+                           f"Full **{active.title()}** set", False))
+        elif progress:
+            tier, pieces = progress
+            fields.append(("🧩 Set progress",
+                           f"{tier.title()} set {pieces}/"
+                           f"{len(_eq.SET_SLOTS)}", False))
+        embed = RenderedEmbed(
+            title=f"🧍 {name}'s Gear", description="",
+            style_token="dark_grey", fields=tuple(fields),
+            footer="Tip: !minemenu → 🧰 Gear equips with clicks (and ✨ "
+                   "Equip Best).")
+        return await _card_with_file(req, embed, "character_doll.png")
+
+    @handler("mining.character_view")
+    async def character_view(req) -> Reply:
+        """`!character` (aliases: profile, char) — the shipped character
+        card + paper-doll send (mining_cog.py ``character``;
+        views/mining/character_panel.py builds the ``🧍 {name}'s
+        Character`` embed and attaches ``character.png``). The parity
+        transport records only the attachment filename
+        (goldens/mining/sweep_character pins ``{"_files": ["character.png"]}``)."""
+        from sb.domain.games import store as games_store
+        from sb.domain.mining import character as _char
+        from sb.domain.mining import equipment as _eq
+        from sb.domain.mining import market, store
+        from sb.domain.mining.store import get_depth, get_mining_inventory
+        from sb.domain.mining.world import describe_position
+        from sb.domain.xp.levels import level_progress
+        from sb.kernel.panels.render import RenderedEmbed
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        equipped = await store.get_equipment(uid, gid)
+        alloc = await store.get_skills(uid, gid)
+        inventory = await get_mining_inventory(uid, gid)
+        depth = await get_depth(uid, gid)
+        level, _into, _needed = level_progress(
+            await games_store.total_game_xp(uid, gid))
+        worth = sum(qty * (market.sell_price(item) or 0)
+                    for item, qty in inventory.items())
+        name = _author_name(req) or await _member_name(uid, gid)
+        stats = _char.character_stats(equipped, alloc)
+        stat_lines = [f"{label}: **+{value}**"
+                      for label, value in _eq.describe_stats(stats)]
+        gear_overview = ", ".join(
+            f"{slot}: {equipped[slot].title()}" for slot in _eq.SLOTS
+            if slot in equipped) or "*(nothing equipped)*"
+        embed = RenderedEmbed(
+            title=f"🧍 {name}'s Character", description="",
+            style_token="dark_grey",
+            fields=(
+                ("📍 Location", describe_position(depth), True),
+                ("🎮 Game Level", f"Level **{level}**", True),
+                ("🧰 Gear", gear_overview, False),
+                ("📊 Stats", "\n".join(stat_lines) or "No bonuses yet.",
+                 False),
+                ("💰 Wealth", f"Inventory net worth: **{worth}**", False),
+            ))
+        return await _card_with_file(req, embed, "character.png")
+
 
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
@@ -378,8 +591,9 @@ PENDING = {
     "mineinv": "pack detail panel",
     "build": "structures", "buildlist": "structures",
     "buildable": "structures", "use": "consumables", "cook": "campfire",
-    "equip": "equipment", "unequip": "equipment", "gear": "equipment",
-    "loadout": "loadout presets", "character": "character sheet",
+    # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
+    # their real handlers are the *_route / *_view registered in _register()
+    # (mirroring the sell/buy/market lanes), so they leave the PENDING roster.
     "descend": "depth bands", "ascend": "depth bands",
     "mineworld": "world grid", "vault": "vault", "stash": "vault",
     "unstash": "vault", "vaultupgrade": "vault", "skills": "skills",
