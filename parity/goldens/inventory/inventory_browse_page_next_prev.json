@@ -1,0 +1,433 @@
+{
+ "case_id": "inventory.browse_page_next_prev",
+ "db_delta": {
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2067365986,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "BrowserView page buttons: open Other (Page 1/2, items 1–8) → next (Page 2/2, items 9–11) → prev (back to Page 1/2), proving both page-turn click paths and the bound-disable states",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📦"
+          },
+          "label": "Other",
+          "style": 1,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 15844367,
+        "description": "📦 **Other** — 📦 Trinket 00, 📦 Trinket 01, 📦 Trinket 02 +8 more",
+        "flags": 0,
+        "footer": {
+         "text": "Select a category below to view details."
+        },
+        "thumbnail": {
+         "url": "https://cdn.discordapp.com/embed/avatars/1.png"
+        },
+        "title": "🎒 MemberActor's Inventory",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!inventory",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "nav:browse:sort:inventory.cat_other:0:0:-1:0",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": true,
+            "label": "rarity",
+            "value": "rarity"
+           },
+           {
+            "default": false,
+            "label": "quantity",
+            "value": "-quantity"
+           },
+           {
+            "default": false,
+            "label": "name",
+            "value": "name"
+           }
+          ],
+          "placeholder": "Sort",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:browse:prev:inventory.cat_other:0:0:-1:0",
+          "disabled": true,
+          "label": "◀",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:browse:page:inventory.cat_other:0:0:-1:0",
+          "disabled": true,
+          "label": "Page 1/2",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:browse:next:inventory.cat_other:0:0:-1:0",
+          "disabled": false,
+          "label": "▶",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:back:inventory.hub",
+          "disabled": false,
+          "label": "↩ Back",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "description": "📦 **Trinket 00** × 1 · Item  `Unknown`\n📦 **Trinket 01** × 2 · Item  `Unknown`\n📦 **Trinket 02** × 3 · Item  `Unknown`\n📦 **Trinket 03** × 4 · Item  `Unknown`\n📦 **Trinket 04** × 5 · Item  `Unknown`\n📦 **Trinket 05** × 6 · Item  `Unknown`\n📦 **Trinket 06** × 7 · Item  `Unknown`\n📦 **Trinket 07** × 8 · Item  `Unknown`",
+        "flags": 0,
+        "footer": {
+         "text": "inventory"
+        },
+        "title": "📦 Other",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "components": [
+        {
+         "components": [
+          {
+           "custom_id": "nav:browse:sort:inventory.cat_other:0:0:-1:1",
+           "disabled": false,
+           "max_values": 1,
+           "min_values": 1,
+           "options": [
+            {
+             "default": true,
+             "label": "rarity",
+             "value": "rarity"
+            },
+            {
+             "default": false,
+             "label": "quantity",
+             "value": "-quantity"
+            },
+            {
+             "default": false,
+             "label": "name",
+             "value": "name"
+            }
+           ],
+           "placeholder": "Sort",
+           "required": true,
+           "type": 3
+          }
+         ],
+         "type": 1
+        },
+        {
+         "components": [
+          {
+           "custom_id": "nav:browse:prev:inventory.cat_other:0:0:-1:1",
+           "disabled": false,
+           "label": "◀",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:browse:page:inventory.cat_other:0:0:-1:1",
+           "disabled": true,
+           "label": "Page 2/2",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:browse:next:inventory.cat_other:0:0:-1:1",
+           "disabled": true,
+           "label": "▶",
+           "style": 2,
+           "type": 2
+          }
+         ],
+         "type": 1
+        },
+        {
+         "components": [
+          {
+           "custom_id": "nav:help",
+           "disabled": false,
+           "label": "📚 Help",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:back:inventory.hub",
+           "disabled": false,
+           "label": "↩ Back",
+           "style": 2,
+           "type": 2
+          }
+         ],
+         "type": 1
+        }
+       ],
+       "content": null,
+       "embeds": [
+        {
+         "description": "📦 **Trinket 08** × 9 · Item  `Unknown`\n📦 **Trinket 09** × 10 · Item  `Unknown`\n📦 **Trinket 10** × 11 · Item  `Unknown`",
+         "flags": 0,
+         "footer": {
+          "text": "inventory"
+         },
+         "title": "📦 Other",
+         "type": "rich"
+        }
+       ],
+       "flags": 64,
+       "tts": false
+      },
+      "type": 4
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "nav:browse:next:inventory.cat_other:0:0:-1:0",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:3>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "components": [
+        {
+         "components": [
+          {
+           "custom_id": "nav:browse:sort:inventory.cat_other:0:0:-1:0",
+           "disabled": false,
+           "max_values": 1,
+           "min_values": 1,
+           "options": [
+            {
+             "default": true,
+             "label": "rarity",
+             "value": "rarity"
+            },
+            {
+             "default": false,
+             "label": "quantity",
+             "value": "-quantity"
+            },
+            {
+             "default": false,
+             "label": "name",
+             "value": "name"
+            }
+           ],
+           "placeholder": "Sort",
+           "required": true,
+           "type": 3
+          }
+         ],
+         "type": 1
+        },
+        {
+         "components": [
+          {
+           "custom_id": "nav:browse:prev:inventory.cat_other:0:0:-1:0",
+           "disabled": true,
+           "label": "◀",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:browse:page:inventory.cat_other:0:0:-1:0",
+           "disabled": true,
+           "label": "Page 1/2",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:browse:next:inventory.cat_other:0:0:-1:0",
+           "disabled": false,
+           "label": "▶",
+           "style": 2,
+           "type": 2
+          }
+         ],
+         "type": 1
+        },
+        {
+         "components": [
+          {
+           "custom_id": "nav:help",
+           "disabled": false,
+           "label": "📚 Help",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:back:inventory.hub",
+           "disabled": false,
+           "label": "↩ Back",
+           "style": 2,
+           "type": 2
+          }
+         ],
+         "type": 1
+        }
+       ],
+       "content": null,
+       "embeds": [
+        {
+         "description": "📦 **Trinket 00** × 1 · Item  `Unknown`\n📦 **Trinket 01** × 2 · Item  `Unknown`\n📦 **Trinket 02** × 3 · Item  `Unknown`\n📦 **Trinket 03** × 4 · Item  `Unknown`\n📦 **Trinket 04** × 5 · Item  `Unknown`\n📦 **Trinket 05** × 6 · Item  `Unknown`\n📦 **Trinket 06** × 7 · Item  `Unknown`\n📦 **Trinket 07** × 8 · Item  `Unknown`",
+         "flags": 0,
+         "footer": {
+          "text": "inventory"
+         },
+         "title": "📦 Other",
+         "type": "rich"
+        }
+       ],
+       "flags": 64,
+       "tts": false
+      },
+      "type": 4
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "nav:browse:prev:inventory.cat_other:0:0:-1:1",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "inventory"
+}

@@ -143,6 +143,13 @@ def build_view(rendered: RenderedPanel):
                         options=[_select_option(o) for o in comp.options] or
                                 [discord.SelectOption(label="—", value="")],
                         row=comp.row)
+                elif getattr(comp, "url", ""):
+                    # LINK button (wire style 5) — a URL, no custom_id, never
+                    # dispatches (the shipped paragon 🌐 Web calculator button).
+                    item = discord_ui.Button(
+                        url=comp.url, label=comp.label or None,
+                        emoji=comp.emoji or None, disabled=comp.disabled,
+                        style=discord.ButtonStyle.link, row=comp.row)
                 else:
                     item = discord_ui.Button(
                         custom_id=comp.custom_id, label=comp.label or None,

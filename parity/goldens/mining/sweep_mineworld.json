@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.unequip",
+ "case_id": "sweep.mineworld",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1882768240,
+     "last_xp": 2055696509,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "Specify a slot to clear: tool, light, charm, weapon, shield, helmet, chestplate, leggings, boots.",
+      "content": "🌐 This server's mining world seed is **<guild>**. Everyone here roams the same world — share the seed to compare maps. Server managers can reseed with `!mineworld <number>`.",
       "tts": false
      }
     },
@@ -77,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!unequip",
+    "content": "!mineworld",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "mining"
 }
