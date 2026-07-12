@@ -1,0 +1,432 @@
+{
+ "case_id": "creature.dex_filter_element",
+ "db_delta": {
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2026097652,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "dex element filter select: open the interactive dex via the hub Dex button (default: the first page across all six elements) then filter to 'Stone' — the re-render shows only the Stone creatures, proving the element-filter select path",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🐾"
+          },
+          "label": "Catch",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📖"
+          },
+          "label": "Dex",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⚔️"
+          },
+          "label": "Challenge",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🏆"
+          },
+          "label": "Ladder",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📖"
+          },
+          "label": "How to play",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "Catch from **36** original creatures across 6 elements. Rarer creatures show up less often and are harder to catch — fill out your dex, then battle other trainers in a level-normalized PvP where type matchups decide it.\n\n**🐾 Catch** — head into the wild\n**📖 Dex** — browse your collection by element\n**⚔️ Challenge** — battle another trainer\n**🏆 Ladder** — the server's top trainers\n**📖 How to play** — the rules",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Your progress",
+          "value": "**0/36** creatures · level **1**"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Only you can use this panel."
+        },
+        "title": "🐾 Creatures",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!creatures",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "nav:browse:filter:creature.dex:0:-1:-1:0",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": true,
+            "label": "All",
+            "value": "__all__"
+           },
+           {
+            "default": false,
+            "label": "Ember",
+            "value": "Ember"
+           },
+           {
+            "default": false,
+            "label": "Stone",
+            "value": "Stone"
+           },
+           {
+            "default": false,
+            "label": "Gust",
+            "value": "Gust"
+           },
+           {
+            "default": false,
+            "label": "Tide",
+            "value": "Tide"
+           },
+           {
+            "default": false,
+            "label": "Spark",
+            "value": "Spark"
+           },
+           {
+            "default": false,
+            "label": "Bramble",
+            "value": "Bramble"
+           }
+          ],
+          "placeholder": "Filter",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:browse:prev:creature.dex:0:-1:-1:0",
+          "disabled": true,
+          "label": "◀",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:browse:page:creature.dex:0:-1:-1:0",
+          "disabled": true,
+          "label": "Page 1/2",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:browse:next:creature.dex:0:-1:-1:0",
+          "disabled": false,
+          "label": "▶",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:back:creature.hub",
+          "disabled": false,
+          "label": "↩ Back",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "🔥 Cindling — *not yet caught*\n🔥 Emberpaw — *not yet caught*\n🔥 Ashpyre — *not yet caught*\n🔥 Cinderhorn — *not yet caught*\n🔥 Magmaul — *not yet caught*\n🔥 Infernox — *not yet caught*\n🪨 Gravelpup — *not yet caught*\n🪨 Pebblet — *not yet caught*\n🪨 Cobbleshell — *not yet caught*\n🪨 Slatewing — *not yet caught*\n🪨 Boulderon — *not yet caught*\n🪨 Tectonix — *not yet caught*\n🌪️ Gustling — *not yet caught*\n🌪️ Zephyrl — *not yet caught*\n🌪️ Breezle — *not yet caught*\n🌪️ Cloudhide — *not yet caught*\n🌪️ Galeon — *not yet caught*\n🌪️ Tempestra — *not yet caught*",
+        "flags": 0,
+        "footer": {
+         "text": "creature"
+        },
+        "title": "🐾 Creature Dex",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:2>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "components": [
+        {
+         "components": [
+          {
+           "custom_id": "nav:browse:filter:creature.dex:0:-1:1:0",
+           "disabled": false,
+           "max_values": 1,
+           "min_values": 1,
+           "options": [
+            {
+             "default": false,
+             "label": "All",
+             "value": "__all__"
+            },
+            {
+             "default": false,
+             "label": "Ember",
+             "value": "Ember"
+            },
+            {
+             "default": true,
+             "label": "Stone",
+             "value": "Stone"
+            },
+            {
+             "default": false,
+             "label": "Gust",
+             "value": "Gust"
+            },
+            {
+             "default": false,
+             "label": "Tide",
+             "value": "Tide"
+            },
+            {
+             "default": false,
+             "label": "Spark",
+             "value": "Spark"
+            },
+            {
+             "default": false,
+             "label": "Bramble",
+             "value": "Bramble"
+            }
+           ],
+           "placeholder": "Filter",
+           "required": true,
+           "type": 3
+          }
+         ],
+         "type": 1
+        },
+        {
+         "components": [
+          {
+           "custom_id": "nav:browse:prev:creature.dex:0:-1:1:0",
+           "disabled": true,
+           "label": "◀",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:browse:page:creature.dex:0:-1:1:0",
+           "disabled": true,
+           "label": "Page 1/1",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:browse:next:creature.dex:0:-1:1:0",
+           "disabled": true,
+           "label": "▶",
+           "style": 2,
+           "type": 2
+          }
+         ],
+         "type": 1
+        },
+        {
+         "components": [
+          {
+           "custom_id": "nav:help",
+           "disabled": false,
+           "label": "📚 Help",
+           "style": 2,
+           "type": 2
+          },
+          {
+           "custom_id": "nav:back:creature.hub",
+           "disabled": false,
+           "label": "↩ Back",
+           "style": 2,
+           "type": 2
+          }
+         ],
+         "type": 1
+        }
+       ],
+       "content": null,
+       "embeds": [
+        {
+         "color": 3066993,
+         "description": "🪨 Gravelpup — *not yet caught*\n🪨 Pebblet — *not yet caught*\n🪨 Cobbleshell — *not yet caught*\n🪨 Slatewing — *not yet caught*\n🪨 Boulderon — *not yet caught*\n🪨 Tectonix — *not yet caught*",
+         "flags": 0,
+         "footer": {
+          "text": "creature"
+         },
+         "title": "🐾 Creature Dex",
+         "type": "rich"
+        }
+       ],
+       "flags": 64,
+       "tts": false
+      },
+      "type": 4
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "nav:browse:filter:creature.dex:0:-1:-1:0",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1,
+    "values": [
+     "Stone"
+    ]
+   }
+  }
+ ],
+ "subsystem": "creature"
+}

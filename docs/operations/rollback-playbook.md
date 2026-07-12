@@ -5,7 +5,8 @@
 > `sb/spec/versioning.py`; fence `tools/check_rollback_disposition.py`;
 > reverse importer `tools/importer/reverse/`; verify profile
 > `sb/app/verify_boot.py`; workflows `.github/workflows/backup-db.yml` +
-> `restore-verify.yml`.
+> `restore-verify.yml`. The end-to-end cutover procedure that drives this
+> playbook's rollback section is [cutover-runbook.md](cutover-runbook.md).
 
 ## Backup port — owner one-time steps (cutover runbook, spec 13 §2.1)
 

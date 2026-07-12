@@ -7,10 +7,16 @@ onto the K7 `settings.set_scalar` op (the ONE audited write path to the
 ``settings.changed`` after commit; sb/domain/settings/ops.py).
 
 Shipped dispatch rules, verbatim (`input_hint` first, then
-value_type/allowed_values):
+value_type/allowed_values). Ack copy DIVERGES from the shipped bytes by
+ONE rule (VERDICT 009 AIP-03 consumption, ledgered): the shipped acks
+printed ``{subsystem}.{spec.name}`` with the ai schema's names already
+``ai_``-prefixed (disbot/cogs/ai/schemas.py ``name="ai_enabled"`` →
+``ai.ai_enabled``), doubling the prefix against the same embed's Scalar
+field and select option bytes (``ai_enabled``). Our acks print the ONE
+spelling the page already renders — the bare settings_key:
 
 * bool                       → single-click toggle (read current, write the
-                               inverse) — ``✅ Toggled `ai.<name>` → …``
+                               inverse) — ``✅ Toggled `<key>` → …``
 * numeric_presets + presets  → the NumericPresetsView page (one button per
                                preset, current highlighted primary) —
                                ``✅ Updated … (was …)``
@@ -19,11 +25,11 @@ value_type/allowed_values):
                                ISSUES the shipped TextSettingModal twin
                                (G-10, the modal-arming slice); the submit
                                re-enters through the frozen modal adapter
-                               — ``✅ Updated `ai.<name>` = …``
+                               — ``✅ Updated `<key>` = …``
 * Override… (presets page)   → the shipped NumberSettingModal twin, same
                                G-10 round-trip — ``✅ Updated … (was …)``
 * reset (any scalar)         → write the declared default —
-                               ``✅ Reset `ai.<name>` to default = …``
+                               ``✅ Reset `<key>` to default = …``
 
 The widget pages are session-lifecycle panels of the ONE anchor (the AI
 nav doctrine): opening one swaps the settings page in place and the
@@ -169,7 +175,8 @@ async def settings_edit_route(req) -> Reply | None:
     spec = spec_for_key(key)
     if spec is None:
         # shipped: f"❌ Unknown setting `{subsystem}.{name}`." (ephemeral)
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        # — bare key here: the AIP-03 single-spelling rule (module doc).
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     kind = widget_kind(spec)
     if kind == "toggle":
         if not req.guild_id:
@@ -179,10 +186,10 @@ async def settings_edit_route(req) -> Reply | None:
         result = await _write_setting(req, spec, new_value)
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
-                         f"❌ Couldn't update `ai.{key}`: "
+                         f"❌ Couldn't update `{key}`: "
                          f"{result.user_message or 'write failed'}.")
         await _refresh_settings_page(req)
-        return Reply(SUCCESS, f"✅ Toggled `ai.{key}` → `{new_value!r}`.")
+        return Reply(SUCCESS, f"✅ Toggled `{key}` → `{new_value!r}`.")
     if kind == "presets":
         await _open_widget(req, "ai.settings_edit_presets", key)
         return None
@@ -205,18 +212,18 @@ async def settings_reset_route(req) -> Reply:
     key = _picked(req)
     spec = spec_for_key(key)
     if spec is None:
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     if not req.guild_id:
         return Reply(SUCCESS, _NEEDS_GUILD_RESET)
     default = _typed_default(spec)
     result = await _write_setting(req, spec, default)
     if result.outcome != SUCCESS:
         return Reply(result.outcome,
-                     f"❌ Couldn't reset `ai.{key}`: "
+                     f"❌ Couldn't reset `{key}`: "
                      f"{result.user_message or 'write failed'}.")
     await _refresh_settings_page(req)
     return Reply(SUCCESS,
-                 f"✅ Reset `ai.{key}` to default = `{default!r}`.")
+                 f"✅ Reset `{key}` to default = `{default!r}`.")
 
 
 # --- the widget pages ---------------------------------------------------------------
@@ -228,18 +235,18 @@ async def settings_enum_pick(req) -> Reply:
     key = str(req.args.get("setting") or "")
     spec = spec_for_key(key)
     if spec is None:
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     if not req.guild_id:
         return Reply(SUCCESS, _NEEDS_GUILD_EDIT)
     picked = _picked(req)
     if picked not in tuple(str(v) for v in spec.allowed_values):
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     result = await _write_setting(req, spec, picked)
     if result.outcome != SUCCESS:
         return Reply(result.outcome,
-                     f"❌ Couldn't update `ai.{key}`: "
+                     f"❌ Couldn't update `{key}`: "
                      f"{result.user_message or 'write failed'}.")
-    return Reply(SUCCESS, f"✅ Updated `ai.{key}` = `{picked!r}`.")
+    return Reply(SUCCESS, f"✅ Updated `{key}` = `{picked!r}`.")
 
 
 async def settings_preset_pick(req) -> Reply:
@@ -249,28 +256,28 @@ async def settings_preset_pick(req) -> Reply:
     key = str(req.args.get("setting") or "")
     spec = spec_for_key(key)
     if spec is None or not spec.presets:
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     if not req.guild_id:
         return Reply(SUCCESS, _NEEDS_GUILD_EDIT)
     action = str(req.args.get("session_action") or "")
     if not action.startswith("preset_"):
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     try:
         index = int(action.rsplit("_", 1)[1])
         value = tuple(spec.presets)[index]
     except (ValueError, IndexError):
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     # pre-write read covers the NO-ROW display (the global/default
     # resolution chain — the shipped resolution.value posture)…
     old = await _current_value(int(req.guild_id), spec)
     result = await _write_setting(req, spec, value)
     if result.outcome != SUCCESS:
         return Reply(result.outcome,
-                     f"❌ Couldn't update `ai.{key}`: "
+                     f"❌ Couldn't update `{key}`: "
                      f"{result.user_message or 'write failed'}.")
     old = _in_transaction_prior(result, spec, old)
     return Reply(SUCCESS,
-                 f"✅ Updated `ai.{key}` = `{value!r}` (was `{old!r}`).")
+                 f"✅ Updated `{key}` = `{value!r}` (was `{old!r}`).")
 
 
 def _in_transaction_prior(result, spec, fallback):
@@ -295,14 +302,14 @@ async def settings_number_submit(req) -> Reply:
     """The Override… form's SUBMIT (shipped NumberSettingModal.on_submit):
     strip → coerce/validate against the picked SettingSpec (bounds +
     allowed_values ride the same coercer the read path uses) → the audited
-    write — ``✅ Updated `ai.<key>` = `<new>` (was `<old>`).``. The
+    write — ``✅ Updated `<key>` = `<new>` (was `<old>`).``. The
     `setting` param arrives through the kernel modal-args stash (the
     opening click's session args); a stash miss falls to the unknown-
     setting guard."""
     key = str(req.args.get("setting") or "")
     spec = spec_for_key(key)
     if spec is None:
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     if not req.guild_id:
         return Reply(SUCCESS, _NEEDS_GUILD_EDIT)
     raw = str(req.args.get("new_value") or "").strip()
@@ -314,31 +321,31 @@ async def settings_number_submit(req) -> Reply:
         # value=<raw> to <type>: …") — the K7 envelope form carries the
         # same sentence body (#160's ledgered write-failure class).
         return Reply(SUCCESS,
-                     f"❌ Couldn't update `ai.{key}`: cannot coerce "
+                     f"❌ Couldn't update `{key}`: cannot coerce "
                      f"value={raw!r} to {spec.value_type} "
                      f"({'; '.join(diags) or 'invalid value'}).")
     old = await _current_value(int(req.guild_id), spec)
     result = await _write_setting(req, spec, value)
     if result.outcome != SUCCESS:
         return Reply(result.outcome,
-                     f"❌ Couldn't update `ai.{key}`: "
+                     f"❌ Couldn't update `{key}`: "
                      f"{result.user_message or 'write failed'}.")
     old = _in_transaction_prior(result, spec, old)
     await _refresh_settings_page(req)
     return Reply(SUCCESS,
-                 f"✅ Updated `ai.{key}` = `{value!r}` (was `{old!r}`).")
+                 f"✅ Updated `{key}` = `{value!r}` (was `{old!r}`).")
 
 
 async def settings_text_submit(req) -> Reply:
     """The Edit… form's SUBMIT (shipped TextSettingModal.on_submit): the
     raw string writes VERBATIM (str settings — an empty submit writes the
     empty string, the shipped "empty = routing default" contract) —
-    ``✅ Updated `ai.<key>` = `<new>`.`` (the shipped text ack carries no
+    ``✅ Updated `<key>` = `<new>`.`` (the shipped text ack carries no
     "(was …)")."""
     key = str(req.args.get("setting") or "")
     spec = spec_for_key(key)
     if spec is None:
-        return Reply(SUCCESS, f"❌ Unknown setting `ai.{key}`.")
+        return Reply(SUCCESS, f"❌ Unknown setting `{key}`.")
     if not req.guild_id:
         return Reply(SUCCESS, _NEEDS_GUILD_EDIT)
     raw = req.args.get("new_value")
@@ -346,10 +353,10 @@ async def settings_text_submit(req) -> Reply:
     result = await _write_setting(req, spec, value)
     if result.outcome != SUCCESS:
         return Reply(result.outcome,
-                     f"❌ Couldn't update `ai.{key}`: "
+                     f"❌ Couldn't update `{key}`: "
                      f"{result.user_message or 'write failed'}.")
     await _refresh_settings_page(req)
-    return Reply(SUCCESS, f"✅ Updated `ai.{key}` = `{value!r}`.")
+    return Reply(SUCCESS, f"✅ Updated `{key}` = `{value!r}`.")
 
 
 # the chooser scope pickers are ALL live: policy (the policy-mutation

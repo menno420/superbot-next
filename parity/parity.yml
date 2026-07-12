@@ -58,10 +58,41 @@ source:
   # bytes) as regression tripwires — kernel-band docs are exempt from the
   # kernel-surface-drift drop at diff time (sb/adapters/parity/
   # dispositions.py), so kernel drift goes red HERE instead of nowhere.
-  minted_goldens: 6
+  # D-0079 minted the seventh — goldens/creature/creature_battle_accept
+  # (the creature PvP battle port): a curated challenge -> Accept click
+  # flow (parity/cases/curated.py) whose Accept auto-resolves the 6v6 and
+  # records the W/L pair + battle-win game-xp, captured via
+  # sb/adapters/parity/runner.capture_case (the kernel-spine audit_log /
+  # event_outbox rows ride the same kernel-surface-drift drop as every
+  # domain golden; the battle's own creature_battle_record + game_xp bytes
+  # are pinned).
+  # D-0073 procedure re-run for the casino poker PLAY layer: one minted
+  # golden (goldens/casino/poker_full_hand.json) pins a full headless
+  # Texas Hold'em hand — lobby → seat → deal → check/call betting rounds →
+  # showdown — as the public spectator embed captured per action, with the
+  # kernel-spine surfaces STRIPPED (audit_log / event_outbox /
+  # command.dispatched); the per-player ephemeral hands stay the owner-armed
+  # live step (D-0045), so only the headless-shaped public surface is minted.
+  # The browse-interaction batch (2026-07-12) minted FOUR more via the same
+  # capture_case + kernel-spine-strip procedure — the first MULTI-STEP
+  # click/select goldens for the shared BrowserView engine (D-0034):
+  # goldens/inventory/inventory_browse_{sort_quantity,filter_ore,
+  # page_next_prev}.json + goldens/creature/creature_dex_filter_element.json.
+  # They are curated typed cases (parity/cases/curated.py — session hub
+  # buttons need component_index + the inventory seed needs fixture_sql, the
+  # blackjack-click precedent), each opening the panel then driving a
+  # `nav:browse:*` sort/filter/page click or the dex element-filter select and
+  # pinning the RE-RENDERED panel; they close the corpus's interaction blind
+  # spot (before: one button click corpus-wide, the selects untested). Like
+  # the kernel band these pin the NEW BrowserView's contract (there is no old
+  # bot oracle — the shipped chrome differed, an owner presentation hand-pass
+  # ledgered in the panel specs), so they are regression tripwires: a
+  # deliberate render change re-mints them in the same PR, an accidental one
+  # goes red in the gate.
+  minted_goldens: 12
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 468). The first retirement (2026-07-12
+  # imported + minted − retired = 474). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -477,19 +508,11 @@ depth:
           golden-pinned empty-state reads (goldens/creature/sweep_dex +
           sweep_creatures + the re-homed sweep_dextop), and the table's
           first row-bearing golden lands with a seeded-RNG capture"
-      - surface: "table:creature_battle_record"
-        reason: "time-driven: battle rows are written only at PvP
-          resolution inside the shipped challenge orchestration (the
-          run-minted Accept/Decline timeout view,
-          disbot/views/creature_battle/challenge.py — the rps_players
-          precedent verbatim: match/battle completion inside an
-          interactive session view is out of capture scope for the sweep
-          corpus); the goldens open a challenge and finish no battle
-          (goldens/creature/sweep_cbattle) and pin the record lane's
-          empty-state reads (sweep_cbrecord + sweep_cbattletop), so no
-          imported golden can carry a creature_battle_record row; the
-          first row-bearing golden lands with a battle-completing
-          capture"
+      # table:creature_battle_record is NO LONGER exempt — the D-0079
+      # battle port landed its first row-bearing golden
+      # (goldens/creature/creature_battle_accept: challenge -> Accept
+      # auto-resolves the 6v6 and records the W/L pair), exactly the
+      # "battle-completing capture" the retired exemption anticipated.
     deathmatch:
       # deathmatch's two goldens are the challenge card (the shipped
       # in-memory _ChallengeView bytes — a rowless db_delta by shipped
@@ -1001,7 +1024,7 @@ depth:
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
     counting: {events: 1, tables: 2, settings: 0}
-    creature: {events: 1, tables: 2, settings: 0}
+    creature: {events: 3, tables: 6, settings: 0}
     deathmatch: {events: 1, tables: 2, settings: 0}
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
