@@ -1,6 +1,6 @@
 # 2026-07-12 — arm the operator hubs' read-only navigation (SLICE 4)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Opus 4.8 · high · feature build (SLICE 4 — operator hubs to interactive "where cheap")
 
@@ -59,7 +59,22 @@ operator hubs; groups without one keep the pending terminal. No mutation.
 
 ## ⟲ Previous-session review
 
-(pending — filled at close-out)
+Independent slice (base `main`), not a resumption — so the lineage under
+review is the shipped **help-hub category-select (D-0055)**, the pattern
+this mirrors. That slice added a select→`open_panel` navigation to
+`help.home`; it held exactly here: `settings.open_group` is the same
+select → `HandlerRef` → `open_panel` idiom, routed through the live
+component seam, categories/labels in DATA (the already-shipped
+`_HUB_GROUPS` roster + the operator-spine registry), no new listener, no
+mutation. The dex-browse Step-A oracle gate (arm ONLY what the oracle made
+interactive, route to a path no golden pins) was the second template: the
+oracle group-select navigation was genuine and read-only, and the arming
+lands on the one path no golden clicks — zero churn, confirmed by a full
+427-golden PG replay. One place this went further than a blind port: the
+oracle select opened the FULL edit page, so faithfully porting only the
+READ subset (the read-only hub) — while the group has no armed audited
+write endpoint — kept the SAFETY invariant intact (no direct-mutation
+control) without stranding the navigation.
 
 ## ⚑ Flags
 
