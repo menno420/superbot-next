@@ -1,6 +1,6 @@
 # 2026-07-12 — creature native user-select picker + member bot-flag seam + Rematch
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · high · feature build (Q-0194)
 
@@ -59,3 +59,34 @@ Three slices, one branch:
 ## Decision
 
 - `[D-0081]` — the picker / bot-flag / Rematch faithful-port ruling.
+
+## 💡 Session idea
+
+The native `SelectorKind.MEMBER` picker is now a REUSABLE kernel primitive, not a
+creature-only need: the three seam branches (materializer / UserSelect presenter /
+parity type-5) make any panel able to declare a Discord user_select. Today only
+creature consumes it, but the deathmatch/blackjack/rps PvP challenges still take
+their opponent as a COMMAND ARG (`!deathmatch @user`) with no picker affordance —
+a follow-up could give each a "Challenge" button opening the same MEMBER picker,
+routing its `values[0]` into the existing challenge-open path (the bot/self guards
+already generalize via `MemberInfo.is_bot`). The one harness gap this slice hit is
+worth a ticket: a component that appears only after an in-place session edit (the
+resolved outcome card's Rematch button) has a session-minted custom_id on a
+followup message with no click-targetable id, so it cannot be driven by the static
+golden case model — the reason the rematch-CLICK path is unit-covered rather than
+goldened. A capture-model extension that registers edit-followup response ids (or
+a static-custom_id escape for session panels) would close that blind spot.
+
+## ⟲ Previous-session review
+
+(Covers `.sessions/2026-07-12-slice6-build-workshop-home-port.md`.) That slice
+closed the deep-mining ladder render/guard shell and named the "one capture run
+mints the row-bearing goldens" follow-up. The lesson carried here: this seam did
+the inverse where it could — it MINTED the row-bearing / interaction goldens in
+the same PR (bot-guard BLOCK, picker OPEN→select→challenge, the re-minted outcome
+card) rather than deferring them behind an exemption, because the picker + guard
+are pure faithful-port surfaces with a deterministic capture (unlike the mining
+write core's seeded-persona dependency). The second carried lesson — a deliberate
+render change re-mints its golden in-PR (the D-0075/browse tripwire discipline) —
+is exactly why `creature_battle_accept` was re-captured this slice rather than
+left to go red: the Rematch button on the resolved card is an intended byte change.
