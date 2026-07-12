@@ -36,9 +36,9 @@ def _verr(message: str):
 
 #: the shipped guard copies, per command, VERBATIM — the cog carried
 #: DIFFERENT literals per flow: timedprize / -prize / prizestatus sent the
-#: bare sentence (goldens/proof_channel/sweep_timedprize + goldens/
-#: _unmapped/sweep_-prize pin the byte), while +prize (the PERMANENT
-#: grant) appended "Please create one first." (goldens/_unmapped/
+#: bare sentence (goldens/proof_channel/sweep_timedprize +
+#: sweep_-prize pin the byte), while +prize (the PERMANENT grant)
+#: appended "Please create one first." (goldens/proof_channel/
 #: sweep_+prize pins that byte; codex review on #145).
 MISSING_CHANNEL = "Channel '#proof' not found."
 MISSING_CHANNEL_CREATE = "Channel '#proof' not found. Please create one first."

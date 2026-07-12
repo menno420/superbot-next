@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.-prize",
+ "case_id": "sweep.toggle_turns",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2071439748,
+     "last_xp": 1897680088,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "Channel '#proof' not found.",
+      "content": "Counting game is not set up for this channel.",
       "tts": false
      }
     },
@@ -85,11 +85,11 @@
     }
    ],
    "input": {
-    "content": "!-prize",
+    "content": "!toggle_turns",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "counting"
 }
