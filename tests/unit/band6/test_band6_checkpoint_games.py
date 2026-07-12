@@ -300,6 +300,57 @@ def test_fishing_catalog_and_bands():
         catalog.species_for_venue("shore"))
 
 
+def test_fishing_energy_settle_and_bar():
+    from sb.domain.fishing import energy
+
+    # shipped constants verbatim (utils/fishing/energy.py)
+    assert (energy.MAX_ENERGY, energy.CAST_COST,
+            energy.REGEN_SECONDS) == (60, 2, 30)
+    # fresh row (table defaults 60/0) settles straight to the cap at now
+    fresh = energy.settle(energy.EnergyState(60, 0), 1_000)
+    assert fresh == energy.EnergyState(60, 1_000)
+    # one cast spends CAST_COST and stamps now — the sweep_fish row shape
+    spent = energy.spend(energy.EnergyState(60, 0), 1_000)
+    assert spent == energy.EnergyState(58, 1_000)
+    # partial regen advances the stamp by WHOLE intervals only
+    partial = energy.settle(energy.EnergyState(10, 1_000), 1_075)
+    assert partial == energy.EnergyState(12, 1_060)
+    # the golden footer gauge byte: round(10 * 58/60) = 10 filled
+    assert energy.bar(58) == "⚡ 58/60 [▰▰▰▰▰▰▰▰▰▰]"
+    assert energy.bar(42) == "⚡ 42/60 [▰▰▰▰▰▰▰▱▱▱]"
+
+
+def test_fishing_weather_deterministic_and_seeded():
+    from datetime import date
+
+    from sb.domain.fishing import weather
+
+    # the table is the shipped 5-condition/weights-sum-100 spread
+    assert [c.key for c in weather.CONDITIONS] == [
+        "clear", "rain", "calm", "fog", "storm"]
+    assert sum(c.weight for c in weather.CONDITIONS) == 100
+    # date-seeded pick is stable across calls (sha256, not salted hash)
+    d = date(2026, 7, 4)
+    assert weather.weather_for_date(d) is weather.weather_for_date(d)
+    # a known rain-pick day under the shipped table (capture-window check)
+    assert weather.weather_for_date(date(2026, 7, 4)).key == "rain"
+    assert weather.weather_for_date(date(2026, 6, 24)).key == "clear"
+    # effect_text names only the knobs that move
+    rain = next(c for c in weather.CONDITIONS if c.key == "rain")
+    clear = next(c for c in weather.CONDITIONS if c.key == "clear")
+    storm = next(c for c in weather.CONDITIONS if c.key == "storm")
+    assert weather.effect_text(rain) == "faster bites"
+    assert weather.effect_text(storm) == "slower bites · rarer fish"
+    assert weather.effect_text(clear) == "no effect — a fair, ordinary day"
+    # the parity-replay seam wins while armed and clears clean (trap 20)
+    try:
+        weather.seed_weather_for_replay("rain")
+        assert weather.current_weather().key == "rain"
+    finally:
+        weather.seed_weather_for_replay(None)
+    assert weather.current_weather().key in {c.key for c in weather.CONDITIONS}
+
+
 def test_fishing_cast_commits(fake_economy, fake_games_store,
                               monkeypatch):
     from sb.domain.fishing import ops
