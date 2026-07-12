@@ -1,8 +1,9 @@
 # 2026-07-12 — deep-mining WRITE-PARITY lane — WP-2 vault write goldens
 
-> **Status:** HOLD (born-red — WP-2 in flight: stash / unstash / stash-all /
-> vaultupgrade write goldens + mining_vault / mining_player_state exemption
-> retire. First commit plants the flag; flips complete on the last commit.)
+> **Status:** complete (WP-2 DELIVERED — 4 vault write goldens minted
+> byte-identical, mining_vault + mining_player_state exemptions retired, a
+> two-txn vault_upgrade advisory-lock concurrency regression added; gate + all
+> checkers green. PR #312, stacked on #306.)
 
 - **📊 Model:** opus-4.8 · high · parity/golden-minting (Q-0194)
 
