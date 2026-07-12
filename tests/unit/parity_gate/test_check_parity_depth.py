@@ -38,13 +38,14 @@ class TestImportedCorpus:
         # golden (D-0073 procedure) + 4 minted browse-interaction goldens
         # (2026-07-12) + 2 minted multi-step tournament-flow goldens + 5 minted
         # WP-1 mining write-parity goldens (equip/unequip/loadout
-        # save·apply·delete; parity.yml
+        # save·apply·delete) + 1 minted paid-tournament conservation golden
+        # (2026-07-12) (parity.yml
         # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
         # `!cog` capture, + sweep_query_logs.json / sweep_recent_errors.json,
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 481
+        assert len(goldens) == 482
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -69,7 +70,8 @@ class TestImportedCorpus:
         # (D-0073 procedure) + 4 browse-interaction mints (2026-07-12)
         # + 2 multi-step tournament-flow mints
         # + 5 WP-1 mining write-parity mints (equip/unequip/loadout)
-        assert source["minted_goldens"] == 19
+        # + 1 paid-tournament conservation mint (2026-07-12)
+        assert source["minted_goldens"] == 20
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -594,7 +596,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "481 goldens" in out
+        assert "482 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

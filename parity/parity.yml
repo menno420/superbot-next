@@ -107,10 +107,22 @@ source:
   # the shipped `<@u> ` mention + oracle copy (mining_workflow verbatim);
   # the audited kernel-spine rows ride the same kernel-surface-drift drop as
   # every domain golden.
-  minted_goldens: 19
+  # +1 minted the PAID-pot conservation golden (2026-07-12 money-review
+  # round-2, same D-0073 procedure) that #302's FREE-only flow left unpinned:
+  # blackjack/blackjack_tournament_paid_flow — open a fee-25 tournament → two
+  # pre-funded entrants Join → !bjstart debits each 25 (tournament:entry_fee)
+  # → per-entrant round → champion paid the pooled 50 pot
+  # (blackjack:tournament_win) + clear_active, self-cleaning. The golden's
+  # economy_audit_log rows ARE the conservation assertion: the two 25 debits
+  # sum to the single 50 payout (no coins minted or stranded on the paid
+  # leg). Entrants are pre-funded via fixture_sql (outside db_delta); the fee
+  # amount is the sim-pinned test value (the shipped fee is a user command
+  # arg, not an oracle constant), the pot is the summed stakes and the
+  # payout reason is oracle-verbatim.
+  minted_goldens: 20
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 481). The first retirement (2026-07-12
+  # imported + minted − retired = 482). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

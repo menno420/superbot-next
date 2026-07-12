@@ -245,6 +245,47 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "+ results embed (self-cleaning: end_tournament + clear_active)"
         ),
     ),
+    GoldenCase(
+        id="blackjack.tournament_paid_flow",
+        subsystem="blackjack",
+        # Both entrants are pre-funded via fixture_sql (BEFORE the
+        # before-snapshot, so the seed credits never appear in db_delta —
+        # only the tournament's own money legs do). 100 🪙 each clears the
+        # 25 🪙 join affordability gate; the fee debits at launch, not join.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 100), "
+            "(900000000000000103, 700000000000000001, 100)",
+        ),
+        steps=(
+            # open a PAID single-round tournament (fee 25, rounds 1)
+            Step(kind="command", content="!bjtournament 25 1", persona="admin"),
+            # member signs up via the 🃏 Join button (affordability passes)
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+            # a second player signs up → the roster reaches two
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="second_member"),
+            # admin launches: per-entrant fee debit (tournament:entry_fee)
+            # + first round table view
+            Step(kind="command", content="!bjstart", persona="admin"),
+            # each entrant Stands their single round (Stand = 2nd button)
+            Step(kind="click", target_message=3, component_index=1,
+                 persona="member"),
+            Step(kind="click", target_message=5, component_index=1,
+                 persona="second_member"),
+        ),
+        notes=(
+            "minted (D-0073): the PAID-pot money path #302's free-tournament "
+            "golden left unpinned — open (fee 25) → two Join sign-ups → "
+            "!bjstart debits each entrant 25 (tournament:entry_fee) → "
+            "per-entrant round → all-done settle → champion paid the pooled "
+            "50 pot (blackjack:tournament_win) + clear_active, self-cleaning. "
+            "CONSERVATION: the two 25 entry_fee debits sum to the single 50 "
+            "tournament_win payout — the exact economy_audit_log rows are the "
+            "golden's assertion (no coins minted or stranded on the paid leg)"
+        ),
+    ),
     # ----------------------------------------------------- rps tournament
     GoldenCase(
         id="rps.tournament_foreign_active_refusal",
