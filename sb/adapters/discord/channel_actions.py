@@ -60,6 +60,7 @@ import logging
 
 from sb.adapters.discord.moderation_actions import GuildNotAllowedError
 from sb.adapters.discord.role_actions import _GuildAllowList
+from sb.domain.channel.service import ChannelOverwrite, ChannelSnapshot
 
 logger = logging.getLogger("sb.adapters.discord.channel_actions")
 
@@ -69,6 +70,7 @@ except ImportError:
     discord = None  # type: ignore[assignment]
 
 __all__ = [
+    "DiscordChannelDirectory",
     "DiscordChannelLookup",
     "DiscordChannelStateActions",
     "DiscordProofChannelActions",
@@ -207,7 +209,7 @@ class DiscordChannelStateActions(_ChannelAllowList):
             self, guild_id: int, *, name: str,
             overwrites: tuple, parent_id: int | None,
             reason: str | None) -> int:
-        self._require_discord()
+        discord = self._require_discord()
         guild = self._guild(guild_id)  # guild-scoped → allow-list direct
         # map the ChannelOverwrite tuple → discord's {target: PermissionOverwrite}
         # (the overwrites ride AT creation — the oracle's
@@ -221,9 +223,12 @@ class DiscordChannelStateActions(_ChannelAllowList):
                     if parent_id is not None else None)
         # ALWAYS creates — get-before-create/idempotent reuse is DOMAIN logic
         # (the oracle's ensure_setup_channel), never the port's (D-0077).
-        channel = await guild.create_text_channel(
-            name=name, overwrites=overwrite_map, category=category,
-            reason=reason)
+        try:
+            channel = await guild.create_text_channel(
+                name=name, overwrites=overwrite_map, category=category,
+                reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
         return int(channel.id)
 
     async def delete_channel(self, channel_id: int, *,
@@ -239,20 +244,92 @@ class DiscordChannelStateActions(_ChannelAllowList):
             # guards stay in the calling domain, not here.
             logger.info("channel %s already deleted — NotFound as success",
                         channel_id)
+        except discord.HTTPException as exc:
+            # every OTHER live HTTP failure translates (the module's
+            # _as_runtime posture) so the shipped `❌ Could not …` branch
+            # renders instead of the generic dispatcher envelope.
+            raise self._as_runtime(exc) from exc
 
     async def create_invite(self, channel_id: int, *, max_age: int,
                             max_uses: int, temporary: bool, unique: bool,
                             reason: str | None) -> str:
-        self._require_discord()
+        discord = self._require_discord()
         channel = self._channel(channel_id)
         # the shipped `!invite` ctx.channel.create_invite(...); wire verb
         # create_invite. Unlike the parity twin (which reproduces the
         # capture-world unparseable-response artifact, CaptureInviteParseError),
         # a LIVE invite adapter simply returns the minted invite URL.
-        invite = await channel.create_invite(
-            max_age=int(max_age), max_uses=int(max_uses),
-            temporary=bool(temporary), unique=bool(unique), reason=reason)
+        try:
+            invite = await channel.create_invite(
+                max_age=int(max_age), max_uses=int(max_uses),
+                temporary=bool(temporary), unique=bool(unique), reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
         return str(invite.url)
+
+    async def rename_channel(self, channel_id: int, *, name: str,
+                             reason: str | None) -> None:
+        discord = self._require_discord()
+        channel = self._channel(channel_id)
+        # a rename is a channel-edit PATCH carrying only `name` (the parity
+        # twin's wire verb; goldens/channel/sweep_rename pins the shape).
+        try:
+            await channel.edit(name=str(name), reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
+
+    async def set_topic(self, channel_id: int, *, topic: str | None,
+                        reason: str | None) -> None:
+        discord = self._require_discord()
+        channel = self._channel(channel_id)
+        # a topic change is a channel-edit PATCH carrying only `topic` — a
+        # CLEAR rides as an explicit None (goldens/channel/sweep_topic pins
+        # `{"topic": null}`).
+        try:
+            await channel.edit(
+                topic=(topic if topic is None else str(topic)), reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
+
+    async def move_channel(self, channel_id: int, *, category_id: int,
+                           reason: str | None) -> None:
+        discord = self._require_discord()
+        channel = self._channel(channel_id)
+        # a category move is a channel-edit PATCH carrying `parent_id`
+        # (discord.py `channel.edit(category=…)`). The category resolves off
+        # the SAME cache guild the fence validated — an unresolvable category
+        # raises LOUDLY (the calling handler already directory-resolved it, so
+        # a miss here is a cache race, not user input).
+        category = channel.guild.get_channel(int(category_id))
+        if category is None:
+            raise RuntimeError(
+                f"category {category_id} is not available in guild "
+                f"{getattr(channel.guild, 'id', '?')}")
+        try:
+            await channel.edit(category=category, reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
+
+    async def clone_channel(self, guild_id: int, *, name: str,
+                            source, reason: str | None) -> int:
+        discord = self._require_discord()
+        guild = self._guild(guild_id)  # guild-scoped → allow-list direct
+        # discord.py `TextChannel.clone(name=…)` — the create_channel POST
+        # carrying the SOURCE channel's full option set with the new name (the
+        # parity twin's wire shape; goldens/channel/sweep_clone). The source
+        # rides as a ChannelSnapshot; the LIVE clone resolves the real source
+        # channel from the SAME cache guild the fence validated and lets
+        # discord.py replicate its option set (topic/nsfw/slowmode/overwrites).
+        channel = guild.get_channel(int(source.channel_id))
+        if channel is None:
+            raise RuntimeError(
+                f"channel {source.channel_id} is not available in guild "
+                f"{getattr(guild, 'id', '?')}")
+        try:
+            cloned = await channel.clone(name=str(name), reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
+        return int(cloned.id)
 
 
 class DiscordProofChannelActions(_ChannelGuildAllowList):
@@ -330,3 +407,89 @@ class DiscordChannelLookup(_ChannelGuildAllowList):
             if getattr(channel, "name", None) == name:
                 return int(channel.id)
         return None
+
+
+class DiscordChannelDirectory(_ChannelGuildAllowList):
+    """The live ``ChannelDirectory`` (sb/domain/channel/service.py) — the
+    gateway-cache READS behind the channel-ops converter ladder and list
+    surfaces (the live twin of the parity harness's ``_WorldChannelDirectory``,
+    sb/adapters/parity/boot.py). Pure cache walks, NEVER a REST fetch and never
+    a mutation: ``list_channels`` snapshots ``guild.channels`` in discord.py's
+    presentation order (sorted ``(position, id)`` — the order
+    goldens/channel/sweep_list pins), ``get_channel`` the single cache entry,
+    ``list_roles`` the ``guild.roles`` (id, name) pairs for the RoleConverter's
+    id/name legs.
+
+    READ posture (the ``DiscordChannelLookup`` fence, not the mutation ports'
+    hard raise): any guild other than the allowed test guild — or a guild not
+    resolvable from cache — reads as EMPTY (``()`` / ``None``), so every
+    directory-led lane refuses with its own not-found copy and the directory
+    stays test-guild-scoped without inventing a new error surface."""
+
+    def _read_guild(self, guild_id: int):
+        # the soft test-guild fence: a non-allowed guild READS as absent
+        # (never a raise — reads never mutate, and the handlers already carry
+        # their own not-found branches).
+        if int(guild_id) != self._allowed_guild_id:
+            return None
+        return self._bot.get_guild(int(guild_id))
+
+    def _snap(self, channel) -> ChannelSnapshot:
+        discord = self._require_discord()
+        overwrites = []
+        for target, ow in (getattr(channel, "overwrites", {}) or {}).items():
+            allow, deny = ow.pair()
+            overwrites.append(ChannelOverwrite(
+                target_id=int(target.id),
+                # the ChannelOverwrite int convention: 0 = role, 1 = member.
+                target_type=(0 if isinstance(target, discord.Role) else 1),
+                allow=int(allow.value), deny=int(deny.value)))
+        category = getattr(channel, "category", None)
+        parent_id = getattr(channel, "category_id", None)
+        # metadata reads are getattr-defaulted to the dataclass defaults —
+        # category/voice channels carry no topic/slowmode/thread fields
+        # (discord.py's own text-channel defaults, ChannelSnapshot docstring).
+        return ChannelSnapshot(
+            channel_id=int(channel.id),
+            name=str(channel.name),
+            kind=str(getattr(channel, "type", "text")),
+            position=int(getattr(channel, "position", 0) or 0),
+            category=(str(category.name) if category is not None else None),
+            parent_id=(int(parent_id) if parent_id is not None else None),
+            topic=getattr(channel, "topic", None),
+            nsfw=bool(getattr(channel, "nsfw", False)),
+            rate_limit_per_user=int(
+                getattr(channel, "slowmode_delay", 0) or 0),
+            default_auto_archive_duration=int(
+                getattr(channel, "default_auto_archive_duration", 1440)
+                or 1440),
+            default_thread_rate_limit_per_user=int(
+                getattr(channel, "default_thread_slowmode_delay", 0) or 0),
+            created_at=getattr(channel, "created_at", None),
+            overwrites=tuple(overwrites))
+
+    async def list_channels(self, guild_id: int) -> tuple:
+        guild = self._read_guild(guild_id)
+        if guild is None:
+            return ()
+        snaps = [self._snap(channel)
+                 for channel in (getattr(guild, "channels", []) or [])]
+        snaps.sort(key=lambda snap: (snap.position, snap.channel_id))
+        return tuple(snaps)
+
+    async def get_channel(self, guild_id: int,
+                          channel_id: int) -> ChannelSnapshot | None:
+        guild = self._read_guild(guild_id)
+        if guild is None:
+            return None
+        channel = guild.get_channel(int(channel_id))
+        if channel is None:
+            return None
+        return self._snap(channel)
+
+    async def list_roles(self, guild_id: int) -> tuple:
+        guild = self._read_guild(guild_id)
+        if guild is None:
+            return ()
+        return tuple((int(role.id), str(role.name))
+                     for role in (getattr(guild, "roles", []) or []))

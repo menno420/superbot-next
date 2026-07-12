@@ -3,12 +3,13 @@
 > **Status:** `reference` — the SLICE 4 live-drive ops runbook for the live guild
 > effect adapters. Human-operator procedure only; there is NO automated CI
 > live-drive (no gateway token in CI). Wiring of record: `sb/app/main.py` install
-> block (`:409-501`) + adapters `sb/adapters/discord/{moderation,role,channel}_actions.py`.
+> block (step 10a, `:394-532`) + adapters
+> `sb/adapters/discord/{moderation,role,channel}_actions.py` + `utility_reads.py`.
 > Line refs cite the `claude/live-channel-adapters` tip; re-verify if the lane advances.
 
 **Lane:** `live-guild-effects` (SLICE 4 deliverable) · **Repo:** `menno420/superbot-next`
 **Base:** `claude/live-channel-adapters` tip (SLICE 1 moderation + SLICE 2 role + SLICE 3 channel stacked; role/moderation Codex review-fixes merged forward)
-**Test guild:** `MineSnakeBotTest` · id `1350952413737259151`
+**Test guild:** ENV-DERIVED — the allow-list is whatever `SB_APPCMD_SYNC_GUILD_ID` names at boot (never a code constant). Currently verified: `Superbot Admin` · id `1522099141671653417` (the guild the 2026-07-10 live-drive session booted against, `.sessions/2026-07-10-band5-live-drive.md`; the earlier `MineSnakeBotTest` guild is retired).
 **Audience:** a human operator with the test bot's gateway token and a reachable Postgres. This is NOT a CI job.
 
 ---
@@ -16,7 +17,7 @@
 ## 0. TL;DR — verdict up front
 
 - **Automated CI live-drive: NOT POSSIBLE.** No live Discord gateway token and none of the owner-provisioned prod/effect secrets exist in CI. The only Discord token literal anywhere in `.github/workflows` is the string `"verify-boot-placeholder"`, explicitly annotated *"never used: no gateway is built"* (`.github/workflows/restore-verify.yml:123`). CI cannot connect a gateway, therefore CI cannot drive a single live guild effect. Evidence in §1.
-- **This document is a HUMAN-OPERATOR procedure** run against the test plane + the `MineSnakeBotTest` guild only.
+- **This document is a HUMAN-OPERATOR procedure** run against the test plane + the single test guild named by `SB_APPCMD_SYNC_GUILD_ID` only (currently `Superbot Admin`, `1522099141671653417`).
 - **The production root stays UNARMED throughout.** The effect ports install *only* under the test double-gate; a prod-plane boot (even attested) leaves every effect port un-installed by construction (§5).
 
 ---
@@ -58,13 +59,13 @@ The owner-provisioned credential set that a real drive would need lives in `sb/s
 
 Before you begin you must have, on the machine that will run the bot:
 
-1. The **test bot's** gateway token (the `MineSnakeBotTest` application). It is supplied through the env var `DISCORD_BOT_TOKEN_PRODUCTION` — that is the *only* token field the config declares (`sb/spec/config.py:124`); on the test plane you put the **test** bot's token value in it. The bot must be a member of `MineSnakeBotTest` (id `1350952413737259151`) with Manage Roles / Manage Channels / Kick / Ban / Moderate Members as needed, and a role positioned above the members/roles it will act on.
+1. The **test bot's** gateway token. It is supplied through the env var `DISCORD_BOT_TOKEN_PRODUCTION` — that is the *only* token field the config declares (`sb/spec/config.py:124`); on the test plane you put the **test** bot's token value in it. The bot must be a member of the test guild you name in `SB_APPCMD_SYNC_GUILD_ID` (currently `Superbot Admin`, id `1522099141671653417`) with Manage Roles / Manage Channels / Kick / Ban / Moderate Members as needed, and a role positioned above the members/roles it will act on.
 2. A reachable Postgres and its DSN in `DATABASE_URL`.
-3. The `MineSnakeBotTest` guild, a throwaway member to act on, and a throwaway role/channel to mutate.
+3. The test guild itself, a throwaway member to act on, and a throwaway role/channel to mutate.
 
 ### 1.3 Scope guarantees
 
-- Every mutation is fenced to guild `1350952413737259151` by a hard per-call allow-list (§4). A test-plane process still holds a real gateway token, so this fence is what stops a stray `!ban` from touching any other guild.
+- Every mutation is fenced to the `SB_APPCMD_SYNC_GUILD_ID` guild by a hard per-call allow-list (§4) — the fence value is env-derived at boot, never hardcoded. A test-plane process still holds a real gateway token, so this fence is what stops a stray `!ban` from touching any other guild.
 - The production root stays **UNARMED**: on the prod plane the effect ports never install (§5). Nothing in this procedure arms prod.
 
 ---
@@ -95,10 +96,10 @@ All three domains (moderation, role, channel) arm off the **same** `if test_guil
 ```bash
 # --- the two gates that arm the effect ports ---
 export SB_DATA_PLANE=test
-export SB_APPCMD_SYNC_GUILD_ID=1350952413737259151   # MineSnakeBotTest
+export SB_APPCMD_SYNC_GUILD_ID=1522099141671653417   # Superbot Admin — the currently-verified test guild
 
 # --- the gateway token (test bot's token in the PRODUCTION-named field) ---
-export DISCORD_BOT_TOKEN_PRODUCTION='<the MineSnakeBotTest bot gateway token>'
+export DISCORD_BOT_TOKEN_PRODUCTION='<the test bot gateway token>'
 
 # --- a reachable Postgres ---
 export DATABASE_URL='postgresql://<user>:<pw>@<host>:5432/<db>'
@@ -111,7 +112,7 @@ export DATABASE_URL='postgresql://<user>:<pw>@<host>:5432/<db>'
 ```
 
 Notes that decide whether the block runs:
-- **Both** `SB_DATA_PLANE=test` and `SB_APPCMD_SYNC_GUILD_ID=1350952413737259151` are mandatory. Drop either and `test_guild_id` is `None` and **no** effect port installs.
+- **Both** `SB_DATA_PLANE=test` and `SB_APPCMD_SYNC_GUILD_ID=<your test guild id>` are mandatory. Drop either and `test_guild_id` is `None` and **no** effect port installs.
 - To exercise prefix commands (`!ban`, `!slowmode`, …) the message feed must arm, which needs the `message_content` intent approved: set `SB_INTENT_MSGCONTENT_OK=true` (`sb/spec/config.py:222-223`, intent contract `:256-260`). Without it the `prefix` class degrades and the message feed is **not** armed (`main.py:596-607`) — you would then have to drive effects through slash/interaction surfaces instead.
 
 ### 2.3 Boot command
@@ -122,14 +123,16 @@ python3 -m sb          # == python3 -m sb.app.main → cli() → run_app()  (mai
 
 ### 2.4 Confirm the adapters installed
 
-The gate emits one INFO log line per domain. On a correctly-armed boot you MUST see all three (`%d` = `1350952413737259151`):
+The gate emits one INFO log line per domain. On a correctly-armed boot you MUST see all of them (`%d` = your `SB_APPCMD_SYNC_GUILD_ID` value, currently `1522099141671653417`):
 
 - Moderation — `main.py:423-425`:
-  `moderation guild-action port ARMED (test plane, guild 1350952413737259151 ONLY): live kick/ban/timeout/unban + guild.me readiness`
+  `moderation guild-action port ARMED (test plane, guild <id> ONLY): live kick/ban/timeout/unban + guild.me readiness`
 - Role — `main.py:463-466`:
-  `role EFFECT ports ARMED (test plane, guild 1350952413737259151 ONLY): live add/remove role + create/delete role + reaction-role fetch_message/add_reaction + the gateway-cache guild view`
+  `role EFFECT ports ARMED (test plane, guild <id> ONLY): live add/remove role + create/delete role + reaction-role fetch_message/add_reaction + the gateway-cache guild view`
 - Channel — `main.py:498-501`:
-  `channel EFFECT ports ARMED (test plane, guild 1350952413737259151 ONLY): live slowmode/overwrite/create/delete/invite + channel-name lookup + proof-channel prize lock/unlock`
+  `channel EFFECT ports ARMED (test plane, guild <id> ONLY): live slowmode/overwrite/create/delete/invite/rename/topic/move/clone + channel directory reads + channel-name lookup + proof-channel prize lock/unlock`
+- (channel slice, read seams)
+  `utility/diagnostic READ seams ARMED (test plane, guild <id> ONLY): gateway-cache guild/member census + ws latency`
 
 If you see **none** of these lines, `test_guild_id` was `None` — re-check §2.2 (usually a missing `SB_DATA_PLANE=test` or a missing/zero `SB_APPCMD_SYNC_GUILD_ID`); look for the `main.py:121-122` warning. Also confirm boot reached `RUNNING` (`main.py:541`) and the audit canary line `boot complete: RUNNING (canary enqueued …)` (`main.py:665`) — the canary proves the audit→outbox→bus relay is live so your effect audit rows will actually be delivered.
 
@@ -137,7 +140,7 @@ If you see **none** of these lines, `test_guild_id` was `None` — re-check §2.
 
 ## 3. Drive each effect
 
-For every effect below: run the command in a `MineSnakeBotTest` channel, observe the Discord state change, read the ack the bot posts, then verify the audit row (§4). All command names are the shipped prefix verbs; ack copy is pinned to the shipped oracle (superbot `disbot/`), so the strings below are the live acks the goldens hold.
+For every effect below: run the command in a test-guild channel, observe the Discord state change, read the ack the bot posts, then verify the audit row (§4). All command names are the shipped prefix verbs; ack copy is pinned to the shipped oracle (superbot `disbot/`), so the strings below are the live acks the goldens hold.
 
 ### 3.1 Moderation (`subsystem = "moderation"`, adapter `sb/adapters/discord/moderation_actions.py`)
 
@@ -180,7 +183,7 @@ Channel effects audit through a **best-effort in-process** seam, `emit_channel_a
 | `!slowmode #channel <seconds>` | `channel.edit(slowmode_delay=…)` (`channel_actions.py:141-148`) | `Slowmode set to **<seconds>s** in "<name>".` or, for 0, `Slowmode disabled in "<name>".` (`handlers.py:158-160`) | `channel` / `channel_set_slowmode` (`handlers.py:150,155`) |
 | `!lock #channel` | `@everyone` send_messages denied via `set_permissions` (`channel_actions.py:150-162`) | `"<name>" locked.` (`handlers.py:102`, `past="locked"`) | `channel` / `channel_set_overwrite` (`handlers.py:95,100`) |
 | `!unlock #channel` | `@everyone` send_messages restored | `"<name>" unlocked.` (`handlers.py:102`, `past="unlocked"`) | `channel` / `channel_set_overwrite` |
-| channel create (setup/ensure lane) | `guild.create_text_channel(...)`, overwrites applied at creation (`channel_actions.py:164-185`); ALWAYS creates (get-before-create is domain logic, D-0077) | (per calling surface) | `channel` / `channel_<operation>` via `emit_channel_audit` |
+| channel create (setup/ensure lane) | `guild.create_text_channel(...)`, overwrites applied at creation (`channel_actions.py:164-185`); ALWAYS creates (get-before-create is domain logic, per the channel-ops adapter-surface decision in `docs/decisions.md`) | (per calling surface) | `channel` / `channel_<operation>` via `emit_channel_audit` |
 | channel delete (setup/teardown lane) | `channel.delete(...)`; `discord.NotFound` treated as SUCCESS — already-gone is the goal state (`channel_actions.py:187-199`) | (per calling surface) | `channel` / `channel_<operation>` |
 | `!invite [#channel]` | `channel.create_invite(...)` mints an invite; returns the URL (`channel_actions.py:201-213`) | the minted invite URL (shipped `!invite` copy) | `channel` / `channel_<operation>` |
 
@@ -215,7 +218,7 @@ For the K7 domains (moderation, role), query the `audit_log` table directly agai
 -- the rows your drive should have produced, newest first
 SELECT occurred_at, subsystem, mutation_type, target, guild_id, actor_id, new_value
 FROM audit_log
-WHERE guild_id = 1350952413737259151
+WHERE guild_id = 1522099141671653417  -- your SB_APPCMD_SYNC_GUILD_ID value
 ORDER BY occurred_at DESC
 LIMIT 20;
 ```
@@ -232,10 +235,10 @@ For channel + proof-channel effects there is **no** `audit_log` row (best-effort
 
 ### 4.3 What a refusal on a NON-allowed guild looks like
 
-Point any effect at a guild id **other than** `1350952413737259151` (e.g. a second guild the test bot happens to be in) and the adapter refuses **before any Discord call**:
+Point any effect at a guild id **other than** the `SB_APPCMD_SYNC_GUILD_ID` guild (e.g. a second guild the test bot happens to be in) and the adapter refuses **before any Discord call**:
 
 - `_guild()` raises `GuildNotAllowedError` when `guild_id != allowed_guild_id` (`moderation_actions.py:83-91`; role via `_GuildAllowList._guild`, `role_actions.py:72-83`; channel via `_ChannelAllowList._channel` / `_ChannelGuildAllowList`, `channel_actions.py:79,110-133`).
-- The exception message reads, e.g., `moderation effect REFUSED: guild <X> is not the allowed test guild 1350952413737259151 …` (`moderation_actions.py:57-61`); the role adapters pass `effect="role"` so the copy reads `role effect REFUSED …` (`role_actions.py:78-79`).
+- The exception message reads, e.g., `moderation effect REFUSED: guild <X> is not the allowed test guild <your id> …` (`moderation_actions.py:57-61`); the role adapters pass `effect="role"` so the copy reads `role effect REFUSED …` (`role_actions.py:78-79`).
 - The engine classifies this loud raise as **PARTIAL + operator finding** (the not-installed-port posture), **never a silent mutation** (`moderation_actions.py:39-50`). No member is kicked, no role changes, no channel is edited — the raise happens before the first Discord API call.
 - Channel-scoped methods (only a `channel_id`) resolve the guild from the **cache** (`bot.get_channel`, never REST) and REFUSE any channel whose guild ≠ the allow-list, including unresolvable channels (DMs, uncached prod channels resolve to guild id 0 → refused, `channel_actions.py:119-133`; role MessageOps the same, `role_actions.py:155-168`).
 - The role guild-VIEW read seam refuses softly: a non-allowed guild returns `None` (the effect stays blocked, the unarmed posture) rather than raising, because `guild_view` is a read the handlers branch on (`role_actions.py:222-225`). The mutation ports keep the hard `GuildNotAllowedError` raise as defense-in-depth.
@@ -246,7 +249,7 @@ Expected user-facing result of a refusal: the effect is blocked and the handler 
 
 ## 5. Safety checklist
 
-- [ ] **Double gate confirmed.** Both `SB_DATA_PLANE=test` **and** `SB_APPCMD_SYNC_GUILD_ID=1350952413737259151` are set. `moderation_test_guild → guild_sync_target` returns non-`None` only when both hold (`main.py:112-138`). Either alone ⇒ ports do not install.
+- [ ] **Double gate confirmed.** Both `SB_DATA_PLANE=test` **and** `SB_APPCMD_SYNC_GUILD_ID=<your test guild id>` are set. `moderation_test_guild → guild_sync_target` returns non-`None` only when both hold (`main.py:112-138`). Either alone ⇒ ports do not install.
 - [ ] **Per-call allow-list confirmed.** Every adapter was constructed with `allowed_guild_id=test_guild_id` (`main.py:420-497`); the fence refuses any other guild before a Discord call (§4.3). This is what protects real guilds from a test-plane process that still holds a real gateway token.
 - [ ] **The three ARMED log lines are present** (`main.py:423-425`, `:463-466`, `:498-501`); no others.
 - [ ] **`SB_VERIFY_BOOT` is unset** (setting it returns before the gateway, `main.py:224-229` — no live effects at all).

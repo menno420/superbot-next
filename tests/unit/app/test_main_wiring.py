@@ -146,6 +146,13 @@ class TestChannelEffectPortsGate:
         assert ("install_channel_lookup(\n"
                 "                DiscordChannelLookup(bot, "
                 "allowed_guild_id=test_guild_id))") in src
+        # the gateway-cache READ seam (ChannelDirectory) — without it every
+        # directory-led channel lane refuses at _NoDirectory BEFORE reaching
+        # the mutation port (the role slice's guild-view lesson), so the
+        # mutation port is inert without this install.
+        assert ("install_channel_directory(\n"
+                "                DiscordChannelDirectory(bot, "
+                "allowed_guild_id=test_guild_id))") in src
         # proof_channel's OWN install_channel_actions (aliased to avoid the
         # name clash with the channel domain's) with the allow-list
         assert ("install_proof_channel_actions(\n"
@@ -161,7 +168,31 @@ class TestChannelEffectPortsGate:
         src = inspect.getsource(app_main.run_app)
         gate_at = src.index("if test_guild_id is not None:")
         for needle in ("install_channel_actions(", "install_channel_lookup(",
+                       "install_channel_directory(",
                        "install_proof_channel_actions("):
+            assert src.index(needle) > gate_at, needle
+
+
+class TestUtilityReadSeamsGate:
+    """The utility/diagnostic READ seams (the ledgered §4.1 not-armed gap
+    family) ride the SAME test-plane + test-guild gate as the effect ports:
+    the gateway-cache guild/member census (``install_guild_directory`` —
+    !serverinfo/!serverstats + the avatar/user-info/panel member cards) and
+    the ws-latency read (``install_ws_latency_reader`` — !latency). READS
+    ONLY; the prod root leaves them un-installed (the polite pre-arm refusal
+    copy stays)."""
+
+    def test_read_seams_install_only_under_the_test_guild_gate(self):
+        import inspect
+
+        src = inspect.getsource(app_main.run_app)
+        assert ("install_guild_directory(\n"
+                "                DiscordGuildDirectory(bot, "
+                "allowed_guild_id=test_guild_id))") in src
+        assert "install_ws_latency_reader(lambda: bot.latency)" in src
+        gate_at = src.index("if test_guild_id is not None:")
+        for needle in ("install_guild_directory(",
+                       "install_ws_latency_reader("):
             assert src.index(needle) > gate_at, needle
 
 
