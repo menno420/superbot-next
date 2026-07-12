@@ -121,15 +121,22 @@ def test_bot_action_bias():
 
 
 def _start_pvp(fake_games_store, dm_stats):
+    """Challenge writes NOTHING (the ops-module D-0042-review note —
+    the pending challenge is the session binding's args); the duel row
+    and its g1 components are born at accept."""
     from sb.domain.deathmatch import ops
 
     out = run(ops._record_challenge(
         None, _ctx({"channel_id": CH, "target_id": P2})))
+    assert out.after["challenger"] == P1
+    assert out.after["target"] == P2
+    assert "session_id" not in out.after     # no row, no session yet
+    out = run(ops._record_accept(
+        None, _ctx({"challenger": P1, "target": P2, "channel_id": CH},
+                   uid=P2)))
     sid = out.after["session_id"]
     assert any(c.startswith("g1:deathmatch:") for c in
                out.after["components"])
-    out = run(ops._record_accept(
-        None, _ctx({"session_id": sid}, uid=P2)))
     return sid, out
 
 
@@ -165,26 +172,35 @@ def test_challenge_accept_move_settle(fake_games_store, dm_stats):
 
 
 def test_challenge_guards_and_decline(fake_games_store, dm_stats):
+    """Shipped guard semantics: ``active_duels`` held only ACCEPTED
+    duels, so the already-in-a-duel refusal keys on duel rows (challenge
+    AND accept both check); a pending challenge is session-binding
+    memory — decline consumes nothing durable (the card's expire owns
+    single-answer, the shipped ``view.stop()``)."""
     from sb.domain.deathmatch import ops
     from sb.kernel.interaction.errors import ValidatorError
 
+    pending = {"challenger": P1, "target": P2, "channel_id": CH}
     with pytest.raises(ValidatorError):     # self-challenge
         run(ops._record_challenge(
             None, _ctx({"channel_id": CH, "target_id": P1})))
-    out = run(ops._record_challenge(
+    run(ops._record_challenge(
         None, _ctx({"channel_id": CH, "target_id": P2})))
-    sid = out.after["session_id"]
-    with pytest.raises(ValidatorError):     # either already in a duel
+    with pytest.raises(ValidatorError):     # only the target may accept
+        run(ops._record_accept(None, _ctx(dict(pending), uid=99)))
+    with pytest.raises(ValidatorError):     # ...or decline
+        run(ops._record_decline(None, _ctx(dict(pending), uid=99)))
+    out = run(ops._record_decline(None, _ctx(dict(pending), uid=P2)))
+    assert out.after["terminal"]
+    assert dm_stats.results == []
+    # an ACCEPTED duel arms the shipped either-already-in-a-duel guard
+    # on both the challenge and the accept lanes
+    run(ops._record_accept(None, _ctx(dict(pending), uid=P2)))
+    with pytest.raises(ValidatorError):
         run(ops._record_challenge(
             None, _ctx({"channel_id": 888, "target_id": P2}, uid=99)))
-    with pytest.raises(ValidatorError):     # only the target may accept
-        run(ops._record_accept(None, _ctx({"session_id": sid}, uid=99)))
-    out = run(ops._record_decline(None, _ctx({"session_id": sid},
-                                             uid=P2)))
-    assert out.after["terminal"]
-    with pytest.raises(ValidatorError):     # pending row consumed
-        run(ops._record_accept(None, _ctx({"session_id": sid}, uid=P2)))
-    assert dm_stats.results == []
+    with pytest.raises(ValidatorError):     # double-accept lands on the row
+        run(ops._record_accept(None, _ctx(dict(pending), uid=P2)))
 
 
 def test_bot_duel_no_stats(fake_games_store, dm_stats):

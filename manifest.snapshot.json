@@ -4447,6 +4447,16 @@
           "value": "dm_help"
         },
         {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_accept"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_decline"
+        },
+        {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diag_status"
@@ -5904,6 +5914,16 @@
           "source": "sb/manifest/deathmatch.py",
           "subsystem": "deathmatch",
           "value": "deathmatch.hub"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch.challenge_card"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch.help_card"
         },
         {
           "source": "sb/manifest/diagnostic.py",
@@ -8461,11 +8481,17 @@
       "handler:creature.rules_view": {
         "module": "sb.domain.creature.service"
       },
+      "handler:deathmatch.challenge_click": {
+        "module": "sb.domain.deathmatch.service"
+      },
       "handler:deathmatch.challenge_route": {
         "module": "sb.domain.deathmatch.service"
       },
       "handler:deathmatch.help_view": {
         "module": "sb.domain.deathmatch.service"
+      },
+      "handler:deathmatch.render_challenge": {
+        "module": "sb.domain.deathmatch.panels"
       },
       "handler:deathmatch.stats_view": {
         "module": "sb.domain.deathmatch.service"
@@ -9780,6 +9806,12 @@
       },
       "panel:creature.rules_card": {
         "module": "sb.domain.creature.panels"
+      },
+      "panel:deathmatch.challenge_card": {
+        "module": "sb.domain.deathmatch.panels"
+      },
+      "panel:deathmatch.help_card": {
+        "module": "sb.domain.deathmatch.panels"
       },
       "panel:deathmatch.hub": {
         "module": "sb.domain.deathmatch.panels"
@@ -11995,7 +12027,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d41bd28fa53fe00bfd0138ee1ee252e9256e832a1b5d5592d48ec738acb4d70b",
+  "stable_hash": "sha256:59635087dfb75a2b37a1ea7d8325e80d94e9589ddb2bd837691e268769b7f98f",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -25313,6 +25345,148 @@
           "subsystem": "deathmatch",
           "timeout_s": 180,
           "title": "⚔️ Deathmatch",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "dm_accept",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.challenge_click"
+              },
+              "label": "✅ Accept",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "dm_decline",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.challenge_click"
+              },
+              "label": "❌ Decline",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped challenge/duel embeds are match-parameterized copy on every line (challenger/target mentions, HP lines, turn prompts — cogs/deathmatch_cog.py); grammar TextBlocks are static. The challenge-stage buttons stay DECLARED on the spec (authority + the session mint); the accepted-duel stage swaps them for g1: dynamic-session Attack/Defend minted from the duel's session id. The renderer only composes the staged embed + buttons.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "dm_accept",
+                    "dm_decline"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "deathmatch.challenge_card",
+          "renderer_override": {
+            "$ref": "handler:deathmatch.render_challenge"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "deathmatch",
+          "timeout_s": 30,
+          "title": "⚔️ Deathmatch Challenge",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**Commands:**\n`!deathmatch @User` — Challenge a user to a duel.\n`!leaderboard deathmatch` — View the top duelists.\n\n**During a Duel:**\nUse the **⚔️ Attack** and **🛡️ Defend** buttons in the duel message."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "deathmatch.help_card",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "deathmatch",
+          "timeout_s": 180,
+          "title": "Deathmatch Help",
           "usage_weight": 1.0
         }
       ],
