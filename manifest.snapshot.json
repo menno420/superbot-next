@@ -2371,6 +2371,62 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "fact"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "joke"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "quote"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "trivia"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "motivate"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "eightball"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "surface": "prefix",
+          "value": "greet"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/help.py",
           "subsystem": "help",
           "surface": "prefix",
@@ -4604,6 +4660,11 @@
           "value": "general_overview"
         },
         {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "trivia_reveal"
+        },
+        {
           "source": "sb/manifest/inventory.py",
           "subsystem": "inventory",
           "value": "open_mining_materials"
@@ -5831,6 +5892,16 @@
           "source": "sb/manifest/general.py",
           "subsystem": "general",
           "value": "general.menu"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "general.card"
+        },
+        {
+          "source": "sb/manifest/general.py",
+          "subsystem": "general",
+          "value": "general.trivia_card"
         },
         {
           "source": "sb/manifest/help.py",
@@ -8534,13 +8605,28 @@
       "handler:games.session_gc_fire": {
         "module": "sb.domain.games.service"
       },
+      "handler:general.card_render": {
+        "module": "sb.domain.general.panels"
+      },
       "handler:general.eightball_answer": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.eightball_cmd": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.fact_cmd": {
         "module": "sb.domain.general.handlers"
       },
       "handler:general.fact_view": {
         "module": "sb.domain.general.handlers"
       },
+      "handler:general.greet_cmd": {
+        "module": "sb.domain.general.handlers"
+      },
       "handler:general.greet_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.joke_cmd": {
         "module": "sb.domain.general.handlers"
       },
       "handler:general.joke_view": {
@@ -8549,10 +8635,25 @@
       "handler:general.menu_view": {
         "module": "sb.domain.general.handlers"
       },
+      "handler:general.motivate_cmd": {
+        "module": "sb.domain.general.handlers"
+      },
       "handler:general.motivate_view": {
         "module": "sb.domain.general.handlers"
       },
+      "handler:general.quote_cmd": {
+        "module": "sb.domain.general.handlers"
+      },
       "handler:general.quote_view": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.trivia_card_render": {
+        "module": "sb.domain.general.panels"
+      },
+      "handler:general.trivia_cmd": {
+        "module": "sb.domain.general.handlers"
+      },
+      "handler:general.trivia_reveal": {
         "module": "sb.domain.general.handlers"
       },
       "handler:general.trivia_view": {
@@ -9542,7 +9643,13 @@
       "panel:games.world_card": {
         "module": "sb.domain.games.panels"
       },
+      "panel:general.card": {
+        "module": "sb.domain.general.panels"
+      },
       "panel:general.menu": {
+        "module": "sb.domain.general.panels"
+      },
+      "panel:general.trivia_card": {
         "module": "sb.domain.general.panels"
       },
       "panel:help.cat_admin": {
@@ -11669,7 +11776,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:2d2e80de56e22bcf51fe7bfff696d67c61b89012feb13b5174173637c188d0b6",
+  "stable_hash": "sha256:582963b0d5c42fb53caf2793e441b21e6c7843dedf679a104415ce8e26818d84",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -30145,6 +30252,176 @@
           "summary": "Open the General menu (facts, jokes, quotes, trivia, motivation, 8-ball, greetings).",
           "usage": "!generalmenu",
           "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "fact",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.fact_cmd"
+          },
+          "slash_common": false,
+          "summary": "Sends a random interesting fact.",
+          "usage": "!fact",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "joke",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.joke_cmd"
+          },
+          "slash_common": false,
+          "summary": "Sends a random joke.",
+          "usage": "!joke",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "quote",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.quote_cmd"
+          },
+          "slash_common": false,
+          "summary": "Sends a random famous quote.",
+          "usage": "!quote",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "trivia",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.trivia_cmd"
+          },
+          "slash_common": false,
+          "summary": "Asks a trivia question with a reveal button.",
+          "usage": "!trivia",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "motivate",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.motivate_cmd"
+          },
+          "slash_common": false,
+          "summary": "Sends a motivational message.",
+          "usage": "!motivate",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "8ball"
+          ],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "eightball",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.eightball_cmd"
+          },
+          "slash_common": false,
+          "summary": "Ask the Magic 8-Ball a yes/no question.",
+          "usage": "!eightball <question>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "general",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "greet",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:general.greet_cmd"
+          },
+          "slash_common": false,
+          "summary": "Greets you with a random greeting.",
+          "usage": "!greet",
+          "usage_weight": 1.0
         }
       ],
       "data_invariants": [],
@@ -30427,6 +30704,120 @@
           "subsystem": "general",
           "timeout_s": 180,
           "title": "💬 General",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped general prefix results are run-parameterized on every surface: the per-command title ('💡 Random Fact' / '😄 Random Joke' / '💬 Quote' / '💪 Motivation' / '👋 Greeting' / '🎱 Magic 8-Ball'), the random-pick description (greet appends the invoker mention), and the 8-ball's non-inline Question/Answer field pair (general_cog.py command bodies) — outside the static grammar TextBlock vocabulary. Zero components; the renderer only composes the embed (goldens/general/sweep_fact, sweep_joke, sweep_quote, sweep_motivate, sweep_greet, sweep_eightball pin the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "general.card",
+          "renderer_override": {
+            "$ref": "handler:general.card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "general",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "trivia_reveal",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:general.trivia_reveal"
+              },
+              "label": "Reveal Answer",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped trivia embed is run-parameterized: the drawn question as the description and the footer literal \"Click 'Reveal Answer' when ready.\" (general_cog.py trivia) — the override delegates components to the grammar render and replaces only the embed, plus clears the invoker lock (the shipped _TriviaRevealView was public=True; adjusted surfaces: embed description, embed footer, invoker lock). goldens/general/sweep_trivia pins the bytes.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "trivia_reveal"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "general.trivia_card",
+          "renderer_override": {
+            "$ref": "handler:general.trivia_card_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "general",
+          "timeout_s": 180,
+          "title": "🧠 Trivia",
           "usage_weight": 1.0
         }
       ],
@@ -33154,7 +33545,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "1 command(s), generated from the `general` manifest."
+              "text": "8 command(s), generated from the `general` manifest."
             },
             {
               "provider": {
