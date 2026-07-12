@@ -23,7 +23,7 @@ MANIFEST = SubsystemManifest(
                             "buy hens, upgrade the coop.",
                     usage="!farm"),
     ),
-    panels=(_panels.farm_hub_spec(),),
+    panels=(_panels.farm_hub_spec(), _panels.farm_shop_spec()),
     settings=(),
     stores=(CHICKEN_FARM_STORE,),
     events=(),   # emits economy.balance_changed + game_xp.* (owners: economy/games)
