@@ -29,6 +29,7 @@ import pytest
 
 from sb.adapters.discord import channel_actions as chan_mod
 from sb.adapters.discord.channel_actions import (
+    DiscordChannelLookup,
     DiscordChannelStateActions,
     GuildNotAllowedError,
 )
@@ -43,8 +44,17 @@ _NEW_CHANNEL_ID = 8888
 
 # --- the minimal fake `discord` module -------------------------------------
 
-class _FakeNotFound(Exception):
-    """Stand-in for ``discord.NotFound``."""
+class _FakeHTTPException(Exception):
+    """Stand-in for ``discord.HTTPException`` (the base of the Discord HTTP
+    error family: Forbidden / NotFound / rate-limit / ...)."""
+
+
+class _FakeNotFound(_FakeHTTPException):
+    """Stand-in for ``discord.NotFound`` (an HTTPException subclass)."""
+
+
+class _FakeForbidden(_FakeHTTPException):
+    """Stand-in for ``discord.Forbidden`` (an HTTPException subclass)."""
 
 
 class _FakePermissions:
@@ -65,7 +75,9 @@ class _FakePermissionOverwrite:
 class _FakeDiscord:
     Permissions = _FakePermissions
     PermissionOverwrite = _FakePermissionOverwrite
+    HTTPException = _FakeHTTPException
     NotFound = _FakeNotFound
+    Forbidden = _FakeForbidden
 
 
 # --- the fake discord graph ------------------------------------------------
@@ -87,17 +99,25 @@ class _FakeCategory:
 
 class _FakeChannel:
     def __init__(self, guild, channel_id: int = 50, *,
-                 delete_raises: Exception | None = None) -> None:
+                 delete_raises: Exception | None = None,
+                 edit_raises: Exception | None = None,
+                 perms_raises: Exception | None = None) -> None:
         self.guild = guild
         self.id = int(channel_id)
         self.calls: list[tuple] = []
         self._delete_raises = delete_raises
+        self._edit_raises = edit_raises
+        self._perms_raises = perms_raises
 
     async def edit(self, *, slowmode_delay=None, reason=None):
         self.calls.append(("edit", slowmode_delay, reason))
+        if self._edit_raises is not None:
+            raise self._edit_raises
 
     async def set_permissions(self, target, *, overwrite, reason):
         self.calls.append(("set_permissions", target, overwrite, reason))
+        if self._perms_raises is not None:
+            raise self._perms_raises
 
     async def delete(self, *, reason):
         self.calls.append(("delete", reason))
@@ -115,11 +135,14 @@ class _FakeGuild:
     def __init__(self, guild_id: int = _GUILD, *,
                  role: _FakeRole | None = None,
                  member: _FakeMember | None = None,
-                 category: _FakeCategory | None = None) -> None:
+                 category: _FakeCategory | None = None,
+                 fetched_member: _FakeMember | None = None) -> None:
         self.id = int(guild_id)
         self._role = role
         self._member = member
         self._category = category
+        self._fetched_member = fetched_member
+        self.fetched_ids: list[int] = []
         self.calls: list[tuple] = []
 
     def get_role(self, role_id):
@@ -127,6 +150,11 @@ class _FakeGuild:
 
     def get_member(self, member_id):
         return self._member
+
+    async def fetch_member(self, member_id):
+        # the REST fallback for an uncached member (post-fence, safe)
+        self.fetched_ids.append(int(member_id))
+        return self._fetched_member
 
     def get_channel(self, channel_id):
         return self._category
@@ -290,9 +318,13 @@ def test_create_invite_returns_the_minted_url():
 def test_create_text_channel_refuses_a_non_allowed_guild():
     guild = _FakeGuild()
     actions = _actions(_FakeBot(guild))
-    with pytest.raises(GuildNotAllowedError):
+    with pytest.raises(GuildNotAllowedError) as exc:
         run(actions.create_text_channel(_OTHER_GUILD, name="x", overwrites=(),
                                         parent_id=None, reason="x"))
+    # the refusal reads with the CHANNEL domain word, not the moderation/role
+    # default it inherits from the shared base
+    assert exc.value.effect == "channel"
+    assert "channel effect REFUSED" in str(exc.value)
     assert guild.calls == []  # refused BEFORE any Discord call
 
 
@@ -300,8 +332,9 @@ def test_channel_scoped_methods_refuse_a_channel_in_a_non_allowed_guild():
     # channel resolvable but its guild is NOT the allowed test guild
     channel = _FakeChannel(SimpleNamespace(id=_OTHER_GUILD))
     actions = _actions(_FakeBot(channel=channel))
-    with pytest.raises(GuildNotAllowedError):
+    with pytest.raises(GuildNotAllowedError) as exc:
         run(actions.set_slowmode(50, seconds=5, reason="x"))
+    assert exc.value.effect == "channel"
     with pytest.raises(GuildNotAllowedError):
         run(actions.delete_channel(50, reason="x"))
     with pytest.raises(GuildNotAllowedError):
@@ -318,3 +351,147 @@ def test_channel_scoped_methods_refuse_an_unresolvable_guild():
         run(actions.set_slowmode(50, seconds=5, reason="x"))
     with pytest.raises(GuildNotAllowedError):
         run(actions.delete_channel(50, reason="x"))
+
+
+# --- finding #2: uncached member overwrite resolves via fetch_member --------
+
+def test_set_overwrite_member_falls_back_to_fetch_member():
+    # get_member → None (uncached), fetch_member returns the delegated member.
+    fetched = _FakeMember(103)
+    guild = _FakeGuild(member=None, fetched_member=fetched)
+    channel = _FakeChannel(guild)
+    actions = _actions(_FakeBot(channel=channel))
+    run(actions.set_overwrite(50, target_id=103, allow=2048, deny=0,
+                              target_type=1, reason="grant"))
+    assert guild.fetched_ids == [103]          # the REST fallback fired
+    (_verb, target, _ow, _reason) = channel.calls[0]
+    assert target is fetched                    # the fetched member was used
+
+
+def test_create_text_channel_member_overwrite_uses_fetch_member():
+    # setup builds member-typed overwrites (bot/invoker/delegated); an uncached
+    # delegated member must resolve via fetch_member, not break the create.
+    fetched = _FakeMember(103)
+    guild = _FakeGuild(member=None, fetched_member=fetched)
+    actions = _actions(_FakeBot(guild))
+    overwrites = (ChannelOverwrite(target_id=103, target_type=1,
+                                   allow=2048, deny=0),)
+    new_id = run(actions.create_text_channel(
+        _GUILD, name="setup", overwrites=overwrites, parent_id=None,
+        reason="/setup-advanced"))
+    assert new_id == _NEW_CHANNEL_ID
+    assert guild.fetched_ids == [103]
+    (_verb, _name, ow_map, _cat, _reason) = guild.calls[0]
+    (target, _overwrite), = ow_map.items()
+    assert target is fetched
+
+
+# --- finding #1: a live Discord failure renders the shipped copy ------------
+
+def test_set_slowmode_translates_http_failure_to_runtime_error():
+    # a raw discord.HTTPException would escape the handlers' `except
+    # RuntimeError` to the generic envelope; the adapter translates it so the
+    # shipped `❌ Could not set slowmode …` branch renders.
+    guild = _FakeGuild()
+    channel = _FakeChannel(guild, edit_raises=_FakeForbidden("Missing Perms"))
+    actions = _actions(_FakeBot(channel=channel))
+    with pytest.raises(RuntimeError) as exc:
+        run(actions.set_slowmode(50, seconds=5, reason="x"))
+    assert not isinstance(exc.value, _FakeHTTPException)  # translated, not raw
+    assert "Missing Perms" in str(exc.value)
+
+
+def test_set_overwrite_translates_http_failure_to_runtime_error():
+    role = _FakeRole(_GUILD)
+    guild = _FakeGuild(role=role)
+    channel = _FakeChannel(guild, perms_raises=_FakeForbidden("Missing Perms"))
+    actions = _actions(_FakeBot(channel=channel))
+    with pytest.raises(RuntimeError) as exc:
+        run(actions.set_overwrite(50, target_id=_GUILD, allow=0, deny=2048,
+                                  target_type=0, reason="lock"))
+    assert not isinstance(exc.value, _FakeHTTPException)
+    assert "Missing Perms" in str(exc.value)
+
+
+# --- finding #4: the channel-name lookup guild fence ------------------------
+
+class _RaisingBot:
+    """get_guild MUST NOT be reached for a non-allowed guild id."""
+
+    def get_guild(self, guild_id):
+        raise AssertionError("get_guild reached past the guild fence")
+
+
+def test_lookup_refuses_a_non_allowed_guild_without_touching_get_guild():
+    lookup = DiscordChannelLookup(_RaisingBot(), allowed_guild_id=_GUILD)
+    # a non-allowed guild id resolves to None (a read, refused softly) and
+    # never reaches bot.get_guild — the fence is BEFORE the cache read.
+    assert run(lookup(_OTHER_GUILD, "general")) is None
+
+
+def test_lookup_resolves_a_channel_by_name_in_the_allowed_guild():
+    target = SimpleNamespace(id=900_001, name="general")
+    guild = SimpleNamespace(text_channels=[SimpleNamespace(id=7, name="off"),
+                                           target])
+    bot = SimpleNamespace(get_guild=lambda gid: guild)
+    lookup = DiscordChannelLookup(bot, allowed_guild_id=_GUILD)
+    assert run(lookup(_GUILD, "general")) == 900_001
+    assert run(lookup(_GUILD, "missing")) is None
+
+
+# --- finding #1 (end-to-end): a live Discord failure in slowmode/lock/unlock
+#     renders the shipped `❌ Could not …` copy, NOT the generic envelope -----
+
+def _channel_handler(name):
+    from sb.domain.channel import handlers  # noqa: F401 — registers refs
+    from sb.spec.refs import HandlerRef, resolve
+
+    return resolve(HandlerRef(name))
+
+
+def _req(argv):
+    return SimpleNamespace(args={"argv": tuple(argv)}, guild_id=_GUILD,
+                           channel_id=900_001, actor=SimpleNamespace(user_id=7))
+
+
+def test_slowmode_live_http_failure_renders_shipped_copy_not_envelope():
+    from sb.domain.channel import service
+
+    guild = _FakeGuild()
+    channel = _FakeChannel(guild, 900_001,
+                           edit_raises=_FakeForbidden("Missing Permissions"))
+    service.reset_channel_ports_for_tests()
+    try:
+        service.install_channel_actions(
+            _actions(_FakeBot(channel=channel)))
+        # `<#900001>` mention → resolve_channel returns 900001 with no lookup
+        reply = run(_channel_handler("channel.slowmode")(
+            _req(("<#900001>", "5"))))
+    finally:
+        service.reset_channel_ports_for_tests()
+    from sb.spec.outcomes import BLOCKED
+    assert reply.outcome == BLOCKED
+    # the SHIPPED copy branch fired (adapter translated Forbidden → RuntimeError
+    # so the handler's `except RuntimeError` caught it), NOT the generic envelope
+    assert reply.user_message.startswith('❌ Could not set slowmode in')
+    assert "Missing Permissions" in reply.user_message
+
+
+def test_lock_live_http_failure_renders_shipped_copy_not_envelope():
+    from sb.domain.channel import service
+
+    role = _FakeRole(_GUILD)  # @everyone default role (id == guild id)
+    guild = _FakeGuild(role=role)
+    channel = _FakeChannel(guild, 900_001,
+                           perms_raises=_FakeForbidden("Missing Permissions"))
+    service.reset_channel_ports_for_tests()
+    try:
+        service.install_channel_actions(
+            _actions(_FakeBot(channel=channel)))
+        reply = run(_channel_handler("channel.lock")(_req(("<#900001>",))))
+    finally:
+        service.reset_channel_ports_for_tests()
+    from sb.spec.outcomes import BLOCKED
+    assert reply.outcome == BLOCKED
+    assert reply.user_message.startswith('Could not lock')
+    assert "Missing Permissions" in reply.user_message

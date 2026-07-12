@@ -77,15 +77,34 @@ __all__ = [
 
 
 class _ChannelGuildAllowList(_GuildAllowList):
-    """Reuses the shared ``_GuildAllowList`` base (constructor + the
-    ``_guild`` allow-list) but overrides ``_require_discord`` to guard THIS
-    module's ``discord`` symbol (the base's guards role_actions' — each
-    adapter module carries its own import-guarded reference)."""
+    """Reuses the shared ``_GuildAllowList`` base (constructor) but overrides
+    ``_require_discord`` to guard THIS module's ``discord`` symbol (the base's
+    guards role_actions' — each adapter module carries its own import-guarded
+    reference) and ``_guild`` to raise with THIS lane's ``effect`` word (the
+    base hardcodes ``effect="role"``; ``_effect`` names the effect domain so a
+    refusal echoes "channel effect REFUSED" / "proof_channel effect REFUSED",
+    surfaced verbatim at the channel handlers, not the role/moderation copy)."""
+
+    #: the effect-domain word this adapter's refusals carry (overridden per
+    #: port — proof_channel below).
+    _effect = "channel"
 
     def _require_discord(self):
         if discord is None:
             raise RuntimeError("discord is not installed")
         return discord
+
+    def _guild(self, guild_id: int):
+        # HARD test-guild allow-list — refuse ANY non-allowed guild before a
+        # single Discord call. effect=self._effect so the refusal copy reads
+        # this lane's domain word (not the base's role default).
+        if int(guild_id) != self._allowed_guild_id:
+            raise GuildNotAllowedError(guild_id, self._allowed_guild_id,
+                                       effect=self._effect)
+        guild = self._bot.get_guild(int(guild_id))
+        if guild is None:
+            raise RuntimeError(f"guild {guild_id} is not available")
+        return guild
 
 
 class _ChannelAllowList(_ChannelGuildAllowList):
@@ -106,21 +125,28 @@ class _ChannelAllowList(_ChannelGuildAllowList):
         guild = getattr(channel, "guild", None)
         guild_id = int(getattr(guild, "id", 0) or 0)
         if guild_id != self._allowed_guild_id:
-            raise GuildNotAllowedError(guild_id, self._allowed_guild_id)
+            raise GuildNotAllowedError(guild_id, self._allowed_guild_id,
+                                       effect=self._effect)
         if channel is None:  # pragma: no cover — guild check already refused
             raise RuntimeError(f"channel {channel_id} is not available")
         return channel
 
-    def _overwrite_target(self, guild, target_id: int, target_type: int):
+    async def _overwrite_target(self, guild, target_id: int,
+                                target_type: int):
         # int convention (ChannelOverwrite docstring): 0 = role, 1 = member.
         # set_permissions / create_text_channel need a real Role/Member object
-        # (a bare snowflake carries no role-vs-member type); an unresolvable
-        # target is a loud failure (the delete_role posture), never a silent
-        # mis-typed overwrite.
+        # (a bare snowflake carries no role-vs-member type).
         if int(target_type) == 0:
             target = guild.get_role(int(target_id))
         else:
+            # member overwrites: cache first, then a REST fetch_member fallback
+            # (the proof adapter's _member posture, safely post-fence). setup
+            # builds member-typed entries for the bot/invoker/delegated members
+            # (sb/domain/setup/service.py) — a delegated/uncached member must
+            # not break the create the oracle (Member in hand) succeeded at.
             target = guild.get_member(int(target_id))
+            if target is None:
+                target = await guild.fetch_member(int(target_id))
         if target is None:
             raise RuntimeError(
                 f"overwrite target {target_id} (type {target_type}) is not "
@@ -131,6 +157,15 @@ class _ChannelAllowList(_ChannelGuildAllowList):
         return discord.PermissionOverwrite.from_pair(
             discord.Permissions(int(allow)), discord.Permissions(int(deny)))
 
+    @staticmethod
+    def _as_runtime(exc: Exception) -> RuntimeError:
+        # translate a live Discord HTTP failure (Forbidden/NotFound/rate-limit/
+        # …) to RuntimeError so the shipped `❌ Could not …: {exc}` branch
+        # renders — the channel handlers catch RuntimeError, not the
+        # discord.HTTPException family (the role slice's translate-in-adapter
+        # posture, role_actions fetch_message → LookupError).
+        return RuntimeError(str(exc))
+
 
 class DiscordChannelStateActions(_ChannelAllowList):
     """The concrete ``ChannelStateActions`` adapter. ``set_slowmode`` /
@@ -140,26 +175,33 @@ class DiscordChannelStateActions(_ChannelAllowList):
 
     async def set_slowmode(self, channel_id: int, *, seconds: int,
                            reason: str | None) -> None:
-        self._require_discord()
+        discord = self._require_discord()
         channel = self._channel(channel_id)
         # discord.py TextChannel.edit(slowmode_delay=…) → the HTTP layer's
         # edit_channel PATCH carrying rate_limit_per_user (the parity twin's
         # wire verb; goldens/channel/sweep_slowmode).
-        await channel.edit(slowmode_delay=int(seconds), reason=reason)
+        try:
+            await channel.edit(slowmode_delay=int(seconds), reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
 
     async def set_overwrite(self, channel_id: int, *, target_id: int,
                             allow: int, deny: int, target_type: int,
                             reason: str | None) -> None:
-        self._require_discord()
+        discord = self._require_discord()
         channel = self._channel(channel_id)
         # the guild is the SAME cache entry the fence resolved on — resolve the
         # overwrite target off it (role vs member per target_type), then
         # set_permissions → the edit_channel_permissions PUT (the parity twin's
         # wire verb; goldens/channel/sweep_lock + sweep_unlock).
         guild = channel.guild
-        target = self._overwrite_target(guild, target_id, target_type)
-        await channel.set_permissions(
-            target, overwrite=self._pair_overwrite(allow, deny), reason=reason)
+        target = await self._overwrite_target(guild, target_id, target_type)
+        try:
+            await channel.set_permissions(
+                target, overwrite=self._pair_overwrite(allow, deny),
+                reason=reason)
+        except discord.HTTPException as exc:
+            raise self._as_runtime(exc) from exc
 
     async def create_text_channel(
             self, guild_id: int, *, name: str,
@@ -170,11 +212,11 @@ class DiscordChannelStateActions(_ChannelAllowList):
         # map the ChannelOverwrite tuple → discord's {target: PermissionOverwrite}
         # (the overwrites ride AT creation — the oracle's
         # guild_resources.ensure_channel create path; wire verb create_channel).
-        overwrite_map = {
-            self._overwrite_target(guild, ow.target_id, ow.target_type):
-                self._pair_overwrite(ow.allow, ow.deny)
-            for ow in overwrites
-        }
+        overwrite_map = {}
+        for ow in overwrites:
+            target = await self._overwrite_target(
+                guild, ow.target_id, ow.target_type)
+            overwrite_map[target] = self._pair_overwrite(ow.allow, ow.deny)
         category = (guild.get_channel(int(parent_id))
                     if parent_id is not None else None)
         # ALWAYS creates — get-before-create/idempotent reuse is DOMAIN logic
@@ -221,6 +263,10 @@ class DiscordProofChannelActions(_ChannelGuildAllowList):
     proof_channel_cog `_lock_for_winner` / `_unlock`, wire verb edit_channel),
     a distinct verb from ChannelStateActions.set_overwrite's per-target
     edit_channel_permissions PUT — hence the distinct adapter class."""
+
+    #: refusals in THIS port read "proof_channel effect REFUSED" (the prize
+    #: lock/unlock lane), not the channel-domain default.
+    _effect = "proof_channel"
 
     def _proof_channel(self, guild, channel_id: int):
         channel = (guild.get_channel(int(channel_id))

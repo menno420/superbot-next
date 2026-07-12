@@ -125,6 +125,37 @@ Reuses `GuildNotAllowedError` from #263's `moderation_actions.py` and the
   `channel.delete` / `discord.NotFound`, `channel.create_invite`,
   `channel.edit(overwrites=)`) match the 2.x API.
 
+## Review fixes (post-review, substitute for rate-limited Codex)
+
+Base merged forward first (`git merge origin/claude/live-role-adapters`, clean —
+no conflict; brings slice-2's `GuildNotAllowedError(effect=…)` param + fixes).
+Then 4 review findings, all in `sb/adapters/discord/channel_actions.py`:
+
+1. **P2 — untranslated Discord exceptions bypassed the shipped error copy.**
+   `set_slowmode` / `set_overwrite` raised raw `discord.HTTPException`, but the
+   channel handlers catch only `RuntimeError`, so a live failure escaped to the
+   generic envelope. FIX (the role slice's translate-in-adapter posture): wrap
+   both Discord calls to translate `discord.HTTPException` → `RuntimeError`
+   (`_as_runtime` helper), so the shipped `❌ Could not …: {exc}` branch renders.
+   `create_invite` / `delete_channel` left as-is (already fine).
+2. **P2 — `_overwrite_target` member branch was cache-only.** A delegated/
+   uncached member would break `/setup-advanced` create. FIX: `guild.get_member`
+   → `await guild.fetch_member` fallback (the proof adapter's `_member` posture,
+   safely post-fence); `_overwrite_target` is now async, awaited at both sites.
+3. **P3 — refusals inherited the "moderation/role" wording.** FIX: a per-class
+   `_effect` (`"channel"` / `"proof_channel"`) overriding the base `_guild` +
+   the channel fence, so a refusal reads "channel effect REFUSED" /
+   "proof_channel effect REFUSED".
+4. **P3 — `DiscordChannelLookup` guild fence had no test.** FIX: added a test
+   asserting a non-allowed guild_id returns None WITHOUT touching
+   `bot.get_guild` (plus a positive name-resolve test).
+
+Tests extended in the two contract files + a handler-level end-to-end test
+(install the live adapter with a raising fake channel, drive the real
+`channel.slowmode` / `channel.lock` handler, assert the `❌ Could not …` copy —
+not the generic envelope). Re-green: `pytest tests/` **1779 passed, 8 skipped**;
+`bootstrap check --strict` all checks passed.
+
 ## Oracle used
 
 `menno420/superbot` read-only for ONE genuinely-ambiguous mapping: the

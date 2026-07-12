@@ -127,8 +127,13 @@ def test_lock_and_unlock_refuse_a_non_allowed_guild():
     guild = _FakeGuild(channel=channel, member=member)
     actions = DiscordProofChannelActions(_FakeBot(guild),
                                          allowed_guild_id=_GUILD)
-    with pytest.raises(GuildNotAllowedError):
+    with pytest.raises(GuildNotAllowedError) as lock_exc:
         run(actions.lock_channel_for_winner(_OTHER_GUILD, 50, 103))
-    with pytest.raises(GuildNotAllowedError):
+    # the refusal reads with the PROOF_CHANNEL domain word (the prize lane),
+    # not the moderation/role/channel default it inherits from the shared base
+    assert lock_exc.value.effect == "proof_channel"
+    assert "proof_channel effect REFUSED" in str(lock_exc.value)
+    with pytest.raises(GuildNotAllowedError) as unlock_exc:
         run(actions.unlock_channel(_OTHER_GUILD, 50))
+    assert unlock_exc.value.effect == "proof_channel"
     assert channel.calls == []  # refused BEFORE any Discord call
