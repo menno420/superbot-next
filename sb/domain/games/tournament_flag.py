@@ -13,6 +13,22 @@ same rows — the shipped shared-write is intentional and documented).
 Migration ``0027_guild_settings.sql`` (NAME_STABLE import of the shipped
 table). The rpsregister golden pins the row bytes:
 ``{guild_id, key: "active_tournament", value: "rps"}``.
+
+CONCURRENCY POSTURE (accepted, oracle-faithful — see
+``docs/ideas/tournament-open-flag-toctou-2026-07-12.md``): the SETTLE path
+is atomic (the ``clear_active`` row-DELETE count is the settle-once token,
+serialized on the row lock), and the ENTRY path is fenced by the #223
+advisory lock. The tournament-OPEN guard, by contrast, is a NON-ATOMIC
+check-and-set: ``get_active`` reads on its own autocommit connection with
+no lock, and the later ``set_active`` UPSERT runs in a separate txn, so two
+DIFFERENT-game opens in one guild that interleave across the read→write
+await gap can both pass and clobber the shared value. This matches the
+oracle verbatim (``disbot/cogs/rps_tournament_cog.py`` opens with the same
+unfenced ``get_active``/refuse) and its worst case — a stranded pot — is
+recovered by the boot escrow + stale-flag sweep (the oracle's
+``clear_stale_tournament_flag`` at ``cog_load``). It is deliberately NOT
+fenced: adding atomicity here would diverge from the ported oracle. A
+strict-serialization fence is an OWNER-DECISION, ledgered in that doc.
 """
 
 from __future__ import annotations

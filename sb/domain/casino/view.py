@@ -165,7 +165,15 @@ def player_hand_view(snapshot: dict, user_id: int) -> dict | None:
 def raise_targets(snapshot: dict) -> dict:
     """The three shipped raise presets (⬆️ min · 🔥 pot · 💥 all-in) as
     absolute raise-TO totals, computed from the snapshot so the button label
-    and the engine action agree (one formula, no drift)."""
+    and the engine action agree (one formula, no drift).
+
+    The ``pot`` preset is the oracle's own quick-bet value verbatim — a raise-TO
+    of the whole ``pot_total`` (``menno420/superbot``
+    ``disbot/views/casino/poker_table.py`` → ``pot_raise =
+    min(max(lo, game.pot_total), hi)``), clamped into the legal
+    ``[min_to, max_to]`` window.  It is deliberately NOT ``current_bet +
+    pot_total`` (which would over-offer by ``current_bet`` whenever the player
+    faces a bet), and NOT strict pot-limit (``pot_total + 2·call``)."""
     idx = snapshot.get("current")
     players = snapshot.get("players", ())
     if idx is None or idx < 0 or idx >= len(players):
@@ -175,7 +183,7 @@ def raise_targets(snapshot: dict) -> dict:
     min_raise = int(snapshot.get("min_raise", 0))
     max_to = int(p["committed_round"]) + int(p["stack"])
     min_to = min(current_bet + min_raise, max_to)
-    pot_to = min(max_to, current_bet + int(snapshot.get("pot_total", 0)))
+    pot_to = min(max_to, int(snapshot.get("pot_total", 0)))
     return {"min": min_to, "pot": max(pot_to, min_to), "max": max_to}
 
 

@@ -31,14 +31,16 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (478/478) — curated
+    """Every golden on disk yields a replayable case (484/484) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
     + the 1 D-0079 creature-battle case + the 4 browse-interaction minted
-    cases + the 2 minted multi-step tournament-flow cases
-    + the 2 D-0081 creature picker/bot-guard cases
-    − 3 retired: sweep_cog.json, the deploy-ops `!cog` capture, plus
+    cases + the 2 minted multi-step tournament-flow cases + the 5 WP-1
+    mining write-parity minted cases + the 1 minted paid-tournament
+    conservation case + the 2 D-0081 creature picker/bot-guard cases
+    − 3 retired: sweep_cog.json, the deploy-ops `!cog`
+    capture, plus
     sweep_query_logs.json / sweep_recent_errors.json, the run-order-dependent
     log-ring captures — each retired to the _sweep_skips entry it always
     belonged under — parity.yml source.retired_goldens). The four
@@ -52,10 +54,12 @@ def test_full_corpus_reconstructs():
     # 465 imported (parity.yml source pin) + 2 minted (D-0073) + 4 (D-0075)
     # + 1 (D-0079 creature battle) + 1 minted casino poker play-layer
     # (D-0073 procedure) + 4 (browse-interaction, 2026-07-12) + 2
-    # (tournament-flow) + 2 (D-0081 creature picker/bot-guard)
+    # (tournament-flow) + 5 (WP-1 mining write-parity: equip/unequip/loadout
+    # save·apply·delete) + 1 (paid-tournament conservation, 2026-07-12)
+    # + 2 (D-0081 creature picker/bot-guard)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 478
+    assert golden_count == 484
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
