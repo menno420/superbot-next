@@ -133,3 +133,11 @@ provenance: filed by the fleet manager — relocation of startup-prompt v3.1 F3 
 do: Render CLAUDE.md from .substrate/claude/CLAUDE.md via the kit and fix docs/AGENT_ORIENTATION.md's dead .claude/CLAUDE.md pointers (:10, :34); promote the flip-playbook trap index to docs/ if still pending.
 why: verified at c03df80 2026-07-12: no .claude/CLAUDE.md in the tree; docs/AGENT_ORIENTATION.md:10,:34 point at it; the render source exists at .substrate/claude/CLAUDE.md.
 done-when: the boot pointer resolves at HEAD; orientation matches the tree.
+
+## ORDER 016 · 2026-07-12T15:13Z · status: new
+priority: P2
+executor: superbot-next lane
+provenance: filed by the fleet manager — owner-review adoption 2026-07-12; source article: https://thenewstack.io/merge-gate-coding-agents/
+do: RUNTIME-SMOKE MERGE GATE — add a CI job (a new required check, or a job inside the existing gate workflow) that, per PR: imports the bot package headless, loads ALL cogs, wires ALL views, and asserts the registry + EventBus subscription graph is intact — every emit has its expected subscriber, every REGISTRY callback resolves. This catches the "locally correct, systemically wrong" class that static checks cannot see. Cheap first tier only (no live token/guild needed); a dispatch-tier live-boot job may follow later.
+why: static/import guards pass while wiring breaks slip through; a headless boot-and-wire smoke is the cheapest gate that sees the whole graph (owner-review adoption 2026-07-12, source article above).
+done-when: the job runs required on PRs, is green on current main, and a deliberate wiring break (test fixture) turns it red — cite the proof run. Scale: superbot-next only; do NOT mandate fleet-wide.
