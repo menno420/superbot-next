@@ -191,7 +191,7 @@ def test_edit_pick_routes_presets_widget_shipped_bytes(skeleton):
                        values=["ai_cooldown_seconds"], persona="admin"))
     payload = _panel_payload(skeleton.take_calls())
     (embed,) = payload["embeds"]
-    assert embed["description"] == ("Pick a value for `ai.ai_cooldown_"
+    assert embed["description"] == ("Pick a value for `ai_cooldown_"
                                     "seconds` (current=`30`, default=`30`):")
     # the shipped roster (0, 15, 30, 60, 120, 300), five per row, the
     # current value (the declared default 30) primary.
@@ -212,7 +212,7 @@ def test_edit_pick_routes_enum_widget_shipped_bytes(skeleton):
     payload = _panel_payload(skeleton.take_calls())
     (embed,) = payload["embeds"]
     assert embed["description"] == ("Pick a new value for "
-                                    "`ai.ai_default_provider`:")
+                                    "`ai_default_provider`:")
     select = payload["components"][0]["components"][0]
     assert select["type"] == 3
     assert select["placeholder"] == ("Pick a new value for "
@@ -238,7 +238,7 @@ def test_edit_pick_free_text_opens_text_widget_page(skeleton):
     (embed,) = payload["embeds"]
     # the shipped modal placeholder's readout rides the page prompt
     # (current=default for the fresh guild: '' — "empty = routing default").
-    assert embed["description"] == ("Edit `ai.ai_default_model` "
+    assert embed["description"] == ("Edit `ai_default_model` "
                                     "(current=`''`, default=`''`) — "
                                     "**Edit…** opens the form.")
     assert _rows(payload) == [
@@ -249,16 +249,16 @@ def test_edit_pick_free_text_opens_text_widget_page(skeleton):
 
 def test_edit_and_reset_unknown_setting_bytes(skeleton):
     """The shipped dispatch guard: an unknown pick answers
-    ``❌ Unknown setting `ai.<name>`.`` on both selects."""
+    ``❌ Unknown setting `<name>`.`` on both selects."""
     _, edit_cid, reset_cid = _open_settings(skeleton)
     run(skeleton.click(message_id=906, custom_id=edit_cid, component_type=3,
                        values=["not_a_setting"], persona="admin"))
     calls = skeleton.take_calls()
-    assert calls[-1].payload["content"] == "❌ Unknown setting `ai.not_a_setting`."
+    assert calls[-1].payload["content"] == "❌ Unknown setting `not_a_setting`."
     run(skeleton.click(message_id=906, custom_id=reset_cid, component_type=3,
                        values=["not_a_setting"], persona="admin"))
     calls = skeleton.take_calls()
-    assert calls[-1].payload["content"] == "❌ Unknown setting `ai.not_a_setting`."
+    assert calls[-1].payload["content"] == "❌ Unknown setting `not_a_setting`."
 
 
 def test_override_button_issues_the_number_form(skeleton):

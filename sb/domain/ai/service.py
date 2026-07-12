@@ -24,7 +24,7 @@ from sb.kernel.interaction.handler_kit import (
     ctx_from_request as _ctx_from_req,
 )
 
-__all__ = ["Reply", "ensure_handler_refs"]
+__all__ = ["Reply", "card_panel_id", "ensure_handler_refs"]
 
 
 def _ok(text: str) -> Reply:
@@ -33,6 +33,21 @@ def _ok(text: str) -> Reply:
 
 def _argv(req) -> list[str]:
     return [str(a) for a in tuple(req.args.get("argv", ()) or ())]
+
+
+def card_panel_id(req) -> str:
+    """The operator-card page for this ingress (VERDICT 009 AIP-02
+    consumption): a COMPONENT/MODAL interaction replaces the panel
+    message in place, so its card carries the family ``↩ AI home``
+    back-route (``ai.card_nav`` — the shipped flow kept the panel view
+    attached); command ingress keeps the bare ``ai.card`` (the shipped
+    ``ctx.send(embed=…)`` reply — goldens/ai pins ZERO components)."""
+    from sb.kernel.interaction.request import Surface
+
+    surface = getattr(req, "surface", None)
+    if surface in (Surface.COMPONENT, Surface.MODAL):
+        return "ai.card_nav"
+    return "ai.card"
 
 
 async def _card(req, embed, files: tuple = ()) -> None:
@@ -45,7 +60,8 @@ async def _card(req, embed, files: tuple = ()) -> None:
     args = {**dict(req.args), "_card": embed}
     if files:
         args["_card_files"] = tuple(files)
-    await open_panel(PanelRef("ai.card"), dataclasses.replace(req, args=args))
+    await open_panel(PanelRef(card_panel_id(req)),
+                     dataclasses.replace(req, args=args))
 
 
 # --- !ai group -------------------------------------------------------------------

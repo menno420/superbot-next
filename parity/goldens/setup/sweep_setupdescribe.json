@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.clone",
+ "case_id": "sweep.setupdescribe",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1976528305,
+     "last_xp": 1921671199,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,30 +45,12 @@
    "calls": [
     {
      "args": {
-      "guild_id": "<guild>",
-      "reason": null,
-      "type": 0
-     },
-     "method": "create_channel",
-     "payload": {
-      "default_auto_archive_duration": 1440,
-      "default_thread_rate_limit_per_user": 0,
-      "name": "test",
-      "nsfw": false,
-      "parent_id": null,
-      "permission_overwrites": [],
-      "rate_limit_per_user": 0,
-      "topic": null
-     }
-    },
-    {
-     "args": {
       "channel_id": "<#general>"
      },
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "\"test\" cloned as \"test\".",
+      "content": "Describe your server in a sentence or two and I'll propose how to wire it up — e.g. `a small gaming community; #mod-logs is for moderation logging and #welcome greets new members`.",
       "tts": false
      }
     },
@@ -83,36 +65,6 @@
    ],
    "events": [
     {
-     "event": "audit.action_recorded",
-     "payload": {
-      "actor_id": "<@admin>",
-      "actor_type": "admin",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "channel_clone",
-      "new_value": "clone channel 'test' → 'test' (1/1 applied)",
-      "occurred_at": "<ts>",
-      "prev_value": null,
-      "scope": "guild",
-      "subsystem": "channel",
-      "target": "channel:<msg:2>"
-     }
-    },
-    {
-     "event": "channel.lifecycle_changed",
-     "payload": {
-      "applied": [
-       "<msg:2>"
-      ],
-      "failed": [],
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "occurred_at": "<ts>",
-      "operation": "clone",
-      "outcome": "success"
-     }
-    },
-    {
      "event": "xp.awarded",
      "payload": {
       "delta": 25,
@@ -125,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!clone test test",
+    "content": "!setupdescribe",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "setup"
 }

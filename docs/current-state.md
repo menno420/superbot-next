@@ -25,6 +25,10 @@ named gates green on main. The `golden-parity` **report** leg is red-by-design
 (Verify against live source control — this section is a dated snapshot,
 2026-07-10.) Band-5 build + replay legs are landed (#95, #97); the current
 lane is band-5 **live-drive** (testing ladder step 7's live leg), then band-6.
+The live guild-effect adapters (moderation / role / channel) are driven by a
+human operator per the runbook
+[`docs/operations/live-drive-guild-effects.md`](operations/live-drive-guild-effects.md)
+— there is no automated CI live-drive (no gateway token in CI).
 The flag-13 ruling landed (ORDER 009): the corpus-red dispositions are
 applied at replay-diff time per `docs/parity/flag-13-disposition-2026-07-10.md`.
 
