@@ -1994,6 +1994,41 @@
     "aliases": [],
     "group": "",
     "name": "setup"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-advanced"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-describe"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-hub"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-reset"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-skip"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-status"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "setup-unskip"
    }
   ],
   "starboard": [
@@ -2511,6 +2546,9 @@
   "settings_hub.subsystem_select",
   "settings_subsystem.back_to_hub",
   "settings_subsystem.open_panel",
+  "setup_depth:advanced",
+  "setup_depth:quick",
+  "setup_depth:standard",
   "ticket.launcher_open_form",
   "ticket.open_form",
   "ticket:launcher:open",

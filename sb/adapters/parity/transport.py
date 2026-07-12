@@ -236,7 +236,13 @@ def rendered_panel_payload(rendered: Any) -> dict[str, Any]:
             "components": row_payload,
         }
     return {
-        "content": None,
+        # a content-BEARING embed panel keeps its content line next to the
+        # embed (discord.py send(content=..., embed=...) — the shipped
+        # describe review card's deterministic note; goldens/setup/
+        # sweep_slash_setup-describe pins content+embeds+components in ONE
+        # followup). Embed panels without content keep the null byte every
+        # existing golden pins.
+        "content": getattr(rendered, "content", None),
         "tts": False,
         "embeds": [_embed_payload(rendered.embed)],
         "components": row_payload,
@@ -439,10 +445,16 @@ class ParityResponder:
                 data["flags"] = _EPHEMERAL_FLAG
             if not self._acked:
                 self._acked = True
+                # discord.py's InteractionResponse.send_message always
+                # carries ``tts`` on the type-4 body (the goldens' shape
+                # for every plain-content first response the old bot made
+                # — goldens/setup/sweep_slash_setup-reset pins it);
+                # followups keep their tts-less webhook shape (the minted
+                # kernel/btd6 form goldens pin THAT).
                 self._transport.record(
                     "interaction_response",
                     {"interaction_id": self._interaction_id},
-                    {"type": 4, "data": data})
+                    {"type": 4, "data": {**data, "tts": False}})
             else:
                 self._transport.record(
                     "followup_send", _followup_args(), _followup_payload(data))

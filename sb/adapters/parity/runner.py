@@ -146,6 +146,20 @@ CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
     "sweep.slowmode": {"test": 700_000_000_000_000_901},
     "sweep.lock": {"test": 700_000_000_000_000_901},
     "sweep.unlock": {"test": 700_000_000_000_000_901},
+    # the trap-17 leaked WORKSPACE itself (the setup flip): the
+    # alphabetically-earlier `sweep.setup` capture case CREATED
+    # #superbot-setup (goldens/setup/sweep_setup.json records the
+    # create_channel POST) and discord.py's guild cache carried it into
+    # the later slash sweeps — whose goldens record ZERO channel calls
+    # while SENDING into it. The shipped ensure_setup_channel's
+    # get-before-create name lookup (sb/domain/setup/service.py) finds
+    # the seeded channel exactly like the capture's cache hit, so the
+    # find branch replays byte-green with no create call (the
+    # sweep.xpimport / sweep.slowmode seeding precedent — trap 17's
+    # "no ruled twin" claim predates this lane AND #242's create twin).
+    # `sweep.setup` itself is NOT seeded: its golden pins the CREATE.
+    "sweep.slash_setup-advanced": {"superbot-setup": 700_000_000_000_000_902},
+    "sweep.slash_setup-status": {"superbot-setup": 700_000_000_000_000_902},
 }
 
 

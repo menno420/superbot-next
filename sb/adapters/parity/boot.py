@@ -552,6 +552,33 @@ class Harness:
 
         install_channel_actions(ParityChannelStateActions(self.http))
         install_channel_lookup(_world_channel_resolver)
+        # the setup workspace + advisor read seams: the overwrite-map
+        # member/role inputs ride the SAME capture-world guild view the
+        # role ports read (goldens/setup/sweep_setup pins the four
+        # overwrite entries: @everyone + the Admin role denied view, the
+        # bot + the invoker granted); the advisor's channel index is the
+        # capture guild's text-channel listing — the 4 world channels
+        # PLUS the shipped bot's boot-provisioned set (the
+        # _WorldGuildDirectory "Text Channels: 8" fixture), of which ONLY
+        # `economy-log` (the shipped on-ready #economy-log auto-provision,
+        # D-0031) is advisor-VISIBLE via a rule-token match —
+        # goldens/setup/sweep_slash_setup-describe pins its dropped
+        # `economy.announce_channel` line; the other three boot names are
+        # advisor-inert and unrecovered (trap 24 ledger: no rule token
+        # matches them, so their bytes cannot influence any golden).
+        from sb.domain.setup.plan import GuildChannel, install_channel_index
+
+        _ECONOMY_LOG_CHANNEL_ID = 700_000_000_000_000_801
+
+        async def _world_channel_index(guild_id: int):
+            del guild_id
+            channels = [GuildChannel(id=cid, name=name)
+                        for name, cid in world_channels.items()]
+            channels.append(GuildChannel(id=_ECONOMY_LOG_CHANNEL_ID,
+                                         name="economy-log"))
+            return tuple(channels)
+
+        install_channel_index(_world_channel_index)
         # the utility read ports: the capture-world guild directory + the
         # no-heartbeat gateway probe (the old harness's bot.latency was nan
         # — goldens/utility/sweep_ping pins "nan ms").
@@ -581,6 +608,13 @@ class Harness:
         install_guild_source(_world_guild_source)
         install_role_provisioning(ParityRoleProvisioning(self.http))
         install_message_ops(ParityRoleMessageOps(self.http))
+        # the setup workspace overwrite-map member/role inputs — the SAME
+        # capture-world guild view the role ports read (admin roles + the
+        # bot member; goldens/setup/sweep_setup pins the four overwrite
+        # entries the map derives).
+        from sb.domain.setup.service import install_workspace_member_source
+
+        install_workspace_member_source(_world_guild_source)
         # the four_twenty passive-stage reaction port — the SAME add_reaction
         # capture twin (fake_http's wire shape; goldens/four_twenty/
         # sweep_420 pins the 🍃 call on the invoking message). The reset
@@ -907,6 +941,11 @@ class Harness:
             from sb.domain.role.service import reset_role_ports_for_tests
 
             reset_role_ports_for_tests()
+            from sb.domain.setup.plan import reset_plan_ports_for_tests
+            from sb.domain.setup.service import reset_setup_ports_for_tests
+
+            reset_setup_ports_for_tests()
+            reset_plan_ports_for_tests()
             from sb.domain.four_twenty.service import (
                 reset_four_twenty_ports_for_tests,
             )

@@ -3262,6 +3262,62 @@
         {
           "kind": "command",
           "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-hub"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-advanced"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-describe"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-status"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-reset"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-skip"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "slash",
+          "value": "setup-unskip"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "surface": "prefix",
@@ -4938,6 +4994,56 @@
           "value": "access_next"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "depth_quick"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "depth_standard"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "depth_advanced"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "essential_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "essential_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "accept_high_confidence"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "review_one_by_one"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reject_ai_suggestions"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "rerun_deterministic"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "stage_final_review"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -6127,6 +6233,21 @@
           "value": "setup.hub"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_card"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.status_card"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.suggestions_card"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard.config"
@@ -7228,6 +7349,11 @@
           "value": "subsystem_bindings"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup_session"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_settings"
@@ -7328,6 +7454,9 @@
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
+      },
+      "engine:setup.store": {
+        "module": "sb.domain.setup.store"
       },
       "engine:starboard.store": {
         "module": "sb.domain.starboard.store"
@@ -8772,6 +8901,45 @@
       "handler:settings.render_hub": {
         "module": "sb.domain.settings.panels"
       },
+      "handler:setup.advanced_open": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.depth_render": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.describe_entry": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.essential_open": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.essential_render": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.reset_view": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.skip_section": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.status_render": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.status_view": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.suggestions_render": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.unskip_section": {
+        "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.wizard_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
       },
@@ -9513,7 +9681,16 @@
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:setup.essential_card": {
+        "module": "sb.domain.setup.panels"
+      },
       "panel:setup.hub": {
+        "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.status_card": {
+        "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.suggestions_card": {
         "module": "sb.domain.setup.panels"
       },
       "panel:starboard.config": {
@@ -9900,7 +10077,10 @@
       "provider:settings.hub_fields": {
         "module": "sb.domain.settings.panels"
       },
-      "provider:setup.sections_index": {
+      "provider:setup.depth_fields": {
+        "module": "sb.domain.setup.panels"
+      },
+      "provider:setup.essential_kind_options": {
         "module": "sb.domain.setup.panels"
       },
       "provider:treasury.baseline_pool_ledger": {
@@ -10725,6 +10905,24 @@
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
       },
+      "workflow:setup.compensate_create_channel": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.erase_subject_session": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.open_workspace": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_session_started": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_workspace_open": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.start_session": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:starboard.configure": {
         "module": "sb.domain.starboard.ops"
       },
@@ -11221,6 +11419,14 @@
         },
         "subsystem": "settings"
       },
+      "setup_session": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "setup_session",
+        "sole_writer": {
+          "$ref": "engine:setup.store"
+        },
+        "subsystem": "setup"
+      },
       "starboard_ignore_channels": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "starboard_ignore_channels",
@@ -11288,7 +11494,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:f15da60d8e685316c3e10e71cf98b64b660015ab9b2490176547c4478697cf89",
+  "stable_hash": "sha256:1902f61bd8578e378ed8b67d130edb4ac49ee17875d459731d841ae7c721f2bf",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -32839,7 +33045,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "1 command(s), generated from the `setup` manifest."
+              "text": "8 command(s), generated from the `setup` manifest."
             },
             {
               "provider": {
@@ -43279,7 +43485,79 @@
       "commands": [
         {
           "aliases": [],
-          "audience_tier": "",
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "both",
+          "modal": null,
+          "name": "setup",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.essential_open"
+          },
+          "slash_common": true,
+          "summary": "Guided server setup: presets, channels, roles, moderation, review.",
+          "usage": "/setup",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "setup-hub",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.hub_open"
+          },
+          "slash_common": false,
+          "summary": "Open the setup hub (depth chooser first).",
+          "usage": "/setup-hub",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "setup-advanced",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.advanced_open"
+          },
+          "slash_common": false,
+          "summary": "Open the advanced setup wizard (power users).",
+          "usage": "/setup-advanced",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
           "capability": "setup",
           "capability_required": "",
           "cooldown": null,
@@ -43288,17 +43566,113 @@
           "enabled_when": "",
           "group": "",
           "help_section_order": 0,
-          "kind": "both",
+          "kind": "slash",
           "modal": null,
-          "name": "setup",
+          "name": "setup-describe",
           "quota_ref": "",
-          "reply_visibility": null,
+          "reply_visibility": "ephemeral",
           "route": {
-            "$ref": "panel:setup.hub"
+            "$ref": "handler:setup.describe_entry"
           },
-          "slash_common": true,
-          "summary": "Guided server setup: presets, channels, roles, moderation, review.",
-          "usage": "/setup",
+          "slash_common": false,
+          "summary": "Describe your server; get setup suggestions.",
+          "usage": "/setup-describe description:<text>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "setup-status",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.status_view"
+          },
+          "slash_common": false,
+          "summary": "Quick at-a-glance setup state (read-only).",
+          "usage": "/setup-status",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "setup-reset",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.reset_view"
+          },
+          "slash_common": false,
+          "summary": "Clear the staged setup draft.",
+          "usage": "/setup-reset",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "setup-skip",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.skip_section"
+          },
+          "slash_common": false,
+          "summary": "Mark a wizard section skipped.",
+          "usage": "/setup-skip section:<slug>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": "none",
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "setup-unskip",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "handler:setup.unskip_section"
+          },
+          "slash_common": false,
+          "summary": "Restore a skipped wizard section.",
+          "usage": "/setup-unskip section:<slug>",
           "usage_weight": 1.0
         }
       ],
@@ -43307,16 +43681,92 @@
       "key": "setup",
       "panels": [
         {
-          "actions": [],
+          "actions": [
+            {
+              "action_id": "depth_quick",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_depth:quick",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "⚡ Quick",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "depth_standard",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_depth:standard",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "🛠 Standard",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "depth_advanced",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_depth:advanced",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "🔬 Advanced",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "The setup wizard's sections, ordered by the registry (A-9). Interactive flows arm per-section as they port."
+              "text": "How detailed do you want the wizard to be? You can change this later from the hub. Your selection only filters which sections appear — nothing applies until **Final review**."
             },
             {
               "provider": {
-                "$ref": "provider:setup.sections_index"
+                "$ref": "provider:setup.depth_fields"
               }
             }
           ],
@@ -43324,36 +43774,424 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "blurple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped depth chooser carries the footer literal 'Recommended: Standard.' (depth_panel.build_depth_embed set_footer) — FooterMode has no literal lane; the override delegates the whole component/body render to the grammar and replaces ONLY the embed footer (goldens/setup/sweep_slash_setup-hub + sweep_slash_setup-advanced pin the byte).",
           "layout": {
-            "pages": []
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "depth_quick",
+                    "depth_standard",
+                    "depth_advanced"
+                  ]
+                ]
+              }
+            ]
           },
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "setup.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:setup.depth_render"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "setup",
           "timeout_s": 180,
-          "title": "Server setup",
+          "title": "🛰 Choose your setup depth",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "essential_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "essential_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Skip — set things up myself",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick the closest match and we'll switch on a set of safe, sensible defaults right away — you can change any of it later. We won't create or delete anything; this just turns on a few settings to get you started.\n\nThen press **Save & continue**."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Step-1 card carries the footer literal 'Step 1 of 8' and the 'Starter set' → '_pick one above_' field (essential_setup.py build; grammar fields are provider-fed and FooterMode has no literal lane) — the override delegates the component render to the grammar and replaces ONLY the embed footer + fields (goldens/setup/sweep_setup + goldens/quicksetup/sweep_slash_setup pin the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "essential_kind"
+                  ],
+                  [
+                    "essential_save"
+                  ],
+                  [
+                    "essential_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_card",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_kind_options"
+              },
+              "page_size": 25,
+              "placeholder": "What kind of server is this?",
+              "selector_id": "essential_kind",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "✨ What kind of server is this?",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped status snapshot is state-parameterized in both its description ('**Status:** `{status}`' — cogs/setup/_helpers.build_status_embed) and its field set (the no-session explainer renders only when no session row exists); grammar TextBlocks are static. Zero components; the renderer only composes the embed (goldens/setup/sweep_slash_setup-status pins the session-less bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.status_card",
+          "renderer_override": {
+            "$ref": "handler:setup.status_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 Setup status",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "accept_high_confidence",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Accept all high-confidence",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "review_one_by_one",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Review one-by-one",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reject_ai_suggestions",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Reject all AI suggestions",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rerun_deterministic",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Rerun deterministic-only",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "stage_final_review",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_pending"
+              },
+              "label": "Stage & open Final review",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped review panel is draft-parameterized in its description (the _REVIEW_HEADER + High/Medium/Low/Source count line), its per-subsystem recommendation fields, its Dropped list (capped at 5 with the '+N more not shown' tail), and it rides the deterministic-note CONTENT line next to the embed (main_panel.py _DETERMINISTIC_NOTE) — all outside the static grammar vocabulary. The override delegates the component render to the grammar and composes embed + content (goldens/setup/sweep_slash_setup-describe pins every byte).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "accept_high_confidence",
+                    "review_one_by_one",
+                    "reject_ai_suggestions",
+                    "rerun_deterministic"
+                  ],
+                  [
+                    "stage_final_review"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.suggestions_card",
+          "renderer_override": {
+            "$ref": "handler:setup.suggestions_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🤖 Smart suggestions",
           "usage_weight": 1.0
         }
       ],
       "settings": [],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:setup.erase_subject_session"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "setup_session",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:setup.store"
+          },
+          "table": "setup_session",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": [
         {

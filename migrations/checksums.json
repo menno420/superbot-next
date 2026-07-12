@@ -34,5 +34,6 @@
  "0033_starboard.sql": "sha256:49e8b860404157f6c2cb5718a5ae1f379cdb1f04dd18125fc53b9edc603e62ce",
  "0034_btd6_data_blobs.sql": "sha256:937800e7a60e7fd3b0954b5ea2b729bd05b4bbd192ca562f643eddd2e488dc20",
  "0035_fishing_energy.sql": "sha256:69fd37a7f9b773ae9e351cac50ae0a39b00a0defddbe741f04d39b2d21a462c5",
- "0036_game_xp_shipped_types.sql": "sha256:b64c7d35d1bb0a0e9d6ebc2bd6f28e480a5cc412b53630a86185e9a1bc7c72cf"
+ "0036_game_xp_shipped_types.sql": "sha256:b64c7d35d1bb0a0e9d6ebc2bd6f28e480a5cc412b53630a86185e9a1bc7c72cf",
+ "0037_setup_session.sql": "sha256:a8c6b84f629b569ec0622fdd27c220e115aa64ee4012058c289af1db1f2fc558"
 }
