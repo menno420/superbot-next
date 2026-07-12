@@ -1,8 +1,7 @@
-"""Deathmatch K7 lanes (band 6) — the shipped duel flow over the games
-checkpoint store (the blackjack-PvP g1 recipe, D-0042): challenge →
-Accept/Decline session components → alternating Attack/Defend session
-components → the finishing move records the W/L pair atomically and
-deletes the rows. No wager — the shipped deathmatch moves no money.
+"""Deathmatch K7 lanes (band 6) — the shipped duel flow: challenge →
+Accept/Decline on the challenge card → alternating Attack/Defend g1
+session components → the finishing move records the W/L pair atomically
+and deletes the row. No wager — the shipped deathmatch moves no money.
 
 * PvP stats write ONLY for player-vs-player duels; bot duels stay off
   the leaderboard (the shipped PR-6 anti-farming rule).
@@ -13,9 +12,25 @@ deletes the rows. No wager — the shipped deathmatch moves no money.
 * Equipment tilt rides the deferred equipment/wear system (D-0043) —
   fighters duel at the shipped bare baseline.
 
+D-0042-REVIEW NOTE (the parity flip, 2026-07-12): the pre-accept
+challenge is PROCESS MEMORY, never a checkpoint row. The shipped
+``_ChallengeView`` (cogs/deathmatch_cog.py, ``timeout=30.0``) kept the
+pending challenge entirely in the view object — ``active_duels`` gains
+its entry in ``btn_accept`` — so ``!deathmatch @user`` wrote NO row,
+and goldens/deathmatch/sweep_dm_challenge pins that rowless db_delta.
+The D-0042 g1 recipe's pending-challenge checkpoint (the earlier shape
+here) was a substrate deviation that could not survive the flip (the
+moderation-#163 rule: a design deviation on a golden-exercised surface
+reshapes to shipped semantics). Challenger/target now ride the
+session-view binding's args (sb/kernel/panels/engine._mint_ephemeral —
+the in-memory ``_ChallengeView`` analog, same restart/timeout loss
+posture as shipped) and the duel row is BORN AT ACCEPT (the shipped
+``btn_accept`` construction site) — settle-once row-consumption from
+accept onward (D-0045) is unchanged.
+
 Checkpoint rows (game_state, SESSION):
-* pending challenge — (guild, challenger, channel, "deathmatch_pending").
-* pvp duel — (guild, challenger, channel, "deathmatch") (DuelState blob).
+* pvp duel — (guild, challenger, channel, "deathmatch") (DuelState blob),
+  minted at accept.
 * bot duel — (guild, player, 0, "deathmatch_bot").
 """
 
@@ -40,13 +55,11 @@ from sb.spec.refs import WorkflowRef, is_registered, workflow
 
 __all__ = [
     "BOT_SUBSYSTEM",
-    "PENDING_SUBSYSTEM",
     "PVP_SUBSYSTEM",
     "ensure_ops_refs",
     "register_ops",
 ]
 
-PENDING_SUBSYSTEM = "deathmatch_pending"
 PVP_SUBSYSTEM = "deathmatch"
 BOT_SUBSYSTEM = "deathmatch_bot"
 STATE_VERSION = 1
@@ -70,72 +83,66 @@ def _duel_lines(duel: core.DuelState) -> str:
             f"{duel.player2_max_hp} HP")
 
 
+async def _refuse_if_fighting(conn, gid: int, *fighters: int) -> None:
+    """The shipped either-already-in-a-duel check over the ACTIVE duel
+    rows (shipped ``active_duels`` held only accepted duels — a pending
+    challenge was invisible to the guard; the accept op re-checks)."""
+    for row in await games_store.list_active(PVP_SUBSYSTEM, guild_id=gid,
+                                             conn=conn):
+        state = row["state"]
+        in_duel = {int(state.get("p1", 0)), int(state.get("p2", 0))}
+        if in_duel & set(fighters):
+            raise ValidatorError(
+                "Either you or the opponent is already in a duel.")
+
+
 @workflow("deathmatch.record_challenge")
 async def _record_challenge(conn, ctx: WorkflowContext) -> LegOutcome:
-    """!deathmatch @user — the pending challenge row; Accept/Decline
-    ride g1 components keyed on the challenger."""
-    uid, gid, now = _ids(ctx)
-    cid = int(ctx.params.get("channel_id") or 0)
+    """!deathmatch @user — validate + guard ONLY; NO row (the module
+    docstring's D-0042-review note: the shipped ``_ChallengeView`` kept
+    the pre-accept challenge in memory, and sweep_dm_challenge pins the
+    rowless db_delta). Accept/Decline ride the challenge card's
+    session-view binding, which carries challenger/target in its args."""
+    uid, gid, _now = _ids(ctx)
     target = int(ctx.params.get("target_id") or 0)
     if not target:
         raise ValidatorError(
             "Couldn't find the user. Please mention a valid member.")
     if target == uid:
         raise ValidatorError("You cannot challenge yourself!")
-    # shipped either-already-in-a-duel check, over the durable rows
-    for subsystem in (PVP_SUBSYSTEM, PENDING_SUBSYSTEM):
-        for row in await games_store.list_active(subsystem, guild_id=gid,
-                                                 conn=conn):
-            state = row["state"]
-            fighters = {int(state.get("p1", state.get("challenger", 0))),
-                        int(state.get("p2", state.get("target", 0)))}
-            if fighters & {uid, target}:
-                raise ValidatorError(
-                    "Either you or the opponent is already in a duel.")
-    await games_store.upsert_checkpoint(
-        conn, guild_id=gid, user_id=uid, channel_id=cid,
-        subsystem=PENDING_SUBSYSTEM,
-        state={"challenger": uid, "target": target},
-        version=STATE_VERSION, now=now)
-    sid = games_session.mint_session_id(gid, uid, cid)
+    await _refuse_if_fighting(conn, gid, uid, target)
     return LegOutcome(
         step=StepResult(uid, "challenge", True), before={},
-        after={"session_id": sid,
-               "components": _components(sid, "accept", "decline"),
+        after={"challenger": uid, "target": target,
                "message": f"⚔️ <@{uid}> has challenged <@{target}> to a "
                           f"duel!\n\nPress **Accept** or **Decline** "
                           f"below."})
 
 
-async def _load_pending(conn, gid: int, sid: str):
-    parsed = games_session.parse_session_id(sid)
-    if parsed is None:
-        raise ValidatorError("This challenge has expired.")
-    _, challenger, cid = parsed
-    state = await games_store.fetch_checkpoint(
-        gid, challenger, cid, PENDING_SUBSYSTEM, conn=conn)
-    if state is None:
-        raise ValidatorError("This challenge has expired.")
-    return challenger, cid, state
-
-
 @workflow("deathmatch.record_accept")
 async def _record_accept(conn, ctx: WorkflowContext) -> LegOutcome:
     """Only the challenged player may accept (shipped invoker lock);
-    the duel row replaces the pending row in ONE txn."""
+    the duel row is BORN here (the shipped ``btn_accept`` construction
+    site) — challenger/target arrive from the session binding's args."""
     uid, gid, now = _ids(ctx)
-    sid = str(ctx.params.get("session_id") or "")
-    challenger, cid, pending = await _load_pending(conn, gid, sid)
-    if uid != int(pending.get("target", 0)):
+    challenger = int(ctx.params.get("challenger") or 0)
+    target = int(ctx.params.get("target") or 0)
+    cid = int(ctx.params.get("channel_id") or 0)
+    if not challenger or not target:
+        raise ValidatorError("This challenge has expired.")
+    if uid != target:
         raise ValidatorError("This challenge isn't for you.")
-    await games_store.delete_checkpoint(
-        conn, guild_id=gid, user_id=challenger, channel_id=cid,
-        subsystem=PENDING_SUBSYSTEM)
+    # accept-time re-check (replaces the retired pending-row consumption):
+    # a fighter who entered another duel since the card was posted is
+    # refused, and a double-accept lands on the guard via the row the
+    # first click created.
+    await _refuse_if_fighting(conn, gid, challenger, target)
     duel = core.DuelState(player1=challenger, player2=uid)
     await games_store.upsert_checkpoint(
         conn, guild_id=gid, user_id=challenger, channel_id=cid,
         subsystem=PVP_SUBSYSTEM, state=duel.to_state(),
         version=STATE_VERSION, now=now)
+    sid = games_session.mint_session_id(gid, challenger, cid)
     return LegOutcome(
         step=StepResult(uid, "accept", True), before={},
         after={"session_id": sid,
@@ -147,14 +154,15 @@ async def _record_accept(conn, ctx: WorkflowContext) -> LegOutcome:
 
 @workflow("deathmatch.record_decline")
 async def _record_decline(conn, ctx: WorkflowContext) -> LegOutcome:
-    uid, gid, _now = _ids(ctx)
-    sid = str(ctx.params.get("session_id") or "")
-    challenger, cid, pending = await _load_pending(conn, gid, sid)
-    if uid != int(pending.get("target", 0)):
+    """Decline consumes nothing durable — the pending challenge lives in
+    the session binding, and the card's expire tears the binding down
+    (the shipped ``btn_decline`` + ``view.stop()``)."""
+    uid, _gid, _now = _ids(ctx)
+    target = int(ctx.params.get("target") or 0)
+    if not target:
+        raise ValidatorError("This challenge has expired.")
+    if uid != target:
         raise ValidatorError("This challenge isn't for you.")
-    await games_store.delete_checkpoint(
-        conn, guild_id=gid, user_id=challenger, channel_id=cid,
-        subsystem=PENDING_SUBSYSTEM)
     return LegOutcome(
         step=StepResult(uid, "decline", True), before={},
         after={"message": f"<@{uid}> declined the duel.",

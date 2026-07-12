@@ -108,6 +108,7 @@ subsystems:
   counters: ported
   counting: ported
   creature: ported
+  deathmatch: pending
   diagnostic: ported
   economy: ported
   farm: ported
