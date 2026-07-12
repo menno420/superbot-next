@@ -3,7 +3,8 @@
 Byte truth for the create/delete wire verbs lives in the CORPUS — the
 setup/quicksetup slash goldens themselves record NO channel calls (the
 trap-17 leaked-workspace reuse), so the vocabulary is pinned by the
-`_unmapped` sweeps that DID capture the ops: goldens/_unmapped/
+sweeps that DID capture the ops (re-homed at the setup flip +
+the D-0030 batch): goldens/setup/
 sweep_setup.json (create_channel with the overwrite set AT creation,
 INT masks, the created id minting off the shared allocator as
 ``<msg:1>``) and sweep_del.json (delete_channel, bare
@@ -52,7 +53,7 @@ def test_create_text_channel_records_the_corpus_wire_shape():
     # fake_http.create_channel args verbatim (type 0 = text channel)
     assert call.args == {"guild_id": 42, "type": 0, "reason": None}
     # the discord.py create options: overwrites ride IN the create
-    # payload with INT masks (goldens/_unmapped/sweep_setup.json pins
+    # payload with INT masks (goldens/setup/sweep_setup.json pins
     # all four entries: @everyone deny-view, admin-role deny-view,
     # bot allow, invoker allow)
     assert call.payload == {
@@ -88,6 +89,75 @@ def test_delete_channel_records_the_corpus_wire_shape():
     run(actions.delete_channel(9001, reason=None))
     (call,) = transport.calls
     assert call.method == "delete_channel"
-    # goldens/_unmapped/sweep_del.json: bare args, no payload
+    # goldens/channel/sweep_del.json: bare args, no payload
     assert call.args == {"channel_id": 9001, "reason": None}
     assert call.payload is None
+
+
+def test_rename_channel_records_edit_channel_with_name():
+    transport = _transport()
+    actions = ParityChannelStateActions(transport)
+    run(actions.rename_channel(9001, name="test", reason=None))
+    (call,) = transport.calls
+    # goldens/channel/sweep_rename.json: an edit_channel PATCH carrying
+    # only `name`
+    assert call.method == "edit_channel"
+    assert call.args == {"channel_id": 9001, "reason": None}
+    assert call.payload == {"name": "test"}
+
+
+def test_set_topic_clear_records_an_explicit_null_topic():
+    transport = _transport()
+    actions = ParityChannelStateActions(transport)
+    run(actions.set_topic(9001, topic=None, reason=None))
+    (call,) = transport.calls
+    # goldens/channel/sweep_topic.json pins `{"topic": null}`
+    assert call.method == "edit_channel"
+    assert call.args == {"channel_id": 9001, "reason": None}
+    assert call.payload == {"topic": None}
+
+
+def test_move_channel_records_edit_channel_with_parent_id():
+    transport = _transport()
+    actions = ParityChannelStateActions(transport)
+    run(actions.move_channel(9001, category_id=777, reason=None))
+    (call,) = transport.calls
+    assert call.method == "edit_channel"
+    assert call.args == {"channel_id": 9001, "reason": None}
+    assert call.payload == {"parent_id": 777}
+
+
+def test_clone_channel_records_the_full_source_option_set():
+    from sb.domain.channel.service import ChannelSnapshot
+
+    transport = _transport()
+    actions = ParityChannelStateActions(transport)
+    source = ChannelSnapshot(channel_id=9001, name="test")
+    cid = run(actions.clone_channel(42, name="test", source=source,
+                                    reason=None))
+    (call,) = transport.calls
+    assert call.method == "create_channel"
+    assert call.args == {"guild_id": 42, "type": 0, "reason": None}
+    # goldens/channel/sweep_clone.json pins the discord.py
+    # TextChannel.clone() body — all eight keys, the source's defaults
+    assert call.payload == {
+        "default_auto_archive_duration": 1440,
+        "default_thread_rate_limit_per_user": 0,
+        "name": "test",
+        "nsfw": False,
+        "parent_id": None,
+        "permission_overwrites": [],
+        "rate_limit_per_user": 0,
+        "topic": None,
+    }
+    # the created id came off the shared allocator (the golden's <msg:N>)
+    assert cid == 101
+
+
+def test_collision_safe_name_matches_the_pinned_datapoint():
+    from sb.domain.channel.service import collision_safe_name
+
+    # goldens/channel/sweep_create.json: `test` taken -> `test-2`
+    assert collision_safe_name("test", {"test"}) == "test-2"
+    assert collision_safe_name("test", set()) == "test"
+    assert collision_safe_name("test", {"test", "test-2"}) == "test-3"
