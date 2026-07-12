@@ -40,6 +40,8 @@ __all__ = [
     "get_depth",
     "set_depth",
     "record_depth",
+    "get_max_depth",
+    "get_equipped_title",
     "get_world_seed",
     "set_world_seed",
     "get_mining_inventory",
@@ -412,6 +414,31 @@ async def record_depth(conn: Any, *, user_id: int, guild_id: int,
         "RETURNING max_depth",
         (str(user_id), guild_id, depth), conn=conn)
     return row is not None
+
+
+async def get_max_depth(user_id: int, guild_id: int, conn: Any = None) -> int:
+    """The deepest band the player has ever reached (``max_depth``); 0 for a
+    no-row player. Shipped ``mining_player_state.get_max_depth`` — a plain
+    read feeding the titles depth-milestone earn-checks
+    (``title_service.build_context``)."""
+    row = await fetchone(
+        "SELECT max_depth FROM mining_player_state WHERE user_id=$1 AND "
+        "guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return int(row["max_depth"]) if row and row["max_depth"] is not None else 0
+
+
+async def get_equipped_title(user_id: int, guild_id: int,
+                             conn: Any = None) -> str | None:
+    """The player's stored equipped-title id, or None when none is set.
+    Shipped ``mining_player_state.get_equipped_title`` — a plain read; the
+    title-service gates the value on the live earn-check, so a no-row / NULL
+    player renders the "— none —" byte (goldens/mining/sweep_titles). The
+    equipped-title WRITE (the panel select) rides the deferred panel port
+    (D-0043) — no golden drives it."""
+    row = await fetchone(
+        "SELECT equipped_title FROM mining_player_state WHERE user_id=$1 AND "
+        "guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return row["equipped_title"] if row and row["equipped_title"] else None
 
 
 # --- mining_world (per-guild world seed; guild-keyed, no member data) ---------

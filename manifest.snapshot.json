@@ -5046,6 +5046,46 @@
           "value": "fo_workshop"
         },
         {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_mining"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_combat"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_fortune"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_crafting"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_respec"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_titles"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "sk_hub"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "ti_hub"
+        },
+        {
           "source": "sb/manifest/moderation.py",
           "subsystem": "moderation",
           "value": "warn"
@@ -6603,6 +6643,16 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining.forge"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.skills"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.titles"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -9276,6 +9326,12 @@
       "handler:mining.render_hub": {
         "module": "sb.domain.mining.panels"
       },
+      "handler:mining.render_skills": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.render_titles": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.render_vault": {
         "module": "sb.domain.mining.panels"
       },
@@ -9291,10 +9347,13 @@
       "handler:mining.sellall_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.skill_pending": {
+      "handler:mining.skill_respec_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.skills_pending": {
+      "handler:mining.skill_route": {
+        "module": "sb.domain.mining.service"
+      },
+      "handler:mining.skill_spend_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:mining.stash_all_route": {
@@ -9305,9 +9364,6 @@
       },
       "handler:mining.stats_view": {
         "module": "sb.domain.mining.service"
-      },
-      "handler:mining.titles_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:mining.unequip_route": {
         "module": "sb.domain.mining.service"
@@ -10411,6 +10467,12 @@
         "module": "sb.domain.mining.panels"
       },
       "panel:mining.hub": {
+        "module": "sb.domain.mining.panels"
+      },
+      "panel:mining.skills": {
+        "module": "sb.domain.mining.panels"
+      },
+      "panel:mining.titles": {
         "module": "sb.domain.mining.panels"
       },
       "panel:mining.vault": {
@@ -12473,7 +12535,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:06ceffca1648856aff2cfcc886e455be2fb3af50a76e82a78a8b81e43fe6c45c",
+  "stable_hash": "sha256:d5cd1f3cf710fd77899f1f155e0a9833fdaadd4795e42715e9837dd7b298848a",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -40033,10 +40095,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.skills_pending"
+            "$ref": "panel:mining.skills"
           },
           "slash_common": false,
-          "summary": "Your skill tree.",
+          "summary": "Open your skill tree — spend points to specialize.",
           "usage": "!skills",
           "usage_weight": 1.0
         },
@@ -40057,10 +40119,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.skill_pending"
+            "$ref": "handler:mining.skill_route"
           },
           "slash_common": false,
-          "summary": "Spend a skill point.",
+          "summary": "Spend a skill point into a branch: !skill <branch>.",
           "usage": "!skill",
           "usage_weight": 1.0
         },
@@ -40081,10 +40143,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.titles_pending"
+            "$ref": "panel:mining.titles"
           },
           "slash_common": false,
-          "summary": "Your earned titles.",
+          "summary": "Your earned titles — equip one on your Character card.",
           "usage": "!titles",
           "usage_weight": 1.0
         },
@@ -40787,6 +40849,308 @@
           "subsystem": "mining",
           "timeout_s": 180,
           "title": "🔥 Forge",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "sk_mining",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.skill_spend_pending"
+              },
+              "label": "⛏️ Mining",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sk_combat",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.skill_spend_pending"
+              },
+              "label": "⚔️ Combat",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sk_fortune",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.skill_spend_pending"
+              },
+              "label": "🍀 Fortune",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sk_crafting",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.skill_spend_pending"
+              },
+              "label": "🛠️ Crafting",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sk_respec",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.skill_respec_pending"
+              },
+              "label": "♻ Respec",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sk_titles",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.titles"
+              },
+              "label": "🏆 Titles",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "sk_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!skills` reply is a fully live-state-parameterized embed built in the view (views/mining/skills_panel.py build_skills_embed: the Points `{avail} available · {spent} spent` line + the `Game level {level}` cap note, the four branch `{blurb}  ({points}/{cap})` fields with their describe_stats previews, and the `♻ Respec refunds all for {cost} 🪙` footer — goldens/mining/sweep_skills.json pins the fresh-player bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub / vault / forge live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "sk_mining",
+                    "sk_combat",
+                    "sk_fortune",
+                    "sk_crafting"
+                  ],
+                  [
+                    "sk_respec",
+                    "sk_titles",
+                    "sk_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.skills",
+          "renderer_override": {
+            "$ref": "handler:mining.render_skills"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "🌳 Skill Tree",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "ti_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!titles` reply is a fully live-state-parameterized embed built in the view (views/mining/titles_panel.py build_titles_embed: the Equipped title line, the optional `Earned ({n})` list, and the `🔒 Locked ({n})` list of `{emoji} {label} — {requirement}` lines derived from the player's skills / max-depth / level — goldens/mining/sweep_titles.json pins the fresh-player Equipped `— none —` + 🔒 Locked (9) bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub / skills-panel live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "ti_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "mining.titles",
+          "renderer_override": {
+            "$ref": "handler:mining.render_titles"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "🏆 Titles",
           "usage_weight": 1.0
         }
       ],

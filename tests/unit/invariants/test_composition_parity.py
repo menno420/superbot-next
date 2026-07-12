@@ -59,10 +59,11 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     # mining.forge PanelSpec + repair_route / quickcraft_route / cook_route /
     # use_route register at module import (the forge 🔥 Build pending terminal
     # registers at import in panels.py, so it is import-visible too).
+    # skill/skills/titles pruned by the slice-5 port — the mining.skills +
+    # mining.titles PanelSpecs + skill_route register at module import (the
+    # skills-panel spend/respec pending terminals register at import in
+    # panels.py, so they are import-visible too).
     "handler:mining.home_pending",
-    "handler:mining.skill_pending",
-    "handler:mining.skills_pending",
-    "handler:mining.titles_pending",
     "handler:mining.workshop_pending",
     "panel:role.hub",
 })
