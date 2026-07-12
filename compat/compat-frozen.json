@@ -371,6 +371,11 @@
    },
    {
     "aliases": [],
+    "group": "",
+    "name": "paragon"
+   },
+   {
+    "aliases": [],
     "group": "btd6.strat",
     "name": "pending"
    },
@@ -2108,6 +2113,20 @@
     "aliases": [],
     "group": "",
     "name": "setup-unskip"
+   },
+   {
+    "aliases": [
+     "advancedsetup"
+    ],
+    "group": "",
+    "name": "setupadvanced"
+   },
+   {
+    "aliases": [
+     "describesetup"
+    ],
+    "group": "",
+    "name": "setupdescribe"
    }
   ],
   "starboard": [

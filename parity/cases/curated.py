@@ -131,6 +131,89 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "custom_ids, first button (Hit) clicked"
         ),
     ),
+    # --------------------------------------------------------- creature PvP
+    GoldenCase(
+        id="creature.battle_accept",
+        subsystem="creature",
+        # both fighters own a full one-per-element team so the 6v6 resolves
+        # (the collection-log writer — !catch — is capture-skipped for
+        # unseeded RNG, so the pool is fixture-seeded, like the stateful
+        # game cases; D-0079). Seeded BEFORE the before-snapshot, so the
+        # rows never appear in db_delta — only the battle's own writes do.
+        fixture_sql=(
+            "INSERT INTO creature_collection_log "
+            "(user_id, guild_id, creature, count, first_caught, last_caught) "
+            "VALUES "
+            "(900000000000000102, 700000000000000001, 'Cindling', 1, 1000000000, 1000000000),"
+            "(900000000000000102, 700000000000000001, 'Rippling', 1, 1000000000, 1000000000),"
+            "(900000000000000102, 700000000000000001, 'Sproutle', 1, 1000000000, 1000000000),"
+            "(900000000000000102, 700000000000000001, 'Voltkit', 1, 1000000000, 1000000000),"
+            "(900000000000000102, 700000000000000001, 'Pebblet', 1, 1000000000, 1000000000),"
+            "(900000000000000102, 700000000000000001, 'Zephyrl', 1, 1000000000, 1000000000)",
+            "INSERT INTO creature_collection_log "
+            "(user_id, guild_id, creature, count, first_caught, last_caught) "
+            "VALUES "
+            "(900000000000000103, 700000000000000001, 'Emberpaw', 1, 1000000000, 1000000000),"
+            "(900000000000000103, 700000000000000001, 'Splashfin', 1, 1000000000, 1000000000),"
+            "(900000000000000103, 700000000000000001, 'Thornkit', 1, 1000000000, 1000000000),"
+            "(900000000000000103, 700000000000000001, 'Sparkpup', 1, 1000000000, 1000000000),"
+            "(900000000000000103, 700000000000000001, 'Gravelpup', 1, 1000000000, 1000000000),"
+            "(900000000000000103, 700000000000000001, 'Gustling', 1, 1000000000, 1000000000)",
+        ),
+        steps=(
+            Step(
+                kind="command",
+                content="!cbattle <@900000000000000103>",
+                persona="member",
+                mentions=("second_member",),
+            ),
+            # only the challenged player (second_member) may Accept — the
+            # first component on the challenge card (D-0079).
+            Step(
+                kind="click",
+                target_message=1,
+                component_index=0,
+                persona="second_member",
+            ),
+        ),
+        notes=(
+            "challenge -> Accept auto-resolves the 6v6 and records the W/L "
+            "pair + battle-win game-xp (creature.record_battle_result)"
+        ),
+    ),
+    # ------------------------------------------------------------- casino
+    GoldenCase(
+        id="casino.poker_full_hand",
+        subsystem="casino",
+        steps=(
+            Step(kind="command", content="!poker", persona="admin"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),                          # Join
+            Step(kind="click", target_message=1, component_index=2,
+                 persona="admin"),                           # Start → deal
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # preflop SB call
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # BB check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # flop check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # flop check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # turn check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # turn check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # river check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # river check → showdown
+        ),
+        notes=(
+            "minted (D-0073): a full headless Texas Hold'em hand — lobby → "
+            "seat → deal → check/call betting rounds → showdown, public "
+            "spectator embed pinned per action (per-player ephemeral hands "
+            "ride the owner-armed live step, D-0045)"),
+    ),
     # ------------------------------------------------------------ events
     GoldenCase(
         id="moderation.warn_flow",
