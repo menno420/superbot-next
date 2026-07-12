@@ -1,6 +1,6 @@
 # 2026-07-12 — program review (owner's 7 questions: architecture, parity honesty, production readiness, AI, foundations, web edits)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Fable · high · docs/audit (Q-0194)
 
@@ -50,4 +50,13 @@ import, README-first.md's pre-flip framing).
 
 ## Close-out
 
-(to be written at flip)
+Delivered in one docs-only PR on this branch: the review doc
+(`docs/review/program-review-2026-07-12.md`, ~500 lines, seven verdicts
++ sim-lab/backlog synthesis + Top-10 next moves + explicit
+"not measured" footer), its README index, the one-line retro link, this
+card, and the telemetry row. `python3 bootstrap.py check --strict` run
+locally: the eleven [stamp] findings the first draft introduced
+(decision IDs re-cited outside their home docs) were resolved by citing
+`docs/decisions.md` line anchors instead of restamping the IDs; after
+the fix the only red was the designed born-red card hold, cleared by
+this flip. No code, parity data, or control/ files touched.
