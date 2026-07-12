@@ -15,12 +15,15 @@ __all__ = ["Reply", "ensure_handler_refs"]
 
 
 def _target_id(req) -> int:
-    """Optional member arg (mention) else the invoker — the shipped
-    ``member: discord.Member = None`` converter parameter."""
+    """Optional member arg (mention/id) else the invoker — the shipped
+    ``member: discord.Member = None`` converter parameter. Snowflake-length
+    guard: the shipped MemberConverter never resolved short numerics as
+    member ids (`!inventory 1` raised MemberNotFound), so a sub-snowflake
+    token falls back to the invoker rather than inventing a target."""
     argv = tuple(req.args.get("argv", ()) or ())
     for token in argv:
         stripped = str(token).strip("<@!>")
-        if stripped.isdigit():
+        if stripped.isdigit() and len(stripped) >= 15:
             return int(stripped)
     return int(getattr(req.actor, "user_id", 0) or 0)
 

@@ -49,6 +49,19 @@ __all__ = [
 _HUB_PROVIDER = "inventory.hub_overview"
 _LINE_RENDERER = "inventory.render_line"
 
+
+def _ctx_target(ctx: object) -> int:
+    """The viewed member — the shipped ``UnifiedInventoryView.target``
+    threading: ``!inventory @user`` opens the hub with ``inv_target`` in the
+    request args, and the session-click adapter replays the OPEN's args on
+    every category click (``EphemeralComponent.args``), so detail panels
+    render the TARGET's items, not the clicker's (the shipped
+    ``self._hub.target`` semantic). Falls back to the actor."""
+    params = getattr(ctx, "params", {}) or {}
+    target = int(params.get("inv_target", 0) or 0)
+    return target or int(getattr(getattr(ctx, "actor", None), "user_id", 0)
+                         or 0)
+
 # The shipped category population is STATIC catalogue metadata (+ the
 # "Other" catch-all) — so the hub's per-category buttons are declarable.
 # The shipped `_add_category_buttons` showed one button per NON-EMPTY
@@ -101,8 +114,7 @@ def _ensure_hub_provider() -> ProviderRef:
             from sb.domain.inventory import service
 
             guild_id = int(getattr(ctx, "guild_id", 0) or 0)
-            user_id = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
-                          or 0)
+            user_id = _ctx_target(ctx)
             grouped = await service.build_combined_inventory(user_id, guild_id)
             if not grouped:
                 return (("🎒 Inventory",
@@ -122,8 +134,7 @@ def _ensure_detail_provider(category: str) -> ProviderRef:
             from sb.domain.inventory import service
 
             guild_id = int(getattr(ctx, "guild_id", 0) or 0)
-            user_id = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
-                          or 0)
+            user_id = _ctx_target(ctx)
             grouped = await service.build_combined_inventory(user_id, guild_id)
             items = grouped.get(_category, [])
             if not items:

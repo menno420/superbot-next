@@ -388,6 +388,30 @@ def test_inventory_hub_override_keeps_only_non_empty_category_buttons(
     assert "**Tools** — 🔧 Toolkit" in rendered.embed.description
 
 
+def test_inventory_providers_thread_the_viewed_target(monkeypatch):
+    """The shipped `self._hub.target` semantic: `!inventory @user` threads
+    the TARGET through the open's args (the session-click adapter replays
+    them on every category click), so hub + detail providers render the
+    target's items, never the clicker's."""
+    from sb.domain.inventory import panels as ip
+    from sb.domain.inventory import service
+    from sb.spec.refs import ProviderRef, resolve as resolve_ref
+
+    ip.ensure_panel_refs()
+    seen = []
+
+    async def spy(user_id, guild_id):
+        seen.append(user_id)
+        return {}
+
+    monkeypatch.setattr(service, "build_combined_inventory", spy)
+    ctx = _panel_ctx(uid=42)
+    ctx.params["inv_target"] = 987654321098765432
+    run(resolve_ref(ProviderRef("inventory.items_tools"))(ctx))
+    run(resolve_ref(ProviderRef("inventory.hub_overview"))(ctx))
+    assert seen == [987654321098765432, 987654321098765432]
+
+
 def test_inventory_hub_actions_open_every_category():
     from sb.domain.inventory.panels import (
         _CATEGORIES,
