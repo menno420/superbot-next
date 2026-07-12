@@ -766,13 +766,95 @@ def _register() -> None:
             return blocked
         return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
+    @handler("mining.repair_route")
+    async def repair_route(req) -> Reply:
+        """`!repair [item]` — repair worn gear for coins (mining_cog.py
+        ``repair``; services/mining_workflow.py ``repair``). The bare invocation
+        answers the usage copy PLAIN (goldens/mining/sweep_repair pins the byte)
+        — a pure read, no write; an argful call runs the audited repair op
+        (economy debit + wear clear in one txn, advisory-fenced) and prefixes the
+        invoker mention on success. No golden drives a funded repair
+        (depth.exemptions.mining guard-only-capture: mining_gear_wear)."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to repair, e.g. `!repair pickaxe` "
+                         "— or `!workshop`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.repair", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.quickcraft_route")
+    async def quickcraft_route(req) -> Reply:
+        """`!quickcraft` — re-craft the last gear item that broke and equip it
+        (mining_cog.py ``quick_craft``; services/mining_workflow.py
+        ``quick_craft``). The shipped handler always prefixes the mention. A
+        fresh player has no broken item (NULL last_broken_item) → the "nothing
+        broken" refusal (goldens/mining/sweep_quickcraft pins ``<@…> Nothing has
+        broken recently — craft or repair gear below.``) — computed as a PURE
+        READ (get_last_broken) so the no-op attempt writes no audit row, exactly
+        as the oracle's ok=False result never opened a txn. Only a real
+        quick-craft runs the audited material-consume + equip + marker-clear op;
+        that lane exists in no imported golden (depth.exemptions.mining
+        guard-only-capture)."""
+        from sb.domain.mining import store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        last = await store.get_last_broken(uid, gid)
+        if not last:
+            return Reply(BLOCKED,
+                         f"<@{uid}> Nothing has broken recently — craft or "
+                         "repair gear below.")
+        blocked, after = await _op_after(req, "mining.quick_craft")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.cook_route")
+    async def cook_route(req) -> Reply:
+        """`!cook [fish]` — cook a caught fish into food (mining_cog.py
+        ``cook``). The bare invocation answers the usage copy PLAIN
+        (goldens/mining/sweep_cook pins the byte). The argful cook write
+        (fish → cooked fish, gated on a built 🔥 Campfire, refilling mining
+        energy) rides the deferred mining energy/consumable system — no golden
+        drives it — so it stays an honest D-0043 pending terminal."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify a fish to cook, e.g. `!cook minnow` "
+                         "(needs a 🔥 Campfire).")
+        return Reply(BLOCKED,
+                     "🔥 `!cook` needs the mining campfire/energy system — the "
+                     "deep mining port is named successor work (D-0043); the "
+                     "core loop (mine/chop/explore/sell/buy) is live.")
+
+    @handler("mining.use_route")
+    async def use_route(req) -> Reply:
+        """`!use [item]` — use a consumable from your pack (mining_cog.py
+        ``use``). The bare invocation answers the usage copy PLAIN
+        (goldens/mining/sweep_use pins the byte). The argful consume (torch /
+        dynamite flavour + food/booster energy refill) rides the deferred mining
+        energy/consumable system — no golden drives it — so it stays an honest
+        D-0043 pending terminal."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Please specify an item to use, e.g. `!use torch`.")
+        return Reply(BLOCKED,
+                     "🎒 `!use` needs the mining consumable/energy system — the "
+                     "deep mining port is named successor work (D-0043); the "
+                     "core loop (mine/chop/explore/sell/buy) is live.")
+
 
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
 #: forge/workshop/titles/loadouts/character) is D-0043 successor work.
 PENDING = {
     "build": "structures", "buildlist": "structures",
-    "buildable": "structures", "use": "consumables", "cook": "campfire",
+    "buildable": "structures",
     # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
     # their real handlers are the *_route / *_view registered in _register()
     # (mirroring the sell/buy/market lanes), so they leave the PENDING roster.
@@ -784,10 +866,15 @@ PENDING = {
     # vaultupgrade_route carry the safe-stash + capacity-sink bytes.
     # mineinv already routes to the live mining.inventory_view (re-homed #250),
     # so it too leaves the PENDING roster.
+    # forge / repair / quickcraft / cook / use are LIVE (slice 4 port): the
+    # mining.forge session PanelSpec + repair_route / quickcraft_route /
+    # cook_route / use_route carry the workshop/campfire/consumable bytes (the
+    # forge not-built card + the repair/cook/use usage guards + the quickcraft
+    # "nothing broken" pure read). The structures BUILD write (🔥 Build) and the
+    # argful cook/use energy lanes stay deferred (D-0043 pending terminals).
     "skills": "skills",
-    "skill": "skills", "titles": "titles", "forge": "forge",
-    "home": "structures", "workshop": "workshop", "repair": "workshop",
-    "quickcraft": "workshop",
+    "skill": "skills", "titles": "titles",
+    "home": "structures", "workshop": "workshop",
 }
 
 

@@ -43,5 +43,6 @@
   "0042_mining_loadout_presets.sql": "sha256:9bf6a1538cd4a6130be83bf6513cf5967ea91e0306daa5a459a30206dcb7af09",
   "0043_mining_world.sql": "sha256:70e9a77cffaff51841f7b821bd2425cf9463b0639439f3d87dbd9917b058792d",
   "0044_mining_vault.sql": "sha256:26f04ab425749cadafc7577bc3709ca40d91058ba370ebed6013340886f4fcd7",
-  "0045_mining_vault_capacity.sql": "sha256:e794a9bdfe642e0cc55b4dc3e12f37ee8b737592f22868ed91b7027a22869e77"
+  "0045_mining_vault_capacity.sql": "sha256:e794a9bdfe642e0cc55b4dc3e12f37ee8b737592f22868ed91b7027a22869e77",
+  "0046_mining_structures.sql": "sha256:fd4de07be9dfef24560397fa2a4745bc342a52d23e6de56bff47081d2e9515e3"
 }

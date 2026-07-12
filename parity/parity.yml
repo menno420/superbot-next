@@ -828,6 +828,24 @@ depth:
           deposit / funded upgrade exists in no imported golden — goldens pin
           write-free guard paths only, so the table cannot be covered until an
           argful stash capture lands (D-0069 class)"
+      # Slice-4 forge/workshop port (this PR): the per-player built structure
+      # levels are a declared mining surface, but the imported sweep drove only
+      # the bare `!forge` — which renders the not-built card off the store's
+      # no-row level 0 — so no golden carries a mining_structures row. The
+      # row-bearing build write (🔥 Build / `!build`) rides the deferred
+      # structures BUILD system (the `!build` command stays a pending terminal).
+      - surface: "table:mining_structures"
+        reason: "guard-only-capture: the structure build write lane IS
+          corpus-expressible (`!forge` 🔥 Build / `!build campfire`) but the
+          imported sweep drove only the bare !forge, which renders the not-built
+          card off the store's no-row default level 0
+          (goldens/mining/sweep_forge.json — \"**(not built)** (0/2)\", the
+          Forge I next-cost 25× iron, 15× stone + 3000 🪙) with no row; the
+          row-bearing build rides the deferred structures BUILD system (the
+          !build command stays a D-0043 pending terminal this slice), so it
+          exists in no imported golden — goldens pin the write-free render path
+          only, so the table cannot be covered until a build capture lands
+          (D-0069 class)"
     proof_channel:
       # proof_channel's five goldens (the re-homed prize sweeps
       # included) all pin the shipped "#proof not found" guard — the

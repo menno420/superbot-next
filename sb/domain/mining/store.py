@@ -26,6 +26,12 @@ __all__ = [
     "PLAYER_SKILLS_STORE",
     "MINING_WORLD_STORE",
     "MINING_VAULT_STORE",
+    "MINING_STRUCTURES_STORE",
+    "get_structures",
+    "set_structure_level",
+    "lock_workshop_slot",
+    "get_last_broken",
+    "set_last_broken",
     "get_vault",
     "update_vault_item",
     "get_vault_level",
@@ -162,6 +168,25 @@ MINING_VAULT_STORE = register_store(StoreSpec(
     # the vault_level capacity tier rides mining_player_state (no new table).
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("mining.erase_subject_vault"),
+))
+
+
+MINING_STRUCTURES_STORE = register_store(StoreSpec(
+    table="mining_structures",
+    sole_writer=EngineRef("mining.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="mining_structures",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    # Per-player built structure levels (BIGINT user ids — player-progression
+    # identity, matching player_skills / game_xp, NOT mining_inventory's legacy
+    # TEXT column). The Forge (gates gold/diamond gear crafting) + the Campfire
+    # (gates cooking) are its two slice-4 rows; a fresh player has no row (all
+    # structures level 0).
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("mining.erase_subject_structures"),
 ))
 
 
@@ -482,6 +507,88 @@ async def set_vault_level(conn: Any, *, user_id: int, guild_id: int,
         "VALUES ($1,$2,GREATEST(0,$3)) ON CONFLICT (user_id, guild_id) "
         "DO UPDATE SET vault_level=GREATEST(0,$3)",
         (str(user_id), guild_id, level), conn=conn)
+
+
+# --- mining_structures (per-player built levels; BIGINT user ids) + the
+# last_broken_item quick-craft marker (mining_player_state, TEXT user ids) ------
+
+
+async def get_structures(user_id: int, guild_id: int,
+                         conn: Any = None) -> dict[str, int]:
+    """``{structure: level}`` for the player's built structures (level > 0
+    only). Shipped ``mining_structures.get_structures`` verbatim: an absent row
+    reads level 0 (not built), so a fresh player reads ``{}`` — the forge panel
+    renders the not-built card and the cook gate stays locked."""
+    rows = await fetchall(
+        "SELECT structure, level FROM mining_structures WHERE user_id=$1 AND "
+        "guild_id=$2", (int(user_id), guild_id), conn=conn)
+    return {str(r["structure"]): int(r["level"]) for r in rows
+            if int(r["level"]) > 0}
+
+
+async def set_structure_level(conn: Any, *, user_id: int, guild_id: int,
+                              structure: str, level: int) -> None:
+    """Persist a structure's built *level* (upsert; clamped >= 0) — the shipped
+    ``mining_structures.set_structure_level`` write (the `!build` / 🔥 Build
+    sink). The row-bearing build rides the deferred structures BUILD system
+    (slice 6); this writer exists for the erasure body + that future lane."""
+    await execute(
+        "INSERT INTO mining_structures (user_id, guild_id, structure, level) "
+        "VALUES ($1,$2,$3,GREATEST(0,$4)) ON CONFLICT "
+        "(user_id, guild_id, structure) DO UPDATE SET level=GREATEST(0,$4)",
+        (int(user_id), guild_id, structure, level), conn=conn)
+
+
+async def lock_workshop_slot(conn: Any, *, user_id: int,
+                             guild_id: int) -> None:
+    """Fence concurrent workshop settles (repair / quick-craft) for one
+    (user, guild) against a read-then-settle double-charge / double-consume
+    (the #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). Repair
+    reads the current gear-wear (to size the coin cost) then debits + clears
+    the wear; quick-craft reads the pack (to size the material spend) then
+    consumes + equips — each a read-then-settle over natural-key rows that may
+    not exist yet (a fresh player has no wear / structure row), so FOR UPDATE
+    alone can lock nothing. A transaction-scoped advisory lock keyed on the
+    (guild, user) pair serializes two racing settles: the loser blocks here
+    until the winner's txn commits, then re-reads the winner's committed state.
+    Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:workshop:{guild_id}:{user_id}",), conn=conn)
+
+
+async def get_last_broken(user_id: int, guild_id: int,
+                          conn: Any = None) -> str | None:
+    """The name of the last gear item that broke for the player (the
+    quick-craft target), or ``None`` if nothing has broken. Shipped
+    ``mining_player_state.get_last_broken``: reads the ``last_broken_item``
+    column (NULL for a fresh player → the "Nothing has broken recently" read
+    goldens/mining/sweep_quickcraft.json pins)."""
+    row = await fetchone(
+        "SELECT last_broken_item FROM mining_player_state WHERE user_id=$1 AND "
+        "guild_id=$2", (str(user_id), guild_id), conn=conn)
+    return str(row["last_broken_item"]) if row and \
+        row["last_broken_item"] is not None else None
+
+
+async def set_last_broken(conn: Any, *, user_id: int, guild_id: int,
+                          item: str | None) -> None:
+    """Set (or clear, with ``None``) the quick-craft marker — the shipped
+    ``mining_player_state.set_last_broken`` write. A wear tick that breaks an
+    item sets it; a successful quick-craft clears it. Upsert keyed on the
+    per-player row (TEXT user ids, matching mining_player_state)."""
+    await execute(
+        "INSERT INTO mining_player_state (user_id, guild_id, last_broken_item) "
+        "VALUES ($1,$2,$3) ON CONFLICT (user_id, guild_id) "
+        "DO UPDATE SET last_broken_item=$3",
+        (str(user_id), guild_id, item), conn=conn)
+
+
+async def erase_subject_structures(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM mining_structures WHERE user_id=$1", (int(user_id),),
+        conn=conn)
+    return _rc(result)
 
 
 async def mining_totals(guild_id: int, limit: int = 10,
