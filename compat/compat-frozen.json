@@ -1337,6 +1337,11 @@
    {
     "aliases": [],
     "group": "",
+    "name": "games"
+   },
+   {
+    "aliases": [],
+    "group": "",
     "name": "world"
    },
    {
@@ -2418,11 +2423,25 @@
   "economy:shop",
   "economy:treasury",
   "economy:work",
+  "explore:open:farm",
+  "explore:open:fishing",
+  "explore:open:mining",
+  "explore:world_card",
   "flag_manager:back",
   "flag_manager:disable",
   "flag_manager:enable",
   "flag_manager:refresh",
   "flag_manager:select",
+  "games:open:blackjack",
+  "games:open:casino",
+  "games:open:chain",
+  "games:open:counting",
+  "games:open:creature",
+  "games:open:deathmatch",
+  "games:open:farm",
+  "games:open:fishing",
+  "games:open:mining",
+  "games:open:rps_tournament",
   "general.eightball_form",
   "help:back",
   "help_categories:select",

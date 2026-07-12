@@ -1,8 +1,53 @@
-"""GAMES hub + world panels (band 6) — the shipped router-only games hub
-(zero game logic; children discovered per band as their panels land) and
-the federated Explore world hub's read mirror (the world card)."""
+"""GAMES panels (band 6 / parity flip) — the SHIPPED surfaces byte-for-byte:
+
+* ``games.hub`` — disbot/views/games/hub.py (Games Hub v2): the 🎮 Games
+  Hub embed (GAME_COLOR purple, the 🏆 Competitive / 🎲 Activities catalog
+  fields, the shared invoker-lock footer) over the registry-discovered
+  child roster grouped by ``hub_group`` — Competitive on row 0 (primary
+  style), Activities on rows 1-2 (success style) — plus the grammar's own
+  ``nav:help`` slot as the shipped row-3 📚 Help button.
+  ``parity/goldens/games/sweep_games.json`` + ``sweep_slash_games.json``
+  pin every byte: the shipped PERSISTENT ``games:open:<key>`` ids ride
+  ``custom_id_override`` through the session mint (the community
+  ``community:open:<key>`` / btd6 precedent — ``session_lifecycle=True``,
+  no ``panel_anchors`` row in either golden), emoji IN the label (the
+  shipped ``f"{emoji} {label}"`` builder — trap 15a's in-label form).
+* ``games.world`` — disbot/views/explore/world_hub.py: the 🗺️ Explore
+  open-world hub (the "Where to go" catalog field; Mine/Fish/Farm primary
+  buttons on ``explore:open:<key>`` ids + the secondary 🪪 World Card on
+  ``explore:world_card``). ``parity/goldens/games/sweep_world.json``
+  (re-homed from _unmapped) pins every byte.
+* ``games.world_card`` — disbot/views/explore/world_card.py
+  ``build_world_card_embed``: the read-only cross-game identity card
+  (display-name title + avatar thumbnail through the guild-directory read
+  port — the inventory ``_member_display`` recipe; the zero-XP
+  "🌍 World level — 0" empty-state field; the "Only you can see this
+  card." footer; ZERO components).
+  ``parity/goldens/games/sweep_worldcard.json`` (re-homed) pins the
+  zero-XP bytes; the XP-bearing branch is golden-UNPINNED (no capture
+  ever earned game XP) and renders the port's honest game_xp reads.
+
+Trap-24 drift check (games row): the oracle current-head fragments
+(views/games/hub.py title/description + the hub_group grouping docstring
++ ``custom_id stays f"games:open:{subsystem}"``; views/explore/
+world_hub.py title/description/"Where to go" builder + the
+``f"{entry.emoji} {entry.label}"`` in-label form, primary style,
+``explore:open:{entry.key}`` ids, the "🪪 World Card" secondary button;
+views/explore/world_card.py title/description/thumbnail/zero-XP field/
+footer) match the corpus goldens byte-for-byte — NO drift (corpus sha
+7f7628e1).
+
+Shipped click semantics (no games golden drives a click): every hub
+button forwarded to the child cog's panel — the port routes each to its
+REAL ported surface (blackjack.hub / casino.hub / deathmatch.hub /
+rps_tournament.hub / mining.hub / fishing.hub / creature.hub / farm.hub /
+counting.hub / chain.hub), the world buttons to mining/fishing/farm and
+the world card panel.
+"""
 
 from __future__ import annotations
+
+from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
@@ -16,7 +61,6 @@ from sb.spec.panels import (
     PageSpec,
     PanelActionSpec,
     PanelSpec,
-    ResultRender,
     TextBlock,
 )
 from sb.spec.refs import (
@@ -32,62 +76,157 @@ __all__ = [
     "ensure_panel_refs",
     "games_hub_spec",
     "install_games_panels",
+    "world_card_spec",
     "world_hub_spec",
 ]
 
-_HUB_PROVIDER = "games.hub_overview"
+_HUB_FIELDS = "games.hub_fields"
+_WORLD_FIELDS = "games.world_fields"
+
+#: the shipped footer literal (the shared author-locked nav view) —
+#: outside FooterMode's vocabulary, hence the renderer_override (the
+#: community/casino/admin precedent).
+_PANEL_FOOTER = "Only you can interact with this panel."
+#: the shipped world-card footer (views/explore/world_card.py).
+_CARD_FOOTER = "Only you can see this card."
+
+# views/games/hub.py, verbatim (the goldens pin every byte).
+_HUB_DESCRIPTION = (
+    "Pick a game below to open it. "
+    "Typed shortcuts (e.g. `!blackjack`, `!mine`) still work."
+)
+
+# The shipped registry-discovered child roster as the capture-world PIN
+# (the community COMMUNITY_PRIMARY precedent — the shipped hub grouped
+# utils/subsystem_registry entries by hub_group per render; the
+# declarative spec pins the roster the goldens captured).
+# (key, emoji, display, description, ported route)
+GAMES_COMPETITIVE: tuple[tuple[str, str, str, str, object], ...] = (
+    ("blackjack", "🃏", "Blackjack", "Blackjack card game",
+     PanelRef("blackjack.hub")),
+    ("casino", "🎰", "Casino", "Group card games like multiplayer poker",
+     PanelRef("casino.hub")),
+    ("deathmatch", "⚔️", "Deathmatch", "1v1 duel battles",
+     PanelRef("deathmatch.hub")),
+    ("rps_tournament", "✂️", "Rock Paper Scissors",
+     "Rock Paper Scissors: quick play, PvP, bot matches, tournaments",
+     PanelRef("rps_tournament.hub")),
+)
+GAMES_ACTIVITIES: tuple[tuple[str, str, str, str, object], ...] = (
+    ("mining", "⛏️", "Mining", "Mining minigame and resource collection",
+     PanelRef("mining.hub")),
+    ("fishing", "🎣", "Fishing",
+     "Fishing minigame — cast a line, build your collection",
+     PanelRef("fishing.hub")),
+    ("creature", "🐾", "Creatures",
+     "Catch original creatures and build your collection dex",
+     PanelRef("creature.hub")),
+    ("farm", "🐔", "Chicken Farm",
+     "Idle egg farm — hens lay eggs over time; collect, sell, grow",
+     PanelRef("farm.hub")),
+    ("counting", "🔢", "Counting", "Collaborative counting game",
+     PanelRef("counting.hub")),
+    ("chain", "🔗", "Word Chain", "Word-chaining game",
+     PanelRef("chain.hub")),
+)
 
 
-def _ensure_hub_provider() -> ProviderRef:
-    ref = ProviderRef(_HUB_PROVIDER)
+def _catalog_lines(entries) -> str:
+    # the shipped f"{emoji} **{display}** — {desc}" line builder.
+    return "\n".join(f"{emoji} **{display}** — {desc}"
+                     for _k, emoji, display, desc, _r in entries)
+
+
+def _ensure_hub_fields() -> ProviderRef:
+    ref = ProviderRef(_HUB_FIELDS)
     if not is_registered(ref):
-        @provider(_HUB_PROVIDER)
-        async def hub_overview(ctx: object):
-            from sb.domain.games.session import registered_session_games
-
-            games = registered_session_games()
-            return (("Live session games",
-                     ", ".join(sorted(games)) or "none yet"),)
+        @provider(_HUB_FIELDS)
+        async def hub_fields(ctx: object):
+            return (("🏆 Competitive", _catalog_lines(GAMES_COMPETITIVE)),
+                    ("🎲 Activities", _catalog_lines(GAMES_ACTIVITIES)))
     return ref
+
+
+# views/explore/world_hub.py, verbatim (sweep_world pins every byte).
+_WORLD_DESCRIPTION = (
+    "Walk out into the world and pick where to go. Each place is its own "
+    "game — your progress in one carries its own ladder, and a shared "
+    "world ties them together."
+)
+_WORLD_PLACES = (
+    "⛏️ **Mine** — Dig for ores, craft gear, and grow your character.\n"
+    "🎣 **Fish** — Cast a line in lakes and rivers and build your "
+    "collection.\n"
+    "🐔 **Farm** — Raise hens that lay eggs around the clock — an idle "
+    "game."
+)
+
+
+def _ensure_world_fields() -> ProviderRef:
+    ref = ProviderRef(_WORLD_FIELDS)
+    if not is_registered(ref):
+        @provider(_WORLD_FIELDS)
+        async def world_fields(ctx: object):
+            return (("Where to go", _WORLD_PLACES),)
+    return ref
+
+
+def _hub_action(key: str, emoji: str, display: str, route: object, *,
+                style: ActionStyle) -> PanelActionSpec:
+    return PanelActionSpec(
+        # K1 claims action_ids bare and repo-global — the ga_ prefix keeps
+        # the namespace clean (the wire byte is the override below).
+        action_id=f"ga_{key}",
+        label=f"{emoji} {display}",          # emoji IN the label (wire shape)
+        style=style, audience_tier="user",
+        handler=route,
+        custom_id_override=f"games:open:{key}",  # the shipped persistent id
+    )
 
 
 def games_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="games.hub",
         subsystem="games",
-        title="🎮 Games",
+        title="🎮 Games Hub",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        # GAME_COLOR purple (10181046); footer via the override.
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
         body=(
-            TextBlock("Competitive games and channel activities. Wagered "
-                      "games escrow stakes when a challenge is accepted; "
-                      "your cross-game progress lives on the shared world "
-                      "track (`!worldcard`)."),
-            FieldsBlock(provider=_ensure_hub_provider()),
+            TextBlock(_HUB_DESCRIPTION),
+            FieldsBlock(provider=_ensure_hub_fields()),
         ),
         actions=(
-            PanelActionSpec(
-                action_id="games_blackjack", label="Blackjack", emoji="🃏",
-                style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=PanelRef("blackjack.hub")),
-            PanelActionSpec(
-                action_id="games_rps", label="Rock Paper Scissors",
-                emoji="✂️", style=ActionStyle.PRIMARY,
-                audience_tier="user",
-                handler=PanelRef("rps_tournament.hub")),
-            PanelActionSpec(
-                action_id="games_world", label="World", emoji="🌍",
-                audience_tier="user", handler=PanelRef("games.world")),
-            PanelActionSpec(
-                action_id="games_worldcard", label="My World Card",
-                emoji="🪪", audience_tier="user",
-                handler=HandlerRef("games.world_card_view"),
-                result_render=ResultRender.RESULT_CARD),
+            tuple(_hub_action(k, e, d, r, style=ActionStyle.PRIMARY)
+                  for k, e, d, _desc, r in GAMES_COMPETITIVE)
+            + tuple(_hub_action(k, e, d, r, style=ActionStyle.SUCCESS)
+                    for k, e, d, _desc, r in GAMES_ACTIVITIES)
         ),
-        navigation=NavigationSpec(),
+        # the shipped hub carried the row-3 📚 Help button — the grammar's
+        # own nav:help slot (custom_id verbatim; both goldens pin it); no
+        # home/back slots.
+        navigation=NavigationSpec(show_help=True, show_home=False),
+        renderer_override=HandlerRef("games.render_hub"),
+        justification=(
+            "the shipped hub footer is the literal 'Only you can "
+            "interact with this panel.' (the shared author-locked nav "
+            "view) — outside FooterMode's none/subsystem/provenance "
+            "vocabulary (goldens/games/sweep_games + sweep_slash_games "
+            "pin the byte; the community/casino precedent). The override "
+            "adjusts ONLY the embed footer; body, title, color and every "
+            "component stay grammar-rendered."),
+        # the shipped view carried EXPLICIT persistent ids — the
+        # custom_id_override pins ride the session mint verbatim (the
+        # community/btd6 precedent); no panel_anchors row in either golden.
+        session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("games_blackjack", "games_rps"),
-            ("games_world", "games_worldcard"),)),)),
+            ("ga_blackjack", "ga_casino", "ga_deathmatch",
+             "ga_rps_tournament"),
+            ("ga_mining", "ga_fishing", "ga_creature", "ga_farm",
+             "ga_counting"),
+            ("ga_chain",),
+        )),)),
     )
 
 
@@ -95,64 +234,177 @@ def world_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="games.world",
         subsystem="games",
-        title="🌍 Explore — the world",
+        title="🗺️ Explore — the open world",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
         body=(
-            TextBlock("The open-world town square. Each game keeps its "
-                      "own ladder; your shared world level derives from "
-                      "the game-XP pool. Game worlds (Mine · Fish · Farm "
-                      "· Creatures) dock here as their bands land."),
+            TextBlock(_WORLD_DESCRIPTION),
+            FieldsBlock(provider=_ensure_world_fields()),
         ),
         actions=(
             PanelActionSpec(
-                action_id="world_mine", label="Mine", emoji="⛏️",
-                audience_tier="user", handler=PanelRef("mining.hub")),
+                action_id="world_mine", label="⛏️ Mine",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=PanelRef("mining.hub"),
+                custom_id_override="explore:open:mining"),
             PanelActionSpec(
-                action_id="world_fish", label="Fish", emoji="🎣",
-                audience_tier="user", handler=PanelRef("fishing.hub")),
+                action_id="world_fish", label="🎣 Fish",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=PanelRef("fishing.hub"),
+                custom_id_override="explore:open:fishing"),
             PanelActionSpec(
-                action_id="world_farm", label="Farm", emoji="🐔",
-                audience_tier="user", handler=PanelRef("farm.hub")),
+                action_id="world_farm", label="🐔 Farm",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=PanelRef("farm.hub"),
+                custom_id_override="explore:open:farm"),
             PanelActionSpec(
-                action_id="world_creatures", label="Creatures",
-                emoji="🐾", audience_tier="user",
-                handler=PanelRef("creature.hub")),
-            PanelActionSpec(
-                action_id="world_deathmatch", label="Deathmatch",
-                emoji="⚔️", audience_tier="user",
-                handler=PanelRef("deathmatch.hub")),
-            PanelActionSpec(
-                action_id="world_casino", label="Casino", emoji="🎰",
-                audience_tier="user", handler=PanelRef("casino.hub")),
-            PanelActionSpec(
-                action_id="world_card", label="My World Card", emoji="🪪",
-                audience_tier="user",
-                handler=HandlerRef("games.world_card_view"),
-                result_render=ResultRender.RESULT_CARD),
+                action_id="world_card", label="🪪 World Card",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef("games.world_card"),
+                custom_id_override="explore:world_card"),
         ),
-        navigation=NavigationSpec(parent=PanelRef("games.hub")),
+        navigation=NavigationSpec(show_help=True, show_home=False),
+        renderer_override=HandlerRef("games.render_world"),
+        justification=(
+            "the shipped Explore hub footer is the literal 'Only you can "
+            "interact with this panel.' — outside FooterMode's vocabulary "
+            "(goldens/games/sweep_world pins the byte; the community/"
+            "casino precedent). The override adjusts ONLY the embed "
+            "footer; body, title, color and every component stay "
+            "grammar-rendered."),
+        session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("world_mine", "world_fish", "world_farm",
-             "world_creatures"),
-            ("world_deathmatch", "world_casino", "world_card"),)),)),
+            ("world_mine", "world_fish", "world_farm"),
+            ("world_card",),
+        )),)),
     )
 
 
-@panel("games.hub")
-def _hub_factory() -> PanelSpec:
-    return games_hub_spec()
+def world_card_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="games.world_card",
+        subsystem="games",
+        title="🪪 world card",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("games.render_world_card"),
+        justification=(
+            "the shipped world card (views/explore/world_card.py "
+            "build_world_card_embed) is member-parameterized beyond the "
+            "grammar's vocabulary on three named embed surfaces "
+            "(goldens/games/sweep_worldcard pins the bytes): the TITLE "
+            "interpolates the invoker's display name ('🪪 {name} — world "
+            "card'), the THUMBNAIL is the invoker's display avatar "
+            "(set_thumbnail(user.display_avatar.url) — read through the "
+            "guild-directory port, the inventory _member_display "
+            "precedent), and the FIELD is state-dependent (the zero-XP "
+            "'🌍 World level — 0' empty state vs the live per-game "
+            "standing lines) with the 'Only you can see this card.' "
+            "footer. Zero components (the golden pins components: [])."),
+        session_lifecycle=True,
+    )
 
 
-@panel("games.world")
-def _world_factory() -> PanelSpec:
-    return world_hub_spec()
+async def _member_display(user_id: int, guild_id: int) -> tuple[str, str]:
+    """(display name, avatar url) through the guild-directory read port
+    (the inventory ``_member_display`` recipe). Degrades to ("", "") when
+    no directory is armed — never invented data."""
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        member = await guild_directory().member_info(guild_id, user_id)
+    except Exception:  # noqa: BLE001 — no directory ⇒ no name/thumbnail
+        return "", ""
+    return member.tag.rsplit("#", 1)[0], member.display_avatar_url
+
+
+async def _render_hub(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped footer literal (see justification)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered, embed=_dc_replace(rendered.embed,
+                                                   footer=_PANEL_FOOTER))
+
+
+async def _render_world_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — views/explore/world_card.py
+    ``build_world_card_embed``: display-name title + avatar thumbnail +
+    the world-level field + the card footer (goldens/games/
+    sweep_worldcard pins the zero-XP bytes; the XP-bearing branch is
+    golden-unpinned and renders the port's game_xp reads)."""
+    from sb.domain.games import store, xp as game_xp
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    name, icon = await _member_display(uid, gid)
+    if not name:
+        name = f"<@{uid}>"
+    level, total = await game_xp.shared_level(uid, gid)
+    if total <= 0:
+        fields = ((
+            "🌍 World level — 0",
+            "You have not earned any game XP here yet. Mine, craft, or "
+            "fish to start your world ladder — run **`!world`** to pick "
+            "a place."),)
+    else:
+        rows = await store.game_xp_rows(uid, gid)
+        lines = [f"{game_xp.game_display(str(r['game']))[0]} "
+                 f"**{game_xp.game_display(str(r['game']))[1]}** — "
+                 f"{int(r['xp']):,} XP" for r in rows]
+        fields = ((f"🌍 World level — {level}",
+                   "\n".join(lines) or f"{total:,} game XP total"),)
+    embed = RenderedEmbed(
+        title=f"🪪 {name} — world card",
+        description=("Who you are across the open world: your shared "
+                     "**world level** and where you stand in each game."),
+        fields=fields,
+        footer=_CARD_FOOTER,
+        thumbnail_ref=icon,
+        style_token=spec.frame.style_token)
+    return _dc_replace(rendered, embed=embed)
+
+
+# --- registration ----------------------------------------------------------
+
+_SPECS = {
+    "games.hub": games_hub_spec,
+    "games.world": world_hub_spec,
+    "games.world_card": world_card_spec,
+}
+
+_RENDERERS = {
+    "games.render_hub": _render_hub,
+    "games.render_world": _render_hub,       # same footer adjustment
+    "games.render_world_card": _render_world_card,
+}
+
+
+def _register_refs() -> None:
+    from sb.spec.refs import handler
+
+    _ensure_hub_fields()
+    _ensure_world_fields()
+    for pid, factory in _SPECS.items():
+        if not is_registered(PanelRef(pid)):
+            panel(pid)(factory)
+    for name, fn in _RENDERERS.items():
+        if not is_registered(HandlerRef(name)):
+            handler(name)(fn)
+
+
+_register_refs()
 
 
 def install_games_panels() -> tuple[PanelSpec, ...]:
-    specs = (games_hub_spec(), world_hub_spec())
     out = []
-    for spec in specs:
+    for factory in _SPECS.values():
+        spec = factory()
         try:
             out.append(register_panel(spec))
         except ValueError as exc:
@@ -164,10 +416,4 @@ def install_games_panels() -> tuple[PanelSpec, ...]:
 
 
 def ensure_panel_refs() -> None:
-    from sb.spec.refs import PanelRef as _P, panel as _panel
-
-    _ensure_hub_provider()
-    if not is_registered(_P("games.hub")):
-        _panel("games.hub")(_hub_factory)
-    if not is_registered(_P("games.world")):
-        _panel("games.world")(_world_factory)
+    _register_refs()

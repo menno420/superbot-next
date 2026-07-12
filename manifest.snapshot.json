@@ -4370,22 +4370,52 @@
         {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
-          "value": "games_blackjack"
+          "value": "ga_blackjack"
         },
         {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
-          "value": "games_rps"
+          "value": "ga_casino"
         },
         {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
-          "value": "games_world"
+          "value": "ga_deathmatch"
         },
         {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
-          "value": "games_worldcard"
+          "value": "ga_rps_tournament"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "ga_mining"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "ga_fishing"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "ga_creature"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "ga_farm"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "ga_counting"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "ga_chain"
         },
         {
           "source": "sb/manifest/games.py",
@@ -4401,21 +4431,6 @@
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "world_farm"
-        },
-        {
-          "source": "sb/manifest/games.py",
-          "subsystem": "games",
-          "value": "world_creatures"
-        },
-        {
-          "source": "sb/manifest/games.py",
-          "subsystem": "games",
-          "value": "world_deathmatch"
-        },
-        {
-          "source": "sb/manifest/games.py",
-          "subsystem": "games",
-          "value": "world_casino"
         },
         {
           "source": "sb/manifest/games.py",
@@ -5570,6 +5585,11 @@
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "games.world"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games.world_card"
         },
         {
           "source": "sb/manifest/general.py",
@@ -8172,10 +8192,16 @@
       "handler:four_twenty.wisdom_view": {
         "module": "sb.domain.four_twenty.handlers"
       },
-      "handler:games.session_gc_fire": {
-        "module": "sb.domain.games.service"
+      "handler:games.render_hub": {
+        "module": "sb.domain.games.panels"
       },
-      "handler:games.world_card_view": {
+      "handler:games.render_world": {
+        "module": "sb.domain.games.panels"
+      },
+      "handler:games.render_world_card": {
+        "module": "sb.domain.games.panels"
+      },
+      "handler:games.session_gc_fire": {
         "module": "sb.domain.games.service"
       },
       "handler:general.eightball_answer": {
@@ -9108,6 +9134,9 @@
       "panel:games.world": {
         "module": "sb.domain.games.panels"
       },
+      "panel:games.world_card": {
+        "module": "sb.domain.games.panels"
+      },
       "panel:general.menu": {
         "module": "sb.domain.general.panels"
       },
@@ -9549,7 +9578,10 @@
       "provider:farm.hub_status": {
         "module": "sb.domain.farm.panels"
       },
-      "provider:games.hub_overview": {
+      "provider:games.hub_fields": {
+        "module": "sb.domain.games.panels"
+      },
+      "provider:games.world_fields": {
         "module": "sb.domain.games.panels"
       },
       "provider:image_moderation.hub_settings": {
@@ -11143,7 +11175,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:e2c26fde575c7e3ab76570ec9da0948025af2f218f48f85b478bb3a12c13189f",
+  "stable_hash": "sha256:395a499e9301c8936bf448f0ee2786b3d5e977af30c398163c614454f63212cb",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -28045,7 +28077,7 @@
           "enabled_when": "",
           "group": "",
           "help_section_order": 0,
-          "kind": "both",
+          "kind": "prefix",
           "modal": null,
           "name": "games",
           "quota_ref": "",
@@ -28055,7 +28087,31 @@
           },
           "slash_common": false,
           "summary": "Open the Games hub — competitive games and channel activities.",
-          "usage": "!games | /games",
+          "usage": "!games",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "games",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "slash",
+          "modal": null,
+          "name": "games",
+          "quota_ref": "",
+          "reply_visibility": "ephemeral",
+          "route": {
+            "$ref": "panel:games.hub"
+          },
+          "slash_common": false,
+          "summary": "Open the Games hub — competitive games and channel activities.",
+          "usage": "/games",
           "usage_weight": 1.0
         },
         {
@@ -28101,7 +28157,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:games.world_card_view"
+            "$ref": "panel:games.world_card"
           },
           "slash_common": false,
           "summary": "Show your cross-game world card — global level + per-game standing.",
@@ -28194,21 +28250,21 @@
         {
           "actions": [
             {
-              "action_id": "games_blackjack",
+              "action_id": "ga_blackjack",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "games:open:blackjack",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🃏",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:blackjack.hub"
               },
-              "label": "Blackjack",
+              "label": "🃏 Blackjack",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -28219,21 +28275,71 @@
               "visible_when": ""
             },
             {
-              "action_id": "games_rps",
+              "action_id": "ga_casino",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "games:open:casino",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "✂️",
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:casino.hub"
+              },
+              "label": "🎰 Casino",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ga_deathmatch",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "games:open:deathmatch",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:deathmatch.hub"
+              },
+              "label": "⚔️ Deathmatch",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ga_rps_tournament",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "games:open:rps_tournament",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:rps_tournament.hub"
               },
-              "label": "Rock Paper Scissors",
+              "label": "✂️ Rock Paper Scissors",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -28244,52 +28350,152 @@
               "visible_when": ""
             },
             {
-              "action_id": "games_world",
+              "action_id": "ga_mining",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "games:open:mining",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🌍",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "panel:games.world"
+                "$ref": "panel:mining.hub"
               },
-              "label": "World",
+              "label": "⛏️ Mining",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "success",
               "usage_weight": 1.0,
               "visible_when": ""
             },
             {
-              "action_id": "games_worldcard",
+              "action_id": "ga_fishing",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "games:open:fishing",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🪪",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:games.world_card_view"
+                "$ref": "panel:fishing.hub"
               },
-              "label": "My World Card",
+              "label": "🎣 Fishing",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ga_creature",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "games:open:creature",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:creature.hub"
+              },
+              "label": "🐾 Creatures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ga_farm",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "games:open:farm",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:farm.hub"
+              },
+              "label": "🐔 Chicken Farm",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ga_counting",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "games:open:counting",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:counting.hub"
+              },
+              "label": "🔢 Counting",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ga_chain",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "games:open:chain",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:chain.hub"
+              },
+              "label": "🔗 Word Chain",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
               "usage_weight": 1.0,
               "visible_when": ""
             }
@@ -28298,11 +28504,11 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Competitive games and channel activities. Wagered games escrow stakes when a challenge is accepted; your cross-game progress lives on the shared world track (`!worldcard`)."
+              "text": "Pick a game below to open it. Typed shortcuts (e.g. `!blackjack`, `!mine`) still work."
             },
             {
               "provider": {
-                "$ref": "provider:games.hub_overview"
+                "$ref": "provider:games.hub_fields"
               }
             }
           ],
@@ -28310,23 +28516,31 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "purple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub footer is the literal 'Only you can interact with this panel.' (the shared author-locked nav view) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/games/sweep_games + sweep_slash_games pin the byte; the community/casino precedent). The override adjusts ONLY the embed footer; body, title, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
-                    "games_blackjack",
-                    "games_rps"
+                    "ga_blackjack",
+                    "ga_casino",
+                    "ga_deathmatch",
+                    "ga_rps_tournament"
                   ],
                   [
-                    "games_world",
-                    "games_worldcard"
+                    "ga_mining",
+                    "ga_fishing",
+                    "ga_creature",
+                    "ga_farm",
+                    "ga_counting"
+                  ],
+                  [
+                    "ga_chain"
                   ]
                 ]
               }
@@ -28338,16 +28552,18 @@
             "home_hub": "__follow_parent__",
             "parent": null,
             "show_help": true,
-            "show_home": true,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "games.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:games.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "games",
           "timeout_s": 180,
-          "title": "🎮 Games",
+          "title": "🎮 Games Hub",
           "usage_weight": 1.0
         },
         {
@@ -28359,21 +28575,21 @@
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "explore:open:mining",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⛏️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:mining.hub"
               },
-              "label": "Mine",
+              "label": "⛏️ Mine",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -28384,21 +28600,21 @@
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "explore:open:fishing",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🎣",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:fishing.hub"
               },
-              "label": "Fish",
+              "label": "🎣 Fish",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -28409,96 +28625,21 @@
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "explore:open:farm",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🐔",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
                 "$ref": "panel:farm.hub"
               },
-              "label": "Farm",
+              "label": "🐔 Farm",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "world_creatures",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "🐾",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "panel:creature.hub"
-              },
-              "label": "Creatures",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "world_deathmatch",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "⚔️",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "panel:deathmatch.hub"
-              },
-              "label": "Deathmatch",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "world_casino",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "🎰",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "panel:casino.hub"
-              },
-              "label": "Casino",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
+              "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
             },
@@ -28509,15 +28650,15 @@
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "explore:world_card",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🪪",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:games.world_card_view"
+                "$ref": "panel:games.world_card"
               },
-              "label": "My World Card",
+              "label": "🪪 World Card",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -28532,19 +28673,24 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "The open-world town square. Each game keeps its own ladder; your shared world level derives from the game-XP pool. Game worlds (Mine · Fish · Farm · Creatures) dock here as their bands land."
+              "text": "Walk out into the world and pick where to go. Each place is its own game — your progress in one carries its own ladder, and a shared world ties them together."
+            },
+            {
+              "provider": {
+                "$ref": "provider:games.world_fields"
+              }
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "purple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped Explore hub footer is the literal 'Only you can interact with this panel.' — outside FooterMode's vocabulary (goldens/games/sweep_world pins the byte; the community/casino precedent). The override adjusts ONLY the embed footer; body, title, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
@@ -28552,12 +28698,9 @@
                   [
                     "world_mine",
                     "world_fish",
-                    "world_farm",
-                    "world_creatures"
+                    "world_farm"
                   ],
                   [
-                    "world_deathmatch",
-                    "world_casino",
                     "world_card"
                   ]
                 ]
@@ -28568,20 +28711,58 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:games.hub"
-            },
+            "parent": null,
             "show_help": true,
-            "show_home": true,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "games.world",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:games.render_world"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "games",
           "timeout_s": 180,
-          "title": "🌍 Explore — the world",
+          "title": "🗺️ Explore — the open world",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped world card (views/explore/world_card.py build_world_card_embed) is member-parameterized beyond the grammar's vocabulary on three named embed surfaces (goldens/games/sweep_worldcard pins the bytes): the TITLE interpolates the invoker's display name ('🪪 {name} — world card'), the THUMBNAIL is the invoker's display avatar (set_thumbnail(user.display_avatar.url) — read through the guild-directory port, the inventory _member_display precedent), and the FIELD is state-dependent (the zero-XP '🌍 World level — 0' empty state vs the live per-game standing lines) with the 'Only you can see this card.' footer. Zero components (the golden pins components: []).",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "games.world_card",
+          "renderer_override": {
+            "$ref": "handler:games.render_world_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "games",
+          "timeout_s": 180,
+          "title": "🪪 world card",
           "usage_weight": 1.0
         }
       ],
@@ -29444,7 +29625,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "3 command(s), generated from the `games` manifest."
+              "text": "4 command(s), generated from the `games` manifest."
             },
             {
               "provider": {
