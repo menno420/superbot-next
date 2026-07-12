@@ -114,6 +114,35 @@ canonical 11, ledgered as follow-up below.
   amendments, shadowing, no-skip, config usage, metric cardinality,
   egress, sim gate, parity depth, compat).
 
+## @codex triage (Q-0120-verified, per ORDER 010 / Q-0259)
+
+The review's top-level ACTION CLAIMS were PHANTOM, again: "Committed
+6ec0eb2 …" — `git cat-file -t 6ec0eb2` = "Not a valid object name", no
+such commit on any local or remote branch (`git ls-remote`); "Created
+PR …" — the repo's only open PR is #222 itself (`list_pull_requests`
+verified at triage time). Consistent with the standing top-level-claims-
+phantom-prone calibration. Its SUBSTANTIVE findings, each verified
+against shipped source:
+
+1. ACCEPTED (re-derived, not pulled): the authority teardown's
+   `ENSURE_REFS` sweep leaves `install_ai_platform()`'s reader seams
+   armed for later-listed suites. Real divergence from the
+   post-ai-suite world (whose conftest ends those seams un-armed).
+   Fixed in my own version: the finally block now resets the same
+   reader-seam set the ai conftest uses, guarded on `sb.manifest.ai`
+   having been cached.
+2. DECLINED (with citation): a new kernel seam in
+   `sb/kernel/interaction/reactions.py` to remove the single
+   `ai.review_thumbs_down` consumer. Unnecessary —
+   `register_reaction_consumer` is a name-keyed dict UPSERT
+   (`reactions.py:61-66`, "Idempotent re-registration … is a no-op"),
+   so nothing accumulates, and the consumer registers at MODULE IMPORT
+   (`sb/domain/ai/review.py:251`), so it is armed from session start in
+   every full-deps run; removing it mid-suite would deviate from the
+   world every other suite sees.
+3. ALREADY IN: preserving the final `sb.manifest.*` re-purge — that was
+   this PR's own load-bearing step (band5's import-time port-fill pins).
+
 ## 💡 Session idea
 
 The three mechanisms share one testable invariant: "the world a suite

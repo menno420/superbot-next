@@ -161,3 +161,25 @@ def test_compiler_p4_is_armed_by_the_leaf():
         # reader ports) still get the fresh import they rely on.
         for n in manifest_names:
             sys.modules.pop(n, None)
+        # ...and the AI runtime READER seams end un-armed: sb.manifest.ai's
+        # ENSURE_REFS ends in install_ai_platform() — a composition-root
+        # reader install, not an import-time registration — and the ai
+        # suite's own conftest leaves these exact seams un-armed after its
+        # re-arms (same posture, same reset set). The 👎 review reaction
+        # consumer is NOT removed: it registers at MODULE IMPORT
+        # (sb/domain/ai/review.py, "declaring IS reserving") into a
+        # name-keyed upsert (sb/kernel/interaction/reactions.py), so it is
+        # armed from session start in any full-deps run and accumulates
+        # nothing.
+        if "sb.manifest.ai" in manifest_names:
+            from sb.kernel.ai import (
+                instructions, memory, nl_engine, orchestration, policy,
+            )
+            from sb.kernel.ai.gateway import reset_guild_policy_reader
+
+            policy.reset_policy_for_tests()
+            memory.reset_memory_ports_for_tests()
+            orchestration.reset_profile_key_reader_for_tests()
+            instructions.reset_profile_reader_for_tests()
+            nl_engine.reset_nl_engine_for_tests()
+            reset_guild_policy_reader()
