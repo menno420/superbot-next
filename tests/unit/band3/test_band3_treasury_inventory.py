@@ -137,6 +137,67 @@ def test_disburse_credits_target_with_manager_attribution(monkeypatch):
     assert fake.audit == [(900000000000000103, 42, 400, "treasury:disburse")]
 
 
+def test_disburse_argv_parse_is_positional(monkeypatch):
+    """`!treasury grant <member> <amount>` — argv[0] is the member slot,
+    argv[1] the amount (the shipped MemberConverter/int positional
+    binding: treasury_cog.py `grant(ctx, member, amount)`)."""
+    from sb.domain.treasury import ops
+
+    snowflake = 900000000000000103
+
+    # bare ID + amount (the golden-unpinned defect lane)
+    fake = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+    out = asyncio.run(ops._record_disburse(
+        None, _ctx({"argv": (str(snowflake), "400")})))
+    assert out.after == {"treasury": 600, "user": 400, "amount": 400}
+    assert fake.audit == [(snowflake, 42, 400, "treasury:disburse")]
+
+    # nickname-mention form <@!id>
+    fake2 = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+    out2 = asyncio.run(ops._record_disburse(
+        None, _ctx({"argv": (f"<@!{snowflake}>", "250")})))
+    assert out2.after["amount"] == 250
+    assert fake2.audit == [(snowflake, 42, 250, "treasury:disburse")]
+
+
+def test_disburse_bare_id_never_becomes_the_amount(monkeypatch):
+    """REGRESSION: the first-digit-token scan bound the snowflake ITSELF
+    as the amount on `!treasury grant <bare_id> <amt>` — the pool-balance
+    check then refused ~9e17 coins (loud, but the wrong parse)."""
+    from sb.domain.treasury import ops
+
+    snowflake = 900000000000000103
+    fake = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+    out = asyncio.run(ops._record_disburse(
+        None, _ctx({"argv": (str(snowflake), "5")})))
+    assert out.after["amount"] == 5            # not 900000000000000103
+    assert fake.pool == 995
+    assert fake.audit == [(snowflake, 42, 5, "treasury:disburse")]
+
+
+def test_disburse_argv_failure_copy(monkeypatch):
+    from sb.domain.treasury import ops
+    from sb.kernel.interaction.errors import ValidatorError
+
+    fake = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+
+    # unknown-member name leg: the shipped MemberConverter raised
+    # MemberNotFound and bot1.py's global BadArgument arm sent this copy
+    # (treasury_cog has no local error handler).
+    with pytest.raises(ValidatorError) as exc:
+        asyncio.run(ops._record_disburse(
+            None, _ctx({"argv": ("somename", "5")})))
+    assert exc.value.user_copy == '⚠️ Bad argument: Member "somename" not found.'
+
+    # member-only (one arg): no amount slot at argv[1] — the amount copy,
+    # and the lone snowflake must NOT be double-read as the amount
+    with pytest.raises(ValidatorError) as exc2:
+        asyncio.run(ops._record_disburse(
+            None, _ctx({"argv": ("<@900000000000000103>",)})))
+    assert exc2.value.user_copy == "➕ Give a number of coins."
+    assert fake.pool == 1000 and not fake.audit
+
+
 # --- op registration ------------------------------------------------------------------
 
 def test_treasury_ops_registered_with_shipped_authority():

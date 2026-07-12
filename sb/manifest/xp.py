@@ -91,7 +91,7 @@ _SETTINGS = (
                 bounds=(1, 10_000)),
     SettingSpec(name="xp_cooldown", value_type=int, default=60,
                 settings_key="xp_cooldown",
-                hint="Seconds between XP awards per user. Zero disables "
+                hint="Seconds between XP awards per user.  Zero disables "
                      "the cooldown (not recommended in active guilds).",
                 bounds=(0, 86_400),
                 input_hint="numeric_presets",

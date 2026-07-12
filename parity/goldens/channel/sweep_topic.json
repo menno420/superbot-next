@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.bulkcreate",
+ "case_id": "sweep.topic",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:1>",
+     "message_id": "<msg:2>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1879381034,
+     "last_xp": 1769146504,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,15 +45,12 @@
    "calls": [
     {
      "args": {
-      "guild_id": "<guild>",
-      "reason": null,
-      "type": 0
+      "channel_id": "<msg:1>",
+      "reason": null
      },
-     "method": "create_channel",
+     "method": "edit_channel",
      "payload": {
-      "name": "test",
-      "parent_id": null,
-      "permission_overwrites": []
+      "topic": null
      }
     },
     {
@@ -63,14 +60,14 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "✅ Created: test.\n",
+      "content": "Topic cleared for \"test\".",
       "tts": false
      }
     },
     {
      "args": {
       "channel_id": "<#general>",
-      "message_id": "<msg:1>",
+      "message_id": "<msg:2>",
       "reason": null
      },
      "method": "delete_message"
@@ -84,26 +81,26 @@
       "actor_type": "admin",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "channel_create",
-      "new_value": "create 1 text channel(s) (1/1 applied)",
+      "mutation_type": "channel_set_topic",
+      "new_value": "clear topic of channel 'test' (1/1 applied)",
       "occurred_at": "<ts>",
       "prev_value": null,
       "scope": "guild",
       "subsystem": "channel",
-      "target": "channels:1"
+      "target": "channel:<msg:1>"
      }
     },
     {
      "event": "channel.lifecycle_changed",
      "payload": {
       "applied": [
-       "<msg:2>"
+       "<msg:1>"
       ],
       "failed": [],
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
       "occurred_at": "<ts>",
-      "operation": "create",
+      "operation": "set_topic",
       "outcome": "success"
      }
     },
@@ -120,11 +117,11 @@
     }
    ],
    "input": {
-    "content": "!bulkcreate test",
+    "content": "!topic test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "channel"
 }

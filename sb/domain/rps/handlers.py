@@ -267,6 +267,21 @@ def _register() -> None:
             return Reply(BLOCKED, "Registration is already active.")
         if state is not None and state.active:
             return Reply(BLOCKED, "Tournament is already in progress.")
+        # shipped cross-game guard (rps_tournament_cog.py registration open:
+        # `existing = tournament_state_service.get_active(...); if existing:
+        # … return`), dropped in the original port. The active_tournament
+        # flag row is SHARED across games and the champion payout keys its
+        # settle-once check-and-set on the flag-row delete — opening on top
+        # of a foreign game's tournament clobbers that flag and strands the
+        # loser-to-settle's pot. A stale OWN "rps" flag stays reclaimable
+        # (the boot flag-sweep posture, the blackjack-port `!= own_game`
+        # symmetry); copy verbatim.
+        from sb.domain.games.tournament_flag import get_active
+
+        existing = await get_active(gid)
+        if existing and existing != "rps":
+            return Reply(BLOCKED, f"A **{existing}** tournament is already "
+                                  "active in this server.")
         argv = tuple(str(a) for a in (req.args.get("argv", ()) or ()))
         fee = next((int(t) for t in argv if t.isdigit()), None)
         if fee is None:
