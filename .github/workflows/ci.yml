@@ -86,3 +86,22 @@ jobs:
       - run: pip install pip-audit
       - name: Audit the resolved lock
         run: pip-audit -r requirements.lock --require-hashes --disable-pip
+
+  build-image:
+    # Deploy-packaging smoke: build the container image on every PR so a broken
+    # Dockerfile (or a stale/unhashable requirements.lock) is caught here, not
+    # at release time. Build only — the image is NOT pushed. NOT a required
+    # check (the merge ruleset is fixed); the release workflow owns tag+push.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: false
+          tags: superbot-next:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

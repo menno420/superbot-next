@@ -1,0 +1,61 @@
+# docker-compose.yml — LOCAL DEVELOPMENT ONLY. This is NOT the deploy path
+# (production runs on Railway from the same Dockerfile via railway.json). It
+# stands up a throwaway Postgres and the bot image so you can exercise a real
+# boot on your machine.
+#
+# Usage:
+#   cp .env.example .env      # then put a REAL (dev/test) bot token in .env
+#   docker compose up --build
+#
+# SB_DATA_PLANE is pinned to `test` here — never point local dev at the prod
+# data plane. Secrets come from .env (git-ignored); NEVER commit a real token.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: superbot
+      POSTGRES_PASSWORD: superbot
+      POSTGRES_DB: superbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - superbot-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superbot -d superbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # REQUIRED (FAIL_FAST at boot) --------------------------------------
+      # Sourced from .env — put a real dev/test token there (never in git).
+      DISCORD_BOT_TOKEN_PRODUCTION: ${DISCORD_BOT_TOKEN_PRODUCTION:?set DISCORD_BOT_TOKEN_PRODUCTION in .env}
+      # asyncpg DSN pointing at the compose Postgres (service name `db`).
+      DATABASE_URL: postgresql://superbot:superbot@db:5432/superbot
+      # Local dev is ALWAYS the test data plane.
+      SB_DATA_PLANE: test
+      # OPTIONAL ----------------------------------------------------------
+      HEALTH_PORT: "8080"
+      HEALTH_HOST: "::"
+      BOT_PREFIX: ${BOT_PREFIX:-!}
+      # Optional test-only app-command guild sync (blank = skip).
+      SB_APPCMD_SYNC_GUILD_ID: ${SB_APPCMD_SYNC_GUILD_ID:-}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/ready"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+volumes:
+  superbot-pgdata:
