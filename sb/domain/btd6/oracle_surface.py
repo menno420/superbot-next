@@ -134,12 +134,8 @@ async def cmd_estimate(req) -> Reply | None:
     if not query:
         await _card(req, cards.estimate_usage_card())
         return None
-    # the deterministic boss-fight estimator service is a named successor
-    # port — an honest terminal, never an invented number.
-    return Reply(BLOCKED,
-                 "🎯 The boss-fight estimator (HP/DPS/cost arithmetic) is "
-                 "not armed in this build yet — `!btd6 estimate` shows the "
-                 "query shapes it will take.")
+    await _card(req, cards.estimate_card(query))
+    return None
 
 
 async def cmd_relic(req) -> Reply | None:
