@@ -117,3 +117,19 @@ do: Quick self-review of this lane covering roughly the last 24h (2026-07-10 ~20
 why: owner-requested fleet-wide self-review (2026-07-11), relayed by the fleet-manager coordinator on the owner's in-session instruction.
 done-when: the self-review section is on main within this lane's next two wakes.
 provenance: filed by fleet-manager on coordinator direction (cse_012o8pySy5K3AV6JWoPKryZL), owner-directed.
+
+## ORDER 014 · 2026-07-12T08:30Z · status: new
+priority: P1
+owner: SuperBot 2.0 coordinator (executor)
+provenance: filed by the fleet manager — relocation of startup-prompt v3.1 F1 (prompts are STATELESS since v3.2, owner correction 2026-07-12; fleet-manager PR #108).
+do: Seed menno420/superbot-plugin-hello (write-permitted for this order — kit/plugin-contract distribution, the one sanctioned adopter write), then flip ORDER 002 done via status.md `orders: done=` (never inbox-append) and drop the corresponding OWNER-ACTION ask.
+why: verified 2026-07-12: the repo is EMPTY (Contents API 409 "Git Repository is empty"); control/status.md @ 07:55Z shows 002 acked but NOT in done=.
+done-when: plugin-hello seeded and pinned; status.md done= includes 002; the ask is gone.
+
+## ORDER 015 · 2026-07-12T08:30Z · status: new
+priority: P2
+owner: SuperBot 2.0 coordinator (executor)
+provenance: filed by the fleet manager — relocation of startup-prompt v3.1 F3 (prompts are STATELESS since v3.2, owner correction 2026-07-12; fleet-manager PR #108). F2's dispositions are verified DONE (#196/#206 closed, #213/#217 merged — no order needed).
+do: Render CLAUDE.md from .substrate/claude/CLAUDE.md via the kit and fix docs/AGENT_ORIENTATION.md's dead .claude/CLAUDE.md pointers (:10, :34); promote the flip-playbook trap index to docs/ if still pending.
+why: verified at c03df80 2026-07-12: no .claude/CLAUDE.md in the tree; docs/AGENT_ORIENTATION.md:10,:34 point at it; the render source exists at .substrate/claude/CLAUDE.md.
+done-when: the boot pointer resolves at HEAD; orientation matches the tree.
