@@ -431,6 +431,49 @@ def test_start_without_players_aborts_and_refunds_nothing(skeleton):
     assert not economy.audit
 
 
+def test_rpsregister_refuses_when_a_foreign_tournament_is_active(skeleton):
+    """The shipped cross-game guard (oracle `rps_tournament_cog.py`
+    registration open: `existing = get_active(...); if existing: … return`),
+    dropped in the port. Because the `active_tournament` flag row is SHARED
+    by both games and the champion payout keys its settle-once check-and-set
+    on the flag-row delete, letting `!rpsregister` open on top of a live
+    *blackjack* tournament clobbers that game's flag — the second tournament
+    to settle finds `clear_active()==0` and strands its pot. Registration
+    must refuse instead, with the oracle copy verbatim."""
+    harness, economy, games, flags = skeleton
+    from sb.domain.rps import tournament
+
+    # a blackjack tournament already owns the shared flag row
+    flags.flags[W_GUILD] = "blackjack"
+    run(harness.send_command("!rpsregister", persona="admin"))
+    calls = harness.take_calls()
+    # oracle copy verbatim (menno420/superbot rps_tournament_cog.py /
+    # blackjack actions.py): "A **{existing}** tournament is already
+    # active in this server."
+    assert any("A **blackjack** tournament is already active in this server."
+               in str(c.payload) for c in calls if c.payload)
+    # the foreign flag is untouched and NO rps tournament was opened
+    assert flags.flags[W_GUILD] == "blackjack"
+    assert tournament.state_or_none(W_GUILD) is None
+    assert not economy.audit
+
+
+def test_rpsregister_reclaims_a_stale_own_flag(skeleton):
+    """A stale own `rps` flag (crash before settle — entries refunded at
+    boot) stays reclaimable, mirroring the blackjack port's `!= own_game`
+    guard and the boot flag-sweep posture — `!rpsregister` opens normally."""
+    harness, economy, games, flags = skeleton
+    from sb.domain.rps import tournament
+
+    flags.flags[W_GUILD] = "rps"                 # stale own-game flag
+    run(harness.send_command("!rpsregister", persona="admin"))
+    calls = harness.take_calls()
+    assert not any("already active in this server" in str(c.payload)
+                   for c in calls if c.payload)   # not refused
+    assert flags.flags[W_GUILD] == "rps"          # its own flag, re-set
+    assert tournament.state_or_none(W_GUILD) is not None
+
+
 def test_rpsbot_mode_guard_and_matchup_guard(skeleton):
     harness, economy, games, flags = skeleton
 
