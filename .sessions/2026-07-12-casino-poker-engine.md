@@ -38,9 +38,9 @@ gate — untouched here.
 
 ## Ladder
 
-- units **1758 passed / 8 skipped** (`python3 -m pytest tests/ -q`), +31
+- units **1759 passed / 8 skipped** (`python3 -m pytest tests/ -q`), +32
   over the pre-branch baseline (the new poker-engine file); the new file
-  alone: **31 passed** (`tests/unit/band6/test_band6_poker_engine.py`).
+  alone: **32 passed** (`tests/unit/band6/test_band6_poker_engine.py`).
 - port fidelity: the `PokerGame`/`Player`/`PotResult` class body diffs
   **byte-for-byte IDENTICAL** against the oracle
   (`disbot/utils/poker/engine.py`, fetched at the oracle's main head) —
