@@ -93,7 +93,7 @@ subsystems:
   karma: ported
   leaderboard: ported
   logging: ported
-  mining: pending
+  mining: ported
   moderation: ported
   project_moon: ported
   projectmoon: ported
@@ -566,12 +566,13 @@ depth:
       - surface: "table:game_xp"
         reason: "covered-elsewhere: the shared-track write bytes are
           pinned by the named sibling mining-lane oracles
-          (goldens/_unmapped/sweep_fastmine.json / sweep_chop.json /
+          (goldens/mining/sweep_fastmine.json / sweep_chop.json /
           sweep_explore.json each carry a game_xp row — the shipped
-          award lane the substrate owns), pending their mining-band
-          re-home (the settings table:subsystem_bindings precedent:
-          the cited sibling pins the bytes from the _unmapped set); the
-          games goldens are read-only panel opens and the world card's
+          award lane the substrate owns) and replay green through the
+          PORTED mining row (re-homed by the mining flip, upgrading the
+          #230 _unmapped citation to first-class coverage — the
+          table:game_state / blackjack wording verbatim); the games
+          goldens are read-only panel opens and the world card's
           zero-XP empty state pins the table's no-row epoch from the
           read side (goldens/games/sweep_worldcard)"
       - surface: "table:guild_settings"
@@ -585,21 +586,23 @@ depth:
       - surface: "event:game_xp.awarded"
         reason: "covered-elsewhere: the advisory fires only from the
           audited game-XP award lane (sb/domain/games/xp.award_in_txn),
-          whose write bytes are pinned by the named sibling oracles
-          above (sweep_fastmine / sweep_chop / sweep_explore game_xp
-          rows); the shipped bot published no tap-able bus event on
-          those flows, so no imported golden can carry the event — its
-          first live golden lands with the mining-band flip (the
-          settings.changed / xp.level_up unreachable-surface precedent)"
+          and its promised first live goldens LANDED with the mining
+          flip — goldens/mining/sweep_fastmine.json / sweep_chop.json /
+          sweep_explore.json each pin the event's corpus payload
+          ({action, amount, game, guild_id, total, user_id}) and replay
+          green through the PORTED mining row (the table:game_state /
+          blackjack wording); the games row's own goldens are read-only
+          panel opens that award nothing"
       - surface: "event:game_xp.level_up"
         reason: "covered-elsewhere: the advisory fires only from the
           same award lane when the derived level crosses a threshold —
           every capture awarded single-digit game XP at level 0 (the
-          sibling game_xp rows above pin xp<=4), and the shipped bot
-          published no tap-able bus event at all, so no imported golden
-          can carry the event; its first live golden lands with a
-          threshold-crossing mining-band capture (the xp.level_up
-          precedent verbatim)"
+          sibling game_xp rows above pin xp<=4:
+          goldens/mining/sweep_fastmine / sweep_chop / sweep_explore),
+          and the shipped bot published no tap-able bus event at all,
+          so no imported golden can carry the event; its first live
+          golden lands with a threshold-crossing mining-band capture
+          (the xp.level_up precedent verbatim)"
     # KERNEL — the A-16 clause-3 coverage home's own floor (D-0075): the
     # kernel-band goldens (goldens/kernel/) cover audit_log + event_outbox
     # + both kernel events; the remaining kernel tables have NO
@@ -652,6 +655,30 @@ depth:
           kernel-surface-drift disposition, and the table's first
           row-bearing golden lands with an NL-armed capture (the
           ai_review_log precedent verbatim)"
+    mining:
+      # mining's six goldens are the core loop (fastmine/chop/explore
+      # write mining_inventory + game_xp), the anchored hub open, the
+      # admin reset, and the !mine capture-artifact copy; the deep
+      # systems (equipment/wear/energy/grid/vault/structures/skills/
+      # forge/workshop/titles/loadouts/descend-ascend/character) ride
+      # the D-0043 named successor port.
+      - surface: "table:mining_player_state"
+        reason: "guard-only-capture: the depth writers ARE
+          corpus-expressible (!descend / !ascend) but the imported sweep
+          drove only their bare fresh-player invocations, and both pin
+          the shipped GUARD bytes with no row —
+          goldens/_unmapped/sweep_descend.json (\"can't descend any
+          deeper. Equip a brighter light to descend to Cavern (needs
+          depth access 1).\" — the light-gated depth_access refusal) and
+          sweep_ascend.json (\"is already at the Surface.\") — so every
+          captured case pins the refusal byte and the row-bearing GEARED
+          descent exists in no imported golden (D-0069; the class's own
+          record: a future geared capture deletes it). The read side IS
+          golden-pinned row-less (sweep_fastmine / sweep_explore /
+          sweep_minemenu render the depth-0 \"🌳 Surface (depth 0/3)\"
+          byte off the store's no-row default); descend/ascend stay
+          D-0043 pending terminals with their sweeps in _unmapped for
+          the deep-system successor"
     proof_channel:
       # proof_channel's three goldens (and the sibling _unmapped prize
       # sweeps) all pin the shipped "#proof not found" guard — the
@@ -845,6 +872,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
+    mining: {events: 2, tables: 5, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
