@@ -24,14 +24,21 @@ from datetime import datetime
 from typing import Callable, Protocol
 
 __all__ = [
+    "BotIdentity",
+    "BotIdentityNotInstalled",
     "GuildDirectory",
     "GuildDirectoryNotInstalled",
     "GuildInfo",
     "MemberInfo",
+    "MessagePurgerNotInstalled",
+    "bot_identity",
     "gateway_latency_ms",
     "guild_directory",
+    "install_bot_identity",
     "install_gateway_probe",
     "install_guild_directory",
+    "install_message_purger",
+    "message_purger",
     "reset_utility_ports_for_tests",
 ]
 
@@ -68,13 +75,50 @@ class GuildInfo:
 
 @dataclass(frozen=True)
 class MemberInfo:
-    """The per-member read set (avatar / user-info cards)."""
+    """The per-member read set (avatar / user-info cards).
+
+    ``status`` / ``activity_name`` joined at the ``!userinfo`` re-home —
+    the shipped user-info card read ``member.status`` /
+    ``member.activity`` off the gateway cache (utility_cog.py: the
+    capture harness sent no presence data, so every member read
+    discord.py's defaults — goldens/utility/sweep_userinfo pins
+    "Offline" / "None"). Defaulted for directories that predate the
+    fields.
+    """
 
     user_id: int
     tag: str                     # str(member) — "Name#0000"
     display_avatar_url: str      # member.display_avatar.url
     created_at: datetime         # user snowflake time ("Joined Discord")
     joined_at: datetime          # guild join time ("Joined Server")
+    status: str = "offline"      # str(member.status) — presence token
+    activity_name: str | None = None   # member.activity.name (None = no activity)
+
+
+@dataclass(frozen=True)
+class BotIdentity:
+    """The ``!botinfo`` read set — the shipped bot-object census
+    (utility_cog.botinfo: ``bot.user.name`` / ``bot.user.display_avatar``
+    / ``len(bot.guilds)`` / ``sum(g.member_count)`` /
+    ``len(set(bot.walk_commands()))`` / ``bot.uptime`` /
+    ``discord.__version__``). sb/ is gateway-free, so the census arrives
+    through this installable port (the RuntimeIdentity precedent —
+    sb/domain/ai/operator_cards.py): the parity harness arms the CAPTURE
+    environment's own values (goldens/_unmapped→utility/sweep_botinfo
+    pins them), the live adapter arms the live client's.
+
+    ``uptime_s`` is the elapsed seconds since the shipped ``bot.uptime``
+    on_ready stamp (None = no stamp ⇒ the shipped embed omits the
+    Uptime field).
+    """
+
+    name: str
+    avatar_url: str
+    guild_count: int
+    user_count: int
+    command_count: int
+    library: str                 # f"discord.py {discord.__version__}"
+    uptime_s: int | None
 
 
 class GuildDirectory(Protocol):
@@ -87,8 +131,18 @@ class GuildDirectoryNotInstalled(RuntimeError):
     """No directory armed — surfaces refuse politely, never invent data."""
 
 
+class BotIdentityNotInstalled(RuntimeError):
+    """No bot-identity source armed — ``!botinfo`` refuses politely."""
+
+
+class MessagePurgerNotInstalled(RuntimeError):
+    """No purge port armed — ``!clear`` refuses politely."""
+
+
 _directory: GuildDirectory | None = None
 _latency_probe: Callable[[], float] | None = None
+_identity: Callable[[], "BotIdentity"] | None = None
+_purger = None   # async (channel_id, *, limit) -> Sequence[deleted messages]
 
 
 def install_guild_directory(directory: GuildDirectory) -> None:
@@ -116,7 +170,43 @@ def gateway_latency_ms() -> float:
     return float(_latency_probe())
 
 
+def install_bot_identity(provider: Callable[[], BotIdentity]) -> None:
+    """``provider() -> BotIdentity`` — the shipped bot-object census read."""
+    global _identity
+    _identity = provider
+
+
+def bot_identity() -> BotIdentity:
+    if _identity is None:
+        raise BotIdentityNotInstalled(
+            "bot identity port not installed "
+            "(sb/domain/utility/service.install_bot_identity)")
+    return _identity()
+
+
+def install_message_purger(purger) -> None:
+    """``await purger(channel_id, *, limit) -> Sequence`` — the shipped
+    ``ctx.channel.purge(limit=...)`` bulk delete, returning the deleted
+    messages (the shipped ``len(deleted)`` count read). The parity twin
+    records the goldens' ``logs_from`` wire verb and answers the capture
+    world's empty backlog (sb/adapters/parity/transport.py
+    ParityHistoryReader — goldens/utility/sweep_clear pins the call);
+    a live implementation performs the real history-scan + bulk delete."""
+    global _purger
+    _purger = purger
+
+
+def message_purger():
+    if _purger is None:
+        raise MessagePurgerNotInstalled(
+            "message purge port not installed "
+            "(sb/domain/utility/service.install_message_purger)")
+    return _purger
+
+
 def reset_utility_ports_for_tests() -> None:
-    global _directory, _latency_probe
+    global _directory, _latency_probe, _identity, _purger
     _directory = None
     _latency_probe = None
+    _identity = None
+    _purger = None

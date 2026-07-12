@@ -2198,6 +2198,37 @@
     "name": "avatar"
    },
    {
+    "aliases": [
+     "about"
+    ],
+    "group": "",
+    "name": "botinfo"
+   },
+   {
+    "aliases": [
+     "purge"
+    ],
+    "group": "",
+    "name": "clear"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "info"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "invite"
+   },
+   {
+    "aliases": [
+     "members"
+    ],
+    "group": "",
+    "name": "membercount"
+   },
+   {
     "aliases": [],
     "group": "",
     "name": "myprofile"
@@ -2210,7 +2241,22 @@
    {
     "aliases": [],
     "group": "",
+    "name": "poll"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "remind"
+   },
+   {
+    "aliases": [],
+    "group": "",
     "name": "serverinfo"
+   },
+   {
+    "aliases": [],
+    "group": "",
+    "name": "userinfo"
    },
    {
     "aliases": [],

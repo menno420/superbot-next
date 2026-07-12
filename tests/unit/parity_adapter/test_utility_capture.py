@@ -104,3 +104,82 @@ def test_placeholder_profile_card_is_a_valid_png():
     png = render_profile_card(1, 2)
     assert png.startswith(b"\x89PNG\r\n\x1a\n")
     assert png.endswith(b"IEND" + (0xAE426082).to_bytes(4, "big"))
+
+
+def test_create_invite_twin_records_wire_shape_then_raises():
+    """The `!invite` capture artifact (goldens/utility/sweep_invite):
+    fake_http.create_invite recorded discord.py's HTTP body verbatim and
+    answered a payload discord.py could not rebuild an Invite from — the
+    twin records the SAME eight-key body, then raises the named artifact
+    (the edit_member precedent)."""
+    import pytest
+
+    from sb.adapters.parity.transport import (
+        CaptureInviteParseError,
+        ParityChannelStateActions,
+    )
+
+    transport = _transport()
+    actions = ParityChannelStateActions(transport)
+    with pytest.raises(CaptureInviteParseError):
+        run(actions.create_invite(700, max_age=0, max_uses=1,
+                                  temporary=False, unique=True, reason=None))
+    (call,) = transport.calls
+    assert call.method == "create_invite"
+    assert call.args == {"channel_id": 700, "reason": None}
+    assert call.payload == {
+        "flags": None, "max_age": 0, "max_uses": 1,
+        "target_application_id": None, "target_type": None,
+        "target_user_id": None, "temporary": False, "unique": True}
+
+
+def test_format_uptime_matches_shipped_rendering():
+    """utility_cog._format_uptime verbatim — days/hours only when
+    non-zero, minutes always (sweep_botinfo pins the capture's '0m')."""
+    from sb.domain.utility.handlers import _format_uptime
+
+    assert _format_uptime(0) == "0m"                       # the golden byte
+    assert _format_uptime(59) == "0m"
+    assert _format_uptime(3900) == "1h 5m"
+    assert _format_uptime(2 * 86400 + 3 * 3600 + 240) == "2d 3h 4m"
+
+
+def test_error_card_renders_the_shipped_red_envelope():
+    """utils/embeds.error verbatim through utility.error_card — the
+    '❌ {message}' description on the red accent, nothing else
+    (goldens/utility/sweep_poll pins the bytes)."""
+    from sb.domain.utility.panels import _render_error_card, error_card_spec
+
+    spec = error_card_spec()
+    ctx = SimpleNamespace(params={"error_text": "You need at least two "
+                                                "options for a poll."},
+                          actor=SimpleNamespace(user_id=1))
+    rendered = run(_render_error_card(spec, ctx))
+    assert rendered.embed.title == ""
+    assert rendered.embed.description == ("❌ You need at least two options "
+                                          "for a poll.")
+    assert rendered.embed.style_token == "red"
+    assert rendered.components == ()
+
+
+def test_param_card_carries_footer_and_thumbnail():
+    """The shared utility param card (botinfo/membercount/userinfo) —
+    footer + thumbnail ride the open params into the embed
+    (sweep_botinfo pins 'Requested by AdminActor#0000' + the bot's
+    default avatar; sweep_userinfo the member flavors)."""
+    from sb.domain.utility.panels import _render_param_card, bot_info_spec
+
+    ctx = SimpleNamespace(
+        params={"card_title": "🤖 GalaxyBotParity",
+                "card_description": "Bot information and statistics",
+                "card_fields": (("Servers", "1", True),),
+                "card_footer": "Requested by AdminActor#0000",
+                "card_thumbnail":
+                    "https://cdn.discordapp.com/embed/avatars/0.png"},
+        actor=SimpleNamespace(user_id=1))
+    rendered = run(_render_param_card(bot_info_spec(), ctx))
+    assert rendered.embed.footer == "Requested by AdminActor#0000"
+    assert rendered.embed.thumbnail_ref == (
+        "https://cdn.discordapp.com/embed/avatars/0.png")
+    assert rendered.embed.fields == (("Servers", "1", True),)
+    assert rendered.embed.style_token == "blue"

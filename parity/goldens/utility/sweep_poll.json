@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.botinfo",
+ "case_id": "sweep.poll",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2046563045,
+     "last_xp": 1838680445,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -53,48 +53,9 @@
       "content": null,
       "embeds": [
        {
-        "color": 3447003,
-        "description": "Bot information and statistics",
-        "fields": [
-         {
-          "inline": true,
-          "name": "Servers",
-          "value": "1"
-         },
-         {
-          "inline": true,
-          "name": "Users",
-          "value": "4"
-         },
-         {
-          "inline": true,
-          "name": "Commands",
-          "value": "406"
-         },
-         {
-          "inline": true,
-          "name": "Gateway",
-          "value": "nan ms"
-         },
-         {
-          "inline": true,
-          "name": "Uptime",
-          "value": "0m"
-         },
-         {
-          "inline": true,
-          "name": "Library",
-          "value": "discord.py 2.7.1"
-         }
-        ],
+        "color": 15158332,
+        "description": "❌ You need at least two options for a poll.",
         "flags": 0,
-        "footer": {
-         "text": "Requested by AdminActor#0000"
-        },
-        "thumbnail": {
-         "url": "https://cdn.discordapp.com/embed/avatars/0.png"
-        },
-        "title": "🤖 GalaxyBotParity",
         "type": "rich"
        }
       ],
@@ -124,11 +85,11 @@
     }
    ],
    "input": {
-    "content": "!botinfo",
+    "content": "!poll test test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "utility"
 }

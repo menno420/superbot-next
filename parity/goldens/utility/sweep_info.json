@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.clear",
+ "case_id": "sweep.info",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:2>",
+     "message_id": "<msg:1>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1848859682,
+     "last_xp": 1912344771,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,19 +45,53 @@
    "calls": [
     {
      "args": {
-      "channel_id": "<#general>",
-      "limit": 5
-     },
-     "method": "logs_from"
-    },
-    {
-     "args": {
       "channel_id": "<#general>"
      },
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "Cleared 0 messages.",
+      "content": null,
+      "embeds": [
+       {
+        "color": 3447003,
+        "description": "Server Information",
+        "fields": [
+         {
+          "inline": true,
+          "name": "Owner",
+          "value": "<@<@admin>>"
+         },
+         {
+          "inline": true,
+          "name": "Members",
+          "value": "4"
+         },
+         {
+          "inline": true,
+          "name": "Boost Level",
+          "value": "0"
+         },
+         {
+          "inline": true,
+          "name": "Created",
+          "value": "2020-04-15"
+         },
+         {
+          "inline": true,
+          "name": "Text Channels",
+          "value": "8"
+         },
+         {
+          "inline": true,
+          "name": "Voice Channels",
+          "value": "0"
+         }
+        ],
+        "flags": 0,
+        "title": "Parity Test Guild",
+        "type": "rich"
+       }
+      ],
       "tts": false
      }
     },
@@ -65,14 +99,6 @@
      "args": {
       "channel_id": "<#general>",
       "message_id": "<msg:1>",
-      "reason": null
-     },
-     "method": "delete_message"
-    },
-    {
-     "args": {
-      "channel_id": "<#general>",
-      "message_id": "<msg:2>",
       "reason": null
      },
      "method": "delete_message"
@@ -92,11 +118,11 @@
     }
    ],
    "input": {
-    "content": "!clear",
+    "content": "!info",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "utility"
 }
