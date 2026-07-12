@@ -1,6 +1,6 @@
 # 2026-07-12 — slice 3 port: vault / stash / unstash / vaultupgrade / mineinv (safe stash + capacity sink)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** opus-4.8 · high · feature build (Q-0194)
 
@@ -47,7 +47,45 @@ Planned delivery:
 
 ## Verification (local, real Postgres, pristine DB)
 
-_(filled at close-out — see the landing report.)_
+- **golden-parity GATE GREEN — all 439 golden(s) across 51 ported
+  subsystem(s) replay clean** (was 435; the +4 re-home takes it to 439,
+  mining 20 → 24, `_unmapped` 33 → 29), incl. sweep_vault / sweep_stash /
+  sweep_unstash / sweep_vaultupgrade. Each verified byte-identical against
+  the REAL handlers by a targeted `replay_case` pass BEFORE the `git mv`
+  (all four GREEN), then again in the full gate after. (A first full-gate
+  run reported 154 `db_delta.settings` regressions — that run overlapped
+  the serial pytest run on the SAME `parity_replay` DB, the documented
+  concurrent-DB pollution false-red; re-run ALONE on a clean DB it is
+  GREEN.)
+- **check_parity_depth: OK — 51 subsystems (50 ported), kernel ported,
+  468 goldens** (the new `table:mining_vault` declared surface held by a
+  `guard-only-capture` exemption; `vault_level` rides the already-held
+  `mining_player_state` exemption; R3 ratchet unchanged).
+- **check_migrations: clean (45)** — 0044_mining_vault.sql +
+  0045_mining_vault_capacity.sql appended to `checksums.json`.
+  **manifest_compile: green** (snapshot recompiled, P9 parity).
+- **check_money_race: OK — 0 violations** (the audited `!vaultupgrade`
+  read-then-settle fenced with `lock_vault_upgrade_slot`'s
+  `pg_advisory_xact_lock`, the #213/#217 precedent). **check_sim_gate: OK**
+  (the new 5-action `mining.vault` panel's layout [A] fields pinned via
+  three legacy-seed Exempt overlays + a regenerated baseline).
+  check_compat_frozen / check_namespace / check_escape_hatches /
+  check_schema_growth all clean.
+- **pytest tests/unit: 1748 passed, 5 skipped** on a pristine DB, run
+  SERIALLY (`-p no:randomly`). `tests/unit/invariants/test_composition_
+  parity.py`: 3 passed (the 5 now-removed `*_pending` refs —
+  vault/stash/unstash/vaultupgrade/mineinv — pruned from the burn-down);
+  test_check_money_race 11 passed; sim_runner/test_run_and_gate 27 passed.
+- `bootstrap.py check --strict`: the only red was the by-design born-red
+  HOLD while this card declared `in-progress` — flipped `complete` in this
+  final commit; nothing else.
+
+### 4 re-homed goldens (git mv `_unmapped → mining`, subsystem flip only)
+sweep_vault, sweep_stash, sweep_unstash, sweep_vaultupgrade — rename
+similarity R98/R99 (only the `"subsystem"` line changed; asserted
+calls/events/db_delta bytes untouched — #193 law). mineinv was already
+re-homed (#250) onto the mining-core row (`mining.inventory_view`), so it
+contributed NO gate bump — this slice only removed its stale PENDING key.
 
 ## 💡 Session idea
 
