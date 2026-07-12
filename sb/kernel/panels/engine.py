@@ -284,7 +284,7 @@ def _context_from_request(spec: PanelSpec, req: ResolveRequest) -> PanelContext:
 
 
 async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
-                              page: int = 0) -> str:
+                              page: int = 0, browse=None) -> str:
     ctx = _context_from_request(spec, req)
     if spec.renderer_override is not None:
         # tier-2 escape hatch: a registered renderer produces the RenderedPanel.
@@ -295,7 +295,9 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
         await resolve_ref(spec.legacy_view)(spec, ctx, req)
         return req.request_id
     else:
-        rendered = await render_panel(spec, ctx, page=page)
+        # ``browse`` arms the shared BrowserView engine (D-0034) for the named
+        # block — data re-resolved fresh at click time (§2.4), like every nav.
+        rendered = await render_panel(spec, ctx, page=page, browse=browse)
     minted_ids: dict[str, str] = {}
     if spec.session_lifecycle:
         rendered = _mint_ephemeral(spec, rendered, req)
@@ -384,5 +386,46 @@ async def handle_nav(binding: NavBinding, req: ResolveRequest) -> None:
     elif binding.kind == "page":
         panel_id, _, page = binding.target.rpartition(":")
         await _render_and_present(get_panel(panel_id), req, page=int(page))
-    else:  # pragma: no cover — the registry mints only the four kinds
+    elif binding.kind == "browse":
+        await _handle_browse(binding.target, req)
+    else:  # pragma: no cover — the registry mints only the recognized kinds
         raise ValueError(f"unknown nav binding kind {binding.kind!r}")
+
+
+async def _handle_browse(custom_id: str, req: ResolveRequest) -> None:
+    """Dispatch a BrowserView control click (D-0034): decode the current
+    state against the panel spec, apply the click's delta (a sort/filter
+    select carries its new value in ``req.args['values']``; a prev/next button
+    steps the page), and re-render the panel with the new browse state — data
+    re-resolved fresh at click time (§2.4). A malformed/stale id (unknown
+    panel, or a block that is no longer browsable) decodes to None and
+    degrades to the §3.4 polite-expiry terminal — never a crash, never a
+    mis-render."""
+    from sb.kernel.panels import browserview
+    from sb.kernel.panels.router import EXPIRY_MESSAGE
+
+    async def _expire() -> None:
+        try:
+            await req.responder.deny(EXPIRY_MESSAGE, ephemeral=True)
+        except Exception:  # noqa: BLE001 — a failed expiry render never raises
+            logger.warning("browse expiry render failed for %r", custom_id,
+                           exc_info=True)
+
+    panel_id = browserview.panel_id_of(custom_id)
+    if panel_id is None:
+        await _expire()
+        return
+    try:
+        spec = get_panel(panel_id)
+    except LookupError:
+        await _expire()
+        return
+    decoded = browserview.decode(custom_id, spec)
+    if decoded is None:
+        await _expire()
+        return
+    control, block, state = decoded
+    block_spec = browserview.browse_block_spec(spec, block)
+    values = req.args.get("values") if req.args else None
+    new_state = browserview.apply_delta(control, state, block_spec, values)
+    await _render_and_present(spec, req, browse=new_state)
