@@ -87,25 +87,49 @@ def _actor_id(ctx: WorkflowContext) -> int:
 
 
 def _target_from(ctx: WorkflowContext) -> int | None:
+    """target_id param > `member` param > argv[0] (mention or bare ID).
+
+    POSITIONAL, argv[0] only — the shipped command was ``thanks(ctx,
+    member: discord.Member, *, reason: str | None = None)``
+    (disbot/cogs/karma_cog.py; `!karma add` rides the same signature):
+    discord.py bound the FIRST arg to MemberConverter (ID → mention →
+    name), never a later token. Scanning all of argv for the first digit
+    token let a digit inside the reason tail bind as the TARGET
+    (`!thanks bob 5` thanked user id 5). A non-digit argv[0] is the
+    converter's name leg — a member-directory read this world lacks (the
+    #275 xp precedent) — and the shipped converter raised MemberNotFound,
+    which bot1.py's global BadArgument arm rendered (karma_cog has no
+    local error handler); we pin that copy verbatim."""
     target = ctx.params.get("target_id") or ctx.params.get("member")
     if target is None:
         argv = tuple(ctx.params.get("argv", ()) or ())
-        for token in argv:
-            stripped = str(token).strip("<@!>")
+        if argv:
+            token = str(argv[0])
+            stripped = token.strip("<@!>")
             if stripped.isdigit():
                 target = stripped
-                break
+            else:
+                # bot1.py on_command_error BadArgument arm over
+                # commands.MemberNotFound, byte-for-byte.
+                raise ValidatorError(
+                    "member",
+                    f'⚠️ Bad argument: Member "{token}" not found.')
     if target is None:
         return None
     return int(str(target).strip("<@!>"))
 
 
 def _reason_from(ctx: WorkflowContext) -> str | None:
+    """reason param > argv[1:] joined (the shipped keyword-only rest).
+
+    The shipped ``*, reason`` slot consumed EVERYTHING after the member
+    arg; the old digit-filter was the scan's other half and silently ate
+    digit tokens inside the reason (`!thanks @bob 5 stars` recorded
+    "stars")."""
     reason = ctx.params.get("reason")
     if reason is None:
         argv = tuple(ctx.params.get("argv", ()) or ())
-        tail = [str(t) for t in argv if not str(t).strip("<@!>").isdigit()]
-        reason = " ".join(tail).strip() or None
+        reason = " ".join(str(t) for t in argv[1:]).strip() or None
     return str(reason) if reason else None
 
 

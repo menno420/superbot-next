@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.bulkdelete",
+ "case_id": "sweep.bulkcreate",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -12,7 +12,7 @@
      "guild_id": "<guild>",
      "id": 1,
      "instruction_profile_ids": null,
-     "message_id": "<msg:2>",
+     "message_id": "<msg:1>",
      "model": null,
      "policy_snapshot_hash": "60e6674506d21a48",
      "provider": null,
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1838831260,
+     "last_xp": 1879381034,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -45,10 +45,16 @@
    "calls": [
     {
      "args": {
-      "channel_id": "<msg:1>",
-      "reason": null
+      "guild_id": "<guild>",
+      "reason": null,
+      "type": 0
      },
-     "method": "delete_channel"
+     "method": "create_channel",
+     "payload": {
+      "name": "test",
+      "parent_id": null,
+      "permission_overwrites": []
+     }
     },
     {
      "args": {
@@ -57,14 +63,14 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "✅ Deleted: test.\n",
+      "content": "✅ Created: test.\n",
       "tts": false
      }
     },
     {
      "args": {
       "channel_id": "<#general>",
-      "message_id": "<msg:2>",
+      "message_id": "<msg:1>",
       "reason": null
      },
      "method": "delete_message"
@@ -78,26 +84,26 @@
       "actor_type": "admin",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "channel_delete",
-      "new_value": "delete 1 channel(s) (1/1 applied)",
+      "mutation_type": "channel_create",
+      "new_value": "create 1 text channel(s) (1/1 applied)",
       "occurred_at": "<ts>",
       "prev_value": null,
       "scope": "guild",
       "subsystem": "channel",
-      "target": "channel:<msg:1>"
+      "target": "channels:1"
      }
     },
     {
      "event": "channel.lifecycle_changed",
      "payload": {
       "applied": [
-       "<msg:1>"
+       "<msg:2>"
       ],
       "failed": [],
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
       "occurred_at": "<ts>",
-      "operation": "delete",
+      "operation": "create",
       "outcome": "success"
      }
     },
@@ -114,11 +120,11 @@
     }
    ],
    "input": {
-    "content": "!bulkdelete test",
+    "content": "!bulkcreate test",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "channel"
 }

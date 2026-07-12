@@ -42,10 +42,28 @@ deriving the procedure from scratch.
   a `review` stance); stances stay advisory for anything a skill has not
   declared.
 
+## Machine consumption — the seat digest
+
+`docs/seat-digest.md` is the machine-extractable DERIVED RENDER of this
+index plus the capability ledger's venue-relevant walls — two fence-marked
+blocks sized for seat-prompt budgets, consumed by fleet-manager's
+seat-prompt regen via fence-prefix extraction + byte match. Never edit it;
+regenerate with `python3 bootstrap.py seat-digest` (adopt/upgrade refresh
+it too). The extraction contract and the no-third-copy deferral chain are
+documented in that file itself.
+
 ## Growing the set
 
 The skill set is kit-owned (the `SKILLS` list in the kit's
 `src/engine/skills/skills.py`) and this index regenerates from it — never
-hand-edit the table. A recurring action without a row here is a candidate
-skill: capture it as an idea (`docs/ideas/README.md`) or propose it
-upstream to the kit, and it reaches every adopter at the next release.
+hand-edit the table. A recurring action without a row here — or a row
+whose body doesn't actually cover it — is the registration reflex firing:
+the standard move is to **add or extend the skill**, as a registry entry,
+not ad-hoc prose. The growth loop is prose workflow → index row → promoted
+skill: capture the procedure as an idea (`docs/ideas/README.md`) or
+propose it upstream to the kit, and it reaches every adopter at the next
+release. Skill bodies, grounds, and index rows are free to ship directly —
+flag them self-initiated on the run report; binding working-agreement text
+is proposed through `docs/question-router.md`, never self-applied — the
+full clause and its provenance live in the working agreement
+(`.claude/CLAUDE.md`, superbot Q-0194 · Q-0106 · Q-0172).
