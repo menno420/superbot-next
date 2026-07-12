@@ -1,8 +1,8 @@
 # 2026-07-12 — telemetry merge friction: verified union-merge posture for model-usage.jsonl
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Model:** [[fill: model]] · [[fill: effort]] · [[fill: task-class]]
+- **📊 Model:** Claude 5 family · high · tooling/infra
 
 ⚑ Self-initiated: recurring-friction class — `telemetry/model-usage.jsonl` is
 append-only and every PR's session-close appends one row at EOF, so any two
@@ -58,10 +58,34 @@ gap out loud.
 - `docs/parity/flip-playbook-traps.md` — trap 26(e) rebase-race note now
   points at the attribute + runbook instead of prescribing a hand union.
 
+## Verification tails
+
+- `python3 -m pytest tests/ -q` → `2050 passed, 13 skipped, 1 warning in 40.77s`
+- `python3 bootstrap.py check --strict` → `check: session log
+  .sessions/2026-07-12-telemetry-merge-friction.md complete.` /
+  `check: all checks passed.` (exit 0; one pre-existing never-exit-affecting
+  claims-format advisory on `mining-write-parity-lane.md`)
+- `git check-attr merge telemetry/model-usage.jsonl` →
+  `telemetry/model-usage.jsonl: merge: union`
+
 ## 💡 Session idea
 
-[[fill: idea]]
+The claims README already measured shared-append files at ~98% conflict under
+concurrency and fixed it structurally (one file per claim, 0%). The telemetry
+feed has the exact same access pattern but its writer is kit-generated
+`bootstrap.py`, so the structural fix (per-session shard files under
+`telemetry/model-usage/`, reader globs) can't be applied host-side. Worth
+filing upstream to substrate-kit: shard the KL-3 feed per session slug the way
+the claim ledger shards per claim — that would make the PR-page conflict
+banner disappear entirely, which no `.gitattributes` mechanism can (verified:
+GitHub's server-side merge ignores `merge=union`, scratch PR #315).
 
 ## ⟲ Previous-session review
 
-[[fill: review]]
+The aip-07-08 card is a clean model of the shape this card mirrors: it named
+its two audit items with file-level precision and pre-declared the sibling
+pattern it would copy, which made review trivial; its plan step 4's
+"verified by rg over tests/" is the same verify-don't-assume posture this
+session applied to the merge=union question — the one place it could have
+gone further is pasting the rg evidence itself, which this card does for its
+live-test outputs.
