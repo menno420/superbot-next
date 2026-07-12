@@ -1,0 +1,33 @@
+# 2026-07-12 — ban compensator: withdraw the false history row on a never-landed ban
+
+> **Status:** `in-progress`
+
+## Scope
+
+The ⚑ follow-up the ORDER-004 live-drive evidence card flagged (its
+compensator probe: `!ban` of a nonexistent id): a Discord-REFUSED ban
+(apply leg 404) leaves its durable claim row — the `mod_logs` ban row the
+record leg committed — because ban's compensator
+(`sb/domain/moderation/ops.py::_compensate_ban`) only knows the Discord-side
+symmetric restore (unban), which itself 404s on a ban that never landed;
+the engine records the operator finding and returns `partial`, and the
+false history row stays.
+
+This slice guards exactly that refuse path: keep the unban as the primary
+restore (correct when a LATER leg failed after the ban actually landed),
+and when the unban reports NotFound — the ban never landed — fall back to
+kick's row-withdraw twin (`_compensate_kick`'s
+`store.withdraw_mod_log_rows` shape over the `_ban_row_id` handle the
+record leg already stashes), record the operator finding, and return a
+successful LegOutcome. Oracle fidelity decides the posture: disbot's
+moderation service calls Discord FIRST and writes the row only after
+success — a refused ban writes NO row. A non-NotFound unban failure still
+propagates so the engine records `partial` honestly.
+
+Out of scope: `_compensate_unban`, the audit_log row (LEDGER, intentionally
+permanent — kick leaves its audit row too), every other band.
+
+Tests: `tests/unit/band2/test_band2_slice1.py`, following
+`test_kick_blocked_compensates` — refuse path withdraws the row, restore
+path never withdraws, missing handle no-ops, non-NotFound propagates, and
+the BAN leg-wiring pin.
