@@ -36,7 +36,8 @@ nav doctrine): opening one swaps the settings page in place and the
 ``↩ Back to Settings`` route rebuilds it fresh — the shipped ephemeral
 follow-up + best-effort parent edit collapses into open→write→Back (click
 routes are golden-unpinned; #151's ledgered class). After a toggle/reset
-(clicks ON the settings page itself) the page embed refreshes in place
+(clicks ON the settings page itself) — and after an enum/preset pick on a
+widget page (VERDICT 009 AIP-07) — the page embed refreshes in place
 best-effort, the shipped `_refresh_parent` posture.
 
 Registered at MODULE IMPORT (the BUG A rule) — the ensure-only burn-down
@@ -246,6 +247,7 @@ async def settings_enum_pick(req) -> Reply:
         return Reply(result.outcome,
                      f"❌ Couldn't update `{key}`: "
                      f"{result.user_message or 'write failed'}.")
+    await _refresh_settings_page(req)
     return Reply(SUCCESS, f"✅ Updated `{key}` = `{picked!r}`.")
 
 
@@ -276,6 +278,7 @@ async def settings_preset_pick(req) -> Reply:
                      f"❌ Couldn't update `{key}`: "
                      f"{result.user_message or 'write failed'}.")
     old = _in_transaction_prior(result, spec, old)
+    await _refresh_settings_page(req)
     return Reply(SUCCESS,
                  f"✅ Updated `{key}` = `{value!r}` (was `{old!r}`).")
 
