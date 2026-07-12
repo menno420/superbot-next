@@ -38,7 +38,14 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
 * both option rosters are pinned to the goldens' shipped inventory
   (19 actionable groups; the explorer's page-1 25) — re-derivation from
   the manifest inventory lands as the catalogue port arms;
-* every click (group select, diagnostics, command access, explorer
+* the group SELECT NAVIGATES read-only (``settings.open_group``): it
+  opens the group's read-only operator-spine hub when one is ensured
+  (welcome/counters/security/automod/image_moderation — the shipped
+  SettingsHubView group-select navigation, as a read subset), and lands
+  on the honest pending terminal for every other group; the per-group
+  scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
+  settings-mutation slice's port;
+* every other click (diagnostics, command access, explorer
   explain/reset/scope/paging) lands on a declared + honest pending
   terminal (sb/domain/settings/handlers.py) — the sub-panels
   (``settings_subsystem.*`` / ``settings_command_access.*`` families,
@@ -281,7 +288,12 @@ def settings_hub_spec() -> PanelSpec:
                 options_source=_options(_HUB_GROUPS),
                 placeholder="Open a settings group…",
                 audience_tier="administrator",
-                on_select=HandlerRef("settings.group_pending"),
+                # the shipped SettingsHubView group select NAVIGATED
+                # (read-only) to each group's page — armed to open the
+                # group's read-only operator-spine hub when one exists
+                # (settings.open_group), the pending terminal otherwise.
+                # The wire custom_id is unchanged, so no golden churns.
+                on_select=HandlerRef("settings.open_group"),
                 custom_id_override="settings_hub.subsystem_select"),
         ),
         actions=(

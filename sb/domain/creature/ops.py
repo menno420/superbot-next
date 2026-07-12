@@ -113,8 +113,11 @@ async def _record_battle(conn, ctx: WorkflowContext) -> LegOutcome:
         action="battle_win", now=now)
     ctx.params["_balance_changes"] = []
     ctx.params["_gxp"] = award
-    return LegOutcome(step=StepResult(winner, "battle", True), before={},
-                      after={"winner": winner, "loser": loser})
+    return LegOutcome(
+        step=StepResult(winner, "battle", True), before={},
+        after={"winner": winner, "loser": loser,
+               "xp_amount": award.amount, "leveled_up": award.leveled_up,
+               "new_level": award.new_level})
 
 
 @workflow("creature.erase_subject_collection")

@@ -250,4 +250,4 @@ def test_refs_registered_and_manifest_routes():
     assert by_name["poker"].route == HandlerRef("casino.poker_open")
     assert by_name["poker"].aliases == ("holdem",)
     assert {p.panel_id for p in MANIFEST.panels} == {
-        "casino.hub", "casino.poker_table"}
+        "casino.hub", "casino.poker_table", "casino.poker_game"}

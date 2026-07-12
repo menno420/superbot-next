@@ -304,3 +304,152 @@ definitions), the D-0077 compensator kept ready with an empty allowlist
 guard-duplicate branches inside the ticket lanes (§1). The
 "blindly copied" things are honest pending terminals or byte-pinned
 parity artifacts whose bytes are the contract.
+
+---
+
+## 8. Sim-lab verdict consumption (slice 4 of this directive)
+
+> Consumes the four superbot-next-targeted sim-lab verdicts that
+> `docs/review/sim-lab-review-2026-07-12.md` §4 found unconsumed ("4
+> verdicts target this repo, 0 consumed" — the zero-references finding).
+> Sim-lab read at its HEAD `055245e9` (read-only); every verdict claim
+> re-verified against THIS repo's source at `304edd8`+ before acting.
+> This section is the repo-side consumption record; the manager-side
+> half of review recommendation 3 (verdict → inbox ORDER routing) is
+> outside this repo's write reach and stays with the fleet manager.
+
+### VERDICT 009 — settings/UX + AI panel (sim-lab `sims/owner-001-superbot-next-settings-ux/REPORT.md`)
+
+| item | disposition | evidence |
+|---|---|---|
+| AIP-01 (high) — Tools chooser dead-ends | **Already consumed by convergence** — D-0074 (routing-matrix slice, 2026-07-11) retired `chooser_scope_pending`; all four tools pickers live (`sb/domain/ai/orchestration_widgets.py`). No rework. | docs/decisions.md D-0074; sb/domain/ai/settings_widgets.py (terminal-retired note) |
+| AIP-02 (high) — nav-less `ai.card` strands the operator | **FIXED (this PR)** — `ai.card_nav`, the COMPONENT/MODAL-ingress card twin carrying the family `↩ AI home` back-route; command ingress stays on the bare `ai.card` (goldens/ai pins every `!ai <sub>` reply at ZERO components). Ledgered ENGINE-SHAPE deviation: the shipped flow kept the full AIPanelView attached (`edit_message(view=self)`); the engine's card page carries one back-route instead. **Zero golden re-cuts** — no golden drives the clicks; gate GREEN 412/412 with the change in place. | sb/domain/ai/panels.py `ai_card_nav_spec`/`_render_card_nav`; sb/domain/ai/service.py `card_panel_id`; tests/unit/band7/test_band7_verdict009_card_nav.py |
+| AIP-03 (high) — doubled `ai.` prefix in acks | **FIXED (this PR)** — acks/prompts print the bare settings_key, the ONE spelling the page's Scalar field and select options already render (`ai_enabled`, never `ai.ai_enabled`). **Verdict correction, verified:** the doubled prefix was SHIPPED-OLD behavior, not a NEW regression — OLD's schema names carry the prefix (`disbot/cogs/ai/schemas.py` `SettingSpec(name="ai_enabled", …)`) and OLD's ack prints `{subsystem}.{setting_name}` (`disbot/views/settings/edit_boolean.py`), so OLD also printed `ai.ai_enabled`. The fix stands on V009's UX grounds as a deliberate, ledgered divergence on an ack surface no golden pins. | sb/domain/ai/settings_widgets.py (module doc: the single-spelling rule); tests/unit/band7/test_band7_verdict009_card_nav.py::test_toggle_ack_prints_the_single_spelling |
+| AIP-04 (medium) — Routing-matrix dead-end | Already consumed by convergence (D-0074 wired it to the dry-run resolver — the verdict's own named fix). | docs/decisions.md D-0074 |
+| AIP-05 (medium) — hardcoded override counts | Already gone at HEAD (verified by the sim-lab review §4). | docs/review/sim-lab-review-2026-07-12.md §4 |
+| AIP-06 (medium) — `audit_log_channel` advertised, no control/consumer | **KEEP/parked** — the dead-settings table below (the binding row is golden-pinned: goldens/ai/sweep_ai_settings pins the Bindings line). | table below |
+| AIP-07 (medium) — enum/preset picks never re-render (stale highlight) | **Verified STILL PRESENT; parked as a named follow-up** — `settings_enum_pick`/`settings_preset_pick` ack without a page refresh where toggle/reset/text/number call `_refresh_settings_page`. Small fix, out of this slice's high-severity scope. | sb/domain/ai/settings_widgets.py:231-280 |
+| AIP-08 (low) — hub `PanelSpec.title` hardcodes `💤 AI Platform` | **Verified STILL PRESENT; parked (latent-only)** — `renderer_override` (`ai.render_hub`) always swaps the whole embed, so no live render path shows the declared title; the golden pins the live bytes. | sb/domain/ai/panels.py:166 (+ the `_render_hub` override) |
+
+### VERDICT 009 — the 19 display-only settings (image_moderation 8 + security 11)
+
+Per-setting verdict, all re-verified at HEAD (readers grepped over
+`sb/` excluding the panels renders; both domain dirs hold ONLY
+`panels.py`):
+
+| setting | engine consumer? | action | citation |
+|---|---|---|---|
+| image_moderation_enabled | none (master switch; scan engine unported) | KEEP/ledgered — "The scan engine arms with the message band + provider keys" is the manifest's own declaration | sb/manifest/image_moderation.py:1-5,29-33 |
+| image_moderation_{sexual,violence,harassment,hate}_enabled (4) | none | KEEP/ledgered (same engine) | sb/manifest/image_moderation.py:20-26 |
+| image_moderation_threshold_percent | none | KEEP/ledgered (same engine) | sb/manifest/image_moderation.py:35-37 |
+| image_moderation_exempt_roles / _exempt_channels (2) | none | KEEP/ledgered (same engine) | sb/manifest/image_moderation.py:38-43 |
+| security_enabled | none (no join listener armed) | KEEP/ledgered — enforcement rides the member-join band (unarmed live, §3) | sb/manifest/security.py:20-22; sb/domain/security/panels.py:96-112 |
+| security_raid_{enabled,join_count,window_seconds,slowmode_seconds,lockdown_seconds} (5) | none | KEEP/ledgered (raid engine unported) | sb/manifest/security.py:24-38 |
+| security_age_{enabled,min_days,action} (3) | none | KEEP/ledgered (age-gate engine unported) | sb/manifest/security.py:40-49 |
+| security bindings raid_slowmode_channel / alert_channel (2) | none (read at status render only) | KEEP/ledgered | sb/manifest/security.py:50-56 |
+
+**Why KEEP and not the wire-or-prune fork:** wiring is non-trivial in
+every row (the consuming engines — image scan, raid detection, age gate
+— are unported bands, not missing one-line reads), and PRUNING breaks
+byte-pinned oracle surfaces: `goldens/image_moderation/sweep_imagemod` +
+`goldens/security/sweep_security` pin live renders OF THESE VALUES
+(captured from the shipped bot, whose engines were real — "flagged
+images are scanned via OpenAI" is the pinned footer), and the settings
+hub rosters render the declared sets. Imported goldens are never
+rewritten (parity/README.md integrity rule) and no existing disposition
+class covers roster-row removal — so per the parity discipline the prune
+branch PARKS with this analysis rather than minting a disposition class
+in a consumption slice. These knobs are also not fully inert: a change
+IS rendered back on the golden-pinned status cards; what is missing is
+enforcement, which arrives with the named engine ports. This matches
+§7's zero-PRUNE ruling.
+
+### VERDICT 009 — the 8 dead settings
+
+| setting | reader? | action | citation |
+|---|---|---|---|
+| ai.audit_log_channel (binding) | none | KEEP/parked — golden-pinned Bindings row (sweep_ai_settings pins the line); consumer = the AI audit-channel lane (unported). = AIP-06 | sb/domain/ai/settings_schema.py:110-116 |
+| btd6_strategy_submission_channel | none — **dead in OLD too** (V009's own OLD dead list) | KEEP — shipped-dead parity artifact ported verbatim; pruning it is an owner-ratifiable corpus change, not a consumption call | sb/manifest/btd6.py:37 |
+| cleanup_spam_window_seconds | none — alive in OLD (cleanup sweeps) | KEEP/parked — consumer = the cleanup spam-sweep engine, unported (`sb/domain/cleanup/` has no sweep) | sb/manifest/cleanup.py:55-58 |
+| deathmatch_turn_timeout | none | KEEP/parked — in-code ledger: "the live-adapter duel view enforces it"; time-driven behavior, outside headless capture | sb/domain/deathmatch/ops.py:9-11 |
+| moderation.public_log (binding) + its selector | none | KEEP/parked — in-code ledger: "server-management successor work"; already on THIS audit's FIX list (§ FIX list item 3) | sb/domain/server_logging/service.py:365-382 |
+| skip_roles | none — **dead in OLD too** ("legacy skip list") | KEEP — shipped-dead parity artifact | sb/manifest/role.py:137-140 |
+| welcome_card_enabled | none | KEEP/parked — consumer = the welcome-card image renderer, unported | sb/manifest/welcome.py:49-52 |
+| welcome_min_account_age_days | none | KEEP/parked — consumer = the A-14 screening lane ("A-14 screening input" is the declared hint), unported | sb/manifest/welcome.py:53-55 |
+
+### VERDICT 010 — settle-once architecture guard (approve, contract c): PARKED → BUILT
+
+Verified: no settle-once checker exists in `tools/` (22+ `check_*`
+scripts, none enforce the invariant), and the verdict's contract (c) —
+every money-moving op leg settles exactly once via {atomic consume ≥1
+escrow row} OR {atomic check-and-set on a settle-flag row}, warn-first,
+with explicit re-arm for multi-stage settlement — is a REAL CHECKER
+SLICE over the K7 op grammar (leg classification + re-arm vocabulary),
+not a small fix. **PARK with a named successor**: "settle-once checker
+slice (contract c, warn-first per Q-0105; reference implementation =
+the #133 `tournament_flag.clear_active()` fence; scope rule: enumerate
+EVERY money-moving root — the cogs/ drift is the failure mode)".
+Adjacent-but-different guard already live: `tools/check_money_race.py`
+(#221) covers the F-001/F-002 locking class and stays green. The
+superbot-side one-liner the verdict names (`check_consistency.py:1151`
+`roots += ("cogs/",)`) targets the READ-ONLY sibling — routed to the
+fleet manager via this record, not actionable here.
+
+**BUILD NOTE (the named successor, landed — D-0080, PR #298):**
+`tools/check_settle_once.py` ships the parked slice on the park's own
+terms — warn-first per Q-0105, the #133 `clear_active()` rowcount gate
+as the reference fence, and the scope rule honored by DERIVATION (a
+root = a money-fixpoint function carrying a literal `@workflow("…")`
+decorator; money functions reachable from no leg are their own WARN
+class, so the cogs/-drift failure mode reds as "undeclared money
+path" instead of silently escaping the roster). Measured at HEAD:
+`settle_once: 29 roots — RC:15 CAS:9 CW:3 allowlisted:1 known-risk:1
+warn:0` (post the in-PR codex tightening: CAS dominance requires the
+branch test to reference the name bound to the consume's result, so an
+unrelated interposed `if` cannot launder an ungated credit; rps+bj
+tournament_abort honestly reclassified CAS→RC) — the one allowlisted
+root is rps `_record_solo_play`
+(stateless single leg), the one ledgered KNOWN RISK is karma
+`_record_give` (unlocked cooldown/cap reads + unconditioned
+`credit_karma` upsert — loud on every run, never called safe). Four
+stale-row-is-RED ledgers (SETTLE_SITES / REARM_SITES / ALLOWLIST /
+KNOWN_RISKS), red-then-green tests over the pre-#133 and gc-refund
+defect shapes in `tests/unit/invariants/test_check_settle_once.py`,
+and the ci.yml checkers-loop word.
+
+### VERDICT 012 — doc-cite checker spec (approve): BUILT (this PR)
+
+`tools/check_doc_cites.py` ships the verdict's machine-readable winning
+spec verbatim — grammar g3-strict-guard with fence-skip, scope = every
+tracked `*.md` minus FOREIGN_ROOTS, exact-or-unique-suffix resolution
+(ambiguous passes), rule (a) missing-file RED with the
+`cite: absent-by-design` waiver token, rule (b) range>EOF WARN, rule (c)
+not shipped — plus the ci.yml checker-loop word and the per-class
+telemetry counts the verdict's guardrail asks for. Measured at HEAD:
+`checked=91 missing=0 boundary=0 skipped_foreign=4 ambiguous=0 waived=0`
+(the 4 foreign are disbot/views cites in fleet docs). One config
+extension, same class as the measured set: FOREIGN_ROOTS grew `sims/` +
+`harness/` (the sim-lab evidence tree this repo's review docs cite) —
+the verdict names FOREIGN_ROOTS as the file's one lane-maintained knob.
+
+### VERDICT 013 — oracle copy drift (reject the checker; apply the one-line fix): CONSUMED
+
+- The checker is correctly NOT built (the verdict's own ruling; its
+  winning-cell spec stays recorded in the sim-lab REPORT if the class
+  ever recurs at checker-funding size).
+- The one-line fix (`sb/domain/rps/tournament.py:153` period → "!") is
+  **in flight in sibling PR #269** ("fix(rps): tournament 'already
+  registered' refusal → oracle verbatim", opened this window with tests
+  + a local 412/412 gate run) — recorded here, deliberately not redone.
+- The two OPTIONAL same-class whitespace restores are applied in THIS
+  PR, oracle-verified by search_code fragment reconstruction:
+  `sb/manifest/economy.py` log_channel description and
+  `sb/manifest/xp.py` xp_cooldown hint back to the shipped two-space
+  sentence separation (`disbot/cogs/economy/schemas.py`,
+  `disbot/cogs/xp/schemas.py`). Neither string is pinned by any golden
+  or test; both moves are TOWARD the oracle.
+
+**Consumption score after this slice: 4/4 verdicts carry a written
+disposition** (V009 fixed/parked per item, V010 parked with successor,
+V012 built, V013 fixed via #269 + this PR) — the sim-lab review's
+"zero references" finding is closed by this section.
