@@ -181,6 +181,39 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "pair + battle-win game-xp (creature.record_battle_result)"
         ),
     ),
+    # ------------------------------------------------------------- casino
+    GoldenCase(
+        id="casino.poker_full_hand",
+        subsystem="casino",
+        steps=(
+            Step(kind="command", content="!poker", persona="admin"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),                          # Join
+            Step(kind="click", target_message=1, component_index=2,
+                 persona="admin"),                           # Start → deal
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # preflop SB call
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # BB check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # flop check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # flop check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # turn check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # turn check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="member"),                          # river check
+            Step(kind="click", target_message=2, component_index=1,
+                 persona="admin"),                           # river check → showdown
+        ),
+        notes=(
+            "minted (D-0073): a full headless Texas Hold'em hand — lobby → "
+            "seat → deal → check/call betting rounds → showdown, public "
+            "spectator embed pinned per action (per-player ephemeral hands "
+            "ride the owner-armed live step, D-0045)"),
+    ),
     # ------------------------------------------------------------ events
     GoldenCase(
         id="moderation.warn_flow",

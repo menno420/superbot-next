@@ -66,10 +66,17 @@ source:
   # event_outbox rows ride the same kernel-surface-drift drop as every
   # domain golden; the battle's own creature_battle_record + game_xp bytes
   # are pinned).
-  minted_goldens: 7
+  # D-0073 procedure re-run for the casino poker PLAY layer: one minted
+  # golden (goldens/casino/poker_full_hand.json) pins a full headless
+  # Texas Hold'em hand — lobby → seat → deal → check/call betting rounds →
+  # showdown — as the public spectator embed captured per action, with the
+  # kernel-spine surfaces STRIPPED (audit_log / event_outbox /
+  # command.dispatched); the per-player ephemeral hands stay the owner-armed
+  # live step (D-0045), so only the headless-shaped public surface is minted.
+  minted_goldens: 8
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 468). The first retirement (2026-07-12
+  # imported + minted − retired = 470). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
