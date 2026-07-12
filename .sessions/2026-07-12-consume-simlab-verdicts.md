@@ -55,6 +55,16 @@ recorded in the consumption section appended to
   AIP-02/03 changes in place (412/412 pre-merge run also green).
 - Full committed checker fleet green incl. the new `check_doc_cites`.
 
+## 💡 Session idea
+
+`check_doc_cites` proved its worth inside its own birth PR: the
+consumption section appended 79 new cite tokens and the checker
+validated every one before push (0 missing / 0 boundary). The same
+pattern generalizes — any verdict-consumption or audit slice should run
+the checker on its OWN new prose as a pre-commit habit, which argues
+for eventually giving `bootstrap check` a docs-cite hook rather than
+leaving it CI-only.
+
 ## ⟲ Previous-session review
 
 Verified the sim-lab review doc's §4 re-verification table against
