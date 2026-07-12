@@ -150,7 +150,9 @@ async def register_player(guild_id: int, user_id: int, *,
         return False, "Registration is not active."
     uid = int(user_id)
     if uid in state.players:
-        return False, "You're already registered."
+        # oracle copy verbatim — disbot/views/rps/registration.py Join button
+        # ephemeral reply (matches domain/games/wager.py AlreadyEnteredError)
+        return False, "You're already registered!"
     fee = int(state.entry_fee or 0)
     if fee > 0:
         from sb.domain.economy.store import get_coins
