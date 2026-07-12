@@ -232,3 +232,30 @@ def test_pending_handler_is_honest_blocked():
     reply = asyncio.run(resolve(ref)(None))
     assert reply.outcome == BLOCKED
     assert "not armed" in reply.user_message
+
+
+def test_ensure_hub_registers_the_operator_hub_registry():
+    """`ensure_hub` records the subsystem in the read-only registry the
+    Settings-hub group select duck-reads for read-only navigation."""
+    import importlib
+
+    from sb.domain.operator_spine import (
+        has_operator_hub,
+        operator_hub_subsystems,
+    )
+
+    # the real manifests ensure their read-only operator hubs at import
+    # (idempotent) — never a fake ensure_hub (which would register a panel
+    # id with a differing spec and corrupt the global registry).
+    for name in ("welcome", "counters", "security", "automod",
+                 "image_moderation"):
+        importlib.import_module(f"sb.manifest.{name}")
+        assert has_operator_hub(name)
+    assert {"welcome", "counters", "security", "automod",
+            "image_moderation"} <= operator_hub_subsystems()
+    # a subsystem that never ensured a hub is absent (the settings select
+    # falls back to the pending terminal for it).
+    assert not has_operator_hub("moderation")       # custom action hub
+    assert not has_operator_hub("never_declared")
+    # the snapshot is a frozenset (read-only accessor, no live mutation).
+    assert isinstance(operator_hub_subsystems(), frozenset)

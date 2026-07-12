@@ -36,9 +36,27 @@ from sb.spec.refs import (
 __all__ = [
     "Reply",
     "ensure_hub",
+    "has_operator_hub",
     "hub_spec",
+    "operator_hub_subsystems",
     "pending_handler",
 ]
+
+#: subsystems whose read-only operator hub has been ensured (populated by
+#: `ensure_hub` at manifest import). A read-only registry: the settings-hub
+#: group select duck-reads it to NAVIGATE to a group's read-only hub instead
+#: of the pending terminal — never a write path, never a mutation.
+_OPERATOR_HUBS: set[str] = set()
+
+
+def has_operator_hub(subsystem: str) -> bool:
+    """True iff `subsystem` has an ensured operator-spine read-only hub."""
+    return subsystem in _OPERATOR_HUBS
+
+
+def operator_hub_subsystems() -> frozenset[str]:
+    """The ensured operator-spine read-only hub subsystems (a snapshot)."""
+    return frozenset(_OPERATOR_HUBS)
 
 
 def _settings_provider_name(subsystem: str) -> str:
@@ -88,6 +106,7 @@ def hub_spec(subsystem: str, title: str, blurb: str) -> PanelSpec:
 
 def ensure_hub(subsystem: str, title: str, blurb: str) -> None:
     """Register the hub panel factory ref + the registry entry (idempotent)."""
+    _OPERATOR_HUBS.add(subsystem)
     _ensure_settings_provider(subsystem)
     ref = PanelRef(f"{subsystem}.hub")
     if not is_registered(ref):

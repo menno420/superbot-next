@@ -56,30 +56,56 @@ def _now(ctx: WorkflowContext) -> int:
 
 
 def _target_from(ctx: WorkflowContext) -> int:
-    """target_id param > modal `user` field > argv mention > the actor."""
+    """target_id param > modal `user` field > argv[0] (mention or bare
+    ID) > the actor.
+
+    POSITIONAL, argv[0] only — the shipped commands were
+    ``givexp(ctx, member: discord.Member, amount: int)`` /
+    ``resetxp(ctx, member: discord.Member)`` (disbot/cogs/xp_cog.py):
+    discord.py bound the FIRST arg to MemberConverter (ID → mention →
+    name), never a later token. Scanning all of argv for the first digit
+    token let a bare snowflake ID double as the AMOUNT (~1.2e17 XP);
+    argv[1] is the amount slot, argv[0] the member slot, full stop.
+
+    A non-digit argv[0] is the converter's name leg — a member-directory
+    read this world lacks (the same wall xp.rank_view documents), and the
+    shipped converter raised MemberNotFound which bot1.py's global
+    BadArgument arm rendered; we pin that copy verbatim rather than
+    silently falling back to the actor."""
+    from sb.kernel.interaction.errors import ValidatorError
+
     target = ctx.params.get("target_id") or ctx.params.get("user")
     if target is None:
         argv = tuple(ctx.params.get("argv", ()) or ())
-        for token in argv:
-            stripped = str(token).strip("<@!>")
+        if argv:
+            token = str(argv[0])
+            stripped = token.strip("<@!>")
             if stripped.isdigit():
                 target = stripped
-                break
+            else:
+                # bot1.py on_command_error BadArgument arm over
+                # commands.MemberNotFound, byte-for-byte.
+                raise ValidatorError(
+                    "member",
+                    f'⚠️ Bad argument: Member "{token}" not found.')
     if target is None:
         return _actor_id(ctx)
     return int(str(target).strip("<@!>"))
 
 
 def _amount_from(ctx: WorkflowContext) -> int:
+    """amount param > argv[1] (the shipped positional amount slot).
+
+    NEVER a scan: the first digit token of argv is the member slot when
+    the target came as a bare ID — grabbing it here was the ~1.2e17-XP
+    misparse (`!givexp <bare_user_id> <amount>`)."""
     from sb.kernel.interaction.errors import ValidatorError
 
     raw = ctx.params.get("amount")
     if raw is None:
         argv = tuple(ctx.params.get("argv", ()) or ())
-        for token in argv:
-            if str(token).lstrip("-").isdigit():
-                raw = token
-                break
+        if len(argv) >= 2:
+            raw = argv[1]
     try:
         amount = int(str(raw).strip())
     except (TypeError, ValueError):
