@@ -142,7 +142,11 @@ async def routing_matrix_pick(req) -> Reply | None:
         guild_id=int(req.guild_id),
         channel_id=int(_picked(req) or 0),
         user_id=int(getattr(req.actor, "user_id", 0) or 0))
-    await _open_page(req, "ai.card", {"_card": embed})
+    from sb.domain.ai.service import card_panel_id
+
+    # the preview pick is COMPONENT ingress -> the card carries the
+    # family "AI home" back-route (VERDICT 009 AIP-02 consumption).
+    await _open_page(req, card_panel_id(req), {"_card": embed})
     return None
 
 

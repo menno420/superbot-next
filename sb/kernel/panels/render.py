@@ -278,19 +278,28 @@ async def _provider_rows(ref, ctx: PanelContext):
         return None
 
 
-async def _render_body(spec: PanelSpec, ctx: PanelContext, resolver):
-    """→ (description, fields) from the typed content blocks."""
+async def _render_body(spec: PanelSpec, ctx: PanelContext, resolver, browse=None):
+    """→ (description, fields, browse_page_count).
+
+    ``browse`` is None on the default (static) render — every code path below
+    is then byte-identical to the pre-engine render. When a ``BrowseState`` is
+    supplied, the List/Table block it names (``browse.block``) is filtered +
+    sorted + paged through the shared BrowserView engine and its page_count is
+    returned so ``render_panel`` can arm the browse controls; every other
+    block still renders statically."""
     loc = ctx.locale
     desc_parts: list[str] = []
     fields: list[tuple[str, str]] = []
     budget = min(spec.frame.field_budget_chars, FIELD_VALUE_LIMIT)
     max_fields = min(spec.frame.max_fields, MAX_EMBED_FIELDS)
+    browse_page_count = 1
 
     def add_field(name: str, value: str) -> None:
         if len(fields) < max_fields:
             fields.append((_clamp(name, FIELD_NAME_LIMIT), _clamp(value or "​", budget)))
 
-    for block in spec.body:
+    for block_idx, block in enumerate(spec.body):
+        armed = browse is not None and block_idx == browse.block
         if isinstance(block, TextBlock):
             desc_parts.append(resolver.resolve(block.text, locale=loc))
         elif isinstance(block, FieldsBlock):
@@ -300,17 +309,30 @@ async def _render_body(spec: PanelSpec, ctx: PanelContext, resolver):
         elif isinstance(block, TableBlock):
             rows = await _provider_rows(block.provider, ctx)
             t = block.table
+            if armed:
+                from sb.kernel.panels import browserview
+
+                page_rows, browse_page_count, _ = browserview.browse_page(
+                    rows or (), t, browse)
+                rows = page_rows
             if not rows:
                 desc_parts.append(resolver.resolve(t.empty_state, locale=loc))
             else:
                 header = " | ".join(resolver.resolve(c.label, locale=loc) for c in t.columns)
                 lines = [header]
-                for row in list(rows)[: t.page_size]:
+                slice_rows = rows if armed else list(rows)[: t.page_size]
+                for row in slice_rows:
                     lines.append(" | ".join(str(row.get(c.key, "")) for c in t.columns))
                 desc_parts.append(_clamp("\n".join(lines), budget))
         elif isinstance(block, ListBlock):
             items = await _provider_rows(block.provider, ctx)
             ls = block.list_spec
+            if armed:
+                from sb.kernel.panels import browserview
+
+                page_items, browse_page_count, _ = browserview.browse_page(
+                    items or (), ls, browse)
+                items = page_items
             if not items:
                 desc_parts.append(resolver.resolve(ls.empty_state, locale=loc))
             else:
@@ -321,11 +343,12 @@ async def _render_body(spec: PanelSpec, ctx: PanelContext, resolver):
                         item_renderer = resolve_ref(ls.item_render_ref)
                     except RefUnresolved:
                         item_renderer = None
-                for item in list(items)[: ls.page_size]:
+                slice_items = items if armed else list(items)[: ls.page_size]
+                for item in slice_items:
                     rendered_items.append(
                         str(item_renderer(item)) if item_renderer else f"• {item}")
                 desc_parts.append(_clamp("\n".join(rendered_items), budget))
-    return "\n\n".join(p for p in desc_parts if p), tuple(fields)
+    return "\n\n".join(p for p in desc_parts if p), tuple(fields), browse_page_count
 
 
 def _footer(spec: PanelSpec) -> str:
@@ -367,13 +390,22 @@ async def _visible(component_spec, ctx: PanelContext) -> bool:
 
 
 async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
-                       subsystem_hub: str | None = None) -> RenderedPanel:
+                       subsystem_hub: str | None = None,
+                       browse=None) -> RenderedPanel:
     """The render entry. ``subsystem_hub`` overrides the installed hub
-    resolver (tests / pre-resolved callers)."""
+    resolver (tests / pre-resolved callers).
+
+    ``browse`` (a ``browserview.BrowseState``) arms the shared BrowserView
+    engine for the block it names: the block is filtered/sorted/paged and the
+    interactive sort/filter/page controls are injected outside the layout
+    search space (like the page-turn nav). ``browse=None`` is the default,
+    static render — its output is byte-identical to the pre-engine renderer,
+    so no surface's default rendering changes until it opts in."""
     resolver = active_copy_resolver()
     loc = ctx.locale
 
-    description, fields = await _render_body(spec, ctx, resolver)
+    description, fields, browse_page_count = await _render_body(
+        spec, ctx, resolver, browse)
     embed = _clamp_embed(
         spec.frame, resolver.resolve(spec.title, locale=loc), description, fields,
         resolver.resolve(_footer(spec), locale=loc))
@@ -455,6 +487,19 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                     kind="button", custom_id=custom_id,
                     label=resolver.resolve(cspec.label, locale=loc), row=row_idx,
                     style=cspec.style.value, emoji=cspec.emoji))
+
+    # engine-injected BrowserView controls (§2.3; D-0034) — the sort/filter/
+    # page controls for the browse block, outside the layout search space.
+    # Armed only when a BrowseState is supplied; the default render never
+    # reaches here (browse is None), so no surface's static rendering changes.
+    if browse is not None:
+        from sb.kernel.panels import browserview
+
+        block_spec = browserview.browse_block_spec(spec, browse.block)
+        if block_spec is not None:
+            components.extend(browserview.browse_controls(
+                block_spec, browse, browse_page_count,
+                resolver=resolver, locale=loc))
 
     # engine-injected page-turn controls (outside the searchable space).
     if page_count > 1:

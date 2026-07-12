@@ -137,6 +137,67 @@ def test_disburse_credits_target_with_manager_attribution(monkeypatch):
     assert fake.audit == [(900000000000000103, 42, 400, "treasury:disburse")]
 
 
+def test_disburse_argv_parse_is_positional(monkeypatch):
+    """`!treasury grant <member> <amount>` — argv[0] is the member slot,
+    argv[1] the amount (the shipped MemberConverter/int positional
+    binding: treasury_cog.py `grant(ctx, member, amount)`)."""
+    from sb.domain.treasury import ops
+
+    snowflake = 900000000000000103
+
+    # bare ID + amount (the golden-unpinned defect lane)
+    fake = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+    out = asyncio.run(ops._record_disburse(
+        None, _ctx({"argv": (str(snowflake), "400")})))
+    assert out.after == {"treasury": 600, "user": 400, "amount": 400}
+    assert fake.audit == [(snowflake, 42, 400, "treasury:disburse")]
+
+    # nickname-mention form <@!id>
+    fake2 = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+    out2 = asyncio.run(ops._record_disburse(
+        None, _ctx({"argv": (f"<@!{snowflake}>", "250")})))
+    assert out2.after["amount"] == 250
+    assert fake2.audit == [(snowflake, 42, 250, "treasury:disburse")]
+
+
+def test_disburse_bare_id_never_becomes_the_amount(monkeypatch):
+    """REGRESSION: the first-digit-token scan bound the snowflake ITSELF
+    as the amount on `!treasury grant <bare_id> <amt>` — the pool-balance
+    check then refused ~9e17 coins (loud, but the wrong parse)."""
+    from sb.domain.treasury import ops
+
+    snowflake = 900000000000000103
+    fake = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+    out = asyncio.run(ops._record_disburse(
+        None, _ctx({"argv": (str(snowflake), "5")})))
+    assert out.after["amount"] == 5            # not 900000000000000103
+    assert fake.pool == 995
+    assert fake.audit == [(snowflake, 42, 5, "treasury:disburse")]
+
+
+def test_disburse_argv_failure_copy(monkeypatch):
+    from sb.domain.treasury import ops
+    from sb.kernel.interaction.errors import ValidatorError
+
+    fake = FakeMoney(coins=0, pool=1000).install(monkeypatch)
+
+    # unknown-member name leg: the shipped MemberConverter raised
+    # MemberNotFound and bot1.py's global BadArgument arm sent this copy
+    # (treasury_cog has no local error handler).
+    with pytest.raises(ValidatorError) as exc:
+        asyncio.run(ops._record_disburse(
+            None, _ctx({"argv": ("somename", "5")})))
+    assert exc.value.user_copy == '⚠️ Bad argument: Member "somename" not found.'
+
+    # member-only (one arg): no amount slot at argv[1] — the amount copy,
+    # and the lone snowflake must NOT be double-read as the amount
+    with pytest.raises(ValidatorError) as exc2:
+        asyncio.run(ops._record_disburse(
+            None, _ctx({"argv": ("<@900000000000000103>",)})))
+    assert exc2.value.user_copy == "➕ Give a number of coins."
+    assert fake.pool == 1000 and not fake.audit
+
+
 # --- op registration ------------------------------------------------------------------
 
 def test_treasury_ops_registered_with_shipped_authority():
@@ -228,6 +289,48 @@ def test_inventory_pure_helpers_are_shipped_orders():
     assert [i for i, _, _ in by_qty][:2] == ["stone", "diamond"]
     tiers = group_by_rarity(items)
     assert [t for t, _ in tiers] == ["Epic", "Rare", "Common", "Unknown"]
+
+
+def test_inventory_row_carries_the_declared_browse_algebra():
+    # the row the detail provider emits must carry EXACTLY the sort/filter
+    # keys the ListSpec declares — name (key), quantity (int), rarity (the
+    # RARITY_ORDER RANK so ascending is rarest-first), type (filter), plus the
+    # pre-rendered display line the item_render_ref emits.
+    from sb.domain.economy.catalogue import RARITY_ORDER
+    from sb.domain.inventory.service import inventory_row
+
+    row = inventory_row("diamond_axe", 4, {"rarity": "Epic", "type": "Tool",
+                                           "emoji": "🪓"})
+    assert row["name"] == "diamond_axe"
+    assert row["quantity"] == 4
+    assert row["rarity"] == RARITY_ORDER["Epic"]      # rank, not the string
+    assert row["type"] == "Tool"
+    assert row["_line"].endswith("`Epic`")            # rarity tag appended
+    assert "Diamond Axe" in row["_line"] and "× 4" in row["_line"]
+    # an unknown rarity ranks last (99), never a crash.
+    assert inventory_row("mystery", 1, {})["rarity"] == 99
+
+
+def test_detail_provider_emits_browse_rows_sorted_by_key(monkeypatch):
+    # the converted detail provider yields ROWS (not pre-rendered strings),
+    # pre-sorted by item key so the engine's stable sort breaks ties alpha.
+    import sb.domain.economy.store as econ
+    from sb.domain.inventory import panels, service
+
+    service.reset_inventory_ports_for_tests()
+
+    async def fake_inv(user_id, guild_id, conn=None):
+        return {"axe": 1, "iron pickaxe": 3, "toolkit": 5}
+
+    monkeypatch.setattr(econ, "get_inventory", fake_inv)
+    provider = panels._ensure_detail_provider("Tools")
+    from sb.spec.refs import resolve as resolve_ref
+
+    rows = asyncio.run(resolve_ref(provider)(SimpleNamespace(guild_id=1, actor=SimpleNamespace(user_id=42))))
+    service.reset_inventory_ports_for_tests()
+    assert all(isinstance(r, dict) and "_line" in r for r in rows)
+    # pre-sorted alpha by key (the tie-break the engine's stable sort inherits)
+    assert [r["name"] for r in rows] == ["axe", "iron pickaxe", "toolkit"]
 
 
 def test_manifests_validate():

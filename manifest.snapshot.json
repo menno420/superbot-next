@@ -5677,6 +5677,11 @@
         {
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
+          "value": "ai.card_nav"
+        },
+        {
+          "source": "sb/manifest/ai.py",
+          "subsystem": "ai",
           "value": "ai.policy_chooser"
         },
         {
@@ -7967,6 +7972,9 @@
       "handler:ai.render_card": {
         "module": "sb.domain.ai.panels"
       },
+      "handler:ai.render_card_nav": {
+        "module": "sb.domain.ai.panels"
+      },
       "handler:ai.render_chooser": {
         "module": "sb.domain.ai.panels"
       },
@@ -9756,6 +9764,9 @@
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.card": {
+        "module": "sb.domain.ai.panels"
+      },
+      "panel:ai.card_nav": {
         "module": "sb.domain.ai.panels"
       },
       "panel:ai.hub": {
@@ -12143,7 +12154,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:28c16177ef9b760ee913c3dc59d949491e79aa9d73d3381d5a52d7010c98d89a",
+  "stable_hash": "sha256:c36880429fa895c2406cfa5dcb2965050521f6f9309a0f0577723c3b8f227c26",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -14309,6 +14320,52 @@
           "usage_weight": 1.0
         },
         {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the same live-state-parameterized operator embeds as ai.card (built by sb/domain/ai/operator_cards.py / the preview picks), presented on the COMPONENT ingress where the shipped bot kept the panel view attached (views/ai/panel.py edit_message(view=self)) — the engine's card page carries the family's ↩ AI home route instead (ENGINE-SHAPE deviation, ledgered: VERDICT 009 AIP-02 consumption). The override swaps ONLY the embed/attachments onto the grammar render (which owns the nav row); no golden pins these clicks.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ AI home",
+                "route": {
+                  "$ref": "panel:ai.hub"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "ai.card_nav",
+          "renderer_override": {
+            "$ref": "handler:ai.render_card_nav"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "ai",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
           "actions": [
             {
               "action_id": "policy_channel",
@@ -15137,7 +15194,7 @@
             "style_token": "",
             "thumbnail_ref": ""
           },
-          "justification": "the shipped enum widget prompt + placeholder carry the picked setting's name ('Pick a new value for `ai.<name>`:' / 'Pick a new value for <name>…' — views/settings/subsystem_view.py dispatch_edit_setting + edit_enum.build_enum_select_view) — per-open copy outside the static grammar. The override delegates to the grammar renderer and replaces ONLY the description and the select placeholder.",
+          "justification": "the shipped enum widget prompt + placeholder carry the picked setting's name ('Pick a new value for `<name>`:' / 'Pick a new value for <name>…' — views/settings/subsystem_view.py dispatch_edit_setting + edit_enum.build_enum_select_view) — per-open copy outside the static grammar. The override delegates to the grammar renderer and replaces ONLY the description and the select placeholder.",
           "layout": {
             "pages": [
               {
@@ -29010,7 +29067,7 @@
         {
           "audit_intent": "economy_log_channel",
           "binding_name": "log_channel",
-          "description": "Operator-facing audit channel for economy mutations. Recommended for any guild that runs the economy actively.",
+          "description": "Operator-facing audit channel for economy mutations.  Recommended for any guild that runs the economy actively.",
           "intent": "log_channel",
           "kind": "channel",
           "offer_on_enable": true,
@@ -36452,10 +36509,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36513,10 +36570,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36575,10 +36632,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36636,10 +36693,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36697,10 +36754,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36758,10 +36815,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36817,10 +36874,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -50784,7 +50841,7 @@
           "edit_weight": 1.0,
           "external_side_effects": false,
           "group": "",
-          "hint": "Seconds between XP awards per user. Zero disables the cooldown (not recommended in active guilds).",
+          "hint": "Seconds between XP awards per user.  Zero disables the cooldown (not recommended in active guilds).",
           "input_hint": "numeric_presets",
           "keyed_secret": "",
           "legacy_keys": [],
