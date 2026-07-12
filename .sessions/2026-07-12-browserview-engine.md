@@ -1,6 +1,6 @@
 # 2026-07-12 — the shared BrowserView engine (flag 41 / D-0034, slice 1)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Opus 4.8 · high · feature build (flag 41 / D-0034)
 
