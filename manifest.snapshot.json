@@ -5919,6 +5919,11 @@
         {
           "source": "sb/manifest/creature.py",
           "subsystem": "creature",
+          "value": "creature.dex"
+        },
+        {
+          "source": "sb/manifest/creature.py",
+          "subsystem": "creature",
           "value": "creature.collectors_card"
         },
         {
@@ -8548,6 +8553,9 @@
       "handler:creature.render_dex": {
         "module": "sb.domain.creature.panels"
       },
+      "handler:creature.render_dex_line": {
+        "module": "sb.domain.creature.panels"
+      },
       "handler:creature.render_hub": {
         "module": "sb.domain.creature.panels"
       },
@@ -9880,6 +9888,9 @@
       "panel:creature.collectors_card": {
         "module": "sb.domain.creature.panels"
       },
+      "panel:creature.dex": {
+        "module": "sb.domain.creature.panels"
+      },
       "panel:creature.dex_card": {
         "module": "sb.domain.creature.panels"
       },
@@ -10401,6 +10412,9 @@
       },
       "provider:counting.enable_mode_options": {
         "module": "sb.domain.counting.panels"
+      },
+      "provider:creature.dex_rows": {
+        "module": "sb.domain.creature.panels"
       },
       "provider:diagnostic.automation_rule_options": {
         "module": "sb.domain.diagnostic.panels"
@@ -12112,7 +12126,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:34a845deaaa3bf4ec4014c248d8c66a0d8b1cb0c39747b23ad84b03f931b2b6c",
+  "stable_hash": "sha256:f80be815256e55502ec0eeb6fec6809953edbfb69b5fa8a923448475230e6c39",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -24819,7 +24833,7 @@
               "emoji": "📖",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:creature.dex_view"
+                "$ref": "panel:creature.dex"
               },
               "label": "Dex",
               "modal": null,
@@ -24999,6 +25013,68 @@
           "subsystem": "creature",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "list_spec": {
+                "default_sort": "",
+                "empty_state": "No creatures in the dex yet.",
+                "filter_options": [
+                  "Ember",
+                  "Stone",
+                  "Gust",
+                  "Tide",
+                  "Spark",
+                  "Bramble"
+                ],
+                "item_render_ref": {
+                  "$ref": "handler:creature.render_dex_line"
+                },
+                "max_pages": 10,
+                "page_size": 18,
+                "sort_options": []
+              },
+              "provider": {
+                "$ref": "provider:creature.dex_rows"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:creature.hub"
+            },
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "creature.dex",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "creature",
+          "timeout_s": 180,
+          "title": "🐾 Creature Dex",
           "usage_weight": 1.0
         },
         {

@@ -69,18 +69,29 @@ from sb.spec.panels import (
     EmbedFrameSpec,
     FooterMode,
     LayoutSpec,
+    ListBlock,
+    ListSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
     PanelSpec,
     TextBlock,
 )
-from sb.spec.refs import HandlerRef, handler, is_registered, panel
+from sb.spec.refs import (
+    HandlerRef,
+    PanelRef,
+    ProviderRef,
+    handler,
+    is_registered,
+    panel,
+    provider,
+)
 
 __all__ = [
     "BATTLETOP_PANEL_ID",
     "CHALLENGE_PANEL_ID",
     "COLLECTORS_PANEL_ID",
+    "DEX_BROWSE_PANEL_ID",
     "DEX_CARD_PANEL_ID",
     "HUB_PANEL_ID",
     "RECORD_PANEL_ID",
@@ -89,7 +100,10 @@ __all__ = [
     "challenge_spec",
     "collectors_card_spec",
     "creature_hub_spec",
+    "dex_browse_spec",
     "dex_card_spec",
+    "dex_line",
+    "dex_row",
     "ensure_panel_refs",
     "install_creature_panels",
     "record_card_spec",
@@ -98,6 +112,7 @@ __all__ = [
 
 HUB_PANEL_ID = "creature.hub"
 DEX_CARD_PANEL_ID = "creature.dex_card"
+DEX_BROWSE_PANEL_ID = "creature.dex"
 COLLECTORS_PANEL_ID = "creature.collectors_card"
 RECORD_PANEL_ID = "creature.record_card"
 BATTLETOP_PANEL_ID = "creature.battletop_card"
@@ -215,7 +230,18 @@ def creature_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="creature_dex", label="Dex", emoji="📖",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("creature.dex_view")),
+                # the shipped hub Dex button opened the INTERACTIVE
+                # CreatureDexView (disbot/views/creature/menu.py — the
+                # element-filter select + Back), not the static `!dex`
+                # card: it routes to the declarative browse panel
+                # (creature.dex) so the inherited auto-arm hook arms its
+                # element filter. The `!dex` COMMAND stays the static
+                # grouped card (creature.dex_view → creature.dex_card;
+                # goldens/creature/sweep_dex — the oracle `!dex` sent an
+                # embed with NO view). Repointing the target never touches
+                # the hub's rendered bytes (goldens/creature/sweep_creatures
+                # pins the button label/emoji/style, not its route).
+                handler=PanelRef(DEX_BROWSE_PANEL_ID)),
             PanelActionSpec(
                 action_id="creature_challenge", label="Challenge",
                 emoji="⚔️", style=ActionStyle.PRIMARY,
@@ -339,6 +365,157 @@ def dex_card_spec() -> PanelSpec:
         "literal) — outside the static grammar vocabulary; zero "
         "components, the renderer only composes the embed "
         "(goldens/creature/sweep_dex pins the empty-state bytes).")
+
+
+#: the browse-row provider + per-row line renderer for the interactive dex.
+_DEX_ROWS_PROVIDER = "creature.dex_rows"
+_DEX_LINE_RENDERER = "creature.render_dex_line"
+
+
+def _dex_elements() -> tuple[str, ...]:
+    """The element FILTER set — derived EXACTLY as the oracle's own
+    ``ELEMENTS`` (disbot/views/creature/embeds.py:
+    ``ELEMENTS = tuple(dict.fromkeys(c.element for c in CREATURES))``):
+    first-appearance element order over the catalog. The shipped
+    ``_ElementFilterSelect`` (disbot/views/creature/menu.py) built one
+    option per element in exactly this order (the golden's dex FIELD order
+    — Ember, Stone, Gust, Tide, Spark, Bramble — is this same
+    ``dict.fromkeys`` fold, so filter parity rides the sweep_dex pin).
+    NOT invented — the oracle's filter options, verbatim."""
+    from sb.domain.creature import catalog
+
+    return tuple(dict.fromkeys(c.element for c in catalog.CREATURES))
+
+
+def dex_line(creature, count: int | None) -> str:
+    """One dex row's display line — disbot/views/creature/embeds.py
+    ``build_dex_embed`` per-creature line, verbatim: the caught count
+    (``{emoji} **{name}** ×{n}``) or the ``*not yet caught*`` italic."""
+    if count:
+        return f"{creature.emoji} **{creature.name}** ×{count}"
+    return f"{creature.emoji} {creature.name} — *not yet caught*"
+
+
+def dex_row(creature, count: int | None) -> dict:
+    """One creature as a BROWSE ROW for the shared BrowserView engine
+    (§2.3; D-0034). Carries exactly the keys the dex ListSpec names:
+
+      * ``element`` — the declared ``filter_options`` value the engine's
+        default filter matches (the oracle's element-select value);
+      * ``_line`` — the pre-rendered display line the ``item_render_ref``
+        emits (``dex_line`` — the shipped per-creature dex line).
+
+    NO sort key: the shipped dex declares NO sort (only the element
+    filter — disbot/views/creature/menu.py CreatureDexView has one select
+    and a Back button, no sort control, no pagination), so none is
+    invented. The engine sorts each block with its DEFAULT field accessor;
+    with empty ``sort_options`` the order is the provider's emission order
+    (the catalog's rarity-then-name fold — the golden's within-element
+    order)."""
+    return {"element": creature.element, "_line": dex_line(creature, count)}
+
+
+def _ensure_dex_line_renderer() -> HandlerRef:
+    ref = HandlerRef(_DEX_LINE_RENDERER)
+    if not is_registered(ref):
+        @handler(_DEX_LINE_RENDERER)
+        def render_dex_line(item: object) -> str:
+            # the dex provider emits browse ROWS (dex_row) — the engine
+            # filters/paginates them and renders each through THIS ref; the
+            # shipped display line rides on the row's ``_line`` key. A bare
+            # string (a pre-engine caller) still renders verbatim.
+            if isinstance(item, dict):
+                return str(item.get("_line", ""))
+            return str(item)
+    return ref
+
+
+def _ensure_dex_rows_provider() -> ProviderRef:
+    ref = ProviderRef(_DEX_ROWS_PROVIDER)
+    if not is_registered(ref):
+        @provider(_DEX_ROWS_PROVIDER)
+        async def dex_rows(ctx: object):
+            from sb.domain.creature import catalog, store
+
+            uid = int(getattr(getattr(ctx, "actor", None), "user_id", 0)
+                      or 0)
+            gid = int(getattr(ctx, "guild_id", 0) or 0)
+            log = await store.get_collection(uid, gid)
+            # one row per catalog creature, GROUPED BY ELEMENT (the shipped
+            # build_dex_embed fold — six per-element fields; the flat browse
+            # list mirrors that field GROUPING order), within each element in
+            # catalog order (rarity-then-name — the golden's within-element
+            # order). Filtering to an element yields exactly that element's
+            # six in the same order, so the filtered view is oracle-faithful.
+            elements = tuple(dict.fromkeys(c.element
+                                           for c in catalog.CREATURES))
+            by_element: dict[str, list] = {e: [] for e in elements}
+            for creature in catalog.CREATURES:
+                by_element[creature.element].append(creature)
+            ordered = [c for element in elements for c in by_element[element]]
+            return tuple(dex_row(c, log.get(c.name)) for c in ordered)
+    return ref
+
+
+def dex_browse_spec() -> PanelSpec:
+    """The INTERACTIVE dex — the shipped CreatureDexView
+    (disbot/views/creature/menu.py: the ``_ElementFilterSelect`` element
+    filter + a Back button, over the shipped ``build_dex_embed`` rows)
+    made declarative: a ``ListBlock`` over the creature rows whose
+    ``ListSpec`` DECLARES the oracle's element ``filter_options`` (NO
+    sort, NO pagination — the shipped view had neither), armed live by the
+    inherited BrowserView auto-arm hook (default_browse_state) on open.
+
+    Opened by the hub Dex button (the shipped interactive-view affordance);
+    the ``!dex`` COMMAND keeps the static grouped card (creature.dex_card).
+    Faithful DATA (the per-creature lines, the element filter set, the
+    within-element order); the control CHROME (a select + a one-page
+    indicator vs the shipped select + Back) is the slice-1 engine's generic
+    presentation — an owner hand-pass, not a data change (the inventory
+    detail precedent)."""
+    from sb.domain.creature import catalog
+
+    # the shipped dex rendered all creatures as SIX separate per-element
+    # embed FIELDS (each within Discord's 1024-char field budget); the
+    # generic engine renders a list as ONE description under that SAME
+    # 1024 budget, so the flat all-view MUST page to hold every creature
+    # without truncation (36 lines overflow one description). page_size 18
+    # keeps the rows element-aligned (three of the six elements per page —
+    # the emission is element-grouped), every page well within budget, and
+    # every single-element filter (six creatures) on ONE page. The paging
+    # is a forced consequence of the engine's flat-list budget, not an
+    # invented control — an owner presentation hand-pass (the inventory
+    # detail precedent); the genuine shipped interaction is the element
+    # FILTER, armed verbatim.
+    _PER_PAGE = 18
+    page_size = max(min(_PER_PAGE, len(catalog.CREATURES)), 1)
+    return PanelSpec(
+        panel_id=DEX_BROWSE_PANEL_ID,
+        subsystem="creature",
+        title="🐾 Creature Dex",
+        audience=Audience.INVOKER,
+        # CREATURE_COLOR green, matching the shipped dex embed accent.
+        frame=EmbedFrameSpec(style_token="green",
+                             footer_mode=FooterMode.SUBSYSTEM),
+        body=(
+            ListBlock(
+                list_spec=ListSpec(
+                    item_render_ref=_ensure_dex_line_renderer(),
+                    page_size=page_size,
+                    empty_state="No creatures in the dex yet.",
+                    sort_options=(),
+                    filter_options=_dex_elements(),
+                    default_sort=""),
+                provider=_ensure_dex_rows_provider()),
+        ),
+        # the shipped CreatureDexView carried a Back button to the menu.
+        navigation=NavigationSpec(parent=PanelRef(HUB_PANEL_ID)),
+        # a timeout, invoker-locked view like every sibling creature panel
+        # (never anchored — the shipped views were not in panel_anchors);
+        # the engine-injected browse ids ride the nav family, unminted, so
+        # the browse round-trip is unaffected by the session lifecycle.
+        session_lifecycle=True,
+    )
 
 
 def collectors_card_spec() -> PanelSpec:
@@ -605,6 +782,11 @@ def _dex_factory() -> PanelSpec:
     return dex_card_spec()
 
 
+@panel(DEX_BROWSE_PANEL_ID)
+def _dex_browse_factory() -> PanelSpec:
+    return dex_browse_spec()
+
+
 @panel(COLLECTORS_PANEL_ID)
 def _collectors_factory() -> PanelSpec:
     return collectors_card_spec()
@@ -631,7 +813,7 @@ def _rules_factory() -> PanelSpec:
 
 
 _ALL_SPECS = (
-    creature_hub_spec, dex_card_spec, collectors_card_spec,
+    creature_hub_spec, dex_card_spec, dex_browse_spec, collectors_card_spec,
     record_card_spec, battletop_card_spec, challenge_spec,
     rules_card_spec,
 )
@@ -639,6 +821,7 @@ _ALL_SPECS = (
 _FACTORIES = (
     (HUB_PANEL_ID, _hub_factory),
     (DEX_CARD_PANEL_ID, _dex_factory),
+    (DEX_BROWSE_PANEL_ID, _dex_browse_factory),
     (COLLECTORS_PANEL_ID, _collectors_factory),
     (RECORD_PANEL_ID, _record_factory),
     (BATTLETOP_PANEL_ID, _battletop_factory),
@@ -677,12 +860,17 @@ def _register_renders() -> None:
 
 
 def ensure_panel_refs() -> None:
-    from sb.spec.refs import PanelRef, panel as _panel
+    from sb.spec.refs import PanelRef as _PanelRef, panel as _panel
 
     _register_renders()
     _register_pending()
+    # the dex browse surface's provider + per-row line renderer (idempotent;
+    # dex_browse_spec() registers them too, but ensure the seam without a
+    # spec build — the inventory-detail precedent).
+    _ensure_dex_line_renderer()
+    _ensure_dex_rows_provider()
     for panel_id, factory in _FACTORIES:
-        if not is_registered(PanelRef(panel_id)):
+        if not is_registered(_PanelRef(panel_id)):
             _panel(panel_id)(factory)
 
 
