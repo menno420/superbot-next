@@ -182,7 +182,17 @@ def _rbe_at_round(
     the oracle passes its ``BTD6DataSet`` here — ours is the parsed
     ``FreeplayScaling``, same fields read). Bottoms out at Ceramic
     (→ Super Ceramic) and at any non-MOAB-class bloon (stored base RBE),
-    so a MOAB-class tree always terminates."""
+    so a MOAB-class tree always terminates.
+
+    Oracle quirks carried, NOT improved (codex #225 triage, all declined
+    with fragment citations): a non-MOAB-class parent returns its STORED
+    base RBE without recursing — its ceramic children never take the
+    superceramic swap (e.g. diamond @81 = 194, pinned; the fixture's own
+    prose scopes the recompute to "{MOAB-class bodies × v(r)} + {ceramic
+    leaves → superceramic}"); there is no visited-set/depth guard and
+    ``int(child["count"])`` is unvalidated — the committed, provenance-
+    pinned data is cycle-free and well-typed, and malformed rows fail
+    LOUDLY rather than silently renumbering (oracle posture)."""
     bloon = dataset.get_bloon(bloon_id)
     if bloon is None:
         return None

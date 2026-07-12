@@ -112,6 +112,20 @@ def test_walk_unknown_bloon_is_none():
     assert freeplay.bloon_rbe_at_round("nope", 100) is None
 
 
+def test_non_moab_parent_keeps_stored_rbe_no_child_swap():
+    # Oracle quirk PINNED (codex #225 finding 2, declined with citation):
+    # a non-MOAB-class parent returns its stored base RBE WITHOUT
+    # recursing, so its ceramic child never takes the superceramic swap —
+    # the oracle's own fixture prose scopes the recompute to MOAB-class
+    # trees ("{MOAB-class bodies x v(r)} + {ceramic leaves ->
+    # superceramic}"). diamond (special, 1× fortified ceramic child)
+    # stays at its stored 194 on freeplay rounds, never 66 + 128 = 194→208.
+    diamond = dataset.get_bloon("diamond")
+    assert diamond is not None and diamond.category == "special"
+    assert freeplay.bloon_rbe_at_round("diamond", 81) == 194
+    assert freeplay.bloon_rbe_at_round("diamond", 140) == 194
+
+
 def test_methodology_proof_group_sum_reconstructs_stored_rbe_below_81():
     # the oracle test_btd6_round_rbe.py proof: with no freeplay scaling
     # (rounds ≤ 80), summing each group's count × bloon_rbe_at_round must
@@ -166,6 +180,23 @@ def test_round_rbe_unscaled_range_effective_equals_base():
     res = oracle_cards.round_rbe(1, 3)
     assert res["scaled"] is False
     assert res["effective_rbe_total"] == res["base_rbe_total"] == 90
+
+
+def test_round_rbe_capped_any_scaled_quirk_pinned():
+    # Oracle quirk PINNED (codex #225 finding 1, declined with citation):
+    # ``any_scaled`` iterates the CAPPED per_round rows (the oracle builds
+    # per_round from ``in_range[:_ROUND_DETAIL_CAP]`` and its any() runs
+    # ``for row in per_round``), so a range starting ≥ 40 rounds before
+    # the freeplay band reports scaled=False even though the FULL-range
+    # effective total (computed over all of in_range, all-or-None)
+    # diverges — the render then shows the base total with no scaling
+    # note, exactly as the oracle's card does for the same input.
+    res = oracle_cards.round_rbe(1, 100)
+    assert res["truncated"] is True
+    assert len(res["per_round"]) == 40           # rows 1–40, all unscaled
+    assert res["scaled"] is False                # the capped-any quirk
+    assert res["base_rbe_total"] == 1974355
+    assert res["effective_rbe_total"] == 2050213  # full-range, diverging
 
 
 # --- the card renders ---------------------------------------------------------------
