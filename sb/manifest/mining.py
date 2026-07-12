@@ -19,6 +19,7 @@ from sb.domain.mining.store import (
     MINING_INVENTORY_STORE,
     MINING_LOADOUT_STORE,
     MINING_PLAYER_STATE_STORE,
+    MINING_WORLD_STORE,
     PLAYER_SKILLS_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec
@@ -78,9 +79,13 @@ _COMMANDS = (
          "Gear loadout presets.", ("loadouts",)),
     _cmd("character", HandlerRef("mining.character_view"),
          "Your character sheet.", ("profile", "char")),
-    _pending("descend", "Descend to a deeper mining band."),
-    _pending("ascend", "Return toward the surface."),
-    _pending("mineworld", "The shared mining world grid."),
+    # --- slice-2 port (LIVE): depth traversal + shared world seed --------
+    _cmd("descend", HandlerRef("mining.descend_route"),
+         "Descend to a deeper mining band."),
+    _cmd("ascend", HandlerRef("mining.ascend_route"),
+         "Return toward the surface."),
+    _cmd("mineworld", HandlerRef("mining.mineworld_route"),
+         "The shared mining world seed."),
     _pending("vault", "Your vault."),
     _pending("stash", "Stash resources in the vault."),
     _pending("unstash", "Withdraw from the vault."),
@@ -109,7 +114,8 @@ MANIFEST = SubsystemManifest(
     settings=(),
     stores=(MINING_INVENTORY_STORE, MINING_PLAYER_STATE_STORE,
             MINING_EQUIPMENT_STORE, MINING_GEAR_WEAR_STORE,
-            MINING_LOADOUT_STORE, PLAYER_SKILLS_STORE),
+            MINING_LOADOUT_STORE, PLAYER_SKILLS_STORE,
+            MINING_WORLD_STORE),
     events=(),
     capabilities=(),
 )

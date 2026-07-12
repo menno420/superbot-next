@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.mineworld",
+ "case_id": "sweep.descend",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2055696509,
+     "last_xp": 2018327306,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,7 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "🌐 This server's mining world seed is **<guild>**. Everyone here roams the same world — share the seed to compare maps. Server managers can reseed with `!mineworld <number>`.",
+      "content": "<@<@admin>> can't descend any deeper. Equip a brighter light to descend to Cavern (needs depth access 1).",
       "tts": false
      }
     },
@@ -77,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!mineworld",
+    "content": "!descend",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "mining"
 }
