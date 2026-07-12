@@ -72,7 +72,7 @@ subsystems:
   community_spotlight: ported
   counters: ported
   counting: ported
-  creature: pending
+  creature: ported
   diagnostic: ported
   economy: ported
   farm: pending
@@ -651,6 +651,7 @@ depth:
     community_spotlight: {events: 1, tables: 2, settings: 0}
     counters: {events: 1, tables: 2, settings: 0}
     counting: {events: 1, tables: 2, settings: 0}
+    creature: {events: 1, tables: 2, settings: 0}
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 2, tables: 5, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
