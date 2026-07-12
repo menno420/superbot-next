@@ -1,8 +1,21 @@
 # 2026-07-12 — casino poker PLAY layer (dealing + betting on the component seam)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** fable · high · feature build (poker play layer, slices 2+3)
+
+> 💡 **Session idea:** the D-0045 "no headless shape" wall was really about
+> LIVE per-message ephemeral handles, not the game itself — render both the
+> public spectator and each private seat as PURE projections of one engine
+> snapshot and the whole play layer becomes headless-testable and
+> golden-mintable; only the ephemeral DELIVERY stays owner-armed.
+
+## Previous-session review
+
+Slice 1 (`casino/poker-engine-port`, PR #267) ported the betting state
+machine verbatim and added the `snapshot()` reader for exactly this
+consumer. This branch stacks on it and consumes that snapshot; no engine
+byte was touched here.
 
 ## Scope
 
@@ -70,5 +83,28 @@ real ephemeral messages (D-0045 live-adapter).
 
 ## Ladder
 
-- (to be filled at close: full pytest tail + bootstrap check tail + the
-  casino golden-parity replay result)
+- units **1785 passed / 5 skipped** (`python3 -m pytest tests/ -q`), +26 over
+  the pre-branch baseline (the 16 new play-layer tests + DB-gated tests that
+  run once asyncpg is present locally); the new file alone: **16 passed**.
+- checker fleet all green: manifest_compile (snapshot regrown), namespace,
+  escape-hatches, schema-growth, amendments, symbol-shadowing, no-skip,
+  config-usage, metric-cardinality, egress, money-race, **sim-gate** (the
+  ported SeatView layout Exempt-pinned + baseline rewritten), compat-frozen,
+  and **check_parity_depth** (OK — 51 subsystems, 469 goldens).
+- golden-parity (local Postgres 16): the casino row replays **GREEN** across
+  all three goldens (casino_poker_full_hand + sweep_casino + sweep_poker),
+  re-run for stability; the lobby OPEN goldens are **byte-identical** to base
+  (empty diff vs ece507b). The new golden was double-captured byte-identical
+  before mint (D-0073).
+- `bootstrap.py check --strict`: green except the designed **born-red HOLD**
+  on this card (flipped complete at close) + a pre-existing owner-action
+  advisory (not this slice).
+
+## ⚑ Owner gate (D-0045, unchanged)
+
+True LIVE per-player-ephemeral dealing — sending each seat's private hand to
+a real auto-updating ephemeral message — plus the full-hand LIVE goldens
+remain behind the owner-armed live-adapter step. This slice delivers the
+headless-shaped play layer + its golden on the TEST PLANE only.
+RISK: ✅ safe / read-only — no owner action is required to merge this slice;
+the live arming is a separate future step.
