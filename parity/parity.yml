@@ -95,6 +95,18 @@ source:
   # refusal → !bjstart launch → per-entrant round → champion payout, self-
   # cleaning) and rps_tournament/rps_tournament_foreign_active_refusal (the
   # #277 cross-game guard — a foreign blackjack flag refuses !rpsregister).
+  # WP-1 mining WRITE-PARITY minted FIVE more (2026-07-12) via the same
+  # capture_case procedure — the first ROW-BEARING mining write goldens:
+  # goldens/mining/mining_{equip,unequip,loadout_save,loadout_apply,
+  # loadout_delete}_write.json. Each is a curated typed case
+  # (parity/cases/curated.py) whose argful !equip / !unequip / !loadout
+  # save·apply·delete DRIVES the audited mining.equip/unequip/save_loadout/
+  # apply_loadout/delete_loadout op, so the mining_equipment /
+  # mining_loadout_presets row-level db_delta is pinned (retiring their
+  # depth.exemptions.mining guard-only-capture rows). The success reply is
+  # the shipped `<@u> ` mention + oracle copy (mining_workflow verbatim);
+  # the audited kernel-spine rows ride the same kernel-surface-drift drop as
+  # every domain golden.
   # +1 minted the PAID-pot conservation golden (2026-07-12 money-review
   # round-2, same D-0073 procedure) that #302's FREE-only flow left unpinned:
   # blackjack/blackjack_tournament_paid_flow — open a fee-25 tournament → two
@@ -107,10 +119,10 @@ source:
   # amount is the sim-pinned test value (the shipped fee is a user command
   # arg, not an oracle constant), the pot is the summed stakes and the
   # payout reason is oracle-verbatim.
-  minted_goldens: 15
+  minted_goldens: 20
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 476). The first retirement (2026-07-12
+  # imported + minted − retired = 482). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -776,19 +788,16 @@ depth:
           their sweeps re-homed into the gated mining row, but the
           not-moved refusal path they pin is a pure read (no write, no
           audit row), so the store stays declared-but-guard-only"
-      # Slice-1 equipment/wear/loadout/skills port (this PR): the four new
-      # write-store tables are declared mining surfaces, but every imported
-      # sweep pinned ONLY the bare/guard invocation byte — no golden carries
-      # an argful (row-bearing) equip/loadout/skill write. The first
-      # row-bearing golden lands with an argful capture (D-0069 class).
-      - surface: "table:mining_equipment"
-        reason: "guard-only-capture: the equip write lane IS
-          corpus-expressible (!equip <owned item>) but the imported sweep
-          drove only the bare !equip, pinning the usage byte
-          (\"Specify what to equip, e.g. `!equip iron pickaxe`.\") with no
-          row (goldens/mining/sweep_equip.json); the row-bearing equip
-          exists in no imported golden — goldens pin write-free guard paths
-          only, so the table cannot be covered until an argful capture lands"
+      # Slice-1 equipment/wear/loadout/skills port declared four write-store
+      # tables as mining surfaces, pinned only by bare/guard sweeps. WP-1
+      # mining WRITE-PARITY (this PR) RETIRED the mining_equipment +
+      # mining_loadout_presets rows: the argful !equip / !unequip / !loadout
+      # save·apply·delete captures now drive row-bearing db_delta on both
+      # (goldens/mining/mining_{equip,unequip,loadout_save,loadout_apply,
+      # loadout_delete}_write.json), so they are COVERED, not exempt — the
+      # D-0069 class's own exit ("the first row-bearing golden lands with an
+      # argful capture"). mining_gear_wear + player_skills stay guard-only
+      # until their own write captures (WP-4 wear-tick, WP-5 skill spend).
       - surface: "table:mining_gear_wear"
         reason: "guard-only-capture: durability rows are written only by a
           wear tick behind an argful mine/explore/duel with equipped gear,
@@ -796,13 +805,6 @@ depth:
           (goldens/mining/sweep_gear.json pins the character_doll.png
           attachment filename with no row) — goldens pin write-free guard
           paths only; the first wear row lands with a geared argful capture"
-      - surface: "table:mining_loadout_presets"
-        reason: "guard-only-capture: the save/apply loadout write lane IS
-          corpus-expressible (!loadout save <name>) but the imported sweep
-          drove only the bare !loadout, pinning the empty-list guard
-          (\"You have no saved loadouts yet. …\") with no row
-          (goldens/mining/sweep_loadout.json); the row-bearing save exists
-          in no imported golden — goldens pin write-free guard paths only"
       - surface: "table:player_skills"
         reason: "guard-only-capture: skill-point rows are written only by an
           argful !skill spend, and the slice-1 capture drove only the bare
@@ -1077,7 +1079,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 2, tables: 5, settings: 0}
+    mining: {events: 3, tables: 9, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
