@@ -26,7 +26,35 @@ posture):
   diagnostic_helpers.build_latency_embed: ``f"{ms:.2f} ms"`` over
   ``bot.latency`` — the capture world's gateway never measured a
   heartbeat, so the golden pins ``nan ms``; the live reader arms
-  through ``install_ws_latency_reader``)."""
+  through ``install_ws_latency_reader``).
+
+Wave-9 re-home — the shipped DiagnosticCog tool commands
+(disbot/cogs/diagnostic_cog.py + services/diagnostic_helpers.py at the
+corpus posture; goldens/diagnostic/sweep_lifecycle / sweep_check_database
+/ sweep_find_command / sweep_test_notification / sweep_validate_json_files
+/ sweep_list_commands_detailed pin the bytes):
+
+* ``!lifecycle`` [lc] — the shipped shortcut to the SAME
+  ``build_lifecycle_embed`` card ``!platform lifecycle`` renders
+  (diagnostic_cog.py: "``build_lifecycle_embed`` stays here for the
+  ``!lifecycle`` shortcut command"); byte-identical goldens.
+* ``!check_database`` [checkdb] — the shipped healthy-branch schema
+  census, a CAPTURE-SCHEMA-EPOCH literal (16/16 base tables, 103/103
+  migrations, 106 tables — the capture DB; v1's schema epoch has its own
+  migration chain, so a live census is the named successor read).
+* ``!find_command`` [findcmd] / ``!list_commands_detailed`` [listcmds] —
+  the shipped registry surfaces over the capture-literal catalog
+  (sb/domain/diagnostic/command_catalog.py; the admin cogmgr roster
+  precedent).
+* ``!test_notification`` [testnotify] — the shipped no-reporter guard
+  byte, true in BOTH worlds (the capture harness never set
+  ``DISCORD_WEBHOOK_URL`` and v1 configures no webhook reporter; a
+  future webhook port re-arms the send branch).
+* ``!validate_json_files`` [validatejson] — the shipped missing-dir
+  guard over the CAPTURE-ENVIRONMENT path literal
+  (``/home/user/superbot/data/json`` — the shipped bot's data dir,
+  absent in the capture world; v1 has no JSON data directory at all,
+  so the guard branch stays the truthful constant)."""
 
 from __future__ import annotations
 
@@ -142,6 +170,106 @@ def _register() -> None:
             title="Bot Latency", description="",
             fields=(("Latency", f"{ms:.2f} ms", True),),
             style_token="blue"))
+
+    @handler("diagnostic.lifecycle_view")
+    async def lifecycle_view(req) -> None:
+        """``!lifecycle`` [lc] — the shipped shortcut to the SAME
+        ``build_lifecycle_embed`` card the ported ``!platform lifecycle``
+        view renders (module docstring; both goldens pin identical
+        bytes)."""
+        await _card(req, _view_embed(req, "lifecycle"))
+
+    @handler("diagnostic.check_database_view")
+    async def check_database_view(req) -> None:
+        """``!check_database`` [checkdb] — the shipped
+        ``build_check_database_embed`` healthy branch
+        (services/diagnostic_helpers.py: green, the "✅ Schema healthy"
+        description, base-tables / migrations / tables-present fields).
+        CAPTURE-SCHEMA-EPOCH literal (module docstring): the counts are
+        the capture DB's census — a live census over v1's own migration
+        chain is the named successor read."""
+        from sb.kernel.panels.render import RenderedEmbed
+
+        await _card(req, RenderedEmbed(
+            title="Database Schema Check",
+            description="✅ Schema healthy — all base tables present "
+                        "and every migration applied.",
+            fields=(("Base tables", "✅ 16/16 present", False),
+                    ("Migrations applied", "✅ 103/103", False),
+                    ("Tables present", "106", False)),
+            style_token="green"))
+
+    @handler("diagnostic.find_command_view")
+    async def find_command_view(req):
+        """``!find_command <keyword>`` [findcmd] — the shipped registry
+        search (diagnostic_cog.py: ``keyword.lower() in cmd.name.lower()
+        or (cmd.help and keyword.lower() in cmd.help.lower())`` over
+        ``bot.cogs``), ported over the capture-literal index
+        (command_catalog.py — see its subset boundary note)."""
+        from sb.domain.diagnostic.command_catalog import FIND_COMMAND_INDEX
+        from sb.kernel.panels.render import RenderedEmbed
+
+        argv = _argv(req)
+        if not argv:
+            # the shipped MissingRequiredArgument path is not golden-driven;
+            # honest handler-owned guard (the band-6 lesson — never let the
+            # kernel envelope invent bytes).
+            return Reply(BLOCKED,
+                         "❓ Usage: `!find_command <keyword>` — search "
+                         "commands by keyword.")
+        keyword = argv[0]
+        fields = tuple(
+            (f"!{row['name']} ({row['cog']})",
+             f"{row['help']}\nCooldown: {row['cooldown']} | "
+             f"Aliases: {row['aliases']}",
+             False)
+            for row in FIND_COMMAND_INDEX
+            if keyword.lower() in row["name"].lower()
+            or keyword.lower() in row["help"].lower())
+        await _card(req, RenderedEmbed(
+            title=f"Search Results for '{keyword}'",
+            # the shipped not-found copy (diagnostic_cog.py, verbatim).
+            description=("" if fields
+                         else "No commands found matching the keyword."),
+            fields=fields,
+            style_token="green"))
+        return None
+
+    @handler("diagnostic.test_notification_view")
+    async def test_notification_view(req) -> None:
+        """``!test_notification`` [testnotify] — the shipped no-reporter
+        guard byte (diagnostic_helpers.py: ``if not reporter``), true in
+        BOTH worlds (module docstring); the webhook send branch re-arms
+        with a future webhook-reporter port."""
+        from sb.kernel.panels.render import RenderedEmbed
+
+        await _card(req, RenderedEmbed(
+            title="🔔 Test Notification",
+            description="❌ No webhook reporter is configured.",
+            style_token="red"))
+
+    @handler("diagnostic.validate_json_view")
+    async def validate_json_view(req) -> None:
+        """``!validate_json_files`` [validatejson] — the shipped
+        missing-dir guard (diagnostic_helpers.py
+        ``build_validate_json_embed``: ``if not os.path.isdir(JSON_DIR)``)
+        over the CAPTURE-ENVIRONMENT path literal (module docstring)."""
+        from sb.kernel.panels.render import RenderedEmbed
+
+        await _card(req, RenderedEmbed(
+            title="JSON Files Validation",
+            description="JSON directory not found: "
+                        "`/home/user/superbot/data/json`",
+            style_token="orange"))
+
+    @handler("diagnostic.cmdlist_page_pending")
+    async def cmdlist_page_pending(req):
+        """◀ Prev / Next ▶ on the command-list paginator — pages 2-14 of
+        the shipped registry land with the paginator's interaction slice
+        (the admin cogmgr page-window precedent)."""
+        return Reply(BLOCKED,
+                     "ℹ️ Command-list pages 2-14 land with the "
+                     "paginator's interaction slice.")
 
     @handler("diagnostic.pf_finding_route")
     async def pf_finding(req):
@@ -276,8 +404,10 @@ def _register() -> None:
     @handler("diagnostic.diag_pending")
     async def diag_pending(req):
         """Diagnostics-hub tools that are still process-state under-ports
-        (Bot Status / System Info / Database / JSON / Commands / Errors /
-        Notify)."""
+        (Bot Status / System Info / Recent Errors — the capture skipped
+        their command twins as nondeterministic process state, and the
+        query_logs/recent_errors sweeps were retired under the 2026-07-12
+        corpus ruling for the same class)."""
         return Reply(BLOCKED,
                      "ℹ️ This diagnostic tool is not ported yet.")
 

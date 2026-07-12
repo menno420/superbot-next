@@ -1806,6 +1806,54 @@
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "surface": "prefix",
+          "value": "lifecycle"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "check_database"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "find_command"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "list_commands_detailed"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "test_notification"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
+          "value": "validate_json_files"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "surface": "prefix",
           "value": "platform"
         },
         {
@@ -4399,6 +4447,16 @@
           "value": "dm_help"
         },
         {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_accept"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "dm_decline"
+        },
+        {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diag_status"
@@ -4437,6 +4495,16 @@
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diag_notify"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "cmdlist_prev"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "cmdlist_next"
         },
         {
           "source": "sb/manifest/diagnostic.py",
@@ -5848,6 +5916,16 @@
           "value": "deathmatch.hub"
         },
         {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch.challenge_card"
+        },
+        {
+          "source": "sb/manifest/deathmatch.py",
+          "subsystem": "deathmatch",
+          "value": "deathmatch.help_card"
+        },
+        {
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diagnostic.hub"
@@ -5856,6 +5934,11 @@
           "source": "sb/manifest/diagnostic.py",
           "subsystem": "diagnostic",
           "value": "diagnostic.card"
+        },
+        {
+          "source": "sb/manifest/diagnostic.py",
+          "subsystem": "diagnostic",
+          "value": "diagnostic.command_list"
         },
         {
           "source": "sb/manifest/diagnostic.py",
@@ -8398,11 +8481,17 @@
       "handler:creature.rules_view": {
         "module": "sb.domain.creature.service"
       },
+      "handler:deathmatch.challenge_click": {
+        "module": "sb.domain.deathmatch.service"
+      },
       "handler:deathmatch.challenge_route": {
         "module": "sb.domain.deathmatch.service"
       },
       "handler:deathmatch.help_view": {
         "module": "sb.domain.deathmatch.service"
+      },
+      "handler:deathmatch.render_challenge": {
+        "module": "sb.domain.deathmatch.panels"
       },
       "handler:deathmatch.stats_view": {
         "module": "sb.domain.deathmatch.service"
@@ -8416,10 +8505,19 @@
       "handler:diagnostic.automation_reopen": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "handler:diagnostic.check_database_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.cmdlist_page_pending": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
       "handler:diagnostic.diag_latency": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.diag_pending": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.find_command_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.flag_pending": {
@@ -8435,6 +8533,9 @@
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.latency_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.lifecycle_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.pf_access": {
@@ -8539,6 +8640,9 @@
       "handler:diagnostic.render_card": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "handler:diagnostic.render_command_list": {
+        "module": "sb.domain.diagnostic.panels"
+      },
       "handler:diagnostic.render_flag_manager": {
         "module": "sb.domain.diagnostic.panels"
       },
@@ -8547,6 +8651,12 @@
       },
       "handler:diagnostic.render_platform_hub": {
         "module": "sb.domain.diagnostic.panels"
+      },
+      "handler:diagnostic.test_notification_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.validate_json_view": {
+        "module": "sb.domain.diagnostic.handlers"
       },
       "handler:economy.balance_view": {
         "module": "sb.domain.economy.handlers"
@@ -9697,6 +9807,12 @@
       "panel:creature.rules_card": {
         "module": "sb.domain.creature.panels"
       },
+      "panel:deathmatch.challenge_card": {
+        "module": "sb.domain.deathmatch.panels"
+      },
+      "panel:deathmatch.help_card": {
+        "module": "sb.domain.deathmatch.panels"
+      },
       "panel:deathmatch.hub": {
         "module": "sb.domain.deathmatch.panels"
       },
@@ -9704,6 +9820,9 @@
         "module": "sb.domain.diagnostic.panels"
       },
       "panel:diagnostic.card": {
+        "module": "sb.domain.diagnostic.panels"
+      },
+      "panel:diagnostic.command_list": {
         "module": "sb.domain.diagnostic.panels"
       },
       "panel:diagnostic.flag_manager": {
@@ -11908,7 +12027,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:a8616c6adcac00eb0741034b854a84caed1c681d191f79c0b9f8172c7b85d7f6",
+  "stable_hash": "sha256:59635087dfb75a2b37a1ea7d8325e80d94e9589ddb2bd837691e268769b7f98f",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -25227,6 +25346,148 @@
           "timeout_s": 180,
           "title": "⚔️ Deathmatch",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "dm_accept",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.challenge_click"
+              },
+              "label": "✅ Accept",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "dm_decline",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:deathmatch.challenge_click"
+              },
+              "label": "❌ Decline",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped challenge/duel embeds are match-parameterized copy on every line (challenger/target mentions, HP lines, turn prompts — cogs/deathmatch_cog.py); grammar TextBlocks are static. The challenge-stage buttons stay DECLARED on the spec (authority + the session mint); the accepted-duel stage swaps them for g1: dynamic-session Attack/Defend minted from the duel's session id. The renderer only composes the staged embed + buttons.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "dm_accept",
+                    "dm_decline"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "deathmatch.challenge_card",
+          "renderer_override": {
+            "$ref": "handler:deathmatch.render_challenge"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "deathmatch",
+          "timeout_s": 30,
+          "title": "⚔️ Deathmatch Challenge",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**Commands:**\n`!deathmatch @User` — Challenge a user to a duel.\n`!leaderboard deathmatch` — View the top duelists.\n\n**During a Duel:**\nUse the **⚔️ Attack** and **🛡️ Defend** buttons in the duel message."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "deathmatch.help_card",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "deathmatch",
+          "timeout_s": 180,
+          "title": "Deathmatch Help",
+          "usage_weight": 1.0
         }
       ],
       "settings": [
@@ -25346,6 +25607,162 @@
           "slash_common": false,
           "summary": "Bot WebSocket latency.",
           "usage": "!latency",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "lc"
+          ],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "lifecycle",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.lifecycle_view"
+          },
+          "slash_common": false,
+          "summary": "Lifecycle state (phase, pending request, recent events).",
+          "usage": "!lifecycle",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "checkdb"
+          ],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "check_database",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.check_database_view"
+          },
+          "slash_common": false,
+          "summary": "Verify that all expected PostgreSQL tables exist.",
+          "usage": "!check_database",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "findcmd"
+          ],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "find_command",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.find_command_view"
+          },
+          "slash_common": false,
+          "summary": "Search for commands by keyword in their name or description.",
+          "usage": "!find_command <keyword>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "listcmds"
+          ],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "list_commands_detailed",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "panel:diagnostic.command_list"
+          },
+          "slash_common": false,
+          "summary": "List all registered commands with details, paginated by cog.",
+          "usage": "!list_commands_detailed",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "testnotify"
+          ],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "test_notification",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.test_notification_view"
+          },
+          "slash_common": false,
+          "summary": "Send a test notification via the webhook reporter.",
+          "usage": "!test_notification",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "validatejson"
+          ],
+          "audience_tier": "administrator",
+          "capability": "diagnostic",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "validate_json_files",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:diagnostic.validate_json_view"
+          },
+          "slash_common": false,
+          "summary": "Validate the structure of all JSON files in the data directory.",
+          "usage": "!validate_json_files",
           "usage_weight": 1.0
         },
         {
@@ -26259,7 +26676,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.check_database_view"
               },
               "label": "🗄️ Database",
               "modal": null,
@@ -26284,7 +26701,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.validate_json_view"
               },
               "label": "📄 JSON Files",
               "modal": null,
@@ -26309,7 +26726,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "panel:diagnostic.command_list"
               },
               "label": "📋 Commands",
               "modal": null,
@@ -26359,7 +26776,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.test_notification_view"
               },
               "label": "🔔 Test Notify",
               "modal": null,
@@ -26463,6 +26880,104 @@
           "subsystem": "diagnostic",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cmdlist_prev",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.cmdlist_page_pending"
+              },
+              "label": "◀ Prev",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cmdlist_next",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:diagnostic.cmdlist_page_pending"
+              },
+              "label": "Next ▶",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped command-list embed is page 1 of the capture registry paginator — four per-cog fields of shipped docstring/cooldown/alias lines with the shipped 1024-byte truncation, plus the 'Command List — Page 1/14' page title (capture literals, command_catalog.py) — and the first-page ◀ Prev button renders disabled, outside the grammar's vocabulary (actions carry no disabled state; the admin cogmgr precedent). The override delegates the COMPONENTS to render_panel and composes the EMBED plus that one disabled bit only; goldens/diagnostic/sweep_list_commands_detailed pins every byte.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cmdlist_prev",
+                    "cmdlist_next"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "diagnostic.command_list",
+          "renderer_override": {
+            "$ref": "handler:diagnostic.render_command_list"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "diagnostic",
+          "timeout_s": 180,
+          "title": "Command List",
           "usage_weight": 1.0
         },
         {
@@ -34131,7 +34646,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "36 command(s), generated from the `diagnostic` manifest."
+              "text": "42 command(s), generated from the `diagnostic` manifest."
             },
             {
               "provider": {
@@ -34186,7 +34701,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "36 command(s), generated from the `diagnostic` manifest."
+              "text": "42 command(s), generated from the `diagnostic` manifest."
             },
             {
               "provider": {

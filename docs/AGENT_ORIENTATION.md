@@ -7,7 +7,7 @@
 
 ## Start every session
 
-The boot set lives in the working agreement — `CONSTITUTION.md` — and its
+The boot set lives in the working agreement — `.claude/CLAUDE.md` — and its
 orientation guidance (one list, one home). This file is not boot reading —
 open it when a task needs a route into the deeper docs.
 
@@ -36,5 +36,5 @@ procedure.
 
 ## Verifying any change
 
-See the working agreement (`CONSTITUTION.md`) and its verify guidance
+See the working agreement (`.claude/CLAUDE.md`) and its verify guidance
 (one home, never two copies).
