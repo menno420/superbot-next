@@ -331,9 +331,14 @@ def test_inventory_detail_provider_groups_rarest_first(monkeypatch):
 
     monkeypatch.setattr(service, "build_combined_inventory", fake_grouped)
     provider = resolve_ref(ProviderRef("inventory.items_tools"))
-    lines = run(provider(_panel_ctx()))
-    assert lines[0].startswith("__Uncommon (2)__")
-    assert any("Toolkit" in ln for ln in lines[1:])
+    rows = run(provider(_panel_ctx()))
+    # the converted provider emits BROWSE ROWS (D-0034) the shared engine
+    # sorts/filters/paginates — dicts carrying the declared sort/filter keys,
+    # pre-sorted alpha by item key (the tie-break the engine's stable sort
+    # inherits — the shipped "alpha within a tier").
+    assert [r["name"] for r in rows] == ["axe", "toolkit"]
+    assert all("_line" in r and "type" in r and "rarity" in r for r in rows)
+    assert any("Toolkit" in r["_line"] for r in rows)
     # empty category → () → the ListBlock renders its empty_state.
     async def empty(user_id, guild_id):
         return {}
@@ -438,12 +443,16 @@ def test_inventory_hub_actions_open_every_category():
     for action in hub.actions:
         assert isinstance(action.handler, PanelRef)
         assert action.handler.name in detail_ids
-    # detail panels declare the shipped sort/filter algebra as grammar data.
+    # detail panels ARM the shipped sort/filter algebra through the shared
+    # BrowserView engine (D-0034): the declared options are rarity / quantity /
+    # name, with quantity carrying the engine's descending marker so it sorts
+    # highest-first (the shipped semantic; the option LABEL stays "quantity").
     tools = next(s for s in category_detail_specs()
                  if s.panel_id == "inventory.cat_tools")
     ls = tools.body[0].list_spec
-    assert ls.sort_options == ("rarity", "quantity", "name")
+    assert ls.sort_options == ("rarity", "-quantity", "name")
     assert ls.default_sort == "rarity"
+    assert ls.page_size == 8      # the shipped _PER_PAGE detail slice
     assert tools.navigation.parent == PanelRef("inventory.hub")
 
 

@@ -1216,6 +1216,91 @@
     ]
    }
   },
+  "btd6:btd6.paragon:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "paragon"
+      ],
+      [
+       "players"
+      ],
+      [
+       "difficulty"
+      ],
+      [
+       "tier5"
+      ],
+      [
+       "calc",
+       "requirements",
+       "stats",
+       "back"
+      ]
+     ]
+    }
+   ]
+  },
+  "btd6:btd6.paragon:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "paragon"
+    ],
+    [
+     "players"
+    ],
+    [
+     "difficulty"
+    ],
+    [
+     "tier5"
+    ],
+    [
+     "calc",
+     "requirements",
+     "stats",
+     "back"
+    ]
+   ]
+  },
+  "btd6:btd6.paragon:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "paragon"
+       ],
+       [
+        "players"
+       ],
+       [
+        "difficulty"
+       ],
+       [
+        "tier5"
+       ],
+       [
+        "calc",
+        "requirements",
+        "stats",
+        "back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "btd6:btd6:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -1385,6 +1470,12 @@
    "value": 0
   },
   "btd6:ops:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "btd6:paragon:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
@@ -1623,6 +1714,70 @@
     "exempt": "legacy-seed: band-7 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
+  },
+  "casino:casino.poker_game:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the poker play-layer port carries the shipped SeatView button arrangement verbatim (disbot/views/casino/poker_table.py \u2014 fold / check-or-call / the three raise presets, then the host Deal-next/End controls). This is a faithful port of a shipped fixed layout, not a searchable arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; any re-arrangement sim re-runs post-telemetry)."
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "poker_fold",
+       "poker_checkcall",
+       "poker_raise_min",
+       "poker_raise_pot",
+       "poker_allin"
+      ],
+      [
+       "poker_deal_next",
+       "poker_end"
+      ]
+     ]
+    }
+   ]
+  },
+  "casino:casino.poker_game:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the poker play-layer port carries the shipped SeatView button arrangement verbatim (disbot/views/casino/poker_table.py \u2014 fold / check-or-call / the three raise presets, then the host Deal-next/End controls). This is a faithful port of a shipped fixed layout, not a searchable arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; any re-arrangement sim re-runs post-telemetry)."
+   },
+   "value": [
+    [
+     "poker_fold",
+     "poker_checkcall",
+     "poker_raise_min",
+     "poker_raise_pot",
+     "poker_allin"
+    ],
+    [
+     "poker_deal_next",
+     "poker_end"
+    ]
+   ]
+  },
+  "casino:casino.poker_game:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the poker play-layer port carries the shipped SeatView button arrangement verbatim (disbot/views/casino/poker_table.py \u2014 fold / check-or-call / the three raise presets, then the host Deal-next/End controls). This is a faithful port of a shipped fixed layout, not a searchable arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; any re-arrangement sim re-runs post-telemetry)."
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "poker_fold",
+        "poker_checkcall",
+        "poker_raise_min",
+        "poker_raise_pot",
+        "poker_allin"
+       ],
+       [
+        "poker_deal_next",
+        "poker_end"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "casino:casino:CommandSpec.help_section_order": {
    "provenance": {
@@ -4511,6 +4666,70 @@
        ],
        [
         "mi_how_to"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "mining:mining.vault:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/vault_panel.py MiningVaultView button arrangement (deposit/withdraw \u00b7 stash-all/upgrade \u00b7 hub) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "va_deposit",
+       "va_withdraw"
+      ],
+      [
+       "va_stash_all",
+       "va_upgrade"
+      ],
+      [
+       "va_hub"
+      ]
+     ]
+    }
+   ]
+  },
+  "mining:mining.vault:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/vault_panel.py MiningVaultView button arrangement (deposit/withdraw \u00b7 stash-all/upgrade \u00b7 hub) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "va_deposit",
+     "va_withdraw"
+    ],
+    [
+     "va_stash_all",
+     "va_upgrade"
+    ],
+    [
+     "va_hub"
+    ]
+   ]
+  },
+  "mining:mining.vault:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/vault_panel.py MiningVaultView button arrangement (deposit/withdraw \u00b7 stash-all/upgrade \u00b7 hub) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "va_deposit",
+        "va_withdraw"
+       ],
+       [
+        "va_stash_all",
+        "va_upgrade"
+       ],
+       [
+        "va_hub"
        ]
       ]
      }

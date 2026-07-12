@@ -1,0 +1,67 @@
+# release.yml — BUILD the container image and TAG/PUSH it to GHCR.
+#
+# This workflow BUILDS AND PUBLISHES an image only. It does NOT deploy and does
+# NOT cut traffic over. Deploying a published image to Railway is a MANUAL
+# OWNER STEP performed per the cutover runbook — intentionally not automated
+# here (a green build must never move production by itself).
+#
+# ⚑ OWNER-ACTION (one-time, not self-applied): the GHCR package
+# `ghcr.io/menno420/superbot-next` inherits the repo's visibility on first
+# push. Confirm/adjust its visibility and grant any deploy pull-access in the
+# package settings.
+#
+# Triggers: pushes to `main` (the rolling `main`/`sha` image) and `v*` tags
+# (the versioned release image).
+
+name: release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/menno420/superbot-next
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Derive tags from the ref: every build gets a sha tag; main gets `main`,
+      # a version tag gets its semver + `latest`.
+      - name: Compute image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

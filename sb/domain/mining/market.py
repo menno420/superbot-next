@@ -9,10 +9,15 @@ from __future__ import annotations
 __all__ = [
     "GEAR_SHOP",
     "RESOURCE_VALUES",
+    "VAULT_UPGRADE_REASON",
     "sell_price",
     "sellable_inventory",
     "shop_listing",
 ]
+
+#: The economy-ledger reason tag for the vault-capacity coin sink (shipped
+#: ``utils/mining/market.py`` VAULT_UPGRADE_REASON verbatim).
+VAULT_UPGRADE_REASON = "mining:vault_upgrade"
 
 #: The shipped RESOURCE rows (items.py): commonness inverse of worth.
 RESOURCE_VALUES: dict[str, int] = {

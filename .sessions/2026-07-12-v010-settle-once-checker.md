@@ -12,7 +12,7 @@ warn-first per Q-0105, the #133 `tournament_flag.clear_active()` fence as
 reference, EVERY money-moving root enumerated — the cogs/-drift lesson).
 One merged-on-green PR: `tools/check_settle_once.py` + hermetic
 red-then-green tests + the ci.yml checkers-loop word + this paperwork
-(D-0079, the audit §8 PARKED→BUILT flip, telemetry row, status heartbeat).
+(D-0080, the audit §8 PARKED→BUILT flip, telemetry row, status heartbeat).
 
 ## What shipped
 

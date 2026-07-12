@@ -133,6 +133,24 @@ async def _card(req, embed) -> Reply:
     return Reply(SUCCESS, None)
 
 
+async def _card_with_file(req, embed, filename: str) -> Reply:
+    """Present one read card carrying a single file attachment (the shipped
+    ``ctx.send(embed=…, file=discord.File(…, filename=…))`` — the paper-doll
+    sends). The parity transport collapses any attachment-bearing panel to
+    ``{"_files": [filename]}`` (the multipart-serializer information loss both
+    capture and replay share — goldens/mining/sweep_gear pins
+    ``character_doll.png``, sweep_character pins ``character.png``)."""
+    import dataclasses
+
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef("mining.card"), dataclasses.replace(
+        req, args={**dict(req.args), "_card": embed,
+                   "_attachment": filename}))
+    return Reply(SUCCESS, None)
+
+
 def _durability_bar(remaining: int, maximum: int) -> str:
     """A 5-segment ``▰▰▰▱▱ 23/60`` bar — shipped
     ``utils/mining/workshop.durability_bar`` verbatim (the ``!minestats``
@@ -370,22 +388,493 @@ def _register() -> None:
             footer=f"Balance: {balance} 🪙  •  !sell <item> [n] · "
                    "!sellall · !buy <item>"))
 
+    @handler("mining.equip_route")
+    async def equip_route(req) -> Reply:
+        """`!equip [*item]` — shipped arg-optional (mining_cog.py
+        ``equip(self, ctx, *, item: str = None)``): the bare invocation
+        answers the usage copy plain (goldens/mining/sweep_equip pins the
+        bytes); argful calls run the audited equip op and prefix the
+        invoker mention (the shipped ``ctx.send(f"{mention} …")`` success
+        lane), while a business-rule refusal (can't-equip / don't-own)
+        sends plain."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to equip, e.g. `!equip iron "
+                         "pickaxe`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.equip", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.unequip_route")
+    async def unequip_route(req) -> Reply:
+        """`!unequip [*slot]` — the bare invocation answers the usage copy
+        plain, enumerating ``equipment.SLOTS`` in order
+        (goldens/mining/sweep_unequip pins the bytes); argful calls run
+        the audited unequip op and prefix the mention on success."""
+        from sb.domain.mining import equipment
+
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify a slot to clear: "
+                         f"{', '.join(equipment.SLOTS)}.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.unequip", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.loadout_route")
+    async def loadout_route(req) -> Reply:
+        """`!loadout [action] [*name]` (aliases: loadouts) — the bare
+        invocation (verb ∈ {"", list, ls}) with NO saved loadouts answers
+        the pinned prompt plain (goldens/mining/sweep_loadout); with
+        loadouts it lists them prefixed with the mention. The
+        save/apply/delete verbs run their audited ops (each prefixes the
+        mention on success, sends the per-verb prompt or business refusal
+        plain); a bare ``!loadout <name>`` applies that preset."""
+        from sb.domain.mining import store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        argv = [str(t) for t in tuple(req.args.get("argv", ()) or ())]
+        verb = (argv[0].strip().lower() if argv else "")
+        name = " ".join(argv[1:]).strip()
+
+        if verb in ("", "list", "ls"):
+            names = await store.list_loadouts(uid, gid)
+            if not names:
+                return Reply(BLOCKED,
+                             "You have no saved loadouts yet. Equip some "
+                             "gear, then `!loadout save <name>` (e.g. "
+                             "`mining`).")
+            listed = ", ".join(f"**{n}**" for n in names)
+            return Reply(SUCCESS,
+                         f"<@{uid}> your loadouts: {listed}\n"
+                         "Swap with `!loadout <name>`.")
+
+        if verb == "save":
+            if not name:
+                return Reply(BLOCKED,
+                             "Name it, e.g. `!loadout save mining`.")
+            op_key, arg = "mining.save_loadout", name
+        elif verb in ("delete", "del", "remove", "rm"):
+            if not name:
+                return Reply(BLOCKED,
+                             "Which one? e.g. `!loadout delete mining`.")
+            op_key, arg = "mining.delete_loadout", name
+        elif verb == "apply":
+            if not name:
+                return Reply(BLOCKED,
+                             "Which one? e.g. `!loadout apply mining`.")
+            op_key, arg = "mining.apply_loadout", name
+        else:
+            # Bare `!loadout <name>` is the common case: apply that loadout.
+            op_key = "mining.apply_loadout"
+            arg = " ".join(argv).strip()
+
+        blocked, after = await _op_after(req, op_key, {"loadout_name": arg})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.gear_view")
+    async def gear_view(req) -> Reply:
+        """`!gear` — the shipped gear embed + paper-doll send
+        (mining_cog.py ``gear``; views/mining/gear_panel.py builds the
+        ``🧍 {name}'s Gear`` embed and attaches ``character_doll.png``).
+        The parity transport records only the attachment filename
+        (goldens/mining/sweep_gear pins ``{"_files": ["character_doll.png"]}``);
+        the embed layout + PNG bytes are dropped by the multipart
+        serializer on both capture and replay."""
+        from sb.domain.mining import equipment as _eq
+        from sb.domain.mining import store
+        from sb.kernel.panels.render import RenderedEmbed
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        equipped = await store.get_equipment(uid, gid)
+        wear = await store.get_gear_wear(uid, gid)
+        name = _author_name(req) or await _member_name(uid, gid)
+        fields: list[tuple[str, str, bool]] = []
+        for slot in _eq.SLOTS:
+            held = equipped.get(slot)
+            if held:
+                maximum = _eq.max_durability(held)
+                cond = (f"  {_durability_bar(wear.get(held, maximum), maximum)}"
+                        if maximum is not None else "")
+                fields.append((slot.title(), f"{held.title()}{cond}", True))
+            else:
+                fields.append((slot.title(), "*(empty)*", True))
+        stats = _eq.compute_stats(equipped)
+        lines = [f"{label}: **+{value}**"
+                 for label, value in _eq.describe_stats(stats)]
+        fields.append(("Stats",
+                       "\n".join(lines) or "No bonuses yet — equip some "
+                       "gear!", False))
+        progress = _eq.set_progress(equipped)
+        active = _eq.active_set_tier(equipped)
+        if active:
+            fields.append(("✨ Set bonus",
+                           f"Full **{active.title()}** set", False))
+        elif progress:
+            tier, pieces = progress
+            fields.append(("🧩 Set progress",
+                           f"{tier.title()} set {pieces}/"
+                           f"{len(_eq.SET_SLOTS)}", False))
+        embed = RenderedEmbed(
+            title=f"🧍 {name}'s Gear", description="",
+            style_token="dark_grey", fields=tuple(fields),
+            footer="Tip: !minemenu → 🧰 Gear equips with clicks (and ✨ "
+                   "Equip Best).")
+        return await _card_with_file(req, embed, "character_doll.png")
+
+    @handler("mining.character_view")
+    async def character_view(req) -> Reply:
+        """`!character` (aliases: profile, char) — the shipped character
+        card + paper-doll send (mining_cog.py ``character``;
+        views/mining/character_panel.py builds the ``🧍 {name}'s
+        Character`` embed and attaches ``character.png``). The parity
+        transport records only the attachment filename
+        (goldens/mining/sweep_character pins ``{"_files": ["character.png"]}``)."""
+        from sb.domain.games import store as games_store
+        from sb.domain.mining import character as _char
+        from sb.domain.mining import equipment as _eq
+        from sb.domain.mining import market, store
+        from sb.domain.mining.store import get_depth, get_mining_inventory
+        from sb.domain.mining.world import describe_position
+        from sb.domain.xp.levels import level_progress
+        from sb.kernel.panels.render import RenderedEmbed
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        equipped = await store.get_equipment(uid, gid)
+        alloc = await store.get_skills(uid, gid)
+        inventory = await get_mining_inventory(uid, gid)
+        depth = await get_depth(uid, gid)
+        level, _into, _needed = level_progress(
+            await games_store.total_game_xp(uid, gid))
+        worth = sum(qty * (market.sell_price(item) or 0)
+                    for item, qty in inventory.items())
+        name = _author_name(req) or await _member_name(uid, gid)
+        stats = _char.character_stats(equipped, alloc)
+        stat_lines = [f"{label}: **+{value}**"
+                      for label, value in _eq.describe_stats(stats)]
+        gear_overview = ", ".join(
+            f"{slot}: {equipped[slot].title()}" for slot in _eq.SLOTS
+            if slot in equipped) or "*(nothing equipped)*"
+        embed = RenderedEmbed(
+            title=f"🧍 {name}'s Character", description="",
+            style_token="dark_grey",
+            fields=(
+                ("📍 Location", describe_position(depth), True),
+                ("🎮 Game Level", f"Level **{level}**", True),
+                ("🧰 Gear", gear_overview, False),
+                ("📊 Stats", "\n".join(stat_lines) or "No bonuses yet.",
+                 False),
+                ("💰 Wealth", f"Inventory net worth: **{worth}**", False),
+            ))
+        return await _card_with_file(req, embed, "character.png")
+
+    @handler("mining.descend_route")
+    async def descend_route(req) -> Reply:
+        """`!descend` — the shipped depth move (mining_cog.py ``descend``;
+        services/mining_workflow.py ``descend``). The move is gated by the
+        equipped light's ``depth_access`` stat (persistent, not consumed):
+        a fresh gearless player reads all-zero stats and CANNOT descend, so
+        the bare invocation answers the mention-prefixed refusal
+        (goldens/mining/sweep_descend pins ``<@…> can't descend any deeper.
+        Equip a brighter light to descend to Cavern (needs depth access
+        1).``) — a pure read, no write, no audit row. A geared descent runs
+        the audited depth op (set_depth + one-time depth_record game XP) and
+        answers the moved position; that row-bearing lane exists in no
+        imported golden (depth.exemptions.mining guard-only-capture)."""
+        from sb.domain.mining import character, store, world
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        depth = await store.get_depth(uid, gid)
+        equipped = await store.get_equipment(uid, gid)
+        alloc = await store.get_skills(uid, gid)
+        stats = character.character_stats(equipped, alloc)
+        if world.descend(depth, stats) == depth:
+            return Reply(BLOCKED,
+                         f"<@{uid}> can't descend any deeper. "
+                         f"{world.descend_hint(stats)}")
+        blocked, after = await _op_after(req, "mining.descend")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.ascend_route")
+    async def ascend_route(req) -> Reply:
+        """`!ascend` — the shipped climb (mining_cog.py ``ascend``;
+        services/mining_workflow.py ``ascend``). A player at the Surface
+        cannot ascend, so the bare fresh-player invocation answers the
+        mention-prefixed refusal (goldens/mining/sweep_ascend pins ``<@…>
+        is already at the Surface.``) — a pure read, no write. Below the
+        Surface the audited op writes the new band and answers the moved
+        position (no imported golden drives it)."""
+        from sb.domain.mining import store, world
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        depth = await store.get_depth(uid, gid)
+        if world.ascend(depth) == depth:
+            return Reply(BLOCKED, f"<@{uid}> is already at the Surface.")
+        blocked, after = await _op_after(req, "mining.ascend")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.mineworld_route")
+    async def mineworld_route(req) -> Reply:
+        """`!mineworld [seed]` — the shipped shared-world seed (mining_cog.py
+        ``mineworld``). Bare: reads the guild's world seed (a guild with no
+        row defaults to ``seed = guild_id`` in the store) and answers the
+        seed-share copy plain (goldens/mining/sweep_mineworld pins the
+        default-seed byte with no row). With a numeric seed: the manage_guild
+        re-seed (ActorRef.is_guild_operator — the shipped
+        ``member_has_perms_or_owner(manage_guild=True)`` port home) runs the
+        audited reseed op; a non-manager is refused, an unparseable seed
+        degrades through the generic copy. The reseed WRITE exists in no
+        imported golden (depth.exemptions.mining guard-only-capture)."""
+        from sb.domain.mining import store
+
+        gid = int(req.guild_id or 0)
+        argv = [str(t) for t in tuple(req.args.get("argv", ()) or ())]
+        values = [str(t) for t in tuple(req.args.get("values", ()) or ())]
+        tokens = argv or values
+        if not tokens:
+            current = await store.get_world_seed(gid)
+            return Reply(SUCCESS,
+                         f"🌐 This server's mining world seed is "
+                         f"**{current}**. Everyone here roams the same "
+                         "world — share the seed to compare maps. Server "
+                         "managers can reseed with `!mineworld <number>`.")
+        try:
+            seed = int(tokens[0])
+        except ValueError:
+            return Reply(BLOCKED, _GENERIC_ERROR)
+        if not getattr(req.actor, "is_guild_operator", False):
+            return Reply(BLOCKED,
+                         "Only server managers can reseed the mining world.")
+        blocked, _after = await _op_after(req, "mining.reseed_world",
+                                          {"seed": seed})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS,
+                     f"🌐 Reseeded this server's mining world to **{seed}**. "
+                     "The whole grid regenerated; your position and explored "
+                     "map carry over.")
+
+    @handler("mining.stash_route")
+    async def stash_route(req) -> Reply:
+        """`!stash [item] [amount]` — the shipped vault deposit (mining_cog.py
+        ``stash``; services/mining_workflow.py ``vault_deposit``). The bare
+        invocation answers the usage copy plain (goldens/mining/sweep_stash
+        pins the byte) — a pure read, no write; an argful call runs the audited
+        deposit op (inventory debit + vault credit in one txn) and prefixes the
+        invoker mention on success, sending a business refusal plain. The
+        row-bearing deposit exists in no imported golden
+        (depth.exemptions.mining guard-only-capture)."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to stash, e.g. `!stash diamond 5` "
+                         "— or `!vault`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.stash", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.unstash_route")
+    async def unstash_route(req) -> Reply:
+        """`!unstash [item] [amount]` — the shipped vault withdraw
+        (mining_cog.py ``unstash``; services/mining_workflow.py
+        ``vault_withdraw``). The bare invocation answers the usage copy plain
+        (goldens/mining/sweep_unstash pins the byte); an argful call runs the
+        audited withdraw op and prefixes the mention on success."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to withdraw, e.g. `!unstash diamond 5` "
+                         "— or `!vault`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.unstash", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.vaultupgrade_route")
+    async def vaultupgrade_route(req) -> Reply:
+        """`!vaultupgrade` — buy one vault-capacity tier (mining_cog.py
+        ``vaultupgrade``; services/mining_workflow.py ``vault_upgrade``). The
+        shipped handler always prefixes the mention (both ok and refusal). A
+        fresh player reads vault level 0 → cost 2000 and balance 0 → the
+        insufficient-funds refusal (goldens/mining/sweep_vaultupgrade pins
+        ``<@…> A vault upgrade costs **2000** 🪙 — you only have **0** 🪙.``) —
+        computed as a PURE READ (get_vault_level + get_coins) so the failed
+        attempt writes no coin ledger / audit row, exactly as the oracle's txn
+        rolls back. Only a funded upgrade runs the audited debit-and-bump op
+        (mining_player_state.vault_level write); that lane exists in no imported
+        golden (depth.exemptions.mining guard-only-capture)."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.mining import capacity, store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        level = await store.get_vault_level(uid, gid)
+        cost = capacity.vault_upgrade_cost(level)
+        if cost is None:
+            cap = capacity.vault_capacity(level)
+            return Reply(BLOCKED,
+                         f"<@{uid}> Your vault is already at its maximum "
+                         f"capacity (**{cap}** item types).")
+        balance = await get_coins(uid, gid)
+        if balance < cost:
+            return Reply(BLOCKED,
+                         f"<@{uid}> A vault upgrade costs **{cost}** 🪙 — "
+                         f"you only have **{balance}** 🪙.")
+        blocked, after = await _op_after(req, "mining.vault_upgrade")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.stash_all_route")
+    async def stash_all_route(req) -> Reply:
+        """The 🏦 Vault panel's 📦 Stash All Ore button — tuck every raw
+        resource into the vault in one txn (mining_workflow
+        ``vault_deposit_all_resources``). No command binds it and no golden
+        drives the click; the audited stash-all op carries the write, the
+        empty-pack case answers the shipped nudge plain."""
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        blocked, after = await _op_after(req, "mining.stash_all")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.repair_route")
+    async def repair_route(req) -> Reply:
+        """`!repair [item]` — repair worn gear for coins (mining_cog.py
+        ``repair``; services/mining_workflow.py ``repair``). The bare invocation
+        answers the usage copy PLAIN (goldens/mining/sweep_repair pins the byte)
+        — a pure read, no write; an argful call runs the audited repair op
+        (economy debit + wear clear in one txn, advisory-fenced) and prefixes the
+        invoker mention on success. No golden drives a funded repair
+        (depth.exemptions.mining guard-only-capture: mining_gear_wear)."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to repair, e.g. `!repair pickaxe` "
+                         "— or `!workshop`.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        blocked, after = await _op_after(
+            req, "mining.repair", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.quickcraft_route")
+    async def quickcraft_route(req) -> Reply:
+        """`!quickcraft` — re-craft the last gear item that broke and equip it
+        (mining_cog.py ``quick_craft``; services/mining_workflow.py
+        ``quick_craft``). The shipped handler always prefixes the mention. A
+        fresh player has no broken item (NULL last_broken_item) → the "nothing
+        broken" refusal (goldens/mining/sweep_quickcraft pins ``<@…> Nothing has
+        broken recently — craft or repair gear below.``) — computed as a PURE
+        READ (get_last_broken) so the no-op attempt writes no audit row, exactly
+        as the oracle's ok=False result never opened a txn. Only a real
+        quick-craft runs the audited material-consume + equip + marker-clear op;
+        that lane exists in no imported golden (depth.exemptions.mining
+        guard-only-capture)."""
+        from sb.domain.mining import store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        last = await store.get_last_broken(uid, gid)
+        if not last:
+            return Reply(BLOCKED,
+                         f"<@{uid}> Nothing has broken recently — craft or "
+                         "repair gear below.")
+        blocked, after = await _op_after(req, "mining.quick_craft")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
+
+    @handler("mining.cook_route")
+    async def cook_route(req) -> Reply:
+        """`!cook [fish]` — cook a caught fish into food (mining_cog.py
+        ``cook``). The bare invocation answers the usage copy PLAIN
+        (goldens/mining/sweep_cook pins the byte). The argful cook write
+        (fish → cooked fish, gated on a built 🔥 Campfire, refilling mining
+        energy) rides the deferred mining energy/consumable system — no golden
+        drives it — so it stays an honest D-0043 pending terminal."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify a fish to cook, e.g. `!cook minnow` "
+                         "(needs a 🔥 Campfire).")
+        return Reply(BLOCKED,
+                     "🔥 `!cook` needs the mining campfire/energy system — the "
+                     "deep mining port is named successor work (D-0043); the "
+                     "core loop (mine/chop/explore/sell/buy) is live.")
+
+    @handler("mining.use_route")
+    async def use_route(req) -> Reply:
+        """`!use [item]` — use a consumable from your pack (mining_cog.py
+        ``use``). The bare invocation answers the usage copy PLAIN
+        (goldens/mining/sweep_use pins the byte). The argful consume (torch /
+        dynamite flavour + food/booster energy refill) rides the deferred mining
+        energy/consumable system — no golden drives it — so it stays an honest
+        D-0043 pending terminal."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Please specify an item to use, e.g. `!use torch`.")
+        return Reply(BLOCKED,
+                     "🎒 `!use` needs the mining consumable/energy system — the "
+                     "deep mining port is named successor work (D-0043); the "
+                     "core loop (mine/chop/explore/sell/buy) is live.")
+
 
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
 #: forge/workshop/titles/loadouts/character) is D-0043 successor work.
 PENDING = {
-    "mineinv": "pack detail panel",
     "build": "structures", "buildlist": "structures",
-    "buildable": "structures", "use": "consumables", "cook": "campfire",
-    "equip": "equipment", "unequip": "equipment", "gear": "equipment",
-    "loadout": "loadout presets", "character": "character sheet",
-    "descend": "depth bands", "ascend": "depth bands",
-    "mineworld": "world grid", "vault": "vault", "stash": "vault",
-    "unstash": "vault", "vaultupgrade": "vault", "skills": "skills",
-    "skill": "skills", "titles": "titles", "forge": "forge",
-    "home": "structures", "workshop": "workshop", "repair": "workshop",
-    "quickcraft": "workshop",
+    "buildable": "structures",
+    # equip / unequip / gear / loadout / character are LIVE (slice 1 port):
+    # their real handlers are the *_route / *_view registered in _register()
+    # (mirroring the sell/buy/market lanes), so they leave the PENDING roster.
+    # descend / ascend / mineworld are LIVE (slice 2 port): descend_route /
+    # ascend_route / mineworld_route in _register() carry the depth-traversal
+    # + world-seed bytes, so they too leave the PENDING roster.
+    # vault / stash / unstash / vaultupgrade are LIVE (slice 3 port): the
+    # mining.vault session PanelSpec + stash_route / unstash_route /
+    # vaultupgrade_route carry the safe-stash + capacity-sink bytes.
+    # mineinv already routes to the live mining.inventory_view (re-homed #250),
+    # so it too leaves the PENDING roster.
+    # forge / repair / quickcraft / cook / use are LIVE (slice 4 port): the
+    # mining.forge session PanelSpec + repair_route / quickcraft_route /
+    # cook_route / use_route carry the workshop/campfire/consumable bytes (the
+    # forge not-built card + the repair/cook/use usage guards + the quickcraft
+    # "nothing broken" pure read). The structures BUILD write (🔥 Build) and the
+    # argful cook/use energy lanes stay deferred (D-0043 pending terminals).
+    "skills": "skills",
+    "skill": "skills", "titles": "titles",
+    "home": "structures", "workshop": "workshop",
 }
 
 
