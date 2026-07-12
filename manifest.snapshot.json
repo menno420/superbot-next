@@ -4325,6 +4325,16 @@
         {
           "source": "sb/manifest/farm.py",
           "subsystem": "farm",
+          "value": "farm_shop"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm_refresh"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
           "value": "farm_buy_hen"
         },
         {
@@ -4335,7 +4345,7 @@
         {
           "source": "sb/manifest/farm.py",
           "subsystem": "farm",
-          "value": "farm_refresh"
+          "value": "farm_shop_back"
         },
         {
           "source": "sb/manifest/fishing.py",
@@ -5565,6 +5575,11 @@
           "source": "sb/manifest/farm.py",
           "subsystem": "farm",
           "value": "farm.hub"
+        },
+        {
+          "source": "sb/manifest/farm.py",
+          "subsystem": "farm",
+          "value": "farm.shop"
         },
         {
           "source": "sb/manifest/fishing.py",
@@ -8128,6 +8143,12 @@
       "handler:economy.work_view": {
         "module": "sb.domain.economy.handlers"
       },
+      "handler:farm.render_hub": {
+        "module": "sb.domain.farm.panels"
+      },
+      "handler:farm.render_shop": {
+        "module": "sb.domain.farm.panels"
+      },
       "handler:fishing.bait_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -9127,6 +9148,9 @@
       "panel:farm.hub": {
         "module": "sb.domain.farm.panels"
       },
+      "panel:farm.shop": {
+        "module": "sb.domain.farm.panels"
+      },
       "panel:fishing.hub": {
         "module": "sb.manifest.fishing"
       },
@@ -9579,9 +9603,6 @@
       },
       "provider:economy.shop_overview": {
         "module": "sb.domain.economy.panels"
-      },
-      "provider:farm.hub_status": {
-        "module": "sb.domain.farm.panels"
       },
       "provider:games.hub_fields": {
         "module": "sb.domain.games.panels"
@@ -11194,7 +11215,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:bbcd6e46f5529f6ee6e5aae7654ea5a1830abbc025ce6ddbefb22acd897814d3",
+  "stable_hash": "sha256:0c60f5341fce942d883a3fe59326bb7a197db6cbf80c815f4dfb9f62a48b9b8b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -27066,7 +27087,7 @@
               "visible_when": ""
             },
             {
-              "action_id": "farm_buy_hen",
+              "action_id": "farm_shop",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
@@ -27075,37 +27096,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🐔",
+              "emoji": "🛒",
               "flow_stage": 0,
               "handler": {
-                "$ref": "workflow:farm.buy_chicken"
+                "$ref": "panel:farm.shop"
               },
-              "label": "Buy Hen",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "primary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "farm_upgrade_coop",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "🏠",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "workflow:farm.upgrade_coop"
-              },
-              "label": "Upgrade Coop",
+              "label": "Shop",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -27145,32 +27141,26 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Your idle farm — hens lay eggs while you're away. Collect eggs for coins, buy hens to lay faster, and upgrade the coop to hold more."
-            },
-            {
-              "provider": {
-                "$ref": "provider:farm.hub_status"
-              }
+              "text": "Your hens lay eggs around the clock — even while you're away. Press **Collect** to cash them in, then visit the **Shop** to grow."
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "purple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "two shipped surfaces sit outside the grammar's vocabulary (goldens/farm/sweep_farm pins both): (1) the three FIELDS interpolate the invoker's LIVE settled farm state — the Coop egg-bar/worth/fill-countdown line, the Flock hen count/lay rate, the Coop level/capacity — with the shipped inline flags (false/true/true), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (FieldsBlock renders inline=False 2-tuples only; the creature 'Your progress' precedent); (2) the FOOTER interpolates the invoker's live coin balance ('Balance: 0 🪙  ·  🥚 Collect · 🛒 Shop', views/farm/menu.py build_farm_embed) — outside FooterMode's vocabulary (the casino/community precedent). Title, description, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
                     "farm_collect",
-                    "farm_buy_hen",
-                    "farm_upgrade_coop",
+                    "farm_shop",
                     "farm_refresh"
                   ]
                 ]
@@ -27180,21 +27170,149 @@
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:games.world"
-            },
+            "home_hub": "games",
+            "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "farm.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:farm.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "farm",
           "timeout_s": 180,
           "title": "🐔 Chicken Farm",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "farm_buy_hen",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🐔",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:farm.buy_chicken"
+              },
+              "label": "Buy hen",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "farm_upgrade_coop",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏠",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "workflow:farm.upgrade_coop"
+              },
+              "label": "Upgrade coop",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "farm_shop_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "◀",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:farm.hub"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Spend your egg coins to grow the farm:\n\n**🐔 Buy hen** — one more hen lays eggs faster.\n**🏠 Upgrade coop** — hold more eggs so idle progress banks longer.\n\nPrices rise as your farm grows."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped shop embed carries two LIVE price fields (views/farm/menu.py build_shop_embed: '🐔 Next hen' — price + '(own N)' or 'maxed'; '🏠 Coop upgrade' — price + '→ holds N' or 'maxed'; both inline) and the 'Balance: N 🪙' footer — read-parameterized state outside the static grammar vocabulary and FooterMode's set (the farm.hub sibling justification). Title, description, color and every component stay grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "farm_buy_hen",
+                    "farm_upgrade_coop",
+                    "farm_shop_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "farm.shop",
+          "renderer_override": {
+            "$ref": "handler:farm.render_shop"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "farm",
+          "timeout_s": 180,
+          "title": "🛒 Farm Shop",
           "usage_weight": 1.0
         }
       ],
