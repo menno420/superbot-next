@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.mineinv",
+ "case_id": "sweep.buy",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1955671675,
+     "last_xp": 1795310384,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -50,22 +50,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": null,
-      "embeds": [
-       {
-        "color": 15844367,
-        "description": "No items yet — go mining with `!mine` or visit `!shop`!",
-        "flags": 0,
-        "footer": {
-         "text": "Select a category below to view details."
-        },
-        "thumbnail": {
-         "url": "https://cdn.discordapp.com/embed/avatars/1.png"
-        },
-        "title": "🎒 AdminActor's Inventory",
-        "type": "rich"
-       }
-      ],
+      "content": "Specify what to buy — see `!market` for the shop.",
       "tts": false
      }
     },
@@ -92,11 +77,11 @@
     }
    ],
    "input": {
-    "content": "!mineinv",
+    "content": "!buy",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "mining"
 }

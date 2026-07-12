@@ -112,6 +112,52 @@ async def _op_after(req, op_key: str, params: dict | None = None):
 _MENTION = _re.compile(r"^<@!?(\d{15,20})>$|^(\d{15,20})$")
 
 
+def _no_args(req) -> bool:
+    """True when the invocation carried no item argument — the shipped
+    arg-optional ``item: str = None`` bare-call branch (mining_cog.py
+    ``!sell`` / ``!buy``)."""
+    return (not tuple(req.args.get("argv", ()) or ())
+            and not tuple(req.args.get("values", ()) or ()))
+
+
+async def _card(req, embed) -> Reply:
+    """Present one read card as the shipped public embed reply
+    (``ctx.send(embed=…)`` — the ai.card/karma.card open_panel lane)."""
+    import dataclasses
+
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef("mining.card"), dataclasses.replace(
+        req, args={**dict(req.args), "_card": embed}))
+    return Reply(SUCCESS, None)
+
+
+def _durability_bar(remaining: int, maximum: int) -> str:
+    """A 5-segment ``▰▰▰▱▱ 23/60`` bar — shipped
+    ``utils/mining/workshop.durability_bar`` verbatim (the ``!minestats``
+    Game Level gauge; goldens/mining/sweep_minestats pins the bytes)."""
+    import math
+
+    if maximum <= 0:
+        return f"{remaining}/{maximum}"
+    filled = math.ceil(remaining / maximum * 5)
+    filled = max(0, min(5, filled))
+    return f"{'▰' * filled}{'▱' * (5 - filled)} {remaining}/{maximum}"
+
+
+def _author_name(req) -> str | None:
+    """The invoker's username off the surface origin — the shipped
+    ``ctx.author.name`` read (``!minestats`` title); ``None`` when the
+    origin carries no member (the directory-port fallback's cue)."""
+    origin = getattr(req, "origin", None)
+    member = (getattr(origin, "author", None)
+              or getattr(origin, "user", None))
+    name = (str(getattr(member, "name", "") or "")
+            or str(getattr(member, "display_name", "") or ""))
+    return name or None
+
+
 async def _member_name(user_id: int, guild_id: int) -> str:
     """The target's name through the guild-directory read port (the
     economy/karma author-line recipe); degrades to the mention — never
@@ -194,50 +240,135 @@ def _register() -> None:
         name = await _member_name(subject, int(req.guild_id or 0))
         return Reply(SUCCESS, f"{name}'s inventory has been reset.")
 
-    handler("mining.sell_route")(_run_op("mining.sell"))
-    handler("mining.sellall_route")(_run_op("mining.sell_all"))
-    handler("mining.buy_route")(_run_op("mining.buy"))
+    @handler("mining.sell_route")
+    async def sell_route(req) -> Reply:
+        """`!sell [item] [qty]` — shipped arg-optional (mining_cog.py
+        ``sell(self, ctx, item: str = None, …)``): the bare invocation
+        answers the usage copy plain (goldens/mining/sweep_sell pins the
+        bytes); argful calls run the audited op unchanged."""
+        if _no_args(req):
+            return Reply(BLOCKED, "Specify what to sell, e.g. "
+                                  "`!sell iron 10` — or `!sellall`.")
+        return await _run_op("mining.sell")(req)
 
-    @handler("mining.inventory_view")
-    async def inventory_view(req) -> Reply:
+    @handler("mining.sellall_route")
+    async def sellall_route(req) -> Reply:
+        """`!sellall` — the shipped empty-pack pre-check reads BEFORE the
+        txn (services/mining_workflow.sell_all: inventory →
+        ``sellable_inventory`` → ``TradeResult(False, …)``, sent with the
+        cog's mention prefix — goldens/mining/sweep_sellall pins the
+        bytes). Non-empty packs run the audited op (its FOR UPDATE
+        inventory read + in-txn guard untouched)."""
+        from sb.domain.mining import market
         from sb.domain.mining.store import get_mining_inventory
 
         uid = int(getattr(req.actor, "user_id", 0) or 0)
         inventory = await get_mining_inventory(uid,
                                                int(req.guild_id or 0))
-        if not inventory:
-            return Reply(SUCCESS,
-                         "🎒 Your pack is empty — `!mine` to fill it!")
-        lines = ["🎒 **Your mining pack**"] + [
-            f"• {name} ×{qty}"
-            for name, qty in sorted(inventory.items())]
-        return Reply(SUCCESS, "\n".join(lines))
+        if not market.sellable_inventory(inventory):
+            return Reply(BLOCKED, f"<@{uid}> You have no resources to "
+                                  "sell — go mine some!")
+        return await _run_op("mining.sell_all")(req)
+
+    @handler("mining.buy_route")
+    async def buy_route(req) -> Reply:
+        """`!buy [item]` — shipped arg-optional (mining_cog.py
+        ``buy(self, ctx, *, item: str = None)``): the bare invocation
+        answers the usage copy plain (goldens/mining/sweep_buy pins the
+        bytes); argful calls run the audited op unchanged."""
+        if _no_args(req):
+            return Reply(BLOCKED,
+                         "Specify what to buy — see `!market` for the "
+                         "shop.")
+        return await _run_op("mining.buy")(req)
+
+    @handler("mining.inventory_view")
+    async def inventory_view(req) -> Reply:
+        """`!mineinv` — the shipped compatibility alias delegation
+        (mining_cog.py ``mineinv``, classification "legacy_duplicate":
+        ``ctx.bot.get_command("inventory")`` → invoke): route into the
+        unified inventory hub handler verbatim
+        (goldens/mining/sweep_mineinv pins the same bytes the green
+        goldens/inventory/sweep_inventory pins)."""
+        from sb.spec.refs import resolve
+
+        return await resolve(HandlerRef("inventory.view"))(req)
 
     @handler("mining.stats_view")
     async def stats_view(req) -> Reply:
-        from sb.domain.games import xp as game_xp
-        from sb.domain.games.store import game_xp_rows
-        from sb.domain.mining.store import get_depth
+        """`!minestats` — the shipped stats embed (mining_cog.py:
+        ``{ctx.author.name}'s Mining Stats``, MINING_COLOR dark_grey,
+        Location + 🎮 Game Level non-inline, the four inline counters —
+        goldens/mining/sweep_minestats pins the bytes). Deepest reads the
+        current depth: the shipped ``max_depth`` record only diverges
+        through descend/ascend, which ride the D-0043 deep-system port.
+        Net worth values resources/fish only (the hub Wealth field's
+        ledgered D-0043 boundary — shipped ``items.total_value`` also
+        valued tools/gear)."""
+        from sb.domain.games import store as games_store
+        from sb.domain.mining import market
+        from sb.domain.mining.store import get_depth, get_mining_inventory
+        from sb.domain.mining.world import describe_position
+        from sb.domain.xp.levels import level_progress
+        from sb.kernel.panels.render import RenderedEmbed
 
         uid = int(getattr(req.actor, "user_id", 0) or 0)
         gid = int(req.guild_id or 0)
+        inventory = await get_mining_inventory(uid, gid)
         depth = await get_depth(uid, gid)
-        rows = {str(r["game"]): int(r["xp"])
-                for r in await game_xp_rows(uid, gid)}
-        return Reply(SUCCESS,
-                     f"⛏️ **Mining stats** — depth band **{depth}**, "
-                     f"mining XP **{rows.get(game_xp.GAME_MINING, 0):,}**")
+        level, into, needed = level_progress(
+            await games_store.total_game_xp(uid, gid))
+        worth = sum(qty * (market.sell_price(item) or 0)
+                    for item, qty in inventory.items())
+        name = _author_name(req) or await _member_name(uid, gid)
+        return await _card(req, RenderedEmbed(
+            title=f"{name}'s Mining Stats", description="",
+            style_token="dark_grey",
+            fields=(
+                ("Location", describe_position(depth), False),
+                ("🎮 Game Level",
+                 f"Level **{level}** — {_durability_bar(into, needed)} "
+                 "XP", False),
+                ("Total Items Collected",
+                 str(sum(inventory.values())), True),
+                ("Unique Items", str(len(inventory)), True),
+                ("Net Worth", str(worth), True),
+                ("Deepest", describe_position(depth), True),
+            )))
 
     @handler("mining.market_view")
     async def market_view(req) -> Reply:
+        """`!market` — the shipped market embed (mining_cog.py
+        ``market_cmd``: 🛒 Mining Market, the sellables field when the
+        pack holds any, the price-then-name ordered 🛍️ Buy gear listing,
+        the dynamic balance footer — goldens/mining/sweep_market pins
+        the empty-pack bytes)."""
+        from sb.domain.economy.store import get_coins
         from sb.domain.mining import market
+        from sb.domain.mining.store import get_mining_inventory
+        from sb.kernel.panels.render import RenderedEmbed
 
-        lines = ["🏪 **Market** — sell resources with `!sell <item> "
-                 "[qty]` / `!sellall`; buy gear with `!buy <item>`.",
-                 "Sell values: " + ", ".join(
-                     f"{k} {v}🪙"
-                     for k, v in market.RESOURCE_VALUES.items())]
-        return Reply(SUCCESS, "\n".join(lines))
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        inventory = await get_mining_inventory(uid, gid)
+        balance = await get_coins(uid, gid)
+        sellables = market.sellable_inventory(inventory)
+        sale_total = sum(qty * price for _, qty, price in sellables)
+        fields: list[tuple[str, str, bool]] = []
+        if sellables:
+            fields.append((
+                f"💰 Sell (total {sale_total} 🪙)",
+                "\n".join(f"**{name.title()}** ×{qty} → {qty * price} 🪙"
+                          for name, qty, price in sellables), False))
+        fields.append((
+            "🛍️ Buy gear",
+            "\n".join(f"**{name.title()}** — {price} 🪙"
+                      for name, price in market.shop_listing()), False))
+        return await _card(req, RenderedEmbed(
+            title="🛒 Mining Market", description="",
+            style_token="dark_grey", fields=tuple(fields),
+            footer=f"Balance: {balance} 🪙  •  !sell <item> [n] · "
+                   "!sellall · !buy <item>"))
 
 
 #: The deep-system commands (shipped names) → pending copy. The mining
