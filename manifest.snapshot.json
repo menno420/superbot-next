@@ -3397,8 +3397,24 @@
           "parent_group": null,
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
+          "surface": "prefix",
+          "value": "setupadvanced"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
           "surface": "slash",
           "value": "setup-describe"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "surface": "prefix",
+          "value": "setupdescribe"
         },
         {
           "kind": "command",
@@ -12127,7 +12143,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:8168b6825ae87b08be6ee3037586ffd5e08de9f1ecc95b913abdf902ec9a0c8e",
+  "stable_hash": "sha256:28c16177ef9b760ee913c3dc59d949491e79aa9d73d3381d5a52d7010c98d89a",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -35323,7 +35339,7 @@
           "audience": "public",
           "body": [
             {
-              "text": "8 command(s), generated from the `setup` manifest."
+              "text": "10 command(s), generated from the `setup` manifest."
             },
             {
               "provider": {
@@ -45955,6 +45971,32 @@
           "usage_weight": 1.0
         },
         {
+          "aliases": [
+            "advancedsetup"
+          ],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "setupadvanced",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:setup.advanced_open"
+          },
+          "slash_common": false,
+          "summary": "Open or resume the advanced (linear) setup wizard.",
+          "usage": "!setupadvanced",
+          "usage_weight": 1.0
+        },
+        {
           "aliases": [],
           "audience_tier": "administrator",
           "capability": "setup",
@@ -45976,6 +46018,32 @@
           "slash_common": false,
           "summary": "Describe your server; get setup suggestions.",
           "usage": "/setup-describe description:<text>",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "describesetup"
+          ],
+          "audience_tier": "administrator",
+          "capability": "setup",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "setupdescribe",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:setup.describe_entry"
+          },
+          "slash_common": false,
+          "summary": "Describe your server in words; propose how to wire it to the bot.",
+          "usage": "!setupdescribe",
           "usage_weight": 1.0
         },
         {
