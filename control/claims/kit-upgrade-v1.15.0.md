@@ -1,0 +1,1 @@
+- `claude/kit-upgrade-v1.15.0` · **kit upgrade** — substrate-kit 1.14.0 → 1.15.0 (bootstrap.py + ADOPT_PLAN docs pass) · bootstrap.py, .substrate/, docs/ · 2026-07-12
