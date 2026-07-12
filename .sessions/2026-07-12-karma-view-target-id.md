@@ -1,6 +1,6 @@
 # 2026-07-12 — karma view lane resolves target from argv[0] only (the treasury-karma card's ledgered sibling)
 
-> **Status:** in-progress
+> **Status:** `complete`
 
 - **📊 Model:** Claude (Fable family) · scan-class parse fix, view lane
 
@@ -37,7 +37,37 @@ only to the mutation lane (required `member:` slot).
 
 - `sb/domain/karma/handlers.py` — `_target_id` parses argv[0] only;
   None tail kept.
-- `tests/unit/band4/test_band4_karma.py` — card-view target resolution
-  tests: deep digit token no longer selected (regression, verified red
-  on the old body), argv[0] mention/bare-ID still selected,
-  non-convertible argv[0] and empty argv return None (actor fallback).
+- `tests/unit/band4/test_band4_karma.py` — 3 card-view target tests:
+  deep digit token no longer selected (REGRESSION — verified red on the
+  old body: `assert 123456789012345678 is None` failed before the fix),
+  argv[0] mention/bare-ID still selected, non-convertible argv[0] and
+  empty argv return None (actor fallback).
+
+## Evidence
+
+- units: `python3 -m pytest tests/ -q` → 2039 passed, 13 skipped.
+- red→green: regression test FAILED against the pre-fix `_target_id`
+  (whole-argv scan returned 123456789012345678), passes after the
+  argv[0]-only rebind; band4 karma suite 14/14.
+- kit gate: `python3 bootstrap.py check --strict` → only the designed
+  born-red hold on this card's in-progress badge (flipped in the
+  landing commit) + two pre-existing rps-claims advisory warnings, not
+  this lane.
+
+## 💡 Session idea
+
+`_target_id` (handlers) and `_target_from` (ops) now encode the same
+argv[0] mention/bare-ID parse in two shapes — a tiny shared
+`parse_member_token(token) -> int | None` in the karma domain (or the
+handler kit, if a third caller appears) would make the next scan-class
+regression impossible to reintroduce in one lane only.
+
+## ⟲ Previous-session review
+
+The `2026-07-12-treasury-karma-argv-fix.md` card's sibling scan (lines
+90-94) made this slice nearly free: exact symbol, exact lines, exact
+"view lane, actor fallback, not this slice's shape" boundary. What it
+could have done better: it left the oracle nuance for the OPTIONAL
+member slot unverified (raise vs backtrack) — this session had to pull
+the shipped cog to confirm discord.py's Optional-converter backtrack
+before knowing the None tail was the right keep.
