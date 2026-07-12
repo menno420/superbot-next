@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.joblist",
+ "case_id": "sweep.shop",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1894581439,
+     "last_xp": 1873292344,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -49,38 +49,69 @@
      },
      "method": "send_message",
      "payload": {
-      "components": [],
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "options": [
+           {
+            "default": false,
+            "description": "Required for delivery driver and CEO.",
+            "label": "🚗 Car — 5,000 🪙",
+            "value": "car"
+           },
+           {
+            "default": false,
+            "description": "Required for mechanic work.",
+            "label": "🔧 Toolkit — 2,000 🪙",
+            "value": "toolkit"
+           },
+           {
+            "default": false,
+            "description": "Required for lawyer and CEO roles.",
+            "label": "👔 Suit — 3,000 🪙",
+            "value": "suit"
+           }
+          ],
+          "placeholder": "Select an item to buy…",
+          "required": true,
+          "type": 3
+         }
+        ],
+        "type": 1
+       }
+      ],
       "content": null,
       "embeds": [
        {
-        "color": 3447003,
+        "color": 16705372,
+        "description": "Buy items to unlock higher-tier jobs.",
         "fields": [
          {
           "inline": false,
-          "name": "Tier 1",
-          "value": "✅ 🧹 **Janitor** — 50 🪙 / work\n✅ 🏪 **Cashier** — 75 🪙 / work\n✅ 🍽️ **Dishwasher** — 60 🪙 / work"
+          "name": "🚗 Car — 5,000 🪙",
+          "value": "Required for delivery driver and CEO."
          },
          {
           "inline": false,
-          "name": "Tier 2",
-          "value": "🔒 🔒 **Security Guard** — 150 🪙 / work *(req: Lv5)*\n🔒 🚗 **Delivery Driver** — 200 🪙 / work *(req: Lv5, car)*\n🔒 👨‍🍳 **Chef** — 175 🪙 / work *(req: Lv5)*"
+          "name": "🔧 Toolkit — 2,000 🪙",
+          "value": "Required for mechanic work."
          },
          {
           "inline": false,
-          "name": "Tier 3",
-          "value": "🔒 💻 **Programmer** — 400 🪙 / work *(req: Lv15)*\n🔒 🔧 **Mechanic** — 350 🪙 / work *(req: Lv15, toolkit)*\n🔒 👩‍⚕️ **Nurse** — 380 🪙 / work *(req: Lv15)*"
-         },
-         {
-          "inline": false,
-          "name": "Tier 4",
-          "value": "🔒 ⚖️ **Lawyer** — 800 🪙 / work *(req: Lv30, suit)*\n🔒 👨‍⚕️ **Doctor** — 900 🪙 / work *(req: Lv30)*\n🔒 👔 **Ceo** — 1200 🪙 / work *(req: Lv50, suit, car)*"
+          "name": "👔 Suit — 3,000 🪙",
+          "value": "Required for lawyer and CEO roles."
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Your level: 0  |  Pay shown includes mastery bonus."
+         "text": "Select an item from the dropdown to purchase."
         },
-        "title": "📋 All Jobs",
+        "title": "🛒 Item Shop",
         "type": "rich"
        }
       ],
@@ -110,11 +141,11 @@
     }
    ],
    "input": {
-    "content": "!joblist",
+    "content": "!shop",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "economy"
 }

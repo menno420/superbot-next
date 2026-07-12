@@ -26,6 +26,28 @@ def _fmt_wait(seconds: int) -> str:
     return f"{seconds // 60}m {seconds % 60:02d}s"
 
 
+def _embed(title: str, description: str):
+    """The shipped ``discord.Embed(title=…, color=_FISHING_COLOR)`` frame
+    (_FISHING_COLOR = INFO blue 3447003 — the goldens pin the byte)."""
+    from sb.kernel.panels.render import RenderedEmbed
+
+    return RenderedEmbed(title=title, description=description,
+                         style_token="blue")
+
+
+async def _card(req, embed) -> Reply:
+    """Present one read card as the shipped public embed reply
+    (``ctx.send(embed=…)`` — the mining.card open_panel lane)."""
+    import dataclasses
+
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef("fishing.card"), dataclasses.replace(
+        req, args={**dict(req.args), "_card": embed}))
+    return Reply(SUCCESS, None)
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
@@ -101,30 +123,45 @@ def _register() -> None:
 
     @handler("fishing.top_view")
     async def top_view(req) -> Reply:
+        """!fishtop — the shipped 🎣 Top Anglers embed (fishing_cog.py
+        fishtop: _FISHING_COLOR blue; the empty-world description is
+        golden-pinned — goldens/fishing/sweep_fishtop). The populated
+        leaderboard body keeps the port's numbered lines inside the
+        shipped embed frame (not golden-pinned; the oracle fragment
+        index surfaces only the empty branch — under-port note)."""
         from sb.domain.fishing import catalog, store
 
         rows = await store.top_fishers(int(req.guild_id or 0),
                                        catalog.fish_names())
         if not rows:
-            return Reply(SUCCESS, "🎣 No anglers yet — try `!fish`!")
-        lines = ["🎣 **Top anglers**"] + [
-            f"{i + 1}. <@{r['user_id']}> — {r['total']} fish"
-            for i, r in enumerate(rows)]
-        return Reply(SUCCESS, "\n".join(lines))
+            desc = "No one has cast a line yet — be the first with `!fish`!"
+        else:
+            desc = "\n".join(
+                f"{i + 1}. <@{r['user_id']}> — {r['total']} fish"
+                for i, r in enumerate(rows))
+        return await _card(req, _embed("🎣 Top Anglers", desc))
 
     @handler("fishing.trophies_view")
     async def trophies_view(req) -> Reply:
+        """!trophies — the shipped 🏅 Biggest Catches embed
+        (fishing_cog.py trophies: _FISHING_COLOR blue; the empty-world
+        description is golden-pinned — goldens/fishing/sweep_trophies).
+        The populated hall-of-fame body keeps the port's numbered lines
+        inside the shipped embed frame (not golden-pinned — the same
+        under-port note as fishtop)."""
         from sb.domain.fishing import catalog, store
 
         rows = await store.top_trophies(int(req.guild_id or 0),
                                         catalog.fish_names())
         if not rows:
-            return Reply(SUCCESS, "🏆 No trophy catches recorded yet.")
-        lines = ["🏆 **Trophy records**"] + [
-            f"{i + 1}. <@{r['user_id']}> — {r['species']} "
-            f"({float(r['best_weight']):.2f} kg)"
-            for i, r in enumerate(rows)]
-        return Reply(SUCCESS, "\n".join(lines))
+            desc = ("No trophies landed yet — reel in a big one with "
+                    "`!fish`!")
+        else:
+            desc = "\n".join(
+                f"{i + 1}. <@{r['user_id']}> — {r['species']} "
+                f"({float(r['best_weight']):g}kg)"
+                for i, r in enumerate(rows))
+        return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 
 #: Gear/venue/craft surfaces awaiting the fishing depth port (D-0043).
@@ -140,8 +177,29 @@ PENDING = {
 }
 
 
+def _register_hub_pending() -> None:
+    """Hub-button-only pending surfaces (no command form — the shipped
+    menu routed these to the structures hub / rules embed views).
+    Registered at module IMPORT (the role/handlers.py pattern — declaring
+    IS reserving; never ensure-only)."""
+    from sb.domain.operator_spine import pending_handler
+
+    pending_handler(
+        "fishing.structures_pending",
+        "🎣 The Structures hub needs the fishing structure systems "
+        "(tide pool / dock / boathouse / fishery) — the fishing depth "
+        "port is named successor work (D-0043); the core cast loop is "
+        "live at the starter profile.")
+    pending_handler(
+        "fishing.howtofish_pending",
+        "🎣 The how-to-fish guide rides the fishing depth port — named "
+        "successor work (D-0043); cast with `!fish` and hit Reel when "
+        "it bites.")
+
+
 def ensure_handler_refs() -> None:
     _register()
+    _register_hub_pending()
     from sb.domain.operator_spine import pending_handler
 
     for name, system in PENDING.items():
@@ -153,3 +211,4 @@ def ensure_handler_refs() -> None:
 
 
 _register()
+_register_hub_pending()

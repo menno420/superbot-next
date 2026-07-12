@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Any
 
 from sb.kernel.db.pool import execute, fetchall, fetchone
-from sb.spec.refs import EngineRef, engine
+from sb.spec.refs import EngineRef, WorkflowRef, engine
 from sb.spec.versioning import (
     CheckpointClass,
     DataClass,
@@ -33,6 +33,7 @@ from sb.spec.versioning import (
 )
 
 __all__ = [
+    "BINDING_AUDIT_STORE",
     "BINDINGS_STORE",
     "SETTINGS_STORE",
     "delete_binding",
@@ -40,6 +41,7 @@ __all__ = [
     "get_binding",
     "get_bindings",
     "get_setting_rows",
+    "insert_binding_audit",
     "make_binding_probe",
     "make_settings_reader",
     "upsert_binding",
@@ -65,6 +67,9 @@ SETTINGS_STORE = register_store(StoreSpec(
 # RENAME: binding rows arrive from legacy KV pointer keys through each
 # BindingSpec's `legacy_settings_key_aliases` map (decision 3 — the alias
 # map is manifest data, so the forward import is generated, not hand-known).
+# Physical shape: the SHIPPED oracle 022 columns (binding_name / target_id /
+# status / version / last_updated_at / last_validated_at — migration 0038;
+# goldens/economy/sweep_setlogchannel pins the row bytes).
 BINDINGS_STORE = register_store(StoreSpec(
     table="subsystem_bindings",
     sole_writer=EngineRef("settings.store"),
@@ -75,6 +80,26 @@ BINDINGS_STORE = register_store(StoreSpec(
     reader_domains=("diagnostics", "help", "setup"),
     bears_value=False,
     data_class=DataClass.NONE,   # channel/role/category pointers
+))
+
+# The shipped append-only bind/clear audit trail (oracle migration 022's
+# `binding_audit_log`, migration 0038 here — preserved on guild leave by
+# design, the oracle guild_lifecycle retention posture). Rows key on the
+# acting operator's id (pseudonymous, S11 class 12) — erasure = TOMBSTONE
+# (scrub actor column in place, keep the forensic skeleton); the body lands
+# with the erasure band, the ref is DECLARED now (the kernel
+# audit_log/event_outbox precedent).
+BINDING_AUDIT_STORE = register_store(StoreSpec(
+    table="binding_audit_log",
+    sole_writer=EngineRef("settings.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.LEDGER,
+    invariant_tag="binding_audit_log",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics",),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("settings.tombstone_binding_audit"),
 ))
 
 
@@ -114,28 +139,33 @@ def make_settings_reader():
 
 async def get_binding(guild_id: int, subsystem: str, name: str,
                       conn: Any = None) -> int | None:
+    """The bound pointer (None = unbound/unresolved) — binding-first reads
+    resolve only 'bound' rows (the shipped arbitration posture)."""
     row = await fetchone(
-        "SELECT resource_id FROM subsystem_bindings "
-        "WHERE guild_id = $1 AND subsystem = $2 AND name = $3 AND slot = 0",
+        "SELECT target_id FROM subsystem_bindings "
+        "WHERE guild_id = $1 AND subsystem = $2 AND binding_name = $3 "
+        "AND status = 'bound'",
         (guild_id, subsystem, name), conn=conn)
-    return None if row is None else int(row["resource_id"])
+    if row is None or row["target_id"] is None:
+        return None
+    return int(row["target_id"])
 
 
 async def get_bindings(guild_id: int, subsystem: str, name: str,
                        conn: Any = None) -> tuple[int, ...]:
-    """All slots of a multiplicity>1 binding, slot-ordered."""
-    rows = await fetchall(
-        "SELECT resource_id FROM subsystem_bindings "
-        "WHERE guild_id = $1 AND subsystem = $2 AND name = $3 ORDER BY slot",
-        (guild_id, subsystem, name), conn=conn)
-    return tuple(int(r["resource_id"]) for r in rows)
+    """The binding's bound targets as a tuple (0 or 1 — the oracle 022
+    shape keys one row per (guild, subsystem, binding_name); the 0009
+    slot-multiplicity lane was a port invention, migration 0038)."""
+    target = await get_binding(guild_id, subsystem, name, conn=conn)
+    return () if target is None else (target,)
 
 
 async def fetchall_bindings(guild_id: int, conn: Any = None) -> list[dict]:
     """Every binding row for one guild (the A-15 export inventory read)."""
     return await fetchall(
-        "SELECT subsystem, name, slot, kind, resource_id FROM subsystem_bindings "
-        "WHERE guild_id = $1 ORDER BY subsystem, name, slot",
+        "SELECT subsystem, binding_name, kind, target_id, status "
+        "FROM subsystem_bindings "
+        "WHERE guild_id = $1 ORDER BY subsystem, binding_name",
         (guild_id,), conn=conn)
 
 
@@ -176,34 +206,77 @@ async def delete_setting(conn: Any, *, guild_id: int, key: str) -> str | None:
 
 
 async def upsert_binding(conn: Any, *, guild_id: int, subsystem: str, name: str,
-                         kind: str, resource_id: int, slot: int = 0) -> int | None:
+                         kind: str, resource_id: int) -> dict | None:
+    """Upsert one binding row to 'bound' (the shipped set_binding write —
+    version bumps on re-bind, both stamps refresh). Returns the PRIOR
+    row's {target_id, status} (None = the binding had no row — the
+    shipped 'unresolved' vocabulary for absent)."""
     prior = await fetchone(
-        "SELECT resource_id FROM subsystem_bindings "
-        "WHERE guild_id = $1 AND subsystem = $2 AND name = $3 AND slot = $4",
-        (guild_id, subsystem, name, slot), conn=conn)
+        "SELECT target_id, status FROM subsystem_bindings "
+        "WHERE guild_id = $1 AND subsystem = $2 AND binding_name = $3",
+        (guild_id, subsystem, name), conn=conn)
     await execute(
-        "INSERT INTO subsystem_bindings (guild_id, subsystem, name, slot, kind, resource_id) "
-        "VALUES ($1, $2, $3, $4, $5, $6) "
-        "ON CONFLICT (guild_id, subsystem, name, slot) DO UPDATE SET "
-        "kind = EXCLUDED.kind, resource_id = EXCLUDED.resource_id, updated_at = now()",
-        (guild_id, subsystem, name, slot, kind, resource_id), conn=conn)
-    return None if prior is None else int(prior["resource_id"])
+        "INSERT INTO subsystem_bindings (guild_id, subsystem, binding_name, "
+        "kind, target_id, status, last_updated_at, last_validated_at, version) "
+        "VALUES ($1, $2, $3, $4, $5, 'bound', now(), now(), 1) "
+        "ON CONFLICT (guild_id, subsystem, binding_name) DO UPDATE SET "
+        "kind = EXCLUDED.kind, target_id = EXCLUDED.target_id, "
+        "status = 'bound', last_updated_at = now(), last_validated_at = now(), "
+        "version = subsystem_bindings.version + 1",
+        (guild_id, subsystem, name, kind, resource_id), conn=conn)
+    if prior is None:
+        return None
+    return {"target_id": (None if prior["target_id"] is None
+                          else int(prior["target_id"])),
+            "status": str(prior["status"])}
 
 
-async def delete_binding(conn: Any, *, guild_id: int, subsystem: str, name: str,
-                         slot: int | None = None) -> int:
-    """Delete one slot (or all slots when slot=None); returns rows removed."""
-    if slot is None:
-        rows = await fetchall(
-            "DELETE FROM subsystem_bindings "
-            "WHERE guild_id = $1 AND subsystem = $2 AND name = $3 RETURNING slot",
-            (guild_id, subsystem, name), conn=conn)
-    else:
-        rows = await fetchall(
-            "DELETE FROM subsystem_bindings "
-            "WHERE guild_id = $1 AND subsystem = $2 AND name = $3 AND slot = $4 "
-            "RETURNING slot",
-            (guild_id, subsystem, name, slot), conn=conn)
+async def delete_binding(conn: Any, *, guild_id: int, subsystem: str,
+                         name: str) -> dict | None:
+    """Delete one binding row; returns the removed row's
+    {target_id, status} (None = no row existed)."""
+    row = await fetchone(
+        "DELETE FROM subsystem_bindings "
+        "WHERE guild_id = $1 AND subsystem = $2 AND binding_name = $3 "
+        "RETURNING target_id, status",
+        (guild_id, subsystem, name), conn=conn)
+    if row is None:
+        return None
+    return {"target_id": (None if row["target_id"] is None
+                          else int(row["target_id"])),
+            "status": str(row["status"])}
+
+
+async def insert_binding_audit(conn: Any, *, mutation_id: str, guild_id: int,
+                               subsystem: str, binding_name: str,
+                               actor_type: str, actor_id: int, action: str,
+                               old_target_id: int | None,
+                               new_target_id: int | None,
+                               old_status: str | None,
+                               new_status: str | None) -> None:
+    """Append one binding_audit_log row (the shipped
+    utils/db/bindings.py audit insert — IN the same txn as the binding
+    write, AFTER it; the pipeline's write-then-audit ordering)."""
+    await execute(
+        "INSERT INTO binding_audit_log "
+        "(mutation_id, guild_id, subsystem, binding_name, actor_type, "
+        "actor_id, action, old_target_id, new_target_id, old_status, "
+        "new_status) "
+        "VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+        (mutation_id, guild_id, subsystem, binding_name, actor_type,
+         actor_id, action, old_target_id, new_target_id, old_status,
+         new_status), conn=conn)
+
+
+async def tombstone_binding_audit_actor(conn: Any, *, user_id: int) -> int:
+    """Privacy erasure (S11 class 12, the TOMBSTONE posture): scrub the
+    subject's actor identity in place — actor_id is NOT NULL, so the
+    tombstone value is 0 (never a row delete; the forensic skeleton and
+    the binding trail stay). Returns rows scrubbed."""
+    rows = await fetchall(
+        "UPDATE binding_audit_log SET actor_id = 0 "
+        "WHERE actor_id = $1 RETURNING id",
+        (user_id,), conn=conn)
     return len(rows)
 
 

@@ -135,7 +135,7 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.economy_hub_spec(), _panels.jobcenter_spec(),
             _panels.shop_panel_spec(), _panels.daily_card_spec(),
-            _panels.wallet_card_spec()),
+            _panels.wallet_card_spec(), _panels.joblist_card_spec()),
     settings=_SETTINGS,
     stores=(ECONOMY_BALANCES_STORE, ECONOMY_AUDIT_STORE, ECONOMY_TRACK_STORE,
             JOB_PROGRESS_STORE, INVENTORY_STORE),

@@ -17,8 +17,16 @@ from __future__ import annotations
 
 from sb.domain.settings import handlers as _handlers
 from sb.domain.settings import panels as _panels
-from sb.domain.settings.ops import EVT_SETTINGS_CHANGED, register_ops
-from sb.kernel.db.settings import BINDINGS_STORE, SETTINGS_STORE
+from sb.domain.settings.ops import (
+    EVT_BINDINGS_CHANGED,
+    EVT_SETTINGS_CHANGED,
+    register_ops,
+)
+from sb.kernel.db.settings import (
+    BINDING_AUDIT_STORE,
+    BINDINGS_STORE,
+    SETTINGS_STORE,
+)
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.events import DeliveryClass, EventSpec, FieldSpec, register_event_specs
 from sb.spec.manifest import SubsystemManifest
@@ -31,6 +39,23 @@ SETTINGS_CHANGED_EVENT = EventSpec(
         FieldSpec("guild_id", "int"),
         FieldSpec("key", "str"),
         FieldSpec("subsystem", "str", required=False),
+    ),
+    owner_subsystem="settings",
+    delivery=DeliveryClass.BEST_EFFORT,      # shipped: advisory, after commit
+)
+
+BINDINGS_CHANGED_EVENT = EventSpec(
+    name=EVT_BINDINGS_CHANGED,               # shipped verbatim ("bindings.changed" —
+    payload_schema=(                         # services/binding_mutation.py; goldens/
+        FieldSpec("guild_id", "int"),        # economy/sweep_setlogchannel pins the
+        FieldSpec("subsystem", "str"),       # payload bytes)
+        FieldSpec("binding_name", "str"),
+        FieldSpec("mutation_id", "str"),
+        FieldSpec("old_status", "str", required=False),
+        FieldSpec("new_status", "str", required=False),
+        FieldSpec("old_target_id", "int", required=False),
+        FieldSpec("new_target_id", "int", required=False),
+        FieldSpec("occurred_at", "str"),
     ),
     owner_subsystem="settings",
     delivery=DeliveryClass.BEST_EFFORT,      # shipped: advisory, after commit
@@ -72,8 +97,8 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.settings_hub_spec(), _panels.settings_access_spec()),
     settings=(),
-    stores=(SETTINGS_STORE, BINDINGS_STORE),
-    events=(SETTINGS_CHANGED_EVENT,),
+    stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
+    events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),
     capabilities=(),
 )
 
@@ -81,7 +106,7 @@ MANIFEST = SubsystemManifest(
 # ops + the event spec ride the manifest import so the compiler (P1) and
 # every checker see one truth.
 register_ops()
-register_event_specs([SETTINGS_CHANGED_EVENT])
+register_event_specs([SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT])
 
 
 def _ensure_refs() -> None:
@@ -95,7 +120,7 @@ def _ensure_refs() -> None:
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
     register_ops()
-    register_event_specs([SETTINGS_CHANGED_EVENT])
+    register_event_specs([SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT])
 
 
 # The P1 re-arm hook is a module ATTRIBUTE by convention (like MANIFEST):

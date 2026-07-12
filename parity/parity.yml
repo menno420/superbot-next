@@ -520,9 +520,11 @@ depth:
           <cid:N> at import and whose picked VALUE the click schema does
           not carry, so no imported golden can drive the write
           (D-0064, the D-0063 test re-argued); the pinnable surface IS
-          pinned — goldens/_unmapped/sweep_shop.json replays the shipped
+          pinned — goldens/economy/sweep_shop.json replays the shipped
           shop picker open (the <cid:N> select + the car/toolkit/suit
-          options) and buys nothing"
+          rich options) on the PORTED economy row and buys nothing (the
+          re-homed golden carries NO inventory row, so the class holds —
+          keep, not upgrade)"
     farm:
       # farm's one golden is the hub open over the never-seeded capture
       # guild — it pins the fresh-farmer READ epoch of the declared
@@ -788,17 +790,36 @@ depth:
           opens"
       - surface: "table:subsystem_bindings"
         reason: "covered-elsewhere: the K7 binding lane's write bytes are
-          pinned by the sibling oracle goldens/_unmapped/
-          sweep_setlogchannel.json (subsystem_bindings +
-          binding_audit_log rows — the shipped logging bind flow); the
+          pinned FIRST-CLASS by the sibling oracle goldens/economy/
+          sweep_setlogchannel.json (the subsystem_bindings row bytes —
+          the shipped economy log-channel bind flow), which replays green
+          through the PORTED economy row (upgraded from the _unmapped
+          citation at the wave-9 re-home; the #248/#250 precedent); the
           settings goldens are read-only panel opens"
+      - surface: "table:binding_audit_log"
+        reason: "covered-elsewhere: the binding lane's audit-trail write
+          bytes are pinned FIRST-CLASS by the same sibling oracle
+          goldens/economy/sweep_setlogchannel.json (the binding_audit_log
+          row — action/actor/old→new status+target + mutation_id, the
+          shipped BindingMutationPipeline write-then-audit txn), replaying
+          green through the PORTED economy row; the settings goldens are
+          read-only panel opens"
       - surface: "event:settings.changed"
-        reason: "covered-elsewhere: the advisory fires only from the four
-          K7 scalar/binding ops, whose write bytes are pinned by the named
-          sibling oracles above (sweep_rpsregister / sweep_setlogchannel);
-          the shipped bot published no tap-able bus event on those flows,
-          so no imported golden can carry the event — its first live
-          golden lands with the first config-write flip (logging)"
+        reason: "covered-elsewhere: the advisory fires only from the two
+          K7 SCALAR ops (the binding lane emits its own bindings.changed —
+          the shipped split, services/binding_mutation.py), and the scalar
+          write bytes are pinned by the named sibling oracle above
+          (sweep_rpsregister); the shipped bot published no tap-able bus
+          event on the scalar flow, so no imported golden can carry the
+          event — its first live golden lands with the first scalar
+          config-write capture"
+      - surface: "event:bindings.changed"
+        reason: "covered-elsewhere: the binding lane's advisory payload
+          bytes are pinned FIRST-CLASS by the sibling oracle
+          goldens/economy/sweep_setlogchannel.json (binding_name/status/
+          target transition + mutation_id/occurred_at), replaying green
+          through the PORTED economy row; the settings goldens are
+          read-only panel opens"
     starboard:
       # starboard's six goldens pin the config command family over the
       # UNCONFIGURED capture guild: the ignore write IS golden-covered
@@ -875,7 +896,7 @@ depth:
     counting: {events: 1, tables: 2, settings: 0}
     creature: {events: 1, tables: 2, settings: 0}
     diagnostic: {events: 1, tables: 3, settings: 0}
-    economy: {events: 2, tables: 5, settings: 0}
+    economy: {events: 4, tables: 7, settings: 0}
     farm: {events: 1, tables: 2, settings: 0}
     fishing: {events: 1, tables: 3, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}

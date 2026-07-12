@@ -119,38 +119,16 @@ def _register() -> None:
 
     @handler("economy.joblist_view")
     async def joblist_view(req) -> Reply:
-        from sb.domain.economy import catalogue, service, store
+        """!joblist — the shipped All Jobs embed (cogs/economy_cog.py
+        joblist: INFO_COLOR blue, one field per tier, the level footer;
+        goldens/economy/sweep_joblist pins the bytes). The embed is
+        composed by the joblist card's renderer_override."""
+        from sb.domain.economy.panels import JOBLIST_CARD_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
 
-        uid, gid = int(getattr(req.actor, "user_id", 0) or 0), int(req.guild_id or 0)
-        level = await service.active_level_reader()(uid, gid)
-        inv = await store.get_inventory(uid, gid)
-        tiers: dict[int, list[str]] = {}
-        for name, data in catalogue.JOBS.items():
-            tiers.setdefault(data["tier"], []).append(name)
-        lines = ["📋 **All Jobs**"]
-        for tier_num in sorted(tiers):
-            lines.append(f"__Tier {tier_num}__")
-            for name in tiers[tier_num]:
-                data = catalogue.JOBS[name]
-                times = await store.get_job_times(uid, gid, name)
-                pay = catalogue.job_pay(name, times)
-                unlocked = (level >= data["level"]
-                            and all(item in inv and inv[item] > 0
-                                    for item in data["items"]))
-                lock = "✅" if unlocked else "🔒"
-                req_parts = []
-                if data["level"]:
-                    req_parts.append(f"Lv{data['level']}")
-                if data["items"]:
-                    req_parts.append(", ".join(data["items"]))
-                req_str = f" *(req: {', '.join(req_parts)})*" if req_parts else ""
-                mastery = f" | mastery {times}/100" if times else ""
-                lines.append(
-                    f"{lock} {data['emoji']} "
-                    f"**{name.replace('_', ' ').title()}** — {pay} 🪙 / "
-                    f"work{req_str}{mastery}")
-        lines.append(f"Your level: {level}  |  Pay shown includes mastery bonus.")
-        return Reply(SUCCESS, "\n".join(lines))
+        await open_panel(PanelRef(JOBLIST_CARD_PANEL_ID), req)
+        return Reply(SUCCESS, None)
 
     @handler("economy.work_view")
     async def work_view(req) -> Reply:

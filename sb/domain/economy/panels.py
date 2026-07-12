@@ -42,23 +42,27 @@ from sb.spec.refs import (
 
 __all__ = [
     "DAILY_CARD_PANEL_ID",
+    "JOBLIST_CARD_PANEL_ID",
     "WALLET_CARD_PANEL_ID",
     "daily_card_spec",
     "economy_hub_spec",
     "ensure_panel_refs",
     "install_economy_panels",
     "jobcenter_spec",
+    "joblist_card_spec",
     "shop_panel_spec",
     "wallet_card_spec",
 ]
 
 DAILY_CARD_PANEL_ID = "economy.daily_card"
 WALLET_CARD_PANEL_ID = "economy.wallet_card"
+JOBLIST_CARD_PANEL_ID = "economy.joblist_card"
 
 _HUB_PROVIDER = "economy.hub_overview"
 _JOBCENTER_PROVIDER = "economy.jobcenter_overview"
 _JOBS_PROVIDER = "economy.available_jobs"
 _SHOP_PROVIDER = "economy.shop_overview"
+_SHOP_OPTIONS_PROVIDER = "economy.shop_item_options"
 
 
 def _ensure_hub_provider() -> ProviderRef:
@@ -150,6 +154,26 @@ def _ensure_shop_provider() -> ProviderRef:
                 (f"{d['emoji']} {name.replace('_', ' ').title()} — "
                  f"{d['price']:,} 🪙",
                  d["desc"])
+                for name, d in catalogue.SHOP_ITEMS.items())
+    return ref
+
+
+def _ensure_shop_options_provider() -> ProviderRef:
+    ref = ProviderRef(_SHOP_OPTIONS_PROVIDER)
+    if not is_registered(ref):
+        @provider(_SHOP_OPTIONS_PROVIDER)
+        async def shop_item_options(ctx: object):
+            """Rich select options — the shipped ``_ShopSelect`` rows
+            verbatim (views/economy/shop_panel.py: '{emoji} {Item} —
+            {price:,} 🪙' label, the requirement description line;
+            goldens/economy/sweep_shop pins the bytes)."""
+            from sb.domain.economy import catalogue
+
+            return tuple(
+                {"label": (f"{d['emoji']} {name.replace('_', ' ').title()}"
+                           f" — {d['price']:,} 🪙"),
+                 "value": name,
+                 "description": d["desc"]}
                 for name, d in catalogue.SHOP_ITEMS.items())
     return ref
 
@@ -290,33 +314,83 @@ def jobcenter_spec() -> PanelSpec:
 
 
 def shop_panel_spec() -> PanelSpec:
-    """The shipped shop panel (`_ShopSubView`): static item picker whose
-    pick runs the audited `economy.buy` op (Q-0071 — grant-first,
-    audited-debit-second, raced clicks re-decided in-txn)."""
-    from sb.domain.economy.catalogue import SHOP_ITEMS
-
+    """The shipped shop panel (views/economy/shop_panel.py `_ShopSelect` +
+    services/economy_helpers.py `_shop_embed`): the WARNING_COLOR yellow
+    Item Shop embed (per-item fields + the dropdown-coaching footer) over
+    the rich item picker whose pick runs the audited `economy.buy` op
+    (Q-0071 — grant-first, audited-debit-second, raced clicks re-decided
+    in-txn). ``session_lifecycle=True`` — the shipped view was a timeout
+    session view with a run-minted select id, never an anchored panel
+    (goldens/economy/sweep_shop pins the ``<cid:1>`` id, the single
+    component row with NO nav slots, and the no-anchor-row db_delta —
+    the previous anchored shape was an invented deviation, no D-record
+    backs it)."""
     return PanelSpec(
         panel_id="economy.shop_panel",
         subsystem="economy",
         title="🛒 Item Shop",
         audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
+        # WARNING_COLOR yellow (16705372, utils/ui_constants.py); the
+        # footer literal rides the override (see justification).
+        frame=EmbedFrameSpec(style_token="yellow",
+                             footer_mode=FooterMode.NONE),
         body=(
-            TextBlock("Buy items to unlock higher-tier jobs. Purchases are "
-                      "unique — one of each per member."),
+            TextBlock("Buy items to unlock higher-tier jobs."),
             FieldsBlock(provider=_ensure_shop_provider()),
         ),
         selectors=(
             SelectorSpec(
                 selector_id="item_select", kind=SelectorKind.ENTITY,
                 on_select=WorkflowRef("economy.buy"),
-                options_source=tuple(SHOP_ITEMS),
+                options_source=_ensure_shop_options_provider(),
                 placeholder="Select an item to buy…",
                 empty_state="The shop is empty.",
                 audience_tier="user"),
         ),
-        navigation=NavigationSpec(parent=PanelRef("economy.hub")),
+        # the shipped shop view carried NO help/home/back nav slots (the
+        # golden pins the single select row).
+        navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(PageSpec(rows=(("item_select",),)),)),
+        renderer_override=HandlerRef("economy.render_shop"),
+        justification=(
+            "ONE shipped surface sits outside the grammar's vocabulary "
+            "(goldens/economy/sweep_shop pins the byte): the FOOTER "
+            "literal 'Select an item from the dropdown to purchase.' "
+            "(services/economy_helpers.py _shop_embed set_footer) — "
+            "FooterMode has no static-text member (the jobcenter/karma "
+            "footer-literal precedent). Title, description, color, the "
+            "item fields and the select component stay grammar-rendered."),
+        session_lifecycle=True,
+    )
+
+
+def joblist_card_spec() -> PanelSpec:
+    """The shipped `!joblist` All Jobs embed (cogs/economy_cog.py
+    joblist) — a component-less per-read result card, exactly the
+    wallet-card shape: ``session_lifecycle=True`` because the shipped
+    send was a transient result message, never a refreshable
+    panel_anchors panel."""
+    return PanelSpec(
+        panel_id=JOBLIST_CARD_PANEL_ID,
+        subsystem="economy",
+        title="📋 All Jobs",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blue", footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        renderer_override=HandlerRef("economy.render_joblist_card"),
+        justification=(
+            "the shipped All Jobs embed is read-parameterized end to end "
+            "(cogs/economy_cog.py joblist; goldens/economy/sweep_joblist "
+            "pins the bytes): the four Tier fields render the live "
+            "unlock/mastery state per job (✅/🔒 lock glyph against the "
+            "invoker's level + inventory, mastery-bonused pay, the "
+            "req/mastery suffixes) and the FOOTER interpolates the "
+            "invoker's level ('Your level: 0  |  Pay shown includes "
+            "mastery bonus.') — outside the static grammar and "
+            "FooterMode vocabulary. The card declares no components; the "
+            "renderer only composes the embed."),
+        session_lifecycle=True,
     )
 
 
@@ -483,6 +557,73 @@ async def _render_jobcenter(spec: PanelSpec, ctx) -> object:
     return dataclasses.replace(base, embed=embed)
 
 
+async def _render_shop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped footer literal
+    (services/economy_helpers.py _shop_embed set_footer; see
+    justification)."""
+    import dataclasses
+
+    from sb.kernel.panels.render import render_panel
+
+    base = await render_panel(spec, ctx)
+    embed = dataclasses.replace(
+        base.embed, footer="Select an item from the dropdown to purchase.")
+    return dataclasses.replace(base, embed=embed)
+
+
+async def _render_joblist_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the shipped All Jobs embed verbatim
+    (cogs/economy_cog.py joblist): INFO_COLOR blue, one non-inline field
+    per tier listing every job's live unlock/pay/mastery line, the
+    level-parameterized footer."""
+    from sb.domain.economy import catalogue, service, store
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    level = await service.active_level_reader()(uid, gid)
+    inv = await store.get_inventory(uid, gid)
+    tiers: dict[int, list[str]] = {}
+    for name in catalogue.JOBS:
+        tiers.setdefault(catalogue.JOBS[name]["tier"], []).append(name)
+    fields: list[tuple[str, str]] = []
+    for tier_num in sorted(tiers):
+        lines: list[str] = []
+        for name in tiers[tier_num]:
+            data = catalogue.JOBS[name]
+            times = await store.get_job_times(uid, gid, name)
+            pay = catalogue.job_pay(name, times)
+            unlocked = (level >= data["level"]
+                        and all(item in inv and inv[item] > 0
+                                for item in data["items"]))
+            lock = "✅" if unlocked else "🔒"
+            req_parts = []
+            if data["level"]:
+                req_parts.append(f"Lv{data['level']}")
+            if data["items"]:
+                req_parts.append(", ".join(data["items"]))
+            req_str = (f" *(req: {', '.join(req_parts)})*"
+                       if req_parts else "")
+            mastery = f" | mastery {times}/100" if times else ""
+            lines.append(
+                f"{lock} {data['emoji']} "
+                f"**{name.replace('_', ' ').title()}** — {pay} 🪙 / "
+                f"work{req_str}{mastery}")
+        fields.append((f"Tier {tier_num}", "\n".join(lines)))
+    embed = RenderedEmbed(
+        title=spec.title,
+        description="",
+        fields=tuple(fields),
+        footer=(f"Your level: {level}  |  "
+                "Pay shown includes mastery bonus."),
+        style_token=spec.frame.style_token)
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=(),
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
+
+
 async def _render_daily_card(spec: PanelSpec, ctx) -> object:
     """renderer_override — the shipped daily embed verbatim: author line,
     gold accent, tier description, the four inline fields, the odds
@@ -545,15 +686,22 @@ def _wallet_card_factory() -> PanelSpec:
     return wallet_card_spec()
 
 
+@panel(JOBLIST_CARD_PANEL_ID)
+def _joblist_card_factory() -> PanelSpec:
+    return joblist_card_spec()
+
+
 handler("economy.render_daily_card")(_render_daily_card)
 handler("economy.render_wallet_card")(_render_wallet_card)
 handler("economy.render_hub")(_render_hub)
 handler("economy.render_jobcenter")(_render_jobcenter)
+handler("economy.render_shop")(_render_shop)
+handler("economy.render_joblist_card")(_render_joblist_card)
 
 
 def install_economy_panels() -> tuple[PanelSpec, ...]:
     specs = (economy_hub_spec(), jobcenter_spec(), shop_panel_spec(),
-             daily_card_spec(), wallet_card_spec())
+             daily_card_spec(), wallet_card_spec(), joblist_card_spec())
     out = []
     for spec in specs:
         try:
@@ -573,16 +721,20 @@ def ensure_panel_refs() -> None:
     _ensure_jobcenter_provider()
     _ensure_jobs_provider()
     _ensure_shop_provider()
+    _ensure_shop_options_provider()
     for pid, factory in (("economy.hub", _hub_factory),
                          ("economy.jobcenter", _jobcenter_factory),
                          ("economy.shop_panel", _shop_factory),
                          (DAILY_CARD_PANEL_ID, _daily_card_factory),
-                         (WALLET_CARD_PANEL_ID, _wallet_card_factory)):
+                         (WALLET_CARD_PANEL_ID, _wallet_card_factory),
+                         (JOBLIST_CARD_PANEL_ID, _joblist_card_factory)):
         if not _is(_P(pid)):
             _panel(pid)(factory)
     for hid, fn in (("economy.render_daily_card", _render_daily_card),
                     ("economy.render_wallet_card", _render_wallet_card),
                     ("economy.render_hub", _render_hub),
-                    ("economy.render_jobcenter", _render_jobcenter)):
+                    ("economy.render_jobcenter", _render_jobcenter),
+                    ("economy.render_shop", _render_shop),
+                    ("economy.render_joblist_card", _render_joblist_card)):
         if not is_registered(HandlerRef(hid)):
             handler(hid)(fn)

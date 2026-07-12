@@ -74,25 +74,32 @@ from sb.spec.panels import (
     ResultRender,
     TextBlock,
 )
-from sb.spec.refs import HandlerRef, handler, is_registered, panel
+from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
 __all__ = [
+    "CARD_PANEL_ID",
     "CAST_PANEL_ID",
+    "HUB_PANEL_ID",
     "LOG_PANEL_ID",
     "cast_spec",
     "ensure_panel_refs",
+    "fishing_card_spec",
+    "fishing_hub_spec",
     "install_fishing_panels",
     "log_spec",
 ]
 
 CAST_PANEL_ID = "fishing.cast_panel"
 LOG_PANEL_ID = "fishing.log"
+HUB_PANEL_ID = "fishing.hub"
+CARD_PANEL_ID = "fishing.card"
 
 #: The shore venue's display identity (utils/fishing/venue.py
-#: SHORE_PROFILE — name="Shore", emoji="🏖️"); the deepwater profile
-#: rides the sail successor (module docstring).
+#: SHORE_PROFILE — name="Shore", emoji="🏖️", blurb verbatim); the
+#: deepwater profile rides the sail successor (module docstring).
 SHORE_NAME = "Shore"
 SHORE_EMOJI = "🏖️"
+SHORE_BLURB = "Relaxed casting from the shoreline."
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
 #: bytes; ``where`` = "from the shoreline" — every port cast is shore).
@@ -103,6 +110,137 @@ _CAST_DESCRIPTION = (
 
 #: views/fishing/menu.py set_footer literal, verbatim.
 _LOG_FOOTER = "🎣 Cast to fish · ⛵ Set sail for the deep · 🎒 Rod to upgrade"
+
+
+def _hub_description() -> str:
+    """views/fishing/menu.py ``build_fishing_menu_embed`` description,
+    verbatim — the shore/deep species counts interpolate the catalog
+    (21/11 at the shipped table; goldens/fishing/sweep_fishing pins the
+    rendered bytes)."""
+    from sb.domain.fishing import catalog
+
+    shore_n = len(catalog.species_for_venue(catalog.SHORE_VENUE))
+    deep_n = len(catalog.species_for_venue(catalog.DEEPWATER))
+    return (
+        f"Cast a line to catch from **{shore_n}** shoreline fish — or set "
+        f"sail for the **{deep_n}** rare boat-only fish of the deep. Wait "
+        "for the bite, reel it in, and fight the big ones; then level up "
+        "and buy better rods.\n\n"
+        "**🎣 Cast** — wait → bite → reel\n"
+        "**⛵ Set sail** — shore ↔ deepwater\n"
+        "**🎒 Rod** — view & upgrade your rod\n"
+        "**🪱 Bait** — load a lure for rarer catches\n"
+        "**🏗 Structures** — build coral structures\n"
+        "**📖 Fishdex** — your collection"
+    )
+
+
+def fishing_hub_spec() -> PanelSpec:
+    """The shipped fishing hub (disbot/views/fishing/menu.py
+    ``FishingMenuView`` + ``build_fishing_menu_embed``): the 🎣 Fishing
+    GAME_COLOR embed over the shipped SEVEN buttons (Cast 🎣 success ·
+    Set sail / Dock ⛵ primary · Rod 🎒 · Bait 🪱 · Structures 🏗 on row
+    one; Fishdex 📖 · How to fish 📖 on row two) and the shipped standard
+    nav row (📚 Help + ↩ Games — ``home_hub="games"`` explicit, the
+    farm/creature/casino precedent).
+    ``goldens/fishing/sweep_fishing.json`` pins every byte: run-minted
+    ``<cid:N>`` button ids (timeout session view ⇒
+    ``session_lifecycle=True``, NO ``panel_anchors`` row — the previous
+    anchored 3-button hub was an invented deviation, no D-record backs
+    it), emoji as SEPARATE wire fields (trap 15a), the literal
+    ``nav:help`` / ``nav:hub:games`` slots riding through the mint, and
+    the three live fields (venue / forecast / energy) on the embed."""
+    return PanelSpec(
+        panel_id=HUB_PANEL_ID,
+        subsystem="fishing",
+        title="🎣 Fishing",
+        audience=Audience.INVOKER,
+        # GAME_COLOR purple (10181046, utils/ui_constants.py); the three
+        # live fields ride the override (see justification).
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_hub_description()),),
+        actions=(
+            PanelActionSpec(
+                action_id="fishing_cast", label="Cast", emoji="🎣",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("fishing.cast_open"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="fishing_sail", label="Set sail / Dock",
+                emoji="⛵", style=ActionStyle.PRIMARY,
+                audience_tier="user",
+                handler=HandlerRef("fishing.sail_pending")),
+            PanelActionSpec(
+                action_id="fishing_rod", label="Rod", emoji="🎒",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("fishing.rod_pending")),
+            PanelActionSpec(
+                action_id="fishing_bait", label="Bait", emoji="🪱",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("fishing.bait_pending")),
+            PanelActionSpec(
+                action_id="fishing_structures", label="Structures",
+                emoji="🏗", style=ActionStyle.SECONDARY,
+                audience_tier="user",
+                handler=HandlerRef("fishing.structures_pending")),
+            PanelActionSpec(
+                action_id="fishing_log", label="Fishdex", emoji="📖",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(LOG_PANEL_ID)),
+            PanelActionSpec(
+                action_id="fishing_rules", label="How to fish",
+                emoji="📖", style=ActionStyle.SECONDARY,
+                audience_tier="user",
+                handler=HandlerRef("fishing.howtofish_pending")),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden);
+        # home_hub explicit, the farm/creature/casino precedent.
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("fishing.render_hub"),
+        justification=(
+            "three shipped embed FIELDS sit outside the grammar's static "
+            "vocabulary (views/fishing/menu.py build_fishing_menu_embed; "
+            "goldens/fishing/sweep_fishing pins the bytes): (1) 'Fishing "
+            "from' interpolates the invoker's venue profile (emoji + bold "
+            "name + blurb); (2) 'Today's forecast: {emoji} {name}' renders "
+            "the day-keyed shared weather condition with its blurb + "
+            "effect line; (3) 'Energy' renders the invoker's LIVE settled "
+            "energy gauge (fish_energy.bar). Title, description, color "
+            "and every component stay grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("fishing_cast", "fishing_sail", "fishing_rod",
+             "fishing_bait", "fishing_structures"),
+            ("fishing_log", "fishing_rules"),)),)),
+    )
+
+
+def fishing_card_spec() -> PanelSpec:
+    """The generic one-embed reply card (the shipped ``ctx.send(embed=…)``)
+    — the mining.card/ai.card/karma.card pattern for the fishing read
+    views (``!fishtop`` / ``!trophies``)."""
+    return PanelSpec(
+        panel_id=CARD_PANEL_ID,
+        subsystem="fishing",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("fishing.render_card"),
+        justification=(
+            "the shipped `!fishtop` / `!trophies` replies are "
+            "live-state-parameterized embeds built in the handler "
+            "(fishing_cog.py fishtop/trophies — the _FISHING_COLOR blue "
+            "leaderboard/hall-of-fame embeds; goldens/fishing/"
+            "sweep_fishtop + sweep_trophies pin the empty-world bytes). "
+            "Zero components; the renderer presents the handler-built "
+            "RenderedEmbed verbatim (the mining.card/ai.card/karma.card "
+            "precedent)."),
+    )
 
 
 def cast_spec() -> PanelSpec:
@@ -183,6 +321,51 @@ async def _member_display_name(user_id: int, guild_id: int) -> str:
     except Exception:  # noqa: BLE001 — no directory ⇒ mention fallback
         return f"<@{user_id}>"
     return member.tag.rsplit("#", 1)[0]
+
+
+async def _render_hub(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped three live fields
+    (views/fishing/menu.py build_fishing_menu_embed, verbatim; see
+    justification). The energy field is the honest settled read — the hub
+    open never spends."""
+    from sb.domain.fishing import energy as energy_mod
+    from sb.domain.fishing import store
+    from sb.domain.fishing import weather as weather_mod
+    from sb.kernel.panels.render import render_panel
+    from sb.kernel.workflow.context import SYSTEM_CLOCK
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    now = int(SYSTEM_CLOCK().timestamp())
+    cur, ts = await store.get_fishing_energy(uid, gid)
+    current = energy_mod.settle(energy_mod.EnergyState(cur, ts), now).current
+    w = weather_mod.current_weather()
+    embed = _dc_replace(
+        rendered.embed,
+        fields=(
+            ("Fishing from",
+             f"{SHORE_EMOJI} **{SHORE_NAME}** — {SHORE_BLURB}"),
+            (f"Today's forecast: {w.emoji} {w.name}",
+             f"*{w.blurb}* ({weather_mod.effect_text(w)})"),
+            ("Energy", energy_mod.bar(int(current))),
+        ))
+    return _dc_replace(rendered, embed=embed)
+
+
+async def _render_card(spec: PanelSpec, ctx) -> object:
+    """renderer_override — present the handler-built embed verbatim (the
+    mining.card ``_render_card`` shape, no attachment seam)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    embed = (getattr(ctx, "params", {}) or {}).get("_card")
+    if not isinstance(embed, RenderedEmbed):  # defensive: never a crash
+        embed = RenderedEmbed(title="", description="")
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed,
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
 
 
 async def _render_cast(spec: PanelSpec, ctx) -> object:
@@ -306,20 +489,34 @@ def _log_factory() -> PanelSpec:
     return log_spec()
 
 
+@panel(HUB_PANEL_ID)
+def _hub_factory() -> PanelSpec:
+    return fishing_hub_spec()
+
+
+@panel(CARD_PANEL_ID)
+def _card_factory() -> PanelSpec:
+    return fishing_card_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
+    (HUB_PANEL_ID, _hub_factory),
+    (CARD_PANEL_ID, _card_factory),
 )
 
 _RENDERS = (
     ("fishing.render_cast", _render_cast),
     ("fishing.render_log", _render_log),
+    ("fishing.render_hub", _render_hub),
+    ("fishing.render_card", _render_card),
 )
 
 
 def install_fishing_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for build in (cast_spec, log_spec):
+    for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

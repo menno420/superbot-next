@@ -132,6 +132,9 @@ CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
 #: to the shipped unpatched-wall-clock read).
 CAPTURE_WORLD_WEATHER: dict[str, str] = {
     "sweep.fish": "rain",
+    # the hub open renders the same capture-day forecast field
+    # (goldens/fishing/sweep_fishing pins "Today's forecast: 🌧️ Rain").
+    "sweep.fishing": "rain",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {

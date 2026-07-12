@@ -344,6 +344,11 @@
         "observability_only": false,
         "owner_subsystem": "ai"
       },
+      "bindings.changed": {
+        "delivery": "best_effort",
+        "observability_only": false,
+        "owner_subsystem": "settings"
+      },
       "channel.lifecycle_changed": {
         "delivery": "best_effort",
         "observability_only": false,
@@ -4441,12 +4446,32 @@
         {
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
+          "value": "fishing_sail"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_rod"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_bait"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_structures"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
           "value": "fishing_log"
         },
         {
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
-          "value": "fishing_trophies"
+          "value": "fishing_rules"
         },
         {
           "source": "sb/manifest/fishing.py",
@@ -5361,6 +5386,11 @@
           "value": "settings.changed"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "bindings.changed"
+        },
+        {
           "source": "sb/manifest/xp.py",
           "subsystem": "xp",
           "value": "xp.awarded"
@@ -5743,6 +5773,11 @@
           "value": "economy.wallet_card"
         },
         {
+          "source": "sb/manifest/economy.py",
+          "subsystem": "economy",
+          "value": "economy.joblist_card"
+        },
+        {
           "source": "sb/manifest/farm.py",
           "subsystem": "farm",
           "value": "farm.hub"
@@ -5766,6 +5801,11 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.log"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.card"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -7399,6 +7439,11 @@
           "value": "subsystem_bindings"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "binding_audit_log"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup_session"
@@ -8366,6 +8411,12 @@
       "handler:economy.render_jobcenter": {
         "module": "sb.domain.economy.panels"
       },
+      "handler:economy.render_joblist_card": {
+        "module": "sb.domain.economy.panels"
+      },
+      "handler:economy.render_shop": {
+        "module": "sb.domain.economy.panels"
+      },
       "handler:economy.render_wallet_card": {
         "module": "sb.domain.economy.panels"
       },
@@ -8423,10 +8474,19 @@
       "handler:fishing.forecast_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:fishing.howtofish_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:fishing.menu_view": {
         "module": "sb.domain.fishing.service"
       },
+      "handler:fishing.render_card": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.render_cast": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.render_hub": {
         "module": "sb.domain.fishing.panels"
       },
       "handler:fishing.render_log": {
@@ -8439,6 +8499,9 @@
         "module": "sb.domain.operator_spine"
       },
       "handler:fishing.sail_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:fishing.structures_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:fishing.tidepool_pending": {
@@ -9440,6 +9503,9 @@
       "panel:economy.jobcenter": {
         "module": "sb.domain.economy.panels"
       },
+      "panel:economy.joblist_card": {
+        "module": "sb.domain.economy.panels"
+      },
       "panel:economy.shop_panel": {
         "module": "sb.domain.economy.panels"
       },
@@ -9452,11 +9518,14 @@
       "panel:farm.shop": {
         "module": "sb.domain.farm.panels"
       },
+      "panel:fishing.card": {
+        "module": "sb.domain.fishing.panels"
+      },
       "panel:fishing.cast_panel": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.hub": {
-        "module": "sb.manifest.fishing"
+        "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.log": {
         "module": "sb.domain.fishing.panels"
@@ -9921,6 +9990,9 @@
         "module": "sb.domain.economy.panels"
       },
       "provider:economy.jobcenter_overview": {
+        "module": "sb.domain.economy.panels"
+      },
+      "provider:economy.shop_item_options": {
         "module": "sb.domain.economy.panels"
       },
       "provider:economy.shop_overview": {
@@ -10976,6 +11048,9 @@
       "workflow:rps.tournament_result": {
         "module": "sb.domain.rps.ops"
       },
+      "workflow:settings.binding_changed_payload": {
+        "module": "sb.domain.settings.ops"
+      },
       "workflow:settings.changed_payload": {
         "module": "sb.domain.settings.ops"
       },
@@ -10983,6 +11058,9 @@
         "module": "sb.domain.settings.ops"
       },
       "workflow:settings.erase_scalar": {
+        "module": "sb.domain.settings.ops"
+      },
+      "workflow:settings.tombstone_binding_audit": {
         "module": "sb.domain.settings.ops"
       },
       "workflow:settings.write_binding": {
@@ -11163,6 +11241,14 @@
           "$ref": "engine:ai.policy_store"
         },
         "subsystem": "ai"
+      },
+      "binding_audit_log": {
+        "checkpoint_class": "ledger",
+        "invariant_tag": "binding_audit_log",
+        "sole_writer": {
+          "$ref": "engine:settings.store"
+        },
+        "subsystem": "settings"
       },
       "btd6_data_blobs": {
         "checkpoint_class": "aggregate",
@@ -11583,7 +11669,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:15572ad761ca8ebc33452520367a93301d6b95f7f95c797afb5dfa54883595c0",
+  "stable_hash": "sha256:2d2e80de56e22bcf51fe7bfff696d67c61b89012feb13b5174173637c188d0b6",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -27372,7 +27458,7 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Buy items to unlock higher-tier jobs. Purchases are unique — one of each per member."
+              "text": "Buy items to unlock higher-tier jobs."
             },
             {
               "provider": {
@@ -27384,12 +27470,12 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "yellow",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "ONE shipped surface sits outside the grammar's vocabulary (goldens/economy/sweep_shop pins the byte): the FOOTER literal 'Select an item from the dropdown to purchase.' (services/economy_helpers.py _shop_embed set_footer) — FooterMode has no static-text member (the jobcenter/karma footer-literal precedent). Title, description, color, the item fields and the select component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
@@ -27405,15 +27491,15 @@
           "navigation": {
             "extra_routes": [],
             "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:economy.hub"
-            },
-            "show_help": true,
-            "show_home": true,
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "economy.shop_panel",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:economy.render_shop"
+          },
           "selectors": [
             {
               "audience_tier": "user",
@@ -27426,11 +27512,9 @@
               "on_select": {
                 "$ref": "workflow:economy.buy"
               },
-              "options_source": [
-                "car",
-                "toolkit",
-                "suit"
-              ],
+              "options_source": {
+                "$ref": "provider:economy.shop_item_options"
+              },
               "page_size": 25,
               "placeholder": "Select an item to buy…",
               "selector_id": "item_select",
@@ -27438,7 +27522,7 @@
               "usage_weight": 1.0
             }
           ],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "economy",
           "timeout_s": 180,
           "title": "🛒 Item Shop",
@@ -27526,6 +27610,48 @@
           "subsystem": "economy",
           "timeout_s": 180,
           "title": "💰 Wallet",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped All Jobs embed is read-parameterized end to end (cogs/economy_cog.py joblist; goldens/economy/sweep_joblist pins the bytes): the four Tier fields render the live unlock/mastery state per job (✅/🔒 lock glyph against the invoker's level + inventory, mastery-bonused pay, the req/mastery suffixes) and the FOOTER interpolates the invoker's level ('Your level: 0  |  Pay shown includes mastery bonus.') — outside the static grammar and FooterMode vocabulary. The card declares no components; the renderer only composes the embed.",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "economy.joblist_card",
+          "renderer_override": {
+            "$ref": "handler:economy.render_joblist_card"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "economy",
+          "timeout_s": 180,
+          "title": "📋 All Jobs",
           "usage_weight": 1.0
         }
       ],
@@ -28598,6 +28724,106 @@
               "visible_when": ""
             },
             {
+              "action_id": "fishing_sail",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⛵",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.sail_pending"
+              },
+              "label": "Set sail / Dock",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fishing_rod",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.rod_pending"
+              },
+              "label": "Rod",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fishing_bait",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪱",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.bait_pending"
+              },
+              "label": "Bait",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fishing_structures",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏗",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.structures_pending"
+              },
+              "label": "Structures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
               "action_id": "fishing_log",
               "audience_tier": "user",
               "audit": "",
@@ -28612,7 +28838,7 @@
               "handler": {
                 "$ref": "panel:fishing.log"
               },
-              "label": "Fish Dex",
+              "label": "Fishdex",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -28623,7 +28849,7 @@
               "visible_when": ""
             },
             {
-              "action_id": "fishing_trophies",
+              "action_id": "fishing_rules",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
@@ -28632,12 +28858,12 @@
               "custom_id_override": "",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "🏆",
+              "emoji": "📖",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.trophies_view"
+                "$ref": "handler:fishing.howtofish_pending"
               },
-              "label": "Trophies",
+              "label": "How to fish",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -28652,27 +28878,33 @@
           "audience": "invoker",
           "body": [
             {
-              "text": "Cast a line — 21 species across 7 size bands; level up to unlock bigger fish. Caught fish land in your pack (sell or cook them); the biggest of each species is your trophy."
+              "text": "Cast a line to catch from **21** shoreline fish — or set sail for the **11** rare boat-only fish of the deep. Wait for the bite, reel it in, and fight the big ones; then level up and buy better rods.\n\n**🎣 Cast** — wait → bite → reel\n**⛵ Set sail** — shore ↔ deepwater\n**🎒 Rod** — view & upgrade your rod\n**🪱 Bait** — load a lure for rarer catches\n**🏗 Structures** — build coral structures\n**📖 Fishdex** — your collection"
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "purple",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "three shipped embed FIELDS sit outside the grammar's static vocabulary (views/fishing/menu.py build_fishing_menu_embed; goldens/fishing/sweep_fishing pins the bytes): (1) 'Fishing from' interpolates the invoker's venue profile (emoji + bold name + blurb); (2) 'Today's forecast: {emoji} {name}' renders the day-keyed shared weather condition with its blurb + effect line; (3) 'Energy' renders the invoker's LIVE settled energy gauge (fish_energy.bar). Title, description, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
                     "fishing_cast",
+                    "fishing_sail",
+                    "fishing_rod",
+                    "fishing_bait",
+                    "fishing_structures"
+                  ],
+                  [
                     "fishing_log",
-                    "fishing_trophies"
+                    "fishing_rules"
                   ]
                 ]
               }
@@ -28681,18 +28913,18 @@
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:games.world"
-            },
+            "home_hub": "games",
+            "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "fishing.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:fishing.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "fishing",
           "timeout_s": 180,
           "title": "🎣 Fishing",
@@ -28808,6 +29040,44 @@
           "panel_id": "fishing.log",
           "renderer_override": {
             "$ref": "handler:fishing.render_log"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!fishtop` / `!trophies` replies are live-state-parameterized embeds built in the handler (fishing_cog.py fishtop/trophies — the _FISHING_COLOR blue leaderboard/hall-of-fame embeds; goldens/fishing/sweep_fishtop + sweep_trophies pin the empty-world bytes). Zero components; the renderer presents the handler-built RenderedEmbed verbatim (the mining.card/ai.card/karma.card precedent).",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.card",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_card"
           },
           "selectors": [],
           "session_lifecycle": true,
@@ -43160,6 +43430,62 @@
             }
           ],
           "redaction_ref": null
+        },
+        {
+          "audited": false,
+          "delivery": "best_effort",
+          "expected_subscribers": [],
+          "name": "bindings.changed",
+          "observability_only": false,
+          "owner_subsystem": "settings",
+          "payload_schema": [
+            {
+              "name": "guild_id",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "subsystem",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "binding_name",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "mutation_id",
+              "required": true,
+              "type": "str"
+            },
+            {
+              "name": "old_status",
+              "required": false,
+              "type": "str"
+            },
+            {
+              "name": "new_status",
+              "required": false,
+              "type": "str"
+            },
+            {
+              "name": "old_target_id",
+              "required": false,
+              "type": "int"
+            },
+            {
+              "name": "new_target_id",
+              "required": false,
+              "type": "int"
+            },
+            {
+              "name": "occurred_at",
+              "required": true,
+              "type": "str"
+            }
+          ],
+          "redaction_ref": null
         }
       ],
       "key": "settings",
@@ -43914,6 +44240,33 @@
             "$ref": "engine:settings.store"
           },
           "table": "subsystem_bindings",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "ledger",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:settings.tombstone_binding_audit"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "binding_audit_log",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:settings.store"
+          },
+          "table": "binding_audit_log",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

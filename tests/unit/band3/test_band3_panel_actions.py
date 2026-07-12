@@ -141,9 +141,21 @@ def test_selector_routes_are_the_audited_ops():
 
     assert jobcenter_spec().selectors[0].route == WorkflowRef("economy.work")
     assert shop_panel_spec().selectors[0].route == WorkflowRef("economy.buy")
-    # shop options are the STATIC coupled-namespace keys.
+    # shop options are the shipped RICH provider rows (_ShopSelect —
+    # '{emoji} {Item} — {price:,} 🪙' label + requirement description,
+    # value = the coupled-namespace key; goldens/economy/sweep_shop pins
+    # the bytes).
+    import asyncio
+
     from sb.domain.economy.catalogue import SHOP_ITEMS
-    assert shop_panel_spec().selectors[0].options_source == tuple(SHOP_ITEMS)
+    from sb.spec.refs import ProviderRef, resolve
+
+    src = shop_panel_spec().selectors[0].options_source
+    assert src == ProviderRef("economy.shop_item_options")
+    options = asyncio.run(resolve(src)(None))
+    assert tuple(o["value"] for o in options) == tuple(SHOP_ITEMS)
+    assert options[0]["label"] == "🚗 Car — 5,000 🪙"
+    assert options[0]["description"] == "Required for delivery driver and CEO."
 
 
 # --- G-10: click issues the form; dispatch happens only on submit --------------------
@@ -446,7 +458,7 @@ def test_shop_command_now_opens_the_panel():
     panel_ids = {p.panel_id for p in m.MANIFEST.panels}
     assert panel_ids == {"economy.hub", "economy.jobcenter",
                          "economy.shop_panel", "economy.daily_card",
-                         "economy.wallet_card"}
+                         "economy.wallet_card", "economy.joblist_card"}
 
 
 def test_inventory_manifest_declares_detail_panels():

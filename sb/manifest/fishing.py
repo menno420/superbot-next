@@ -8,66 +8,14 @@ from __future__ import annotations
 from sb.domain.fishing import panels as _panels
 from sb.domain.fishing import service as _service
 from sb.domain.fishing.ops import register_ops
+from sb.domain.fishing.panels import fishing_hub_spec
 from sb.domain.fishing.store import (
     FISHING_CATCH_LOG_STORE,
     FISHING_ENERGY_STORE,
 )
-from sb.kernel.panels.registry import register_panel
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
-from sb.spec.panels import (
-    ActionStyle,
-    Audience,
-    EmbedFrameSpec,
-    FooterMode,
-    LayoutSpec,
-    NavigationSpec,
-    PageSpec,
-    PanelActionSpec,
-    PanelSpec,
-    ResultRender,
-    TextBlock,
-)
-from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
-
-
-def fishing_hub_spec() -> PanelSpec:
-    return PanelSpec(
-        panel_id="fishing.hub",
-        subsystem="fishing",
-        title="🎣 Fishing",
-        audience=Audience.INVOKER,
-        frame=EmbedFrameSpec(footer_mode=FooterMode.SUBSYSTEM),
-        body=(TextBlock("Cast a line — 21 species across 7 size bands; "
-                        "level up to unlock bigger fish. Caught fish "
-                        "land in your pack (sell or cook them); the "
-                        "biggest of each species is your trophy."),),
-        actions=(
-            # Cast runs the shipped begin_cast lane (energy gate → spend →
-            # the waiting panel — "🎣 Cast launches the minigame in place")
-            PanelActionSpec(action_id="fishing_cast", label="Cast",
-                            emoji="🎣", style=ActionStyle.SUCCESS,
-                            audience_tier="user",
-                            handler=HandlerRef("fishing.cast_open"),
-                            result_render=ResultRender.RESULT_CARD),
-            PanelActionSpec(action_id="fishing_log", label="Fish Dex",
-                            emoji="📖", audience_tier="user",
-                            handler=PanelRef("fishing.log")),
-            PanelActionSpec(action_id="fishing_trophies",
-                            label="Trophies", emoji="🏆",
-                            audience_tier="user",
-                            handler=HandlerRef("fishing.trophies_view"),
-                            result_render=ResultRender.RESULT_CARD),
-        ),
-        navigation=NavigationSpec(parent=PanelRef("games.world")),
-        layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("fishing_cast", "fishing_log", "fishing_trophies"),)),)),
-    )
-
-
-@panel("fishing.hub")
-def _hub_factory() -> PanelSpec:
-    return fishing_hub_spec()
+from sb.spec.refs import HandlerRef, PanelRef
 
 
 def _cmd(name: str, route, summary: str,
@@ -124,7 +72,8 @@ MANIFEST = SubsystemManifest(
     key="fishing",
     version=1,
     commands=_COMMANDS,
-    panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec()),
+    panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec(),
+            _panels.fishing_card_spec()),
     settings=(),
     stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE),
     events=(),
@@ -137,14 +86,11 @@ register_ops()
 def _ensure_refs() -> None:
     from sb.domain.fishing import ops as _ops
     from sb.domain.fishing import store as _store
-    from sb.spec.refs import PanelRef as _P, panel as _panel
 
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _service.ensure_handler_refs()
     _panels.ensure_panel_refs()
-    if not is_registered(_P("fishing.hub")):
-        _panel("fishing.hub")(_hub_factory)
     register_ops()
 
 
