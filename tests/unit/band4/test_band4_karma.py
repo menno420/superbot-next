@@ -139,6 +139,54 @@ def test_give_writes_credit_given_and_audit(monkeypatch):
                        "delta": 1, "new_total": 1, "source": "command"}
 
 
+def test_thanks_argv_parse_is_positional(monkeypatch):
+    """`!thanks <member> [reason]` — argv[0] is the member slot (mention
+    or bare ID), argv[1:] the reason (the shipped MemberConverter +
+    keyword-only rest binding: karma_cog.py `thanks(ctx, member, *,
+    reason)`); digits inside the reason stay in the reason."""
+    from sb.domain.karma import ops
+
+    snowflake = 900000000000000103
+
+    # bare ID + reason (the golden-unpinned defect lane)
+    fake = FakeKarmaStore().install(monkeypatch)
+    _policy(monkeypatch)
+    out = run(ops._record_give(
+        None, _ctx({"argv": (str(snowflake), "nice", "work"),
+                    "source": "command"})))
+    assert out.after["to_user"] == snowflake
+    assert [c[:2] for c in fake.credits] == [(snowflake, 1)]
+    assert fake.audit[0][4] == "nice work"
+
+    # mention + digit inside the reason tail: the target is argv[0], the
+    # digit stays reason text (the old digit-filter recorded "stars")
+    fake2 = FakeKarmaStore().install(monkeypatch)
+    _policy(monkeypatch)
+    out2 = run(ops._record_give(
+        None, _ctx({"argv": ("<@!7>", "5", "stars"), "source": "command"})))
+    assert out2.after["to_user"] == 7              # not 5
+    assert [c[:2] for c in fake2.credits] == [(7, 1)]
+    assert fake2.audit[0][4] == "5 stars"
+
+
+def test_thanks_tail_digit_never_becomes_the_target(monkeypatch):
+    """REGRESSION: the first-digit-token scan bound a digit in the reason
+    tail as the TARGET — `!thanks bob 5` thanked user id 5. The shipped
+    converter bound argv[0] and raised MemberNotFound on a name this
+    world cannot resolve; bot1.py's global BadArgument arm rendered it
+    (karma_cog has no local error handler) — copy pinned verbatim."""
+    from sb.domain.karma import ops
+    from sb.kernel.interaction.errors import ValidatorError
+
+    fake = FakeKarmaStore().install(monkeypatch)
+    _policy(monkeypatch)
+    with pytest.raises(ValidatorError) as exc:
+        run(ops._record_give(
+            None, _ctx({"argv": ("bob", "5"), "source": "command"})))
+    assert exc.value.user_copy == '⚠️ Bad argument: Member "bob" not found.'
+    assert not fake.credits and not fake.audit     # user 5 never credited
+
+
 def test_zero_cooldown_skips_the_recent_read(monkeypatch):
     from sb.domain.karma import ops
 

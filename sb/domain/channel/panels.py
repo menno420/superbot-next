@@ -187,14 +187,35 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
 async def _render_param_card(spec: PanelSpec, ctx) -> object:
     """The shared param-driven info card (the utility #255 pattern):
     title/description/fields arrive as open params; the accent rides the
-    spec's style_token (WARNING_COLOR yellow / INFO_COLOR blue)."""
-    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+    spec's style_token (WARNING_COLOR yellow / INFO_COLOR blue). Discord
+    hard limits are enforced HERE because the override path bypasses the
+    grammar renderer's budget clamps (render._clamp semantics mirrored:
+    ellipsis truncation; 25-field cap) — a big guild's `!list` must not
+    mint an invalid embed. The pinned goldens sit far under every limit,
+    so the clamp is byte-inert for them."""
+    from sb.kernel.panels.render import (
+        DESCRIPTION_LIMIT,
+        FIELD_NAME_LIMIT,
+        FIELD_VALUE_LIMIT,
+        TITLE_LIMIT,
+        RenderedEmbed,
+        RenderedPanel,
+    )
+
+    def _cl(text: object, limit: int) -> str:
+        out = str(text)
+        if len(out) <= limit:
+            return out
+        return out[: max(limit - 1, 0)] + "…"
 
     params = getattr(ctx, "params", {}) or {}
-    fields = tuple(tuple(f) for f in params.get("card_fields", ()) or ())
+    raw = tuple(tuple(f) for f in params.get("card_fields", ()) or ())[:25]
+    fields = tuple((_cl(f[0], FIELD_NAME_LIMIT),
+                    _cl(f[1], FIELD_VALUE_LIMIT), *f[2:]) for f in raw)
     embed = RenderedEmbed(
-        title=str(params.get("card_title", "") or ""),
-        description=str(params.get("card_description", "") or ""),
+        title=_cl(params.get("card_title", "") or "", TITLE_LIMIT),
+        description=_cl(params.get("card_description", "") or "",
+                        DESCRIPTION_LIMIT),
         fields=fields,
         style_token=spec.frame.style_token)
     return RenderedPanel(

@@ -116,6 +116,7 @@ __all__ = [
     "ai_behavior_matrix_picker_spec",
     "ai_behavior_preset_picker_spec",
     "ai_behavior_preview_picker_spec",
+    "ai_card_nav_spec",
     "ai_card_spec",
     "ai_hub_spec",
     "ai_policy_category_picker_spec",
@@ -232,6 +233,41 @@ def ai_card_spec() -> PanelSpec:
             "pins the bytes). Zero components; the renderer presents the "
             "handler-built RenderedEmbed verbatim (the projmoon.card "
             "precedent)."),
+    )
+
+
+def ai_card_nav_spec() -> PanelSpec:
+    """The COMPONENT-ingress twin of ``ai.card`` — the same one-embed
+    operator card carrying the family's ``↩ AI home`` back-route
+    (VERDICT 009 AIP-02 consumption: a hub-button/select-pick card
+    replaces the panel message in place, so a nav-less card stranded the
+    operator — the shipped flow kept the full AIPanelView attached via
+    ``edit_message(view=self)``). Command ingress (`!ai <sub>`) stays on
+    the bare ``ai.card``: goldens/ai pins those replies at ZERO
+    components, byte-parity preserved."""
+    return PanelSpec(
+        panel_id="ai.card_nav",
+        subsystem="ai",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(
+            show_help=False, show_home=False,
+            extra_routes=(NavRouteSpec(label="↩ AI home",
+                                       route=PanelRef("ai.hub")),)),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("ai.render_card_nav"),
+        justification=(
+            "the same live-state-parameterized operator embeds as "
+            "ai.card (built by sb/domain/ai/operator_cards.py / the "
+            "preview picks), presented on the COMPONENT ingress where "
+            "the shipped bot kept the panel view attached "
+            "(views/ai/panel.py edit_message(view=self)) — the engine's "
+            "card page carries the family's ↩ AI home route instead "
+            "(ENGINE-SHAPE deviation, ledgered: VERDICT 009 AIP-02 "
+            "consumption). The override swaps ONLY the embed/attachments "
+            "onto the grammar render (which owns the nav row); no golden "
+            "pins these clicks."),
     )
 
 
@@ -1244,7 +1280,7 @@ def ai_settings_edit_enum_spec() -> PanelSpec:
         renderer_override=HandlerRef("ai.render_enum_widget"),
         justification=(
             "the shipped enum widget prompt + placeholder carry the picked "
-            "setting's name ('Pick a new value for `ai.<name>`:' / 'Pick "
+            "setting's name ('Pick a new value for `<name>`:' / 'Pick "
             "a new value for <name>…' — views/settings/subsystem_view.py "
             "dispatch_edit_setting + edit_enum.build_enum_select_view) — "
             "per-open copy outside the static grammar. The override "
@@ -1322,6 +1358,21 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+async def _render_card_nav(spec: PanelSpec, ctx) -> object:
+    """The ai.card embed verbatim over the grammar render — the grammar
+    renderer owns the components (the spec's ↩ AI home extra route);
+    only the handler-built embed + attachments are swapped in."""
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    rendered = await render_panel(spec, ctx)
+    embed = (ctx.params or {}).get("_card")
+    if not isinstance(embed, RenderedEmbed):  # defensive: never a crash
+        embed = RenderedEmbed(title="", description="")
+    files = tuple(f for f in (ctx.params or {}).get("_card_files", ())
+                  if f is not None)
+    return _dc_replace(rendered, embed=embed, attachments=files)
+
+
 async def _render_settings(spec: PanelSpec, ctx) -> object:
     """Grammar render + the shipped dynamic guild_id footer."""
     from sb.kernel.panels.render import render_panel
@@ -1357,11 +1408,11 @@ async def _render_presets_widget(spec: PanelSpec, ctx) -> object:
     sspec = widgets.spec_for_key(key)
     if sspec is None or not sspec.presets:   # defensive: never a crash
         return _dc_replace(rendered, embed=_dc_replace(
-            rendered.embed, description=f"❌ Unknown setting `ai.{key}`."))
+            rendered.embed, description=f"❌ Unknown setting `{key}`."))
     current = await widgets._current_value(int(ctx.guild_id or 0), sspec)
     # the shipped dispatcher prompt byte (subsystem_view.py
     # dispatch_edit_setting, the numeric_presets branch).
-    description = (f"Pick a value for `ai.{key}` "
+    description = (f"Pick a value for `{key}` "
                    f"(current=`{current!r}`, default=`{sspec.default!r}`):")
     presets = tuple(sspec.presets)
     components = []
@@ -1395,9 +1446,9 @@ async def _render_text_widget(spec: PanelSpec, ctx) -> object:
     sspec = widgets.spec_for_key(key)
     if sspec is None:                        # defensive: never a crash
         return _dc_replace(rendered, embed=_dc_replace(
-            rendered.embed, description=f"❌ Unknown setting `ai.{key}`."))
+            rendered.embed, description=f"❌ Unknown setting `{key}`."))
     current = await widgets._current_value(int(ctx.guild_id or 0), sspec)
-    description = (f"Edit `ai.{key}` "
+    description = (f"Edit `{key}` "
                    f"(current=`{current!r}`, default=`{sspec.default!r}`) "
                    "— **Edit…** opens the form.")
     return _dc_replace(
@@ -1411,7 +1462,7 @@ async def _render_enum_widget(spec: PanelSpec, ctx) -> object:
 
     rendered = await render_panel(spec, ctx)
     key = str((ctx.params or {}).get("setting") or "")
-    description = f"Pick a new value for `ai.{key}`:"
+    description = f"Pick a new value for `{key}`:"
     placeholder = f"Pick a new value for {key}…"
     components = tuple(
         _dc_replace(comp, placeholder=placeholder)
@@ -1557,6 +1608,8 @@ async def _enum_edit_options(ctx):
 _SPECS = {
     "ai.hub": ai_hub_spec,
     "ai.card": ai_card_spec,
+    # the COMPONENT-ingress card twin (VERDICT 009 AIP-02 consumption).
+    "ai.card_nav": ai_card_nav_spec,
     "ai.settings": ai_settings_spec,
     "ai.policy_chooser": ai_policy_chooser_spec,
     "ai.behavior_chooser": ai_behavior_chooser_spec,
@@ -1595,6 +1648,7 @@ _SPECS = {
 _RENDERERS = {
     "ai.render_hub": _render_hub,
     "ai.render_card": _render_card,
+    "ai.render_card_nav": _render_card_nav,
     "ai.render_settings": _render_settings,
     "ai.render_chooser": _render_chooser,
     "ai.render_presets_widget": _render_presets_widget,
