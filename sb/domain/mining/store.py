@@ -23,6 +23,7 @@ __all__ = [
     "get_depth",
     "get_mining_inventory",
     "mining_totals",
+    "reset_player_inventory",
     "update_mining_item",
 ]
 
@@ -119,6 +120,20 @@ async def mining_totals(guild_id: int, limit: int = 10,
         "mining_inventory WHERE guild_id=$1 GROUP BY user_id "
         "ORDER BY total DESC LIMIT $2", (guild_id, limit), conn=conn)
     return [dict(r) for r in rows]
+
+
+async def reset_player_inventory(conn: Any, *, user_id: int,
+                                 guild_id: int) -> int:
+    """Guild-scoped admin wipe of one member's pack — the shipped
+    `!reset_inventory` write (\"reset a user's inventory in THIS guild\",
+    mining_cog.py PR M3). Additive to the #217 lanes: a single atomic
+    DELETE inside the caller's leg txn — no read-check-write sequence, so
+    no FOR UPDATE / advisory fence is needed (the sell/sell_all locking
+    contract in ``get_mining_inventory`` is untouched)."""
+    result = await execute(
+        "DELETE FROM mining_inventory WHERE user_id=$1 AND guild_id=$2",
+        (str(user_id), guild_id), conn=conn)
+    return _rc(result)
 
 
 async def erase_subject_inventory(conn: Any, *, user_id: int) -> int:

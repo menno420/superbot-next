@@ -271,16 +271,25 @@ async def add_game_xp(conn: Any, *, user_id: int, guild_id: int, game: str,
                       now: int) -> int:
     """Add *amount* xp under *game*; the per-day counter resets when *day*
     rolls over (read-compute-write inside the caller's txn — the shipped
-    acceptable-slack contract). Returns the new per-game xp total."""
+    acceptable-slack contract). Returns the new per-game xp total.
+
+    Column shapes are the SHIPPED ones since migration 0036 (`day DATE`,
+    `updated_at TIMESTAMPTZ` — old migration 065): the mining-row goldens
+    pin the row bytes (`<ts>` normalization needs real date/timestamp
+    cells), hence the date param + epoch cast."""
+    import datetime as _dt
+
+    day_value = _dt.date.fromisoformat(day)
     row = await fetchone(
         "INSERT INTO game_xp (user_id, guild_id, game, xp, day, day_xp, "
-        "updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7) "
+        "updated_at) VALUES ($1,$2,$3,$4,$5,$6,to_timestamp($7)) "
         "ON CONFLICT (user_id, guild_id, game) DO UPDATE SET "
         "xp = game_xp.xp + $4, "
         "day_xp = CASE WHEN game_xp.day = $5 THEN game_xp.day_xp + $6 "
-        "ELSE $6 END, day = $5, updated_at = $7 "
+        "ELSE $6 END, day = $5, updated_at = to_timestamp($7) "
         "RETURNING xp",
-        (user_id, guild_id, game, amount, day, day_xp_add, now), conn=conn)
+        (user_id, guild_id, game, amount, day_value, day_xp_add, now),
+        conn=conn)
     return int(row["xp"]) if row else 0
 
 
@@ -297,7 +306,8 @@ async def day_xp_for(user_id: int, guild_id: int, game: str, day: str,
     row = await fetchone(
         "SELECT day, day_xp FROM game_xp WHERE user_id=$1 AND guild_id=$2 "
         "AND game=$3", (user_id, guild_id, game), conn=conn)
-    if row is None or row["day"] != day:
+    # `day` is a DATE cell since migration 0036 — compare its ISO form.
+    if row is None or row["day"] is None or str(row["day"]) != day:
         return 0
     return int(row["day_xp"])
 
@@ -353,7 +363,7 @@ async def _reverse_import_game_xp(store, *, old_conn, new_conn,
     flip_epoch = int(flip_ts.timestamp())
     rows = await new_conn.fetch(
         "SELECT user_id, guild_id, game, xp, updated_at FROM game_xp "
-        "WHERE updated_at >= $1", flip_epoch)
+        "WHERE updated_at >= to_timestamp($1)", flip_epoch)
     sql = aggregate_upsert_sql("game_xp", ("user_id", "guild_id", "game"),
                                ("xp", "updated_at"))
     for row in rows:

@@ -64,16 +64,46 @@ def roll_harvest_amount(*, has_axe: bool,
     return r.randint(1, 3) * (2 if has_axe else 1)
 
 
-EXPLORE_OUTCOMES: list[tuple[str, str | None, int]] = [
-    ("found 1 gold in an abandoned camp!", "gold", 1),
-    ("stumbled upon a hidden diamond vein and got 1 diamond!", "diamond", 1),
-    ("was attacked by monsters and lost 2 stone...", "stone", -2),
-    ("found a secret chest with 3 wood!", "wood", 3),
-    ("got lost and found nothing...", None, 0),
+# The shipped `!explore` rides the exploration ENGINE
+# (disbot/utils/mining/exploration.py): a WEIGHTED pick
+# (`chooser.choices(candidates, weights)`) over the CATALOG entries
+# eligible at the player's biome with their loadout, luck-scaled
+# (identity at luck 0 — the oracle's own test pins
+# `_luck_weighted(cands, 0) == [o.weight for o in cands]`). This table is
+# the engine's FRESH-PLAYER SURFACE slice, oracle-verbatim where the
+# fragment seam reaches (narration/item/amount/weight per entry):
+#   abandoned_camp   "found {amount} gold in an abandoned camp!"  gold +1 w2.0
+#   secret_chest     "found a secret chest with {amount} wood!"   wood +3 w3.0
+#   monster_ambush   "was attacked by monsters and lost {amount}
+#                     stone..."                                   stone -2 w2.0 (hazard)
+#   got_lost         "got lost and found nothing..."              —     0
+# DEVIATION (D-0043, ledgered): the shipped catalog carries ONE more
+# surface entry between monster_ambush and got_lost (its tail
+# `weight=3.0` is fragment-pinned; key/narration are not reconstructable
+# through the search-only oracle seam), and got_lost's exact weight is
+# unrecoverable the same way — the corpus draw bounds it (>5.6:
+# goldens/mining/sweep_explore, seed 42, selects got_lost at cumulative
+# fraction 0.639). Until the D-0043 deep-system port lands the engine
+# wholesale, the unreconstructable entry's mass rides the junk roll:
+# got_lost carries 6.0 here (the bound's smallest round value), so the
+# ported narrations, their relative order, and the golden-pinned seeded
+# trajectory are all oracle-true. Deeper-band entries (hidden_diamond_vein
+# CAVERN, iron_pocket CAVERN, blasted_vein DEEP, the torch/dynamite-gated
+# finds) are loadout/depth-gated engine territory — D-0043; the shipped
+# legacy hidden-diamond-vein line left this table with them.
+EXPLORE_OUTCOMES: list[tuple[str, str | None, int, float]] = [
+    ("found 1 gold in an abandoned camp!", "gold", 1, 2.0),
+    ("found a secret chest with 3 wood!", "wood", 3, 3.0),
+    ("was attacked by monsters and lost 2 stone...", "stone", -2, 2.0),
+    ("got lost and found nothing...", None, 0, 6.0),
 ]
 
 
 def roll_explore_outcome(rng: random.Random | None = None,
                          ) -> tuple[str, str | None, int]:
+    """One exploration roll — the engine's weighted single-`random()`
+    draw shape (`choices(..., k=1)`), shipped verbatim."""
     r = rng or random
-    return r.choice(EXPLORE_OUTCOMES)
+    picked = r.choices(EXPLORE_OUTCOMES,
+                       weights=[w for *_x, w in EXPLORE_OUTCOMES], k=1)[0]
+    return picked[0], picked[1], picked[2]

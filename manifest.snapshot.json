@@ -2521,6 +2521,14 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "surface": "prefix",
+          "value": "fastmine"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "surface": "prefix",
           "value": "chop"
         },
         {
@@ -2578,14 +2586,6 @@
           "subsystem": "mining",
           "surface": "prefix",
           "value": "minestats"
-        },
-        {
-          "kind": "command",
-          "parent_group": null,
-          "source": "sb/manifest/mining.py",
-          "subsystem": "mining",
-          "surface": "prefix",
-          "value": "fastmine"
         },
         {
           "kind": "command",
@@ -4595,22 +4595,37 @@
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
-          "value": "mining_mine"
+          "value": "mi_mine"
         },
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
-          "value": "mining_chop"
+          "value": "mi_harvest"
         },
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
-          "value": "mining_explore"
+          "value": "mi_explore_hub"
         },
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
-          "value": "mining_sell_all"
+          "value": "mi_character"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mi_gear"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mi_workshop"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mi_how_to"
         },
         {
           "source": "sb/manifest/moderation.py",
@@ -8409,8 +8424,8 @@
       "handler:mining.explore_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.fastmine_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.fastmine_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.forge_pending": {
         "module": "sb.domain.operator_spine"
@@ -8418,7 +8433,13 @@
       "handler:mining.gear_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:mining.grid_view_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:mining.home_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:mining.how_to_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:mining.inventory_view": {
@@ -8442,11 +8463,14 @@
       "handler:mining.quickcraft_pending": {
         "module": "sb.domain.operator_spine"
       },
+      "handler:mining.render_hub": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.repair_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.reset_inventory_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.reset_inventory_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.sell_route": {
         "module": "sb.domain.mining.service"
@@ -9436,7 +9460,7 @@
         "module": "sb.domain.server_logging.panels"
       },
       "panel:mining.hub": {
-        "module": "sb.manifest.mining"
+        "module": "sb.domain.mining.panels"
       },
       "panel:moderation.hub": {
         "module": "sb.domain.moderation.panels"
@@ -10410,10 +10434,16 @@
       "workflow:mining.record_mine": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_reset_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_sell": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.reset_inventory": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.sell": {
@@ -11258,7 +11288,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:96f3406104264231623b63dd6db3d2dc327c23524a5f05100e311c11b169e524",
+  "stable_hash": "sha256:f15da60d8e685316c3e10e71cf98b64b660015ab9b2490176547c4478697cf89",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -36181,8 +36211,32 @@
             "$ref": "handler:mining.mine_route"
           },
           "slash_common": false,
-          "summary": "One mining swing — roll ore loot.",
+          "summary": "Open the grid Mine navigator — roam the world and dig.",
           "usage": "!mine",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [],
+          "audience_tier": "user",
+          "capability": "mining",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "fastmine",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:mining.fastmine_route"
+          },
+          "slash_common": false,
+          "summary": "One quick mining swing — no buttons.",
+          "usage": "!fastmine",
           "usage_weight": 1.0
         },
         {
@@ -36377,30 +36431,6 @@
           "slash_common": false,
           "summary": "Your mining stats.",
           "usage": "!minestats",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [],
-          "audience_tier": "user",
-          "capability": "mining",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "modal": null,
-          "name": "fastmine",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:mining.fastmine_pending"
-          },
-          "slash_common": false,
-          "summary": "Grid dig (fast mine).",
-          "usage": "!fastmine",
           "usage_weight": 1.0
         },
         {
@@ -37012,7 +37042,7 @@
         },
         {
           "aliases": [],
-          "audience_tier": "user",
+          "audience_tier": "administrator",
           "capability": "mining",
           "capability_required": "",
           "cooldown": null,
@@ -37027,10 +37057,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:mining.reset_inventory_pending"
+            "$ref": "handler:mining.reset_inventory_route"
           },
           "slash_common": false,
-          "summary": "Admin: reset a mining inventory.",
+          "summary": "Admin: reset a member's mining inventory (this guild).",
           "usage": "!reset_inventory",
           "usage_weight": 1.0
         }
@@ -37042,96 +37072,21 @@
         {
           "actions": [
             {
-              "action_id": "mining_mine",
+              "action_id": "mi_mine",
               "audience_tier": "user",
               "audit": "",
               "capability_required": "",
               "co_use_group": "",
               "confirm": null,
-              "custom_id_override": "",
+              "custom_id_override": "mining:mine",
               "defer_mode": "auto",
               "destructive": false,
-              "emoji": "⛏️",
+              "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.mine_route"
+                "$ref": "handler:mining.grid_view_pending"
               },
-              "label": "Mine",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "success",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "mining_chop",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "🪓",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:mining.chop_route"
-              },
-              "label": "Chop",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "mining_explore",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "🧭",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:mining.explore_route"
-              },
-              "label": "Explore",
-              "modal": null,
-              "reply_visibility": null,
-              "result_card": null,
-              "result_render": "result_card",
-              "slash_common": false,
-              "style": "secondary",
-              "usage_weight": 1.0,
-              "visible_when": ""
-            },
-            {
-              "action_id": "mining_sell_all",
-              "audience_tier": "user",
-              "audit": "",
-              "capability_required": "",
-              "co_use_group": "",
-              "confirm": null,
-              "custom_id_override": "",
-              "defer_mode": "auto",
-              "destructive": false,
-              "emoji": "💰",
-              "flow_stage": 0,
-              "handler": {
-                "$ref": "handler:mining.sellall_route"
-              },
-              "label": "Sell All",
+              "label": "⛏️ Mine",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
@@ -37140,34 +37095,191 @@
               "style": "primary",
               "usage_weight": 1.0,
               "visible_when": ""
+            },
+            {
+              "action_id": "mi_harvest",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mining:harvest",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.chop_route"
+              },
+              "label": "🌲 Harvest",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mi_explore_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mining:explore_hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:games.world"
+              },
+              "label": "🗺️ Explore",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mi_character",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mining:character",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.character_pending"
+              },
+              "label": "🧍 Character",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mi_gear",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mining:gear",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gear_pending"
+              },
+              "label": "🧰 Gear",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mi_workshop",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mining:workshop",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.workshop_pending"
+              },
+              "label": "🔨 Workshop",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mi_how_to",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "mining:how_to",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.how_to_pending"
+              },
+              "label": "📖 How-to",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
             }
           ],
           "anchor_policy": "reply",
           "audience": "invoker",
           "body": [
             {
-              "text": "Dig for ore, chop wood, explore — then sell your haul at the market. Deeper bands hold richer ore."
+              "text": "**⛏️ Mine** — dig for ore, move between depths, explore for events\n**🌲 Harvest** — chop wood\n**🗺️ Explore** — the open-world explorer (fishing, roam, quests — early)\n**🧍 Character** — you: overview · inventory · stats · skills · vault · home\n**🧰 Gear** — equip your best tools, lights, and combat gear\n**🔨 Workshop** — craft & build · repair · 🔥 forge · 🛒 market (all here)\n**📖 How-to** — new here? the whole mining loop on one screen"
             }
           ],
           "co_open_group": "",
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "dark_grey",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "three shipped surfaces sit outside the grammar's vocabulary (goldens/mining/sweep_minemenu pins all three): (1) the TITLE interpolates the invoker's display name ('⛏️ Mining Hub — {name}', views/mining/main_panel.py title f-string — read through the guild-directory port, the world-card precedent); (2) the five FIELDS interpolate the invoker's LIVE overview — 📍 Location (depth band), 🧰 Tool / 💡 Light (gear lines), 💰 Wealth (inventory net worth), 🎒 Pack (type count vs soft cap) — all with the shipped inline=True flags, read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the farm 'Coop' precedent); (3) the FOOTER is the shared invoker-lock literal 'Only you can interact with this panel.' — outside FooterMode's vocabulary (the games/community/casino precedent). Description, color and every component stay grammar-rendered.",
           "layout": {
             "pages": [
               {
                 "rows": [
                   [
-                    "mining_mine",
-                    "mining_chop",
-                    "mining_explore",
-                    "mining_sell_all"
+                    "mi_mine",
+                    "mi_harvest",
+                    "mi_explore_hub"
+                  ],
+                  [
+                    "mi_character",
+                    "mi_gear",
+                    "mi_workshop"
+                  ],
+                  [
+                    "mi_how_to"
                   ]
                 ]
               }
@@ -37176,21 +37288,21 @@
           "legacy_view": null,
           "navigation": {
             "extra_routes": [],
-            "home_hub": "__follow_parent__",
-            "parent": {
-              "$ref": "panel:games.world"
-            },
+            "home_hub": "games",
+            "parent": null,
             "show_help": true,
             "show_home": true,
             "show_rules": false
           },
           "panel_id": "mining.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:mining.render_hub"
+          },
           "selectors": [],
           "session_lifecycle": false,
           "subsystem": "mining",
           "timeout_s": 180,
-          "title": "⛏️ Mining",
+          "title": "⛏️ Mining Hub",
           "usage_weight": 1.0
         }
       ],

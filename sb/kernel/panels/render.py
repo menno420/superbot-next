@@ -99,6 +99,10 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # overview embed (cogs/four_twenty_cog.py;
                               # goldens/four_twenty/sweep_420 pins the
                               # byte)
+    "dark_grey": 6323595,     # discord.Color.dark_grey() — the shipped
+                              # MINING_COLOR (utils/ui_constants.py;
+                              # goldens/mining/sweep_minemenu pins the
+                              # byte)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

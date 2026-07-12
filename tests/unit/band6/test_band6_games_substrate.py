@@ -286,7 +286,10 @@ def test_levelup_payload_is_conditional(fake_games_store):
         None, user_id=P1, guild_id=GID, game="mining", action="harvest",
         now=1_000_000))
     assert ops._gxp_levelup_payload(ctx, None) is None      # non-boundary
-    assert ops._gxp_awarded_payload(ctx, None)["delta"] == 2
+    # the corpus payload shape (goldens/mining/sweep_chop pins amount=2)
+    payload = ops._gxp_awarded_payload(ctx, None)
+    assert payload["amount"] == 2
+    assert payload["total"] == 2
 
 
 # --- g1 session registry + dispatcher ------------------------------------------------
