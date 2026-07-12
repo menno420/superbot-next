@@ -10,7 +10,7 @@ ORDER 015 (P2, inbox 2026-07-12T08:30Z — relocation of startup-prompt
 v3.1 F3): render CLAUDE.md from `.substrate/claude/CLAUDE.md` via the
 kit, fix `docs/AGENT_ORIENTATION.md`'s working-agreement pointers, and
 promote the flip-playbook trap index to docs/. Docs/control-only; no
-domain code touched.
+domain code touched. Shipped as PR #259.
 
 ## What shipped
 
