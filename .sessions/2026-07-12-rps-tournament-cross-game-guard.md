@@ -1,6 +1,6 @@
 # 2026-07-12 — RPS tournament cross-game guard (dropped-in-port parity regression)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude Opus 4.8 · high · parity-regression bug fix, red-then-green (tournament edge-case audit)
 
@@ -88,3 +88,18 @@ any state used as a per-owner CAS token whose key is coarser than the
 owner (here guild-scoped, but two owners = two games) should assert every
 writer of that key gates on it. The blackjack/rps asymmetry would have
 been a one-line lint.
+
+## ⟲ Previous-session review
+
+This slice came out of the tournament edge-case audit, not a prior work
+order — so there was no ledger row to grade. What the audit under-served
+and this session had to reconstruct: the settle-once guard's soundness
+depends on EVERY writer of the shared `active_tournament` flag gating on
+it, but the two writers (rps/blackjack registration) were audited in
+isolation, so the asymmetry only surfaced once both money legs were
+driven against ONE flag row at the leg level. The `#130`/`#133` review
+trail hardened the settle-once CAS itself (flag-row delete first, the
+in-memory `settled` twin) but never questioned whether the flag KEY was
+owner-unique — a hardening that pins the mechanism while leaving its
+precondition (single owner per flag) unstated. Future settle-once ledger
+rows should name the token's owner-cardinality invariant up front.
