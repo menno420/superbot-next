@@ -15,18 +15,21 @@ from sb.kernel.interaction.handler_kit import (
 __all__ = ["Reply", "ensure_handler_refs", "register_provider_rows"]
 
 
-_provider_registered = False
-
-
 def register_provider_rows() -> None:
-    global _provider_registered
-    if _provider_registered:
-        return
+    """Deathmatch + rps rank rows; idempotent by REGISTRY truth, not a
+    module latch (a latch strands the rows after a
+    reset_providers_for_tests() wipe on the cached module — the #141
+    re-arm doctrine)."""
     from sb.domain.community.rank_providers import (
         RankEntry,
         RankProvider,
+        get_provider,
         register_provider as _register,
     )
+
+    if (get_provider("deathmatch") is not None
+            and get_provider("rps") is not None):
+        return
 
     async def _dm_top(guild_id: int) -> list[RankEntry]:
         from sb.domain.deathmatch import store
@@ -85,7 +88,6 @@ def register_provider_rows() -> None:
                    "`!rps` to appear here.",
         top=_rps_top, member_rank=_rps_member_rank),
         aliases=("rpslb",))
-    _provider_registered = True
 
 
 def _target_from_args(req) -> int:

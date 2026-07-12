@@ -21,6 +21,28 @@ def _clean_state():
     yield
     reset_providers_for_tests()
     reset_feed_for_tests()
+    _rearm_cached_game_providers()
+
+
+def _rearm_cached_game_providers():
+    """AFTER-leg re-arm (the #199 hygiene idiom): reset_providers_for_tests
+    restores only the band-4 builtins, but under the canonical order the
+    #213 integration suite has already imported the WHOLE composition at
+    session start — the band-6 game rows registered at those modules'
+    import can never re-fire from a cached import, so wiping without
+    re-arm strands `get_provider("countlb")`-class lookups for every
+    later-listed suite. Re-run each cached registrant's idempotent hook."""
+    import sys
+
+    for mod_name, hook_name in (
+        ("sb.domain.games.providers", "register_game_providers"),
+        ("sb.domain.counting.service", "register_provider_rows"),
+        ("sb.domain.deathmatch.service", "register_provider_rows"),
+    ):
+        mod = sys.modules.get(mod_name)
+        hook = getattr(mod, hook_name, None) if mod is not None else None
+        if callable(hook):
+            hook()
 
 
 # --- the provider registry -----------------------------------------------------------------
