@@ -197,6 +197,21 @@ def _component_payload(component: Any) -> dict[str, Any]:
         if component.placeholder:
             out["placeholder"] = component.placeholder
         return out
+    if getattr(component, "url", ""):
+        # discord.py Button(url=…, style=ButtonStyle.link).to_component_dict():
+        # wire style 5, a `url` key, and NO custom_id (a link button never
+        # dispatches) — the shipped paragon-calculator 🌐 Web calculator
+        # button (goldens/btd6/sweep_paragon pins the shape).
+        out = {
+            "type": 2,
+            "style": 5,
+            "label": component.label,
+            "disabled": bool(component.disabled),
+            "url": component.url,
+        }
+        if component.emoji:
+            out["emoji"] = {"id": None, "name": component.emoji}
+        return out
     out = {
         "type": 2,
         "style": _BUTTON_STYLES.get(str(component.style), 2),
