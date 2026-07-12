@@ -371,6 +371,11 @@
    },
    {
     "aliases": [],
+    "group": "",
+    "name": "paragon"
+   },
+   {
+    "aliases": [],
     "group": "btd6.strat",
     "name": "pending"
    },

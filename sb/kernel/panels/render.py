@@ -155,6 +155,12 @@ class RenderedComponent:
     # text channels — the shipped LogChannelSelectView shape,
     # goldens/logging/logging_enable_and_bind pins the wire bytes).
     channel_types: tuple[int, ...] | None = None
+    # LINK buttons (wire style 5) carry a URL and NO custom_id — the shipped
+    # discord.ui.Button(url=…, style=ButtonStyle.link) shape (the BTD6 paragon
+    # calculator's 🌐 Web calculator button; goldens/btd6/sweep_paragon pins
+    # the wire bytes: no custom_id key, a `url` key). Renderer_override panels
+    # inject them; the grammar renderer never sets a url.
+    url: str = ""
     # SelectorKind.ROLE selectors are Discord-native pickers too (wire
     # component type 6, discord.ui.RoleSelect): Discord supplies the
     # option list — "role" marks the component for both presenters (the
