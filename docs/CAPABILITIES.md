@@ -107,6 +107,19 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-12 · capability · Worker-session port-oracle path VERIFIED WORKING
+  (`subagent` venue): claude-code-remote `list_repos` → `add_repo
+  menno420/superbot` → local shallow clone, read as a read-only oracle —
+  never MCP file reads as the oracle · evidence: session
+  `.sessions/2026-07-12-karma-view-target-id.md` / PR #305, verified
+  2026-07-12 (oracle clone head `97d281e` read successfully) · workaround:
+  n/a — this IS the route; use it instead of re-deriving oracle access.
+- 2026-07-12 · wall · Fresh container interpreter lacks `pytest` +
+  `pytest-asyncio` (`subagent` venue): `python3 -m pytest` fails until they
+  are pip-installed; and pytest must target `tests/` — repo-root pytest
+  breaks on `examples/` · evidence: verified 2026-07-12 in the worker seat
+  during the karma-view session (PR #305 lineage) · workaround: `pip install
+  pytest pytest-asyncio`, then run `python3 -m pytest tests/`.
 - 2026-07-11 · wall · Repo Settings/Rulesets are admin-only: agent tokens can
   READ but cannot MODIFY rulesets or merge settings (so the require-up-to-date
   rule and the update-branch dance cannot be changed agent-side) · evidence:
