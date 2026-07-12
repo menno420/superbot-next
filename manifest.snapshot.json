@@ -3689,6 +3689,36 @@
           "value": "admin_overview"
         },
         {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cogmgr_load"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cogmgr_unload"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cogmgr_reload"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cogmgr_refresh"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cogmgr_prev"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "cogmgr_next"
+        },
+        {
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai_refresh"
@@ -5353,6 +5383,16 @@
           "value": "admin.hub"
         },
         {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin.server_stats"
+        },
+        {
+          "source": "sb/manifest/admin.py",
+          "subsystem": "admin",
+          "value": "admin.cogmgr"
+        },
+        {
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai.hub"
@@ -5596,6 +5636,11 @@
           "source": "sb/manifest/counters.py",
           "subsystem": "counters",
           "value": "counters.status"
+        },
+        {
+          "source": "sb/manifest/counters.py",
+          "subsystem": "counters",
+          "value": "counters.presets"
         },
         {
           "source": "sb/manifest/counting.py",
@@ -7470,6 +7515,18 @@
       "engine:xp.store": {
         "module": "sb.domain.xp.store"
       },
+      "handler:admin.cogmgr_deploy_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:admin.cogmgr_page_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:admin.cogmgr_render": {
+        "module": "sb.domain.admin.cogmgr"
+      },
+      "handler:admin.cogmgr_select_pending": {
+        "module": "sb.domain.operator_spine"
+      },
       "handler:admin.loglevel": {
         "module": "sb.domain.admin.handlers"
       },
@@ -7481,6 +7538,9 @@
       },
       "handler:admin.restart": {
         "module": "sb.domain.admin.handlers"
+      },
+      "handler:admin.server_stats_render": {
+        "module": "sb.domain.admin.panels"
       },
       "handler:admin.serverstats_view": {
         "module": "sb.domain.admin.handlers"
@@ -8018,6 +8078,12 @@
       },
       "handler:counters.preset_pending": {
         "module": "sb.domain.operator_spine"
+      },
+      "handler:counters.preset_view": {
+        "module": "sb.domain.counters.panels"
+      },
+      "handler:counters.presets_render": {
+        "module": "sb.domain.counters.panels"
       },
       "handler:counters.status_render": {
         "module": "sb.domain.counters.panels"
@@ -9153,7 +9219,13 @@
       "handler:xp.xpimport": {
         "module": "sb.domain.xp.handlers"
       },
+      "panel:admin.cogmgr": {
+        "module": "sb.domain.admin.cogmgr"
+      },
       "panel:admin.hub": {
+        "module": "sb.domain.admin.panels"
+      },
+      "panel:admin.server_stats": {
         "module": "sb.domain.admin.panels"
       },
       "panel:ai.behavior_category_picker": {
@@ -9299,6 +9371,9 @@
       },
       "panel:counters.hub": {
         "module": "sb.domain.operator_spine"
+      },
+      "panel:counters.presets": {
+        "module": "sb.domain.counters.panels"
       },
       "panel:counters.status": {
         "module": "sb.domain.counters.panels"
@@ -9746,6 +9821,9 @@
       },
       "panel:xp.rank_card": {
         "module": "sb.domain.xp.panels"
+      },
+      "provider:admin.cogmgr_options": {
+        "module": "sb.domain.admin.cogmgr"
       },
       "provider:ai.behavior_chooser_fields": {
         "module": "sb.domain.ai.panels"
@@ -11494,7 +11572,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:1902f61bd8578e378ed8b67d130edb4ac49ee17875d459731d841ae7c721f2bf",
+  "stable_hash": "sha256:b574e851504e77b6ddcd2fc1e966c516f85049ee73d5bd4ec2d9ddfed11a85ce",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -11592,10 +11670,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:admin.subsystems_view"
+            "$ref": "panel:admin.cogmgr"
           },
           "slash_common": false,
-          "summary": "List loaded subsystems (the manifest registry).",
+          "summary": "Open the interactive cog manager.",
           "usage": "",
           "usage_weight": 1.0
         },
@@ -11718,7 +11796,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:admin.subsystems_view"
+                "$ref": "panel:admin.cogmgr"
               },
               "label": "📋 Cog List",
               "modal": null,
@@ -12122,6 +12200,278 @@
           "subsystem": "admin",
           "timeout_s": 180,
           "title": "⚙️ Server & Admin",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped embed copy is live-data-parameterized (the guild-census reads at send time — admin_cog.py server_stats); grammar TextBlocks are static. Zero components; the renderer composes only the embed.",
+          "layout": {
+            "pages": []
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "admin.server_stats",
+          "renderer_override": {
+            "$ref": "handler:admin.server_stats_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "admin",
+          "timeout_s": 180,
+          "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cogmgr_load",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "admin:cogmgr:load",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.cogmgr_deploy_pending"
+              },
+              "label": "Load",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cogmgr_unload",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "admin:cogmgr:unload",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.cogmgr_deploy_pending"
+              },
+              "label": "Unload",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cogmgr_reload",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "admin:cogmgr:reload",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.cogmgr_deploy_pending"
+              },
+              "label": "Reload",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cogmgr_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "admin:cogmgr:refresh",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:admin.cogmgr"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cogmgr_prev",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.cogmgr_page_pending"
+              },
+              "label": "◀ Prev",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cogmgr_next",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:admin.cogmgr_page_pending"
+              },
+              "label": "Next ▶",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**Pick a cog from the dropdown, then Load / Unload / Reload.**\n\n✅ 🟢  `admin_cog` 🛡\n✅ 🟢  `ai_cog`\n✅ 🟢  `ai_review_cog`\n✅ 🟢  `automod_cog`\n✅ 🟢  `blackjack_cog`\n✅ 🟢  `bootstrap_access_cog`\n✅ 🟢  `btd6_cog`\n✅ 🟢  `btd6_events_cog`\n✅ 🟢  `btd6_ops_cog`\n✅ 🟢  `btd6_reference_cog`\n✅ 🟢  `btd6_strategy_cog`\n✅ 🟢  `casino_cog`\n✅ 🟢  `chain_cog`\n✅ 🟢  `channel_cog`\n✅ 🟢  `cleanup_cog` 🛡\n✅ 🟢  `community_cog`\n✅ 🟢  `community_spotlight_cog`\n✅ 🟢  `counters_cog`\n✅ 🟢  `counting_cog`\n✅ 🟢  `creature_battle_cog`\n✅ 🟢  `creature_cog`\n✅ 🟢  `deathmatch_cog`\n✅ 🟢  `diagnostic_cog`\n✅ 🟢  `economy_cog`\n✅ 🟢  `farm_cog`\n✅ 🟢  `fishing_cog`\n✅ 🟢  `four_twenty_cog`\n✅ 🟢  `games_cog`\n✅ 🟢  `general_cog`\n✅ 🟢  `health_maintenance_cog`\n✅ 🟢  `help_cog` 🛡\n✅ 🟢  `hermes_cog`\n✅ 🟢  `image_moderation_cog`\n✅ 🟢  `inventory_cog`\n✅ 🟢  `karma_cog`\n✅ 🟢  `leaderboard_cog`\n✅ 🟢  `logging_cog` 🛡\n✅ 🟢  `media_maintenance_cog`\n✅ 🟢  `mining_cog`\n✅ 🟢  `moderation_cog`\n✅ 🟢  `paragon_cog`\n✅ 🟢  `project_moon_cog`\n✅ 🟢  `proof_channel_cog`\n✅ 🟢  `quicksetup_cog`\n✅ 🟢  `role_cog`\n✅ 🟢  `role_grants_cog`\n✅ 🟢  `rps_tournament_cog`\n✅ 🟢  `security_cog`\n✅ 🟢  `server_management_cog`\n✅ 🟢  `settings_cog` 🛡\n✅ 🟢  `setup_cog`\n✅ 🟢  `starboard_cog`\n✅ 🟢  `ticket_cog`\n✅ 🟢  `treasury_cog`\n✅ 🟢  `utility_cog`\n✅ 🟢  `ux_lab_cog`\n✅ 🟢  `welcome_cog`\n✅ 🟢  `xp_cog`\n\n✅ Loaded  ❌ Unloaded  🟢 OK  🔴 Syntax error  🛡 Protected (panel unload denied — use `!cog unload <name>`)"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blue",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped manager footer is the SELECTION-dependent copy ('No cog selected.' until a pick — cog_manager.py set_footer) — state-keyed copy outside FooterMode's none/subsystem/provenance vocabulary, and the first-page ◀ Prev button renders disabled — outside the grammar's vocabulary (actions carry no disabled state) (goldens/admin/sweep_coglist pins both bytes; the settings.access precedent). The override delegates to the grammar renderer and adjusts ONLY those two surfaces; body, selector, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cogmgr_select"
+                  ],
+                  [
+                    "cogmgr_load",
+                    "cogmgr_unload",
+                    "cogmgr_reload"
+                  ],
+                  [
+                    "cogmgr_refresh"
+                  ],
+                  [
+                    "cogmgr_prev",
+                    "cogmgr_next"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "admin.cogmgr",
+          "renderer_override": {
+            "$ref": "handler:admin.cogmgr_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:admin.cogmgr_select_pending"
+              },
+              "options_source": {
+                "$ref": "provider:admin.cogmgr_options"
+              },
+              "page_size": 25,
+              "placeholder": "Choose a cog… — page 1/3",
+              "selector_id": "cogmgr_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "admin",
+          "timeout_s": 180,
+          "title": "📋 Cog Manager",
           "usage_weight": 1.0
         }
       ],
@@ -22701,10 +23051,10 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:counters.preset_pending"
+            "$ref": "handler:counters.preset_view"
           },
           "slash_common": false,
-          "summary": "Apply a counter preset (port-armed later).",
+          "summary": "List or apply a counter name-template preset.",
           "usage": "",
           "usage_weight": 1.0
         }
@@ -22798,6 +23148,48 @@
           "subsystem": "counters",
           "timeout_s": 180,
           "title": "📊 Server counters",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped preset lines interpolate the catalog's rendered TOTAL-template samples (render_counter_name at count 1,234 — counters_cog.py) and the footer is the shipped apply-hint literal, outside FooterMode's vocabulary — grammar TextBlocks are static. The card declares no components; the renderer only composes the embed (goldens/counters/sweep_counterpreset pins the bytes).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "counters.presets",
+          "renderer_override": {
+            "$ref": "handler:counters.presets_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "counters",
+          "timeout_s": 180,
+          "title": "🎨 Counter name presets",
           "usage_weight": 1.0
         }
       ],

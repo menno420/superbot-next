@@ -82,6 +82,7 @@ __all__ = [
     "admin_hub_spec",
     "ensure_panel_refs",
     "install_admin_panels",
+    "server_stats_spec",
 ]
 
 #: the shipped embed description (admin_cog.py ``_panel_embed`` —
@@ -133,10 +134,15 @@ def admin_hub_spec() -> PanelSpec:
                 action_id="server_stats", label="📊 Server Stats",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
                 handler=HandlerRef("admin.serverstats_view")),
+            # the shipped 📋 Cog List button opened the Cog Manager view
+            # (admin_cog.py: `!coglist` — "the panel's 📋 Cog List
+            # button") — routed for real since the sweep_coglist re-home
+            # (sb/domain/admin/cogmgr.py; `admin.subsystems_view` stays
+            # the honest manifest-registry read for successor slices).
             PanelActionSpec(
                 action_id="cog_list", label="📋 Cog List",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("admin.subsystems_view")),
+                handler=PanelRef("admin.cogmgr")),
             PanelActionSpec(
                 action_id="reload_all", label="🔄 Reload All",
                 audience_tier="administrator",
@@ -191,7 +197,34 @@ def admin_hub_spec() -> PanelSpec:
     )
 
 
-# --- renderer override ------------------------------------------------------------
+# --- the serverstats card ---------------------------------------------------------
+
+def server_stats_spec() -> PanelSpec:
+    """The shipped ``!serverstats`` census embed (admin_cog.py
+    ``server_stats``: ``f"Server Stats for {guild.name}"``, SUCCESS_COLOR
+    green, the five inline census fields over the gateway guild cache —
+    goldens/admin/sweep_serverstats pins the bytes). A component-less
+    per-read result card (the utility ``_info_card_spec`` recipe): the
+    shipped reply was a plain ``ctx.send(embed=...)`` — never minted,
+    never anchored."""
+    return PanelSpec(
+        panel_id="admin.server_stats",
+        subsystem="admin",
+        title="",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="green", footer_mode=FooterMode.NONE),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("admin.server_stats_render"),
+        justification=(
+            "the shipped embed copy is live-data-parameterized (the "
+            "guild-census reads at send time — admin_cog.py "
+            "server_stats); grammar TextBlocks are static. Zero "
+            "components; the renderer composes only the embed."),
+    )
+
+
+# --- renderer overrides -----------------------------------------------------------
 
 async def _render_hub(spec: PanelSpec, ctx) -> object:
     """Grammar render + the shipped footer literal (see justification)."""
@@ -200,6 +233,31 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     rendered = await render_panel(spec, ctx)
     return _dc_replace(rendered, embed=_dc_replace(rendered.embed,
                                                    footer=_FOOTER))
+
+
+async def _render_server_stats(spec: PanelSpec, ctx) -> object:
+    """The shipped serverstats embed — title over the live guild name,
+    the five inline fields in the shipped order (admin_cog.py, verbatim;
+    goldens/admin/sweep_serverstats)."""
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    stats = dict((getattr(ctx, "params", {}) or {}).get("stats") or {})
+    embed = RenderedEmbed(
+        title=f"Server Stats for {stats.get('name', '')}",
+        description="",
+        fields=(
+            ("Total Members", str(stats.get("member_count", 0)), True),
+            ("Online Members", str(stats.get("online_members", 0)), True),
+            ("Text Channels", str(stats.get("text_channels", 0)), True),
+            ("Voice Channels", str(stats.get("voice_channels", 0)), True),
+            ("Roles", str(stats.get("roles", 0)), True),
+        ),
+        style_token="green")
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed,
+        invoker_lock=getattr(ctx.actor, "user_id", None),
+        timeout_s=spec.timeout_s, audience=spec.audience.value,
+        anchor_policy=spec.anchor_policy.value)
 
 
 # --- registration -----------------------------------------------------------------
@@ -211,6 +269,10 @@ def _register_refs() -> None:
         panel("admin.hub")(admin_hub_spec)
     if not is_registered(HandlerRef("admin.render_hub")):
         handler("admin.render_hub")(_render_hub)
+    if not is_registered(PanelRef("admin.server_stats")):
+        panel("admin.server_stats")(server_stats_spec)
+    if not is_registered(HandlerRef("admin.server_stats_render")):
+        handler("admin.server_stats_render")(_render_server_stats)
 
 
 _register_refs()

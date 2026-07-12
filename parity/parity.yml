@@ -59,6 +59,21 @@ source:
   # kernel-surface-drift drop at diff time (sb/adapters/parity/
   # dispositions.py), so kernel drift goes red HERE instead of nowhere.
   minted_goldens: 6
+  # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
+  # the integrity rule — the import pin above stays 465; on-disk corpus =
+  # imported + minted − retired = 470). The first retirement (2026-07-12
+  # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
+  # extension load/unload/reload capture. `cog` is deploy-ops with no
+  # compiled-architecture analog (sb/manifest/admin.py's own D-0030
+  # declaration: "cog / loadall / unloadall / syncslash — all
+  # capture-skipped"), the same class the capture sweep itself skip-listed
+  # (`loadall` / `unloadall` / `syncslash`, and the diagnostic_bot_status /
+  # system_info process-state precedent) — the sweep_cog capture was the
+  # class's one leak past the skip list, now closed by the
+  # `_sweep_skips.json` "cog" entry. Reversible: un-retire by restoring the
+  # golden from git history + dropping the skip entry + re-raising the
+  # count pins.
+  retired_goldens: 1
 
 # Every parity/goldens/<dir> has exactly one row here (checker-enforced both
 # directions). `_unmapped` holds the mechanical sweep cases not yet attributed

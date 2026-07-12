@@ -5,7 +5,7 @@ the channel-ops port when it arms)."""
 from __future__ import annotations
 
 __all__ = ["DEFAULT_TEMPLATES", "MAX_CHANNEL_NAME_LENGTH",
-           "render_counter_name", "render_counters"]
+           "TEMPLATE_PRESETS", "render_counter_name", "render_counters"]
 
 # shipped defaults, verbatim (services/counter_config.py)
 DEFAULT_TEMPLATES = {
@@ -13,6 +13,21 @@ DEFAULT_TEMPLATES = {
     "humans": "🧑 Humans: {count}",
     "bots": "🤖 Bots: {count}",
 }
+
+#: The shipped curated preset catalog (services/counter_config.py
+#: ``TEMPLATE_PRESETS``, verbatim keys/labels) — ``(key, label,
+#: total_template)`` triples: the ``!counterpreset`` list card renders
+#: each preset's TOTAL-kind sample (goldens/counters/sweep_counterpreset
+#: pins the bytes). The shipped catalog also carried the humans/bots
+#: templates per preset; those ride the APPLY path (the audited
+#: settings-pipeline write — a successor slice, see
+#: sb/manifest/counters.py), so only the list-card fields port here.
+TEMPLATE_PRESETS: tuple[tuple[str, str, str], ...] = (
+    ("default", "Default — emoji + label", DEFAULT_TEMPLATES["total"]),
+    ("minimal", "Minimal — label only, no emoji", "Members: {count}"),
+    ("brackets", "Brackets — compact count in brackets", "Members [{count}]"),
+    ("bullet", "Bullet — separator dot", "👥 Members • {count}"),
+)
 
 #: Discord's channel-name limit (services/counter_config.py).
 MAX_CHANNEL_NAME_LENGTH = 100

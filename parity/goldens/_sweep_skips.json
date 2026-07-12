@@ -12,6 +12,7 @@
  "btd6 ops seed-data": "bulk data seed \u2014 the golden would embed the whole versioned BTD6 dataset (6.8MB) already pinned by btd6_data_blobs.sha256 provenance (compat item 9); zero oracle value over the data files themselves",
  "btd6ops seed-data": "bulk data seed \u2014 the golden would embed the whole versioned BTD6 dataset (6.8MB) already pinned by btd6_data_blobs.sha256 provenance (compat item 9); zero oracle value over the data files themselves",
  "catch": "unseeded private RNG in creature spawn selection",
+ "cog": "extension load/unload/reload IN-PROCESS — deploy-ops, not guild behavior (sb/manifest/admin.py's own declaration: 'cog / loadall / unloadall / syncslash' are unported deploy-ops, D-0030; the loadall/unloadall/syncslash class — sweep_cog.json retired under the 2026-07-12 corpus ruling, 471→470)",
  "diagnostic_bot_status": "process-state diagnostics \u2014 live CPU %/uptime",
  "force": "admin re-dispatch wrapper \u2014 output depends on live dispatch/process state, not guild behavior",
  "loadall": "extension management \u2014 same class as unloadall",
