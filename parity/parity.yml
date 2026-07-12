@@ -783,6 +783,28 @@ depth:
           owner reseed exists in no imported golden — goldens pin the
           write-free read path only, so the table cannot be covered until an
           admin-reseed capture lands"
+      # Slice-3 vault port (this PR): the per-player safe stash is a declared
+      # mining surface, but every imported sweep drove only the bare guard —
+      # sweep_stash / sweep_unstash pin the usage prompts, sweep_vault renders
+      # the empty-vault card off the no-row default, sweep_vaultupgrade pins the
+      # insufficient-funds refusal (a pure read) — so no golden carries a
+      # mining_vault row. (vault_level rides mining_player_state, already held.)
+      - surface: "table:mining_vault"
+        reason: "guard-only-capture: the deposit write lane IS
+          corpus-expressible (!stash <owned item> [n]) but the imported sweep
+          drove only the bare !stash / !unstash, pinning the usage bytes
+          (\"Specify what to stash, e.g. `!stash diamond 5` — or `!vault`.\" /
+          \"Specify what to withdraw, …\") with no row
+          (goldens/mining/sweep_stash.json, sweep_unstash.json); the bare
+          !vault renders the empty-vault card off the store's no-row default
+          (goldens/mining/sweep_vault.json — \"0/30 item types (tier 0)\",
+          \"Stored value: 0\") and !vaultupgrade pins the insufficient-funds
+          refusal computed as a PURE READ (get_vault_level + get_coins, no
+          write; goldens/mining/sweep_vaultupgrade.json — \"A vault upgrade
+          costs **2000** 🪙 — you only have **0** 🪙.\"); the row-bearing
+          deposit / funded upgrade exists in no imported golden — goldens pin
+          write-free guard paths only, so the table cannot be covered until an
+          argful stash capture lands (D-0069 class)"
     proof_channel:
       # proof_channel's five goldens (the re-homed prize sweeps
       # included) all pin the shipped "#proof not found" guard — the
