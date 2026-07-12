@@ -23,6 +23,8 @@ class CommandSpec:
     cooldown: float | None = None
     effect: str = "read"             # read | mutating | external
     help_order: int = 0              # [A] — the arrangement-invariance probe field
+    modal: object = None             # G-10 command facet (modal_ingress fences)
+    defer_mode: object = None        # the "modal" pairing probe (string form)
 
 
 @dataclass(frozen=True)
@@ -84,7 +86,8 @@ class LeaderboardSpec:
 
 
 register_field_roles("CommandSpec", name="S", surface="S", group="S", route="S",
-                     cooldown="S", effect="S", help_order="A")
+                     cooldown="S", effect="S", help_order="A",
+                     modal="S", defer_mode="S")
 register_field_roles("ConfirmationSpec", typed_challenge="S")
 # destructive="O": aligned with the REAL sb.spec.panels grammar (S9b) — a
 # differing re-registration is an error; the rest of this record remains the

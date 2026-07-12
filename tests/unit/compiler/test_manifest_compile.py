@@ -218,6 +218,85 @@ def test_destructive_confirmation_and_typed_challenge():
     assert any("typed challenge" in v.detail for v in result.violations)
 
 
+def _form(**overrides):
+    """A real G-10 ModalSpec (the compiler duck-reads named fields; the
+    P5 role walk needs the REAL registered grammar types)."""
+    from sb.spec.panels import ModalFieldSpec, ModalSpec
+    kwargs = dict(modal_id="econ.form", title="F",
+                  fields=(ModalFieldSpec(field_id="a", label="A"),))
+    kwargs.update(overrides)
+    return ModalSpec(**kwargs)
+
+
+def _modal_command(**overrides):
+    kwargs = dict(surface="slash", route=HandlerRef("economy.give"),
+                  modal=_form(), defer_mode="modal")
+    kwargs.update(overrides)
+    return CommandSpec("form", **kwargs)
+
+
+def _modal_flags(result):
+    return [v.detail for v in result.violations if "modal_ingress" in v.detail]
+
+
+def test_modal_ingress_good_shape_compiles_green():
+    _register_basics()
+    result = compile_manifests(manifests=[_economy(commands=(_modal_command(),))])
+    assert _modal_flags(result) == []
+    assert result.ok
+
+
+def test_modal_ingress_is_slash_only():
+    _register_basics()
+    for kind in ("prefix", "both"):
+        result = compile_manifests(manifests=[
+            _economy(commands=(_modal_command(surface=kind),))])
+        assert any("must be kind=slash" in d for d in _modal_flags(result))
+
+
+def test_modal_ingress_defer_mode_pairing_both_directions():
+    _register_basics()
+    formless = compile_manifests(manifests=[_economy(commands=(
+        CommandSpec("form", surface="slash", route=HandlerRef("economy.give"),
+                    defer_mode="modal"),))])
+    assert any("requires a ModalSpec" in d for d in _modal_flags(formless))
+    deferless = compile_manifests(manifests=[
+        _economy(commands=(_modal_command(defer_mode=None),))])
+    assert any("requires defer_mode=modal" in d for d in _modal_flags(deferless))
+
+
+def test_modal_ingress_route_must_dispatch_the_submit():
+    _register_basics()
+    routeless = compile_manifests(manifests=[
+        _economy(commands=(_modal_command(route=None),))])
+    assert any("HandlerRef/WorkflowRef" in d for d in _modal_flags(routeless))
+    # a PanelRef submit route is a stranded form (the ref must RESOLVE or
+    # P2's unresolved-ref verdict short-circuits before the P6 fence).
+    from sb.spec.refs import panel as panel_ref
+
+    @panel_ref("economy.hub")
+    def _hub():  # pragma: no cover — resolution target only
+        pass
+
+    paneled = compile_manifests(manifests=[
+        _economy(commands=(_modal_command(route=PanelRef("economy.hub")),))])
+    assert any("HandlerRef/WorkflowRef" in d for d in _modal_flags(paneled))
+
+
+def test_modal_ingress_field_fences():
+    from sb.spec.panels import ModalFieldSpec
+    _register_basics()
+    six = tuple(ModalFieldSpec(field_id=f"f{i}", label="L") for i in range(6))
+    result = compile_manifests(manifests=[
+        _economy(commands=(_modal_command(modal=_form(fields=six)),))])
+    assert any("Discord allows 1..5" in d for d in _modal_flags(result))
+    dup = (ModalFieldSpec(field_id="a", label="A"),
+           ModalFieldSpec(field_id="a", label="B"))
+    result = compile_manifests(manifests=[
+        _economy(commands=(_modal_command(modal=_form(fields=dup)),))])
+    assert any("duplicate field_ids" in d for d in _modal_flags(result))
+
+
 def test_leaderboard_writer_predicate():
     _register_basics()
     orphan = SubsystemManifest(

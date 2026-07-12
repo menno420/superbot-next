@@ -430,6 +430,14 @@ class Harness:
                         self._index[(key, Surface.SLASH)] = TargetRef(key=key, spec=cmd)
                     if kind in ("prefix", "both"):
                         self._index[(key, Surface.PREFIX)] = TargetRef(key=key, spec=cmd)
+                # CommandSpec.modal submit re-entry — the live index's twin
+                # (sb/app/build_runtime.py build_live_index): the modal root
+                # routes the type-5 submit to the declaring command.
+                modal_id = str(getattr(getattr(cmd, "modal", None),
+                                       "modal_id", "") or "")
+                if modal_id:
+                    self._index[(modal_id, Surface.MODAL)] = TargetRef(
+                        key=modal_id, spec=cmd)
 
     def _lookup(self, key: str, surface: Surface) -> TargetRef | None:
         return self._index.get((key, surface))
