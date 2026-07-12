@@ -93,6 +93,9 @@ class MemberInfo:
     joined_at: datetime          # guild join time ("Joined Server")
     status: str = "offline"      # str(member.status) — presence token
     activity_name: str | None = None   # member.activity.name (None = no activity)
+    is_bot: bool = False         # member.bot — the shipped opponent.bot guard's
+    #     read (creature PvP: '🤖 You can't battle a bot…'). Defaulted for
+    #     directories that predate the field (the status/activity_name posture).
 
 
 @dataclass(frozen=True)

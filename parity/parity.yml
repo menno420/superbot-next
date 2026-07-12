@@ -119,7 +119,17 @@ source:
   # amount is the sim-pinned test value (the shipped fee is a user command
   # arg, not an oracle constant), the pot is the summed stakes and the
   # payout reason is oracle-verbatim.
-  minted_goldens: 20
+  # +2 minted the creature PICKER + BOT-GUARD goldens (D-0081, the native
+  # user-select picker seam): goldens/creature/creature_cbattle_bot_guard
+  # (!cbattle against a bot member → the opponent.bot BLOCK, the
+  # MemberInfo.is_bot seam) and goldens/creature/creature_challenge_picker
+  # (hub Challenge → native user_select OPEN, wire type 5 → select a trainer
+  # → the challenge card opens). Same capture_case + kernel-spine-strip
+  # procedure. creature_battle_accept was RE-MINTED in the same slice: its
+  # resolved outcome card now carries the live 🔄 Rematch button (the
+  # CreatureRematchView affordance) — a deliberate render change re-minted
+  # in-PR, not a regression.
+  minted_goldens: 22
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
   # imported + minted − retired = 482). The first retirement (2026-07-12
