@@ -1,6 +1,6 @@
 # 2026-07-12 — live role EFFECT adapters (SLICE 2 / live-guild-effects)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** builder-agent · high · feature build (SLICE 2 / live-guild-effects)
 
@@ -79,10 +79,50 @@ would conflict). Reuses `GuildNotAllowedError` from #263's
 
 ## Evidence
 
-- `python3 -m pytest` — [[fill on green]]
-- `python3 bootstrap.py check --strict` — [[fill on green]]
+- `python3 -m pytest tests/` — **1750 passed, 8 skipped** (+12: 9 role
+  contract tests + 3 wiring assertions; the 8 skips are the pre-existing
+  suite skips, unchanged).
+- `python3 bootstrap.py check --strict` — the ONLY exit-affecting finding is
+  the born-red HOLD on this card (by design; green on the flip to complete).
+  Advisories (never exit-affecting): one pre-existing
+  `owner-action-risk-class` on `control/status.md` (not in this diff) and a
+  benign `claims-duplicate` — this claim and #263's both name
+  `tests/unit/app/` (a legitimate stack, not a competing claim; #263's claim
+  is deleted at its own close-out).
 - No golden-parity file touched; no channel/proof_channel port touched.
+- discord.py pinned at 2.7.1 (requirements.lock) — the mapped verbs
+  (`member.add_roles`/`remove_roles`, `guild.create_role` with `colour=`,
+  `role.delete`, `channel.fetch_message`, `message.add_reaction`) match the
+  2.x API.
 
 ## 💡 Session idea
 
-[[fill at close]]
+SLICE 1's card floated `arm_test_plane_effect(cfg, *, install)` to collapse the
+three copy-pasted `SB_DATA_PLANE=="test"` reads into one audited switch. SLICE 2
+did NOT extract it (the moderation + role installs now share ONE
+`if test_guild_id is not None:` block, so there is only one gate read, not
+three) — but SLICE 3 (channel/proof_channel) will add a fourth install to the
+same block. When it does, the block will be ~40 lines of install soup under one
+gate; the better refactor is a small `_install_live_effect_ports(bot, cfg,
+test_guild_id)` helper that owns ALL the gated installs, so `run_app` names one
+call and the gate stays a single audited line. Deferred to slice 3 so the
+refactor lands with its final shape, not mid-stack.
+
+## ⟲ Previous-session review
+
+SLICE 1's card (live-moderation-adapter, D-0049) set the template this slice
+followed almost verbatim: the `*, allowed_guild_id` constructor, the
+`GuildNotAllowedError`-before-any-Discord-call fence, the import-guarded
+`discord`, and the `moderation_test_guild(cfg)` double gate made the port-home,
+the wire-shape, and the safety-fence questions a lookup, not a debate — strong
+precedent hygiene. It even pre-named the `arm_test_plane_effect` helper this
+slice weighed (and deferred, above). What it under-specified for a successor:
+it did not flag that the role MessageOps port is CHANNEL-scoped, not
+guild-scoped — so the allow-list can't be a straight `guild_id` compare, it has
+to resolve the guild from the channel's CACHE (never a REST fetch, or the
+resolve itself would touch a possibly-prod channel before the fence). That was
+the one genuinely new design decision this slice owned. **System improvement:**
+a live-effect card's successor-naming line should tag each unarmed port with its
+allow-list SHAPE (`guild-scoped` / `channel-scoped` / `member-scoped`) next to
+the install-feasibility tag, so the next slice knows whether the safety fence is
+a direct compare or a cache-resolve before it reads the port protocol.
