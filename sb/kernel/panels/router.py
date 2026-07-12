@@ -23,7 +23,12 @@ import re
 from dataclasses import dataclass
 from typing import Callable
 
-from sb.kernel.panels.registry import ComponentBinding, NavBinding, static_route
+from sb.kernel.panels.registry import (
+    NAV_BROWSE_ID_PREFIX,
+    ComponentBinding,
+    NavBinding,
+    static_route,
+)
 
 __all__ = [
     "DynamicRoute",
@@ -109,10 +114,20 @@ def reset_router_for_tests() -> None:
 
 
 def route(custom_id: str) -> Routed:
-    """The fixed §3.4 precedence: static → versioned parse → polite expiry."""
+    """The fixed §3.4 precedence: static → BrowserView nav family → versioned
+    parse → polite expiry."""
     binding = static_route(custom_id)
     if binding is not None:
         return binding
+    # The engine-injected BrowserView controls (D-0034): a member of the
+    # ``nav:*`` family whose {sort × filter × page} state is combinatorial, so
+    # it is parsed here rather than pre-minted into the static table. It
+    # dispatches through the SAME NavBinding → panel-engine seam as page-turn;
+    # ``nav`` is not a scheme-version token ([a-z]+\d+), so no dynamic id is
+    # shadowed. Decode (block-aware) happens in the engine, which owns the
+    # panel spec — the target carries the id verbatim.
+    if custom_id.startswith(NAV_BROWSE_ID_PREFIX):
+        return NavBinding(kind="browse", target=custom_id)
     m = _SCHEME_TOKEN_RE.match(custom_id)
     if m:
         parser = _parsers.get(m.group(1))

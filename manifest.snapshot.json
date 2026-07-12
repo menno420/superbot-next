@@ -12112,7 +12112,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:7da5336ea062ab3c1a4f657b79212db721f14f6f7a9c33cf35a16adee2b8bf51",
+  "stable_hash": "sha256:34a845deaaa3bf4ec4014c248d8c66a0d8b1cb0c39747b23ad84b03f931b2b6c",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -36076,10 +36076,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36137,10 +36137,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36199,10 +36199,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36260,10 +36260,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36321,10 +36321,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36382,10 +36382,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },
@@ -36441,10 +36441,10 @@
                   "$ref": "handler:inventory.render_line"
                 },
                 "max_pages": 10,
-                "page_size": 12,
+                "page_size": 8,
                 "sort_options": [
                   "rarity",
-                  "quantity",
+                  "-quantity",
                   "name"
                 ]
               },

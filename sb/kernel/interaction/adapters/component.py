@@ -167,6 +167,14 @@ async def dispatch_component(interaction: object, *, responder) -> object | None
     routed = route_custom_id(custom_id)
     if isinstance(routed, NavBinding):
         guild = getattr(interaction, "guild", None)
+        # BrowserView sort/filter selects (NavBinding kind="browse") carry
+        # their chosen value in the interaction's ``values`` — the ordinary
+        # select round-trip — so thread it through for the engine's delta
+        # (harmless for the value-less nav kinds: help/hub/back/page/prev/next).
+        nav_args: dict = {}
+        values = data.get("values") if isinstance(data, dict) else None
+        if values is not None:
+            nav_args["values"] = tuple(values)
         nav_req = ResolveRequest(
             surface=Surface.COMPONENT,
             target=TargetRef(key=custom_id, spec=routed),
@@ -175,7 +183,7 @@ async def dispatch_component(interaction: object, *, responder) -> object | None
                                     is_dm=guild is None),
             guild_id=getattr(guild, "id", None),
             channel_id=getattr(interaction, "channel_id", None),
-            args={}, responder=responder, origin=interaction,
+            args=nav_args, responder=responder, origin=interaction,
         )
         try:
             await panel_engine.handle_nav(routed, nav_req)
