@@ -329,6 +329,89 @@ def test_inventory_detail_provider_groups_rarest_first(monkeypatch):
     assert run(provider(_panel_ctx())) == ()
 
 
+def test_inventory_hub_override_renders_the_golden_empty_state(monkeypatch):
+    """parity/goldens/inventory/sweep_inventory.json — the shipped empty
+    hub: target-name title, gold accent, avatar thumbnail, the empty-state
+    description, the footer literal, ZERO components (the shipped
+    one-button-per-NON-EMPTY-category fold), no fields."""
+    from sb.domain.inventory import panels as ip
+    from sb.domain.inventory import service
+    from sb.spec.refs import resolve as resolve_ref
+
+    ip.ensure_panel_refs()
+
+    async def empty(user_id, guild_id):
+        return {}
+
+    monkeypatch.setattr(service, "build_combined_inventory", empty)
+    spec = ip.inventory_hub_spec()
+    assert spec.session_lifecycle                    # no panel_anchors row
+    assert spec.frame.style_token == "gold"          # ECONOMY_COLOR 15844367
+    assert not spec.navigation.show_help and not spec.navigation.show_home
+    ctx = _panel_ctx()
+    ctx.params.update({
+        "inv_target": 42, "inv_name": "AdminActor",
+        "inv_icon": "https://cdn.discordapp.com/embed/avatars/1.png"})
+    rendered = run(resolve_ref(spec.renderer_override)(spec, ctx))
+    assert rendered.components == ()
+    embed = rendered.embed
+    assert embed.title == "🎒 AdminActor's Inventory"
+    assert embed.description == ("No items yet — go mining with `!mine` "
+                                 "or visit `!shop`!")
+    assert embed.footer == "Select a category below to view details."
+    assert embed.thumbnail_ref == ("https://cdn.discordapp.com/embed/"
+                                   "avatars/1.png")
+    assert embed.fields == ()                        # shipped embed had none
+
+
+def test_inventory_hub_override_keeps_only_non_empty_category_buttons(
+        monkeypatch):
+    """The shipped _add_category_buttons fold: one button per NON-EMPTY
+    category, declared actions otherwise untouched (canonical-id match)."""
+    from sb.domain.inventory import panels as ip
+    from sb.domain.inventory import service
+    from sb.spec.refs import resolve as resolve_ref
+
+    ip.ensure_panel_refs()
+
+    async def grouped(user_id, guild_id):
+        return {"Tools": [("toolkit", 1, {"rarity": "Uncommon",
+                                          "emoji": "🔧", "type": "Job "
+                                          "Unlock"})]}
+
+    monkeypatch.setattr(service, "build_combined_inventory", grouped)
+    spec = ip.inventory_hub_spec()
+    rendered = run(resolve_ref(spec.renderer_override)(spec, _panel_ctx()))
+    assert [c.custom_id for c in rendered.components] == [
+        "inventory.hub.open_tools"]
+    # the hub preview lines render as the DESCRIPTION (shipped build_hub_embed)
+    assert "**Tools** — 🔧 Toolkit" in rendered.embed.description
+
+
+def test_inventory_providers_thread_the_viewed_target(monkeypatch):
+    """The shipped `self._hub.target` semantic: `!inventory @user` threads
+    the TARGET through the open's args (the session-click adapter replays
+    them on every category click), so hub + detail providers render the
+    target's items, never the clicker's."""
+    from sb.domain.inventory import panels as ip
+    from sb.domain.inventory import service
+    from sb.spec.refs import ProviderRef, resolve as resolve_ref
+
+    ip.ensure_panel_refs()
+    seen = []
+
+    async def spy(user_id, guild_id):
+        seen.append(user_id)
+        return {}
+
+    monkeypatch.setattr(service, "build_combined_inventory", spy)
+    ctx = _panel_ctx(uid=42)
+    ctx.params["inv_target"] = 987654321098765432
+    run(resolve_ref(ProviderRef("inventory.items_tools"))(ctx))
+    run(resolve_ref(ProviderRef("inventory.hub_overview"))(ctx))
+    assert seen == [987654321098765432, 987654321098765432]
+
+
 def test_inventory_hub_actions_open_every_category():
     from sb.domain.inventory.panels import (
         _CATEGORIES,

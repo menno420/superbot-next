@@ -8049,6 +8049,9 @@
       "handler:image_moderation.status_render": {
         "module": "sb.domain.image_moderation.panels"
       },
+      "handler:inventory.render_hub": {
+        "module": "sb.domain.inventory.panels"
+      },
       "handler:inventory.render_line": {
         "module": "sb.domain.inventory.panels"
       },
@@ -10939,7 +10942,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:30b929cbc4d53d75ff8b5149705e09f862a9c244908ceec21e85452760a59757",
+  "stable_hash": "sha256:60301ce2297bf47e54a9a4e1060ca1d96add8efaa0d6f0970219d349cd1ce88b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -32136,12 +32139,12 @@
           "frame": {
             "alt_text": "",
             "field_budget_chars": 1024,
-            "footer_mode": "subsystem",
+            "footer_mode": "none",
             "max_fields": 25,
-            "style_token": "",
+            "style_token": "gold",
             "thumbnail_ref": ""
           },
-          "justification": "",
+          "justification": "the shipped hub embed (disbot/cogs/inventory_cog.py UnifiedInventoryView.build_hub_embed) is state-dependent on every surface — outside the grammar's static vocabulary. The override delegates the COMPONENTS to render_panel and adjusts: the target-parameterized TITLE (\"🎒 {display_name}'s Inventory\"), the state-dependent DESCRIPTION (the category preview lines, or the empty-state literal 'No items yet — go mining with `!mine` or visit `!shop`!'), the FOOTER literal ('Select a category below to view details.'), the target-avatar THUMBNAIL (set_thumbnail(target.display_avatar.url)), the FIELDS dropped (the shipped embed had none — the declared FieldsBlock preview renders as the shipped DESCRIPTION), and the COMPONENT DROP of empty-category buttons (the shipped _add_category_buttons added one button per NON-EMPTY category — parity/goldens/inventory/sweep_inventory.json pins the empty-inventory zero-component shape).",
           "layout": {
             "pages": [
               {
@@ -32166,14 +32169,16 @@
             "extra_routes": [],
             "home_hub": "__follow_parent__",
             "parent": null,
-            "show_help": true,
-            "show_home": true,
+            "show_help": false,
+            "show_home": false,
             "show_rules": false
           },
           "panel_id": "inventory.hub",
-          "renderer_override": null,
+          "renderer_override": {
+            "$ref": "handler:inventory.render_hub"
+          },
           "selectors": [],
-          "session_lifecycle": false,
+          "session_lifecycle": true,
           "subsystem": "inventory",
           "timeout_s": 180,
           "title": "🎒 Inventory",
