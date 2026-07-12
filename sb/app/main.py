@@ -465,6 +465,72 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
                         "reaction-role fetch_message/add_reaction + the "
                         "gateway-cache guild view", test_guild_id)
 
+            # the channel EFFECT ports (SLICE 3 of the live-guild-effects lane,
+            # the final adapter slice) ride the SAME gate as moderation + role
+            # above — same double gate (SB_DATA_PLANE=="test" + explicit
+            # SB_APPCMD_SYNC_GUILD_ID), the SAME test-guild id as the hard
+            # per-call allow-list. TWO SEPARATE ports: the channel domain's
+            # ChannelStateActions (live slowmode/overwrite/create/delete/
+            # invite/rename/topic/move/clone + the channel NAME lookup + the
+            # ChannelDirectory gateway-cache READS the converter ladder walks)
+            # and proof_channel's OWN ChannelPermActions (live prize
+            # lock/unlock). Prod arming is the OWNER'S CUT-3 gate:
+            # with no test-guild id (prod) these ports stay un-installed, so the
+            # channel lanes write their rows + copy but perform NO Discord effect
+            # until the owner flips prod himself.
+            from sb.adapters.discord.channel_actions import (
+                DiscordChannelDirectory,
+                DiscordChannelLookup,
+                DiscordChannelStateActions,
+                DiscordProofChannelActions,
+            )
+            from sb.domain.channel.service import (
+                install_channel_actions,
+                install_channel_directory,
+                install_channel_lookup,
+            )
+            from sb.domain.proof_channel.service import (
+                install_channel_actions as install_proof_channel_actions,
+            )
+
+            install_channel_actions(
+                DiscordChannelStateActions(bot, allowed_guild_id=test_guild_id))
+            # the gateway-cache READ seam: without it every directory-led
+            # channel lane (!del/!rename/!topic/!move/!clone/!permissions/
+            # !channelinfo/!list/!bulkdelete/!create) refuses at _NoDirectory
+            # BEFORE reaching the mutation port above — the role slice's
+            # guild-view lesson (the mutation ports are inert without the
+            # read seam). A non-allowed guild READS as empty (soft fence).
+            install_channel_directory(
+                DiscordChannelDirectory(bot, allowed_guild_id=test_guild_id))
+            install_channel_lookup(
+                DiscordChannelLookup(bot, allowed_guild_id=test_guild_id))
+            install_proof_channel_actions(
+                DiscordProofChannelActions(bot, allowed_guild_id=test_guild_id))
+            logger.info("channel EFFECT ports ARMED (test plane, guild %d "
+                        "ONLY): live slowmode/overwrite/create/delete/invite/"
+                        "rename/topic/move/clone + channel directory reads + "
+                        "channel-name lookup + proof-channel prize lock/unlock",
+                        test_guild_id)
+
+            # the utility/diagnostic READ seams (the same ledgered §4.1
+            # not-armed gap family) ride the SAME gate: the gateway-cache
+            # guild/member census behind !serverinfo/!serverstats + the
+            # avatar/user-info/panel member cards, and the ws-latency read
+            # behind !latency (`bot.latency` — the shipped heartbeat read).
+            # READS ONLY, never a mutation; the guild directory refuses any
+            # non-test guild as NOT-ARMED (the polite pre-arm copy).
+            from sb.adapters.discord.utility_reads import DiscordGuildDirectory
+            from sb.domain.diagnostic.handlers import install_ws_latency_reader
+            from sb.domain.utility.service import install_guild_directory
+
+            install_guild_directory(
+                DiscordGuildDirectory(bot, allowed_guild_id=test_guild_id))
+            install_ws_latency_reader(lambda: bot.latency)
+            logger.info("utility/diagnostic READ seams ARMED (test plane, "
+                        "guild %d ONLY): gateway-cache guild/member census + "
+                        "ws latency", test_guild_id)
+
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;
         #      whether anything syncs is step 13's gated decision.
