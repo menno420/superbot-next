@@ -103,6 +103,11 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
                               # MINING_COLOR (utils/ui_constants.py;
                               # goldens/mining/sweep_minemenu pins the
                               # byte)
+    "yellow": 16705372,       # discord.Color.yellow() — the shipped
+                              # WARNING_COLOR (utils/ui_constants.py; the
+                              # Item Shop embed, services/economy_helpers
+                              # _shop_embed — goldens/economy/sweep_shop
+                              # pins the byte)
 }
 
 # hub key → the shipped hub display name (disbot/utils/subsystem_registry.py

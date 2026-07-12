@@ -158,8 +158,12 @@ async def export_guild_config(guild_id: int) -> dict:
         "guild_id": guild_id,
         "settings": {k: rows[k] for k in sorted(rows)},
         "bindings": [
-            {"subsystem": b["subsystem"], "name": b["name"], "slot": b["slot"],
-             "kind": b["kind"], "resource_id": b["resource_id"]}
+            # keys track the oracle-shape columns (migration 0038):
+            # binding_name/target_id/status — the pre-0038 name/slot/
+            # resource_id keys were the invented-schema twins.
+            {"subsystem": b["subsystem"], "name": b["binding_name"],
+             "kind": b["kind"], "target_id": b["target_id"],
+             "status": b["status"]}
             for b in bindings
         ],
     }

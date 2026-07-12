@@ -66,6 +66,70 @@
    },
    "value": 0
   },
+  "fishing:fishing.hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: fishing wave-9 re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "fishing_cast",
+       "fishing_sail",
+       "fishing_rod",
+       "fishing_bait",
+       "fishing_structures"
+      ],
+      [
+       "fishing_log",
+       "fishing_rules"
+      ]
+     ]
+    }
+   ]
+  },
+  "fishing:fishing.hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: fishing wave-9 re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "fishing_cast",
+     "fishing_sail",
+     "fishing_rod",
+     "fishing_bait",
+     "fishing_structures"
+    ],
+    [
+     "fishing_log",
+     "fishing_rules"
+    ]
+   ]
+  },
+  "fishing:fishing.hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: fishing wave-9 re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "fishing_cast",
+        "fishing_sail",
+        "fishing_rod",
+        "fishing_bait",
+        "fishing_structures"
+       ],
+       [
+        "fishing_log",
+        "fishing_rules"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "fishing:fishing:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

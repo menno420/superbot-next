@@ -2265,6 +2265,17 @@
    "guild_id",
    "mutation_id"
   ],
+  "bindings.changed": [
+   "binding_name",
+   "guild_id",
+   "mutation_id",
+   "new_status",
+   "new_target_id",
+   "occurred_at",
+   "old_status",
+   "old_target_id",
+   "subsystem"
+  ],
   "channel.lifecycle_changed": [
    "applied",
    "failed",
