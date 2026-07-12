@@ -1,7 +1,11 @@
 """btd6_strategies CRUD (band 7) — the shipped strategy-memory store
 (migration 041 shape, NAME_STABLE) focused to the ported flow: guild
 submissions, review transitions, published rows, and the submitter
-identity-erasure body (``present → anonymized``).
+identity-erasure body (``present → anonymized``) — plus the
+``btd6_data_blobs`` deterministic-data blob store (oracle migration 054,
+NAME_STABLE): the ``!btd6 ops seed-data`` terminal's write target
+(upsert-by-name, sha256 over the canonical JSON — the shipped
+``utils/db/btd6_data.upsert_blob`` bytes).
 
 Shipped ``btd6_strategy_audit`` side table FOLDS into the K7 central
 audit lane (one-write discipline — every transition runs through an
@@ -24,12 +28,16 @@ from sb.spec.versioning import (
 )
 
 __all__ = [
+    "BTD6_DATA_BLOBS_STORE",
     "BTD6_STRATEGIES_STORE",
     "anonymize_submitter",
+    "count_data_blobs",
+    "get_data_blob_row",
     "get_strategy",
     "insert_strategy",
     "list_strategies",
     "set_review",
+    "upsert_data_blob",
 ]
 
 _MAX_LIMIT = 25
@@ -45,6 +53,27 @@ BTD6_STRATEGIES_STORE = register_store(StoreSpec(
     bears_value=False,
     data_class=DataClass.MEMBER_PII,
     erasure_ref=WorkflowRef("btd6.scrub_strategy_submitter"),
+))
+
+
+#: The shipped static reference blob store (oracle migration 054 —
+#: "A static reference blob store for the BTD6 fixtures + per-entity
+#: stats tree"). Sole runtime writer: the audited ``btd6.seed_data`` op
+#: (the `!btd6 ops seed-data` / `!btd6ops seed-data` admin terminals).
+#: NO serving reader in this build: the dataset lane reads the committed
+#: files directly (the capture world's file backend — goldens/btd6 pin
+#: the `local:` data-source label); the postgres-serving provider is the
+#: D-0046 ingestion successor's call.
+BTD6_DATA_BLOBS_STORE = register_store(StoreSpec(
+    table="btd6_data_blobs",
+    sole_writer=EngineRef("btd6.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="btd6_data_blobs",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics",),
+    bears_value=False,
+    data_class=DataClass.NONE,      # versioned game fixtures, no member data
 ))
 
 
@@ -133,6 +162,32 @@ async def anonymize_submitter(conn: Any, *, user_id: int) -> int:
         (user_id,), conn=conn)
     digits = "".join(ch for ch in str(result) if ch.isdigit())
     return int(digits or 0)
+
+
+async def upsert_data_blob(conn: Any, *, name: str, body: Any,
+                           sha256: str | None = None) -> None:
+    """Insert or update one blob (shipped ``utils/db/btd6_data.upsert_blob``
+    — ``body`` is a JSON-serialisable object; the conflict key is the name)."""
+    await execute(
+        "INSERT INTO btd6_data_blobs (name, body, sha256, updated_at) "
+        "VALUES ($1, $2::jsonb, $3, NOW()) "
+        "ON CONFLICT (name) DO UPDATE "
+        "SET body = EXCLUDED.body, sha256 = EXCLUDED.sha256, "
+        "updated_at = NOW()",
+        (name, json.dumps(body), sha256), conn=conn)
+
+
+async def count_data_blobs(conn: Any = None) -> int:
+    row = await fetchone(
+        "SELECT COUNT(*) AS n FROM btd6_data_blobs", (), conn=conn)
+    return int(row["n"]) if row is not None else 0
+
+
+async def get_data_blob_row(name: str, conn: Any = None) -> dict | None:
+    row = await fetchone(
+        "SELECT name, body, sha256 FROM btd6_data_blobs WHERE name=$1",
+        (name,), conn=conn)
+    return dict(row) if row else None
 
 
 def ensure_refs() -> None:

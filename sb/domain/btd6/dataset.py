@@ -34,6 +34,7 @@ __all__ = [
     "TowerEntry",
     "bloons",
     "bosses",
+    "content_drift",
     "game_version",
     "get_bloon",
     "get_hero",
@@ -173,6 +174,21 @@ def list_blob_names(prefix: str = "") -> tuple[str, ...]:
         p.relative_to(DATA_ROOT).as_posix() for p in DATA_ROOT.rglob("*.json")
     )
     return tuple(n for n in names if n.startswith(prefix))
+
+
+def content_drift() -> list[str] | None:
+    """Committed data files whose CONTENT differs from what the active
+    store serves — the shipped ``btd6_data_service.content_drift`` seam.
+
+    The oracle returned the changed-name list only for a postgres/cloud
+    SERVING store and ``None`` for the file backend / in-sync store; this
+    build serves the committed files directly (the capture world's file
+    backend — the goldens' `local:` data-source label), so the shipped
+    file-backend ``None`` arm is the whole truth here and the seed
+    receipt's "Applied N changed file(s)" line stays structurally empty
+    until the postgres-serving provider ports (the D-0046 ingestion
+    successor)."""
+    return None
 
 
 def game_version() -> str:

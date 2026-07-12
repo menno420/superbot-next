@@ -25,7 +25,7 @@ from sb.domain.btd6 import oracle_surface as _oracle
 from sb.domain.btd6 import panels as _panels
 from sb.domain.btd6 import service as _service
 from sb.domain.btd6.ops import register_ops
-from sb.domain.btd6.store import BTD6_STRATEGIES_STORE
+from sb.domain.btd6.store import BTD6_DATA_BLOBS_STORE, BTD6_STRATEGIES_STORE
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
@@ -323,7 +323,7 @@ MANIFEST = SubsystemManifest(
     panels=(_panels.btd6_hub_spec(), _panels.card_spec(),
             _panels.ctteam_spec(), _panels.strategy_submit_spec()),
     settings=_SETTINGS,
-    stores=(BTD6_STRATEGIES_STORE,),
+    stores=(BTD6_STRATEGIES_STORE, BTD6_DATA_BLOBS_STORE),
     events=(),
     capabilities=(),
 )

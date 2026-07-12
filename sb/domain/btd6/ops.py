@@ -9,6 +9,14 @@
   the mutation is audited like any other write).
 * ``btd6.scrub_strategy_submitter`` — the MEMBER_PII erasure body
   (anonymize, row retained — shipped identity-state transition).
+* ``btd6.seed_data`` — the `!btd6 ops seed-data` / `!btd6ops seed-data`
+  admin terminal: upsert every committed data file (+ the stats tree)
+  into ``btd6_data_blobs``, sha256 over the canonical JSON dump (the
+  shipped ``btd6_data_service.seed_postgres_from_files`` loop, verbatim
+  incl. the ``manifest.json`` bucket-artifact skip). ONE DB leg, no
+  EFFECT leg — the shipped post-seed "reload the live dataset" step is
+  the in-process cache drop, which the handler runs post-commit; the
+  compensator allowlist stays EMPTY.
 
 Shipped ``btd6_strategy_audit`` transitions ride the K7 central audit
 row (D-0046)."""
@@ -117,6 +125,42 @@ async def _record_announce_channel(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"key": ANNOUNCE_CHANNEL_KEY, "value": value})
 
 
+@workflow("btd6.record_seed_data")
+async def _record_seed_data(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The shipped ``seed_postgres_from_files`` write loop as one DB leg
+    (oracle disbot/services/btd6_data_service.py, reconstructed at head
+    b0713fcd): every bundled ``*.json`` (the fixtures + the stats tree),
+    the ``manifest.json`` bucket-artifact skip carried verbatim, sha256
+    over ``json.dumps(body, sort_keys=True, ensure_ascii=False)``, one
+    upsert per blob — "Safe to re-run any time (it upserts)". The count
+    rides the ctx.params side-channel (the karma-refusal lane) so the
+    handler can pick the shipped zero-files receipt without reading the
+    step-keyed after rollup."""
+    import hashlib
+    import json as _json
+
+    from sb.domain.btd6 import dataset
+
+    uid, _gid = _ids(ctx)
+    seeded = 0
+    for name in dataset.list_blob_names():
+        if name == "manifest.json":  # bucket artifact, not a fixture
+            continue
+        body = dataset.read_blob(name)
+        if body is None:
+            continue
+        sha = hashlib.sha256(
+            _json.dumps(body, sort_keys=True,
+                        ensure_ascii=False).encode("utf-8"),
+        ).hexdigest()
+        await store.upsert_data_blob(conn, name=name, body=body, sha256=sha)
+        seeded += 1
+    ctx.params["_seed_count"] = seeded
+    return LegOutcome(
+        step=StepResult(uid, "seed_data", True), before={},
+        after={"blobs": seeded})
+
+
 @workflow("btd6.scrub_strategy_submitter")
 async def _scrub_submitter(conn, ctx: WorkflowContext) -> LegOutcome:
     uid = int(ctx.params.get("subject_user_id")
@@ -144,13 +188,22 @@ REVIEW = _op("btd6.review_strategy", "btd6_strategy_reviewed",
              "btd6.record_review_strategy", authority="staff")
 ANNOUNCE = _op("btd6.set_announce_channel", "btd6_announce_channel_set",
                "btd6.record_announce_channel", authority="staff")
+#: authority "administrator" — the shipped gate verbatim
+#: (disbot/cogs/btd6_ops_cog.py seed_data_prefix: is_administrator_member
+#: or ADMIN_DENIED; the diagnostic.backfill_dry_run precedent for the
+#: administrator K6 floor). The command row's declared tier stays "staff"
+#: (the #144/#218 compat-pinned shape); a staff-not-admin invoker gets the
+#: K6 deny — the shipped ADMIN_DENIED path, kernel copy.
+SEED = _op("btd6.seed_data", "btd6_data_seeded",
+           "btd6.record_seed_data", authority="administrator")
 
-_OPS = (SUBMIT, REVIEW, ANNOUNCE)
+_OPS = (SUBMIT, REVIEW, ANNOUNCE, SEED)
 
 _REF_TABLE = (
     ("btd6.record_submit_strategy", _record_submit),
     ("btd6.record_review_strategy", _record_review),
     ("btd6.record_announce_channel", _record_announce_channel),
+    ("btd6.record_seed_data", _record_seed_data),
     ("btd6.scrub_strategy_submitter", _scrub_submitter),
 )
 
