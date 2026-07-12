@@ -392,5 +392,10 @@ class TestRealTreeBaseline:
         assert main([]) == 0
         out = capsys.readouterr().out
         assert "check_money_race: OK" in out
-        # the ledgered known-risk stays LOUD on every green run
-        assert "KNOWN-RISK (ledgered, NOT safe)" in out
+        # the KNOWN_RISKS ledger is EMPTY at HEAD (the
+        # enter_tournament_in_txn row was fixed and cleared — advisory
+        # slot lock + existence check before the debit, proven
+        # red-then-green in tests/integration/test_tournament_entry_race
+        # .py); a fixed site must never leave a loud line behind.
+        assert "0 ledgered known-risk site(s)" in out
+        assert "KNOWN-RISK (ledgered, NOT safe)" not in out
