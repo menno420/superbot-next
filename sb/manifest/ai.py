@@ -208,6 +208,10 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.ai_hub_spec(), _panels.ai_settings_spec(),
             _panels.ai_card_spec(),
+            # the COMPONENT-ingress card twin -- same embeds, the family
+            # "AI home" back-route (VERDICT 009 AIP-02 consumption; the
+            # shipped flow kept the panel view attached).
+            _panels.ai_card_nav_spec(),
             # the shipped chooser PAGES + the S6/S7 edit widget pages
             # (the settings-mutation slice — clicks are golden-unpinned).
             _panels.ai_policy_chooser_spec(),
