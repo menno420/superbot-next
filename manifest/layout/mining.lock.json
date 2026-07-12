@@ -202,6 +202,70 @@
     ]
    }
   },
+  "mining:mining.skills:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/skills_panel.py MiningSkillsView button arrangement (mining/combat/fortune/crafting · respec/titles/hub) carried as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "sk_mining",
+       "sk_combat",
+       "sk_fortune",
+       "sk_crafting"
+      ],
+      [
+       "sk_respec",
+       "sk_titles",
+       "sk_hub"
+      ]
+     ]
+    }
+   ]
+  },
+  "mining:mining.skills:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/skills_panel.py MiningSkillsView button arrangement (mining/combat/fortune/crafting · respec/titles/hub) carried as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "sk_mining",
+     "sk_combat",
+     "sk_fortune",
+     "sk_crafting"
+    ],
+    [
+     "sk_respec",
+     "sk_titles",
+     "sk_hub"
+    ]
+   ]
+  },
+  "mining:mining.skills:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/skills_panel.py MiningSkillsView button arrangement (mining/combat/fortune/crafting · respec/titles/hub) carried as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "sk_mining",
+        "sk_combat",
+        "sk_fortune",
+        "sk_crafting"
+       ],
+       [
+        "sk_respec",
+        "sk_titles",
+        "sk_hub"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "mining:mining.vault:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: the shipped views/mining/vault_panel.py MiningVaultView button arrangement (deposit/withdraw · stash-all/upgrade · hub) carried as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

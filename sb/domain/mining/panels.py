@@ -74,6 +74,8 @@ __all__ = [
     "HUB_PANEL_ID",
     "VAULT_PANEL_ID",
     "FORGE_PANEL_ID",
+    "SKILLS_PANEL_ID",
+    "TITLES_PANEL_ID",
     "PACK_SOFT_CAP",
     "ensure_panel_refs",
     "install_mining_panels",
@@ -81,12 +83,16 @@ __all__ = [
     "mining_hub_spec",
     "mining_vault_spec",
     "mining_forge_spec",
+    "mining_skills_spec",
+    "mining_titles_spec",
 ]
 
 HUB_PANEL_ID = "mining.hub"
 CARD_PANEL_ID = "mining.card"
 VAULT_PANEL_ID = "mining.vault"
 FORGE_PANEL_ID = "mining.forge"
+SKILLS_PANEL_ID = "mining.skills"
+TITLES_PANEL_ID = "mining.titles"
 
 #: the shipped shared author-locked nav-view footer literal (the
 #: games/farm/community `_PANEL_FOOTER`).
@@ -408,6 +414,236 @@ async def _render_forge(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed)
 
 
+def _skills_button_handlers() -> dict[str, HandlerRef]:
+    """Pending terminals for the skill-tree panel's spend/respec buttons — the
+    per-branch point spend and the ♻ Respec (coin-bearing) refund ride the
+    deferred panel port (D-0043); the LIVE command lane `!skill <branch>` is the
+    named successor for the audited allocate. Registered at IMPORT (module
+    bottom), never ensure-only (#111 doctrine). No golden drives a skills-panel
+    click, so the terminal copy is unpinned."""
+    from sb.domain.operator_spine import pending_handler
+
+    return {
+        "spend": pending_handler(
+            "mining.skill_spend_pending",
+            "🌳 Spending a skill point from the panel rides the deep-system "
+            "panel port (D-0043) — spend now with `!skill <branch>` (mining, "
+            "combat, fortune, crafting)."),
+        "respec": pending_handler(
+            "mining.skill_respec_pending",
+            "♻ Respec (the level-scaled coin refund) rides the deep-system "
+            "panel port (D-0043) — " + _D0043_TAIL),
+    }
+
+
+def mining_skills_spec() -> PanelSpec:
+    """The shipped 🌳 Skill Tree panel (views/mining/skills_panel.py
+    ``MiningSkillsView`` + ``build_skills_embed``) — an ephemeral (session)
+    child of the mining hub: the four branch buttons + ♻ Respec / 🏆 Titles /
+    ↩ Mining Hub mint session `<cid:N>` ids, and the live points / per-branch
+    allocation embed rides a renderer override (goldens/mining/sweep_skills.json
+    pins every byte: the MINING_COLOR dark-grey frame, the Points field, the four
+    branch fields, the respec-cost footer, the 2×(4,3) button rows and the
+    standard nav row 📚 Help + ↩ Games)."""
+    return PanelSpec(
+        panel_id=SKILLS_PANEL_ID,
+        subsystem="mining",
+        title="🌳 Skill Tree",
+        audience=Audience.INVOKER,
+        # MINING_COLOR = discord.Color.dark_grey() (utils/ui_constants.py); the
+        # live fields + respec-cost footer ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
+        # so no panel_anchors row — the shipped HubView child send).
+        session_lifecycle=True,
+        actions=(
+            PanelActionSpec(
+                action_id="sk_mining", label="⛏️ Mining",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.skill_spend_pending")),
+            PanelActionSpec(
+                action_id="sk_combat", label="⚔️ Combat",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.skill_spend_pending")),
+            PanelActionSpec(
+                action_id="sk_fortune", label="🍀 Fortune",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.skill_spend_pending")),
+            PanelActionSpec(
+                action_id="sk_crafting", label="🛠️ Crafting",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.skill_spend_pending")),
+            PanelActionSpec(
+                action_id="sk_respec", label="♻ Respec",
+                style=ActionStyle.DANGER, audience_tier="user",
+                handler=HandlerRef("mining.skill_respec_pending")),
+            PanelActionSpec(
+                action_id="sk_titles", label="🏆 Titles",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=PanelRef(TITLES_PANEL_ID)),
+            PanelActionSpec(
+                action_id="sk_hub", label="↩ Mining Hub",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden).
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("mining.render_skills"),
+        justification=(
+            "the shipped `!skills` reply is a fully live-state-parameterized "
+            "embed built in the view (views/mining/skills_panel.py "
+            "build_skills_embed: the Points `{avail} available · {spent} spent` "
+            "line + the `Game level {level}` cap note, the four branch "
+            "`{blurb}  ({points}/{cap})` fields with their describe_stats "
+            "previews, and the `♻ Respec refunds all for {cost} 🪙` footer — "
+            "goldens/mining/sweep_skills.json pins the fresh-player bytes), "
+            "read-parameterized state outside the static TextBlock/FieldsBlock "
+            "vocabulary (the mining hub / vault / forge live-overview "
+            "precedent). Every component stays grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("sk_mining", "sk_combat", "sk_fortune", "sk_crafting"),
+            ("sk_respec", "sk_titles", "sk_hub"),
+        )),)),
+    )
+
+
+async def _render_skills(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped live skill-tree embed
+    (points line, per-branch allocation + describe_stats preview, respec-cost
+    footer; see justification). Reads the shared game level + get_skills → a
+    fresh player reads level 0 / no allocation → the 0-available card
+    goldens/mining/sweep_skills.json pins."""
+    from sb.domain.games.xp import shared_level
+    from sb.domain.mining import equipment as _eq
+    from sb.domain.mining import skills, store
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    level, _ = await shared_level(uid, gid)
+    alloc = await store.get_skills(uid, gid)
+    spent = skills.total_spent(alloc)
+    avail = max(0, min(level, skills.SOFT_TOTAL_CAP) - spent)
+    fields: list[tuple[str, str, bool]] = [
+        ("Points",
+         f"**{avail}** available · {spent} spent\n"
+         f"Game level **{level}** (points cap at **{skills.SOFT_TOTAL_CAP}** "
+         "— you can't max every branch, so specialize).", False)]
+    for branch in skills.BRANCHES:
+        points = alloc.get(branch, 0)
+        bonus = _eq.describe_stats(skills.branch_stats(branch, points))
+        bonus_text = ", ".join(f"+{v} {label}" for label, v in bonus) or "—"
+        fields.append(
+            (f"{skills.BRANCH_LABELS[branch]}  "
+             f"({points}/{skills.PER_BRANCH_CAP})", bonus_text, False))
+    footer = ("Tap a branch to spend a point  •  "
+              f"♻ Respec refunds all for {skills.respec_cost(level)} 🪙")
+    embed = _dc_replace(rendered.embed, title="🌳 Skill Tree",
+                        fields=tuple(fields), footer=footer)
+    return _dc_replace(rendered, embed=embed)
+
+
+def mining_titles_spec() -> PanelSpec:
+    """The shipped 🏆 Titles panel (views/mining/titles_panel.py
+    ``MiningTitlesView`` + ``build_titles_embed``) — an ephemeral (session)
+    child of the skill-tree panel: the single ↩ Mining Hub button mints a session
+    `<cid:N>` id, and the live equipped/earned/locked embed rides a renderer
+    override (goldens/mining/sweep_titles.json pins every byte: the MINING_COLOR
+    dark-grey frame, the Equipped + 🔒 Locked (9) fields, the earn-guidance footer,
+    the single ↩ Mining Hub button and the standard nav row 📚 Help + ↩ Games).
+
+    A fresh player has NO earned titles, so the earned-title display Select (the
+    equip WRITE lane) is absent from the view — the equipped-title write rides the
+    deferred panel port (D-0043); no golden drives it. Below the 4-action
+    auto-exempt sim floor (1 action), so no legacy-seed overlay is needed."""
+    return PanelSpec(
+        panel_id=TITLES_PANEL_ID,
+        subsystem="mining",
+        title="🏆 Titles",
+        audience=Audience.INVOKER,
+        # MINING_COLOR = discord.Color.dark_grey() (utils/ui_constants.py); the
+        # live equipped/earned/locked fields ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        # ephemeral child → session-minted <cid:N> ids (no custom_id_override,
+        # so no panel_anchors row — the shipped HubView child send).
+        session_lifecycle=True,
+        actions=(
+            PanelActionSpec(
+                action_id="ti_hub", label="↩ Mining Hub",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped standard nav row: 📚 Help + "↩ Games"
+        # (nav:help / nav:hub:games — both pinned by the golden).
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("mining.render_titles"),
+        justification=(
+            "the shipped `!titles` reply is a fully live-state-parameterized "
+            "embed built in the view (views/mining/titles_panel.py "
+            "build_titles_embed: the Equipped title line, the optional "
+            "`Earned ({n})` list, and the `🔒 Locked ({n})` list of "
+            "`{emoji} {label} — {requirement}` lines derived from the player's "
+            "skills / max-depth / level — goldens/mining/sweep_titles.json pins "
+            "the fresh-player Equipped `— none —` + 🔒 Locked (9) bytes), "
+            "read-parameterized state outside the static TextBlock/FieldsBlock "
+            "vocabulary (the mining hub / skills-panel live-overview precedent). "
+            "Every component stays grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("ti_hub",),
+        )),)),
+    )
+
+
+async def _render_titles(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped live titles embed
+    (equipped title, optional earned list, locked list with earn requirements;
+    see justification). Earned titles are DERIVED from the player's skills /
+    max-depth / level (sb/domain/mining/titles.py) — a fresh player earns none →
+    Equipped `— none —` + all 9 locked, the bytes goldens/mining/sweep_titles.json
+    pins. The equipped title is gated on still being earned (a post-respec choice
+    silently un-displays)."""
+    from sb.domain.games.xp import shared_level
+    from sb.domain.mining import store, titles
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    alloc = await store.get_skills(uid, gid)
+    max_depth = await store.get_max_depth(uid, gid)
+    level, _ = await shared_level(uid, gid)
+    tctx = titles.TitleContext(skills=alloc, max_depth=max_depth, level=level)
+    earned = titles.earned_titles(tctx)
+    equipped = titles.get_title(await store.get_equipped_title(uid, gid))
+    if equipped is not None and not titles.is_earned(equipped.id, tctx):
+        equipped = None
+    fields: list[tuple[str, str, bool]] = [
+        ("Equipped",
+         titles.display(equipped) if equipped else "— none —", False)]
+    if earned:
+        fields.append((
+            f"Earned ({len(earned)})",
+            "\n".join(titles.display(t) for t in earned), False))
+    locked = tuple(t for t in titles.ALL_TITLES
+                   if not titles.is_earned(t.id, tctx))
+    if locked:
+        fields.append((
+            f"🔒 Locked ({len(locked)})",
+            "\n".join(f"{t.emoji} {t.label} — {t.requirement}" for t in locked),
+            False))
+    footer = ("Earn titles by mastering skill branches, descending, and "
+              "levelling up.")
+    embed = _dc_replace(rendered.embed, title="🏆 Titles",
+                        fields=tuple(fields), footer=footer)
+    return _dc_replace(rendered, embed=embed)
+
+
 def mining_vault_spec() -> PanelSpec:
     """The shipped 🏦 Mining Vault panel (views/mining/vault_panel.py
     ``MiningVaultView`` + ``build_vault_embed``) — an ephemeral (session)
@@ -585,12 +821,23 @@ def _forge_factory() -> PanelSpec:
     return mining_forge_spec()
 
 
+@panel(SKILLS_PANEL_ID)
+def _skills_factory() -> PanelSpec:
+    return mining_skills_spec()
+
+
+@panel(TITLES_PANEL_ID)
+def _titles_factory() -> PanelSpec:
+    return mining_titles_spec()
+
+
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
     _pending_button_handlers()
     _vault_modal_handlers()
     _forge_button_handlers()
+    _skills_button_handlers()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
     if not is_registered(HandlerRef("mining.render_card")):
@@ -599,6 +846,10 @@ def _register_refs() -> None:
         handler("mining.render_vault")(_render_vault)
     if not is_registered(HandlerRef("mining.render_forge")):
         handler("mining.render_forge")(_render_forge)
+    if not is_registered(HandlerRef("mining.render_skills")):
+        handler("mining.render_skills")(_render_skills)
+    if not is_registered(HandlerRef("mining.render_titles")):
+        handler("mining.render_titles")(_render_titles)
     if not is_registered(PanelRef(HUB_PANEL_ID)):
         panel(HUB_PANEL_ID)(_hub_factory)
     if not is_registered(PanelRef(CARD_PANEL_ID)):
@@ -607,12 +858,17 @@ def _register_refs() -> None:
         panel(VAULT_PANEL_ID)(_vault_factory)
     if not is_registered(PanelRef(FORGE_PANEL_ID)):
         panel(FORGE_PANEL_ID)(_forge_factory)
+    if not is_registered(PanelRef(SKILLS_PANEL_ID)):
+        panel(SKILLS_PANEL_ID)(_skills_factory)
+    if not is_registered(PanelRef(TITLES_PANEL_ID)):
+        panel(TITLES_PANEL_ID)(_titles_factory)
 
 
 def install_mining_panels() -> tuple[PanelSpec, ...]:
     out = []
     for spec in (mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
-                 mining_forge_spec()):
+                 mining_forge_spec(), mining_skills_spec(),
+                 mining_titles_spec()):
         try:
             out.append(register_panel(spec))
         except ValueError as exc:

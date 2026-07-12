@@ -848,6 +848,32 @@ def _register() -> None:
                      "deep mining port is named successor work (D-0043); the "
                      "core loop (mine/chop/explore/sell/buy) is live.")
 
+    @handler("mining.skill_route")
+    async def skill_route(req) -> Reply:
+        """`!skill [branch] [amount]` — spend a skill point into a branch
+        (mining_cog.py ``skill_cmd``; services/skill_service.py ``allocate``).
+        The bare invocation answers the branch-picker guard PLAIN
+        (goldens/mining/sweep_skill pins the byte:
+        ``Pick a branch to train: mining, combat, fortune, crafting — e.g.
+        `!skill mining`, or `!skills` for the panel.``) — a pure read, no write.
+        The argful point spend (the self-service player_skills write) rides the
+        deferred skill panel/allocate port — no golden drives it (the imported
+        sweep drove only the bare `!skill`; player_skills is
+        depth.exemptions.mining guard-only-capture) — so it stays an honest
+        D-0043 pending terminal, the argful cook/use precedent."""
+        from sb.domain.mining import skills
+
+        if _no_args(req):
+            names = ", ".join(skills.BRANCHES)
+            return Reply(BLOCKED,
+                         f"Pick a branch to train: {names} — e.g. "
+                         "`!skill mining`, or `!skills` for the panel.")
+        return Reply(BLOCKED,
+                     "🌳 `!skill <branch>` spending rides the mining skill-tree "
+                     "allocate lane — the deep mining port is named successor "
+                     "work (D-0043); the core loop "
+                     "(mine/chop/explore/sell/buy) is live.")
+
 
 #: The deep-system commands (shipped names) → pending copy. The mining
 #: depth port (equipment/wear/energy/grid/vault/structures/skills/
@@ -872,8 +898,12 @@ PENDING = {
     # forge not-built card + the repair/cook/use usage guards + the quickcraft
     # "nothing broken" pure read). The structures BUILD write (🔥 Build) and the
     # argful cook/use energy lanes stay deferred (D-0043 pending terminals).
-    "skills": "skills",
-    "skill": "skills", "titles": "titles",
+    # skills / skill / titles are LIVE (slice 5 port): the mining.skills +
+    # mining.titles session PanelSpecs carry the skill-tree + earned-title
+    # render bytes, and skill_route carries the `!skill` branch-picker guard.
+    # The argful `!skill <branch>` spend, the skills-panel branch/respec button
+    # clicks, and the titles select-menu equip stay deferred (D-0043 pending
+    # terminals — no golden drives a skill/title write).
     "home": "structures", "workshop": "workshop",
 }
 

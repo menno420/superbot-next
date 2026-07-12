@@ -36,6 +36,19 @@ BRANCH_LABELS: dict[str, str] = {
     CRAFTING: "🛠️ Crafting — loot yield",
 }
 
+# Respec price: a base fee plus a per-level scaler, so deep characters pay more
+# to re-spend a bigger pool (a real, level-scaled coin sink — ``skill_service``
+# verbatim).  The skills panel footer pins ``respec_cost(level)``
+# (goldens/mining/sweep_skills: level 0 -> 200).  The respec write itself is the
+# coin-bearing lane and rides the deferred panel port (D-0043).
+RESPEC_BASE_COST = 200
+RESPEC_COST_PER_LEVEL = 50
+
+
+def respec_cost(level: int) -> int:
+    """The coin cost to respec at *level* (base + per-level scaler)."""
+    return RESPEC_BASE_COST + RESPEC_COST_PER_LEVEL * max(0, level)
+
 
 def is_branch(branch: str) -> bool:
     """True if *branch* is a real skill branch."""
@@ -92,6 +105,9 @@ __all__ = [
     "PER_BRANCH_CAP",
     "SOFT_TOTAL_CAP",
     "BRANCH_LABELS",
+    "RESPEC_BASE_COST",
+    "RESPEC_COST_PER_LEVEL",
+    "respec_cost",
     "is_branch",
     "branch_stats",
     "skill_stats",
