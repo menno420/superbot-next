@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.recent_errors",
+ "case_id": "sweep.lifecycle",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1934651344,
+     "last_xp": 1914962363,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -53,26 +53,22 @@
       "content": null,
       "embeds": [
        {
-        "color": 10038562,
+        "color": 15844367,
+        "description": "Phase: **STARTING** · Accepting commands: **True** · Startup observed: **no**",
         "fields": [
          {
           "inline": false,
-          "name": "[<ts>] ERROR",
-          "value": "CMD ❌ | rank | AdminActor#0000 | Parity Test Guild | CommandInvokeError: Command raised an exception: RuntimeError: Somehow do not have a websocket for this guild_id"
+          "name": "Pending request",
+          "value": "_none_"
          },
          {
           "inline": false,
-          "name": "[<ts>] ERROR",
-          "value": "CMD ❌ | mine | AdminActor#0000 | Parity Test Guild | CommandInvokeError: Command raised an exception: DataError: invalid input for query argument $1: '<@admin>' ('str' object cannot be interpreted as an integer)"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] ERROR",
-          "value": "CMD ❌ | invite | AdminActor#0000 | Parity Test Guild | CommandInvokeError: Command raised an exception: TypeError: 'NoneType' object is not subscriptable"
+          "name": "Recent events",
+          "value": "_none recorded_"
          }
         ],
         "flags": 0,
-        "title": "Recent Logs",
+        "title": "🔄 Lifecycle",
         "type": "rich"
        }
       ],
@@ -102,11 +98,11 @@
     }
    ],
    "input": {
-    "content": "!recent_errors",
+    "content": "!lifecycle",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "diagnostic"
 }

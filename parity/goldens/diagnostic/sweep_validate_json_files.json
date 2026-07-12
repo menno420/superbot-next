@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.query_logs",
+ "case_id": "sweep.validate_json_files",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1866988574,
+     "last_xp": 2054667402,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -53,61 +53,10 @@
       "content": null,
       "embeds": [
        {
-        "color": 10038562,
-        "fields": [
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD DiagnosticCog/query_logs"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ✅ ProofChannelCog/prizestatus"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ProofChannelCog/prizestatus"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ✅ ProofChannelCog/prizemenu"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ProofChannelCog/prizemenu"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ✅ UtilityCog/poll"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD UtilityCog/poll"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ✅ CasinoCog/poker"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD CasinoCog/poker"
-         },
-         {
-          "inline": false,
-          "name": "[<ts>] INFO",
-          "value": "CMD ✅ ProjectMoonCog/pm status"
-         }
-        ],
+        "color": 15105570,
+        "description": "JSON directory not found: `/home/user/superbot/data/json`",
         "flags": 0,
-        "title": "Recent Logs",
+        "title": "JSON Files Validation",
         "type": "rich"
        }
       ],
@@ -137,11 +86,11 @@
     }
    ],
    "input": {
-    "content": "!query_logs",
+    "content": "!validate_json_files",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "diagnostic"
 }

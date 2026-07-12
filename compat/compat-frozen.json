@@ -953,6 +953,13 @@
     "name": "caches"
    },
    {
+    "aliases": [
+     "checkdb"
+    ],
+    "group": "",
+    "name": "check_database"
+   },
+   {
     "aliases": [],
     "group": "platform",
     "name": "cleanup-preview"
@@ -993,6 +1000,13 @@
     "name": "economytrend"
    },
    {
+    "aliases": [
+     "findcmd"
+    ],
+    "group": "",
+    "name": "find_command"
+   },
+   {
     "aliases": [],
     "group": "platform",
     "name": "finding"
@@ -1023,9 +1037,23 @@
     "name": "latency"
    },
    {
+    "aliases": [
+     "lc"
+    ],
+    "group": "",
+    "name": "lifecycle"
+   },
+   {
     "aliases": [],
     "group": "platform",
     "name": "lifecycle"
+   },
+   {
+    "aliases": [
+     "listcmds"
+    ],
+    "group": "",
+    "name": "list_commands_detailed"
    },
    {
     "aliases": [],
@@ -1096,6 +1124,20 @@
     "aliases": [],
     "group": "platform",
     "name": "tasks"
+   },
+   {
+    "aliases": [
+     "testnotify"
+    ],
+    "group": "",
+    "name": "test_notification"
+   },
+   {
+    "aliases": [
+     "validatejson"
+    ],
+    "group": "",
+    "name": "validate_json_files"
    },
    {
     "aliases": [],

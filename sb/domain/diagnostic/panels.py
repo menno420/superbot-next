@@ -6,13 +6,25 @@ byte parity (goldens/diagnostic/* @ corpus sha 7f7628e1):
   session view (run-minted ids → ``<cid:N>``), the 8-field overview
   embed, blue, "Diagnostics Hub  •  Admin only". The band-1 projection
   hub this file used to declare is replaced by the shipped shape (the
-  logging/D-0067 oracle-wins lane). Only 📡 Latency routes a ported
-  tool; the other seven are process-state under-ports on the honest
-  pending terminal (the capture skipped their command twins too —
-  parity/goldens/_sweep_skips.json).
+  logging/D-0067 oracle-wins lane). 📡 Latency, 🗄️ Database, 📄 JSON
+  Files, 📋 Commands and 🔔 Test Notify route their ported tools (the
+  wave-9 re-home — the same cards/panel the command twins render); Bot
+  Status / System Info / Recent Errors stay process-state under-ports
+  on the honest pending terminal (the capture skipped their command
+  twins — parity/goldens/_sweep_skips.json — and the
+  query_logs/recent_errors sweeps were retired to the same class).
 
 * ``diagnostic.card`` — the generic one-embed reply card (the ai.card
   lane) every ``!platform <view>`` / ``!latency`` handler presents.
+
+* ``diagnostic.command_list`` — the shipped ``!list_commands_detailed``
+  paginator (disbot/views/diagnostic/paginator.py ``_PaginatorView``
+  over ``build_command_list_pages`` — sweep_list_commands_detailed): a
+  true session view (both button ids run-minted → ``<cid:N>``), the
+  ◀ Prev / Next ▶ secondary pair with Prev disabled on page 1, page 1
+  of the shipped 14-page registry as the capture literal
+  (command_catalog.py; the admin cogmgr roster precedent). Pages 2-14
+  land with the paginator's interaction slice.
 
 * ``diagnostic.platform_hub`` — the shipped 🛰 Platform hub
   (disbot/views/diagnostic/platform_panel.py — sweep_platform +
@@ -339,15 +351,15 @@ def diagnostic_hub_spec() -> PanelSpec:
             _btn("diag_sysinfo", "💻 System Info", ActionStyle.PRIMARY,
                  pending),
             _btn("diag_database", "🗄️ Database", ActionStyle.SECONDARY,
-                 pending),
+                 HandlerRef("diagnostic.check_database_view")),
             _btn("diag_json", "📄 JSON Files", ActionStyle.SECONDARY,
-                 pending),
+                 HandlerRef("diagnostic.validate_json_view")),
             _btn("diag_commands", "📋 Commands", ActionStyle.SECONDARY,
-                 pending),
+                 PanelRef("diagnostic.command_list")),
             _btn("diag_errors", "🔍 Recent Errors", ActionStyle.DANGER,
                  pending),
             _btn("diag_notify", "🔔 Test Notify", ActionStyle.SECONDARY,
-                 pending),
+                 HandlerRef("diagnostic.test_notification_view")),
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(PageSpec(rows=(
@@ -387,6 +399,50 @@ def diagnostic_card_spec() -> PanelSpec:
             "pins the bytes). Zero components; the renderer presents the "
             "handler-built RenderedEmbed verbatim (the ai.card "
             "precedent)."),
+    )
+
+
+def command_list_spec() -> PanelSpec:
+    """The shipped ``!list_commands_detailed`` paginator (module
+    docstring)."""
+    return PanelSpec(
+        panel_id="diagnostic.command_list",
+        subsystem="diagnostic",
+        title="Command List",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blue",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            # the shipped _PaginatorView pair (ButtonStyle.secondary,
+            # session auto-ids — the golden pins <cid:1>/<cid:2>; Prev
+            # renders disabled on page 1 via the renderer override).
+            PanelActionSpec(
+                action_id="cmdlist_prev", label="◀ Prev",
+                style=ActionStyle.SECONDARY, audience_tier=_TIER,
+                handler=HandlerRef("diagnostic.cmdlist_page_pending")),
+            PanelActionSpec(
+                action_id="cmdlist_next", label="Next ▶",
+                style=ActionStyle.SECONDARY, audience_tier=_TIER,
+                handler=HandlerRef("diagnostic.cmdlist_page_pending")),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("cmdlist_prev", "cmdlist_next"),
+        )),)),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("diagnostic.render_command_list"),
+        justification=(
+            "the shipped command-list embed is page 1 of the capture "
+            "registry paginator — four per-cog fields of shipped "
+            "docstring/cooldown/alias lines with the shipped 1024-byte "
+            "truncation, plus the 'Command List — Page 1/14' page title "
+            "(capture literals, command_catalog.py) — and the first-page "
+            "◀ Prev button renders disabled, outside the grammar's "
+            "vocabulary (actions carry no disabled state; the admin "
+            "cogmgr precedent). The override delegates the COMPONENTS to "
+            "render_panel and composes the EMBED plus that one disabled "
+            "bit only; goldens/diagnostic/sweep_list_commands_detailed "
+            "pins every byte."),
     )
 
 
@@ -602,6 +658,28 @@ def _embed_override(title: str, description: str,
     return _render
 
 
+async def _render_command_list(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the two shipped adjustments (see the panel's
+    justification): the page-1 capture-literal embed, first-page ◀ Prev
+    disabled (the admin cogmgr override pattern)."""
+    from sb.domain.diagnostic.command_catalog import (
+        COMMAND_LIST_PAGE1_FIELDS,
+        COMMAND_LIST_PAGE1_TITLE,
+    )
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    base = await render_panel(spec, ctx)
+    components = tuple(
+        _dc_replace(c, disabled=True)
+        if c.custom_id == f"{spec.panel_id}.cmdlist_prev" else c
+        for c in base.components)
+    embed = RenderedEmbed(
+        title=COMMAND_LIST_PAGE1_TITLE, description="",
+        fields=tuple((n, v, False) for n, v in COMMAND_LIST_PAGE1_FIELDS),
+        style_token="blue")
+    return _dc_replace(base, components=components, embed=embed)
+
+
 _render_hub = _embed_override(
     "🔧 Diagnostics Hub", _DIAG_DESCRIPTION, _DIAG_FIELDS,
     footer=_DIAG_FOOTER, style_token="blue", inline=True)
@@ -621,6 +699,7 @@ _render_automation = _embed_override(
 
 _RENDERERS = (
     ("diagnostic.render_card", _render_card),
+    ("diagnostic.render_command_list", _render_command_list),
     ("diagnostic.render_hub", _render_hub),
     ("diagnostic.render_platform_hub", _render_platform_hub),
     ("diagnostic.render_flag_manager", _render_flag_manager),
@@ -656,6 +735,7 @@ def _ensure_reopen_handlers() -> None:
 _SPEC_FACTORIES = (
     ("diagnostic.hub", diagnostic_hub_spec),
     ("diagnostic.card", diagnostic_card_spec),
+    ("diagnostic.command_list", command_list_spec),
     ("diagnostic.platform_hub", platform_hub_spec),
     ("diagnostic.flag_manager", flag_manager_spec),
     ("diagnostic.automation_panel", automation_panel_spec),
@@ -670,6 +750,11 @@ def _hub_factory() -> PanelSpec:
 @panel("diagnostic.card")
 def _card_factory() -> PanelSpec:
     return diagnostic_card_spec()
+
+
+@panel("diagnostic.command_list")
+def _command_list_factory() -> PanelSpec:
+    return command_list_spec()
 
 
 @panel("diagnostic.platform_hub")
@@ -690,6 +775,7 @@ def _automation_factory() -> PanelSpec:
 _FACTORY_TABLE = (
     ("diagnostic.hub", _hub_factory),
     ("diagnostic.card", _card_factory),
+    ("diagnostic.command_list", _command_list_factory),
     ("diagnostic.platform_hub", _platform_hub_factory),
     ("diagnostic.flag_manager", _flag_manager_factory),
     ("diagnostic.automation_panel", _automation_factory),

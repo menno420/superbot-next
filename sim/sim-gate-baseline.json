@@ -2537,6 +2537,12 @@
    },
    "value": 0
   },
+  "diagnostic:check_database:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: wave-9 diagnostic re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "diagnostic:cleanup-preview:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -2859,6 +2865,12 @@
    },
    "value": 0
   },
+  "diagnostic:find_command:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: wave-9 diagnostic re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
   "diagnostic:finding:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -2898,6 +2910,18 @@
   "diagnostic:lifecycle:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:lifecycle:SubsystemManifest.commands/CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: wave-9 diagnostic re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:list_commands_detailed:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: wave-9 diagnostic re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
@@ -2982,6 +3006,18 @@
   "diagnostic:tasks:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: diagnostic parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:test_notification:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: wave-9 diagnostic re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": 0
+  },
+  "diagnostic:validate_json_files:CommandSpec.help_section_order": {
+   "provenance": {
+    "exempt": "legacy-seed: wave-9 diagnostic re-home carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
