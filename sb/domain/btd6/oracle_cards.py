@@ -1168,6 +1168,49 @@ def runs_card(source_key: str | None = None) -> RenderedEmbed:
         style_token="blurple")
 
 
+def seed_empty_card() -> RenderedEmbed:
+    """`!btd6 ops seed-data`, zero files found — the shipped orange arm
+    (cogs/btd6/_ops_helpers.py seed_embed, count == 0; unreachable with
+    the committed dataset present, carried verbatim anyway)."""
+    return RenderedEmbed(
+        title="🌱 BTD6 data seed",
+        description=("No bundled data files were found to seed. If the repo "
+                     "data has already been removed, re-generate the "
+                     "fixtures first."),
+        style_token="orange")
+
+
+def seed_receipt_card(count: int, served: str = "",
+                      changed: list[str] | None = None) -> RenderedEmbed:
+    """`!btd6 ops seed-data` success receipt — the shipped green embed
+    (cogs/btd6/_ops_helpers.py seed_embed, reconstructed at oracle head
+    b0713fcd), incl. the changed-file report (#1263) and the first-time
+    Railway setup paragraph. In this build ``changed`` is always None
+    (dataset.content_drift's file-backend arm) and ``served`` is the
+    committed dataset's own game version — both lines carry the shipped
+    bytes wherever they render."""
+    serving_line = (f"\n**Now serving:** game version `{served}`."
+                    if served else "")
+    changed_line = ""
+    if changed:
+        shown = ", ".join(f"`{name}`" for name in changed[:8])
+        more = f" +{len(changed) - 8} more" if len(changed) > 8 else ""
+        changed_line = (f"\n**Applied {len(changed)} changed file(s):** "
+                        f"{shown}{more}.")
+    return RenderedEmbed(
+        title="🌱 BTD6 data seeded",
+        description=(
+            f"Upserted **{count}** blobs into the `btd6_data_blobs` table "
+            f"and **reloaded the live dataset** — the new data is being "
+            f"served now; no restart needed.{serving_line}{changed_line}\n\n"
+            "First-time setup only: set `BTD6_DATA_BACKEND` = `postgres` in "
+            "Railway → Variables, then confirm `!btd6 status` reads "
+            "`Data source: postgres (…)`.\n\n"
+            "Safe to re-run any time (it upserts)."
+        ),
+        style_token="green")
+
+
 # --- strategy memory (views/btd6/strategy_browse.py) --------------------------
 
 

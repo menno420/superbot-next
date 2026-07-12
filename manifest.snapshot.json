@@ -6978,6 +6978,11 @@
           "value": "btd6_strategies"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6_data_blobs"
+        },
+        {
           "source": "sb/manifest/chain.py",
           "subsystem": "chain",
           "value": "chain_channels"
@@ -10025,6 +10030,9 @@
       "workflow:btd6.record_review_strategy": {
         "module": "sb.domain.btd6.ops"
       },
+      "workflow:btd6.record_seed_data": {
+        "module": "sb.domain.btd6.ops"
+      },
       "workflow:btd6.record_submit_strategy": {
         "module": "sb.domain.btd6.ops"
       },
@@ -10032,6 +10040,9 @@
         "module": "sb.domain.btd6.ops"
       },
       "workflow:btd6.scrub_strategy_submitter": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.seed_data": {
         "module": "sb.domain.btd6.ops"
       },
       "workflow:btd6.set_announce_channel": {
@@ -10801,6 +10812,14 @@
         },
         "subsystem": "ai"
       },
+      "btd6_data_blobs": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "btd6_data_blobs",
+        "sole_writer": {
+          "$ref": "engine:btd6.store"
+        },
+        "subsystem": "btd6"
+      },
       "btd6_strategies": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "btd6_strategies",
@@ -11196,7 +11215,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d994c514c46723ff3008ec6f92a72c5abb14d9727443c52e5cde1e626f95586f",
+  "stable_hash": "sha256:0c60f5341fce942d883a3fe59326bb7a197db6cbf80c815f4dfb9f62a48b9b8b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -19612,6 +19631,31 @@
             "$ref": "engine:btd6.store"
           },
           "table": "btd6_strategies",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "btd6_data_blobs",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:btd6.store"
+          },
+          "table": "btd6_data_blobs",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

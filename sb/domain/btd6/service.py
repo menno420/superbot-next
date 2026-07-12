@@ -4,9 +4,12 @@ lanes, and the reference views (shipped ``btd6ref`` / ``btd6strat`` /
 
 Live-ingestion-backed subcommands (events live/event/leaderboard/sources
 /source-health/latest-data/refresh-source; ops readiness/runs/source
-toggles/seed-data) are PENDING TERMINALS — the btd6 ingestion subsystem
+toggles) are PENDING TERMINALS — the btd6 ingestion subsystem
 (source registry + snapshots + supervisor + patch notes, oracle
-migrations 040/048/054) is a named successor port (D-0046). The Ask
+migrations 040/048) is a named successor port (D-0046). `ops seed-data`
+is PORTED: the audited ``btd6.seed_data`` op writes the migration-054
+``btd6_data_blobs`` store (sb/domain/btd6/ops.py; the serving lane stays
+the committed files — the capture world's file backend). The Ask
 button/NL mention path is the K10 message shell (band-7 slice 3)."""
 
 from __future__ import annotations
