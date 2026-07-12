@@ -399,4 +399,123 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "filter to 'Stone' — the re-render shows only the Stone creatures, "
             "proving the element-filter select path"),
     ),
+    # ---------------------------------------------- mining WRITE-PARITY (WP-1)
+    # Argful equip / unequip / loadout writes that DRIVE the mutation the
+    # imported bare-guard sweeps never reached (D-0069 class exit). Each
+    # fixture_sql row is seeded BEFORE the before-snapshot, so it never appears
+    # in db_delta — only the terminal's own audited write does. member persona
+    # = 900000000000000102, guild = 700000000000000001. The success reply is
+    # the shipped `<@u> ` mention + oracle copy (mining_workflow.equip/unequip/
+    # loadout verbatim). These row-bearing captures retire the
+    # depth.exemptions.mining guard-only-capture rows for mining_equipment
+    # (equip add + unequip remove) and mining_loadout_presets (save add +
+    # delete remove).
+    GoldenCase(
+        id="mining.equip_write",
+        subsystem="mining",
+        # own the gear so the equip success branch runs (inventory read is a
+        # pre-req, not a write — seeded before the snapshot).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'iron pickaxe', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!equip iron pickaxe",
+                 persona="member"),
+        ),
+        notes=(
+            "argful !equip drives mining.equip → record_equip: upserts the "
+            "mining_equipment tool-slot row (item_name='iron pickaxe') and "
+            "replies `<@u> equipped **Iron Pickaxe** in the **tool** slot.` — "
+            "the first row-bearing equip capture (retires the "
+            "mining_equipment guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="mining.unequip_write",
+        subsystem="mining",
+        # seed the equipped row so unequip yields a `removed` mining_equipment
+        # delta (the delete face of the table).
+        fixture_sql=(
+            "INSERT INTO mining_equipment (user_id, guild_id, slot, "
+            "item_name) VALUES "
+            "('900000000000000102', 700000000000000001, 'tool', "
+            "'iron pickaxe')",
+        ),
+        steps=(
+            Step(kind="command", content="!unequip tool", persona="member"),
+        ),
+        notes=(
+            "argful !unequip drives mining.unequip → record_unequip: deletes "
+            "the mining_equipment tool-slot row and replies `<@u> cleared the "
+            "**tool** slot.` — the remove face of mining_equipment"),
+    ),
+    GoldenCase(
+        id="mining.loadout_save_write",
+        subsystem="mining",
+        # equipped gear is the save source (read pre-req); seeded before the
+        # snapshot so only the loadout-preset row lands in db_delta.
+        fixture_sql=(
+            "INSERT INTO mining_equipment (user_id, guild_id, slot, "
+            "item_name) VALUES "
+            "('900000000000000102', 700000000000000001, 'tool', "
+            "'iron pickaxe')",
+        ),
+        steps=(
+            Step(kind="command", content="!loadout save mining",
+                 persona="member"),
+        ),
+        notes=(
+            "argful !loadout save drives mining.save_loadout → "
+            "record_save_loadout: inserts the mining_loadout_presets row(s) "
+            "for the equipped gear and replies `<@u> saved your current gear "
+            "as the **mining** loadout (1 slot).` — the first row-bearing "
+            "loadout capture (retires the mining_loadout_presets "
+            "guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="mining.loadout_apply_write",
+        subsystem="mining",
+        # a saved preset + owned gear: apply equips the preset item, writing a
+        # mining_equipment row (the preset row is a read pre-req, unchanged).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'sword', 1)",
+            "INSERT INTO mining_loadout_presets (user_id, guild_id, name, "
+            "slot, item_name) VALUES "
+            "('900000000000000102', 700000000000000001, 'combat', 'weapon', "
+            "'sword')",
+        ),
+        steps=(
+            Step(kind="command", content="!loadout apply combat",
+                 persona="member"),
+        ),
+        notes=(
+            "argful !loadout apply drives mining.apply_loadout → "
+            "record_apply_loadout: equips the preset's owned gear "
+            "(mining_equipment weapon-slot row) and replies `<@u> equipped "
+            "the **combat** loadout (1 slot).` — the loadout apply write face"),
+    ),
+    GoldenCase(
+        id="mining.loadout_delete_write",
+        subsystem="mining",
+        # seed the preset so delete yields a `removed` mining_loadout_presets
+        # delta (the delete face of the table).
+        fixture_sql=(
+            "INSERT INTO mining_loadout_presets (user_id, guild_id, name, "
+            "slot, item_name) VALUES "
+            "('900000000000000102', 700000000000000001, 'combat', 'weapon', "
+            "'sword')",
+        ),
+        steps=(
+            Step(kind="command", content="!loadout delete combat",
+                 persona="member"),
+        ),
+        notes=(
+            "argful !loadout delete drives mining.delete_loadout → "
+            "record_delete_loadout: deletes the mining_loadout_presets "
+            "row(s) named 'combat' and replies `<@u> deleted the **combat** "
+            "loadout.` — the remove face of mining_loadout_presets"),
+    ),
 )
