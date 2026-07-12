@@ -246,6 +246,130 @@ def test_kick_blocked_compensates(monkeypatch):
     assert [leg.leg_id for leg in ops.TIMEOUT.legs] == ["record"]
 
 
+def test_ban_never_landed_compensates_by_withdrawal(monkeypatch):
+    """ORACLE ALIGNMENT (disbot services/moderation_service.py ban —
+    Discord call first, row only after success): a Discord-REFUSED ban
+    (apply leg 404, the ORDER 004 live-drive compensator probe) leaves NO
+    history row claiming the member was banned. The compensating unban
+    itself reports NotFound on a ban that never landed — then the
+    compensator falls back to kick's row-withdraw shape over the
+    `_ban_row_id` handle the record leg stashes; any OTHER unban failure
+    still propagates (the engine's honest `partial`)."""
+    import contextlib
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, service, store
+    from sb.kernel.db import pool
+    from sb.kernel.workflow.context import WorkflowContext
+    from sb.spec.refs import WorkflowRef
+
+    _register_declarations()
+    withdrawn: list[tuple] = []
+    unbans: list[tuple] = []
+
+    async def fake_withdraw(conn, *, ids):
+        withdrawn.append(tuple(ids))
+        return len(ids)
+
+    @contextlib.asynccontextmanager
+    async def fake_txn():
+        yield None
+
+    monkeypatch.setattr(store, "withdraw_mod_log_rows", fake_withdraw)
+    monkeypatch.setattr(pool, "transaction", fake_txn)
+
+    # name-matched stand-in for discord.NotFound (the guarded band-2
+    # pattern — discord is absent in-container, so the domain classifies
+    # the port's exception by NAME)
+    NotFound = type("NotFound", (Exception,), {})
+
+    class RefusingActions:
+        async def unban_member(self, guild_id, user_id, *, reason):
+            unbans.append((guild_id, user_id, reason))
+            raise NotFound("Unknown Ban")
+
+    def _ctx(params):
+        return WorkflowContext(
+            actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+            request_id="r6", confirmed=False, params=params)
+
+    service.install_moderation_actions(RefusingActions())
+    try:
+        out = asyncio.run(ops._compensate_ban(None, _ctx(
+            {"_ban_row_id": 21, "_target_id": 900000000000000103})))
+        assert withdrawn == [(21,)]                   # phantom row gone
+        assert out.after == {"withdrawn_rows": 1,
+                             "ban_never_landed": 900000000000000103}
+
+        # no row handle => the withdrawal is a no-op, still a success
+        out2 = asyncio.run(ops._compensate_ban(None, _ctx(
+            {"_target_id": 900000000000000103})))
+        assert withdrawn == [(21,)]                   # no second withdraw
+        assert out2.after == {"withdrawn_rows": 0,
+                              "ban_never_landed": 900000000000000103}
+    finally:
+        service.reset_moderation_ports_for_tests()
+
+    # a NON-NotFound unban failure propagates untouched — the compensator
+    # never swallows a real Discord error into a fake success
+    class BrokenActions:
+        async def unban_member(self, guild_id, user_id, *, reason):
+            raise RuntimeError("Discord is down")
+
+    service.install_moderation_actions(BrokenActions())
+    try:
+        with pytest.raises(RuntimeError):
+            asyncio.run(ops._compensate_ban(None, _ctx(
+                {"_ban_row_id": 21, "_target_id": 900000000000000103})))
+        assert withdrawn == [(21,)]                   # no withdrawal either
+    finally:
+        service.reset_moderation_ports_for_tests()
+
+    # the BAN op declares the compensator on its EFFECT leg
+    effect = [leg for leg in ops.BAN.legs if leg.leg_id == "apply"][0]
+    assert effect.reversibility == "compensatable"
+    assert effect.compensator == WorkflowRef("moderation.compensate_ban")
+
+
+def test_ban_compensator_restore_path_unbans(monkeypatch):
+    """When the ban actually LANDED and a later leg failed, the
+    compensator's primary posture is unchanged: the Discord-side
+    symmetric restore (unban) — no history row is withdrawn (the ban was
+    real; the row is true)."""
+    from types import SimpleNamespace
+
+    from sb.domain.moderation import ops, service, store
+    from sb.kernel.workflow.context import WorkflowContext
+
+    _register_declarations()
+    withdrawn: list[tuple] = []
+    unbans: list[tuple] = []
+
+    async def fake_withdraw(conn, *, ids):
+        withdrawn.append(tuple(ids))
+        return len(ids)
+
+    monkeypatch.setattr(store, "withdraw_mod_log_rows", fake_withdraw)
+
+    class FakeActions:
+        async def unban_member(self, guild_id, user_id, *, reason):
+            unbans.append((guild_id, user_id, reason))
+
+    service.install_moderation_actions(FakeActions())
+    try:
+        ctx = WorkflowContext(
+            actor=SimpleNamespace(user_id=42, actor_type="user"), guild_id=1,
+            request_id="r7", confirmed=False,
+            params={"_ban_row_id": 21, "_target_id": 900000000000000103})
+        out = asyncio.run(ops._compensate_ban(None, ctx))
+        assert unbans == [(1, 900000000000000103,
+                           "compensating failed ban flow")]
+        assert withdrawn == []                        # the row stays — true
+        assert out.after == {"compensated": "ban"}
+    finally:
+        service.reset_moderation_ports_for_tests()
+
+
 def test_timeout_record_leg_calls_discord_first(monkeypatch):
     """The oracle sequencing inside the record leg: the guild-action port
     runs BEFORE the row write; a port failure marks the ctx.params
