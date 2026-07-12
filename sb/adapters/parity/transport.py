@@ -674,10 +674,16 @@ class ParityChannelStateActions:
     is an ``edit_channel`` PATCH carrying ``rate_limit_per_user``, a
     permission overwrite an ``edit_channel_permissions`` PUT with
     stringified allow/deny bitmasks — goldens/channel/sweep_slowmode +
-    sweep_lock + sweep_unlock pin the shapes verbatim). Without this the
-    replay composition root leaves the not-installed port raising, so
-    every channel-state op degrades to the honest refusal — a harness
-    gap, not bot behavior."""
+    sweep_lock + sweep_unlock pin the shapes verbatim; a channel CREATE
+    is a ``create_channel`` POST whose payload carries the overwrite set
+    AT creation with INT masks and whose reply mints a channel id off
+    the SAME allocator as message ids — goldens/_unmapped/
+    sweep_setup.json + sweep_create pin the shape, the created id
+    normalizing as ``<msg:1>``; a channel DELETE is ``delete_channel``
+    with the bare channel_id+reason args — goldens/_unmapped/sweep_del +
+    sweep_bulkdelete pin it). Without this the replay composition root
+    leaves the not-installed port raising, so every channel-state op
+    degrades to the honest refusal — a harness gap, not bot behavior."""
 
     def __init__(self, transport: ParityTransport) -> None:
         self._transport = transport
@@ -700,6 +706,37 @@ class ParityChannelStateActions:
             {"channel_id": int(channel_id), "target_id": int(target_id),
              "allow": str(int(allow)), "deny": str(int(deny)),
              "type": int(target_type), "reason": reason})
+
+    async def create_text_channel(self, guild_id: int, *, name: str,
+                                  overwrites: tuple, parent_id: int | None,
+                                  reason: str | None) -> int:
+        # fake_http.create_channel verbatim: allocate the id FIRST (the
+        # golden's created channel is `<msg:1>` — the very first
+        # allocator draw of the case), record args {guild_id, type,
+        # reason} (type 0 = text) + the discord.py create options as the
+        # payload — name, parent_id (None when no category, exactly what
+        # discord.py sends) and the overwrite set AT creation, each
+        # entry {allow, deny, id, type} with INT masks (discord.py's
+        # guild.create_text_channel body; goldens/_unmapped/
+        # sweep_setup.json pins all four entries).
+        cid = int(self._transport._ids.allocate())  # noqa: SLF001 — same module family
+        self._transport.record(
+            "create_channel",
+            {"guild_id": int(guild_id), "type": 0, "reason": reason},
+            {"name": str(name), "parent_id": parent_id,
+             "permission_overwrites": [
+                 {"allow": int(ow.allow), "deny": int(ow.deny),
+                  "id": int(ow.target_id), "type": int(ow.target_type)}
+                 for ow in overwrites]})
+        return cid
+
+    async def delete_channel(self, channel_id: int, *,
+                             reason: str | None) -> None:
+        # fake_http.delete_channel verbatim (goldens/_unmapped/sweep_del
+        # pins `{"channel_id": "<msg:1>", "reason": null}`, no payload).
+        self._transport.record(
+            "delete_channel",
+            {"channel_id": int(channel_id), "reason": reason})
 
 
 class CaptureMemberEditParseError(RuntimeError):

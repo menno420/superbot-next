@@ -19,9 +19,13 @@ sweep_unlock) as:
   gateway-cache name leg — the xp `!xpimport` resolver posture);
 * the two best-effort event emitters, verbatim payload shapes.
 
-The remaining lifecycle operations (rename/move/delete/reorder/clone/
-set_topic/create) stay on their pending terminals until the channel-ops
-successor slice (D-0030) ports them.
+The D-0030 successor slice's ENABLER half (D-0077) armed the port's
+create/delete surface: ``create_text_channel`` (overwrites passed AT
+creation — the oracle's guild_resources.ensure_channel create path) and
+``delete_channel`` (NotFound-as-success adapter contract; name/id guards
+stay in the calling domain — the oracle's delete_setup_channel). The
+remaining lifecycle operations (rename/move/reorder/clone/set_topic)
+stay on their pending terminals until their own slices port them.
 
 These handlers write NO db rows (the oracle's channel ops were pure
 Discord state + events) — there is no DB leg, so no effect-after-record
@@ -31,10 +35,12 @@ reversibility question arises and the compensator allowlist stays EMPTY.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Protocol, runtime_checkable
 
 __all__ = [
+    "ChannelOverwrite",
     "ChannelStateActions",
     "EVT_CHANNEL_LIFECYCLE",
     "SEND_MESSAGES_BIT",
@@ -69,19 +75,53 @@ def _utcnow() -> datetime:
 # --- the channel-state port -------------------------------------------------------
 
 
+@dataclass(frozen=True)
+class ChannelOverwrite:
+    """One permission-overwrite entry handed to channel CREATION
+    (Discord's overwrite object: ``type`` 0 = role, 1 = member;
+    allow/deny are raw permission bitmasks — goldens/_unmapped/
+    sweep_setup.json pins the wire shape ``{allow, deny, id, type}``
+    with INT masks, unlike the stringified edit_channel_permissions
+    PUT)."""
+
+    target_id: int
+    target_type: int
+    allow: int
+    deny: int
+
+
 @runtime_checkable
 class ChannelStateActions(Protocol):
     """Adapter-implemented Discord channel-state edits (kernel-defined
     port). Wire twins record the goldens' verbs: ``set_slowmode`` is the
     channel-edit PATCH (fake_http ``edit_channel`` with
     ``rate_limit_per_user``), ``set_overwrite`` the permission-overwrite
-    PUT (fake_http ``edit_channel_permissions``)."""
+    PUT (fake_http ``edit_channel_permissions``),
+    ``create_text_channel`` the guild-channel POST (fake_http
+    ``create_channel`` — overwrites ride IN the create payload, the
+    oracle's guild_resources.ensure_channel create path; returns the new
+    channel id), ``delete_channel`` the channel DELETE (fake_http
+    ``delete_channel``).
+
+    Contracts the callers rely on (D-0077): get-before-create/idempotent
+    reuse is DOMAIN logic (the oracle's ensure_setup_channel), never the
+    port's — ``create_text_channel`` always creates. A live
+    ``delete_channel`` MUST treat Discord NotFound as success
+    (already-gone is the goal state — the oracle's delete_setup_channel
+    ``except discord.NotFound: return True``); name/id guards stay in
+    the calling domain."""
 
     async def set_slowmode(self, channel_id: int, *, seconds: int,
                            reason: str | None) -> None: ...
     async def set_overwrite(self, channel_id: int, *, target_id: int,
                             allow: int, deny: int, target_type: int,
                             reason: str | None) -> None: ...
+    async def create_text_channel(
+            self, guild_id: int, *, name: str,
+            overwrites: tuple[ChannelOverwrite, ...],
+            parent_id: int | None, reason: str | None) -> int: ...
+    async def delete_channel(self, channel_id: int, *,
+                             reason: str | None) -> None: ...
 
 
 class _NoActions:
@@ -92,6 +132,7 @@ class _NoActions:
             "(sb/domain/channel/service.install_channel_actions)")
 
     set_slowmode = set_overwrite = _refuse
+    create_text_channel = delete_channel = _refuse
 
 
 _actions: ChannelStateActions = _NoActions()  # type: ignore[assignment]
