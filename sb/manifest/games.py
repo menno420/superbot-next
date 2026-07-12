@@ -16,6 +16,7 @@ from sb.domain.games.tournament_flag import TOURNAMENT_FLAG_STORE
 from sb.domain.games.xp import EVT_GAME_LEVEL_UP, EVT_GAME_XP_AWARDED
 from sb.kernel.scheduler.due_queue import declare_task
 from sb.spec.commands import CommandKind, CommandSpec
+from sb.spec.outcomes import ReplyVisibility
 from sb.spec.events import (
     DeliveryClass,
     EventSpec,
@@ -67,12 +68,24 @@ MANIFEST = SubsystemManifest(
     key="games",
     version=1,
     commands=(
-        CommandSpec(name="games", kind=CommandKind.BOTH,
+        CommandSpec(name="games", kind=CommandKind.PREFIX,
                     route=PanelRef("games.hub"),
                     audience_tier="user", capability="games",
                     summary="Open the Games hub — competitive games and "
                             "channel activities.",
-                    usage="!games | /games"),
+                    usage="!games"),
+        # the shipped /games answered type-4 direct WITH flags 64
+        # (goldens/games/sweep_slash_games) — slash+PanelRef resolves
+        # DeferMode.NONE (trap 26) and the declared EPHEMERAL rides the
+        # type-4 data (the community slash-twin precedent); an ephemeral
+        # interaction returns no message_ref ⇒ no panel_anchors row.
+        CommandSpec(name="games", kind=CommandKind.SLASH,
+                    route=PanelRef("games.hub"),
+                    reply_visibility=ReplyVisibility.EPHEMERAL,
+                    audience_tier="user", capability="games",
+                    summary="Open the Games hub — competitive games and "
+                            "channel activities.",
+                    usage="/games"),
         CommandSpec(name="world", kind=CommandKind.PREFIX,
                     route=PanelRef("games.world"),
                     audience_tier="user", capability="games",
@@ -81,7 +94,7 @@ MANIFEST = SubsystemManifest(
                     usage="!world"),
         CommandSpec(name="worldcard", kind=CommandKind.PREFIX,
                     aliases=("mystats",),
-                    route=HandlerRef("games.world_card_view"),
+                    route=PanelRef("games.world_card"),
                     audience_tier="user", capability="games",
                     summary="Show your cross-game world card — global "
                             "level + per-game standing.",
