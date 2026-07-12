@@ -42,11 +42,33 @@ from sb.spec.panels import (
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
 from sb.spec.refs import HandlerRef, PanelRef, is_registered, panel
 
-__all__ = ["btd6_hub_spec", "ensure_panel_refs", "install_btd6_panels"]
+__all__ = [
+    "btd6_hub_spec",
+    "ensure_panel_refs",
+    "install_btd6_panels",
+    "paragon_spec",
+]
+
+# --- paragon calculator landing panel (shipped views/btd6/paragon_view.py
+# ParagonCalculatorView + build_calculator_embed @7f7628e1) -------------------
+#: the live web Paragon Calculator + its Discord author credit (shipped
+#: services/paragon_service.CALCULATOR_PUBLIC_URL / CALCULATOR_AUTHOR_NAME).
+_PARAGON_CALC_URL = "https://paragon-calc.vercel.app/"
+_PARAGON_CALC_AUTHOR = "notausgang0341"
+_DEFAULT_PARAGON = "apex_plasma_master"
+#: (value, label) difficulty rows in the shipped select order.
+_PARAGON_DIFFICULTIES = (
+    ("easy", "Easy (0.85x)"),
+    ("medium", "Medium (1.0x)"),
+    ("hard", "Hard (1.08x)"),
+    ("impoppable", "Impoppable (1.2x)"),
+)
 
 ASK_MODAL = ModalSpec(
     modal_id="btd6.ask_form",
@@ -289,6 +311,126 @@ def ctteam_spec() -> PanelSpec:
     )
 
 
+def _paragon_options() -> tuple[dict, ...]:
+    from sb.domain.btd6 import paragon_math
+
+    return tuple(
+        {"label": p.name[:100], "value": p.paragon_id,
+         "description": p.tower[:100],
+         "default": p.paragon_id == _DEFAULT_PARAGON}
+        for p in paragon_math.PARAGONS
+    )
+
+
+def _tier5_options() -> tuple[dict, ...]:
+    from sb.domain.btd6 import paragon_math
+
+    # the default landing state (solo Dart) — the shipped _Tier5Select bounds
+    # its options by ``max_extra_t5_count`` for the current mode/paragon.
+    limit = paragon_math.max_extra_t5_count(
+        paragon_math.game_mode_for(1), is_dart=True)
+    return tuple(
+        {"label": f"{n} extra T5", "value": str(n), "default": n == 0}
+        for n in range(0, max(limit, 0) + 1)
+    )
+
+
+def paragon_spec() -> PanelSpec:
+    """The BTD6 Paragon calculator landing panel (`!paragon`) — the shipped
+    ParagonCalculatorView + build_calculator_embed, byte-for-byte
+    (goldens/btd6/sweep_paragon).
+
+    Roster / players / difficulty / extra-T5 selectors on the shipped default
+    state (Apex Plasma Master · solo · Medium · 0 extra T5) plus the button
+    row (🧮 Calculate · 🎯 Requirements · 📊 Stats · ↩ BTD6 · 🌐 Web
+    calculator LINK). The degree solver + reverse requirements solver + live
+    web-calc reconciliation are a NAMED SUCCESSOR PORT (D-0046): the compute
+    buttons + selectors land on the ``btd6.paragon_pending`` terminal, the
+    ↩ BTD6 button opens the hub, and the golden exercises the initial open
+    only. A session view (never anchored; minted 32-hex ids the Normalizer
+    symbolizes as <cid:N>)."""
+    players = tuple(
+        {"label": "Solo (1 player)" if n == 1 else f"Co-op ({n} players)",
+         "value": str(n), "default": n == 1}
+        for n in (1, 2, 3, 4)
+    )
+    difficulties = tuple(
+        {"label": label, "value": value, "default": value == "medium"}
+        for value, label in _PARAGON_DIFFICULTIES
+    )
+    return PanelSpec(
+        panel_id="btd6.paragon",
+        subsystem="btd6",
+        title="🔮 Paragon Calculator",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="green", footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="paragon", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_pending"),
+                options_source=_paragon_options(),
+                placeholder="Choose a paragon…", audience_tier="user"),
+            SelectorSpec(
+                selector_id="players", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_pending"),
+                options_source=players,
+                placeholder="Players…", audience_tier="user"),
+            SelectorSpec(
+                selector_id="difficulty", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_pending"),
+                options_source=difficulties,
+                placeholder="Difficulty…", audience_tier="user"),
+            SelectorSpec(
+                selector_id="tier5", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_pending"),
+                options_source=_tier5_options(),
+                placeholder="Extra T5s…", audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="calc", label="🧮 Calculate degree",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_pending"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="requirements", label="🎯 Requirements",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_pending"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="stats", label="📊 Stats",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_pending"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="back", label="↩ BTD6",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef("btd6.hub"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_paragon"),
+        justification=(
+            "the shipped paragon landing embed carries an arbitrary footer "
+            "('Solo: 1 extra T5 (Dart only) · Co-op: up to 9 · totems are "
+            "uncapped') and three STATIC fields — both outside FooterMode "
+            "and the block grammar's provider-fed field vocabulary — and the "
+            "component row mixes a LINK button (🌐 Web calculator, no "
+            "custom_id) with the session's minted dispatch ids. The override "
+            "delegates the roster/players/difficulty/extra-T5 selectors + the "
+            "four dispatch buttons to the grammar renderer, replaces ONLY the "
+            "embed, and injects the link button (goldens/btd6/sweep_paragon "
+            "pins every byte)."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("paragon",),
+            ("players",),
+            ("difficulty",),
+            ("tier5",),
+            ("calc", "requirements", "stats", "back"),)),)),
+    )
+
+
 # --- renderer overrides ------------------------------------------------------
 
 
@@ -299,6 +441,55 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
 
     rendered = await render_panel(spec, ctx)
     return _dc_replace(rendered, embed=oracle_cards.hub_card())
+
+
+async def _render_paragon(spec: PanelSpec, ctx) -> object:
+    """Grammar-rendered selectors/buttons + the shipped landing embed +
+    the injected 🌐 Web calculator LINK button (the shipped
+    build_calculator_embed default state: Apex Plasma Master · solo ·
+    Medium · 0 extra T5)."""
+    from sb.domain.btd6 import paragon_math
+    from sb.kernel.panels.render import (
+        RenderedComponent,
+        RenderedEmbed,
+        render_panel,
+    )
+
+    rendered = await render_panel(spec, ctx)
+    paragon = paragon_math.resolve_paragon(_DEFAULT_PARAGON)
+    name = paragon.name if paragon else _DEFAULT_PARAGON
+    tower = paragon.tower if paragon else ""
+    player_count = 1
+    difficulty = "medium"
+    tier5_count = 0
+    mode = paragon_math.game_mode_for(player_count)
+    embed = RenderedEmbed(
+        title=f"🔮 Paragon Calculator — {name}",
+        description=(
+            f"**Paragon:** {name} ({tower})\n"
+            f"**Players:** {player_count} ({mode})\n"
+            f"**Difficulty:** {difficulty.title()}\n"
+            f"**Extra T5s:** {tier5_count}"),
+        fields=(
+            ("🧮 Calculate degree",
+             "Enter your pops / cash / tiers / totems to see the degree "
+             "you'd get."),
+            ("🎯 Requirements for a degree",
+             "Pick a strategy and a target degree to get a recommended "
+             "build."),
+            ("🔗 Web calculator & credits",
+             f"[paragon-calc.vercel.app]({_PARAGON_CALC_URL}) — built by "
+             f"**{_PARAGON_CALC_AUTHOR}**"),
+        ),
+        footer="Solo: 1 extra T5 (Dart only) · Co-op: up to 9 · totems "
+               "are uncapped",
+        style_token="green",
+    )
+    link = RenderedComponent(
+        kind="button", custom_id="", label="🌐 Web calculator", row=4,
+        style=ActionStyle.LINK.value, url=_PARAGON_CALC_URL)
+    return _dc_replace(rendered, embed=embed,
+                       components=rendered.components + (link,))
 
 
 async def _render_card(spec: PanelSpec, ctx) -> object:
@@ -340,12 +531,14 @@ _SPECS = {
     "btd6.card": card_spec,
     "btd6.ctteam": ctteam_spec,
     "btd6.strategy_submit": strategy_submit_spec,
+    "btd6.paragon": paragon_spec,
 }
 
 _RENDERERS = {
     "btd6.render_hub": _render_hub,
     "btd6.render_card": _render_card,
     "btd6.render_ctteam": _render_ctteam,
+    "btd6.render_paragon": _render_paragon,
 }
 
 

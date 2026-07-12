@@ -115,7 +115,7 @@ def test_text_edit_click_issues_the_text_form(skeleton, engine_recorder):
 
 def test_text_submit_writes_and_speaks_shipped_ack(skeleton, engine_recorder):
     """TextSettingModal.on_submit's ack, verbatim: ``✅ Updated
-    `ai.<key>` = `<new>`.`` (no "(was …)" on the text form) — the
+    `<key>` = `<new>`.`` (no "(was …)" on the text form) — the
     `setting` param arrives through the kernel modal-args stash."""
     payload = _open_widget(skeleton, "ai_guild_instruction_profile",
                            message_id=912)
@@ -128,7 +128,7 @@ def test_text_submit_writes_and_speaks_shipped_ack(skeleton, engine_recorder):
                               persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"] == (
-        "✅ Updated `ai.ai_guild_instruction_profile` = `'focused_helper'`.")
+        "✅ Updated `ai_guild_instruction_profile` = `'focused_helper'`.")
     (op_name, params), = engine_recorder.calls
     assert op_name == "settings.set_scalar"
     assert params["key"] == "ai_guild_instruction_profile"
@@ -148,7 +148,7 @@ def test_text_submit_empty_writes_empty_string(skeleton, engine_recorder):
                               fields={"new_value": ""}, persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"] == (
-        "✅ Updated `ai.ai_default_model` = `''`.")
+        "✅ Updated `ai_default_model` = `''`.")
     (_, params), = engine_recorder.calls
     assert params["value"] == ""
 
@@ -156,7 +156,7 @@ def test_text_submit_empty_writes_empty_string(skeleton, engine_recorder):
 def test_override_submit_writes_with_in_transaction_prior(skeleton,
                                                           engine_recorder):
     """NumberSettingModal.on_submit's ack, verbatim: ``✅ Updated
-    `ai.<key>` = `<new>` (was `<old>`).`` — the prior derives from the
+    `<key>` = `<new>` (was `<old>`).`` — the prior derives from the
     write leg's IN-TRANSACTION LegOutcome.before (the #160 codex-P3
     posture, shared by the armed free-form write)."""
     engine_recorder.prior["write_scalar"] = {"value": "120"}
@@ -174,7 +174,7 @@ def test_override_submit_writes_with_in_transaction_prior(skeleton,
                               persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"] == (
-        "✅ Updated `ai.ai_cooldown_seconds` = `45` (was `120`).")
+        "✅ Updated `ai_cooldown_seconds` = `45` (was `120`).")
     (_, params), = engine_recorder.calls
     assert params["key"] == "ai_cooldown_seconds"
     assert params["value"] == "45"
@@ -197,7 +197,7 @@ def test_override_submit_refuses_uncoercible_value(skeleton, engine_recorder):
                               persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"].startswith(
-        "❌ Couldn't update `ai.ai_minimum_level_default`: cannot coerce "
+        "❌ Couldn't update `ai_minimum_level_default`: cannot coerce "
         "value='banana' to int")
     assert engine_recorder.calls == []
 
@@ -220,7 +220,7 @@ def test_override_submit_refuses_out_of_bounds_value(skeleton,
                               persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"].startswith(
-        "❌ Couldn't update `ai.ai_cooldown_seconds`: cannot coerce "
+        "❌ Couldn't update `ai_cooldown_seconds`: cannot coerce "
         "value='999999' to int")
     assert engine_recorder.calls == []
 
@@ -234,7 +234,7 @@ def test_submit_without_open_hits_unknown_setting_guard(skeleton,
                               custom_id="ai.settings_number_form",
                               fields={"new_value": "5"}, persona="admin"))
     calls = skeleton.take_calls()
-    assert calls[-1].payload["content"] == "❌ Unknown setting `ai.`."
+    assert calls[-1].payload["content"] == "❌ Unknown setting ``."
     assert engine_recorder.calls == []
 
 
@@ -305,14 +305,14 @@ def test_two_concurrent_opens_stay_isolated(skeleton, engine_recorder):
                               fields={"new_value": "60"}, persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"].startswith(
-        "✅ Updated `ai.ai_cooldown_seconds` = `60`")
+        "✅ Updated `ai_cooldown_seconds` = `60`")
     # the newer open's stash is untouched — its submit still writes ITS key.
     run(skeleton.modal_submit(message_id=933,
                               custom_id="ai.settings_number_form",
                               fields={"new_value": "3"}, persona="admin"))
     calls = skeleton.take_calls()
     assert calls[-1].payload["content"].startswith(
-        "✅ Updated `ai.ai_minimum_level_default` = `3`")
+        "✅ Updated `ai_minimum_level_default` = `3`")
     assert [(params["key"]) for _, params in engine_recorder.calls] == [
         "ai_cooldown_seconds", "ai_minimum_level_default"]
 

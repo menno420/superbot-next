@@ -1,0 +1,413 @@
+{
+ "case_id": "creature.battle_accept",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    },
+    {
+     "actor_id": "<@second_member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "battle",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "creature_battle_recorded",
+     "new_value": {
+      "battle": {
+       "leveled_up": false,
+       "loser": "<@second_member>",
+       "new_level": 0,
+       "winner": "<@member>",
+       "xp_amount": 6
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "battle": {}
+     },
+     "scope": "guild",
+     "subsystem": "creature",
+     "target": "creature.record_battle_result"
+    }
+   ]
+  },
+  "creature_battle_record": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_battle": 2057761238,
+     "losses": 0,
+     "user_id": "<@member>",
+     "wins": 1
+    },
+    {
+     "guild_id": "<guild>",
+     "last_battle": 2057761238,
+     "losses": 1,
+     "user_id": "<@second_member>",
+     "wins": 0
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@second_member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "creature_battle_recorded",
+      "new_value": {
+       "battle": {
+        "leveled_up": false,
+        "loser": "<@second_member>",
+        "new_level": 0,
+        "winner": "<@member>",
+        "xp_amount": 6
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "battle": {}
+      },
+      "scope": "guild",
+      "subsystem": "creature",
+      "target": "creature.record_battle_result"
+     },
+     "status": "pending"
+    },
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "game_xp": {
+   "added": [
+    {
+     "day": "<ts>",
+     "day_xp": 6,
+     "game": "creature",
+     "guild_id": "<guild>",
+     "updated_at": "<ts>",
+     "user_id": "<@member>",
+     "xp": 6
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2057761208,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "challenge -> Accept auto-resolves the 6v6 and records the W/L pair + battle-win game-xp (creature.record_battle_result)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⚔️"
+          },
+          "label": "Accept",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "❌"
+          },
+          "label": "Decline",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": "<@<@second_member>> — <@<@member>> challenges you to a creature battle! Teams are level-normalized; your collection and type matchups decide it.",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "cbattle",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!cbattle <@900000000000000103>",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "⚔️"
+          },
+          "label": "Accept",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": true,
+          "emoji": {
+           "id": null,
+           "name": "❌"
+          },
+          "label": "Decline",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "<@<@member>> vs <@<@second_member>>\n*Teams are level-normalized — type matchups and your collection decide it.*",
+        "fields": [
+         {
+          "inline": true,
+          "name": "MemberActor's team",
+          "value": "💀 🔥 Cindling\n💀 🌊 Rippling\n💀 🌿 Sproutle\n⚡ Voltkit\n🪨 Pebblet\n🌪️ Zephyrl"
+         },
+         {
+          "inline": true,
+          "name": "OtherActor's team",
+          "value": "💀 🔥 Emberpaw\n💀 🌊 Splashfin\n💀 🌿 Thornkit\n💀 ⚡ Sparkpup\n💀 🪨 Gravelpup\n💀 🌪️ Gustling"
+         },
+         {
+          "inline": false,
+          "name": "Highlights",
+          "value": "💥 **Cindling** took down **Emberpaw**\n💥 **Splashfin** took down **Cindling**\n💥 **Rippling** took down **Splashfin**\n💥 **Thornkit** took down **Rippling**\n💥 **Sproutle** took down **Thornkit**\n💥 **Sproutle** took down **Sparkpup**\n💥 **Gravelpup** took down **Sproutle**\n💥 **Voltkit** took down **Gravelpup**\n💥 **Voltkit** took down **Gustling**"
+         },
+         {
+          "inline": false,
+          "name": "Winner",
+          "value": "🏆 <@<@member>>"
+         },
+         {
+          "inline": false,
+          "name": "Records",
+          "value": "MemberActor — **1**W · **0**L\nOtherActor — **0**W · **1**L"
+         }
+        ],
+        "flags": 0,
+        "title": "⚔️ Creature Battle",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@second_member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "creature.challenge.cbattle_accept",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "component"
+     }
+    },
+    {
+     "event": "game_xp.awarded",
+     "payload": {
+      "action": "battle_win",
+      "amount": 6,
+      "game": "creature",
+      "guild_id": "<guild>",
+      "total": 6,
+      "user_id": "<@second_member>"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "second_member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "creature"
+}

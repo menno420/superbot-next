@@ -25,11 +25,14 @@ from dataclasses import dataclass, field
 
 __all__ = [
     "BIG_BLIND",
+    "GAME_TIMEOUT",
+    "LOBBY_TIMEOUT",
     "MAX_SEATS",
     "MIN_PLAYERS",
     "PokerLobby",
     "SMALL_BLIND",
     "START_STACK",
+    "TURN_SECONDS",
     "close_table",
     "get_table",
     "launch_table",
@@ -45,6 +48,12 @@ START_STACK = 1000
 SMALL_BLIND = 5
 BIG_BLIND = 10
 LOBBY_TIMEOUT = 600
+# disbot/views/casino/poker_table.py play-layer constants, verbatim: the
+# per-turn idle window (auto-check-or-fold at 90 s) and the whole-hand
+# safety timeout (1800 s). Absent from the lobby-only port; carried here
+# for the play layer (the seat-view idle sweep + the game-view TTL).
+TURN_SECONDS = 90
+GAME_TIMEOUT = 1800
 
 
 @dataclass

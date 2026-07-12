@@ -2,13 +2,19 @@
 `UnifiedInventoryView` hub (one button per category → a category detail
 panel) over the coupled item namespace, all through the declarative grammar.
 
-Detail panels render the shipped default view: the invoker's items in that
-category, rarity-grouped rarest-first (the unit-pinned pure cores in
-sb/domain/inventory/service.py). The shipped INTERACTIVE re-sort / type
-filter / page cycle are DECLARED as ListSpec sort/filter options — the
-grammar's §2.3 "one shared BrowserView engine" interprets them when it
-lands (named successor work, K8 kernel; D-0034): declared data today,
-honest static default view until the engine arms."""
+Detail panels open on the shipped default view — the invoker's items in that
+category, rarest-first (the unit-pinned pure cores in
+sb/domain/inventory/service.py) — with the shipped INTERACTIVE re-sort / type
+filter / page cycle now LIVE: the detail ListSpec DECLARES the browse algebra
+(sort_options rarity / -quantity / name, per-type filter_options, the shipped
+8-per-page detail slice) and the grammar's §2.3 "one shared BrowserView
+engine" (K8 kernel; D-0034) interprets it. The detail provider emits browse
+ROWS (service.inventory_row) the engine sorts/filters/paginates; the engine
+arms the controls on open (render_panel's browse hook). One presentation
+deviation from the oracle's bespoke view rides the generic engine: it renders
+a flat sorted list (rarity tag appended per line) with SELECT sort/filter
+controls + a page indicator, not the oracle's per-tier grouped headers and
+cycling sort BUTTON — an owner presentation hand-pass, not a data change."""
 
 from __future__ import annotations
 
@@ -100,8 +106,13 @@ def _ensure_line_renderer() -> HandlerRef:
     if not is_registered(ref):
         @handler(_LINE_RENDERER)
         def render_line(item: object) -> str:
-            # the detail providers emit pre-rendered lines (headers + the
-            # shipped item lines) — identity keeps the engine's bullet off.
+            # the detail providers emit browse ROWS (service.inventory_row) —
+            # the engine sorts/filters/paginates them and renders each through
+            # THIS ref; the shipped display line rides on the row's ``_line``
+            # key (identity keeps the engine's bullet off). A bare string (a
+            # pre-engine caller) still renders verbatim.
+            if isinstance(item, dict):
+                return str(item.get("_line", ""))
             return str(item)
     return ref
 
@@ -139,12 +150,12 @@ def _ensure_detail_provider(category: str) -> ProviderRef:
             items = grouped.get(_category, [])
             if not items:
                 return ()
-            lines: list[str] = []
-            for tier, tier_lines in service.group_by_rarity(
-                    service.sort_items(items, "rarity")):
-                lines.append(f"__{tier} ({len(tier_lines)})__")
-                lines.extend(tier_lines)
-            return tuple(lines)
+            # emit browse ROWS pre-sorted by item key: the engine's STABLE
+            # sort then breaks every tie alpha-by-key — the shipped "alpha
+            # within a tier" (rarity mode) / "alpha within a quantity"
+            # (-quantity mode) order, and the name mode itself.
+            return tuple(service.inventory_row(key, qty, meta)
+                         for key, qty, meta in sorted(items, key=lambda x: x[0]))
     return ref
 
 
@@ -224,10 +235,15 @@ def category_detail_specs() -> tuple[PanelSpec, ...]:
             body=(
                 ListBlock(
                     list_spec=ListSpec(
+                        # the shipped _PER_PAGE detail slice (the engine
+                        # paginates flat rows, so no header budget is needed);
+                        # -quantity = the shipped highest-first quantity sort
+                        # (the engine's declared descending marker — the option
+                        # LABEL and SET are the shipped rarity/quantity/name).
                         item_render_ref=_ensure_line_renderer(),
-                        page_size=12,      # 8 shipped items + rarity headers
+                        page_size=8,
                         empty_state="Nothing here.",
-                        sort_options=("rarity", "quantity", "name"),
+                        sort_options=("rarity", "-quantity", "name"),
                         filter_options=_category_types(cat),
                         default_sort="rarity"),
                     provider=_ensure_detail_provider(cat)),

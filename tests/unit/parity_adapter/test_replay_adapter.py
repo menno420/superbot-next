@@ -31,22 +31,26 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (468/468) — curated
+    """Every golden on disk yields a replayable case (470/470) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
-    minted kernel-band cases − 3 retired: sweep_cog.json, the deploy-ops
-    `!cog` capture, plus sweep_query_logs.json / sweep_recent_errors.json,
-    the run-order-dependent log-ring captures — each retired to the
-    _sweep_skips entry it always belonged under — parity.yml
-    source.retired_goldens)."""
+    minted kernel-band cases + the 1 minted casino poker play-layer case
+    − 3 retired: sweep_cog.json, the deploy-ops `!cog` capture, plus
+    sweep_query_logs.json / sweep_recent_errors.json, the run-order-dependent
+    log-ring captures — each retired to the _sweep_skips entry it always
+    belonged under — parity.yml source.retired_goldens)."""
     from sb.adapters.parity.cases import load_replay_cases
 
     cases = load_replay_cases(GOLDENS_ROOT)
     golden_count = sum(1 for _ in GOLDENS_ROOT.glob("*/*.json"))
     # 465 imported (parity.yml source pin) + 2 minted (D-0073) + 4 (D-0075)
-    # − 3 retired (sweep_cog.json + sweep_query_logs.json +
-    # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 468
+    # + 1 (D-0079 creature battle) − 3 retired (sweep_cog.json +
+    # sweep_query_logs.json + sweep_recent_errors.json — parity.yml
+    # source.retired_goldens)
+    # + 1 minted casino poker play-layer (D-0073 procedure) − 3 retired
+    # (sweep_cog.json + sweep_query_logs.json + sweep_recent_errors.json —
+    # parity.yml source.retired_goldens)
+    assert golden_count == 470
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
