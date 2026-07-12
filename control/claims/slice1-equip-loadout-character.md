@@ -1,0 +1,1 @@
+- `slice1-equip-loadout-character` · **mining slice-1 port** — equip/unequip/gear/loadout/character → real handlers + EffectiveStats/skills/wear/loadout stores + migrations 0039-0042; re-home 5 `_unmapped` sweeps into gated `mining` · area: sb/domain/mining/, sb/manifest/mining.py, migrations/, parity/ · 2026-07-12
