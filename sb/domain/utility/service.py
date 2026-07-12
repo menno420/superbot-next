@@ -45,6 +45,13 @@ class GuildInfo:
     (``guild.member_count`` + per-member bot flags), so the split rides
     this port rather than a new seam (humans = member_count - bots).
     Defaulted for directories that predate the field.
+
+    ``online_members`` / ``roles`` joined at the admin serverstats
+    re-home — the shipped ``!serverstats`` census (admin_cog.py
+    ``server_stats``: ``sum(m.status != offline for m in guild.members)``
+    and ``len(guild.roles)``) reads the same cache, so both ride this
+    port too (goldens/admin/sweep_serverstats pins the values).
+    Defaulted for directories that predate the fields.
     """
 
     name: str
@@ -55,6 +62,8 @@ class GuildInfo:
     text_channels: int
     voice_channels: int
     bots: int = 0
+    online_members: int = 0
+    roles: int = 0
 
 
 @dataclass(frozen=True)

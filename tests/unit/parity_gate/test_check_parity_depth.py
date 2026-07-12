@@ -34,9 +34,11 @@ class TestImportedCorpus:
     def test_corpus_golden_count(self):
         # 465 imported at the source pin + 2 minted modal-submit goldens
         # (D-0073) + 4 minted kernel-band goldens (D-0075;
-        # parity.yml source.minted_goldens).
+        # parity.yml source.minted_goldens) − 1 retired (sweep_cog.json,
+        # the deploy-ops `!cog` capture — parity.yml
+        # source.retired_goldens, the 2026-07-12 corpus ruling).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 471
+        assert len(goldens) == 470
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -58,6 +60,10 @@ class TestImportedCorpus:
         assert source["goldens"] == 465     # the IMPORT pin (verbatim corpus)
         # 2 D-0073 modal-submit mints + 4 D-0075 kernel-band mints
         assert source["minted_goldens"] == 6
+        # sweep_cog.json (the deploy-ops `!cog` capture — the 2026-07-12
+        # corpus ruling; the `_sweep_skips.json` "cog" entry closes the
+        # class's one leak past the capture skip list)
+        assert source["retired_goldens"] == 1
 
 
 # ----------------------------------------------------- real-tree gate state
@@ -575,7 +581,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "471 goldens" in out
+        assert "470 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

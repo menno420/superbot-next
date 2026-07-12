@@ -1,5 +1,81 @@
 {
  "entries": {
+  "admin:admin.cogmgr:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the sweep_coglist re-home carries the shipped CogManagerView ordering/grouping as the seed arrangement (goldens/admin/sweep_coglist pins the four component rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "cogmgr_select"
+      ],
+      [
+       "cogmgr_load",
+       "cogmgr_unload",
+       "cogmgr_reload"
+      ],
+      [
+       "cogmgr_refresh"
+      ],
+      [
+       "cogmgr_prev",
+       "cogmgr_next"
+      ]
+     ]
+    }
+   ]
+  },
+  "admin:admin.cogmgr:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the sweep_coglist re-home carries the shipped CogManagerView ordering/grouping as the seed arrangement (goldens/admin/sweep_coglist pins the four component rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "cogmgr_select"
+    ],
+    [
+     "cogmgr_load",
+     "cogmgr_unload",
+     "cogmgr_reload"
+    ],
+    [
+     "cogmgr_refresh"
+    ],
+    [
+     "cogmgr_prev",
+     "cogmgr_next"
+    ]
+   ]
+  },
+  "admin:admin.cogmgr:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the sweep_coglist re-home carries the shipped CogManagerView ordering/grouping as the seed arrangement (goldens/admin/sweep_coglist pins the four component rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "cogmgr_select"
+       ],
+       [
+        "cogmgr_load",
+        "cogmgr_unload",
+        "cogmgr_reload"
+       ],
+       [
+        "cogmgr_refresh"
+       ],
+       [
+        "cogmgr_prev",
+        "cogmgr_next"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "admin:admin.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: admin parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

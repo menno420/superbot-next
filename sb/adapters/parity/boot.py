@@ -150,6 +150,15 @@ class _WorldGuildDirectory:
             # (world GUILD_CREATE: the 3 personas are humans) —
             # goldens/counters pins Members: 4 / Humans: 3 / Bots: 1.
             bots=1,
+            # The capture harness sent no presence data, so every member
+            # read discord.py's default Status.offline — the shipped
+            # `sum(m.status != offline)` census counted 0
+            # (goldens/admin/sweep_serverstats pins "Online Members: 0").
+            online_members=0,
+            # world._guild_payload carries exactly @everyone + the Admin
+            # role — the shipped `len(guild.roles)` read saw 2
+            # (goldens/admin/sweep_serverstats pins "Roles: 2").
+            roles=2,
         )
 
     async def member_info(self, guild_id: int, user_id: int):

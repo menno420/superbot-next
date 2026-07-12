@@ -1,12 +1,16 @@
-"""ADMIN subsystem manifest (band 2 + the parity flip) — the shipped
-``_AdminPanelView`` Server & Admin hub (sb/domain/admin/panels.py —
-goldens/admin/ pins every wire byte on both surfaces) over the band-2
-operator reads (manifest registry, log levels, K5 lifecycle). NOT ported
-(deploy-ops, no compiled-architecture analog — D-0030): cog / loadall /
-unloadall / syncslash (all capture-skipped in _sweep_skips.json)."""
+"""ADMIN subsystem manifest (band 2 + the parity flip + the wave-9
+re-homes) — the shipped ``_AdminPanelView`` Server & Admin hub, the
+``!coglist`` Cog Manager view and the ``!serverstats`` census card
+(sb/domain/admin/panels.py + cogmgr.py — goldens/admin/ pins every wire
+byte) over the band-2 operator reads (manifest registry, log levels, K5
+lifecycle). NOT ported (deploy-ops, no compiled-architecture analog —
+D-0030): cog / loadall / unloadall / syncslash (all capture-skipped in
+_sweep_skips.json; sweep_cog.json retired with the skip entry, 471→470
+corpus ruling 2026-07-12)."""
 
 from __future__ import annotations
 
+from sb.domain.admin import cogmgr as _cogmgr
 from sb.domain.admin import handlers as _handlers
 from sb.domain.admin import panels as _panels
 from sb.spec.commands import CommandKind, CommandSpec
@@ -30,8 +34,11 @@ MANIFEST = SubsystemManifest(
              kind=CommandKind.BOTH),
         _cmd("serverstats", HandlerRef("admin.serverstats_view"),
              "Guild census stats."),
-        _cmd("coglist", HandlerRef("admin.subsystems_view"),
-             "List loaded subsystems (the manifest registry).",
+        # the shipped `!coglist` opened the interactive Cog Manager view
+        # ("the panel's 📋 Cog List button" — admin_cog.py help text;
+        # goldens/admin/sweep_coglist pins the open bytes).
+        _cmd("coglist", PanelRef("admin.cogmgr"),
+             "Open the interactive cog manager.",
              aliases=("cogs", "listcogs", "cogslist")),
         _cmd("slashes", HandlerRef("admin.slash_inventory"),
              "List the declared slash surface.", aliases=("slashlist",)),
@@ -40,7 +47,8 @@ MANIFEST = SubsystemManifest(
         _cmd("restart", HandlerRef("admin.restart"),
              "Request a drain + restart (K5 lifecycle)."),
     ),
-    panels=(_panels.admin_hub_spec(),),
+    panels=(_panels.admin_hub_spec(), _panels.server_stats_spec(),
+            _cogmgr.cogmgr_spec()),
     settings=(),
     stores=(),
     events=(),
@@ -51,6 +59,7 @@ MANIFEST = SubsystemManifest(
 def _ensure_refs() -> None:
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
+    _cogmgr.ensure_cogmgr_refs()
 
 
 ENSURE_REFS = _ensure_refs

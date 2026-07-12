@@ -8,7 +8,7 @@ from sb.domain.counters import panels as _panels
 from sb.domain.operator_spine import ensure_hub, hub_spec, pending_handler
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
-from sb.spec.refs import PanelRef
+from sb.spec.refs import HandlerRef, PanelRef
 from sb.spec.settings import Activation, BindingKind, BindingSpec, SettingSpec
 
 _TITLE, _BLURB = "Server counters", ("Live member-count channels "
@@ -61,12 +61,19 @@ MANIFEST = SubsystemManifest(
                     summary="Show the current server-counters policy "
                             "for this server.",
                     capability="counters"),
+        # the shipped `!counterpreset [name]` split: no name lists the
+        # curated catalog (goldens/counters/sweep_counterpreset pins the
+        # card); a name applied all three templates through the audited
+        # settings pipeline — that write path stays on the pending
+        # terminal (sb/domain/counters/panels.py `_preset_view`).
         CommandSpec(name="counterpreset", kind=CommandKind.PREFIX,
-                    route=_PENDING,
-                    summary="Apply a counter preset (port-armed later).",
+                    route=HandlerRef("counters.preset_view"),
+                    summary="List or apply a counter name-template "
+                            "preset.",
                     capability="counters"),
     ),
-    panels=(hub_spec("counters", _TITLE, _BLURB), _panels.status_spec()),
+    panels=(hub_spec("counters", _TITLE, _BLURB), _panels.status_spec(),
+            _panels.presets_spec()),
     settings=_SETTINGS,
     stores=(), events=(), capabilities=(),
 )
