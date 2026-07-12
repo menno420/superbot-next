@@ -172,6 +172,49 @@ def test_minted_refs_renumber_after_drops():
     assert _diff_docs(apply_dispositions(golden), apply_dispositions(fresh)) != []
 
 
+def test_kernel_band_docs_keep_the_kernel_spine_surfaces():
+    """KERNEL-BAND documents (subsystem == "kernel" — the parity.yml kernel
+    coverage home's own minted goldens, D-0075) skip the kernel-surface-drift
+    drop: their whole point is to PIN audit_log / event_outbox /
+    command.dispatched so kernel drift goes red somewhere. The other ruled
+    classes still apply to them."""
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    doc = _doc()
+    doc["subsystem"] = "kernel"
+    out = apply_dispositions(doc)
+    # the spine surfaces SURVIVE (tables, events, and the ledger column)
+    assert "audit_log" in out["db_delta"]
+    assert "event_outbox" in out["db_delta"]
+    events = [e["event"] for e in out["steps"][0]["events"]]
+    assert "command.dispatched" in events
+    row = out["db_delta"]["economy_audit_log"]["added"][0]
+    assert row["mutation_id"] == "<uuid>"
+    # the OTHER ruled dispositions still apply (symmetric, band-independent)
+    assert out["db_delta"]["xp"]["added"] == [{"user_id": "<@admin>", "xp": 25}]
+    assert "economy_balances" not in out["db_delta"]
+    methods = [c["method"] for c in out["steps"][0]["calls"]]
+    assert methods == ["send_message", "delete_message"]
+
+
+def test_kernel_band_drift_reds_what_domain_band_absorbs():
+    """The tripwire semantics: an audit-verb change diffs on the kernel
+    band and is disposition-inert on a domain band."""
+    from parity.harness.runner import _diff_docs
+
+    from sb.adapters.parity.dispositions import apply_dispositions
+
+    golden = _doc()
+    drifted = _doc()
+    drifted["db_delta"]["audit_log"]["added"][0]["verb"] = "y"
+    assert _diff_docs(apply_dispositions(golden),
+                      apply_dispositions(drifted)) == []
+    golden["subsystem"] = "kernel"
+    drifted["subsystem"] = "kernel"
+    assert _diff_docs(apply_dispositions(golden),
+                      apply_dispositions(drifted)) != []
+
+
 def test_dispositions_load_from_parity_yml():
     from sb.adapters.parity.dispositions import load_dispositions
 

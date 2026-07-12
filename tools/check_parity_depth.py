@@ -22,6 +22,14 @@ Enforced invariants (red = exit 1):
       `depth.ratchet` may not be `pending` unless it never flipped (ratchet
       rows are minted at the flip, so ratchet-row + pending = a reverted flip).
 
+The KERNEL coverage home (A-16 clause 3, parity.yml `kernel:` section) rides
+the same four rules as a pseudo-subsystem (D-0075): `parity/goldens/kernel/`
+is ITS golden dir (never a `subsystems` row — kernel is owned by no port
+band's manifest), its declared surfaces are the kernel section's own
+`events`/`tables` lists (data, not the manifest snapshot — the checker stays
+DB-free), exemptions/ratchet live under the ordinary `depth.*` keys with the
+`kernel` key, and `kernel.status` is the same one-way pending|ported door.
+
 `--write-ratchet` regenerates `depth.ratchet` rows for ported subsystems
 (upward only) — run it in the same PR that adds coverage. The write is a
 TEXT SPLICE: only the machine-minted `depth.ratchet` block is rewritten;
@@ -135,6 +143,8 @@ def check(
 ) -> list[str]:
     problems: list[str] = []
     subsystems: dict[str, str] = parity.get("subsystems") or {}
+    kernel: dict = parity.get("kernel") or {}
+    kernel_status = kernel.get("status")
     depth: dict = parity.get("depth") or {}
     reason_classes: list[str] = depth.get("reason_classes") or []
     ratchet: dict = depth.get("ratchet") or {}
@@ -145,9 +155,20 @@ def check(
             problems.append(
                 f"R1 {name}: status {status!r} not in {STATUSES}"
             )
+    if kernel and kernel_status not in STATUSES:
+        problems.append(
+            f"R1 kernel: status {kernel_status!r} not in {STATUSES}"
+        )
     golden_dirs = set(docs_by_subsystem)
     listed = set(subsystems)
-    for missing in sorted(golden_dirs - listed):
+    # parity/goldens/kernel/ is the KERNEL coverage home's dir (D-0075) —
+    # legal iff the `kernel:` section exists, never a `subsystems` row.
+    if "kernel" in golden_dirs and not kernel:
+        problems.append(
+            "R1 parity/goldens/kernel/ exists but parity.yml has no "
+            "`kernel:` coverage-home section"
+        )
+    for missing in sorted(golden_dirs - listed - {"kernel"}):
         problems.append(
             f"R1 parity/goldens/{missing}/ exists but has no subsystems row"
         )
@@ -199,6 +220,30 @@ def check(
                         f"neither exercised by a golden nor exempt"
                     )
 
+    # R2 (kernel) — floor at the kernel flip: the declared surfaces are the
+    # kernel section's OWN events/tables lists (A-16 clause 3 — the coverage
+    # obligation lives in the kernel home, per the flag-13 disposition
+    # ruling), measured over parity/goldens/kernel/ only.
+    if kernel_status == "ported":
+        covered = covered_surfaces(docs_by_subsystem.get("kernel", []))
+        exempt = _exempt_surfaces(depth, "kernel")
+        kernel_declared = {
+            "events": {e for e in kernel.get("events") or []
+                       if isinstance(e, str)},
+            "tables": {t for t in kernel.get("tables") or []
+                       if isinstance(t, str)},
+            "settings": set(),
+        }
+        for dim, prefix in (("events", "event"), ("tables", "table"),
+                            ("settings", "setting")):
+            for surface in sorted(kernel_declared[dim]):
+                token = f"{prefix}:{surface}"
+                if surface not in covered[dim] and token not in exempt:
+                    problems.append(
+                        f"R2 kernel is ported but declared {token} is "
+                        f"neither exercised by a kernel-band golden nor exempt"
+                    )
+
     # R3 — ratchet: counts never decrease; ported rows mandatory
     for subsystem in sorted(listed):
         status = subsystems[subsystem]
@@ -226,15 +271,44 @@ def check(
                 f"pending — ported is a one-way door (design-spec §6 gate 5)"
             )
 
+    # R3/R4 (kernel) — the kernel home's ratchet rides the same rules.
+    if kernel:
+        row = ratchet.get("kernel")
+        if kernel_status == "ported" and row is None:
+            problems.append(
+                "R3 kernel is ported but has no depth.ratchet row "
+                "(mint it in the flip PR: --write-ratchet)"
+            )
+        if row is not None:
+            covered = covered_surfaces(docs_by_subsystem.get("kernel", []))
+            for dim in ("events", "tables", "settings"):
+                committed = row.get(dim, 0)
+                current = len(covered[dim])
+                if isinstance(committed, int) and current < committed:
+                    problems.append(
+                        f"R3 kernel: covered {dim} count fell {committed} -> "
+                        f"{current} (the ratchet is one-way)"
+                    )
+            if kernel_status == "pending":
+                problems.append(
+                    "R4 kernel: has a depth.ratchet row but status is "
+                    "pending — ported is a one-way door (design-spec §6 gate 5)"
+                )
+
     return problems
 
 
 def write_ratchet(parity: dict, docs_by_subsystem: dict[str, list[dict]]) -> dict:
-    """Regenerate ratchet rows (upward only) for ported subsystems."""
+    """Regenerate ratchet rows (upward only) for ported subsystems —
+    including the kernel coverage home when its status is ported."""
     subsystems: dict[str, str] = parity.get("subsystems") or {}
     depth = parity.setdefault("depth", {})
     ratchet = depth.setdefault("ratchet", {}) or {}
-    for subsystem, status in subsystems.items():
+    rows = dict(subsystems)
+    kernel_status = (parity.get("kernel") or {}).get("status")
+    if kernel_status:
+        rows["kernel"] = kernel_status
+    for subsystem, status in rows.items():
         if status != "ported":
             continue
         covered = covered_surfaces(docs_by_subsystem.get(subsystem, []))
@@ -359,9 +433,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"check_parity_depth: {len(problems)} problem(s)")
         return 1
     ported = [s for s, st in (parity.get("subsystems") or {}).items() if st == "ported"]
+    kernel_status = (parity.get("kernel") or {}).get("status", "absent")
     print(
         f"check_parity_depth: OK — {len(parity.get('subsystems') or {})} subsystems "
-        f"({len(ported)} ported), {sum(len(d) for d in docs.values())} goldens"
+        f"({len(ported)} ported), kernel {kernel_status}, "
+        f"{sum(len(d) for d in docs.values())} goldens"
     )
     return 0
 
