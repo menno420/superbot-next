@@ -7,6 +7,7 @@ orders: acked=001–016 done=002–016; ORDER 001 open — band-1 live-drive req
 routines: failsafe `trig_01TuQrpMVpDCXB3K3VbjQUoA` "SuperBot 2.0 failsafe wake" cron `0 1-23/2 * * *`, armed 20:42Z, verified via list_triggers (account-wide sweep; sole trigger bound to this session). Pacemaker send_later chain running ~15 min. Business crons recorded, untouched: `trig_01Jm57GAjNCFrYJn1oLMiYGE` kit-lab daily (fresh-env, never rebound); `trig_015aNMg5ncoSE2Roe4MKjQnr` trading weekly (other seat's session); `trig_018wP6XTPmf9DLnxrG4RpGVh` docs reconciliation (poke-only, schedule-less).
 
 PARKED PRs (open at 2026-07-12T20:53Z; landing path owner-click on green):
+- #319 `port/creature-picker` creature native opponent picker + member bot-flag guard + Rematch (D-0081) — worker seat 2026-07-12; READY, do-NOT-self-merge. Local gates green: pytest 2056 passed, bootstrap check --strict clean, golden-parity --gate GREEN (463 goldens/51 ported), all named-gate checkers clean (runtime-smoke/sim-gate/money-race/compat/manifest-snapshot). Retires the `creature.challenge_pick_pending` terminal + fires the dormant `opponent.bot` guard; minted goldens 14→16 (creature_cbattle_bot_guard + creature_challenge_picker), re-minted creature_battle_accept.
 - #291 `9e78133` browse-interaction goldens mint (D-0034 capstone) — base now main.
 - #292 `bbffe72` Mining slice-3: vault/stash/unstash/vaultupgrade — stacked, after #289 (merged).
 - #295 `0f81162` Settings-hub group select → read-only operator hubs (slice 4).
