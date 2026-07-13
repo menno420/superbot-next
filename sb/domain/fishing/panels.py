@@ -55,6 +55,12 @@ Under-port ledger (no golden pins these corners):
   bytes verbatim); the cast LEG still rolls the starter knobs
   (rarity_pull 1.0) — the rod→cast wiring rides the same
   rod/bait/minigame rung as the venue.
+* the bait (slice 3): the 🪱 Bait hub button and the bait shop now
+  read/write the LIVE stored loadout (``fishing_bait``, no row / 0
+  charges → bait-less — a fresh player renders the golden-pinned
+  "No bait loaded" bytes verbatim); the cast LEG still rolls the
+  starter knobs (no loaded rarity/speed multiplier, no charge spend) —
+  the bait→cast wiring rides the same rod/bait/minigame rung.
 
 MONEY-RACE NOTE (#217 / coordinator ruling 2026-07-12): this module and
 the cast-open handler touch NO money primitive — fishing_energy is game
@@ -81,17 +87,21 @@ from sb.spec.panels import (
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
 from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
 __all__ = [
+    "BAIT_PANEL_ID",
     "CARD_PANEL_ID",
     "CAST_PANEL_ID",
     "HUB_PANEL_ID",
     "LOG_PANEL_ID",
     "ROD_PANEL_ID",
     "ROD_RECIPES_PANEL_ID",
+    "bait_shop_spec",
     "cast_spec",
     "ensure_panel_refs",
     "fishing_card_spec",
@@ -108,6 +118,7 @@ HUB_PANEL_ID = "fishing.hub"
 CARD_PANEL_ID = "fishing.card"
 ROD_PANEL_ID = "fishing.rod_panel"
 ROD_RECIPES_PANEL_ID = "fishing.rod_recipes_panel"
+BAIT_PANEL_ID = "fishing.bait_panel"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
@@ -187,7 +198,7 @@ def fishing_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="fishing_bait", label="Bait", emoji="🪱",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("fishing.bait_pending")),
+                handler=PanelRef(BAIT_PANEL_ID)),
             PanelActionSpec(
                 action_id="fishing_structures", label="Structures",
                 emoji="🏗", style=ActionStyle.SECONDARY,
@@ -446,6 +457,210 @@ def rod_recipes_spec() -> PanelSpec:
             ("rr_craft",),
             ("rr_back",),)),)),
     )
+
+
+def _bait_buy_options() -> tuple[dict, ...]:
+    """views/fishing/bait_shop.py ``_BaitSelect`` options verbatim — one
+    per shelf entry (goldens/fishing/sweep_bait pins every option
+    byte)."""
+    from sb.domain.fishing import bait as bait_mod
+
+    return tuple(
+        {"label": f"{bait.name} — {bait.price} coins", "value": bait.key,
+         "emoji": bait.emoji,
+         "description": f"×{bait.charges} casts · "
+                        f"{bait_mod.bait_effect_text(bait)}"}
+        for bait in bait_mod.BAIT_CATALOG)
+
+
+def _bait_craft_options() -> tuple[dict, ...]:
+    """views/fishing/bait_shop.py ``_BaitCraftSelect`` options verbatim —
+    one per fish-craftable bait."""
+    from sb.domain.fishing import bait as bait_mod
+
+    options = []
+    for key in bait_mod.CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        recipe = bait_mod.craft_recipe(key)
+        if bait is None or recipe is None:
+            continue
+        options.append(
+            {"label": f"{bait.name} — {bait_mod.recipe_text(recipe)}",
+             "value": bait.key, "emoji": bait.emoji,
+             "description": f"×{bait.charges} casts · "
+                            f"{bait_mod.bait_effect_text(bait)}"})
+    return tuple(options)
+
+
+def _bait_pearl_options() -> tuple[dict, ...]:
+    """views/fishing/bait_shop.py ``_PearlCraftSelect`` options verbatim
+    — one per pearl-craftable bait (the 🦪 option emoji is the shipped
+    literal, not the bait's own)."""
+    from sb.domain.fishing import bait as bait_mod
+
+    options = []
+    for key in bait_mod.PEARL_CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        pearl_cost = bait_mod.pearl_recipe(key)
+        if bait is None or pearl_cost is None:
+            continue
+        options.append(
+            {"label": f"{bait.name} — "
+                      f"{bait_mod.pearl_recipe_text(pearl_cost)}",
+             "value": bait.key, "emoji": "🦪",
+             "description": f"×{bait.charges} casts · "
+                            f"{bait_mod.bait_effect_text(bait)}"})
+    return tuple(options)
+
+
+def bait_shop_spec() -> PanelSpec:
+    """The shipped bait shop (views/fishing/bait_shop.py ``BaitShopView``
+    + ``build_bait_embed``): the 🪱 Bait Shop ECONOMY_COLOR gold embed
+    (loaded bait / the shelf / craft-from-fish / craft-from-pearls with
+    the live pearl count / your balance) over the shipped THREE selects
+    (buy a pack · craft from caught fish · craft from pearls) + the
+    ↩ Fishing menu button on its own row. No help/home nav row (the
+    shipped author-restricted BaseView). ``goldens/fishing/
+    sweep_bait.json`` (and the byte-identical no-arg ``!craftbait`` open,
+    sweep_craftbait) pins every byte of the fresh bait-less open:
+    run-minted ``<cid:N>`` ids (timeout session view ⇒
+    ``session_lifecycle=True``, no ``panel_anchors`` row), every select
+    option label/emoji/description, and the No-bait-loaded embed."""
+    return PanelSpec(
+        panel_id=BAIT_PANEL_ID,
+        subsystem="fishing",
+        title="🪱 Bait Shop",
+        audience=Audience.INVOKER,
+        # ECONOMY_COLOR gold (15844367, utils/ui_constants.py); the live
+        # description + fields ride the override (see justification).
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="bs_buy", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("fishing.bait_buy_route"),
+                options_source=_bait_buy_options(),
+                placeholder="Buy a pack of bait…", audience_tier="user"),
+            SelectorSpec(
+                selector_id="bs_craft", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("fishing.craftbait_route"),
+                options_source=_bait_craft_options(),
+                placeholder="Craft a pack from caught fish…",
+                audience_tier="user"),
+            SelectorSpec(
+                selector_id="bs_pearl", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("fishing.craftpearl_route"),
+                options_source=_bait_pearl_options(),
+                placeholder="Craft a pack from pearls…",
+                audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="bs_menu", label="↩ Fishing menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_bait_shop"),
+        justification=(
+            "the shipped `!bait` reply is a fully live-state-parameterized "
+            "embed built in the view (views/fishing/bait_shop.py "
+            "build_bait_embed: the loaded-bait/charges description, the "
+            "shelf + craft-from-fish fields, the craft-from-pearls field "
+            "whose NAME interpolates the live pearl count, and the live "
+            "`Your balance` field — goldens/fishing/sweep_bait.json pins "
+            "the fresh bait-less bytes), read-parameterized state outside "
+            "the static TextBlock/FieldsBlock vocabulary (the rod-shop / "
+            "mining-workshop precedent). The renderer patches only the "
+            "embed; every component (the three static-option selects + the "
+            "menu button) stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("bs_buy",),
+            ("bs_craft",),
+            ("bs_pearl",),
+            ("bs_menu",),)),)),
+    )
+
+
+async def _render_bait_shop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — bait_shop.py's ``build_bait_embed`` verbatim
+    (see justification): grammar render + the live loaded-bait
+    description, the shelf / craft-from-fish / craft-from-pearls (live
+    pearl count) / balance fields. A fresh player reads no loadout /
+    0 pearls / balance 0 → the bytes goldens/fishing/sweep_bait.json
+    (and sweep_craftbait) pin."""
+    from sb.domain.economy.store import get_coins
+    from sb.domain.fishing import bait as bait_mod
+    from sb.domain.fishing import store
+    from sb.domain.fishing.ops import PEARL_ITEM
+    from sb.domain.mining.store import get_mining_inventory
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    cur_key, charges = await store.get_active_bait(uid, gid)
+    active = bait_mod.bait_by_key(cur_key)
+    if active is None or charges <= 0:
+        active, charges = None, 0
+    balance = await get_coins(uid, gid)
+    inventory = await get_mining_inventory(uid, gid)
+    pearls = inventory.get(PEARL_ITEM, 0)
+
+    if active is not None and charges > 0:
+        description = (
+            f"Loaded: **{active.name}** {active.emoji} — "
+            f"**{charges}** casts left "
+            f"({bait_mod.bait_effect_text(active)}).\n"
+            "*Each cast spends one charge and applies these on top of "
+            "your rod.*")
+    else:
+        description = (
+            "No bait loaded — you're fishing bare (which catches "
+            "fine!).\n"
+            "*Load a pack for rarer, bigger fish or quicker bites.*")
+
+    shelf = [
+        f"{bait.emoji} **{bait.name}** — {bait.price} 🪙 "
+        f"(×{bait.charges} casts, {bait_mod.bait_effect_text(bait)})"
+        for bait in bait_mod.BAIT_CATALOG]
+    fields: list[tuple[str, str]] = [("The shelf", "\n".join(shelf))]
+
+    craftable = []
+    for key in bait_mod.CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        recipe = bait_mod.craft_recipe(key)
+        if bait is None or recipe is None:
+            continue
+        craftable.append(
+            f"{bait.emoji} **{bait.name}** — {bait_mod.recipe_text(recipe)}")
+    if craftable:
+        fields.append((
+            "Craft from fish",
+            "\n".join(craftable)
+            + "\n*Turn small catches into bait — no coins needed.*"))
+
+    pearl_craftable = []
+    for key in bait_mod.PEARL_CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        pearl_cost = bait_mod.pearl_recipe(key)
+        if bait is None or pearl_cost is None:
+            continue
+        pearl_craftable.append(
+            f"{bait.emoji} **{bait.name}** — "
+            f"{bait_mod.pearl_recipe_text(pearl_cost)}")
+    if pearl_craftable:
+        fields.append((
+            f"Craft from pearls (you have {pearls} 🦪)",
+            "\n".join(pearl_craftable)
+            + "\n*Pearls drop rarely when you reel in a fish — bigger "
+            "fish, better odds.*"))
+
+    fields.append(("Your balance", f"**{balance}** 🪙"))
+    embed = _dc_replace(rendered.embed, description=description,
+                        fields=tuple(fields))
+    return _dc_replace(rendered, embed=embed)
 
 
 async def _member_display_name(user_id: int, guild_id: int) -> str:
@@ -773,6 +988,11 @@ def _rod_recipes_factory() -> PanelSpec:
     return rod_recipes_spec()
 
 
+@panel(BAIT_PANEL_ID)
+def _bait_factory() -> PanelSpec:
+    return bait_shop_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
@@ -780,6 +1000,7 @@ _FACTORIES = (
     (CARD_PANEL_ID, _card_factory),
     (ROD_PANEL_ID, _rod_factory),
     (ROD_RECIPES_PANEL_ID, _rod_recipes_factory),
+    (BAIT_PANEL_ID, _bait_factory),
 )
 
 _RENDERS = (
@@ -789,13 +1010,14 @@ _RENDERS = (
     ("fishing.render_card", _render_card),
     ("fishing.render_rod_shop", _render_rod_shop),
     ("fishing.render_rod_recipes", _render_rod_recipes),
+    ("fishing.render_bait_shop", _render_bait_shop),
 )
 
 
 def install_fishing_panels() -> tuple[PanelSpec, ...]:
     out = []
     for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
-                  rod_shop_spec, rod_recipes_spec):
+                  rod_shop_spec, rod_recipes_spec, bait_shop_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

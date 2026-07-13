@@ -26,6 +26,7 @@ from sb.spec.events import (
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
 from sb.spec.scheduler import Interval, ManagedTaskSpec, TaskDurability
+from sb.spec.sections import GameEntry, GameSectionSpec, register_section
 
 GAME_XP_AWARDED_EVENT = EventSpec(
     name=EVT_GAME_XP_AWARDED,
@@ -63,6 +64,47 @@ SESSION_GC_TASK = declare_task(ManagedTaskSpec(
     handler=HandlerRef("games.session_gc_fire"),
     durability=TaskDurability.IN_MEMORY,
 ))
+
+# --- game sections (D-0082, docs/design/game-sections.md §3) --------------------
+#
+# The DEFAULT section inventory, derived from the shipped games-hub roster
+# (sb/domain/games/panels.py GAMES_COMPETITIVE / GAMES_ACTIVITIES — the
+# drift-guard test pins the agreement). This constant is the SINGLE SBW-spec
+# REPLACEMENT SLOT (design §7): when the SBW inventory+consolidation spec
+# lands (outbox SIM-REQUEST 2026-07-13T00:55Z, PR #325), replace THIS tuple
+# (+ extend GameSectionSpec if the spec adds fields); no engine changes, no
+# store changes.
+GAME_SECTIONS: tuple[GameSectionSpec, ...] = (
+    GameSectionSpec(
+        key="competitive", title="Competitive", emoji="🏆",
+        games=(
+            GameEntry("blackjack", "Blackjack", "🃏",
+                      PanelRef("blackjack.hub")),
+            GameEntry("casino", "Casino", "🎰", PanelRef("casino.hub")),
+            GameEntry("deathmatch", "Deathmatch", "⚔️",
+                      PanelRef("deathmatch.hub")),
+            GameEntry("rps_tournament", "Rock Paper Scissors", "✂️",
+                      PanelRef("rps_tournament.hub")),
+        )),
+    GameSectionSpec(
+        key="activities", title="Activities", emoji="🎲",
+        games=(
+            GameEntry("mining", "Mining", "⛏️", PanelRef("mining.hub")),
+            GameEntry("fishing", "Fishing", "🎣", PanelRef("fishing.hub")),
+            GameEntry("creature", "Creatures", "🐾",
+                      PanelRef("creature.hub")),
+            GameEntry("farm", "Chicken Farm", "🐔", PanelRef("farm.hub")),
+            GameEntry("counting", "Counting", "🔢",
+                      PanelRef("counting.hub")),
+            GameEntry("chain", "Word Chain", "🔗", PanelRef("chain.hub")),
+        )),
+)
+
+
+def _register_sections() -> None:
+    for _section in GAME_SECTIONS:
+        register_section(_section)
+
 
 MANIFEST = SubsystemManifest(
     key="games",
@@ -111,6 +153,7 @@ register_event_specs(list(_EVENTS))
 register_ops()
 install_games_dispatcher()
 register_game_providers()
+_register_sections()
 
 
 def _ensure_refs() -> None:
@@ -127,6 +170,7 @@ def _ensure_refs() -> None:
     register_ops()
     install_games_dispatcher()
     register_game_providers()
+    _register_sections()
 
 
 ENSURE_REFS = _ensure_refs

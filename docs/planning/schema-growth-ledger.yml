@@ -1145,3 +1145,35 @@ entries:
     consumers: [tools/manifest_compile.py, sb/manifest/server_logging.py, sb/adapters/parity/boot.py]
     rejected_alternative: "space-embedded qualified names in CommandSpec.name (breaks K1 per-token reservation and the parent_group scope key)"
     minted: 2026-07-08
+  GameEntry.key:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "deriving the subsystem key from the hub PanelRef prefix at read time"
+    minted: 2026-07-13
+  GameEntry.label:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "re-reading the shipped hub roster tuples (sb/domain/games/panels.py) per render"
+    minted: 2026-07-13
+  GameEntry.emoji:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "emoji baked into the label string (the shipped hub's f-string pattern)"
+    minted: 2026-07-13
+  GameEntry.hub:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "bare panel-id strings resolved ad hoc instead of typed PanelRefs"
+    minted: 2026-07-13
+  GameSectionSpec.key:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "positional section tuples addressed by index"
+    minted: 2026-07-13
+  GameSectionSpec.title:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "hardcoded section headers inside the hub provider"
+    minted: 2026-07-13
+  GameSectionSpec.emoji:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "emoji baked into the title string"
+    minted: 2026-07-13
+  GameSectionSpec.games:
+    consumers: [sb/manifest/games.py, sb/domain/games/sections.py]
+    rejected_alternative: "two parallel per-section module constants (the shipped GAMES_COMPETITIVE/GAMES_ACTIVITIES shape)"
+    minted: 2026-07-13
