@@ -355,14 +355,16 @@ def _register() -> None:
         ``{ctx.author.name}'s Mining Stats``, MINING_COLOR dark_grey,
         Location + 🎮 Game Level non-inline, the four inline counters —
         goldens/mining/sweep_minestats pins the bytes). Deepest reads the
-        current depth: the shipped ``max_depth`` record only diverges
-        through descend/ascend, which ride the D-0043 deep-system port.
+        shipped ``max_depth`` record (mining_cog.py ``get_max_depth`` —
+        0 for a fresh player), kept current by the live descend record
+        write (ops.py ``_record_descend`` → ``store.record_depth``).
         Net worth values resources/fish only (the hub Wealth field's
         ledgered D-0043 boundary — shipped ``items.total_value`` also
         valued tools/gear)."""
         from sb.domain.games import store as games_store
         from sb.domain.mining import market
-        from sb.domain.mining.store import get_depth, get_mining_inventory
+        from sb.domain.mining.store import (get_depth, get_max_depth,
+                                            get_mining_inventory)
         from sb.domain.mining.world import describe_position
         from sb.domain.xp.levels import level_progress
         from sb.kernel.panels.render import RenderedEmbed
@@ -371,6 +373,7 @@ def _register() -> None:
         gid = int(req.guild_id or 0)
         inventory = await get_mining_inventory(uid, gid)
         depth = await get_depth(uid, gid)
+        max_depth = await get_max_depth(uid, gid)
         level, into, needed = level_progress(
             await games_store.total_game_xp(uid, gid))
         worth = sum(qty * (market.sell_price(item) or 0)
@@ -388,7 +391,7 @@ def _register() -> None:
                  str(sum(inventory.values())), True),
                 ("Unique Items", str(len(inventory)), True),
                 ("Net Worth", str(worth), True),
-                ("Deepest", describe_position(depth), True),
+                ("Deepest", describe_position(max_depth), True),
             )))
 
     @handler("mining.market_view")
