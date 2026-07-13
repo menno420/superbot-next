@@ -154,88 +154,224 @@ def _register() -> None:
         "test" resolves BY NAME to a capture-world channel). Formats
         help works headlessly; the scan needs the history-scanner port
         (arms with the message band) — honest BLOCKED until then."""
-        from sb.domain.xp import migrate, service
+        return await _xpimport_walk(req)
 
-        argv = tuple(req.args.get("argv", ()) or ())
-        lowered = {str(a).lower() for a in argv}
-        if lowered & {"help", "formats", "list"}:
-            lines = ["📥 **Import XP from another bot** — supported "
-                     "level-up announcement formats:"]
-            for key in migrate.format_keys():
-                fmt = migrate.get_format(key)
-                default = " *(default)*" if key == migrate.DEFAULT_FORMAT else ""
-                lines.append(f"`{key}`{default} — {fmt.label}")
-            lines.append("Usage: `!xpimport [source] [#channel] [limit]` — "
-                         "raise-only, preview first.")
-            return Reply(SUCCESS, "\n".join(lines))
-        scanner = service.active_history_scanner()
-        if scanner is None:
+    @handler("xp.config_range_submit")
+    async def config_range_submit(req) -> Reply:
+        """The `_XpRangeModal` submit (disbot/views/xp/modals.py) — the
+        shipped validation copy verbatim, then the two audited
+        `settings.set_scalar` writes the shipped
+        SettingsMutationPipeline made (xp_min first, xp_max second —
+        the shipped write order; a first-write failure short-circuits
+        exactly like the pipeline helper)."""
+        try:
+            mn = int(str(req.args.get("xp_min", "")).strip())
+            mx = int(str(req.args.get("xp_max", "")).strip())
+        except ValueError:
+            return Reply(BLOCKED, "❌ Both values must be integers.")
+        if mx < mn:
+            return Reply(BLOCKED, "❌ Max must be ≥ min.")
+        for name, value in (("xp_min", mn), ("xp_max", mx)):
+            refusal = await _write_xp_scalar(req, name, value)
+            if refusal is not None:
+                return refusal
+        return Reply(SUCCESS,
+                     f"✅ XP range set: **{mn}–{mx}** XP per message.")
+
+    @handler("xp.config_cooldown_submit")
+    async def config_cooldown_submit(req) -> Reply:
+        """The `_XpCooldownModal` submit — shipped validation copy
+        verbatim, then the audited `settings.set_scalar` write."""
+        try:
+            val = int(str(req.args.get("seconds", "")).strip())
+        except ValueError:
+            return Reply(BLOCKED, "❌ Cooldown must be an integer.")
+        refusal = await _write_xp_scalar(req, "xp_cooldown", val)
+        if refusal is not None:
+            return refusal
+        return Reply(SUCCESS, f"✅ XP cooldown set: **{val}s**.")
+
+    @handler("xp.config_channel_submit")
+    async def config_channel_submit(req) -> Reply:
+        """The `_XpChannelModal` submit — P0-3: the announce channel is
+        a BINDING (the xp_announce_channel scalar was retired). Empty
+        input clears the binding (announce in-place); a numeric ID sets
+        it; anything else is the shipped refusal copy verbatim. Rides
+        the audited `settings.bind`/`settings.unbind` ops (the
+        server_logging bind precedent)."""
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        raw = str(req.args.get("channel_id", "") or "").strip()
+        if raw and not raw.strip("<#>").isdigit():
             return Reply(BLOCKED,
-                         "📥 The channel scan needs message-history access, "
-                         "which arms with the message band. The parsing "
-                         "formats and the raise-only import op are live — "
-                         "`!xpimport help` lists the supported bots.")
+                         "❌ Channel must be empty (to clear) or a "
+                         "numeric Discord channel ID.")
+        if not raw:
+            result = await engine.run(
+                WorkflowRef("settings.unbind"),
+                _ctx_from_req(req, {"subsystem": "xp",
+                                    "name": "announce_channel"}))
+            if result.outcome != SUCCESS:
+                return Reply(result.outcome,
+                             result.user_message
+                             or "Could not clear the channel.")
+            return Reply(SUCCESS,
+                         "✅ Level-up announcements now post in the "
+                         "channel where the level-up happened.")
+        channel_id = int(raw.strip("<#>"))
+        result = await engine.run(
+            WorkflowRef("settings.bind"),
+            _ctx_from_req(req, {"subsystem": "xp",
+                                "name": "announce_channel",
+                                "kind": "channel",
+                                "resource_id": channel_id}))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message
+                         or "Could not bind the channel.")
+        return Reply(SUCCESS,
+                     f"✅ Level-up announcements → <#{channel_id}>.")
 
-        gid = int(req.guild_id or 0)
-        source_key: str | None = None
-        channel_id: int | None = None
-        limit: int | None = None
-        for arg in argv:
-            token = str(arg)
-            key = token.lower()
-            if migrate.get_format(key) is not None:
-                source_key = key
-                continue
-            try:
-                limit = int(token)
-                continue
-            except ValueError:
-                pass
-            resolved = await service.resolve_text_channel(gid, token)
-            if resolved is not None:
-                channel_id = resolved
-            # else: unknown token — ignore (the shipped BadArgument pass;
-            # the preview shows what was scanned)
+    @handler("xp.import_setup_submit")
+    async def import_setup_submit(req) -> Reply | None:
+        """The 📥 import button's modal ingress — collects the SAME
+        source/channel/limit args the `!xpimport` front door walks and
+        delegates to that LIVE flow (the modal-ingress-over-live-front-
+        door pattern; the shipped select-driven XpImportSetupView picker
+        + preview/apply panel stay the import-preview slice's port — the
+        walk's honest BLOCKED boundaries are unchanged)."""
+        argv = tuple(
+            str(req.args.get(field, "") or "").strip()
+            for field in ("source", "channel", "limit")
+            if str(req.args.get(field, "") or "").strip())
+        return await _xpimport_walk(
+            dataclasses.replace(req, args={**dict(req.args),
+                                           "argv": argv}))
 
-        fmt = migrate.get_format(source_key or migrate.DEFAULT_FORMAT)
-        target = channel_id or int(req.channel_id or 0)
 
-        from sb.kernel.panels.engine import open_panel, refresh_session_view
-        from sb.spec.refs import PanelRef
+async def _write_xp_scalar(req, name: str, value: int) -> Reply | None:
+    """One audited scalar write through the live `settings.set_scalar`
+    op (the rps `rpssettings` / ai settings-widget precedent) after the
+    declared-bounds check the shipped pipeline's SettingSpec validators
+    made. Returns ``None`` on success, the refusal Reply otherwise."""
+    from sb.kernel import settings as ksettings
+    from sb.kernel.workflow import engine
+    from sb.spec.refs import WorkflowRef
 
-        base = {"scan_channel_id": target, "scan_fmt_label": fmt.label}
-        key_ref = await open_panel(
-            PanelRef("xp.import_scan"),
-            dataclasses.replace(req, args={**dict(req.args), **base,
-                                           "scan_phase": "scanning"}))
-        messages = await scanner(target, limit=limit)
-        records: list[tuple[int, int]] = []
-        for message in messages or ():
-            parsed = migrate.parse_level_message(
-                str(getattr(message, "content", "") or ""),
-                tuple(getattr(message, "mention_ids", ()) or ()),
-                fmt=fmt)
-            if parsed is not None and parsed.user_id is not None:
-                records.append((parsed.user_id, parsed.level))
-        scanned = len(tuple(messages or ()))
-        if not records:
-            await refresh_session_view(
-                req, message_key=key_ref,
-                params={**base, "scan_phase": "empty",
-                        "scan_scanned": scanned},
-                expire=True)
-            return None
-        # UNDER-PORT boundary: the shipped preview panel (XpImportView
-        # Apply/Cancel over the raise-only xp.import_levels op) is the
-        # import-preview slice's port — no golden reaches a non-empty
-        # scan (the capture world held no channel messages), so the
-        # honest posture is the declared refusal, never a silent apply
-        # (and never the nothing-found edit over a found batch).
+    lo, hi = _SCALAR_BOUNDS[name]
+    if not (lo <= int(value) <= hi):
         return Reply(BLOCKED,
-                     f"📥 Found **{len(records)}** level-up record(s) in "
-                     f"**{scanned}** message(s) — the preview/apply panel "
-                     "ports with the import-preview slice (the raise-only "
-                     "import op is live).")
+                     f"❌ {name} must be between {lo} and {hi}.")
+    result = await engine.run(
+        WorkflowRef("settings.set_scalar"),
+        _ctx_from_req(req, {"key": ksettings.persisted_key("xp", name),
+                            "value": str(int(value)),
+                            "subsystem": "xp",
+                            "name": name}))
+    if result.outcome != SUCCESS:
+        return Reply(result.outcome,
+                     result.user_message or f"Could not update {name}.")
+    return None
+
+
+#: the declared SettingSpec bounds, mirrored (sb/manifest/xp.py
+#: _SETTINGS — the manifest imports THIS module, so the domain carries
+#: the numbers; the shipped pipeline enforced _validate_positive_int
+#: the same way, caller-side of the write).
+_SCALAR_BOUNDS = {
+    "xp_min": (1, 10_000),
+    "xp_max": (1, 10_000),
+    "xp_cooldown": (0, 86_400),
+}
+
+
+async def _xpimport_walk(req) -> Reply | None:
+    """The shared `!xpimport` walk (command front door + the config
+    panel's modal ingress): source key → int limit →
+    TextChannelConverter, unknown tokens ignored."""
+    from sb.domain.xp import migrate, service
+
+    argv = tuple(req.args.get("argv", ()) or ())
+    lowered = {str(a).lower() for a in argv}
+    if lowered & {"help", "formats", "list"}:
+        lines = ["📥 **Import XP from another bot** — supported "
+                 "level-up announcement formats:"]
+        for key in migrate.format_keys():
+            fmt = migrate.get_format(key)
+            default = " *(default)*" if key == migrate.DEFAULT_FORMAT else ""
+            lines.append(f"`{key}`{default} — {fmt.label}")
+        lines.append("Usage: `!xpimport [source] [#channel] [limit]` — "
+                     "raise-only, preview first.")
+        return Reply(SUCCESS, "\n".join(lines))
+    scanner = service.active_history_scanner()
+    if scanner is None:
+        return Reply(BLOCKED,
+                     "📥 The channel scan needs message-history access, "
+                     "which arms with the message band. The parsing "
+                     "formats and the raise-only import op are live — "
+                     "`!xpimport help` lists the supported bots.")
+
+    gid = int(req.guild_id or 0)
+    source_key: str | None = None
+    channel_id: int | None = None
+    limit: int | None = None
+    for arg in argv:
+        token = str(arg)
+        key = token.lower()
+        if migrate.get_format(key) is not None:
+            source_key = key
+            continue
+        try:
+            limit = int(token)
+            continue
+        except ValueError:
+            pass
+        resolved = await service.resolve_text_channel(gid, token)
+        if resolved is not None:
+            channel_id = resolved
+        # else: unknown token — ignore (the shipped BadArgument pass;
+        # the preview shows what was scanned)
+
+    fmt = migrate.get_format(source_key or migrate.DEFAULT_FORMAT)
+    target = channel_id or int(req.channel_id or 0)
+
+    from sb.kernel.panels.engine import open_panel, refresh_session_view
+    from sb.spec.refs import PanelRef
+
+    base = {"scan_channel_id": target, "scan_fmt_label": fmt.label}
+    key_ref = await open_panel(
+        PanelRef("xp.import_scan"),
+        dataclasses.replace(req, args={**dict(req.args), **base,
+                                       "scan_phase": "scanning"}))
+    messages = await scanner(target, limit=limit)
+    records: list[tuple[int, int]] = []
+    for message in messages or ():
+        parsed = migrate.parse_level_message(
+            str(getattr(message, "content", "") or ""),
+            tuple(getattr(message, "mention_ids", ()) or ()),
+            fmt=fmt)
+        if parsed is not None and parsed.user_id is not None:
+            records.append((parsed.user_id, parsed.level))
+    scanned = len(tuple(messages or ()))
+    if not records:
+        await refresh_session_view(
+            req, message_key=key_ref,
+            params={**base, "scan_phase": "empty",
+                    "scan_scanned": scanned},
+            expire=True)
+        return None
+    # UNDER-PORT boundary: the shipped preview panel (XpImportView
+    # Apply/Cancel over the raise-only xp.import_levels op) is the
+    # import-preview slice's port — no golden reaches a non-empty
+    # scan (the capture world held no channel messages), so the
+    # honest posture is the declared refusal, never a silent apply
+    # (and never the nothing-found edit over a found batch).
+    return Reply(BLOCKED,
+                 f"📥 Found **{len(records)}** level-up record(s) in "
+                 f"**{scanned}** message(s) — the preview/apply panel "
+                 "ports with the import-preview slice (the raise-only "
+                 "import op is live).")
 
 
 def ctx_target(argv: tuple) -> int:

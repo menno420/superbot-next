@@ -1,7 +1,9 @@
 """FISHING subsystem manifest (band 6, checkpoint family) — the FULL
-shipped command surface verbatim (20 commands): the core cast + dex/
-trophy/leaderboard reads are live; gear/venue/craft/structure surfaces
-are honest pending terminals riding the D-0043 named successor port."""
+shipped command surface verbatim (20 commands), ALL LIVE: the core cast
++ dex/trophy/leaderboard reads, the slice-1 weather/venue surfaces, the
+slice-2 rod ladder, the slice-3 bait shelf and the slice-4 coral sinks
++ structures (curios/craftcurio/tidepool/dock/boathouse/fishery — the
+FINAL D-0043 fishing rung; the PENDING roster is empty)."""
 
 from __future__ import annotations
 
@@ -10,8 +12,11 @@ from sb.domain.fishing import service as _service
 from sb.domain.fishing.ops import register_ops
 from sb.domain.fishing.panels import fishing_hub_spec
 from sb.domain.fishing.store import (
+    FISHING_BAIT_STORE,
     FISHING_CATCH_LOG_STORE,
     FISHING_ENERGY_STORE,
+    FISHING_ROD_STORE,
+    FISHING_VENUE_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -26,12 +31,6 @@ def _cmd(name: str, route, summary: str,
                        usage=f"!{name}")
 
 
-def _pending(name: str, summary: str,
-             aliases: tuple[str, ...] = ()) -> CommandSpec:
-    return _cmd(name, HandlerRef(f"fishing.{name}_pending"), summary,
-                aliases)
-
-
 _COMMANDS = (
     _cmd("fish", HandlerRef("fishing.cast_open"),
          "Cast a line — wait for the bite, then reel."),
@@ -44,28 +43,41 @@ _COMMANDS = (
     _cmd("trophies", HandlerRef("fishing.trophies_view"),
          "Trophy records — the biggest catches.",
          ("bigfish", "fishtrophy")),
-    # --- gear/venue/craft systems (the D-0043 named successor port) -------
-    _pending("forecast", "Today's fishing weather.",
-             ("fishforecast", "fishingweather")),
-    _pending("sail", "Set sail to the deepwater venue.", ("setsail",)),
-    _pending("rod", "The rod shop.", ("rodshop", "buyrod")),
-    _pending("bait", "The bait shop.", ("baitshop", "buybait")),
-    _pending("craftbait", "Craft bait from fish.", ("baitcraft",)),
-    _pending("craftcharm", "Craft a fishing charm.", ("charmcraft",)),
-    _pending("craftrod", "Craft a rod.", ("rodcraft",)),
-    _pending("rodrecipes", "Rod crafting recipes.",
-             ("rodrecipe", "rrecipes")),
-    _pending("craftpearl", "Craft pearl bait.", ("pearlcraft",)),
-    _pending("curios", "Your curio collection.", ("curio", "carvings")),
-    _pending("craftcurio", "Carve a curio from coral.",
-             ("carve", "curiocraft")),
-    _pending("tidepool", "The tide pool structure.",
-             ("reef", "tidepools")),
-    _pending("dock", "The dock structure.", ("pier", "fishingdock")),
-    _pending("boathouse", "The boathouse structure.",
-             ("moorings", "boat")),
-    _pending("fishery", "The fishery structure.",
-             ("hatchery", "fishfarm")),
+    # --- weather + venue (fishing depth slice 1 — LIVE) -------------------
+    _cmd("forecast", HandlerRef("fishing.forecast_view"),
+         "Today's fishing weather.",
+         ("fishforecast", "fishingweather")),
+    _cmd("sail", HandlerRef("fishing.sail_route"),
+         "Set sail to the deepwater venue.", ("setsail",)),
+    # --- the rod ladder (fishing depth slice 2 — LIVE) ---------------------
+    _cmd("rod", HandlerRef("fishing.rod_shop"),
+         "The rod shop.", ("rodshop", "buyrod")),
+    _cmd("craftrod", HandlerRef("fishing.craftrod_route"),
+         "Craft a rod.", ("rodcraft",)),
+    _cmd("rodrecipes", HandlerRef("fishing.rodrecipes_view"),
+         "Rod crafting recipes.", ("rodrecipe", "rrecipes")),
+    # --- the bait shelf (fishing depth slice 3 — LIVE) ---------------------
+    _cmd("bait", HandlerRef("fishing.bait_shop"),
+         "The bait shop.", ("baitshop", "buybait")),
+    _cmd("craftbait", HandlerRef("fishing.craftbait_route"),
+         "Craft bait from fish.", ("baitcraft",)),
+    _cmd("craftcharm", HandlerRef("fishing.craftcharm_route"),
+         "Craft a fishing charm.", ("charmcraft",)),
+    _cmd("craftpearl", HandlerRef("fishing.craftpearl_route"),
+         "Craft pearl bait.", ("pearlcraft",)),
+    # --- coral sinks + structures (fishing depth slice 4 — LIVE, FINAL) ---
+    _cmd("curios", HandlerRef("fishing.curios_view"),
+         "Your curio collection.", ("curio", "carvings")),
+    _cmd("craftcurio", HandlerRef("fishing.craftcurio_route"),
+         "Carve a curio from coral.", ("carve", "curiocraft")),
+    _cmd("tidepool", PanelRef("fishing.tide_pool_panel"),
+         "The tide pool structure.", ("reef", "tidepools")),
+    _cmd("dock", PanelRef("fishing.dock_panel"),
+         "The dock structure.", ("pier", "fishingdock")),
+    _cmd("boathouse", PanelRef("fishing.boathouse_panel"),
+         "The boathouse structure.", ("moorings", "boat")),
+    _cmd("fishery", PanelRef("fishing.fishery_panel"),
+         "The fishery structure.", ("hatchery", "fishfarm")),
 )
 
 MANIFEST = SubsystemManifest(
@@ -73,9 +85,14 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=_COMMANDS,
     panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec(),
-            _panels.fishing_card_spec()),
+            _panels.fishing_card_spec(), _panels.rod_shop_spec(),
+            _panels.rod_recipes_spec(), _panels.bait_shop_spec(),
+            _panels.structures_hub_spec(), _panels.tide_pool_spec(),
+            _panels.dock_spec(), _panels.boathouse_spec(),
+            _panels.fishery_spec()),
     settings=(),
-    stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE),
+    stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE,
+            FISHING_VENUE_STORE, FISHING_ROD_STORE, FISHING_BAIT_STORE),
     events=(),
     capabilities=(),
 )

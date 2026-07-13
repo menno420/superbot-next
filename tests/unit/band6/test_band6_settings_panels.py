@@ -49,13 +49,15 @@ def test_hub_spec_shape_matches_the_goldens():
     # navigation, ported as a read subset) — not the pending terminal.
     from sb.spec.refs import HandlerRef as _HRef
     assert select.on_select == _HRef("settings.open_group")
-    # the shipped 19-group actionable roster, order verbatim.
+    # the shipped 19-group actionable roster, order verbatim, + the
+    # D-0082 `games` group APPENDED (post-flip growth — the goldens were
+    # re-cut with the 20th option; the shipped 19 keep their order).
     values = [o["value"] for o in select.options_source]
     assert values == [
         "welcome", "counters", "security", "proof_channel", "role",
         "cleanup", "automod", "image_moderation", "moderation", "logging",
         "ai", "help", "economy", "xp", "karma", "blackjack", "btd6",
-        "deathmatch", "rps_tournament"]
+        "deathmatch", "rps_tournament", "games"]
 
     by_id = {a.action_id: a for a in spec.actions}
     # the shipped buttons carried the emoji as a SEPARATE component field
@@ -240,12 +242,21 @@ def test_panel_and_handler_refs_registered():
                  "settings.needs_setup_pending", "settings.invalid_pending",
                  "settings.missing_bindings_pending", "settings.audit_pending",
                  "settings.command_access_pending",
-                 "settings.access_subsystem_pending",
+                 # the ARMED explorer controls (curation rows 82-87) —
+                 # the five *_pending terminals they replaced must stay
+                 # retired (the sweep below).
+                 "settings.access_subsystem",
+                 "settings.access_scope",
+                 "settings.access_explain",
+                 "settings.access_reset",
+                 "settings.access_page"):
+        assert is_registered(HandlerRef(name)), name
+    for name in ("settings.access_subsystem_pending",
                  "settings.access_scope_pending",
                  "settings.access_explain_pending",
                  "settings.access_reset_pending",
                  "settings.access_page_pending"):
-        assert is_registered(HandlerRef(name)), name
+        assert not is_registered(HandlerRef(name)), name
 
 
 def test_manifest_declares_the_front_doors():

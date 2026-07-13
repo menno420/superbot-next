@@ -31,7 +31,7 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (490/490) — curated
+    """Every golden on disk yields a replayable case (500/500) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
@@ -39,8 +39,13 @@ def test_full_corpus_reconstructs():
     cases + the 2 minted multi-step tournament-flow cases + the 5 WP-1
     mining write-parity minted cases + the 4 WP-2 mining vault write-parity
     minted cases + the 5 WP-3 mining depth/world/workshop write-parity
-    minted cases − 3 retired: sweep_cog.json, the
-    deploy-ops `!cog` capture, plus
+    minted cases + the 1 minted paid-tournament
+    conservation case + the 2 D-0081 creature picker/bot-guard cases
+    + the 4 energy-slice-2 mining cook/use minted cases
+    + the 3 fishing cast-leg reel write cases (2026-07-13 — curated typed
+    cases: `!fish` + a Reel click by component_index)
+    − 3 retired: sweep_cog.json, the deploy-ops `!cog`
+    capture, plus
     sweep_query_logs.json / sweep_recent_errors.json, the run-order-dependent
     log-ring captures — each retired to the _sweep_skips entry it always
     belonged under — parity.yml source.retired_goldens). The four
@@ -57,10 +62,15 @@ def test_full_corpus_reconstructs():
     # (tournament-flow) + 5 (WP-1 mining write-parity: equip/unequip/loadout
     # save·apply·delete) + 4 (WP-2 mining vault write-parity: stash/unstash/
     # stash-all/vaultupgrade) + 5 (WP-3 mining depth/world/workshop write-parity:
-    # descend/ascend/reseed-world/repair/quickcraft) − 3 retired (sweep_cog.json +
-    # sweep_query_logs.json + sweep_recent_errors.json — parity.yml
-    # source.retired_goldens)
-    assert golden_count == 490
+    # descend/ascend/reseed-world/repair/quickcraft)
+    # + 1 (paid-tournament conservation, 2026-07-12)
+    # + 2 (D-0081 creature picker/bot-guard) + 3 (fishing cast-leg reel
+    # writes, 2026-07-13)
+    # + 4 (energy-slice-2 mining cook/use: ration restore / full refusal /
+    # cook campfire / torch flavour, 2026-07-13)
+    # − 3 retired (sweep_cog.json + sweep_query_logs.json +
+    # sweep_recent_errors.json — parity.yml source.retired_goldens)
+    assert golden_count == 500
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 

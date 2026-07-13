@@ -1,33 +1,40 @@
 # superbot-next · status
-updated: 2026-07-12T20:53Z
-phase: SEAT OPEN — successor coordinator booted 2026-07-12 (session_01KhzyfUk76YB9Bj2TPF6h5z). Boot HEAD `e23355a`; main has since advanced to `c21b1ea` (#289 mining slice-2 merged 20:47Z). At `c21b1ea`: `ci` + `named-gates` green (run set 20:47:42Z), golden-parity required `gate` job green (job 86691804487 — gate + check_parity_depth + F-001/F-002 concurrency all success), `report` leg red-by-design ("Red-until-parity full-corpus report (EXPECTED RED)").
-health: pytest tests/ green at boot HEAD `e23355a` (2005 passed / 13 skipped).
+updated: 2026-07-13T13:26:39Z
+phase: coordinator seat OPEN — SuperBot 2.0 coordinator (project seat, booted 12:33Z); work loop running.
+health: main at `d7b18b281d7a69b50932ab3983ecca3b7557eb7b` — curation remainder landed (#333/#352/#373 merged by 12:55Z); pytest green at boot (2435 passed); golden-parity report leg green. A red report = REAL regression.
 kit: v1.15.0
-orders: acked=001–016 done=002–016; ORDER 001 open — band-1 live-drive requires an owner-side run with the Discord token (pointer: PR #298 body).
-routines: failsafe `trig_01TuQrpMVpDCXB3K3VbjQUoA` "SuperBot 2.0 failsafe wake" cron `0 1-23/2 * * *`, armed 20:42Z, verified via list_triggers (account-wide sweep; sole trigger bound to this session). Pacemaker send_later chain running ~15 min. Business crons recorded, untouched: `trig_01Jm57GAjNCFrYJn1oLMiYGE` kit-lab daily (fresh-env, never rebound); `trig_015aNMg5ncoSE2Roe4MKjQnr` trading weekly (other seat's session); `trig_018wP6XTPmf9DLnxrG4RpGVh` docs reconciliation (poke-only, schedule-less).
+orders: acked=001–018 done=002–018; ORDER 001 still open owner-side (Discord-token live-drive; pointer: PR #298 body).
 
-PARKED PRs (open at 2026-07-12T20:53Z; landing path owner-click on green):
-- #291 `9e78133` browse-interaction goldens mint (D-0034 capstone) — base now main.
-- #292 `bbffe72` Mining slice-3: vault/stash/unstash/vaultupgrade — stacked, after #289 (merged).
-- #295 `0f81162` Settings-hub group select → read-only operator hubs (slice 4).
-- #296 `3d91a54` Mining slice-4: forge/repair/quickcraft/cook/use — stacked on slice-3.
-- #298 `c615818` checker: V010 settle-once fence (D-0078 successor) — NO check runs on head (verified 20:52Z); needs a CI kick (empty push or re-run) before owner-click.
-- #299 `48fbf94` Mining slice-5: skills/skill/titles — stacked on slice-4.
-- #300 `598fa03` Mining slice-6 (FINAL): build/buildlist/buildable/workshop/home — stacked on slice-5.
-- Separate: #302 `21090d9` tournament-flow goldens — post-close peer-session PR (session_01W5GG3JsuSfdkEzEb7i192U), not this seat's; no CI runs on head when last checked (20:52Z).
+## ROUTINES
+- FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v (cron 0 1-23/2 * * *) armed, bound to this seat; predecessor failsafe trig_01TuQrpMVpDCXB3K3VbjQUoA deleted at cutover 12:44Z (server-confirmed).
+- pacemaker send_later chain live (~15 min links).
+- business crons unchanged: kit-lab trig_01Jm57GAjNCFrYJn1oLMiYGE (fresh-session — NEVER rebind); docs-recon trig_018wP6XTPmf9DLnxrG4RpGVh (poke-only).
 
-in-flight: ban-compensator refuse-path fix dispatched to a worker session (expected branch `claude/ban-compensator-refuse-path`).
+## LANES (this seat)
+- curation remainder — COMPLETE: #333 (90a5cad), #352 (c587544), #373 (d7b18b2, owner-merged 12:54Z). Lane hazard recorded: manifest.snapshot.json stable_hash re-conflicts concurrent recompiling PRs; resolve = merge main in + tools/manifest_compile.py --write.
+- energy lane slices 1–3 (claim control/claims/energy-lane-slices-1-3.md): slice 1 = #384 all 14 checks green, parked open stacked on #320 (ORDER-017 park; enabler can't arm non-main-base). Slice 2 = #385 open (head beb134b); its tests/pip-audit reds at 13:19–13:23Z were GitHub Actions "Service Unavailable" infra flakes (jobs never executed), not code failures — lane owns the single environmental re-run. Slice 3 queued (fastmine dig-gating, after WP-3 #317).
+- generated-file merge-churn durable fix (⚑ self-initiated, dispatched 13:09Z): superbot-next manifest.snapshot.json + superbot dashboard/data churn; superbot-next PR #386 open.
+- superbot mineverse: #2058 (head 22071f5) + #2061 (head a1c95fb) fresh-resolved vs main, green, DRAFT deploy-holds — awaiting owner flip (merge=deploy). #2061's recurring conflict class corrected: generated dashboard.json churn, NOT mining_player_state.py; whichever FLAG lands second needs a trivial mining_player_state.py touch-up.
 
-claims: 8 stale claims swept this commit (each verified merged at GitHub: #279, #270, #267, #284, #288, #277, #269, #282); live claim kept: `slice1-equip-loadout-character` (deep-mining ladder — #292/#296/#299/#300 still open; #286/#289 merged).
+## OPEN PRs
+- WP stack #312→#317→#335→#344→#371 — gate-green, owner-click ordered sweep.
+- #320 energy domain core — gate-green, owner-click; merging it unblocks the #384→#385 energy stack.
+- #384 (green, parked), #385 (in progress), #386 (in progress).
+- superbot #2058/#2061 — draft deploy-holds, flip-ready.
 
-⚑ needs-owner (paste-ready):
-1. D-0043 deep-game ports go/no-go — 25 mining + 15 fishing goldens; the only path to a fully-green report job (NB the mining slice stack #292→#300 covers the mining-deep surface; #286/#289 already merged).
-2. Settings-prune corpus ratification for `btd6_strategy_submission_channel` + `skip_roles` (docs/review/admin-surface-audit-2026-07-12.md §8 — both shipped-dead parity artifacts, KEEP-ledgered pending ratification).
-3. OWNER-ACTION 3 — ruleset/merge-queue (six-field record in the pre-close status at `694e056`).
-4. OWNER-ACTION 5 — ANTHROPIC_API_KEY + AI_ENABLED (six-field record in the pre-close status at `694e056`).
+## ⚑ needs-owner (the standing eight)
 
-Resolved since the predecessor heartbeat: seat-failsafe re-arm DONE (trig_01TuQrpMVpDCXB3K3VbjQUoA, above); sweep_paragon disposition landed (#280 merged 20:24Z).
+1. Flip superbot #2058 (head 22071f5) + #2061 (head a1c95fb) to ready (merge=deploy) — both fresh-resolved vs main and green at 13:09Z, still DRAFT; a dashboard-refresh merge re-dirties them, so flip soon or request a re-resolve (recipe: checkout --theirs dashboard.json → python3.10 scripts/export_dashboard_data.py → stage regenerated files).
+2. Sweep-merge the WP stack #312→#317→#335→#344 (+ #371), then #320.
+3. Ratify the curation DROP list (60 items, #327 report §DROP).
+4. D-0083 anchor call (#346 proposal).
+5. SBW inventory+spec for sections (SIM-REQUEST 00:55Z, unanswered).
+6. Standing: settings-prune ratification; OWNER-ACTION 3 (ruleset/merge-queue) + 5 (ANTHROPIC_API_KEY/AI_ENABLED); delete scratch/union-test-a,-b; ORDER 001 token run; hermes egress creds (CLAUDE_ROUTINE_FIRE_URL + token).
+7. Minor: #2061 dashboard-conflict durable fix — gitattributes merge driver for generated dashboard files on superbot — dispatched 13:09Z (this seat): durable-fix lane covering superbot-next manifest.snapshot.json + superbot dashboard.json, PR #386 open.
+8. Minor: cosmetic "RED BY DESIGN"/"EXPECTED RED" banner strings in run_golden_parity.py/harness + golden-parity.yml step name (report leg is live green).
 
 next-2-tasks:
-1. V010 checker wrap on #298 (incl. codex false-negative triage) + AIP-07/08 + karma view-lane `_target_id` + local env-drift hygiene (pytest missing in this container's interpreter, noted).
-2. Owner-decision-dependent work (⚑ items above) once ruled.
+1. Energy slice 2 (#385) to green + slice 3; churn-fix #386 to green; verify all at HEAD.
+2. Owner sweep — mineverse flips, WP stack + #320, DROP list, D-0083, SBW answer.
+
+Pointers: previous seat retro = .sessions/2026-07-13-coordinator-seat-close.md (PR #378); boot heartbeat = PR #383.

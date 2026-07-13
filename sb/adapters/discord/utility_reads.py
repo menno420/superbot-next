@@ -104,4 +104,5 @@ class DiscordGuildDirectory:
             activity_name=(str(activity.name)
                            if activity is not None
                            and getattr(activity, "name", None) else None),
+            is_bot=bool(getattr(member, "bot", False)),
         )

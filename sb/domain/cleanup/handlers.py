@@ -1,11 +1,13 @@
 """Cleanup-surface handlers — the ``!cleanuphistory`` scan front door
-plus the declared + honest pending terminals for every panel click whose
+plus the declared + honest pending terminals for the panel clicks whose
 target is its own port slice (the settings/servermanagement precedent,
-never a silent stub): the Logging Status / Settings / Cleanup Policies
-sub-views, the word add/remove modals + the word-menu refresh (the
-word-mutation panel slice), the Scan History button and the
-anti-evasion toggle. Refs register at MODULE IMPORT (the
-composition-parity invariant — the live root never runs ENSURE_REFS).
+never a silent stub): the Settings / Cleanup Policies sub-views and the
+anti-evasion toggle. The word add/remove modals, the word-menu refresh,
+the Scan History button and the hub's Logging Status nav route to their
+LIVE targets in sb/domain/cleanup/panels.py (the 2026-07-13 curation
+rework — their terminals are retired). Refs register at MODULE IMPORT
+(the composition-parity invariant — the live root never runs
+ENSURE_REFS).
 
 The scan (``cleanup.history_scan``) ports disbot/cogs/cleanup_cog.py
 ``cleanup_history``: ``!cleanuphistory [limit=100] [keyword]`` reads the
@@ -70,24 +72,12 @@ def _register() -> None:
     from sb.spec.outcomes import BLOCKED, SUCCESS
     from sb.spec.refs import HandlerRef, handler, is_registered
 
-    pending_handler("cleanup.logging_pending",
-                    "📝 The Logging Status view ports with the "
-                    "server-logging slice.")
     pending_handler("cleanup.settings_pending",
                     "⚙️ The cleanup settings view ports with the "
                     "settings-mutation slice.")
     pending_handler("cleanup.policies_pending",
                     "🧹 The Cleanup Policies panel (diagnostics + presets "
                     "builder) ports with the cleanup-policy slice.")
-    pending_handler("cleanup.word_add_pending",
-                    f"➕ The Add-Word modal{_SLICE}")
-    pending_handler("cleanup.word_remove_pending",
-                    f"➖ The Remove-Word modal{_SLICE}")
-    pending_handler("cleanup.word_refresh_pending",
-                    f"🔄 The word-menu refresh{_SLICE}")
-    pending_handler("cleanup.scan_history_pending",
-                    "🔍 The Scan-History button ports with the channel-ops "
-                    "slice (`!cleanuphistory` is the command front door).")
     pending_handler("cleanup.anti_evasion_pending",
                     f"🛡️ The anti-evasion toggle{_SLICE}")
 

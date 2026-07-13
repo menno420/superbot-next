@@ -1,12 +1,15 @@
 """MINING subsystem manifest (band 6, checkpoint family / parity flip) —
 the FULL shipped command surface verbatim (37 commands): the core loop
-(fastmine/chop/explore/sell/sellall/buy + reads + the admin reset) is
+(fastmine/chop/explore/sell/sellall/buy + reads + the admin reset) AND
+the ported deep-system lanes (equip/loadouts, descend/ascend, vault,
+workshop repair/quickcraft, the energy-lane cook/use consumables) are
 live over the audited K7 lanes with the shipped reply bytes
 (goldens/mining/ pin them — see sb/domain/mining/service.py); `!mine`
-carries the capture-pinned grid-navigator artifact copy; the deep
-systems are honest pending terminals riding the D-0043 named successor
-port. The hub panel is the shipped MiningHubView byte-for-byte
-(sb/domain/mining/panels.py)."""
+carries the capture-pinned grid-navigator artifact copy; the remaining
+deep-system writes (wear ticks, grid dig, structure builds, skill
+spends, the slice-3 fastmine energy spend) ride their named successor
+slices as honest pending terminals. The hub panel is the shipped
+MiningHubView byte-for-byte (sb/domain/mining/panels.py)."""
 
 from __future__ import annotations
 

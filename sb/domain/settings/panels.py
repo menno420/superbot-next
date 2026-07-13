@@ -45,11 +45,14 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   on the honest pending terminal for every other group; the per-group
   scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
   settings-mutation slice's port;
-* every other click (diagnostics, command access, explorer
-  explain/reset/scope/paging) lands on a declared + honest pending
-  terminal (sb/domain/settings/handlers.py) — the sub-panels
-  (``settings_subsystem.*`` / ``settings_command_access.*`` families,
-  ``governance.resolve_subsystem_state``) are their own port slices.
+* the hub's remaining clicks (diagnostics, command access) land on a
+  declared + honest pending terminal (sb/domain/settings/handlers.py) —
+  the sub-panels (``settings_subsystem.*`` / ``settings_command_access.*``
+  families) are the settings-mutation slice's port. The EXPLORER'S six
+  controls are ARMED (curation rows 82-87): subsystem/scope selects,
+  Explain, Reset and the page-turn pair drive the governance diagnostic
+  read seam (``governance.resolve_subsystem_state``) + the K7
+  ``SET_VISIBILITY`` clear lane, byte-stable on the open golden.
 """
 
 from __future__ import annotations
@@ -158,6 +161,12 @@ _HUB_GROUPS: tuple[tuple[str, str, str, str], ...] = (
      "1v1 duel battles"),
     ("rps_tournament", "Rock Paper Scissors", "✂️",
      "Rock Paper Scissors: quick play, PvP, bot matches, tournaments"),
+    # --- post-flip growth (NOT a shipped-roster byte): the D-0082 game
+    # sections group (design §5) — routes to the games.sections settings
+    # panel via settings.open_group; appended so the 19 shipped options
+    # keep their golden order (goldens re-cut with the 20th option).
+    ("games", "Games", "🎮",
+     "Competitive games and channel activities"),
 )
 
 # --- the shipped explorer copy (views/access/explorer.py — the golden pins
@@ -332,13 +341,116 @@ def settings_hub_spec() -> PanelSpec:
 
 # --- the access-explorer spec --------------------------------------------------------
 
+#: the explorer's scope labels (the _ACCESS_SCOPES roster, keyed).
+_ACCESS_SCOPE_LABELS = {
+    "channel": "Channel (current)",
+    "category": "Category (current)",
+    "guild": "Guild (server-wide)",
+}
+
+_ACCESS_STATE_BADGES = {
+    "enabled": "✅ Enabled",
+    "disabled": "🚫 Disabled",
+    "blocked_dep": "⛔ Blocked by dependency",
+}
+
+
+def _access_page2_options() -> tuple[dict, ...]:
+    """The subsystem roster PAGE 2 — every governance-registered subsystem
+    the pinned page-1 roster does not carry, in registry declaration order
+    (the golden pins page 1 only; page 2 re-derives from the ONE registry
+    truth, so it can never drift from what governance actually gates).
+    Labels/emoji reuse the curated hub roster where a group exists; the
+    rest fall back to a mechanical title-case (honest, unpinned bytes).
+    Lazy governance import — the sections.py seam shape (PL-001)."""
+    from sb.domain.governance.registry import SUBSYSTEM_META
+
+    page1 = {value for value, _, _, _ in _ACCESS_SUBSYSTEMS}
+    curated = {value: (label, emoji, description)
+               for value, label, emoji, description in _HUB_GROUPS}
+    options: list[dict] = []
+    for key, meta in SUBSYSTEM_META.items():
+        if key in page1:
+            continue
+        label, emoji, description = curated.get(
+            key, (key.replace("_", " ").title(), "",
+                  f"Visibility tier: {meta.get('visibility_tier', 'user')}"))
+        option = {"value": key, "label": label, "description": description}
+        if emoji:
+            option["emoji"] = emoji
+        options.append(option)
+    return tuple(options[:25])
+
+
+def access_page_count() -> int:
+    return 2 if _access_page2_options() else 1
+
+
+def _access_option_label(value: str) -> str:
+    """Display label for a subsystem value across both roster pages."""
+    for v, label, _, _ in _ACCESS_SUBSYSTEMS:
+        if v == value:
+            return label
+    for option in _access_page2_options():
+        if option["value"] == value:
+            return str(option["label"])
+    return value
+
+
+def _access_axes(ctx_or_params, scope: str,
+                 channel_id: int | None) -> dict:
+    """Map the explorer's scope selection onto the resolver's context axes:
+    guild = no channel/category override lane; category = category + guild;
+    channel = the full chain (channel > category > guild)."""
+    def _int(value) -> int | None:
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    category_id = _int(ctx_or_params.get("category_id"))
+    if scope == "guild":
+        return {}
+    if scope == "category":
+        return {"category_id": category_id}
+    return {"channel_id": _int(channel_id), "category_id": category_id}
+
+
 async def _access_fields(ctx) -> tuple[tuple[str, str], ...]:
     """The shipped empty-selection state (the golden pins the two prompt
     fields; the renderer override marks them inline — the shipped
-    add_field(inline=True) wire shape)."""
-    del ctx
-    return (("Subsystem", "_Pick from the first dropdown._"),
-            ("Scope", "_Pick from the second dropdown._"))
+    add_field(inline=True) wire shape). With a session selection in
+    ``ctx.params`` (the armed interaction slice), the fields render the
+    RESOLVED state + provenance through the governance read seam
+    (``resolve_subsystem_state`` — lazy import, the sections.py shape)."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    subsystem = str(params.get("access_subsystem") or "")
+    if not subsystem:
+        return (("Subsystem", "_Pick from the first dropdown._"),
+                ("Scope", "_Pick from the second dropdown._"))
+
+    from sb.domain.governance import service as governance
+
+    scope = str(params.get("access_scope") or "channel")
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    res = await governance.resolve_subsystem_state(
+        guild_id, subsystem,
+        **_access_axes(params, scope, getattr(ctx, "channel_id", None)))
+    badge = _ACCESS_STATE_BADGES.get(res.state.value, res.state.value)
+    if not res.known:
+        provenance = "unregistered subsystem — fail-open (dispatch gate)"
+    elif res.source.value == "registry_default":
+        provenance = "registry default (no override)"
+    elif res.source.value == "dependency_block":
+        provenance = ("dependency block: "
+                      + ", ".join(res.dependency_blocks))
+    else:
+        provenance = f"{res.source.value} override"
+    subsystem_value = (f"{_access_option_label(subsystem)} (`{subsystem}`)\n"
+                       f"{badge} — {provenance}")
+    scope_value = (f"{_ACCESS_SCOPE_LABELS.get(scope, scope)}\n"
+                   "_Press **Explain Access** for the decision chain._")
+    return (("Subsystem", subsystem_value), ("Scope", scope_value))
 
 
 def settings_access_spec() -> PanelSpec:
@@ -363,14 +475,14 @@ def settings_access_spec() -> PanelSpec:
                 options_source=_options(_ACCESS_SUBSYSTEMS),
                 placeholder="Choose a subsystem… — page 1/2",
                 audience_tier="administrator",
-                on_select=HandlerRef("settings.access_subsystem_pending")),
+                on_select=HandlerRef("settings.access_subsystem")),
             # the shipped PERSISTENT scope select (access:select_scope).
             SelectorSpec(
                 selector_id="select_scope", kind=SelectorKind.ENUM,
                 options_source=_ACCESS_SCOPES,
                 placeholder="Choose a scope…",
                 audience_tier="administrator",
-                on_select=HandlerRef("settings.access_scope_pending"),
+                on_select=HandlerRef("settings.access_scope"),
                 custom_id_override="access:select_scope"),
         ),
         actions=(
@@ -378,12 +490,12 @@ def settings_access_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="explain", label="🔬 Explain Access",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_explain_pending"),
+                handler=HandlerRef("settings.access_explain"),
                 custom_id_override="access:explain"),
             PanelActionSpec(
                 action_id="reset", label="🔄 Reset",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_reset_pending"),
+                handler=HandlerRef("settings.access_reset"),
                 custom_id_override="access:reset"),
             # row 3 — the shipped session page-turn pair (run-minted ids;
             # the golden pins <cid:2>/<cid:3>; Prev renders disabled on
@@ -391,11 +503,11 @@ def settings_access_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="access_prev", label="◀ Prev",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_page_pending")),
+                handler=HandlerRef("settings.access_page")),
             PanelActionSpec(
                 action_id="access_next", label="Next ▶",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_page_pending")),
+                handler=HandlerRef("settings.access_page")),
         ),
         # the shipped explorer carried the standard nav row — 📚 Help +
         # ↩ Administration (the shipped parent hub is `admin`, pinned
@@ -437,11 +549,27 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
                        embed=_dc_replace(rendered.embed, footer=_HUB_FOOTER))
 
 
+def _mark_selected(options: tuple, value: str) -> tuple:
+    """Move the ``default`` flag onto the selected option (re-render only —
+    the open state never reaches here, so the golden bytes never move)."""
+    return tuple({**dict(o), "default": dict(o).get("value") == value}
+                 if isinstance(o, dict) else o for o in options)
+
+
 async def _render_access(spec: PanelSpec, ctx) -> object:
     """Grammar render + the three shipped adjustments (see justification):
     the invoker-named footer, inline prompt fields, first-page ◀ Prev
     disabled. The invoker name arrives via the opening request's args
-    (``settings.access_view`` — the economy author-display precedent)."""
+    (``settings.access_view`` — the economy author-display precedent).
+
+    The armed interaction slice re-renders through the SAME override with
+    the session selection in ``ctx.params`` (the engine's click-time
+    re-resolution): ``access_page`` 2 swaps the subsystem roster onto the
+    registry-derived page 2 (+ the honest ``page 2/2`` placeholder) and
+    flips which page-turn button is disabled; a selected subsystem/scope
+    moves the ``default`` flag on its select. With NO params (the golden's
+    open state) every branch below reduces to the shipped bytes: page 1,
+    ◀ Prev disabled, Next ▶ live, options untouched."""
     from sb.kernel.panels.render import render_panel
 
     rendered = await render_panel(spec, ctx)
@@ -450,11 +578,36 @@ async def _render_access(spec: PanelSpec, ctx) -> object:
     embed = _dc_replace(
         rendered.embed, footer=footer,
         fields=tuple((f[0], f[1], True) for f in rendered.embed.fields))
-    components = tuple(
-        _dc_replace(c, disabled=True)
-        if c.custom_id == f"{spec.panel_id}.access_prev" else c
-        for c in rendered.components)
-    return _dc_replace(rendered, embed=embed, components=components)
+    try:
+        page = int(ctx.params.get("access_page", 1) or 1)
+    except (TypeError, ValueError):
+        page = 1
+    page_count = access_page_count()
+    page = min(max(page, 1), page_count)
+    selected_subsystem = str(ctx.params.get("access_subsystem") or "")
+    selected_scope = str(ctx.params.get("access_scope") or "")
+    components = []
+    for c in rendered.components:
+        if c.custom_id == f"{spec.panel_id}.access_prev":
+            c = _dc_replace(c, disabled=page <= 1)
+        elif c.custom_id == f"{spec.panel_id}.access_next":
+            c = _dc_replace(c, disabled=page >= page_count)
+        elif c.custom_id == f"{spec.panel_id}.subsystem":
+            options = c.options
+            if page > 1:
+                options = _access_page2_options()
+                c = _dc_replace(
+                    c, options=options,
+                    placeholder=f"Choose a subsystem… — page {page}/"
+                                f"{page_count}")
+            if selected_subsystem:
+                c = _dc_replace(
+                    c, options=_mark_selected(options, selected_subsystem))
+        elif c.custom_id == "access:select_scope" and selected_scope:
+            c = _dc_replace(
+                c, options=_mark_selected(c.options, selected_scope))
+        components.append(c)
+    return _dc_replace(rendered, embed=embed, components=tuple(components))
 
 
 # --- registration -----------------------------------------------------------------

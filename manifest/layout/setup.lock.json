@@ -189,6 +189,149 @@
     "exempt": "legacy-seed: shipped hub order carried verbatim (multiples-of-10 convention); hub-topology sim re-runs post-telemetry (design-spec §9.3)"
    },
    "value": 72
+  },
+  "setup:setup.review_item:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "item_accept",
+       "item_deny",
+       "item_edit"
+      ],
+      [
+       "item_skip",
+       "item_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.review_item:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "item_accept",
+     "item_deny",
+     "item_edit"
+    ],
+    [
+     "item_skip",
+     "item_back"
+    ]
+   ]
+  },
+  "setup:setup.review_item:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "item_accept",
+        "item_deny",
+        "item_edit"
+       ],
+       [
+        "item_skip",
+        "item_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.sections_hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + ↩ Back to wizard on the nav row; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "section_preset_select",
+       "section_channels",
+       "section_logging_presets",
+       "section_roles",
+       "section_role_templates"
+      ],
+      [
+       "section_cleanup",
+       "section_moderation",
+       "section_cog_routing",
+       "section_ticket",
+       "section_final_review"
+      ],
+      [
+       "change_depth",
+       "back_to_wizard"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.sections_hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + ↩ Back to wizard on the nav row; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "section_preset_select",
+     "section_channels",
+     "section_logging_presets",
+     "section_roles",
+     "section_role_templates"
+    ],
+    [
+     "section_cleanup",
+     "section_moderation",
+     "section_cog_routing",
+     "section_ticket",
+     "section_final_review"
+    ],
+    [
+     "change_depth",
+     "back_to_wizard"
+    ]
+   ]
+  },
+  "setup:setup.sections_hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + ↩ Back to wizard on the nav row; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "section_preset_select",
+        "section_channels",
+        "section_logging_presets",
+        "section_roles",
+        "section_role_templates"
+       ],
+       [
+        "section_cleanup",
+        "section_moderation",
+        "section_cog_routing",
+        "section_ticket",
+        "section_final_review"
+       ],
+       [
+        "change_depth",
+        "back_to_wizard"
+       ]
+      ]
+     }
+    ]
+   }
   }
  },
  "schema_version": 1,
