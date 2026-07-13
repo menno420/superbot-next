@@ -1,10 +1,12 @@
-"""fishing_catch_log + fishing_energy + fishing_venue CRUD (band 6) —
-the dex/trophy record (shipped 075/095 shape), the per-(user, guild)
-cast-energy bar (shipped 088 shape) and the per-(user, guild) current
-venue (shipped 094 shape); all NAME_STABLE, MEMBER_ID delete erasure.
-Plain CRUD only — the energy regen math and the cast cost live in
-sb/domain/fishing/energy.py, the venue keys + per-venue tuning in
-sb/domain/fishing/venue.py (the shipped layering, verbatim)."""
+"""fishing_catch_log + fishing_energy + fishing_venue + fishing_rod CRUD
+(band 6) — the dex/trophy record (shipped 075/095 shape), the
+per-(user, guild) cast-energy bar (shipped 088 shape), the
+per-(user, guild) current venue (shipped 094 shape) and the
+per-(user, guild) owned rod tier (shipped 087 shape); all NAME_STABLE,
+MEMBER_ID delete erasure. Plain CRUD only — the energy regen math and
+the cast cost live in sb/domain/fishing/energy.py, the venue keys +
+per-venue tuning in sb/domain/fishing/venue.py, the rod ladder knobs +
+recipes in sb/domain/fishing/rods.py (the shipped layering, verbatim)."""
 
 from __future__ import annotations
 
@@ -23,13 +25,17 @@ from sb.spec.versioning import (
 __all__ = [
     "FISHING_CATCH_LOG_STORE",
     "FISHING_ENERGY_STORE",
+    "FISHING_ROD_STORE",
     "FISHING_VENUE_STORE",
     "get_catch_log",
     "get_fishing_energy",
     "get_fishing_venue",
+    "get_rod_tier",
+    "lock_rod_slot",
     "record_catch",
     "set_fishing_energy",
     "set_fishing_venue",
+    "set_rod_tier",
     "top_fishers",
     "top_trophies",
 ]
@@ -73,6 +79,20 @@ FISHING_VENUE_STORE = register_store(StoreSpec(
     bears_value=False,
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("fishing.erase_subject_venue"),
+))
+
+
+FISHING_ROD_STORE = register_store(StoreSpec(
+    table="fishing_rod",
+    sole_writer=EngineRef("fishing.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="fishing_rod",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("fishing.erase_subject_rod"),
 ))
 
 
@@ -181,6 +201,48 @@ async def set_fishing_venue(user_id: int, guild_id: int, venue: str,
         (user_id, guild_id, venue), conn=conn)
 
 
+async def get_rod_tier(user_id: int, guild_id: int,
+                       conn: Any = None) -> int:
+    """The player's owned rod tier (0 = starter when no row exists yet —
+    the shipped ``utils/db/games/fishing_rod.py`` default posture). A
+    PLAIN read on the read surfaces; the buy/craft legs re-read it
+    behind :func:`lock_rod_slot` inside their own txn."""
+    row = await fetchone(
+        "SELECT tier FROM fishing_rod WHERE user_id=$1 AND guild_id=$2",
+        (user_id, guild_id), conn=conn)
+    return int(row["tier"]) if row else 0
+
+
+async def set_rod_tier(user_id: int, guild_id: int, tier: int,
+                       conn: Any = None) -> None:
+    """Set the player's owned rod tier (insert the first row or raise it
+    — the shipped ``_SET_ROD_TIER_SQL`` upsert shape). Transaction-aware:
+    the buy/craft workflows debit coins / fish and bump the tier in ONE
+    workflow-owned txn (the shipped Q-0071 posture)."""
+    await execute(
+        "INSERT INTO fishing_rod (user_id, guild_id, tier) "
+        "VALUES ($1,$2,$3) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET tier = $3",
+        (user_id, guild_id, tier), conn=conn)
+
+
+async def lock_rod_slot(conn: Any, *, user_id: int,
+                        guild_id: int) -> None:
+    """Fence concurrent rod buy/craft attempts for one (user, guild)
+    against a first-insert / read-then-settle double-charge (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). Both rod
+    legs read the current tier (to size the coin/fish cost), debit, then
+    bump the tier — a read-then-settle over a natural-key row that may
+    not exist yet (a fresh player has no fishing_rod row), so FOR UPDATE
+    alone can lock nothing. A transaction-scoped advisory lock keyed on
+    the SAME (guild, user) pair serializes two racing upgrades: the loser
+    blocks here until the winner's txn commits, then re-reads the
+    winner's committed tier. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:rod:{guild_id}:{user_id}",), conn=conn)
+
+
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_catch_log WHERE user_id=$1", (user_id,),
@@ -204,6 +266,16 @@ async def erase_subject_energy(conn: Any, *, user_id: int) -> int:
 async def erase_subject_venue(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_venue WHERE user_id=$1", (user_id,),
+        conn=conn)
+    try:
+        return int(str(result).rsplit(" ", 1)[-1])
+    except (ValueError, AttributeError):
+        return 0
+
+
+async def erase_subject_rod(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM fishing_rod WHERE user_id=$1", (user_id,),
         conn=conn)
     try:
         return int(str(result).rsplit(" ", 1)[-1])

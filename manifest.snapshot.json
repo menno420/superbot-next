@@ -2286,6 +2286,22 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "surface": "prefix",
+          "value": "craftrod"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "rodrecipes"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
           "value": "bait"
         },
         {
@@ -2303,22 +2319,6 @@
           "subsystem": "fishing",
           "surface": "prefix",
           "value": "craftcharm"
-        },
-        {
-          "kind": "command",
-          "parent_group": null,
-          "source": "sb/manifest/fishing.py",
-          "subsystem": "fishing",
-          "surface": "prefix",
-          "value": "craftrod"
-        },
-        {
-          "kind": "command",
-          "parent_group": null,
-          "source": "sb/manifest/fishing.py",
-          "subsystem": "fishing",
-          "surface": "prefix",
-          "value": "rodrecipes"
         },
         {
           "kind": "command",
@@ -4751,6 +4751,36 @@
           "value": "fishing_reel"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_upgrade"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_craft"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_recipes"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_menu"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rr_craft"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rr_back"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "wisdom"
@@ -6228,6 +6258,16 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.card"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.rod_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.rod_recipes_panel"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -7786,6 +7826,11 @@
           "value": "fishing_venue"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_rod"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "game_state"
@@ -9092,8 +9137,8 @@
       "handler:fishing.craftpearl_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:fishing.craftrod_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftrod_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.curios_pending": {
         "module": "sb.domain.operator_spine"
@@ -9128,11 +9173,20 @@
       "handler:fishing.render_log": {
         "module": "sb.domain.fishing.panels"
       },
-      "handler:fishing.rod_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.render_rod_recipes": {
+        "module": "sb.domain.fishing.panels"
       },
-      "handler:fishing.rodrecipes_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.render_rod_shop": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.rod_shop": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rod_upgrade_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rodrecipes_view": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.sail_route": {
         "module": "sb.domain.fishing.service"
@@ -10287,6 +10341,12 @@
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.log": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.rod_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.rod_recipes_panel": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:four_twenty.overview": {
@@ -11459,7 +11519,13 @@
       "workflow:farm.upgrade_coop": {
         "module": "sb.domain.farm.ops"
       },
+      "workflow:fishing.buy_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_rod": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.erase_subject_catch_log": {
@@ -11468,10 +11534,19 @@
       "workflow:fishing.erase_subject_energy": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.erase_subject_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.erase_subject_venue": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.record_buy_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_rod": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:games.balance_payload_0": {
@@ -12276,6 +12351,14 @@
         },
         "subsystem": "fishing"
       },
+      "fishing_rod": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_rod",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
       "fishing_venue": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "fishing_venue",
@@ -12639,7 +12722,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:4c47033935d245fa33bb987145fc6e7150bcda174f5dc961aec38eaaac1d23e6",
+  "stable_hash": "sha256:8d7d0acf318a8b703b5186d2be9f0aa3eb7ba8f21e04e11ba548f36ca9483699",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -30632,11 +30715,64 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.rod_pending"
+            "$ref": "handler:fishing.rod_shop"
           },
           "slash_common": false,
           "summary": "The rod shop.",
           "usage": "!rod",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rodcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "craftrod",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftrod_route"
+          },
+          "slash_common": false,
+          "summary": "Craft a rod.",
+          "usage": "!craftrod",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "rodrecipe",
+            "rrecipes"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "rodrecipes",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.rodrecipes_view"
+          },
+          "slash_common": false,
+          "summary": "Rod crafting recipes.",
+          "usage": "!rodrecipes",
           "usage_weight": 1.0
         },
         {
@@ -30716,59 +30852,6 @@
           "slash_common": false,
           "summary": "Craft a fishing charm.",
           "usage": "!craftcharm",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [
-            "rodcraft"
-          ],
-          "audience_tier": "user",
-          "capability": "fishing",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "modal": null,
-          "name": "craftrod",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:fishing.craftrod_pending"
-          },
-          "slash_common": false,
-          "summary": "Craft a rod.",
-          "usage": "!craftrod",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [
-            "rodrecipe",
-            "rrecipes"
-          ],
-          "audience_tier": "user",
-          "capability": "fishing",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "modal": null,
-          "name": "rodrecipes",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:fishing.rodrecipes_pending"
-          },
-          "slash_common": false,
-          "summary": "Rod crafting recipes.",
-          "usage": "!rodrecipes",
           "usage_weight": 1.0
         },
         {
@@ -31029,7 +31112,7 @@
               "emoji": "🎒",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.rod_pending"
+                "$ref": "panel:fishing.rod_panel"
               },
               "label": "Rod",
               "modal": null,
@@ -31353,6 +31436,262 @@
           "timeout_s": 180,
           "title": "",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "rs_upgrade",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.rod_upgrade_route"
+              },
+              "label": "⬆️ Upgrade rod",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rs_craft",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.craftrod_route"
+              },
+              "label": "🎣 Craft from fish",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rs_recipes",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.rod_recipes_panel"
+              },
+              "label": "📋 Recipes",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rs_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!rod` reply is a fully live-state-parameterized embed built in the view (views/fishing/rod_shop.py build_rod_embed: the current-rod description + knob summary, the ✅/▶/🔒 ladder field, and the next-upgrade field with the live `Your balance: {n} 🪙` line + the craft-recipe pointer — goldens/fishing/sweep_rod.json pins the fresh tier-0 bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining workshop/home precedent). The renderer patches only the embed and the at-max disabled flags on ⬆️ Upgrade rod / 🎣 Craft from fish (the shipped RodShopView gating); every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rs_upgrade",
+                    "rs_craft",
+                    "rs_recipes"
+                  ],
+                  [
+                    "rs_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.rod_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_rod_shop"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🎣 Your Fishing Rod",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "rr_craft",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.craftrod_route"
+              },
+              "label": "🎣 Craft next",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rr_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.rod_panel"
+              },
+              "label": "↩ Rod shop",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Craft your way up the ladder from caught fish — smallest catches spend first, so your trophies are always safe. Coins remain the fast alternative (`!rod`)."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!rodrecipes` ladder field is live-state-parameterized end to end (views/fishing/rod_recipe_browser.py _recipe_line: every craftable tier renders the player's current eligible-fish count against the requirement — `0/10 eligible fish (size ≤ 6)` — with the ✅ owned / ▶ next / 🔒 locked marks and the ready-to-craft tail; goldens/fishing/sweep_rodrecipes.json pins the fresh tier-0 bytes), outside the static TextBlock/FieldsBlock vocabulary (the rod-shop / mining-workshop precedent). The renderer patches only the embed field and the at-max disabled flag on 🎣 Craft next; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rr_craft"
+                  ],
+                  [
+                    "rr_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.rod_recipes_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_rod_recipes"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "📋 Rod Recipes",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -31439,6 +31778,34 @@
             "$ref": "engine:fishing.store"
           },
           "table": "fishing_venue",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_rod"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_rod",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_rod",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
