@@ -1,7 +1,7 @@
 {
   "plugins": {
     "superbot-idle-plugin": {
-      "manifest_hash": "sha256:963f2c3b5db77d23513747862e883ac6ca724b24814d8501c8de61e3befb9265",
+      "manifest_hash": "sha256:48bf953dc6a91962e4d5841f85435b20eafa7f614f6916be2320be2c8646fe1c",
       "subsystems": [
         "idle"
       ],

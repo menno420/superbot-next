@@ -47,7 +47,7 @@ Increment-2 seams, grounded in the engine (never fabricated):
 from __future__ import annotations
 
 from sb.spec.commands import CommandKind, CommandSpec
-from sb.spec.events import EventSpec, FieldSpec
+from sb.spec.events import EventSpec, FieldSpec, register_event_specs
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.panels import (
     EmbedFrameSpec,
@@ -178,6 +178,14 @@ EVENTS = (
 )
 
 
+# Register the events facet into KNOWN_EVENTS at module import — mirroring the
+# in-tree discipline (sb/manifest/xp.py:165). Declaring EVENTS on the manifest
+# alone never populates the runtime registry; without this call idle.tick /
+# idle.offline_return stay unknown at live boot. register_event_specs is
+# idempotent (identical re-registration is a no-op; sb.spec.events).
+register_event_specs(list(EVENTS))
+
+
 def _ensure_refs() -> None:
     """Idempotent ref registration (the in-tree ``ENSURE_REFS`` discipline:
     decorators run at first import only; the compiler's test seam may clear
@@ -190,6 +198,10 @@ def _ensure_refs() -> None:
         handler(HANDLER_SHOP)(render_forward.forward_shop)
     if not is_registered(HandlerRef(HANDLER_PRESTIGE)):
         handler(HANDLER_PRESTIGE)(render_forward.forward_prestige)
+    # Mirror the in-tree ENSURE_REFS discipline (sb/manifest/xp.py:180): the
+    # compiler's test seam may clear KNOWN_EVENTS without evicting module
+    # caches, so re-register idempotently here too.
+    register_event_specs(list(EVENTS))
 
 
 _ensure_refs()
@@ -200,9 +212,18 @@ MANIFEST = SubsystemManifest(
     key="idle",
     version=1,
     commands=(
+        # ``idle`` is the PREFIX entry to the status panel AND the parent of the
+        # ``/idle status|shop|prestige`` slash group. It is PREFIX-only on
+        # purpose: were it kind=BOTH it would emit a standalone ``/idle`` app
+        # command whose name collides with the ``idle`` slash Group the three
+        # grouped subcommands create (discord.py CommandAlreadyRegistered →
+        # live startup fails before the gateway; see host
+        # sb/adapters/discord/command_tree.py register_app_commands/_group_for).
+        # The panel stays fully reachable: ``!idle`` routes to it here and it is
+        # registered via the @panel ref, independent of the slash surface.
         CommandSpec(
             name="idle",
-            kind=CommandKind.BOTH,
+            kind=CommandKind.PREFIX,
             route=PanelRef(PANEL_ID),
             summary="Open the idle-engine status panel.",
             usage="!idle",
