@@ -56,3 +56,16 @@
   `sb/manifest/setup.py`, `manifest.snapshot.json`,
   `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
   `compat/`, `tests/unit/setup_band/` · 2026-07-13
+- `claude/setup-wizard-6` · scope: setup-wizard successors, slice 6 =
+  the roles-family section flows (roles — the time/XP auto-role tier
+  detail staging `set_role_threshold` rows through the newly
+  registered K7 `role.set_threshold` op kind, time + XP folded per
+  role onto the full-row-upsert leg; role_templates — the
+  six-template permission-free bundle catalogue ported verbatim from
+  services/setup_role_templates.py, pick → preview → stage
+  `create_managed_role` rows fail-closed, the logging_presets
+  create_channel precedent; cog_routing / ticket stay honest
+  terminals — slice 7 closes the lane) · area: `sb/domain/setup/`,
+  `sb/manifest/setup.py`, `manifest.snapshot.json`,
+  `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
+  `compat/`, `tests/unit/setup_band/` · 2026-07-13
