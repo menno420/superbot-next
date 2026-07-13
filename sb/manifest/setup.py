@@ -46,6 +46,8 @@ from sb.domain.setup import moderation as _moderation
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
 from sb.domain.setup import preset_select as _preset_select
+from sb.domain.setup import role_templates as _role_templates
+from sb.domain.setup import roles as _roles
 from sb.domain.setup import section_card as _section_card
 from sb.domain.setup import store as _store
 from sb.domain.setup import wizard as _wizard
@@ -194,7 +196,11 @@ MANIFEST = SubsystemManifest(
             _section_card.card_spec_for("moderation"),
             _moderation.moderation_detail_spec(),
             _section_card.card_spec_for("cleanup"),
-            _cleanup.cleanup_detail_spec()),
+            _cleanup.cleanup_detail_spec(),
+            _section_card.card_spec_for("roles"),
+            _roles.roles_detail_spec(),
+            _section_card.card_spec_for("role_templates"),
+            _role_templates.role_templates_detail_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -215,6 +221,8 @@ def _ensure_refs() -> None:
     _logging_presets.ensure_logging_presets_refs()
     _moderation.ensure_setup_moderation_refs()
     _cleanup.ensure_setup_cleanup_refs()
+    _roles.ensure_setup_roles_refs()
+    _role_templates.ensure_setup_role_templates_refs()
     _section_card.ensure_section_card_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()

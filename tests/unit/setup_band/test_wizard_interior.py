@@ -186,10 +186,10 @@ def test_section_click_holds_the_named_successor_terminal(monkeypatch):
     from sb.domain.setup import wizard
 
     monkeypatch.setattr(wizard, "can_apply_setup", _Gate(True))
-    reply = run(_resolve("setup.open_section_roles")(_req()))
+    reply = run(_resolve("setup.open_section_cog_routing")(_req()))
     assert reply.outcome == BLOCKED
     assert "section-flows slice" in reply.user_message
-    assert "`roles`" in reply.user_message
+    assert "`cog_routing`" in reply.user_message
 
 
 def test_hub_gate_refusal_is_the_shipped_copy(monkeypatch):
@@ -993,7 +993,11 @@ def test_interior_panels_ride_the_manifest():
         # cleanup card+detail pairs.
         "setup.section_logging_presets", "setup.logging_picker",
         "setup.section_moderation", "setup.moderation_detail",
-        "setup.section_cleanup", "setup.cleanup_detail"]
+        "setup.section_cleanup", "setup.cleanup_detail",
+        # the roles-family slice: the roles / role_templates
+        # card+detail pairs.
+        "setup.section_roles", "setup.roles_detail",
+        "setup.section_role_templates", "setup.role_templates_detail"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {

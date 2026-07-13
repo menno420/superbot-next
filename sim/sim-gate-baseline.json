@@ -7598,6 +7598,76 @@
     ]
    }
   },
+  "setup:setup.roles_detail:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the roles-family slice carries the shipped roles detail arrangement as the seed (oracle menno420/superbot views/setup/sections/roles.py RolesSectionView: the time-tier role picker on row 0 + the XP-tier role picker on row 1 \u2014 explicit row= assignments; the oracle's pick-opened threshold modals ride the declared defer_mode=MODAL buttons on row 2, state-revealed \u2014 a G-10 modal must be the interaction's FIRST response; \u201crow 4 is reserved by wizard_nav.render_step_detail\u201d, its own docstring \u2014 the \u21a9 Back to step button rides that injection convention); no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "roles_time_role"
+      ],
+      [
+       "roles_xp_role"
+      ],
+      [
+       "roles_time_days",
+       "roles_xp_level"
+      ],
+      [
+       "roles_back_step"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.roles_detail:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the roles-family slice carries the shipped roles detail arrangement as the seed (oracle menno420/superbot views/setup/sections/roles.py RolesSectionView: the time-tier role picker on row 0 + the XP-tier role picker on row 1 \u2014 explicit row= assignments; the oracle's pick-opened threshold modals ride the declared defer_mode=MODAL buttons on row 2, state-revealed \u2014 a G-10 modal must be the interaction's FIRST response; \u201crow 4 is reserved by wizard_nav.render_step_detail\u201d, its own docstring \u2014 the \u21a9 Back to step button rides that injection convention); no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    [
+     "roles_time_role"
+    ],
+    [
+     "roles_xp_role"
+    ],
+    [
+     "roles_time_days",
+     "roles_xp_level"
+    ],
+    [
+     "roles_back_step"
+    ]
+   ]
+  },
+  "setup:setup.roles_detail:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the roles-family slice carries the shipped roles detail arrangement as the seed (oracle menno420/superbot views/setup/sections/roles.py RolesSectionView: the time-tier role picker on row 0 + the XP-tier role picker on row 1 \u2014 explicit row= assignments; the oracle's pick-opened threshold modals ride the declared defer_mode=MODAL buttons on row 2, state-revealed \u2014 a G-10 modal must be the interaction's FIRST response; \u201crow 4 is reserved by wizard_nav.render_step_detail\u201d, its own docstring \u2014 the \u21a9 Back to step button rides that injection convention); no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "roles_time_role"
+       ],
+       [
+        "roles_xp_role"
+       ],
+       [
+        "roles_time_days",
+        "roles_xp_level"
+       ],
+       [
+        "roles_back_step"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "setup:setup.sections_hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + \u21a9 Back to wizard on the nav row; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
