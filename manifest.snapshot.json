@@ -7303,6 +7303,11 @@
           "value": "server_management.access_map"
         },
         {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "server_management.help_preview"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.hub"
@@ -10401,14 +10406,17 @@
       "handler:server_management.help_editor_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:server_management.help_preview_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:server_management.help_preview_tier": {
+        "module": "sb.domain.server_management.help_preview"
       },
       "handler:server_management.moderation_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:server_management.render_access_map": {
         "module": "sb.domain.server_management.access_map"
+      },
+      "handler:server_management.render_help_preview": {
+        "module": "sb.domain.server_management.help_preview"
       },
       "handler:server_management.render_hub": {
         "module": "sb.domain.server_management.panels"
@@ -11487,6 +11495,9 @@
       "panel:server_management.access_map": {
         "module": "sb.domain.server_management.access_map"
       },
+      "panel:server_management.help_preview": {
+        "module": "sb.domain.server_management.help_preview"
+      },
       "panel:server_management.hub": {
         "module": "sb.domain.server_management.panels"
       },
@@ -11972,6 +11983,12 @@
       },
       "provider:server_management.access_map_tiers": {
         "module": "sb.domain.server_management.access_map"
+      },
+      "provider:server_management.help_preview_fields": {
+        "module": "sb.domain.server_management.help_preview"
+      },
+      "provider:server_management.help_preview_tiers": {
+        "module": "sb.domain.server_management.help_preview"
       },
       "provider:server_management.hub_health": {
         "module": "sb.domain.server_management.panels"
@@ -13682,7 +13699,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:334baa9c551fa6a61196556edfa7705df8ffdcc472b672ef591392c3ffeac3a3",
+  "stable_hash": "sha256:fad0d09c68c37f25bde4f75da1b8c40c90103029b99537f0b9f86d43414aa6ae",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -51076,7 +51093,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.help_preview_pending"
+                "$ref": "panel:server_management.help_preview"
               },
               "label": "👁 Help Preview",
               "modal": null,
@@ -51333,6 +51350,84 @@
           "subsystem": "server_management",
           "timeout_s": 180,
           "title": "🔓 Access Map",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "What Help advertises to a **Normal member** in this channel. Display-only — the live Help command stays the renderer of record."
+            },
+            {
+              "provider": {
+                "$ref": "provider:server_management.help_preview_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped subpanel footer is the literal 'Read-only preview · simulated audience' (access_map.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary — and the description is TIER-keyed state copy ('What Help advertises to a **<tier>** …', re-rendered per audience pick) — the access_map/cogmgr precedent. The override delegates to the grammar renderer and adjusts only those two embed surfaces; fields, selector, navigation and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "hp_tier"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:server_management.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "server_management.help_preview",
+          "renderer_override": {
+            "$ref": "handler:server_management.render_help_preview"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:server_management.help_preview_tier"
+              },
+              "options_source": {
+                "$ref": "provider:server_management.help_preview_tiers"
+              },
+              "page_size": 25,
+              "placeholder": "Simulate audience…",
+              "selector_id": "hp_tier",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "server_management",
+          "timeout_s": 180,
+          "title": "👁 Help Preview",
           "usage_weight": 1.0
         }
       ],

@@ -58,11 +58,11 @@ Deliberate under-port notes (parity beyond the golden):
   slices, so the golden-pinned badge literal ships here (the ux_lab
   Exhibits-line precedent) and re-derivation lands as each manager
   ports;
-* Moderation/Roles/Cleanup/Help Preview/Help editor clicks land on
-  declared pending terminals; Channels forwards to the PORTED
-  ``channel.hub`` panel, Setup to the band-1 ``setup.hub``, and Access
-  Map to the PORTED ``server_management.access_map`` subpanel (the
-  shipped hub routed into those managers).
+* Moderation/Roles/Cleanup/Help editor clicks land on declared pending
+  terminals; Channels forwards to the PORTED ``channel.hub`` panel,
+  Setup to the band-1 ``setup.hub``, and Access Map / Help Preview to
+  the PORTED ``server_management.access_map`` / ``.help_preview``
+  subpanels (the shipped hub routed into those managers).
 """
 
 from __future__ import annotations
@@ -186,8 +186,13 @@ def server_management_hub_spec() -> PanelSpec:
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
                 handler=PanelRef("server_management.access_map"),
                 custom_id_override="server_management:access_map"),
-            _pending("help_preview", "👁 Help Preview",
-                     style=ActionStyle.SECONDARY),
+            PanelActionSpec(
+                action_id="help_preview", label="👁 Help Preview",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                # PORTED (the P1C Help Preview over the P1A projection —
+                # help_preview.py); the shipped wire id survives verbatim.
+                handler=PanelRef("server_management.help_preview"),
+                custom_id_override="server_management:help_preview"),
             _pending("help_editor", "✏️ Help editor",
                      style=ActionStyle.SECONDARY),
             PanelActionSpec(

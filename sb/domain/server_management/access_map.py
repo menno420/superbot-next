@@ -16,7 +16,7 @@ Shape (shipped copy verbatim):
 * the ✅ Allowed (n) / ❌ Denied (n) / ❓ Unresolved (n) fields — denied
   rows carry ONLY the user-safe reason + the deciding axis; fields chunk
   at Discord's 1024-char cap with ``(cont.)`` parts (the shipped
-  ``_chunk_field``), so nothing ever silently sheds;
+  ``chunk_field``), so nothing ever silently sheds;
 * the pinned "Simulation limits" field (the shipped §16.4 label byte);
 * the "Read-only · pick a feature below for the full source chain"
   footer (a literal outside FooterMode's vocabulary — renderer_override,
@@ -80,10 +80,13 @@ from sb.spec.refs import (
 logger = logging.getLogger("sb.domain.server_management.access_map")
 
 __all__ = [
+    "AUDIENCE_TIERS",
     "SIMULATION_LIMIT_NOTE",
     "access_map_spec",
+    "chunk_field",
     "ensure_access_map_refs",
     "tier_for",
+    "tier_label",
 ]
 
 #: the shipped §16.4 label — every simulated rendering carries it (byte
@@ -95,7 +98,7 @@ SIMULATION_LIMIT_NOTE = (
 
 #: the shipped §6.3 simulation audiences (sub-owner tiers an operator
 #: previews as), verbatim.
-_AUDIENCE_TIERS: tuple[tuple[str, str], ...] = (
+AUDIENCE_TIERS: tuple[tuple[str, str], ...] = (
     ("user", "Normal member"),
     ("trusted", "Trusted user"),
     ("staff", "Staff"),
@@ -110,14 +113,14 @@ _FIELD_CAP = 1024
 _FOOTER = "Read-only · pick a feature below for the full source chain"
 
 
-def _tier_label(tier: str) -> str:
-    return next((label for t, label in _AUDIENCE_TIERS if t == tier), tier)
+def tier_label(tier: str) -> str:
+    return next((label for t, label in AUDIENCE_TIERS if t == tier), tier)
 
 
 def _description(tier: str) -> str:
     """The shipped embed description, tier-keyed (build_access_map_embed)."""
     return (
-        f"Effective feature access for a **{_tier_label(tier)}** in this "
+        f"Effective feature access for a **{tier_label(tier)}** in this "
         "channel — a read-only projection over the live policy owners "
         "(command access · routing · governance · help)."
     )
@@ -140,7 +143,7 @@ def tier_for(guild_id, user_id) -> str:
     """The renderer's read of the invoker's simulated tier (default: the
     shipped opening tier, ``user``)."""
     tier = _tier_pick.get(_mem_key(guild_id, user_id), "user")
-    return tier if any(t == tier for t, _ in _AUDIENCE_TIERS) else "user"
+    return tier if any(t == tier for t, _ in AUDIENCE_TIERS) else "user"
 
 
 def _ctx_ids(ctx) -> tuple[int, int, int | None]:
@@ -177,9 +180,9 @@ async def _projection(ctx) -> tuple:
     return decisions
 
 
-def _chunk_field(fields: list[tuple[str, str]], name: str,
-                 lines: list[str]) -> None:
-    """The shipped ``_chunk_field``: add ``lines`` as one or more fields,
+def chunk_field(fields: list[tuple[str, str]], name: str,
+                lines: list[str]) -> None:
+    """The shipped ``chunk_field``: add ``lines`` as one or more fields,
     respecting the 1024-char cap — ``(cont.)`` parts, nothing sheds."""
     if not lines:
         return
@@ -213,12 +216,12 @@ async def _access_map_fields(ctx) -> tuple[tuple[str, str], ...]:
 
     fields: list[tuple[str, str]] = []
     if allowed:
-        _chunk_field(fields, f"✅ Allowed ({len(allowed)})",
-                     ["· ".join(allowed)])
-    _chunk_field(fields, f"❌ Denied ({len(denied_lines)})", denied_lines)
+        chunk_field(fields, f"✅ Allowed ({len(allowed)})",
+                    ["· ".join(allowed)])
+    chunk_field(fields, f"❌ Denied ({len(denied_lines)})", denied_lines)
     if unknown:
-        _chunk_field(fields, f"❓ Unresolved ({len(unknown)})",
-                     ["· ".join(unknown)])
+        chunk_field(fields, f"❓ Unresolved ({len(unknown)})",
+                    ["· ".join(unknown)])
     fields.append(("Simulation limits", SIMULATION_LIMIT_NOTE))
     return tuple(fields)
 
@@ -230,7 +233,7 @@ async def _tier_options(ctx) -> tuple[dict, ...]:
     current = tier_for(gid, uid)
     return tuple(
         {"label": label, "value": tier, "default": tier == current}
-        for tier, label in _AUDIENCE_TIERS
+        for tier, label in AUDIENCE_TIERS
     )
 
 
@@ -375,7 +378,7 @@ def _register_refs() -> None:
         re-render the panel in place for the new simulated audience."""
         values = tuple(req.args.get("values") or ())
         picked = str(values[0]) if values else ""
-        if not any(t == picked for t, _ in _AUDIENCE_TIERS):
+        if not any(t == picked for t, _ in AUDIENCE_TIERS):
             # stale/unknown option — the polite terminal, never a crash.
             return Reply(SUCCESS, "That audience tier is not available.")
         key = _req_key(req)
