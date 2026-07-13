@@ -45,14 +45,22 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   on the honest pending terminal for every other group; the per-group
   scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
   settings-mutation slice's port;
-* the hub's remaining clicks (diagnostics, command access) land on a
-  declared + honest pending terminal (sb/domain/settings/handlers.py) —
-  the sub-panels (``settings_subsystem.*`` / ``settings_command_access.*``
-  families) are the settings-mutation slice's port. The EXPLORER'S six
-  controls are ARMED (curation rows 82-87): subsystem/scope selects,
-  Explain, Reset and the page-turn pair drive the governance diagnostic
-  read seam (``governance.resolve_subsystem_state``) + the K7
-  ``SET_VISIBILITY`` clear lane, byte-stable on the open golden.
+* the hub's remaining pending clicks (🕒 Recent changes, 🚪 Command
+  access) land on a declared + honest pending terminal
+  (sb/domain/settings/handlers.py) — the audit view and the Command
+  Access panel (``settings_command_access.*`` family) are later slices'
+  ports, as is the per-group mutation page (``settings_subsystem.*``).
+  The EXPLORER'S six controls are ARMED (curation rows 82-87):
+  subsystem/scope selects, Explain, Reset and the page-turn pair drive
+  the governance diagnostic read seam
+  (``governance.resolve_subsystem_state``) + the K7 ``SET_VISIBILITY``
+  clear lane, byte-stable on the open golden. The three READ-ONLY
+  diagnostic buttons are ARMED (settings-admin slice 1): 📋 Needs setup /
+  ⚠️ Invalid settings / 🔗 Missing bindings open their shipped sub-panels
+  (disbot/views/settings/{needs_setup,invalid_settings,missing_bindings}
+  .py, copy verbatim) as declared PanelRef open-child terminals — the
+  channel sub-panel precedent; the wire ``settings_hub.*`` custom_ids
+  never move.
 """
 
 from __future__ import annotations
@@ -89,6 +97,9 @@ __all__ = [
     "install_settings_panels",
     "settings_access_spec",
     "settings_hub_spec",
+    "settings_invalid_spec",
+    "settings_missing_bindings_spec",
+    "settings_needs_setup_spec",
 ]
 
 # --- the shipped hub copy (views/settings/hub.py build_embed — the goldens
@@ -265,16 +276,18 @@ async def _hub_fields(ctx) -> tuple[tuple[str, str], ...]:
             ("Customization findings", _HUB_FINDINGS))
 
 
-def _hub_button(action_id: str, label: str, emoji: str) -> PanelActionSpec:
+def _hub_button(action_id: str, label: str, emoji: str,
+                target: PanelRef | None = None) -> PanelActionSpec:
     """One shipped grey diagnostic button — emoji as a SEPARATE component
-    field; the shipped persistent custom_id survives verbatim; the
-    diagnostic sub-panels port with the settings-mutation slice, so every
-    click lands on the polite pending terminal."""
+    field; the shipped persistent custom_id survives verbatim. An armed
+    button routes to its diagnostic sub-panel (*target* — the PanelRef
+    open-child terminal, the channel-band precedent); the rest land on
+    the polite pending terminal until their own slice ports them."""
     return PanelActionSpec(
         action_id=action_id, label=label, emoji=emoji,
         style=ActionStyle.SECONDARY,
         audience_tier="administrator",       # the shipped operator-hub gate
-        handler=HandlerRef(f"settings.{action_id}_pending"),
+        handler=target or HandlerRef(f"settings.{action_id}_pending"),
         custom_id_override=f"settings_hub.{action_id}")
 
 
@@ -306,13 +319,18 @@ def settings_hub_spec() -> PanelSpec:
                 custom_id_override="settings_hub.subsystem_select"),
         ),
         actions=(
-            # row 1 — the shipped grey diagnostic quartet.
-            _hub_button("needs_setup", "Needs setup", "📋"),
-            _hub_button("invalid", "Invalid settings", "⚠️"),
-            _hub_button("missing_bindings", "Missing bindings", "🔗"),
+            # row 1 — the shipped grey diagnostic quartet. The three
+            # read-only diagnostics are ARMED (settings-admin slice 1) as
+            # open-child PanelRef terminals; the audit view is slice 2.
+            _hub_button("needs_setup", "Needs setup", "📋",
+                        PanelRef("settings.needs_setup")),
+            _hub_button("invalid", "Invalid settings", "⚠️",
+                        PanelRef("settings.invalid")),
+            _hub_button("missing_bindings", "Missing bindings", "🔗",
+                        PanelRef("settings.missing_bindings")),
             _hub_button("audit", "Recent changes", "🕒"),
             # row 2 — the Command access door (PR-6's panel is the
-            # settings-mutation slice's port; pending terminal).
+            # command-access slice's port; pending terminal).
             _hub_button("command_access", "Command access", "🚪"),
         ),
         # the shipped hub carried NO standard nav row — the goldens pin
@@ -337,6 +355,354 @@ def settings_hub_spec() -> PanelSpec:
             ("command_access",),
         )),)),
     )
+
+
+# --- the three armed diagnostic sub-panels (settings-admin slice 1) ------------------
+#
+# Oracle-verbatim ports of the shipped read-only diagnostics
+# (disbot/views/settings/needs_setup.py / invalid_settings.py /
+# missing_bindings.py — copy byte-verbatim, double spaces included):
+#   * Needs setup   — declaration-only: required BindingSpec slots +
+#     REQUIRED-priority ResourceRequirement intents per subsystem, read
+#     from the ONE manifest inventory (the shipped subsystem-schema
+#     registry's successor);
+#   * Invalid settings — walks every declared SettingSpec through the K7
+#     typed resolution (service.resolve_setting) and lists valid=False
+#     rows (coercion/validator failure; resolver fell back to default);
+#   * Missing bindings — every declared BindingSpec whose runtime status
+#     is not `bound` (the subsystem_bindings store read; a declared slot
+#     with no row is the shipped `unresolved`).
+# Back to Hub is a PanelRef open-child terminal (the channel sub-panel
+# precedent); its custom_id is run-minted — the shipped
+# ``settings_needs_setup.back`` family ids are NOT in the compat freeze,
+# and minting keeps compat/compat-frozen.json untouched (PL-001 flag).
+
+_NEEDS_SETUP_DESCRIPTION = (
+    "Subsystems whose schema declares **required** bindings or "
+    "resource requirements.  This shows what _should_ be "
+    "configured; the *bound vs unresolved* status of each slot "
+    "lives in the **Missing bindings** view."
+)
+
+_INVALID_DESCRIPTION = (
+    "Settings whose current KV value failed coercion or "
+    "validation.  Resolver fell back to the declared default "
+    "for runtime safety; fix the underlying KV row via the "
+    "subsystem page's edit/reset control."
+)
+
+_MISSING_BINDINGS_DESCRIPTION = (
+    "Declared bindings whose runtime status is not `bound`.  "
+    "Includes unresolved slots (no row yet), targets that "
+    "disappeared from Discord, and kind-drift cases.  Bind "
+    "controls land alongside the setup wizard's binding "
+    "section (planned)."
+)
+
+#: the shipped DM guards + empty states, verbatim.
+_INVALID_DM = ("*Run this from within a guild — DM has no scalar values "
+               "to resolve.*")
+_MISSING_DM = ("*Run this from within a guild — DM has no per-guild "
+               "binding state.*")
+_NEEDS_SETUP_EMPTY = ("*No subsystem declares any required bindings or "
+                      "resources.*")
+
+#: the shipped S6 footer literal (invalid_settings.py set_footer) — kept
+#: verbatim; the "edit flow" is the settings-mutation slice here.
+_INVALID_FOOTER = "S6 introduces the edit flow that fixes these in place."
+
+
+def _iter_settings_facets() -> tuple[tuple[str, object], ...]:
+    """(subsystem key, manifest) in key order — the ONE manifest inventory
+    walk (the ai_tasks.capabilities_overview / help command_inventory
+    precedent). The shipped diagnostics read ``all_schemas()``; the
+    compiled architecture's subsystem-schema truth is sb.manifest."""
+    import importlib
+    import pkgutil
+
+    import sb.manifest as manifest_pkg
+
+    pairs: list[tuple[str, object]] = []
+    for info in sorted(pkgutil.iter_modules(manifest_pkg.__path__),
+                       key=lambda i: i.name):
+        module = importlib.import_module(f"sb.manifest.{info.name}")
+        for manifest in ([getattr(module, "MANIFEST", None)]
+                         + list(getattr(module, "MANIFESTS", ()) or ())):
+            if manifest is None:
+                continue
+            pairs.append((str(getattr(manifest, "key", info.name)), manifest))
+    return tuple(sorted(pairs, key=lambda p: p[0]))
+
+
+def _gather_required_bindings() -> dict[str, list[str]]:
+    """``{subsystem: [required binding names]}`` (needs_setup.py verbatim,
+    over the manifest settings facet — BindingSpecs ride the same tuple)."""
+    from sb.spec.settings import BindingSpec
+
+    out: dict[str, list[str]] = {}
+    for key, manifest in _iter_settings_facets():
+        required = [b.name for b in getattr(manifest, "settings", ()) or ()
+                    if isinstance(b, BindingSpec) and b.required]
+        if required:
+            out[key] = required
+    return out
+
+
+def _gather_required_resources() -> dict[str, list[str]]:
+    """``{subsystem: [required resource intents]}`` (needs_setup.py
+    verbatim — ProvisioningPriority.REQUIRED only)."""
+    from sb.spec.settings import ProvisioningPriority, ResourceRequirement
+
+    out: dict[str, list[str]] = {}
+    for key, manifest in _iter_settings_facets():
+        required = [
+            r.intent for r in getattr(manifest, "settings", ()) or ()
+            if isinstance(r, ResourceRequirement)
+            and r.provisioning.priority is ProvisioningPriority.REQUIRED]
+        if required:
+            out[key] = required
+    return out
+
+
+async def _needs_setup_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Needs-setup body (guild-independent — declarations
+    only): the required-binding + required-resource rosters, or the
+    shipped empty state."""
+    del ctx  # guild-independent view — uses declarations only
+    bindings = _gather_required_bindings()
+    resources = _gather_required_resources()
+    if not bindings and not resources:
+        return (("Result", _NEEDS_SETUP_EMPTY),)
+    fields: list[tuple[str, str]] = []
+    if bindings:
+        lines = [
+            f"`{sub}` — required: {', '.join(f'`{b}`' for b in names)}"
+            for sub, names in sorted(bindings.items())]
+        fields.append(
+            (f"Required bindings ({sum(len(v) for v in bindings.values())})",
+             "\n".join(lines)[:1024]))
+    if resources:
+        lines = [
+            f"`{sub}` — required: {', '.join(f'`{r}`' for r in names)}"
+            for sub, names in sorted(resources.items())]
+        fields.append(
+            (f"Required resources ({sum(len(v) for v in resources.values())})",
+             "\n".join(lines)[:1024]))
+    return tuple(fields)
+
+
+async def _invalid_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Invalid-settings body: every declared SettingSpec
+    resolved through the K7 typed read (service.resolve_setting — the
+    shipped settings_resolution port), rows with valid=False listed
+    verbatim; per-row soft fail (invalid_settings.py)."""
+    from sb.spec.settings import SettingSpec
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Result", _INVALID_DM),)
+
+    from sb.domain.settings import service as settings_service
+
+    invalid: list[str] = []
+    scanned = 0
+    for sub_name, manifest in _iter_settings_facets():
+        for spec in getattr(manifest, "settings", ()) or ():
+            if not isinstance(spec, SettingSpec):
+                continue
+            scanned += 1
+            try:
+                resolution = await settings_service.resolve_setting(
+                    guild_id, sub_name, spec.name, spec=spec)
+            except Exception as exc:  # noqa: BLE001 — soft-fail per row
+                invalid.append(
+                    f"`{sub_name}.{spec.name}` — resolver raised "
+                    f"{type(exc).__name__}")
+                continue
+            if resolution is None or resolution.valid:
+                continue
+            diag = (f" ({resolution.diagnostics[0]})"
+                    if resolution.diagnostics else "")
+            invalid.append(
+                f"`{sub_name}.{spec.name}` = `{resolution.raw!r}` "
+                f"→ fallback to `{resolution.default!r}`{diag}")
+    if not invalid:
+        return (("Result",
+                 f"*✅ No invalid settings.  ({scanned} setting(s) "
+                 f"scanned.)*"),)
+    return ((f"Invalid settings ({len(invalid)} of {scanned} scanned)",
+             "\n".join(invalid)[:1024]),)
+
+
+async def _missing_bindings_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Missing-bindings body: every declared BindingSpec whose
+    runtime status is not ``bound`` (missing_bindings.py) — the
+    subsystem_bindings store read; a declared slot with no row is the
+    shipped ``unresolved``."""
+    from sb.spec.settings import BindingSpec
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Result", _MISSING_DM),)
+
+    from sb.kernel.db import settings as db_settings
+
+    try:
+        stored = {(str(row["subsystem"]), str(row["binding_name"])):
+                  (row["target_id"], str(row["status"]))
+                  for row in await db_settings.fetchall_bindings(guild_id)}
+    except Exception as exc:  # noqa: BLE001 — the store read soft-fails
+        return (("Result",
+                 f"*Binding store read raised {type(exc).__name__} — "
+                 f"try again.*"),)
+
+    rows: list[str] = []
+    scanned = 0
+    for sub_name, manifest in _iter_settings_facets():
+        for spec in getattr(manifest, "settings", ()) or ():
+            if not isinstance(spec, BindingSpec):
+                continue
+            scanned += 1
+            target_id, status = stored.get(
+                (sub_name, spec.name), (None, "unresolved"))
+            if status == "bound" and target_id is not None:
+                continue
+            required_marker = "**required**" if spec.required else "optional"
+            rows.append(
+                f"`{sub_name}.{spec.name}` ({required_marker}) — "
+                f"status=`{status}` kind=`{spec.kind.value}`")
+    if not rows:
+        return (("Result",
+                 f"*✅ Every binding is bound.  ({scanned} binding(s) "
+                 f"scanned.)*"),)
+    return ((f"Unbound or invalid bindings ({len(rows)} of {scanned} "
+             f"scanned)", "\n".join(rows)[:1024]),)
+
+
+def _diag_back_action(action_id: str) -> PanelActionSpec:
+    """The shipped ↩ Back to Hub button (every diagnostic view carried
+    one) — a PanelRef open-child terminal back to the hub (the channel
+    sub-panel Cancel precedent). Run-minted custom_id: the shipped
+    ``settings_*.back`` ids are not compat-frozen, so nothing is pinned.
+    *action_id* is per-panel — the custom_id namespace admits ONE claimant
+    per (kind, value) repo-wide (the bare `back` leaf is btd6's)."""
+    return PanelActionSpec(
+        action_id=action_id, label="Back to Hub", emoji="↩",
+        style=ActionStyle.SECONDARY, audience_tier="administrator",
+        handler=PanelRef("settings.hub"))
+
+
+def settings_needs_setup_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.needs_setup",
+        subsystem="settings",
+        title="📋 Needs setup",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.gold().
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        body=(TextBlock(_NEEDS_SETUP_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("settings.needs_setup_fields"))),
+        actions=(_diag_back_action("needs_setup_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_needs_setup"),
+        justification=(
+            "the shipped Needs-setup footer is the DYNAMIC coverage count "
+            "'N subsystem(s) with required bindings · N with required "
+            "resources · N subsystems total.' (views/settings/"
+            "needs_setup.py set_footer), rendered only when a requirement "
+            "exists — count-keyed copy outside FooterMode's none/subsystem/"
+            "provenance vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, actions and "
+            "layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("needs_setup_back",),)),)),
+    )
+
+
+def settings_invalid_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.invalid",
+        subsystem="settings",
+        title="⚠️ Invalid settings",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.orange().
+        frame=EmbedFrameSpec(style_token="orange",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_INVALID_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("settings.invalid_fields"))),
+        actions=(_diag_back_action("invalid_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_invalid"),
+        justification=(
+            "the shipped Invalid-settings footer ('S6 introduces the edit "
+            "flow that fixes these in place.' — views/settings/"
+            "invalid_settings.py set_footer) renders CONDITIONALLY, only "
+            "when an invalid row exists — state-keyed presence outside "
+            "FooterMode's none/subsystem/provenance vocabulary (the "
+            "settings-hub footer-literal precedent). The override "
+            "delegates to the grammar renderer and replaces ONLY the "
+            "footer; body, fields, actions and layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("invalid_back",),)),)),
+    )
+
+
+def settings_missing_bindings_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.missing_bindings",
+        subsystem="settings",
+        title="🔗 Missing bindings",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.gold(); the shipped view set
+        # no footer, so the plain grammar render carries every byte.
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        body=(TextBlock(_MISSING_BINDINGS_DESCRIPTION),
+              FieldsBlock(
+                  provider=ProviderRef("settings.missing_bindings_fields"))),
+        actions=(_diag_back_action("missing_bindings_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(("missing_bindings_back",),)),)),
+    )
+
+
+async def _render_needs_setup(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped coverage-count footer (see
+    justification) — declaration-only recompute, no store read; absent
+    any requirement the shipped view set no footer (the early return)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    bindings = _gather_required_bindings()
+    resources = _gather_required_resources()
+    if not bindings and not resources:
+        return rendered
+    from sb.domain.governance.registry import SUBSYSTEM_META
+
+    footer = (f"{len(bindings)} subsystem(s) with required bindings · "
+              f"{len(resources)} with required resources · "
+              f"{len(SUBSYSTEM_META)} subsystems total.")
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed, footer=footer))
+
+
+async def _render_invalid(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped conditional footer (see justification):
+    present exactly when an invalid row rendered — derived from the
+    rendered field name, so the settings scan runs ONCE (in the fields
+    provider), never twice."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    if not any(name.startswith("Invalid settings")
+               for name, *_ in rendered.embed.fields):
+        return rendered
+    return _dc_replace(
+        rendered, embed=_dc_replace(rendered.embed, footer=_INVALID_FOOTER))
 
 
 # --- the access-explorer spec --------------------------------------------------------
@@ -619,25 +985,43 @@ def _register_refs() -> None:
         panel("settings.hub")(settings_hub_spec)
     if not is_registered(PanelRef("settings.access")):
         panel("settings.access")(settings_access_spec)
+    if not is_registered(PanelRef("settings.needs_setup")):
+        panel("settings.needs_setup")(settings_needs_setup_spec)
+    if not is_registered(PanelRef("settings.invalid")):
+        panel("settings.invalid")(settings_invalid_spec)
+    if not is_registered(PanelRef("settings.missing_bindings")):
+        panel("settings.missing_bindings")(settings_missing_bindings_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
         handler("settings.render_access")(_render_access)
+    if not is_registered(HandlerRef("settings.render_needs_setup")):
+        handler("settings.render_needs_setup")(_render_needs_setup)
+    if not is_registered(HandlerRef("settings.render_invalid")):
+        handler("settings.render_invalid")(_render_invalid)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
         provider("settings.access_fields")(_access_fields)
+    if not is_registered(ProviderRef("settings.needs_setup_fields")):
+        provider("settings.needs_setup_fields")(_needs_setup_fields)
+    if not is_registered(ProviderRef("settings.invalid_fields")):
+        provider("settings.invalid_fields")(_invalid_fields)
+    if not is_registered(ProviderRef("settings.missing_bindings_fields")):
+        provider("settings.missing_bindings_fields")(_missing_bindings_fields)
 
 
 _register_refs()
 
 
 def install_settings_panels() -> PanelSpec:
-    """Register the hub + explorer with the panels registry (fences run
-    here); composition-root/boot call. Idempotent for identical specs.
-    Returns the hub spec (the band-1 contract shape)."""
+    """Register the hub + explorer + the three armed diagnostics with the
+    panels registry (fences run here); composition-root/boot call.
+    Idempotent for identical specs. Returns the hub spec (the band-1
+    contract shape)."""
     hub = settings_hub_spec()
-    for spec in (hub, settings_access_spec()):
+    for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
+                 settings_invalid_spec(), settings_missing_bindings_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:
