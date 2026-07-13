@@ -13,7 +13,9 @@ shipped player's. Slice 1 made the VENUE STATE live (!sail persists
 rolls the shore pool — the venue→cast wiring (deepwater species pool,
 coral drop, minigame difficulty) rides the rod/bait/minigame rung, where
 the oracle's rolled knobs (rarity_pull, bite speed, escape) land
-together."""
+together. Slice 2 made the ROD STATE live the same way (!rod / !craftrod
+persist ``fishing_rod``; the rod panels read it) — the rod→cast wiring
+(rarity_pull on the roll) rides the same rung."""
 
 from __future__ import annotations
 
@@ -39,10 +41,15 @@ from sb.spec.refs import WorkflowRef, workflow
 __all__ = [
     "BONUS_CATCH_CHANCE",
     "PEARL_ITEM",
+    "ROD_PURCHASE_REASON",
     "register_ops",
     "roll_catch",
     "set_rng_for_tests",
 ]
+
+#: the shipped economy-ledger reason for a rod purchase
+#: (services/fishing_workflow.py ROD_PURCHASE_REASON, verbatim).
+ROD_PURCHASE_REASON = "fishing:rod_purchase"
 
 # shipped constants verbatim (utils/fishing/rewards.py)
 BONUS_CATCH_CHANCE = 0.10
@@ -166,12 +173,134 @@ async def _erase_venue(conn, ctx: WorkflowContext) -> LegOutcome:
                       before={}, after={"rows": rows})
 
 
+@workflow("fishing.erase_subject_rod")
+async def _erase_rod(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_rod(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_rod", True),
+                      before={}, after={"rows": rows})
+
+
+# --- the rod ladder write legs (slice 2): the shipped services/
+# fishing_workflow.py buy_rod / craft_rod verbatim, re-homed onto the audited
+# one-leg one-txn seam. NO golden drives a funded buy or a stocked craft —
+# the imported sweep drove only the bare fresh-player invocations
+# (goldens/fishing/sweep_rod pins the tier-0 shop render, sweep_craftrod the
+# "need 10 fish" guard — depth.exemptions.fishing guard-only-capture:
+# fishing_rod), so the guard bytes in service.py are the only parity surface.
+# Both settles are advisory-fenced (store.lock_rod_slot) against the
+# read-then-settle money / double-craft race (check_money_race, #217) --------
+
+
+@workflow("fishing.record_buy_rod")
+async def _record_buy_rod(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The rod shop's ⬆️ Upgrade button — buy the next rod up the ladder
+    (the shipped ``buy_rod``, mirroring ``mining_workflow.vault_upgrade``):
+    debit the coin price and raise the owned tier in ONE txn (the debit is
+    economy-audited; the balance event emits after commit). The handler
+    gates the maxed / insufficient-funds cases out as pure reads before
+    this leg runs (no write, no audit row — the oracle's rollback posture),
+    so the raises here are defensive."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.fishing import rods as rods_mod
+    from sb.domain.games import wager
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    # Fence concurrent buy/craft attempts for this player BEFORE the tier
+    # read → the debit + tier bump serialize (no double-charge — #217).
+    await store.lock_rod_slot(conn, user_id=uid, guild_id=gid)
+    current_tier = await store.get_rod_tier(uid, gid, conn=conn)
+    nxt = rods_mod.next_rod(current_tier)
+    if nxt is None:
+        top = rods_mod.rod_for_tier(current_tier)
+        raise ValidatorError(
+            f"You already wield the **{top.name}** {top.emoji} — the "
+            "finest rod there is!")
+    try:
+        new_balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=nxt.price,
+            reason=ROD_PURCHASE_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        balance = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"The **{nxt.name}** {nxt.emoji} costs **{nxt.price}** 🪙 — "
+            f"you only have **{balance}** 🪙.") from None
+    await store.set_rod_tier(uid, gid, nxt.tier, conn=conn)
+    ctx.params["_balance_changes"] = [
+        (uid, -nxt.price, new_balance, ROD_PURCHASE_REASON)]
+    return LegOutcome(
+        step=StepResult(uid, "buy_rod", True), before={},
+        after={"tier": nxt.tier, "balance": new_balance,
+               "message": f"You upgraded to the **{nxt.name}** "
+                          f"{nxt.emoji} for **{nxt.price}** 🪙! "
+                          f"Balance: **{new_balance}** 🪙."})
+
+
+@workflow("fishing.record_craft_rod")
+async def _record_craft_rod(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!craftrod` / the rod panels' craft buttons — craft the next rod up
+    the ladder from small caught fish (the shipped ``craft_rod``): an
+    inventory-only conversion (no coins) — debit the eligible fish
+    (smallest-first) and raise the owned tier by one in ONE txn (the
+    shipped Q-0071 order). Not money-bearing, but the fish spend is
+    advisory-fenced against a concurrent double-craft (the quick_craft
+    posture). The handler answers the maxed / not-enough-fish cases as
+    pure reads before this leg runs — the only path any golden pins
+    (goldens/fishing/sweep_craftrod)."""
+    from sb.domain.fishing import crafting, rods as rods_mod
+    from sb.domain.mining.store import get_mining_inventory, update_mining_item
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    await store.lock_rod_slot(conn, user_id=uid, guild_id=gid)
+    current_tier = await store.get_rod_tier(uid, gid, conn=conn)
+    nxt = rods_mod.next_rod(current_tier)
+    if nxt is None:
+        top = rods_mod.rod_for_tier(current_tier)
+        raise ValidatorError(
+            f"You already wield the **{top.name}** {top.emoji} — the "
+            "finest rod there is!")
+    recipe = rods_mod.rod_recipe(nxt.tier)
+    if recipe is None:  # defensive — every non-starter tier has a recipe
+        raise ValidatorError(
+            f"The **{nxt.name}** {nxt.emoji} can't be crafted from fish "
+            "— buy it with `!rod`.")
+    inventory = await get_mining_inventory(uid, gid, conn=conn)
+    spend = crafting.plan_fish_spend(inventory, recipe)
+    if spend is None:
+        raise ValidatorError(
+            f"You need **{recipe.fish_count}** fish of size ≤ "
+            f"**{recipe.max_size_rank}** to craft the **{nxt.name}** "
+            f"{nxt.emoji} — catch more fish with `!fish` (or buy it "
+            "with `!rod`).")
+    for name, qty in spend.items():
+        await update_mining_item(conn, user_id=uid, guild_id=gid,
+                                 item=name, delta=-qty)
+    await store.set_rod_tier(uid, gid, nxt.tier, conn=conn)
+    used = ", ".join(f"{qty}× {name}" for name, qty in spend.items())
+    return LegOutcome(
+        step=StepResult(uid, "craft_rod", True), before={},
+        after={"tier": nxt.tier, "spend": dict(spend),
+               "message": f"Crafted the **{nxt.name}** {nxt.emoji} from "
+                          f"**{used}** — cast with `!fish` to feel the "
+                          "difference!"})
+
+
 _XP_EMITS = (
     EventEmitSpec("game_xp.awarded",
                   WorkflowRef("games.game_xp_awarded_payload"),
                   DeliveryClass.BEST_EFFORT),
     EventEmitSpec("game_xp.level_up",
                   WorkflowRef("games.game_xp_levelup_payload"),
+                  DeliveryClass.BEST_EFFORT),
+)
+
+_BALANCE_EMITS = (
+    EventEmitSpec("economy.balance_changed",
+                  WorkflowRef("games.balance_payload_0"),
                   DeliveryClass.BEST_EFFORT),
 )
 
@@ -183,13 +312,32 @@ CAST = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="fish_caught", emits=_XP_EMITS)
 
-_OPS = (CAST,)
+BUY_ROD = CompoundOpSpec(
+    op_key="fishing.buy_rod", domain="fishing", lane=WorkflowLane.DOMAIN,
+    authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_buy_rod"), "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_rod_bought", emits=_BALANCE_EMITS)
+
+CRAFT_ROD = CompoundOpSpec(
+    op_key="fishing.craft_rod", domain="fishing", lane=WorkflowLane.DOMAIN,
+    authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_craft_rod"), "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_rod_crafted", emits=())
+
+_OPS = (CAST, BUY_ROD, CRAFT_ROD)
 
 _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
+    ("fishing.record_buy_rod", _record_buy_rod),
+    ("fishing.record_craft_rod", _record_craft_rod),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
     ("fishing.erase_subject_energy", _erase_energy),
     ("fishing.erase_subject_venue", _erase_venue),
+    ("fishing.erase_subject_rod", _erase_rod),
 )
 
 
