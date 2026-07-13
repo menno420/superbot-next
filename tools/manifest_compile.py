@@ -10,6 +10,8 @@ within a pass, collect ALL violations; at a pass boundary, fail fast.
   P2 ref_resolution      — every {"$ref"} registered; namespaced predicates well-formed
   --  _project           — the violation-free snapshot-body build (pure data for P3/P4/P6/P7)
   P3 namespace           — K1's ONE oracle `validate(snapshot)` (RC-7: P3 IS spec 03's validate)
+  P3b app_tree           — slash root command name must not equal a subcommand-group name
+                           (discord.py CommandAlreadyRegistered, Finding #3 / PR #370; joint set)
   P4 authority           — validate_authority_ref over authority_ref fields (ARMS AT K6/S7)
   P5 role_tag            — every spec field tagged exactly one of [S]/[A]/[O]
   P6 semantic            — the six predicates (never_strand, destructive_confirmation,
@@ -18,11 +20,20 @@ within a pass, collect ALL violations; at a pass boundary, fail fast.
   P7 store_completeness  — dropped StoreSpec needs an owner-signed retirement (ARMS AT K3;
                            baseline None => every store `added`, no drop possible)
   P8 serialize           — canonical JSON + layout-lock overlays ([A]-only) + stable_hash
-  P9 recompile_parity    — recompiled stable_hash == committed snapshot's (leg A / DRIFT)
+  P9 recompile_parity    — recompiled stable_hash == committed BODY's recomputed hash
+                           (leg A / DRIFT)
 
 Hash membership (spec 01 §5, fork 9): the hashed body EXCLUDES `stable_hash`,
 `compiler_version`, `manifest_count`; INCLUDES `schema_version`, `field_roles`,
 `subsystems`, `projections`.
+
+The committed file does NOT carry a `stable_hash` field: because hash
+membership excludes it, the value is purely derivable from the rest of the
+file, and the cached line re-conflicted any two concurrent PRs that both
+recompiled the snapshot (PRs #333/#352 class — runbook:
+docs/operations/manifest-snapshot-conflicts.md). P9 recomputes the committed
+body's hash on the fly via `compute_stable_hash`, which ignores the field if
+a legacy snapshot still carries it — drift detection is unchanged.
 
 Never imported at runtime (tools/ layer); `sb/app/boot_gate.py` wraps it for
 boot leg-A.
@@ -433,6 +444,65 @@ def _p3_namespace(snapshot: dict, violations: list[Violation]) -> None:
             "namespace", FORMAT_ERROR, None, f"{f.kind.value}:{f.value}", f.detail))
 
 
+# --- P3b: app-command tree shape (root/group name collision) --------------------------
+
+def _p3b_app_tree(snapshot: dict, violations: list[Violation]) -> None:
+    """Reject the ONE app-command-tree shape discord.py rejects at live boot
+    but every static gate missed until now (Finding #3, PR #370): a
+    slash-capable ROOT command whose name equals a subcommand-GROUP name in
+    the SAME registered manifest set.
+
+    ``sb/adapters/discord/command_tree.py::register_app_commands`` (verified
+    at :107-:120) adds, for every LIVE ``CommandSpec`` with
+    ``kind in ("slash","both")``, either a root ``app_commands.Command(name)``
+    when ``group==""`` (``tree.add_command`` at :120) or — via ``_group_for``
+    (:89-:102) — a top-level ``app_commands.Group(name=parts[0])`` for a
+    grouped one (``tree.add_command`` at :101). discord.py's ``tree`` keeps ONE
+    top-level namespace, so a Command and a Group claiming the same name raise
+    ``CommandAlreadyRegistered`` the moment the second is added — a crash only
+    a live boot surfaced.
+
+    This models that condition EXACTLY, off the joint projection (so a plugin
+    command colliding with a host name is caught in the ``load_plugins`` joint
+    compile too):
+      * a leaf registers ONLY when slash-capable — projected ``surface ==
+        "slash"`` (``kind`` "slash" or the slash half of "both"); a PREFIX-only
+        node is filtered out, so a ``kind=PREFIX`` root named X + group X is
+        NOT flagged (the shape the #86 idle fix relies on, and the G-6
+        ``!karma``/``/karma`` coexistence in-tree);
+      * a ROOT is ``parent_group`` None/"" (``group==""``);
+      * a top-level GROUP is ``parent_group.split(".")[0]`` of a slash leaf —
+        groups are born ONLY from slash-capable commands, mirroring
+        ``_group_for`` (a group holding only prefix leaves never registers a
+        ``Group`` node, so it never collides).
+    """
+    command_nodes = (
+        (snapshot.get("projections") or {}).get("namespace") or {}
+    ).get("command") or []
+    roots: dict[str, str] = {}         # slash root name -> first-claiming subsystem
+    top_groups: dict[str, str] = {}    # top-level slash group name -> first-claiming subsystem
+    for node in command_nodes:
+        if node.get("surface") != "slash":
+            continue
+        subsystem = str(node.get("subsystem", "?"))
+        parent = node.get("parent_group")
+        if parent in (None, ""):
+            roots.setdefault(str(node.get("value", "")), subsystem)
+        else:
+            top_groups.setdefault(str(parent).split(".")[0], subsystem)
+    for name in sorted(set(roots) & set(top_groups)):
+        violations.append(Violation(
+            "app_tree", COLLISION, None, f"command:{name}",
+            f"slash_root_group_collision: slash-capable root command {name!r} "
+            f"shares its name with subcommand group {name!r} — discord.py's "
+            "tree.add_command raises CommandAlreadyRegistered at live startup "
+            "(register_app_commands adds both a root Command and a top-level "
+            "Group under this name). Make the root command kind=prefix "
+            "(PREFIX-only never registers as an app command) or rename one.",
+            scope="slash/",
+            claimant_a=roots[name], claimant_b=top_groups[name]))
+
+
 # --- P4: authority (arms at K6/S7) ----------------------------------------------------
 
 def _p4_authority(manifests: list, violations: list[Violation]) -> None:
@@ -787,6 +857,7 @@ def compile_manifests(
     snapshot = _project(loaded)                               # (internal, violation-free)
 
     _p3_namespace(snapshot, violations)                       # P3
+    _p3b_app_tree(snapshot, violations)                       # P3b (app-command tree shape)
     if violations:
         return CompileResult(False, None, None, tuple(violations))
 
@@ -814,7 +885,6 @@ def compile_manifests(
     full_snapshot = {
         "schema_version": snapshot["schema_version"],
         "compiler_version": COMPILER_VERSION,
-        "stable_hash": stable_hash,
         "manifest_count": len(snapshot["subsystems"]),
         "field_roles": snapshot["field_roles"],
         "subsystems": snapshot["subsystems"],
@@ -822,7 +892,9 @@ def compile_manifests(
     }
 
     if committed_snapshot is not None:                        # P9 (leg A)
-        committed_hash = committed_snapshot.get("stable_hash")
+        # Recompute from the committed BODY (the file carries no stable_hash
+        # field; compute_stable_hash ignores one on legacy snapshots).
+        committed_hash = compute_stable_hash(committed_snapshot)
         if committed_hash != stable_hash:
             violations.append(Violation(
                 "recompile_parity", DRIFT, None, SNAPSHOT_FILENAME,

@@ -1,0 +1,349 @@
+{
+ "case_id": "fishing.howtofish_rules_card",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2068485555,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the hub 📖 How-to-fish affordance: the shipped rules_btn sent _rules_embed as an ephemeral component reply (views/fishing/menu.py) — a fully static purple quick-reference card with no fields, footer or components and an EMPTY db_delta (a pure read; the creature rules-card posture). Pins the oracle-verbatim loop/get-better-catches copy the fishing.howtofish_pending terminal answered with a stub until 2026-07-13",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🎣"
+          },
+          "label": "Cast",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⛵"
+          },
+          "label": "Set sail / Dock",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🎒"
+          },
+          "label": "Rod",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🪱"
+          },
+          "label": "Bait",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🏗"
+          },
+          "label": "Structures",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📖"
+          },
+          "label": "Fishdex",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📖"
+          },
+          "label": "How to fish",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "Cast a line to catch from **21** shoreline fish — or set sail for the **11** rare boat-only fish of the deep. Wait for the bite, reel it in, and fight the big ones; then level up and buy better rods.\n\n**🎣 Cast** — wait → bite → reel\n**⛵ Set sail** — shore ↔ deepwater\n**🎒 Rod** — view & upgrade your rod\n**🪱 Bait** — load a lure for rarer catches\n**🏗 Structures** — build coral structures\n**📖 Fishdex** — your collection",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Fishing from",
+          "value": "🏖️ **Shore** — Relaxed casting from the shoreline."
+         },
+         {
+          "inline": false,
+          "name": "Today's forecast: ⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         },
+         {
+          "inline": false,
+          "name": "Energy",
+          "value": "⚡ 60/60 [▰▰▰▰▰▰▰▰▰▰]"
+         }
+        ],
+        "flags": 0,
+        "title": "🎣 Fishing",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "fishing",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!fishing",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "**The loop**\n1. **🎣 Cast** — drop a line, then *wait* for the bite.\n2. **Bite!** — when the float dips, hit **Reel** before the fish spits the hook (reel too early and it spooks).\n3. **Fight** the big ones — keep reeling to land a trophy.\n\n**Get better catches**\n• **🎒 Rod** — upgrade your rod for a wider reel window, faster bites, and less escape.\n• **🪱 Bait** — load a lure for rarer fish (a consumable knob on top of your rod).\n• **⛵ Set sail** — head to deepwater for the rare boat-only fish.\n• **📖 Fishdex** — track your collection and personal-best weights.",
+        "flags": 0,
+        "title": "📖 How to fish",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "fishing.hub.fishing_rules",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "component"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:7>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "fishing"
+}

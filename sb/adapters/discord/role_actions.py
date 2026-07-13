@@ -117,15 +117,26 @@ class DiscordRoleProvisioning(_GuildAllowList):
     sweep_createrole) — the name split is intentional, not a rename."""
 
     async def create_guild_role(self, guild_id: int, *, name: str, color: int,
-                                reason: str | None) -> int:
+                                reason: str | None, hoist: bool = False,
+                                mentionable: bool = False) -> int:
         discord = self._require_discord()
         guild = self._guild(guild_id)
         # discord.py 2.x ``Guild.create_role`` — ``colour`` takes a
         # discord.Colour off the raw int (the capture twin recorded the same
         # value under the 2.x ``colors.primary_color`` body key). Returns the
         # created Role; the port hands back its snowflake id.
+        # ``hoist``/``mentionable`` pass only when SET (the oracle's
+        # only-pass-when-set create-kwargs guard — the gradient-colour
+        # precedent in role_lifecycle_service._apply_one), so the shipped
+        # !createrole call shape stays byte-identical.
+        extra: dict = {}
+        if hoist:
+            extra["hoist"] = True
+        if mentionable:
+            extra["mentionable"] = True
         role = await guild.create_role(
-            name=name, colour=discord.Colour(int(color)), reason=reason)
+            name=name, colour=discord.Colour(int(color)), reason=reason,
+            **extra)
         return int(role.id)
 
     async def delete_role(self, guild_id: int, role_id: int, *,

@@ -20,6 +20,7 @@ and THE PORT FILLS this band owes the kernel:
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 
 from sb.domain.governance import cache as gcache
 from sb.domain.governance import execution, registry, store
@@ -30,6 +31,7 @@ from sb.domain.governance.models import (
     GovernanceHealthReport,
     GovernanceSnapshot,
     PolicySource,
+    ResolutionTrace,
     SubsystemState,
 )
 from sb.domain.governance.resolver import (
@@ -41,11 +43,14 @@ from sb.domain.governance.resolver import (
 logger = logging.getLogger("sb.domain.governance")
 
 __all__ = [
+    "ScopeCheck",
+    "SubsystemResolution",
     "build_governance_snapshot",
     "check_governance_version",
     "diff_governance_snapshots",
     "install_authority_ports",
     "remove_cleanup_policy_for_scope",
+    "resolve_subsystem_state",
     "run_governance_healthcheck",
     "set_capability_override",
     "set_cleanup_policy_for_scope",
@@ -261,6 +266,118 @@ async def subsystem_enabled(guild_id: int, subsystem: str) -> bool:
                                else PolicySource.REGISTRY_DEFAULT)
     apply_dependency_rules(states, traces, resolved_from)
     return states.get(subsystem) == SubsystemState.ENABLED
+
+
+# --- the explorer's diagnostic read seam (settings.access, curation rows 82-87) ------
+
+@dataclass(frozen=True)
+class ScopeCheck:
+    """One scope the resolver walked for a subsystem (most-specific first).
+
+    ``has_row`` = a ``subsystem_visibility`` row exists at this scope;
+    ``value`` is its stored tri-state (True/False; an explicit ``None``
+    row means "inherit from the next scope up" — shipped semantics);
+    ``matched`` marks the ONE row that decided the state."""
+
+    scope_type: str
+    scope_id: int
+    has_row: bool
+    value: bool | None
+    matched: bool
+
+
+@dataclass(frozen=True)
+class SubsystemResolution:
+    """One subsystem's resolved access state WITH provenance — the
+    ``settings.access`` explorer's diagnostic READ (never a write).
+
+    The pending copy named this seam ``governance.resolve_subsystem_state``;
+    the resolve chain it reports is the one the resolver actually
+    implements for subsystem access: scope-chain visibility rows
+    (thread > channel > category > guild, ``subsystem_visibility``) →
+    registry default, with hard-dependency propagation on top. The K7
+    settings-KV lane (per-guild → global → declared default) is a
+    DIFFERENT resolve chain for scalar settings and never gates
+    subsystem access, so it does not appear here (honest provenance:
+    visibility row vs registry default)."""
+
+    subsystem: str
+    known: bool                            # registered in SUBSYSTEM_META?
+    state: SubsystemState
+    source: PolicySource
+    checks: tuple[ScopeCheck, ...]         # the chain walked, in order
+    dependency_blocks: tuple[str, ...]
+    visibility_tier: str
+
+
+async def resolve_subsystem_state(
+    guild_id: int, subsystem: str, *,
+    channel_id: int | None = None, category_id: int | None = None,
+    thread_id: int | None = None,
+) -> SubsystemResolution:
+    """Resolve ONE subsystem's access state for a scope selection and say
+    WHERE it came from (which override row, or the registry default).
+
+    Tier-agnostic like ``subsystem_enabled`` (D-0039 — member-tier gating
+    is the authority engine's job); unknown subsystems are ENABLED
+    (fail-open, ``known=False``) exactly like the dispatch gate. Reads the
+    same store + walks the same chain as ``resolve_visibility``, so the
+    diagnostic can never drift from the gate."""
+    from sb.domain.governance.resolver import (
+        _resolve_single_subsystem,
+        build_scope_chain,
+    )
+
+    meta = registry.SUBSYSTEM_META.get(subsystem)
+    if meta is None:
+        return SubsystemResolution(
+            subsystem=subsystem, known=False,
+            state=SubsystemState.ENABLED,
+            source=PolicySource.REGISTRY_DEFAULT,
+            checks=(), dependency_blocks=(), visibility_tier="")
+
+    ctx = GovernanceContext(
+        guild_id=guild_id, channel_id=channel_id,
+        category_id=category_id, thread_id=thread_id)
+    chain = build_scope_chain(ctx)
+    scope_data = await store.fetch_visibility_for_chain(guild_id, chain)
+
+    # resolve EVERY subsystem so dependency propagation sees real states.
+    states: dict[str, SubsystemState] = {}
+    traces: dict = {}
+    resolved_from: dict[str, PolicySource] = {}
+    for name in registry.SUBSYSTEM_META:
+        override_val, source, checked = _resolve_single_subsystem(
+            name, chain, scope_data)
+        final = (SubsystemState.DISABLED if override_val is False
+                 else SubsystemState.ENABLED)
+        states[name] = final
+        traces[name] = ResolutionTrace(
+            subsystem=name, checked_scopes=list(checked),
+            matched_scope=source if override_val is not None else None,
+            dependency_blocks=[], final_state=final)
+        resolved_from[name] = (source if override_val is not None
+                               else PolicySource.REGISTRY_DEFAULT)
+    apply_dependency_rules(states, traces, resolved_from)
+
+    checks: list[ScopeCheck] = []
+    matched = False
+    for scope_type, scope_id in chain:
+        row = scope_data.get((scope_type, scope_id), {})
+        has_row = subsystem in row
+        value = row.get(subsystem)
+        is_match = not matched and has_row and value is not None
+        if is_match:
+            matched = True
+        checks.append(ScopeCheck(scope_type=scope_type, scope_id=scope_id,
+                                 has_row=has_row, value=value,
+                                 matched=is_match))
+
+    return SubsystemResolution(
+        subsystem=subsystem, known=True, state=states[subsystem],
+        source=resolved_from[subsystem], checks=tuple(checks),
+        dependency_blocks=tuple(traces[subsystem].dependency_blocks),
+        visibility_tier=str(meta.get("visibility_tier", "")))
 
 
 # --- port fills ----------------------------------------------------------------------

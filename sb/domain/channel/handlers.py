@@ -1,10 +1,15 @@
-"""Channel hub action terminals + the golden-pinned command handlers.
+"""Channel hub sub-panel flows + the golden-pinned command handlers.
 
 The shipped sub-panels (disbot/views/channels/: create/delete/restrict/
-move/visibility) stay on their honest refusal terminals (the
-role/utility-band precedent) — interactive picker ports are their own
-follow-up; every hub click lands on the declared pending terminal,
-never a silent stub.
+move/visibility) are LIVE (2026-07-13 operator-hub edits B — the D-0030
+named successor): every hub click opens its sub-panel
+(sb/domain/channel/panels.py), the selects keep per-(guild,invoker)
+pick memory (the diagnostic #331 precedent), and the commits run the
+SAME audited lanes the command twins ride (ChannelActions port effects
+first, then the shared-mutation_id audit + lifecycle companions). The
+two oracle legs whose port verbs do not exist yet answer honest
+declared refusals with exact copy: Send to Top/Bottom (no reorder verb)
+and the create-new-category leg (no category-create verb).
 
 The PREFIX command surface is REAL (the D-0030 channel-ops batch): the
 shipped cog bodies (cogs/channel_cog.py) routed through
@@ -26,26 +31,103 @@ from sb.kernel.interaction.handler_kit import Reply
 
 __all__ = ["Reply", "ensure_handler_refs"]
 
-_PENDING = " ports with the channel-ops slice (D-0030)."
-
 #: Discord's slowmode ceiling, verbatim (channel_lifecycle_service
 #: MAX_SLOWMODE_SECONDS — 6 h).
 _MAX_SLOWMODE_SECONDS = 21600
 
+#: the shipped no-selection guard, verbatim (delete/restrict/move/
+#: visibility sub-views all send this exact byte).
+_SELECT_FIRST = "Please select at least one channel first."
 
-def _register_pending() -> None:
-    from sb.domain.operator_spine import pending_handler
 
-    pending_handler("channel.create_pending",
-                    f"➕ The interactive channel creator{_PENDING}")
-    pending_handler("channel.delete_pending",
-                    f"🗑️ The channel delete picker{_PENDING}")
-    pending_handler("channel.restrict_pending",
-                    f"🔒 The lock/unlock restriction panel{_PENDING}")
-    pending_handler("channel.move_pending",
-                    f"↔️ The move/reorder panel{_PENDING}")
-    pending_handler("channel.visibility_pending",
-                    f"🔍 The subsystem-visibility panel{_PENDING}")
+# --- the hub sub-panel pick memory (operator-hub edits B) --------------------------
+#
+# The shipped sub-views kept the operator's selections on the View
+# instance (_CreateSubView.selected_presets / _DeleteSubView.
+# selected_channel_ids / …); the port keys them per (guild, invoker,
+# panel), in-memory — the diagnostic `_flag_pick` precedent (#331).
+# Never golden-rendered: no sweep opened a sub-panel, so golden runs
+# never seed a pick.
+
+_panel_picks: dict[tuple[int, int, str], dict] = {}
+
+
+def _pick_key(req, panel: str) -> tuple[int, int, str]:
+    return (int(req.guild_id or 0),
+            int(getattr(req.actor, "user_id", 0) or 0), panel)
+
+
+def picks_for(guild_id, user_id, panel: str) -> dict:
+    """The renderers' read of the operator's current sub-panel picks
+    (sb/domain/channel/panels.py state fields)."""
+    return dict(_panel_picks.get(
+        (int(guild_id or 0), int(user_id or 0), panel), {}))
+
+
+def _update_pick(req, panel: str, **kv) -> dict:
+    pick = _panel_picks.setdefault(_pick_key(req, panel), {})
+    pick.update(kv)
+    return pick
+
+
+def _clear_pick(req, panel: str) -> None:
+    _panel_picks.pop(_pick_key(req, panel), None)
+
+
+async def _reopen(req, panel_id: str):
+    """Fresh re-open after a pick (the projmoon edit-in-place →
+    fresh-re-open class; the diagnostic cmdlist precedent)."""
+    import dataclasses
+
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.outcomes import SUCCESS
+    from sb.spec.refs import PanelRef
+
+    await open_panel(PanelRef(panel_id),
+                     dataclasses.replace(req, args=dict(req.args)))
+    return Reply(SUCCESS, None)
+
+
+def _ids_from_values(values) -> list[int]:
+    """The shipped multi-select value coercion (delete/restrict/move/
+    visibility `_on_channels_selected` — option values carry int channel
+    ids as strings; a non-int value is skipped, never a crash)."""
+    ids: list[int] = []
+    for v in tuple(values or ()):
+        try:
+            ids.append(int(v))
+        except (TypeError, ValueError):
+            continue
+    return ids
+
+
+async def _names_for(req, ids: list[int]) -> list[str]:
+    """Display names off the directory snapshots — the shipped
+    `_option_names` map (channel option labels carried ``#{ch.name}``);
+    an unarmed directory degrades to raw ids so the panels stay
+    renderable headlessly."""
+    from sb.domain.channel import service
+
+    try:
+        snaps = {int(s.channel_id): f"#{s.name}"
+                 for s in await service.active_directory().list_channels(
+                     int(req.guild_id or 0))}
+    except RuntimeError:
+        snaps = {}
+    return [snaps.get(int(cid), str(cid)) for cid in ids]
+
+
+async def _category_name(req, category_id: int) -> str | None:
+    """A category's bare display name (the shipped category options
+    carried ``cat.name`` un-prefixed)."""
+    from sb.domain.channel import service
+
+    try:
+        snap = await service.active_directory().get_channel(
+            int(req.guild_id or 0), int(category_id))
+    except RuntimeError:
+        return None
+    return snap.name if snap is not None else None
 
 
 async def _resolve(req, token: str) -> tuple[int | None, str]:
@@ -1002,12 +1084,443 @@ def _register_ops_handlers() -> None:  # noqa: PLR0915 — 13 shipped command bo
         return Reply(SUCCESS, f'Topic updated for "{snap.name}".')
 
 
-_register_pending()
+def _register_subpanel_handlers() -> None:
+    """The five shipped sub-panel flows (operator-hub edits B). Selects
+    remember, commits mutate through the live ports, refusals carry the
+    shipped copy verbatim."""
+    from sb.spec.outcomes import BLOCKED, SUCCESS
+    from sb.spec.refs import HandlerRef, handler, is_registered
+
+    if is_registered(HandlerRef("channel.create_pick_names")):
+        return
+
+    # --- ➕ Create Channel (_CreateSubView) ---------------------------------
+
+    @handler("channel.create_pick_names")
+    async def create_pick_names(req):
+        """The preset multi-name picker — compose with the custom names
+        (the shipped `selected_presets` replace-on-select semantics)."""
+        _update_pick(req, "create",
+                     presets=[str(v) for v in
+                              tuple(req.args.get("values") or ())])
+        return await _reopen(req, "channel.create")
+
+    @handler("channel.create_pick_category")
+    async def create_pick_category(req):
+        """The single category pick ('0' = no category). The shipped
+        new-category presets ride the category-create port verb (a
+        named successor) — options carry EXISTING categories only."""
+        values = tuple(req.args.get("values") or ())
+        raw = str(values[0]) if values else "0"
+        try:
+            cid = int(raw)
+        except ValueError:
+            cid = 0
+        name = (await _category_name(req, cid)) if cid else None
+        _update_pick(req, "create", category_id=cid or None,
+                     category_name=name)
+        return await _reopen(req, "channel.create")
+
+    @handler("channel.create_name_form_submit")
+    async def create_name_form_submit(req):
+        """The ✏️ Custom Name modal submit (_CustomNameModal.on_submit,
+        verbatim semantics): normalize, append to the set (compose with
+        presets), de-duplicate."""
+        name = (str(req.args.get("channel_name", "") or "")
+                .strip().lower().replace(" ", "-"))
+        pick = _panel_picks.setdefault(_pick_key(req, "create"), {})
+        customs = pick.setdefault("customs", [])
+        if name and name not in customs:
+            customs.append(name)
+        return await _reopen(req, "channel.create")
+
+    @handler("channel.create_commit")
+    async def create_commit(req):
+        """✅ Create Channel — every chosen name under the one chosen
+        category in a single pass (the shipped batch-create; the
+        bulkcreate lane's port sequencing: effects first, then ONE
+        audit+lifecycle pair carrying applied+failed)."""
+        from sb.domain.channel import service
+
+        pick = picks_for(req.guild_id,
+                         getattr(req.actor, "user_id", 0), "create")
+        names: list[str] = []
+        for n in [*pick.get("presets", ()), *pick.get("customs", ())]:
+            if n not in names:
+                names.append(n)
+        if not names:
+            # the shipped guard, verbatim (_CreateSubView.create_btn)
+            return Reply(BLOCKED, "Please select or enter at least one "
+                                  "channel name first.")
+        try:
+            taken = await _taken_names(req)
+        except RuntimeError as exc:
+            return Reply(BLOCKED, f"❌ Could not create channels: {exc}")
+        gid = int(req.guild_id or 0)
+        actions = service.active_actions()
+        parent_id = pick.get("category_id")
+        created: list[str] = []
+        applied: list[int] = []
+        failed: list[str] = []
+        for raw in names:
+            safe = service.collision_safe_name(str(raw), taken)
+            taken.add(safe)
+            try:
+                cid = await actions.create_text_channel(
+                    gid, name=safe, overwrites=(),
+                    parent_id=(int(parent_id) if parent_id else None),
+                    reason=None)
+            except RuntimeError as exc:
+                if not created:
+                    return Reply(BLOCKED,
+                                 f"❌ Could not create channels: {exc}")
+                failed.append(safe)
+                continue
+            created.append(safe)
+            applied.append(int(cid))
+        await _emit_op(
+            req, operation="create", target=f"channels:{len(names)}",
+            new_value=service.create_summary(
+                len(names),
+                category=pick.get("category_name"),
+                applied=len(created), total=len(names)),
+            applied=applied, failed=failed,
+            outcome=("success" if not failed else "partial"))
+        _clear_pick(req, "create")
+        in_cat = (f' in **{pick["category_name"]}**'
+                  if pick.get("category_name") else "")
+        response = ""
+        if created:
+            response += (f"✅ Created{in_cat}: "
+                         f"{', '.join(created)}.\n")
+        if failed:
+            response += f"❌ Failed: {', '.join(failed)}."
+        return Reply(SUCCESS, response)
+
+    # --- 🗑️ Delete Channel (_DeleteSubView + _DeleteConfirmView) ------------
+
+    @handler("channel.delete_pick")
+    async def delete_pick(req):
+        _update_pick(req, "delete",
+                     ids=_ids_from_values(req.args.get("values")))
+        return await _reopen(req, "channel.delete")
+
+    @handler("channel.delete_commit")
+    async def delete_commit(req):
+        """🗑️ Delete Selected — the declared irreversible confirm rides
+        the action spec (the kernel's confirm-as-second-dispatch stands
+        in for the shipped _DeleteConfirmView); the deletes run the
+        bulkdelete lane's sequencing with the shipped result buckets."""
+        from sb.domain.channel import service
+
+        pick = picks_for(req.guild_id,
+                         getattr(req.actor, "user_id", 0), "delete")
+        ids = list(pick.get("ids", ()))
+        if not ids:
+            return Reply(BLOCKED, _SELECT_FIRST)
+        names = await _names_for(req, ids)
+        actions = service.active_actions()
+        deleted: list[str] = []
+        applied: list[int] = []
+        forbidden: list[str] = []
+        failed: list[str] = []
+        for cid, name in zip(ids, names):
+            try:
+                await actions.delete_channel(int(cid), reason=None)
+            except RuntimeError as exc:
+                detail = str(exc).lower()
+                if not deleted and not forbidden and not failed \
+                        and "permission" not in detail \
+                        and "not found" not in detail:
+                    # nothing landed and the port itself refused (e.g.
+                    # unarmed) — the honest whole-batch refusal.
+                    return Reply(BLOCKED,
+                                 f"❌ Could not delete channels: {exc}")
+                (forbidden if "permission" in detail else failed).append(name)
+                continue
+            deleted.append(name)
+            applied.append(int(cid))
+        if applied:
+            target = (f"channel:{applied[0]}" if len(applied) == 1
+                      else f"channels:{len(applied)}")
+            await _emit_op(
+                req, operation="delete", target=target,
+                new_value=service.delete_summary(
+                    len(ids), applied=len(deleted), total=len(ids)),
+                applied=applied,
+                failed=[n for n in (*forbidden, *failed)],
+                outcome=("success" if not (forbidden or failed)
+                         else "partial"))
+        _clear_pick(req, "delete")
+        # the shipped result buckets (_DeleteConfirmView._build_result_embed)
+        parts = []
+        if deleted:
+            parts.append(f"✅ Deleted: {', '.join(deleted)}.")
+        if forbidden:
+            parts.append("🚫 Permission denied: "
+                         + ", ".join(f"`{n}`" for n in forbidden) + ".")
+        if failed:
+            parts.append("⚠️ Failed: "
+                         + ", ".join(f"`{n}`" for n in failed) + ".")
+        if not deleted:
+            return Reply(BLOCKED, "❌ Deletion Failed — "
+                                  + " ".join(parts[1:] or ["no channels "
+                                                           "were deleted."]))
+        return Reply(SUCCESS, "\n".join(parts))
+
+    # --- 🔒 Manage Restrictions (_RestrictSubView) --------------------------
+
+    @handler("channel.restrict_pick")
+    async def restrict_pick(req):
+        _update_pick(req, "restrict",
+                     ids=_ids_from_values(req.args.get("values")))
+        return await _reopen(req, "channel.restrict")
+
+    async def _restrict_apply(req, *, allow: int, deny: int,
+                              label: str, past: str) -> Reply:
+        """The shipped `_apply_restriction`: one batched pass, per-channel
+        buckets, ONE audit+lifecycle pair (the lock/unlock twins' masks)."""
+        from sb.domain.channel import service
+
+        pick = picks_for(req.guild_id,
+                         getattr(req.actor, "user_id", 0), "restrict")
+        ids = list(pick.get("ids", ()))
+        if not ids:
+            return Reply(BLOCKED, _SELECT_FIRST)
+        names = await _names_for(req, ids)
+        gid = int(req.guild_id or 0)
+        actions = service.active_actions()
+        succeeded: list[str] = []
+        applied: list[int] = []
+        forbidden: list[str] = []
+        failed: list[str] = []
+        for cid, name in zip(ids, names):
+            try:
+                await actions.set_overwrite(
+                    int(cid), target_id=gid, allow=allow, deny=deny,
+                    target_type=0, reason=None)
+            except RuntimeError as exc:
+                detail = str(exc).lower()
+                if not succeeded and not forbidden and not failed \
+                        and "permission" not in detail:
+                    return Reply(BLOCKED,
+                                 f"❌ Could not apply {label}: {exc}")
+                (forbidden if "permission" in detail else failed).append(name)
+                continue
+            succeeded.append(name)
+            applied.append(int(cid))
+        if applied:
+            await _emit_op(
+                req, operation="set_overwrite",
+                target=(f"channel:{applied[0]}" if len(applied) == 1
+                        else f"channels:{len(applied)}"),
+                new_value=service.overwrite_summary(
+                    ("send_messages",), gid,
+                    applied=len(applied), total=len(ids)),
+                applied=applied,
+                failed=[n for n in (*forbidden, *failed)],
+                outcome=("success" if not (forbidden or failed)
+                         else "partial"))
+        _clear_pick(req, "restrict")
+        # the shipped result buckets (_RestrictSubView._build_result_embed)
+        parts = []
+        if succeeded:
+            parts.append(f"✅ {past.capitalize()}: "
+                         + ", ".join(f"`{n}`" for n in succeeded) + ".")
+        if forbidden:
+            parts.append("🚫 Missing permission: "
+                         + ", ".join(f"`{n}`" for n in forbidden) + ".")
+        if failed:
+            parts.append("⚠️ Not found / failed: "
+                         + ", ".join(f"`{n}`" for n in failed) + ".")
+        if not succeeded:
+            return Reply(BLOCKED, f"{label} Failed — " + " ".join(parts))
+        return Reply(SUCCESS, "\n".join(parts))
+
+    @handler("channel.restrict_lock")
+    async def restrict_lock(req):
+        """🔒 Lock — deny send_messages for @everyone across the picked
+        batch (the shipped past-tense copy verbatim)."""
+        from sb.domain.channel.service import SEND_MESSAGES_BIT
+
+        return await _restrict_apply(
+            req, allow=0, deny=SEND_MESSAGES_BIT, label="🔒 Lock",
+            past="locked (send messages disabled for @everyone)")
+
+    @handler("channel.restrict_unlock")
+    async def restrict_unlock(req):
+        """🔓 Unlock — restore send_messages for @everyone."""
+        from sb.domain.channel.service import SEND_MESSAGES_BIT
+
+        return await _restrict_apply(
+            req, allow=SEND_MESSAGES_BIT, deny=0, label="🔓 Unlock",
+            past="unlocked (send messages restored for @everyone)")
+
+    # --- ↔️ Move / Reorder (_MoveSubView) -----------------------------------
+
+    @handler("channel.move_pick_channels")
+    async def move_pick_channels(req):
+        _update_pick(req, "move",
+                     ids=_ids_from_values(req.args.get("values")))
+        return await _reopen(req, "channel.move")
+
+    @handler("channel.move_pick_category")
+    async def move_pick_category(req):
+        values = tuple(req.args.get("values") or ())
+        raw = str(values[0]) if values else "0"
+        try:
+            cid = int(raw)
+        except ValueError:
+            cid = 0
+        name = (await _category_name(req, cid)) if cid else None
+        _update_pick(req, "move", category_id=cid or None,
+                     category_name=name, category_chosen=bool(cid))
+        return await _reopen(req, "channel.move")
+
+    @handler("channel.move_commit")
+    async def move_commit(req):
+        """📁 Move to Category — per-channel category-edit PATCHes over
+        the live port + ONE audit/lifecycle pair (the `!move` twin's
+        lane, batched)."""
+        from sb.domain.channel import service
+
+        pick = picks_for(req.guild_id,
+                         getattr(req.actor, "user_id", 0), "move")
+        ids = list(pick.get("ids", ()))
+        if not ids:
+            return Reply(BLOCKED, _SELECT_FIRST)
+        if not pick.get("category_chosen"):
+            # the shipped guard, verbatim (_MoveSubView.move_btn)
+            return Reply(BLOCKED, "Pick a destination category above first.")
+        cat_id = int(pick["category_id"])
+        names = await _names_for(req, ids)
+        actions = service.active_actions()
+        moved: list[str] = []
+        applied: list[int] = []
+        failed: list[tuple[str, str]] = []
+        for cid, name in zip(ids, names):
+            try:
+                await actions.move_channel(int(cid), category_id=cat_id,
+                                           reason=None)
+            except RuntimeError as exc:
+                if not moved and not failed:
+                    return Reply(BLOCKED,
+                                 f'❌ Could not move "{name}": {exc}')
+                failed.append((name, str(exc)))
+                continue
+            moved.append(name)
+            applied.append(int(cid))
+        if applied:
+            await _emit_op(
+                req, operation="move",
+                target=(f"channel:{applied[0]}" if len(applied) == 1
+                        else f"channels:{len(applied)}"),
+                new_value=service.move_summary(
+                    len(applied), cat_id,
+                    applied=len(applied), total=len(ids)),
+                applied=applied, failed=[n for n, _e in failed],
+                outcome=("success" if not failed else "partial"))
+        _clear_pick(req, "move")
+        cat_name = pick.get("category_name") or str(cat_id)
+        parts = []
+        if moved:
+            parts.append(f'✅ Moved to "{cat_name}": '
+                         + ", ".join(f"`{n}`" for n in moved) + ".")
+        if failed:
+            parts.append("⚠️ Failed: "
+                         + "; ".join(f"`{n}` — {e}" for n, e in failed) + ".")
+        if not moved:
+            return Reply(BLOCKED, "❌ Move failed — " + " ".join(parts))
+        return Reply(SUCCESS, "\n".join(parts))
+
+    @handler("channel.move_reorder")
+    async def move_reorder(req):
+        """⬆️/⬇️ Send to Top / Bottom — the shipped reorder operation
+        needs a position-edit verb the channel-state port does not carry
+        yet (move_channel is category-only); honest declared refusal
+        with the live alternative named (the poll reaction-egress
+        posture, never a silent stub)."""
+        return Reply(BLOCKED,
+                     "↕️ Send to Top / Bottom needs the reorder verb on "
+                     "the channel-state port (arms with the port "
+                     "extension) — 📁 Move to Category is live.")
+
+    # --- 🔍 Subsystem Visibility (_VisibilitySubView + toggle grid) ---------
+
+    @handler("channel.visibility_pick")
+    async def visibility_pick(req):
+        _update_pick(req, "visibility",
+                     ids=_ids_from_values(req.args.get("values")))
+        return await _reopen(req, "channel.visibility")
+
+    @handler("channel.visibility_configure")
+    async def visibility_configure(req):
+        """⚙️ Configure Selected — opens the shared toggle grid for the
+        picked channel batch (the shipped two-stage flow)."""
+        pick = picks_for(req.guild_id,
+                         getattr(req.actor, "user_id", 0), "visibility")
+        if not pick.get("ids"):
+            return Reply(BLOCKED, _SELECT_FIRST)
+        return await _reopen(req, "channel.visibility_grid")
+
+    def _toggle_handler(subsystem: str):
+        async def vis_toggle(req):
+            """One subsystem toggle — the shipped force-uniform cycle
+            (on → off → inherit; a mixed group jumps to on) written per
+            channel through the audited governance visibility op."""
+            from sb.domain.channel.visibility import (
+                aggregate_state,
+                channel_visibility_rows,
+            )
+            from sb.domain.governance import service as governance
+            from sb.kernel.interaction.handler_kit import ctx_from_request
+
+            pick = picks_for(req.guild_id,
+                             getattr(req.actor, "user_id", 0), "visibility")
+            ids = list(pick.get("ids", ()))
+            if not ids:
+                return Reply(BLOCKED, _SELECT_FIRST)
+            gid = int(req.guild_id or 0)
+            rows = await channel_visibility_rows(gid, ids)
+            agg = aggregate_state(rows, subsystem)
+            if agg is True:
+                new_val: bool | None = False
+            elif agg is False:
+                new_val = None
+            else:                      # None (inherit) or "mixed"
+                new_val = True
+            names = await _names_for(req, ids)
+            failed: list[str] = []
+            for cid, name in zip(ids, names):
+                try:
+                    result = await governance.set_subsystem_visibility(
+                        ctx_from_request(req, {}), scope_type="channel",
+                        scope_id=int(cid), subsystem=subsystem,
+                        enabled=new_val)
+                    if getattr(result, "outcome", None) != "success":
+                        failed.append(name)
+                except Exception:  # noqa: BLE001 — the shipped per-channel net
+                    failed.append(name)
+            if failed:
+                # the shipped partial-failure followup, verbatim shape
+                return Reply(BLOCKED,
+                             f"⚠️ Couldn't update **{subsystem}** for: "
+                             + ", ".join(f"`{n}`" for n in failed))
+            return await _reopen(req, "channel.visibility_grid")
+        return vis_toggle
+
+    from sb.domain.channel.visibility import GRID_SUBSYSTEMS
+
+    for _sub, _display in GRID_SUBSYSTEMS:
+        handler(f"channel.vis_toggle_{_sub}")(_toggle_handler(_sub))
+
+
 _register_state_handlers()
 _register_ops_handlers()
+_register_subpanel_handlers()
 
 
 def ensure_handler_refs() -> None:
-    _register_pending()
     _register_state_handlers()
     _register_ops_handlers()
+    _register_subpanel_handlers()

@@ -151,6 +151,21 @@ def _option_payload(option: Any) -> dict[str, Any]:
 
 def _component_payload(component: Any) -> dict[str, Any]:
     if component.kind == "selector":
+        if getattr(component, "native_picker", "") == "user":
+            # discord.py UserSelect.to_component_dict(): wire type 5, NO
+            # options, and "required" false even at min_values 1 — the
+            # shipped creature-battle opponent picker shape (mirrors the
+            # role type-6 / channel type-8 native pickers).
+            return {
+                "type": 5,
+                "custom_id": component.custom_id,
+                "min_values": component.min_values,
+                "max_values": component.max_values,
+                "disabled": bool(component.disabled),
+                "required": False,
+                **({"placeholder": component.placeholder}
+                   if component.placeholder else {}),
+            }
         if getattr(component, "native_picker", "") == "role":
             # discord.py RoleSelect.to_component_dict(): wire type 6, NO
             # options, and "required" false even at min_values 1 — the
@@ -652,12 +667,18 @@ class ParityRoleProvisioning:
         self._transport = transport
 
     async def create_guild_role(self, guild_id: int, *, name: str, color: int,
-                          reason: str | None) -> int:
+                          reason: str | None, hoist: bool = False,
+                          mentionable: bool = False) -> int:
+        # hoist/mentionable joined at the setup compound-ops slice (the
+        # role-template lane carries the cosmetic pair) — the False
+        # defaults keep every existing golden's recorded body
+        # byte-identical to the shipped !createrole capture.
         self._transport.record(
             "create_role",
             {"guild_id": int(guild_id), "reason": reason},
-            {"colors": {"primary_color": int(color)}, "hoist": False,
-             "mentionable": False, "name": str(name), "permissions": "0"})
+            {"colors": {"primary_color": int(color)}, "hoist": bool(hoist),
+             "mentionable": bool(mentionable), "name": str(name),
+             "permissions": "0"})
         # fake_http answered the POST with a role payload whose id came
         # off the SAME allocator as message ids (the golden's created
         # role normalizes as `<msg:2>` — sweep_createrole's audit target

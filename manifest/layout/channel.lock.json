@@ -2,19 +2,83 @@
  "entries": {
   "channel:bulkcreate:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:bulkdelete:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
+  "channel:channel.create:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "create_names"
+      ],
+      [
+       "create_category"
+      ],
+      [
+       "create_custom",
+       "create_commit",
+       "create_cancel"
+      ]
+     ]
+    }
+   ]
+  },
+  "channel:channel.create:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": [
+    [
+     "create_names"
+    ],
+    [
+     "create_category"
+    ],
+    [
+     "create_custom",
+     "create_commit",
+     "create_cancel"
+    ]
+   ]
+  },
+  "channel:channel.create:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "create_names"
+       ],
+       [
+        "create_category"
+       ],
+       [
+        "create_custom",
+        "create_commit",
+        "create_cancel"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "channel:channel.hub:LayoutSpec.pages": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     {
@@ -34,7 +98,7 @@
   },
   "channel:channel.hub:PageSpec.rows": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": [
     [
@@ -50,7 +114,7 @@
   },
   "channel:channel.hub:PanelSpec.layout": {
    "provenance": {
-    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": {
     "pages": [
@@ -70,93 +134,290 @@
     ]
    }
   },
+  "channel:channel.move:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "move_pick"
+      ],
+      [
+       "move_category"
+      ],
+      [
+       "move_commit",
+       "move_top",
+       "move_bottom"
+      ],
+      [
+       "move_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "channel:channel.move:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": [
+    [
+     "move_pick"
+    ],
+    [
+     "move_category"
+    ],
+    [
+     "move_commit",
+     "move_top",
+     "move_bottom"
+    ],
+    [
+     "move_back"
+    ]
+   ]
+  },
+  "channel:channel.move:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "move_pick"
+       ],
+       [
+        "move_category"
+       ],
+       [
+        "move_commit",
+        "move_top",
+        "move_bottom"
+       ],
+       [
+        "move_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "channel:channel.visibility_grid:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "vis_help",
+       "vis_general",
+       "vis_four_twenty",
+       "vis_utility",
+       "vis_economy"
+      ],
+      [
+       "vis_inventory",
+       "vis_treasury",
+       "vis_ticket",
+       "vis_mining",
+       "vis_ux_lab"
+      ],
+      [
+       "vis_fishing",
+       "vis_creature",
+       "vis_farm",
+       "vis_xp",
+       "vis_karma"
+      ],
+      [
+       "vis_games",
+       "vis_community",
+       "vis_community_spotlight",
+       "vis_blackjack",
+       "vis_welcome"
+      ],
+      [
+       "vis_grid_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "channel:channel.visibility_grid:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": [
+    [
+     "vis_help",
+     "vis_general",
+     "vis_four_twenty",
+     "vis_utility",
+     "vis_economy"
+    ],
+    [
+     "vis_inventory",
+     "vis_treasury",
+     "vis_ticket",
+     "vis_mining",
+     "vis_ux_lab"
+    ],
+    [
+     "vis_fishing",
+     "vis_creature",
+     "vis_farm",
+     "vis_xp",
+     "vis_karma"
+    ],
+    [
+     "vis_games",
+     "vis_community",
+     "vis_community_spotlight",
+     "vis_blackjack",
+     "vis_welcome"
+    ],
+    [
+     "vis_grid_back"
+    ]
+   ]
+  },
+  "channel:channel.visibility_grid:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open — capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec §9.3 confidence rule)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "vis_help",
+        "vis_general",
+        "vis_four_twenty",
+        "vis_utility",
+        "vis_economy"
+       ],
+       [
+        "vis_inventory",
+        "vis_treasury",
+        "vis_ticket",
+        "vis_mining",
+        "vis_ux_lab"
+       ],
+       [
+        "vis_fishing",
+        "vis_creature",
+        "vis_farm",
+        "vis_xp",
+        "vis_karma"
+       ],
+       [
+        "vis_games",
+        "vis_community",
+        "vis_community_spotlight",
+        "vis_blackjack",
+        "vis_welcome"
+       ],
+       [
+        "vis_grid_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "channel:channelinfo:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:channelmenu:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:clone:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:create:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:del:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:evt:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:list:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:lock:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:move:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:permissions:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:rename:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:set:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:slowmode:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:topic:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   },
   "channel:unlock:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+    "exempt": "legacy-seed: band-2 port carries the shipped ordering/grouping as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
    },
    "value": 0
   }

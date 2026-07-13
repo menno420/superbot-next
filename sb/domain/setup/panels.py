@@ -32,10 +32,24 @@ ORACLE @befc6d0d (search_code fragments; full-file reads stay denied):
   (goldens/setup/sweep_slash_setup-describe pins every byte).
 
 The wizard INTERIOR (depth choice application, the essential flow's
-save/skip steps, the review panel's accept/stage lanes) stays a named
-successor: every component routes to the declared honest-refusal terminal
-(the D-0030 pending posture) until the wizard-lifecycle slice ports it —
-no golden drives a click on any of these components.
+Step-1 pick/save/skip, the review panel's accept/review/stage lanes) is
+LIVE (the wizard-lifecycle slice — sb/domain/setup/wizard.py carries the
+click handlers + the ported oracle data); no golden drives a click on
+any of these components, so the oracle sources pin the click-path copy
+while the goldens keep pinning every OPEN render byte. Two interior
+panels ride along: ``setup.sections_hub`` (views/setup/hub.py — the
+depth click's shipped destination) and ``setup.review_item``
+(views/setup/ai_review/per_recommendation.py — the one-at-a-time
+walkthrough). The FINAL-REVIEW APPLY LANE is live (final_review.py —
+its three panels ride the manifest), the ESSENTIAL STEPS 2–8 are
+live (essential_steps.py — the seven step cards, the summary/extras
+pair and the restart-resume bridge ride the manifest), and the
+SECTION-FLOW SPINE + the first two flows are live (the section-flows
+slice: section_card.py + wizard_nav.py + preset_select.py +
+channels.py — the linear wizard steps, the channels section card /
+detail picker and the preset card / preview ride the manifest). Named
+successors stay honest terminals: the remaining seven per-section
+flows (the wizard.py module docstring routes them).
 """
 
 from __future__ import annotations
@@ -61,6 +75,8 @@ from sb.spec.refs import HandlerRef, PanelRef, ProviderRef, handler, is_register
 __all__ = [
     "ESSENTIAL_PANEL_ID",
     "HUB_PANEL_ID",
+    "REVIEW_ITEM_PANEL_ID",
+    "SECTIONS_HUB_PANEL_ID",
     "STATUS_PANEL_ID",
     "SUGGESTIONS_PANEL_ID",
     "ensure_setup_refs",
@@ -72,6 +88,8 @@ HUB_PANEL_ID = "setup.hub"
 ESSENTIAL_PANEL_ID = "setup.essential_card"
 STATUS_PANEL_ID = "setup.status_card"
 SUGGESTIONS_PANEL_ID = "setup.suggestions_card"
+SECTIONS_HUB_PANEL_ID = "setup.sections_hub"
+REVIEW_ITEM_PANEL_ID = "setup.review_item"
 
 #: shipped copy, verbatim (depth_panel.build_depth_embed — goldens/setup/
 #: sweep_slash_setup-hub + sweep_slash_setup-advanced pin every byte).
@@ -122,17 +140,30 @@ _ESSENTIAL_KINDS = (
 _REVIEW_HEADER = "Smart suggestions are recommendations. Review before applying."
 _CONFIDENCE_ICON = {"high": "🟢", "medium": "🟡", "low": "⚪"}
 
-#: the wizard-interior pending terminal (D-0030 posture — declared surface,
-#: honest BLOCKED refusal, never silent; the wizard-lifecycle slice retires
-#: it when the section flows port).
-_PENDING_MSG = ("The setup wizard's interactive steps aren't armed in this "
-                "build yet — they land with the wizard-lifecycle slice.")
+#: shipped hub copy, verbatim (views/setup/hub.py — the depth click's
+#: destination; no golden drives it, the oracle source pins the bytes).
+_SECTIONS_HUB_TITLE = "🛰 SuperBot setup wizard"
+_SECTIONS_HUB_DESCRIPTION = (
+    "Step through the sections to wire SuperBot up. Each section's "
+    "actions go through audited mutation pipelines; nothing applies "
+    "until **Final review** confirms it."
+)
+_SECTIONS_HUB_FOOTER = (
+    "Owner-gated. No mutation runs until Final review confirms. "
+    "Tip: /setup-status for a read-only peek · /setup-reset to "
+    "clear staged ops."
+)
 
+#: the shipped section-status badges (services/setup_progress.py
+#: ``_BADGE_BY_STATUS`` — the ported subset renders the states this
+#: build can reach: skipped / applied-by-ack-or-complete / not started).
+_BADGE_SKIPPED = "⚠️"
+_BADGE_APPLIED = "✅"
+_BADGE_NOT_STARTED = "⬜"
 
-def _pending() -> HandlerRef:
-    from sb.domain.operator_spine import pending_handler
-
-    return pending_handler("setup.wizard_pending", _PENDING_MSG)
+#: per-suggestion confidence accents (per_recommendation.py
+#: ``_CONFIDENCE_COLOR``, mapped onto the ported style tokens).
+_CONFIDENCE_TOKEN = {"high": "green", "medium": "gold", "low": "dark_grey"}
 
 
 # --- providers ----------------------------------------------------------------------
@@ -169,15 +200,18 @@ def setup_hub_spec() -> PanelSpec:
         actions=(
             PanelActionSpec(
                 action_id="depth_quick", label="⚡ Quick",
-                style=ActionStyle.SECONDARY, handler=_pending(),
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.depth_pick_quick"),
                 custom_id_override="setup_depth:quick"),
             PanelActionSpec(
                 action_id="depth_standard", label="🛠 Standard",
-                style=ActionStyle.SECONDARY, handler=_pending(),
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.depth_pick_standard"),
                 custom_id_override="setup_depth:standard"),
             PanelActionSpec(
                 action_id="depth_advanced", label="🔬 Advanced",
-                style=ActionStyle.SECONDARY, handler=_pending(),
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.depth_pick_advanced"),
                 custom_id_override="setup_depth:advanced"),
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
@@ -210,16 +244,18 @@ def essential_card_spec() -> PanelSpec:
         actions=(
             PanelActionSpec(
                 action_id="essential_save", label="Save & continue",
-                emoji="✨", style=ActionStyle.SUCCESS, handler=_pending()),
+                emoji="✨", style=ActionStyle.SUCCESS,
+                handler=HandlerRef("setup.essential_save")),
             PanelActionSpec(
                 action_id="essential_skip",
                 label="Skip — set things up myself",
-                style=ActionStyle.SECONDARY, handler=_pending()),
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.essential_skip")),
         ),
         selectors=(
             SelectorSpec(
                 selector_id="essential_kind", kind=SelectorKind.ENUM,
-                on_select=_pending(),
+                on_select=HandlerRef("setup.essential_pick"),
                 options_source=ProviderRef(_ESSENTIAL_OPTIONS_PROVIDER),
                 placeholder="What kind of server is this?"),
         ),
@@ -277,22 +313,27 @@ def suggestions_card_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="accept_high_confidence",
                 label="Accept all high-confidence",
-                style=ActionStyle.SUCCESS, handler=_pending()),
+                style=ActionStyle.SUCCESS,
+                handler=HandlerRef("setup.review_accept_high")),
             PanelActionSpec(
                 action_id="review_one_by_one", label="Review one-by-one",
-                style=ActionStyle.PRIMARY, handler=_pending()),
+                style=ActionStyle.PRIMARY,
+                handler=HandlerRef("setup.review_one_by_one")),
             PanelActionSpec(
                 action_id="reject_ai_suggestions",
                 label="Reject all AI suggestions",
-                style=ActionStyle.DANGER, handler=_pending()),
+                style=ActionStyle.DANGER,
+                handler=HandlerRef("setup.review_reject_ai")),
             PanelActionSpec(
                 action_id="rerun_deterministic",
                 label="Rerun deterministic-only",
-                style=ActionStyle.SECONDARY, handler=_pending()),
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.review_rerun")),
             PanelActionSpec(
                 action_id="stage_final_review",
                 label="Stage & open Final review",
-                style=ActionStyle.SUCCESS, handler=_pending()),
+                style=ActionStyle.SUCCESS,
+                handler=HandlerRef("setup.review_stage")),
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(PageSpec(rows=(
@@ -315,6 +356,145 @@ def suggestions_card_spec() -> PanelSpec:
     )
 
 
+def sections_hub_spec() -> PanelSpec:
+    """The SECTIONS HUB (views/setup/hub.py ``SetupHubView`` +
+    ``build_hub_embed``) — the depth click's shipped destination: one
+    button per registered section (filtered to the persisted depth by
+    the renderer override), plus Change depth + ↩ Back to wizard on the
+    nav row. Section buttons hold the honest section-flows terminal;
+    Change depth re-opens the chooser (live)."""
+    from sb.domain.setup.sections import SECTIONS
+
+    section_actions = tuple(
+        PanelActionSpec(
+            action_id=f"section_{s.slug}", label=s.label,
+            emoji=s.emoji,
+            style=(ActionStyle.SUCCESS if s.slug == "preset_select"
+                   else ActionStyle.SECONDARY),
+            handler=HandlerRef(f"setup.open_section_{s.slug}"),
+            custom_id_override=f"setup_section:{s.slug}")
+        for s in SECTIONS)
+    slugs = tuple(f"section_{s.slug}" for s in SECTIONS)
+    return PanelSpec(
+        panel_id=SECTIONS_HUB_PANEL_ID,
+        subsystem="setup",
+        title=_SECTIONS_HUB_TITLE,
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple", footer_mode=FooterMode.NONE),
+        actions=section_actions + (
+            PanelActionSpec(
+                action_id="change_depth", label="Change depth",
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.change_depth"),
+                custom_id_override="setup_hub:change_depth"),
+            PanelActionSpec(
+                action_id="back_to_wizard", label="↩ Back to wizard",
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.back_to_wizard"),
+                custom_id_override="setup_hub:back_to_wizard"),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            slugs[:5], slugs[5:],
+            ("change_depth", "back_to_wizard"))),)),
+        renderer_override=HandlerRef("setup.sections_hub_render"),
+        justification=(
+            "the shipped hub embed is state-parameterized end to end "
+            "(the Status/depth/current-step/readiness description line, "
+            "the badge-prefixed Sections list, the Next-step hint — "
+            "hub.build_hub_embed) and its BUTTON SET is depth-filtered "
+            "at render (SetupHubView.__init__ REGISTRY.for_depth) — "
+            "both outside the static grammar vocabulary; the override "
+            "renders through the grammar then composes the embed and "
+            "filters/repacks the section rows (no golden pins this "
+            "panel — the oracle source does)."),
+        session_lifecycle=True,
+    )
+
+
+def review_item_spec() -> PanelSpec:
+    """The per-suggestion walkthrough card (views/setup/ai_review/
+    per_recommendation.py): Accept · Deny · Edit / Skip · Back to
+    overview over one recommendation at a time. TWO Edit faces ride the
+    spec (the suggestion-edit slice) and the renderer keeps exactly one
+    per render (the mode-dependent control — the final-review
+    Apply-drop precedent): ``item_edit_rename`` carries the G-10
+    "Edit suggestion" rename modal for a ``create`` suggestion
+    (_EditRecommendationModal — the modal must be the interaction's
+    FIRST response, so the create face is its own declared
+    defer_mode=MODAL action, never a handler branch);
+    ``item_edit`` answers a ``bind`` suggestion with the shipped
+    can't-re-pick explanation."""
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.panels import ModalFieldSpec, ModalSpec
+
+    rename_modal = ModalSpec(
+        modal_id="setup.review_item_edit_form",
+        title="Edit suggestion",
+        fields=(
+            # oracle label f"{rec.target_kind.title()} name to create"
+            # + default=rec.target_name are per-open dynamic; a G-10
+            # form's wire bytes are static (resolve.py's stash note),
+            # so the label is the kind-generic spelling and the card's
+            # own target line shows the proposed name — ledgered.
+            ModalFieldSpec(field_id="new_name", label="Name to create",
+                           required=True, min_length=1, max_length=100),
+        ),
+        on_submit=HandlerRef("setup.review_item_edit_rename"))
+    return PanelSpec(
+        panel_id=REVIEW_ITEM_PANEL_ID,
+        subsystem="setup",
+        title="🤖 Smart suggestions",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple", footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="item_accept", label="Accept",
+                style=ActionStyle.SUCCESS,
+                handler=HandlerRef("setup.review_item_accept")),
+            PanelActionSpec(
+                action_id="item_deny", label="Deny",
+                style=ActionStyle.DANGER,
+                handler=HandlerRef("setup.review_item_deny")),
+            PanelActionSpec(
+                action_id="item_edit", label="Edit",
+                style=ActionStyle.PRIMARY,
+                handler=HandlerRef("setup.review_item_edit")),
+            PanelActionSpec(
+                action_id="item_edit_rename", label="Edit",
+                style=ActionStyle.PRIMARY,
+                defer_mode=DeferMode.MODAL, modal=rename_modal,
+                handler=HandlerRef("setup.review_item_edit_rename")),
+            PanelActionSpec(
+                action_id="item_skip", label="Skip",
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.review_item_skip")),
+            PanelActionSpec(
+                action_id="item_back", label="Back to overview",
+                style=ActionStyle.SECONDARY,
+                handler=HandlerRef("setup.review_item_back")),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("item_accept", "item_deny", "item_edit", "item_edit_rename"),
+            ("item_skip", "item_back"))),)),
+        renderer_override=HandlerRef("setup.review_item_render"),
+        justification=(
+            "the shipped walkthrough card is index-parameterized in "
+            "title (Suggestion i/N · accepted/pending), description "
+            "(the per-recommendation lines), footer (the accepted "
+            "count) and COLOR (the per-confidence accent — "
+            "per_recommendation._CONFIDENCE_COLOR), and its EDIT "
+            "control is mode-dependent (a create suggestion's Edit "
+            "opens the rename modal, a bind suggestion's Edit "
+            "explains — per_recommendation._edit); all outside the "
+            "static grammar vocabulary, so the override composes the "
+            "embed and keeps one Edit face (no golden pins it — the "
+            "oracle source does)."),
+        session_lifecycle=True,
+    )
+
+
 # --- renderer overrides ---------------------------------------------------------------
 
 async def _render_depth(spec: PanelSpec, ctx) -> object:
@@ -330,15 +510,27 @@ async def _render_depth(spec: PanelSpec, ctx) -> object:
 
 async def _render_essential(spec: PanelSpec, ctx) -> object:
     """renderer_override — grammar render + the shipped footer/field
-    literals (essential_setup.py Step 1)."""
+    literals (essential_setup.py Step 1). A recorded pick renders the
+    shipped Starter-set field byte (``ServerTypeStep.render``'s
+    picked branch); the fresh OPEN stays the golden-pinned
+    '_pick one above_' placeholder."""
     import dataclasses
 
     from sb.kernel.panels.render import render_panel
 
     base = await render_panel(spec, ctx)
+    params = getattr(ctx, "params", {}) or {}
+    starter = "_pick one above_"
+    kind = str(params.get("essential_kind", "") or "")
+    if kind:
+        from sb.domain.setup.wizard import server_type
+
+        preset = server_type(kind)
+        if preset is not None:
+            starter = f"{preset.emoji} **{preset.label}** — {preset.blurb}"
     embed = dataclasses.replace(
         base.embed,
-        fields=(("Starter set", "_pick one above_", False),),
+        fields=(("Starter set", starter, False),),
         footer="Step 1 of 8")
     return dataclasses.replace(base, embed=embed)
 
@@ -407,13 +599,188 @@ async def _render_suggestions(spec: PanelSpec, ctx) -> object:
             dropped_value += f"\n_+{len(dropped) - 5} more not shown_"
         fields.append(("Dropped", dropped_value, False))
     base = await render_panel(spec, ctx)
+    # the shipped confidence accent (main_panel.build_ai_review_embed:
+    # green if high else gold if medium else dark_grey) + the last-action
+    # footer the click lanes stamp (AIReviewPanelView._refresh_embed).
+    token = ("green" if counts["high"] else
+             "gold" if counts["medium"] else "dark_grey")
     embed = RenderedEmbed(
         title=spec.title,
         description=description,
         fields=tuple(fields),
-        style_token=spec.frame.style_token)
+        footer=str(params.get("review_status") or ""),
+        style_token=token)
     return dataclasses.replace(
         base, embed=embed, content=str(params.get("advisor_note") or "") or None)
+
+
+async def _render_sections_hub(spec: PanelSpec, ctx) -> object:
+    """renderer_override — hub.build_hub_embed verbatim over the ported
+    state reads: the session row (status/depth/current-step/readiness
+    description line), the K9 staged-op count, the badge-prefixed
+    Sections list at the persisted depth, the Next-step hint subset this
+    build can reach, the shipped footer; components filter to the
+    depth's sections and repack five-per-row (the shipped add_item
+    flow)."""
+    import dataclasses
+
+    from sb.domain.setup import store, wizard
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    guild_id = int(ctx.guild_id or 0)
+    session = await store.get_session_row(guild_id)
+    try:
+        pending_ops = await wizard.staged_ops_count(guild_id)
+    except Exception:  # noqa: BLE001 — the shipped list_ops soft-fail
+        pending_ops = 0
+
+    status = str(session.get("setup_status") or "") if session else ""
+    depth = (str(session["depth"]) if session and session.get("depth")
+             else None)
+    complete = status == "complete"
+
+    description = _SECTIONS_HUB_DESCRIPTION
+    if session is not None:
+        description = (f"{_SECTIONS_HUB_DESCRIPTION}\n\n"
+                       f"**Status:** `{status}`")
+        if depth:
+            description += f" · depth: `{depth}`"
+        if session.get("current_step"):
+            description += f" · current step: `{session['current_step']}`"
+        if session.get("last_readiness_score") is not None:
+            description += (f" · readiness "
+                            f"`{session['last_readiness_score']}%`")
+    prefix = (description + "\n\n" if "**Status:**" not in description
+              else description + " · ")
+    description = f"{prefix}**Pending operations:** `{pending_ops}`"
+
+    sections = wizard.sections_for_depth(depth)
+    skipped = set(session.get("skipped_sections") or ()) if session else set()
+    acked = (set(session.get("acknowledged_sections") or ())
+             if session else set())
+    lines = []
+    not_started = 0
+    for idx, section in enumerate(sections, start=1):
+        if section.slug in skipped:
+            glyph = _BADGE_SKIPPED
+        elif complete or section.slug in acked:
+            glyph = _BADGE_APPLIED
+        else:
+            glyph = _BADGE_NOT_STARTED
+            not_started += 1
+        lines.append(f"{glyph} {idx}. {section.label}")
+    fields = [("Sections",
+               "\n".join(lines) if lines else "_No sections registered._",
+               False)]
+
+    # the shipped next-step hint ladder, the reachable subset (the
+    # recommended-path branch needs the section builders — section-flows
+    # slice): complete → the summary pointer; staged ops → the Final-
+    # review pointers; else the pick prompt.
+    if complete:
+        hint = "✅ Setup is complete. Click **View Summary** for the digest."
+    elif pending_ops and not not_started:
+        hint = ("🚀 Every section has staged ops. Open **Final Review** "
+                "to apply.")
+    elif pending_ops:
+        hint = (f"📝 **{pending_ops}** op(s) staged. Either open more "
+                f"sections or go to **Final Review**.")
+    else:
+        hint = "👉 Pick a section to begin."
+    fields.append(("Next step", hint, False))
+
+    base = await render_panel(spec, ctx)
+    allowed = {f"setup_section:{s.slug}" for s in sections}
+    allowed |= {"setup_hub:change_depth", "setup_hub:back_to_wizard"}
+    kept = [c for c in base.components if c.custom_id in allowed]
+    repacked = []
+    nav_row = (len([c for c in kept
+                    if c.custom_id.startswith("setup_section:")]) - 1) // 5 + 1
+    section_i = 0
+    for component in kept:
+        if component.custom_id.startswith("setup_section:"):
+            row = section_i // 5
+            section_i += 1
+        else:
+            row = nav_row
+        repacked.append(dataclasses.replace(component, row=row))
+
+    embed = RenderedEmbed(
+        title=spec.title,
+        description=description,
+        fields=tuple(fields),
+        footer=_SECTIONS_HUB_FOOTER,
+        style_token="green" if complete else "blurple")
+    return dataclasses.replace(base, embed=embed,
+                               components=tuple(repacked))
+
+
+def _one_edit_face(components, mode: str):
+    """Keep exactly ONE Edit control for the rendered suggestion's mode
+    (per_recommendation._edit: a ``create`` suggestion's Edit opens the
+    rename modal, a ``bind`` suggestion's Edit explains) — the
+    final-review Apply-drop precedent for state-dependent controls."""
+    drop = (f"{REVIEW_ITEM_PANEL_ID}.item_edit" if mode == "create"
+            else f"{REVIEW_ITEM_PANEL_ID}.item_edit_rename")
+    return tuple(c for c in components if c.custom_id != drop)
+
+
+async def _render_review_item(spec: PanelSpec, ctx) -> object:
+    """renderer_override — per_recommendation.build_per_recommendation_
+    embed verbatim: one recommendation at the walkthrough index, the
+    accepted/pending title state, the mode-dependent target line, the
+    per-confidence accent, the accepted-count footer (+ the create
+    mode's Edit-to-rename hint), one Edit face per mode."""
+    import dataclasses
+
+    from sb.domain.setup import wizard
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    state = await wizard.review_state(
+        int(ctx.guild_id or 0), int(getattr(ctx.actor, "user_id", 0) or 0))
+    recs = tuple(state.draft.recommendations)
+    base = await render_panel(spec, ctx)
+    if not recs:
+        embed = RenderedEmbed(
+            title="🤖 Smart suggestions",
+            description="No recommendations to review.",
+            style_token="dark_grey")
+        return dataclasses.replace(
+            base, embed=embed,
+            components=_one_edit_face(base.components, "bind"))
+    index = max(0, min(state.index, len(recs) - 1))
+    rec = recs[index]
+    accepted = state.contains(rec)
+    state_label = "✅ accepted" if accepted else "⬜ pending"
+    # the oracle mode branch: a "create" rec has no existing id — it
+    # proposes making the resource and binding it; a "bind" rec wires
+    # an existing one (shown with its id).
+    mode = str(getattr(rec, "mode", "bind"))
+    if mode == "create":
+        target_line = (f"**Create & bind:** ➕ `{rec.target_name}` "
+                       f"(new `{rec.target_kind}`)\n")
+    else:
+        target_line = (f"**Target:** `{rec.target_name}` "
+                       f"(id `{rec.target_id}`)\n")
+    source = getattr(rec, "source", None) or str(
+        getattr(state.draft, "source", "deterministic"))
+    edit_hint = (" · Edit to rename before accepting"
+                 if mode == "create" else "")
+    embed = RenderedEmbed(
+        title=f"🤖 Suggestion {index + 1} / {len(recs)} · {state_label}",
+        description=(
+            f"**Subsystem:** `{rec.subsystem}`\n"
+            f"**Binding:** `{rec.binding_name}` (`{rec.target_kind}`)\n"
+            f"{target_line}"
+            f"**Confidence:** `{rec.confidence}`\n"
+            f"**Source:** `{source}`\n\n"
+            f"_{rec.reason}_"),
+        footer=(f"Accepted set: {state.count} · Accept / Deny / Edit"
+                f"{edit_hint} · Skip to defer, Back to return."),
+        style_token=_CONFIDENCE_TOKEN.get(rec.confidence, "blurple"))
+    return dataclasses.replace(
+        base, embed=embed,
+        components=_one_edit_face(base.components, mode))
 
 
 # --- registration ---------------------------------------------------------------------
@@ -438,20 +805,33 @@ def _suggestions_factory() -> PanelSpec:
     return suggestions_card_spec()
 
 
+@panel(SECTIONS_HUB_PANEL_ID)
+def _sections_hub_factory() -> PanelSpec:
+    return sections_hub_spec()
+
+
+@panel(REVIEW_ITEM_PANEL_ID)
+def _review_item_factory() -> PanelSpec:
+    return review_item_spec()
+
+
 handler("setup.depth_render")(_render_depth)
 handler("setup.essential_render")(_render_essential)
 handler("setup.status_render")(_render_status)
 handler("setup.suggestions_render")(_render_suggestions)
+handler("setup.sections_hub_render")(_render_sections_hub)
+handler("setup.review_item_render")(_render_review_item)
 
 _ensure_providers()
 
 
 def install_setup_panels() -> PanelSpec:
-    """Register the four panels; returns the hub spec (the band-1 test
+    """Register the six panels; returns the hub spec (the band-1 test
     contract — tests/unit/setup_band/test_band1_setup.py)."""
     out: PanelSpec | None = None
     for spec in (setup_hub_spec(), essential_card_spec(),
-                 status_card_spec(), suggestions_card_spec()):
+                 status_card_spec(), suggestions_card_spec(),
+                 sections_hub_spec(), review_item_spec()):
         try:
             registered = register_panel(spec)
         except ValueError as exc:
@@ -467,19 +847,25 @@ def install_setup_panels() -> PanelSpec:
 
 def ensure_setup_refs() -> None:
     _ensure_providers()
-    _pending()
+    from sb.domain.setup.wizard import ensure_wizard_refs
+
+    ensure_wizard_refs()
     from sb.spec.refs import handler as _handler
     from sb.spec.refs import is_registered as _is
 
     for name, fn in (("setup.depth_render", _render_depth),
                      ("setup.essential_render", _render_essential),
                      ("setup.status_render", _render_status),
-                     ("setup.suggestions_render", _render_suggestions)):
+                     ("setup.suggestions_render", _render_suggestions),
+                     ("setup.sections_hub_render", _render_sections_hub),
+                     ("setup.review_item_render", _render_review_item)):
         if not _is(HandlerRef(name)):
             _handler(name)(fn)
     for pid, factory in ((HUB_PANEL_ID, _hub_factory),
                          (ESSENTIAL_PANEL_ID, _essential_factory),
                          (STATUS_PANEL_ID, _status_factory),
-                         (SUGGESTIONS_PANEL_ID, _suggestions_factory)):
+                         (SUGGESTIONS_PANEL_ID, _suggestions_factory),
+                         (SECTIONS_HUB_PANEL_ID, _sections_hub_factory),
+                         (REVIEW_ITEM_PANEL_ID, _review_item_factory)):
         if not _is(PanelRef(pid)):
             panel(pid)(factory)

@@ -21,8 +21,8 @@
 #   sim-gate            — sim-reviewed-or-exempt (§6 gate 4 / §2.10.6).
 #   golden-parity       — the gate LEG of the acceptance oracle (ported
 #                         rows must replay green vs the CI Postgres; the
-#                         red-by-design full-corpus dashboard stays the
-#                         `report` job in golden-parity.yml, NEVER
+#                         full-corpus dashboard (green since 2026-07-13, run
+#                         29238825392) stays golden-parity.yml's `report` job, NEVER
 #                         required) PLUS tests/integration/ — the only
 #                         required-gate job with both the full runtime
 #                         lock and a live Postgres, so real-DB concurrency
@@ -108,8 +108,8 @@ jobs:
 
   golden-parity:
     # The REQUIRED leg of gate 5: ported subsystems replay green.
-    # (The full-corpus red-by-design dashboard is golden-parity.yml's
-    # `report` job — deliberately NOT here, never required.)
+    # (The full-corpus dashboard — green since 2026-07-13, run 29238825392; a red there
+    # is now regression signal — is golden-parity.yml's `report` job, NOT here, never required.)
     runs-on: ubuntu-latest
     services:
       postgres:

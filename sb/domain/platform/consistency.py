@@ -163,6 +163,7 @@ async def _collect_lifecycle() -> SectionResult:
 
 
 async def _collect_manifests() -> SectionResult:
+    import hashlib
     import json
     from pathlib import Path
 
@@ -173,9 +174,19 @@ async def _collect_manifests() -> SectionResult:
         return SectionResult("manifests", SectionStatus.FATAL,
                              f"manifest.snapshot.json unreadable: {exc}")
     subsystems = snap.get("subsystems", {})
+    # The committed snapshot carries no stable_hash field (the cached line was
+    # a merge-conflict machine) — recompute the fingerprint from the body.
+    # MUST mirror tools/manifest_compile.compute_stable_hash (spec 01 §5
+    # fork 9 hash membership); tools/ is not importable from sb/domain.
+    hashed_body = {k: v for k, v in snap.items()
+                   if k not in ("stable_hash", "compiler_version",
+                                "manifest_count")}
+    canonical = json.dumps(hashed_body, sort_keys=True,
+                           separators=(",", ":"), ensure_ascii=False)
+    digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     return SectionResult("manifests", SectionStatus.CLEAN,
                          f"{len(subsystems)} compiled manifest(s), "
-                         f"hash {snap.get('stable_hash', '?')[:16]}…")
+                         f"hash sha256:{digest[:16]}…")
 
 
 async def _collect_governance() -> SectionResult:

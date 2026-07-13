@@ -1,9 +1,11 @@
 """Mining handlers (band 6 / parity flip) — the SHIPPED core-loop reply
 bytes verbatim (goldens/mining pin them), the reads, the inventory merge
-source, and honest pending terminals for the deep systems
-(equipment/wear, energy, grid, vault, structures, skills, forge,
-workshop, titles, loadouts, descend/ascend, character — the D-0043
-named successor port).
+source, the LIVE deep-system lanes (equipment/loadouts, depth traversal,
+vault, workshop repair/quickcraft, and the energy-lane cook/use
+consumables), and honest pending terminals for what still rides named
+successor work (wear ticks, grid dig, structure builds, skill spends —
+the D-0043 tail; the fastmine energy spend is energy-lane slice 3,
+owner-gated).
 
 Shipped command mapping (disbot/cogs/mining_cog.py, oracle-verbatim):
 
@@ -118,6 +120,31 @@ def _no_args(req) -> bool:
     ``!sell`` / ``!buy``)."""
     return (not tuple(req.args.get("argv", ()) or ())
             and not tuple(req.args.get("values", ()) or ()))
+
+
+def _use_item_arg(argv: tuple, values: tuple) -> str:
+    """The oracle's consume-rest ``!use`` argument (``*, item: str``) —
+    the FULL arg tail verbatim, digits included (``!use 5 torch`` refuses
+    on the literal ``5 torch``). Mirrors ops.py ``_rest_from`` for the
+    route-level pure-read guards."""
+    if values:
+        return str(values[0]).strip().lower()
+    return " ".join(str(t) for t in argv).strip().lower()
+
+
+def _cook_args(argv: tuple, values: tuple) -> tuple[str, int]:
+    """``(fish, qty)`` — the shipped ``!cook`` parse (mining_cog.py
+    ``cook``): a LEADING digit token is the amount (``!cook 3 minnow``),
+    anything else is part of the fish name verbatim (``!cook minnow 3``
+    refuses on the literal ``minnow 3`` — NOT the sell/buy trailing-qty
+    grammar). Mirrors ops.py ``_record_cook``'s in-leg parse."""
+    rest = _use_item_arg(argv, values)
+    qty = 1
+    parts = rest.split()
+    if len(parts) > 1 and parts[0].isdigit():
+        qty = max(1, int(parts[0]))
+        rest = " ".join(parts[1:])
+    return rest, qty
 
 
 async def _card(req, embed) -> Reply:
@@ -417,7 +444,7 @@ def _register() -> None:
         goldens/mining/sweep_build pins the identical bytes); an argful
         `!build <item>` runs the shared atomic craft write (materials → product)
         which rides the deferred structures/craft port — no golden drives it —
-        so it stays an honest D-0043 pending terminal (the argful cook/use
+        so it stays an honest D-0043 pending terminal (the argful skill-spend
         precedent)."""
         if _no_args(req):
             return await _buildlist_card(req)
@@ -893,36 +920,103 @@ def _register() -> None:
 
     @handler("mining.cook_route")
     async def cook_route(req) -> Reply:
-        """`!cook [fish]` — cook a caught fish into food (mining_cog.py
-        ``cook``). The bare invocation answers the usage copy PLAIN
-        (goldens/mining/sweep_cook pins the byte). The argful cook write
-        (fish → cooked fish, gated on a built 🔥 Campfire, refilling mining
-        energy) rides the deferred mining energy/consumable system — no golden
-        drives it — so it stays an honest D-0043 pending terminal."""
+        """`!cook [amount] [fish]` — cook caught fish into food at a built
+        🔥 Campfire (mining_cog.py ``cook``; services/mining_workflow.py
+        ``cook`` — LIVE, energy-lane slice 2). The bare invocation answers
+        the usage copy PLAIN (goldens/mining/sweep_cook pins the byte); the
+        argful call runs the audited one-txn cook op (fish debit +
+        cooked-fish grant behind the campfire gate) — refusals reply PLAIN,
+        success prefixes the invoker mention (the shipped
+        ``ctx.send(f"{mention} …")`` contract; goldens/mining/
+        mining_cook_campfire_write pins the bytes)."""
+        from sb.domain.mining import structures
+        from sb.domain.mining.ops import is_fish
+        from sb.domain.mining.store import (
+            get_mining_inventory,
+            get_structures,
+        )
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
         if _no_args(req):
             return Reply(BLOCKED,
                          "Specify a fish to cook, e.g. `!cook minnow` "
                          "(needs a 🔥 Campfire).")
-        return Reply(BLOCKED,
-                     "🔥 `!cook` needs the mining campfire/energy system — the "
-                     "deep mining port is named successor work (D-0043); the "
-                     "core loop (mine/chop/explore/sell/buy) is live.")
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        # The shipped guards are PRE-TXN pure reads (mining_workflow.cook
+        # checks before opening its txn; ok=False sends result.message
+        # PLAIN) — computed here so the refusal bytes stay verbatim, never
+        # the kernel's ValidatorError envelope. The op leg re-checks
+        # in-txn (a race fence the oracle lacks — its raced cook dupes via
+        # the floor-0 debit; the port refuses honestly, #217 posture).
+        rest, qty = _cook_args(argv, values)
+        built = await get_structures(uid, gid)
+        if not structures.cooking_unlocked(
+                built.get(structures.CAMPFIRE, 0)):
+            return Reply(BLOCKED,
+                         "You need a 🔥 **Campfire** to cook — build one "
+                         "with `!build campfire`.")
+        if not is_fish(rest):
+            return Reply(BLOCKED,
+                         f"**{rest}** isn't a fish you can cook — catch "
+                         "fish with `!fish`.")
+        have = (await get_mining_inventory(uid, gid)).get(rest, 0)
+        if have < qty:
+            return Reply(BLOCKED,
+                         f"You only have **{have}× {rest}** to cook "
+                         f"(wanted {qty}).")
+        blocked, after = await _op_after(
+            req, "mining.cook", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
     @handler("mining.use_route")
     async def use_route(req) -> Reply:
-        """`!use [item]` — use a consumable from your pack (mining_cog.py
-        ``use``). The bare invocation answers the usage copy PLAIN
-        (goldens/mining/sweep_use pins the byte). The argful consume (torch /
-        dynamite flavour + food/booster energy refill) rides the deferred mining
-        energy/consumable system — no golden drives it — so it stays an honest
-        D-0043 pending terminal."""
+        """`!use [item]` — consume an item from your pack (mining_cog.py
+        ``use``; services/mining_workflow.py ``use_item`` — LIVE,
+        energy-lane slice 2). The bare invocation answers the usage copy
+        PLAIN (goldens/mining/sweep_use pins the byte); the argful call runs
+        the audited one-txn use op (food/booster energy refill over the
+        slice-1 store pair, torch/dynamite/generic flavour otherwise) —
+        refusals (not owned, energy already full) reply PLAIN, success
+        prefixes the invoker mention (goldens/mining/mining_use_
+        {ration_restore_write,ration_full_refusal,torch_flavour} pin the
+        bytes)."""
+        import time as _time
+
+        from sb.domain.mining import energy
+        from sb.domain.mining.store import get_energy, get_mining_inventory
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
         if _no_args(req):
             return Reply(BLOCKED,
                          "Please specify an item to use, e.g. `!use torch`.")
-        return Reply(BLOCKED,
-                     "🎒 `!use` needs the mining consumable/energy system — the "
-                     "deep mining port is named successor work (D-0043); the "
-                     "core loop (mine/chop/explore/sell/buy) is live.")
+        argv = tuple(req.args.get("argv", ()) or ())
+        values = tuple(req.args.get("values", ()) or ())
+        # The shipped guards are PRE-TXN pure reads (mining_workflow.
+        # use_item checks inventory + the settled bar before its txn;
+        # ok=False sends result.message PLAIN) — computed here so the
+        # refusal bytes stay verbatim, never the kernel's ValidatorError
+        # envelope. The op leg re-checks in-txn (race fence).
+        item = _use_item_arg(argv, values)
+        inventory = await get_mining_inventory(uid, gid)
+        if inventory.get(item, 0) < 1:
+            return Reply(BLOCKED, f"You don't have **{item}** to use.")
+        if energy.restore_value(item) is not None:
+            state = energy.EnergyState(*await get_energy(uid, gid))
+            if (energy.settle(state, int(_time.time())).current
+                    >= energy.MAX_ENERGY):
+                return Reply(BLOCKED,
+                             "Your energy is already full — save it for "
+                             "later.")
+        blocked, after = await _op_after(
+            req, "mining.use", {"argv": argv, "values": values})
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, f"<@{uid}> {after.get('message', '')}")
 
     @handler("mining.skill_route")
     async def skill_route(req) -> Reply:
@@ -936,7 +1030,9 @@ def _register() -> None:
         deferred skill panel/allocate port — no golden drives it (the imported
         sweep drove only the bare `!skill`; player_skills is
         depth.exemptions.mining guard-only-capture) — so it stays an honest
-        D-0043 pending terminal, the argful cook/use precedent."""
+        D-0043 pending terminal (the pre-slice-2 argful cook/use posture —
+        those lanes went LIVE with the energy lane; this one still waits on
+        its own port)."""
         from sb.domain.mining import skills
 
         if _no_args(req):
@@ -952,8 +1048,10 @@ def _register() -> None:
 
 
 #: The deep-system commands (shipped names) → pending copy. The mining
-#: depth port (equipment/wear/energy/grid/vault/structures/skills/
-#: forge/workshop/titles/loadouts/character) is D-0043 successor work.
+#: depth port (equipment/wear/grid/vault/structures/skills/forge/
+#: workshop/titles/loadouts/character + the energy consumables) landed
+#: slice by slice — the roster below is EMPTY; the comments are the
+#: ledger of when each family left it.
 PENDING: dict[str, str] = {
     # build / buildlist / buildable are LIVE (slice 6 port): build_route /
     # buildlist_route / buildable_view in _register() carry the Available
@@ -980,8 +1078,10 @@ PENDING: dict[str, str] = {
     # mining.forge session PanelSpec + repair_route / quickcraft_route /
     # cook_route / use_route carry the workshop/campfire/consumable bytes (the
     # forge not-built card + the repair/cook/use usage guards + the quickcraft
-    # "nothing broken" pure read). The structures BUILD write (🔥 Build) and the
-    # argful cook/use energy lanes stay deferred (D-0043 pending terminals).
+    # "nothing broken" pure read). The argful cook/use energy lanes went LIVE
+    # in energy-lane slice 2 (mining.cook / mining.use one-txn ops over the
+    # slice-1 get_energy/set_energy pair); the structures BUILD write
+    # (🔥 Build) stays deferred (a D-0043 pending terminal).
     # skills / skill / titles are LIVE (slice 5 port): the mining.skills +
     # mining.titles session PanelSpecs carry the skill-tree + earned-title
     # render bytes, and skill_route carries the `!skill` branch-picker guard.
