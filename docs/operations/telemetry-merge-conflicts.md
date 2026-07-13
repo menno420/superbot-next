@@ -58,7 +58,14 @@ No manual edit of the file. If anything OTHER than
 `telemetry/model-usage.jsonl` conflicts, that part is a real conflict —
 resolve it on its own merits (see `docs/parity/flip-playbook-traps.md`
 trap 10(e) for the known rebase-race pair, e.g. `manifest.snapshot.json`
-via `manifest_compile.py --write`).
+via `manifest_compile.py --write` — its always-conflicting `stable_hash`
+line is gone since 2026-07-13; runbook:
+`docs/operations/manifest-snapshot-conflicts.md`).
+
+Do NOT extend `merge=union` to `manifest.snapshot.json` or any other JSON
+file: verified locally (2026-07-13), union on a single differing line keeps
+BOTH hunks → duplicate keys + broken delimiters → invalid JSON. Union is
+only safe for line-append records like this one.
 
 ## Invariants that make union-merge safe here (re-check if they change)
 

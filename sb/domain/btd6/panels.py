@@ -54,6 +54,7 @@ __all__ = [
     "install_btd6_panels",
     "paragon_requirements_spec",
     "paragon_spec",
+    "paragon_stats_spec",
 ]
 
 # --- paragon calculator landing panel (shipped views/btd6/paragon_view.py
@@ -138,6 +139,19 @@ PARAGON_TARGET_MODAL = ModalSpec(
                        required=True, max_length=3),
     ),
     on_submit=HandlerRef("btd6.paragon_target_submit"),
+)
+
+#: The shipped stats-view _DegreeModal (same oracle module family —
+#: views/btd6/paragon_stats_view.py) — one required field.
+PARAGON_DEGREE_MODAL = ModalSpec(
+    modal_id="btd6.paragon_degree_form",
+    title="Paragon degree (1–100)",
+    fields=(
+        ModalFieldSpec(field_id="degree", label="Degree",
+                       placeholder="1–100",
+                       required=True, max_length=3),
+    ),
+    on_submit=HandlerRef("btd6.paragon_degree_submit"),
 )
 
 STRATEGY_MODAL = ModalSpec(
@@ -354,8 +368,9 @@ def paragon_spec() -> PanelSpec:
     calculator LINK). ARMED (the `btd6.paragon_pending` terminal retired):
     the selectors update per-message state and re-render in place, Calculate
     opens the shipped forward modal over the pure-compute power model,
-    Requirements opens the strategy/target page, Stats serves the base
-    combat-stats card — sb/domain/btd6/paragon_panel.py (deviations
+    Requirements opens the strategy/target page, Stats opens the
+    `btd6.paragon_stats` degree view (or the module-less card)
+    — sb/domain/btd6/paragon_panel.py (deviations
     ledgered there; the live-API reconciliation stays D-0046). A session
     view (never anchored; minted 32-hex ids the Normalizer symbolizes as
     <cid:N>)."""
@@ -505,6 +520,64 @@ def paragon_requirements_spec() -> PanelSpec:
     )
 
 
+def paragon_stats_spec() -> PanelSpec:
+    """The paragon stats degree view — the shipped ParagonStatsView's
+    degree picker (milestone select · 🔢 Enter degree · ↩ Calculator)
+    over the PORTED :func:`stats.paragon_stats_at_degree`. Opened by the
+    calculator's 📊 Stats button as its own ephemeral panel message
+    (engine-shape deviation ledgered in sb/domain/btd6/paragon_panel.py).
+    Golden-unpinned (click-reached, #151's class). The degree-independent
+    BASE infobox view (``_stat_node_embed`` over ``stats.base``) rides the
+    deep-stats successor — this page opens at Degree 1 instead (scaled ==
+    base at degree 1 by the wiki formulas), ledgered in paragon_panel."""
+    from sb.domain.btd6 import paragon_panel as _pp
+
+    state = _pp.stats_state(None)
+    return PanelSpec(
+        panel_id="btd6.paragon_stats",
+        subsystem="btd6",
+        title="👑 Paragon stats",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="degree_pick", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_degree_select"),
+                options_source=_pp.degree_options(state),
+                placeholder="Pick a degree…", audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="enter_degree", label="🔢 Enter degree",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_degree_submit"),
+                defer_mode=DeferMode.MODAL, modal=PARAGON_DEGREE_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="back_stats", label="↩ Calculator",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_stats_back"),
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_paragon_stats"),
+        justification=(
+            "the shipped per-degree stats embed is fully data-parameterized "
+            "(power/boss-multiplier headline + per-attack scaled cells with "
+            "the 'BTD6 stats v<version>' footer) — outside FooterMode and "
+            "the block grammar's provider-fed field vocabulary. The override "
+            "delegates the degree select + two buttons to the grammar "
+            "renderer and replaces ONLY the embed (no golden pins this "
+            "click route)."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("degree_pick",),
+            ("enter_degree", "back_stats"),)),)),
+    )
+
+
 # --- renderer overrides ------------------------------------------------------
 
 
@@ -558,6 +631,7 @@ _SPECS = {
     "btd6.strategy_submit": strategy_submit_spec,
     "btd6.paragon": paragon_spec,
     "btd6.paragon_requirements": paragon_requirements_spec,
+    "btd6.paragon_stats": paragon_stats_spec,
 }
 
 _RENDERERS = {

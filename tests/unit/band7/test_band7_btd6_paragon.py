@@ -154,6 +154,21 @@ def test_least_cash_minimises_cash_versus_balanced():
     assert least.inputs.cash_spent == 0
 
 
+def test_least_tiers_and_least_pops_minimise_their_axis():
+    # the remaining least-X axes (#336's oracle pins, ported in the
+    # arbitration delta): each strategy never spends more of ITS axis
+    # than the balanced split does.
+    dart = pm.resolve_paragon(_DART)
+    balanced = pm.solve_requirements(dart, 60, SolveStrategy.BALANCED,
+                                     player_count=1)
+    least_tiers = pm.solve_requirements(dart, 60, SolveStrategy.LEAST_TIERS,
+                                        player_count=1)
+    least_pops = pm.solve_requirements(dart, 60, SolveStrategy.LEAST_POPS,
+                                       player_count=1)
+    assert least_tiers.inputs.upgrade_count <= balanced.inputs.upgrade_count
+    assert least_pops.inputs.pops <= balanced.inputs.pops
+
+
 def test_solo_non_dart_degree_100_needs_twenty_totems():
     sub = pm.resolve_paragon("Monkey Sub")
     sol = pm.solve_requirements(sub, 100, SolveStrategy.LEAST_CASH,
@@ -220,11 +235,36 @@ def test_requirements_spec_shape():
         "btd6.paragon_back_to_calc")
 
 
+def test_stats_spec_shape():
+    from sb.domain.btd6.panels import paragon_stats_spec
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.refs import HandlerRef
+
+    spec = paragon_stats_spec()
+    assert spec.panel_id == "btd6.paragon_stats"
+    assert spec.session_lifecycle is True
+    (sel,) = spec.selectors
+    assert sel.on_select == HandlerRef("btd6.paragon_degree_select")
+    # the shipped milestone roster, degree 1 selected by default.
+    assert [o["value"] for o in sel.options_source] == [
+        "1", "5", "10", "20", "30", "40", "50", "60", "70", "80", "90",
+        "100"]
+    assert [o["value"] for o in sel.options_source if o.get("default")] == [
+        "1"]
+    by_act = {a.action_id: a for a in spec.actions}
+    assert by_act["enter_degree"].defer_mode is DeferMode.MODAL
+    assert by_act["enter_degree"].modal.fields[0].field_id == "degree"
+    assert by_act["enter_degree"].modal.modal_id == "btd6.paragon_degree_form"
+    assert by_act["back_stats"].handler == HandlerRef(
+        "btd6.paragon_stats_back")
+
+
 def test_specs_pass_the_compile_fences():
     from sb.domain.btd6 import panels
     from sb.kernel.panels.compile import check_panel
 
-    for build in (panels.paragon_spec, panels.paragon_requirements_spec):
+    for build in (panels.paragon_spec, panels.paragon_requirements_spec,
+                  panels.paragon_stats_spec):
         assert check_panel(build()) is None
 
 
@@ -238,16 +278,20 @@ def test_pending_terminal_retired():
     for name in ("btd6.paragon_select", "btd6.paragon_calc_submit",
                  "btd6.paragon_requirements_open", "btd6.paragon_req_select",
                  "btd6.paragon_target_submit", "btd6.paragon_stats_view",
+                 "btd6.paragon_degree_select", "btd6.paragon_degree_submit",
+                 "btd6.paragon_stats_back",
                  "btd6.paragon_back_to_calc", "btd6.render_paragon",
-                 "btd6.render_paragon_requirements"):
+                 "btd6.render_paragon_requirements",
+                 "btd6.render_paragon_stats"):
         assert is_registered(HandlerRef(name)), name
 
 
-def test_manifest_carries_both_paragon_panels():
+def test_manifest_carries_all_three_paragon_panels():
     from sb.manifest.btd6 import MANIFEST
 
     ids = {p.panel_id for p in MANIFEST.panels}
-    assert {"btd6.paragon", "btd6.paragon_requirements"} <= ids
+    assert {"btd6.paragon", "btd6.paragon_requirements",
+            "btd6.paragon_stats"} <= ids
 
 
 # --- the state-parameterized renderer (the shipped rebuild()) --------------------
@@ -507,18 +551,75 @@ def test_back_to_calc_reopens_without_extra_t5(captured_cards):
     assert "strategy" not in pp._STATE["777"]
 
 
-def test_stats_card_serves_the_base_combat_stats(captured_cards):
+def test_stats_open_routes_to_the_degree_view(captured_cards):
+    # the shipped _StatsButton: a combat-stats paragon opens the
+    # btd6.paragon_stats degree view at Degree 1 (#336's port, the
+    # arbitration delta).
     pp._store_state("555", {"paragon_id": _DART, "player_count": 1,
                             "difficulty": "medium", "tier5_count": 0})
     reply = run(pp.paragon_stats_view(_req({})))
     assert reply.user_message is None
-    _, args = captured_cards[-1]
-    embed = args["_card"]
-    assert embed.title == "👑 Apex Plasma Master — Base stats"
-    assert "Dart Monkey's Paragon (tier 6) · $150,000 on Medium" \
-        in embed.description
-    assert embed.footer == "BTD6 stats v55.1"
-    assert embed.fields                       # the per-attack breakdown
+    panel_id, args = captured_cards[-1]
+    assert panel_id == "btd6.paragon_stats"
+    assert args["paragon_id"] == _DART
+    assert args["degree"] == 1
+    # the opened page's state store rides the returned message key.
+    assert pp._STATE["777"]["degree"] == 1
+
+
+def test_stats_degree_card_headline_rides_the_ported_formulas():
+    e1 = pp.stats_degree_card(_DART, 1)
+    assert e1.title == "👑 Apex Plasma Master — Degree 1"
+    assert "**Power required:** 0" in e1.description
+    assert "**Boss-damage multiplier:** ×1.0" in e1.description
+    assert "×2 (paragons deal ×2 vs Elite Bosses)" in e1.description
+    assert e1.footer == "BTD6 stats v55.1"
+    assert e1.fields  # the ported per-attack breakdown
+
+    e100 = pp.stats_degree_card(_DART, 100)
+    assert "**Power required:** 200,000" in e100.description
+    assert "**Boss-damage multiplier:** ×2.25" in e100.description
+    assert "×4.5 (paragons deal ×2 vs Elite Bosses)" in e100.description
+
+
+def test_degree_select_and_submit_refresh_the_stats_view(captured_refresh):
+    pp._store_state("555", {"paragon_id": _DART, "player_count": 1,
+                            "difficulty": "medium", "tier5_count": 0,
+                            "degree": 1})
+    run(pp.paragon_degree_select(_req({"values": ("50",)})))
+    assert pp._STATE["555"]["degree"] == 50
+    assert captured_refresh[-1][1]["degree"] == 50
+    # 🔢 Enter degree: non-numeric falls to degree 1 (the shipped
+    # ValueError posture), the range clamps 1..100 in stats_state.
+    run(pp.paragon_degree_submit(_req({"degree": "abc"})))
+    assert pp._STATE["555"]["degree"] == 1
+    run(pp.paragon_degree_submit(_req({"degree": "500"})))
+    assert pp._STATE["555"]["degree"] == 100
+    assert captured_refresh[-1][1]["degree"] == 100
+
+
+def test_stats_back_reopens_the_calculator_with_extra_t5(captured_cards):
+    pp._store_state("555", {"paragon_id": _DART, "player_count": 1,
+                            "difficulty": "hard", "tier5_count": 1,
+                            "degree": 60})
+    run(pp.paragon_stats_back(_req({})))
+    panel_id, args = captured_cards[-1]
+    assert panel_id == "btd6.paragon"
+    assert args["paragon_id"] == _DART
+    assert args["tier5_count"] == 1          # the stats page never edits it
+    assert "degree" not in args
+
+
+def test_render_stats_page_defaults_the_milestone_select():
+    from sb.domain.btd6.panels import paragon_stats_spec
+
+    rendered = run(pp.render_paragon_stats(
+        paragon_stats_spec(), _ctx({"paragon_id": _DART, "degree": "50"})))
+    assert rendered.embed.title == "👑 Apex Plasma Master — Degree 50"
+    degree_sel = _rendered_selects(rendered)[
+        "btd6.paragon_stats.degree_pick"]
+    assert [o["value"] for o in degree_sel.options if o.get("default")] == [
+        "50"]
 
 
 def test_stats_card_moduleless_copy_is_shipped_verbatim(monkeypatch,

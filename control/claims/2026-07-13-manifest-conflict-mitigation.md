@@ -1,0 +1,3 @@
+# Claim
+
+- `manifest-conflict-mitigation` · **durable mitigation for manifest.snapshot.json stable_hash merge conflicts** — the volatile `stable_hash` line re-conflicts any two concurrent PRs that both recompiled the snapshot (hit PRs #333 and #352 on 2026-07-13); stop emitting the field into the tracked snapshot (P9/boot leg A recompute the committed body's hash on the fly — hash membership already excludes it, spec 01 §5 fork 9) + a runbook for the residual real-body-hunk conflicts; branch `claude/manifest-conflict-mitigation` · tools/manifest_compile.py, manifest.snapshot.json, sb/domain/platform/consistency.py, tests/unit/compiler/, docs/operations/ · 2026-07-13T13:17:33Z
