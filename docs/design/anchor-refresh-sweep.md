@@ -1,20 +1,28 @@
-# Anchor-refresh sweep — PROPOSED design (D-0082 successor)
+# Anchor-refresh sweep — PROPOSED design (game-sections successor)
 
-> **Status:** `proposed`
+> **Status:** `ideas`
 >
-> Owner-reviewable proposal, NOT a decision. The game-sections lane
-> (D-0082, design `game-sections.md`) shipped next-interaction
-> consistency and named the anchor sweep a successor (PR #341 §"Update
-> contract"); scoping that successor surfaced FOUR design calls no
-> agent should make alone. This doc lays them out with options,
-> recommendation, and cost. `docs/decisions.md`'s status grammar is
-> closed (`decided|superseded|retired` — no `proposed`), so this doc is
-> the proposal vehicle; the D-entry (next free: D-0083) mints when the
-> owner decides. Citations verified at main `de3824b`.
+> Owner-reviewable PROPOSAL, NOT a decision. Badge note (flagged): the
+> docs badge vocabulary is closed (archive/audit/binding/historical/
+> ideas/living-ledger/owner-guidance/plan/reference — no `proposed`
+> token), and `plan` would claim a committed build; `ideas` is the
+> closest honest token for an undecided proposal (ideas promote to
+> plans, Q-0172). The game-sections lane
+> ([game-sections.md](game-sections.md) — its ledger entry is the
+> decision home) shipped
+> next-interaction consistency and named the anchor sweep a successor
+> (PR #341 §"Update contract"); scoping that successor surfaced FOUR
+> design calls no agent should make alone. This doc lays them out with
+> options, recommendation, and cost. `docs/decisions.md`'s entry-status
+> grammar is also closed (`decided|superseded|retired` — no
+> `proposed`), so this doc is the proposal vehicle; the D-entry (next
+> free: D-0083) mints when the owner decides. Citations verified at
+> main `de3824b`.
 
 ## 1. What the sweep was supposed to be
 
-When a guild's game enablement changes (the D-0082 settings surface),
+When a guild's game enablement changes (the game-sections settings
+surface),
 already-posted channel panels keep showing the old roster until someone
 clicks them. Next-interaction consistency (every fresh render
 re-resolves at click time) ships with the slice-3 lane (#341, in
