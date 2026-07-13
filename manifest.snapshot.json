@@ -8883,9 +8883,6 @@
       "handler:community_spotlight.render_hub": {
         "module": "sb.domain.community.panels"
       },
-      "handler:counters.preset_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:counters.preset_view": {
         "module": "sb.domain.counters.panels"
       },
@@ -9744,8 +9741,8 @@
       "handler:role.assignroles_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:role.create_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:role.create_form_submit": {
+        "module": "sb.domain.role.handlers"
       },
       "handler:role.createrole": {
         "module": "sb.domain.role.handlers"
@@ -10170,9 +10167,6 @@
       "handler:utility.error_card_render": {
         "module": "sb.domain.utility.panels"
       },
-      "handler:utility.four_twenty_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:utility.info_view": {
         "module": "sb.domain.utility.handlers"
       },
@@ -10197,8 +10191,8 @@
       "handler:utility.ping_view": {
         "module": "sb.domain.utility.handlers"
       },
-      "handler:utility.poll_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:utility.poll_form_submit": {
+        "module": "sb.domain.utility.handlers"
       },
       "handler:utility.poll_view": {
         "module": "sb.domain.utility.handlers"
@@ -10209,8 +10203,8 @@
       "handler:utility.profile_card_render": {
         "module": "sb.domain.utility.panels"
       },
-      "handler:utility.remind_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:utility.remind_form_submit": {
+        "module": "sb.domain.utility.handlers"
       },
       "handler:utility.remind_view": {
         "module": "sb.domain.utility.handlers"
@@ -13058,7 +13052,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:1cd39a0ceb8866b47b9acf91baca2707eefa98a6ad7755d01aa76141f4472f34",
+  "stable_hash": "sha256:ea446a87c149fb1f9b4b210cc51ab0a01d6abbdaa093670383866ebb1f1fd865",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -45629,15 +45623,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "role:create",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:role.create_pending"
+                "$ref": "handler:role.create_form_submit"
               },
               "label": "📝 Create",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Role name",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "color",
+                    "label": "Color (hex, e.g. #3498db)",
+                    "max_length": 7,
+                    "min_length": null,
+                    "placeholder": "#000000",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "role.create_form",
+                "on_submit": {
+                  "$ref": "handler:role.create_form_submit"
+                },
+                "title": "Create Role"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -52224,15 +52246,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.poll_pending"
+                "$ref": "handler:utility.poll_form_submit"
               },
               "label": "📊 Poll",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "question",
+                    "label": "Poll question",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "options",
+                    "label": "Options (one per line, 2–10)",
+                    "max_length": 500,
+                    "min_length": null,
+                    "placeholder": "Option 1\nOption 2\nOption 3",
+                    "required": true,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "utility.poll_form",
+                "on_submit": {
+                  "$ref": "handler:utility.poll_form_submit"
+                },
+                "title": "Create Poll"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -52249,15 +52299,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.remind_pending"
+                "$ref": "handler:utility.remind_form_submit"
               },
               "label": "🔔 Remind Me",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "minutes",
+                    "label": "Minutes from now",
+                    "max_length": 5,
+                    "min_length": null,
+                    "placeholder": "30",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "message",
+                    "label": "Reminder message",
+                    "max_length": 500,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "utility.remind_form",
+                "on_submit": {
+                  "$ref": "handler:utility.remind_form_submit"
+                },
+                "title": "Set Reminder"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -52354,7 +52432,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.four_twenty_pending"
+                "$ref": "panel:four_twenty.overview"
               },
               "label": "🍃 420",
               "modal": null,
