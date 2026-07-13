@@ -120,9 +120,16 @@ def test_panel_and_handler_refs_registered():
     panels.ensure_panel_refs()
     handlers.ensure_handler_refs()
     assert is_registered(PanelRef("channel.hub"))
-    for name in ("channel.render_hub", "channel.create_pending",
-                 "channel.delete_pending", "channel.restrict_pending",
-                 "channel.move_pending", "channel.visibility_pending"):
+    # the sub-panel flows are LIVE (operator-hub edits B): the pending
+    # terminals are retired; the sub-panels + commit handlers register.
+    for pid in ("channel.create", "channel.delete", "channel.restrict",
+                "channel.move", "channel.visibility",
+                "channel.visibility_grid"):
+        assert is_registered(PanelRef(pid)), pid
+    for name in ("channel.render_hub", "channel.create_commit",
+                 "channel.delete_commit", "channel.restrict_lock",
+                 "channel.restrict_unlock", "channel.move_commit",
+                 "channel.visibility_configure"):
         assert is_registered(HandlerRef(name)), name
 
 
@@ -144,9 +151,12 @@ def test_manifest_declares_the_menu_and_keeps_the_op_roster():
             "rename", "slowmode", "topic", "permissions",
             "bulkcreate"} <= set(by_name)
     assert by_name["slowmode"].aliases == ("slow",)
-    # the hub + the two D-0030 read-only info cards.
+    # the hub + the two D-0030 read-only info cards + the five shipped
+    # sub-panels and the visibility toggle grid (operator-hub edits B).
     assert [p.panel_id for p in MANIFEST.panels] == [
-        "channel.hub", "channel.info_card", "channel.list_card"]
+        "channel.hub", "channel.info_card", "channel.list_card",
+        "channel.create", "channel.delete", "channel.restrict",
+        "channel.move", "channel.visibility", "channel.visibility_grid"]
     spec = MANIFEST.panels[0]
     assert spec.panel_id == "channel.hub"
     # the strays re-home declared the shipped lifecycle event (goldens/
@@ -157,15 +167,13 @@ def test_manifest_declares_the_menu_and_keeps_the_op_roster():
     assert MANIFEST.settings == ()
 
 
-def test_action_clicks_land_on_the_polite_pending_terminal():
-    from types import SimpleNamespace
-
+def test_action_clicks_open_the_live_subpanels():
+    """The D-0030 named successor landed (operator-hub edits B): every
+    hub click opens its sub-panel — no pending terminal remains."""
     from sb.domain.channel import handlers  # noqa: F401 — registers refs
-    from sb.spec.outcomes import BLOCKED
-    from sb.spec.refs import HandlerRef, resolve
+    from sb.domain.channel.panels import channel_hub_spec
+    from sb.spec.refs import PanelRef
 
-    reply = run(resolve(HandlerRef("channel.create_pending"))(
-        SimpleNamespace(args={}, guild_id=1)))
-    assert reply.outcome == BLOCKED
-    assert "channel creator" in reply.user_message
-    assert "D-0030" in reply.user_message
+    actions = {a.action_id: a for a in channel_hub_spec().actions}
+    for aid in ("create", "delete", "restrict", "move", "visibility"):
+        assert actions[aid].handler == PanelRef(f"channel.{aid}"), aid

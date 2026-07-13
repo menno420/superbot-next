@@ -4334,6 +4334,181 @@
           "value": "visibility"
         },
         {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "create_custom"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "create_commit"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "create_cancel"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "delete_commit"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "delete_cancel"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "restrict_lock"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "restrict_unlock"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "restrict_back"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "move_commit"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "move_top"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "move_bottom"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "move_back"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "visibility_configure"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "visibility_back"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_help"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_general"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_four_twenty"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_utility"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_economy"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_inventory"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_treasury"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_ticket"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_mining"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_ux_lab"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_fishing"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_creature"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_farm"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_xp"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_karma"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_games"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_community"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_community_spotlight"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_blackjack"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_welcome"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "vis_grid_back"
+        },
+        {
           "source": "sb/manifest/cleanup.py",
           "subsystem": "cleanup",
           "value": "words"
@@ -6231,6 +6406,36 @@
           "source": "sb/manifest/channel.py",
           "subsystem": "channel",
           "value": "channel.list_card"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.create"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.delete"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.restrict"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.move"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.visibility"
+        },
+        {
+          "source": "sb/manifest/channel.py",
+          "subsystem": "channel",
+          "value": "channel.visibility_grid"
         },
         {
           "source": "sb/manifest/cleanup.py",
@@ -8874,14 +9079,32 @@
       "handler:channel.create": {
         "module": "sb.domain.channel.handlers"
       },
-      "handler:channel.create_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:channel.create_commit": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.create_name_form_submit": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.create_pick_category": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.create_pick_names": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.create_render": {
+        "module": "sb.domain.channel.panels"
       },
       "handler:channel.del": {
         "module": "sb.domain.channel.handlers"
       },
-      "handler:channel.delete_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:channel.delete_commit": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.delete_pick": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.delete_render": {
+        "module": "sb.domain.channel.panels"
       },
       "handler:channel.evt": {
         "module": "sb.domain.channel.handlers"
@@ -8901,8 +9124,20 @@
       "handler:channel.move": {
         "module": "sb.domain.channel.handlers"
       },
-      "handler:channel.move_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:channel.move_commit": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.move_pick_category": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.move_pick_channels": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.move_render": {
+        "module": "sb.domain.channel.panels"
+      },
+      "handler:channel.move_reorder": {
+        "module": "sb.domain.channel.handlers"
       },
       "handler:channel.permissions": {
         "module": "sb.domain.channel.handlers"
@@ -8913,8 +9148,17 @@
       "handler:channel.render_hub": {
         "module": "sb.domain.channel.panels"
       },
-      "handler:channel.restrict_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:channel.restrict_lock": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.restrict_pick": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.restrict_render": {
+        "module": "sb.domain.channel.panels"
+      },
+      "handler:channel.restrict_unlock": {
+        "module": "sb.domain.channel.handlers"
       },
       "handler:channel.set": {
         "module": "sb.domain.channel.handlers"
@@ -8928,8 +9172,77 @@
       "handler:channel.unlock": {
         "module": "sb.domain.channel.handlers"
       },
-      "handler:channel.visibility_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:channel.vis_toggle_blackjack": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_community": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_community_spotlight": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_creature": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_economy": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_farm": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_fishing": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_four_twenty": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_games": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_general": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_help": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_inventory": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_karma": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_mining": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_ticket": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_treasury": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_utility": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_ux_lab": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_welcome": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.vis_toggle_xp": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.visibility_configure": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.visibility_grid_render": {
+        "module": "sb.domain.channel.panels"
+      },
+      "handler:channel.visibility_pick": {
+        "module": "sb.domain.channel.handlers"
+      },
+      "handler:channel.visibility_render": {
+        "module": "sb.domain.channel.panels"
       },
       "handler:cleanup.anti_evasion_pending": {
         "module": "sb.domain.operator_spine"
@@ -10554,6 +10867,12 @@
       "panel:chain.hub": {
         "module": "sb.domain.chain.panels"
       },
+      "panel:channel.create": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.delete": {
+        "module": "sb.domain.channel.panels"
+      },
       "panel:channel.hub": {
         "module": "sb.domain.channel.panels"
       },
@@ -10561,6 +10880,18 @@
         "module": "sb.domain.channel.panels"
       },
       "panel:channel.list_card": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.move": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.restrict": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.visibility": {
+        "module": "sb.domain.channel.panels"
+      },
+      "panel:channel.visibility_grid": {
         "module": "sb.domain.channel.panels"
       },
       "panel:cleanup.hub": {
@@ -11192,6 +11523,18 @@
       },
       "provider:casino.hub_fields": {
         "module": "sb.domain.casino.panels"
+      },
+      "provider:channel.category_options": {
+        "module": "sb.domain.channel.panels"
+      },
+      "provider:channel.move_category_options": {
+        "module": "sb.domain.channel.panels"
+      },
+      "provider:channel.name_preset_options": {
+        "module": "sb.domain.channel.panels"
+      },
+      "provider:channel.roster_options": {
+        "module": "sb.domain.channel.panels"
       },
       "provider:cleanup.hub_fields": {
         "module": "sb.domain.cleanup.panels"
@@ -13187,7 +13530,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:78a9be5b838750b7c5b90db4c0146e39106ae33c279df8a19c78bfc6f82cd8ac",
+  "stable_hash": "sha256:ebcd4fecd4327b91851e254d3cb95ecb90c6aab6f1a12b8e2193d6cfa5476529",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -23864,7 +24207,7 @@
               "emoji": "➕",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:channel.create_pending"
+                "$ref": "panel:channel.create"
               },
               "label": "Create Channel",
               "modal": null,
@@ -23889,7 +24232,7 @@
               "emoji": "🗑️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:channel.delete_pending"
+                "$ref": "panel:channel.delete"
               },
               "label": "Delete Channel",
               "modal": null,
@@ -23914,7 +24257,7 @@
               "emoji": "🔒",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:channel.restrict_pending"
+                "$ref": "panel:channel.restrict"
               },
               "label": "Manage Restrictions",
               "modal": null,
@@ -23939,7 +24282,7 @@
               "emoji": "↔️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:channel.move_pending"
+                "$ref": "panel:channel.move"
               },
               "label": "Move / Reorder",
               "modal": null,
@@ -23964,7 +24307,7 @@
               "emoji": "🔍",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:channel.visibility_pending"
+                "$ref": "panel:channel.visibility"
               },
               "label": "Subsystem Visibility",
               "modal": null,
@@ -24105,6 +24448,1430 @@
           "subsystem": "channel",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "create_custom",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "✏️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.create_name_form_submit"
+              },
+              "label": "Custom Name",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel_name",
+                    "label": "Channel name",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. my-channel",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "channel.create_name_form",
+                "on_submit": {
+                  "$ref": "handler:channel.create_name_form_submit"
+                },
+                "title": "Custom Channel Name"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "create_commit",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.create_commit"
+              },
+              "label": "Create Channel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "create_cancel",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "❌",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick one or more names and a category, then press **Create Channel**.\nClick **Custom Name** to add your own name to the set."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped sub-panel embed carries the live selection state ('Selected names' / 'Selected category' fields off the operator's picks — _CreateSubView.build_embed); state-keyed fields are outside the grammar's static-block vocabulary (the diagnostic flag-manager pick-aware renderer precedent). The override delegates to the grammar renderer and adds ONLY those fields.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "create_names"
+                  ],
+                  [
+                    "create_category"
+                  ],
+                  [
+                    "create_custom",
+                    "create_commit",
+                    "create_cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:channel.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.create",
+          "renderer_override": {
+            "$ref": "handler:channel.create_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 8,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:channel.create_pick_names"
+              },
+              "options_source": {
+                "$ref": "provider:channel.name_preset_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick one or more channel names…",
+              "selector_id": "create_names",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:channel.create_pick_category"
+              },
+              "options_source": {
+                "$ref": "provider:channel.category_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a category…",
+              "selector_id": "create_category",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "➕ Create Channel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "delete_commit",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": {
+                "challenge": "button",
+                "re_check_actor": true,
+                "reversibility": "irreversible",
+                "snapshot_before": true,
+                "timeout_s": 60
+              },
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": true,
+              "emoji": "🗑️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.delete_commit"
+              },
+              "label": "Delete Selected",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "delete_cancel",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "↩️ Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Select one or more channels to delete, then press **Delete Selected**."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped sub-panel embed carries the live selection state ('Selected channels' field — _DeleteSubView.build_embed); state-keyed fields are outside the grammar's static-block vocabulary (the flag-manager precedent). The override delegates and adds ONLY that field.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "delete_pick"
+                  ],
+                  [
+                    "delete_cancel",
+                    "delete_commit"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:channel.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.delete",
+          "renderer_override": {
+            "$ref": "handler:channel.delete_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No channels available (gateway directory unarmed).",
+              "kind": "enum",
+              "max_values": 25,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:channel.delete_pick"
+              },
+              "options_source": {
+                "$ref": "provider:channel.roster_options"
+              },
+              "page_size": 25,
+              "placeholder": "Select one or more channels to delete…",
+              "selector_id": "delete_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "🗑️ Delete Channel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "restrict_lock",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔒",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.restrict_lock"
+              },
+              "label": "Lock",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "restrict_unlock",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔓",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.restrict_unlock"
+              },
+              "label": "Unlock",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "restrict_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "↩️ Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Select one or more channels, then choose a restriction action.\n\n**🔒 Lock** — disable send messages for @everyone\n**🔓 Unlock** — restore send messages for @everyone"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped sub-panel embed carries the live selection state ('Selected channels' field — _RestrictSubView.build_embed); state-keyed fields are outside the grammar's static-block vocabulary (the flag-manager precedent). The override delegates and adds ONLY that field.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "restrict_pick"
+                  ],
+                  [
+                    "restrict_lock",
+                    "restrict_unlock"
+                  ],
+                  [
+                    "restrict_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:channel.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.restrict",
+          "renderer_override": {
+            "$ref": "handler:channel.restrict_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No channels available (gateway directory unarmed).",
+              "kind": "enum",
+              "max_values": 25,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:channel.restrict_pick"
+              },
+              "options_source": {
+                "$ref": "provider:channel.roster_options"
+              },
+              "page_size": 25,
+              "placeholder": "Select one or more channels to manage…",
+              "selector_id": "restrict_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "🔒 Manage Restrictions",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "move_commit",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📁",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.move_commit"
+              },
+              "label": "Move to Category",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_top",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⬆️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.move_reorder"
+              },
+              "label": "Send to Top",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_bottom",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⬇️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.move_reorder"
+              },
+              "label": "Send to Bottom",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "move_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "↩️ Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Select channels, then **Move to Category** (pick a destination above) or **Send to Top / Bottom**."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped sub-panel embed carries the live selection state ('Selected channels' + 'Move destination' fields — _MoveSubView.build_embed); state-keyed fields are outside the grammar's static-block vocabulary (the flag-manager precedent). The override delegates and adds ONLY those fields.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "move_pick"
+                  ],
+                  [
+                    "move_category"
+                  ],
+                  [
+                    "move_commit",
+                    "move_top",
+                    "move_bottom"
+                  ],
+                  [
+                    "move_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:channel.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.move",
+          "renderer_override": {
+            "$ref": "handler:channel.move_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No channels available (gateway directory unarmed).",
+              "kind": "enum",
+              "max_values": 25,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:channel.move_pick_channels"
+              },
+              "options_source": {
+                "$ref": "provider:channel.roster_options"
+              },
+              "page_size": 25,
+              "placeholder": "Select channels to move / reorder…",
+              "selector_id": "move_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:channel.move_pick_category"
+              },
+              "options_source": {
+                "$ref": "provider:channel.move_category_options"
+              },
+              "page_size": 25,
+              "placeholder": "Destination category (for Move)…",
+              "selector_id": "move_category",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "↔️ Move / Reorder Channels",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "visibility_configure",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚙️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.visibility_configure"
+              },
+              "label": "Configure Selected",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "visibility_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.hub"
+              },
+              "label": "↩ Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Select one or more channels, then press **Configure Selected** to set which subsystems are visible there.\n\n**Green** = enabled  •  **Red** = disabled  •  **Grey** = inherit  •  **Blue** = mixed across the selection\n\n_Use ◀/▶ to page through channels. Category and guild-scope controls coming soon._"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped sub-panel embed carries the live selection state ('Selected channels' field — _VisibilitySubView.build_embed); state-keyed fields are outside the grammar's static-block vocabulary (the flag-manager precedent). The override delegates and adds ONLY that field.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "visibility_pick"
+                  ],
+                  [
+                    "visibility_configure",
+                    "visibility_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:channel.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.visibility",
+          "renderer_override": {
+            "$ref": "handler:channel.visibility_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No channels available (gateway directory unarmed).",
+              "kind": "enum",
+              "max_values": 25,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:channel.visibility_pick"
+              },
+              "options_source": {
+                "$ref": "provider:channel.roster_options"
+              },
+              "page_size": 25,
+              "placeholder": "Select one or more channels to configure…",
+              "selector_id": "visibility_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "🔍 Subsystem Visibility",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "vis_help",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_help"
+              },
+              "label": "Help",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_general",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_general"
+              },
+              "label": "General",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_four_twenty",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_four_twenty"
+              },
+              "label": "420",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_utility",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_utility"
+              },
+              "label": "Utility",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_economy",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_economy"
+              },
+              "label": "Economy",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_inventory",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_inventory"
+              },
+              "label": "Inventory",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_treasury",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_treasury"
+              },
+              "label": "Treasury",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_ticket",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_ticket"
+              },
+              "label": "Support Tickets",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_mining",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_mining"
+              },
+              "label": "Mining",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_ux_lab",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_ux_lab"
+              },
+              "label": "UX Lab",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_fishing",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_fishing"
+              },
+              "label": "Fishing",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_creature",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_creature"
+              },
+              "label": "Creatures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_farm",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_farm"
+              },
+              "label": "Chicken Farm",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_xp",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_xp"
+              },
+              "label": "XP & Levels",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_karma",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_karma"
+              },
+              "label": "Karma",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_games",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_games"
+              },
+              "label": "Games",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_community",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_community"
+              },
+              "label": "Community",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_community_spotlight",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_community_spotlight"
+              },
+              "label": "Community Spotlight",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_blackjack",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_blackjack"
+              },
+              "label": "Blackjack",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_welcome",
+              "audience_tier": "administrator",
+              "audit": "channel.audit_logged",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:channel.vis_toggle_welcome"
+              },
+              "label": "Welcome",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "vis_grid_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:channel.visibility"
+              },
+              "label": "↩ Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**✓ Green** = force enabled  •  **✗ Red** = force disabled  •  **~ Grey** = inherit  •  **± Blue** = mixed across channels\n_Clicking forces every selected channel to the next state._"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped toggle grid renders each button's label/style off the LIVE per-channel aggregate (✓/✗/~/± glyph + green/red/grey/blurple style — _SubsystemToggleView._rebuild_buttons) and titles off the picked channel count — state-keyed presentation outside the grammar's static vocabulary (the cogmgr footer/disabled precedent). The override delegates to the grammar renderer and adjusts ONLY those surfaces.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "vis_help",
+                    "vis_general",
+                    "vis_four_twenty",
+                    "vis_utility",
+                    "vis_economy"
+                  ],
+                  [
+                    "vis_inventory",
+                    "vis_treasury",
+                    "vis_ticket",
+                    "vis_mining",
+                    "vis_ux_lab"
+                  ],
+                  [
+                    "vis_fishing",
+                    "vis_creature",
+                    "vis_farm",
+                    "vis_xp",
+                    "vis_karma"
+                  ],
+                  [
+                    "vis_games",
+                    "vis_community",
+                    "vis_community_spotlight",
+                    "vis_blackjack",
+                    "vis_welcome"
+                  ],
+                  [
+                    "vis_grid_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:channel.visibility"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "channel.visibility_grid",
+          "renderer_override": {
+            "$ref": "handler:channel.visibility_grid_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "channel",
+          "timeout_s": 180,
+          "title": "🔍 Subsystem Visibility",
           "usage_weight": 1.0
         }
       ],
