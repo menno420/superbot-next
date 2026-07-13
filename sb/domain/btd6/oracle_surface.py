@@ -156,29 +156,57 @@ async def cmd_ct(req) -> None:
 
 
 async def cmd_ctteam(req) -> Reply | None:
-    from sb.domain.btd6 import oracle_cards as cards
+    """`!btd6 ctteam` — the shipped handle_ctteam (cogs/btd6/
+    _builders.py): view / guided set / clear. Setting goes through the
+    guided flow (Q-0064: parse → preview → confirm on the
+    ``btd6.ctteam_confirm`` page — never an immediate write); ``clear``
+    stays immediate (reversible, nothing to preview) through the ONE
+    audited ``btd6.set_ct_team`` op. Copy verbatim; the live bracket
+    slots stay D-0046 (sb/domain/btd6/ct_team.py, deviations ledgered)."""
+    from sb.domain.btd6 import ct_team, oracle_cards as cards
     from sb.kernel.panels.engine import open_panel
     from sb.spec.refs import PanelRef
 
+    if not req.guild_id:
+        # the shipped DM guard (notices carry no ctx footer).
+        await _card(req, cards.ctteam_notice_card(
+            "Use this in a server, not a DM."))
+        return None
     arg = _text(req)
     can_manage = bool(getattr(req.actor, "is_guild_operator", False))
     if arg:
         if not can_manage:
-            from sb.kernel.panels.render import RenderedEmbed
-
-            # the shipped _ct_team_notice (no ctx footer on notices)
-            await _card(req, RenderedEmbed(
-                title="🛡️ BTD6 — Your CT Team",
-                description=("You need the Manage Server permission to "
-                             "change the CT team."),
-                style_token="gold"))
+            await _card(req, cards.ctteam_notice_card(
+                "You need the Manage Server permission to change the "
+                "CT team."))
             return None
-        # the guided set/clear flow writes the CT-team binding through the
-        # live NK bracket preview — the ingestion successor port (D-0046).
-        return Reply(BLOCKED,
-                     "🛡️ Setting the CT team needs the live Ninja Kiwi "
-                     "bracket preview (ingestion successor port) — not "
-                     "armed in this build.")
+        if arg.lower() == "clear":
+            from sb.kernel.workflow import engine
+            from sb.spec.refs import WorkflowRef
+
+            result = await engine.run(WorkflowRef("btd6.set_ct_team"),
+                                      _ctx_from_req(req, {"group_id": ""}))
+            if result.outcome != SUCCESS:
+                return Reply(result.outcome,
+                             result.user_message
+                             or "Couldn't update the CT team.")
+            await _card(req, cards.ctteam_notice_card(
+                "Cleared this server's CT team."))
+            return None
+        group_id = ct_team.parse_group_id(arg)
+        if group_id is None:
+            await _card(req, cards.ctteam_notice_card(
+                "That doesn't look like a CT bracket id or group URL. "
+                "Paste your team's `…/leaderboard/group/<id>` link or the "
+                "bare id."))
+            return None
+        # Guided flow: parse → preview → confirm. The commit happens in
+        # the Confirm callback (which re-checks authority), not here.
+        await open_panel(PanelRef("btd6.ctteam_confirm"),
+                         dataclasses.replace(
+                             req, args={**dict(req.args),
+                                        "ct_group_id": group_id}))
+        return None
     await open_panel(PanelRef("btd6.ctteam"),
                      dataclasses.replace(
                          req, args={**dict(req.args),
@@ -615,16 +643,14 @@ _HANDLERS = (
 
 
 def _register() -> None:
-    from sb.domain.operator_spine import pending_handler
     from sb.spec.refs import HandlerRef, handler, is_registered
 
     for name, fn in _HANDLERS:
         if not is_registered(HandlerRef(name)):
             handler(name)(fn)
-    pending_handler(
-        "btd6.ctteam_set_pending",
-        "🛡️ Setting the CT team needs the live Ninja Kiwi bracket preview "
-        "(ingestion successor port) — not armed in this build.")
+    # btd6.ctteam_set_pending RETIRED (curation report 2026-07-13 row 2):
+    # the set_team button is the guided-flow modal ingress and the typed
+    # set/clear leg is live — sb/domain/btd6/ct_team.py.
 
 
 def ensure_oracle_refs() -> None:
