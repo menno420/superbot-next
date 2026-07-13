@@ -1,6 +1,6 @@
 # 2026-07-13 — slash-root vs subcommand-group compile fence (Finding #3, PR #370)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `builder-agent` · coordinator-approved slice · mandate: make
   the discord.py `CommandAlreadyRegistered` bug class red the REQUIRED
