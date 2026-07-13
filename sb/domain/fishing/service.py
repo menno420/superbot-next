@@ -1,15 +1,17 @@
 """Fishing handlers (band 6) — the shipped cast-open lane (energy gate →
 spend → the waiting-for-a-bite panel), the Reel commit route,
 dex/leaderboard/trophy reads, the slice-1 weather/venue surfaces
-(``!forecast`` / ``!sail``) + the slice-2 rod-ladder surfaces (``!rod``
-/ ``!rodrecipes`` / ``!craftrod``); bait/craft/structure surfaces are
-honest pending terminals until the gear systems port (D-0043 successor
+(``!forecast`` / ``!sail``), the slice-2 rod-ladder surfaces (``!rod``
+/ ``!rodrecipes`` / ``!craftrod``) + the bait shop (``!bait`` and its
+buy route — the coordinated bait fill); craft/structure surfaces are
+honest pending terminals until the craft* rung ports (D-0043 successor
 work). ``goldens/fishing/sweep_fish.json`` pins the cast-open bytes
 (the spent ``fishing_energy`` row + the panel), sweep_forecast the Rain
 forecast embed, sweep_sail the deepwater toggle + its ``fishing_venue``
 row, sweep_rod / sweep_rodrecipes the fresh tier-0 rod panels,
-sweep_craftrod the not-enough-fish guard; the dex embed lives on
-``fishing.log`` (sb/domain/fishing/panels.py)."""
+sweep_craftrod the not-enough-fish guard, sweep_bait the fresh
+bait-less shop; the dex embed lives on ``fishing.log``
+(sb/domain/fishing/panels.py)."""
 
 from __future__ import annotations
 
@@ -196,6 +198,22 @@ def _register() -> None:
                          dataclasses.replace(req, args=dict(req.args)))
         return Reply(SUCCESS, None)
 
+    @handler("fishing.bait_shop")
+    async def bait_shop(req) -> Reply:
+        """!bait — open the bait shop panel (fishing_cog.py ``bait``:
+        build_bait_embed + BaitShopView). A pure read — the open renders
+        the live loadout/pearls/balance and writes nothing;
+        goldens/fishing/sweep_bait pins the fresh bait-less bytes."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import BAIT_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(BAIT_PANEL_ID),
+                         dataclasses.replace(req, args=dict(req.args)))
+        return Reply(SUCCESS, None)
+
     @handler("fishing.rodrecipes_view")
     async def rodrecipes_view(req) -> Reply:
         """!rodrecipes — open the rod recipe browser (fishing_cog.py
@@ -286,6 +304,45 @@ def _register() -> None:
             return blocked
         return Reply(SUCCESS, after.get("message", ""))
 
+    @handler("fishing.bait_buy_route")
+    async def bait_buy_route(req) -> Reply:
+        """The bait shop's buy select — buy one pack of the picked bait
+        (views/fishing/bait_shop.py ``_BaitSelect`` →
+        services/fishing_workflow.py ``buy_bait``). The unknown-key /
+        insufficient-funds refusals are computed as PURE READS (catalog
+        + balance) so the failed attempt writes no coin ledger / audit
+        row, exactly as the oracle's txn rolls back. Only a funded pick
+        runs the audited debit-and-load op (#217 advisory-fenced locking
+        read; economy.balance_changed emits after commit). No golden
+        drives the pick (run-minted select ids carry no values in the
+        corpus) — copy oracle-source-verbatim."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.fishing import bait as bait_mod
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        values = tuple(req.args.get("values", ()) or ())
+        bait = bait_mod.bait_by_key(str(values[0]) if values else "")
+        if bait is None:
+            return Reply(BLOCKED,
+                         "That bait doesn't exist on the shelf.")
+        balance = await get_coins(uid, gid)
+        if balance < bait.price:
+            return Reply(BLOCKED,
+                         f"A pack of **{bait.name}** {bait.emoji} "
+                         f"costs **{bait.price}** 🪙 — you only have "
+                         f"**{balance}** 🪙.")
+        result = await engine.run(
+            WorkflowRef("fishing.buy_bait"),
+            _ctx_from_req(req, {"bait_key": bait.key}))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Couldn't do that.")
+        after = next(iter((result.after or {}).values()), {})
+        return Reply(SUCCESS, after.get("message", ""))
+
     @handler("fishing.menu_view")
     async def menu_view(req) -> Reply:
         from sb.domain.fishing import catalog
@@ -339,14 +396,15 @@ def _register() -> None:
         return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 
-#: Bait/craft/structure surfaces awaiting the fishing depth port
-#: (D-0043). forecast/sail left this dict in slice 1 (weather + venue);
-#: rod/rodrecipes/craftrod in slice 2 (the rod ladder). The cast LEG
-#: still runs the starter shore profile — the venue/rod→cast wiring
-#: (deepwater species pool, coral drop, rarity_pull, minigame
-#: difficulty) rides the bait/minigame rung with the rest of the knobs.
+#: Craft/structure surfaces awaiting the fishing depth port (D-0043).
+#: forecast/sail left this dict in slice 1 (weather + venue);
+#: rod/rodrecipes/craftrod in slice 2 (the rod ladder); bait in the
+#: coordinated bait fill (the craft* siblings stay, riding the craft*
+#: rung). The cast LEG still runs the starter shore profile — the
+#: venue/rod/bait→cast wiring (deepwater species pool, coral drop,
+#: rarity_pull, per-cast bait consume, minigame difficulty) rides the
+#: minigame rung with the rest of the knobs.
 PENDING = {
-    "bait": "bait system",
     "craftbait": "bait crafting", "craftcharm": "charm crafting",
     "craftpearl": "pearl bait crafting", "curios": "curio collection",
     "craftcurio": "curio crafting", "tidepool": "tide pool structure",

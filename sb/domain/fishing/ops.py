@@ -15,7 +15,10 @@ coral drop, minigame difficulty) rides the rod/bait/minigame rung, where
 the oracle's rolled knobs (rarity_pull, bite speed, escape) land
 together. Slice 2 made the ROD STATE live the same way (!rod / !craftrod
 persist ``fishing_rod``; the rod panels read it) — the rod→cast wiring
-(rarity_pull on the roll) rides the same rung."""
+(rarity_pull on the roll) rides the same rung. The bait fill made the
+BAIT STATE live too (!bait persists ``fishing_bait`` through the audited
+buy op) — the per-cast bait consume + its knob consumers ride that same
+minigame rung."""
 
 from __future__ import annotations
 
@@ -39,6 +42,7 @@ from sb.spec.events import DeliveryClass
 from sb.spec.refs import WorkflowRef, workflow
 
 __all__ = [
+    "BAIT_PURCHASE_REASON",
     "BONUS_CATCH_CHANCE",
     "PEARL_ITEM",
     "ROD_PURCHASE_REASON",
@@ -50,6 +54,10 @@ __all__ = [
 #: the shipped economy-ledger reason for a rod purchase
 #: (services/fishing_workflow.py ROD_PURCHASE_REASON, verbatim).
 ROD_PURCHASE_REASON = "fishing:rod_purchase"
+
+#: the shipped economy-ledger reason for a bait purchase
+#: (services/fishing_workflow.py BAIT_PURCHASE_REASON, verbatim).
+BAIT_PURCHASE_REASON = "fishing:bait_purchase"
 
 # shipped constants verbatim (utils/fishing/rewards.py)
 BONUS_CATCH_CHANCE = 0.10
@@ -181,6 +189,14 @@ async def _erase_rod(conn, ctx: WorkflowContext) -> LegOutcome:
                       before={}, after={"rows": rows})
 
 
+@workflow("fishing.erase_subject_bait")
+async def _erase_bait(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_bait(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_bait", True),
+                      before={}, after={"rows": rows})
+
+
 # --- the rod ladder write legs (slice 2): the shipped services/
 # fishing_workflow.py buy_rod / craft_rod verbatim, re-homed onto the audited
 # one-leg one-txn seam. NO golden drives a funded buy or a stocked craft —
@@ -289,6 +305,61 @@ async def _record_craft_rod(conn, ctx: WorkflowContext) -> LegOutcome:
                           "difference!"})
 
 
+@workflow("fishing.record_buy_bait")
+async def _record_buy_bait(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The bait shop's buy select — buy one pack of the picked bait (the
+    shipped ``buy_bait``, the ``buy_rod`` posture): a player loads at
+    most one bait at a time — buying the SAME bait stacks its charges, a
+    DIFFERENT bait replaces the loadout (the message says so). Debit the
+    pack price and load in ONE txn (the debit is economy-audited; the
+    balance event emits after commit). The handler gates the unknown-key
+    / insufficient-funds cases out as pure reads before this leg runs
+    (no write, no audit row — the oracle's rollback posture), so the
+    raises here are defensive."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.fishing import bait as bait_mod
+    from sb.domain.games import wager
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    bait = bait_mod.bait_by_key(str(ctx.params.get("bait_key", "")))
+    if bait is None:
+        raise ValidatorError("That bait doesn't exist on the shelf.")
+    # Fence concurrent buys BEFORE the loadout read → two racing buys of
+    # the same bait stack sequentially (no lost charges — #217).
+    await store.lock_bait_slot(conn, user_id=uid, guild_id=gid)
+    cur_key, cur_charges = await store.get_active_bait(uid, gid,
+                                                       conn=conn)
+    stacking = cur_key == bait.key and cur_charges > 0
+    new_charges = (cur_charges if stacking else 0) + bait.charges
+    try:
+        new_balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=bait.price,
+            reason=BAIT_PURCHASE_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        balance = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"A pack of **{bait.name}** {bait.emoji} costs "
+            f"**{bait.price}** 🪙 — you only have **{balance}** 🪙."
+        ) from None
+    await store.set_active_bait(uid, gid, bait.key, new_charges,
+                                conn=conn)
+    ctx.params["_balance_changes"] = [
+        (uid, -bait.price, new_balance, BAIT_PURCHASE_REASON)]
+    verb = "Topped up" if stacking else "Loaded"
+    return LegOutcome(
+        step=StepResult(uid, "buy_bait", True), before={},
+        after={"bait_key": bait.key, "charges": new_charges,
+               "balance": new_balance,
+               "message": f"{verb} **{bait.name}** {bait.emoji} "
+                          f"({bait_mod.effect_text(bait)}) — "
+                          f"**{new_charges}** casts ready for "
+                          f"**{bait.price}** 🪙. "
+                          f"Balance: **{new_balance}** 🪙."})
+
+
 _XP_EMITS = (
     EventEmitSpec("game_xp.awarded",
                   WorkflowRef("games.game_xp_awarded_payload"),
@@ -328,16 +399,26 @@ CRAFT_ROD = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="fishing_rod_crafted", emits=())
 
-_OPS = (CAST, BUY_ROD, CRAFT_ROD)
+BUY_BAIT = CompoundOpSpec(
+    op_key="fishing.buy_bait", domain="fishing", lane=WorkflowLane.DOMAIN,
+    authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_buy_bait"), "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_bait_bought", emits=_BALANCE_EMITS)
+
+_OPS = (CAST, BUY_ROD, CRAFT_ROD, BUY_BAIT)
 
 _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
     ("fishing.record_buy_rod", _record_buy_rod),
     ("fishing.record_craft_rod", _record_craft_rod),
+    ("fishing.record_buy_bait", _record_buy_bait),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
     ("fishing.erase_subject_energy", _erase_energy),
     ("fishing.erase_subject_venue", _erase_venue),
     ("fishing.erase_subject_rod", _erase_rod),
+    ("fishing.erase_subject_bait", _erase_bait),
 )
 
 
