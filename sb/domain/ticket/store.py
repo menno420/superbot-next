@@ -36,6 +36,7 @@ __all__ = [
     "add_blacklist",
     "ensure_refs",
     "get_config_row",
+    "is_blacklisted",
     "remove_blacklist",
     "upsert_config_fields",
 ]
@@ -145,6 +146,16 @@ async def remove_blacklist(conn: Any, *, guild_id: int,
         "DELETE FROM ticket_blacklist WHERE guild_id = $1 AND user_id = $2 "
         "RETURNING guild_id", (guild_id, user_id), conn=conn)
     return bool(rows)
+
+
+async def is_blacklisted(guild_id: int, user_id: int,
+                         conn: Any = None) -> bool:
+    """The shipped ``ticket_is_blacklisted`` read (disbot
+    utils/db/tickets.py) — the open-eligibility gate's blacklist leg."""
+    row = await fetchone(
+        "SELECT 1 FROM ticket_blacklist WHERE guild_id=$1 AND user_id=$2",
+        (guild_id, user_id), conn=conn)
+    return row is not None
 
 
 async def erase_subject_blacklist_rows(conn: Any, *, user_id: int) -> int:
