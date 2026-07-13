@@ -201,7 +201,41 @@ def _message_key(req) -> str:
     return str(getattr(message, "id", "") or "")
 
 
-async def _grid_note(req, note: str, tone: str):
+#: Per-navigator-message roaming state — lateral (x, y) + the fog-of-war
+#: visited set per depth band, keyed by the panel message id (the settings
+#: `_ACCESS_SESSIONS` precedent: engine ephemeral bindings freeze opening
+#: args, so running UI state lives domain-side). SESSION-SCOPED BY
+#: NECESSITY tonight, not by design: the durable oracle shape
+#: (mining_player_state pos_x/pos_y + the mining_discovered table) is
+#: parity-walled — new columns on the row-covered mining_player_state
+#: change the row shape goldens/mining/mining_use_ration_restore_write
+#: snapshots, and a new declared table needs a parity.yml depth-exemption
+#: row (both parity.yml operations, the wp-stack lane's file). Until that
+#: graduation lands, a navigator open starts at (0, 0) of your PERSISTED
+#: depth with fresh fog (the pre-grid shipped baseline); loot, energy,
+#: depth, wear and XP are fully durable through the audited op.
+_GRID_SESSIONS: dict[str, dict] = {}
+_GRID_SESSIONS_MAX = 512
+
+
+def _grid_state(key: str) -> dict:
+    state = _GRID_SESSIONS.setdefault(
+        key, {"x": 0, "y": 0, "discovered": {}})
+    while len(_GRID_SESSIONS) > _GRID_SESSIONS_MAX:
+        _GRID_SESSIONS.pop(next(iter(_GRID_SESSIONS)))
+    return state
+
+
+def _grid_params(state: dict, depth: int, note: str, tone: str) -> dict:
+    """The renderer params for one navigator re-render: the running
+    session position + the CURRENT band's visited cells + the dig note."""
+    discovered = state["discovered"].get(depth, set())
+    return {"grid_note": note, "grid_tone": tone,
+            "grid_x": state["x"], "grid_y": state["y"],
+            "grid_discovered": tuple(discovered)}
+
+
+async def _grid_note(req, note: str, tone: str, params: dict | None = None):
     """Re-render the navigator IN PLACE with *note* (the oracle
     ``safe_edit`` loop via ``refresh_session_view``); a refresh miss
     (restart/eviction) degrades to an honest text reply (the settings
@@ -216,7 +250,8 @@ async def _grid_note(req, note: str, tone: str):
         try:
             if await refresh_session_view(
                     req, message_key=key,
-                    params={"grid_note": note, "grid_tone": tone}):
+                    params=dict(params or {"grid_note": note,
+                                           "grid_tone": tone})):
                 return Reply(SUCCESS, None)  # the edit IS the ack
         except Exception:  # noqa: BLE001 — degrade to the text reply
             pass
@@ -238,8 +273,10 @@ async def _grid_dig(req, direction: str):
 
     uid = int(getattr(req.actor, "user_id", 0) or 0)
     gid = int(getattr(req, "guild_id", 0) or 0)
+    state = _grid_state(_message_key(req))
 
     now = int(_time.time())
+    depth = await store.get_depth(uid, gid)
     e_state = energy.EnergyState(*await store.get_energy(uid, gid))
     if not energy.can_dig(e_state, now):
         wait = energy.seconds_until(e_state, now, energy.DIG_COST)
@@ -248,28 +285,44 @@ async def _grid_dig(req, direction: str):
             "⚡ You're out of energy — rest a moment "
             f"(~{wait}s until your next dig) or eat a **ration** / "
             "**energy drink** (`!use ration`).",
-            "error")
+            "error",
+            _grid_params(state, depth,
+                         "⚡ You're out of energy — rest a moment "
+                         f"(~{wait}s until your next dig) or eat a "
+                         "**ration** / **energy drink** (`!use ration`).",
+                         "error"))
     if direction in grid.VERTICAL:
-        depth = await store.get_depth(uid, gid)
         if direction == grid.DOWN:
             equipped = await store.get_equipment(uid, gid)
             alloc = await store.get_skills(uid, gid)
             stats = character.character_stats(equipped, alloc)
             if world.descend(depth, stats) == depth:
-                return await _grid_note(req, world.descend_hint(stats),
-                                        "error")
+                hint = world.descend_hint(stats)
+                return await _grid_note(
+                    req, hint, "error",
+                    _grid_params(state, depth, hint, "error"))
         elif world.ascend(depth) == depth:
+            hint = "You're already at the Surface — nowhere up to dig."
             return await _grid_note(
-                req, "You're already at the Surface — nowhere up to dig.",
-                "error")
+                req, hint, "error",
+                _grid_params(state, depth, hint, "error"))
 
     result = await engine.run(
         WorkflowRef("mining.dig"),
-        ctx_from_request(req, {"direction": direction}))
+        ctx_from_request(req, {"direction": direction,
+                               "x": state["x"], "y": state["y"]}))
     if result.outcome != SUCCESS:
+        hint = result.user_message or "You can't dig that way."
         return await _grid_note(
-            req, result.user_message or "You can't dig that way.", "error")
+            req, hint, "error", _grid_params(state, depth, hint, "error"))
     after = next(iter((result.after or {}).values()), {})
+    # commit the session move + fog mark (the durable writes landed in the
+    # op's txn; x/y/fog are session state — see _GRID_SESSIONS).
+    state["x"] = int(after.get("x", state["x"]))
+    state["y"] = int(after.get("y", state["y"]))
+    new_depth = int(after.get("depth", depth))
+    state["discovered"].setdefault(new_depth, set()).add(
+        (state["x"], state["y"]))
     parts = [f"You dig **{grid.move_phrase(direction)}** and mine "
              f"**{after.get('amount', 0)}× {after.get('found', '')}**!"]
     if after.get("cell_note"):
@@ -279,7 +332,9 @@ async def _grid_dig(req, direction: str):
         parts.append(str(after["xp_note"]))
     if after.get("pack_warning"):
         parts.append(str(after["pack_warning"]))
-    return await _grid_note(req, "\n".join(parts), "success")
+    note = "\n".join(parts)
+    return await _grid_note(req, note, "success",
+                            _grid_params(state, new_depth, note, "success"))
 
 
 def _grid_button_handlers() -> None:
@@ -1391,18 +1446,22 @@ async def _render_grid(spec: PanelSpec, ctx) -> object:
     tone = str(ctx.params.get("grid_tone", "") or "")
 
     depth = await store.get_depth(uid, gid)
-    x, y = await store.get_position(uid, gid)
+    # Lateral position + fog ride the navigator session (the dig handlers
+    # pass them through the refresh params; a fresh open starts at the
+    # origin of the persisted depth band with fresh fog — see the
+    # _GRID_SESSIONS parity-wall note).
+    x = int(ctx.params.get("grid_x", 0) or 0)
+    y = int(ctx.params.get("grid_y", 0) or 0)
+    discovered = {(int(px), int(py))
+                  for px, py in (ctx.params.get("grid_discovered") or ())}
     seed = await store.get_world_seed(gid)
     # A brighter equipped light widens the fog-of-war window (the shipped
-    # BUG-0026 wiring): the same radius feeds the discovered-cell read and
-    # the render so they stay in lock-step; light_radius 0-1 keeps the
-    # default 2.
+    # BUG-0026 wiring): the same radius feeds the render window; a
+    # light_radius of 0-1 keeps the default 2.
     equipped = await store.get_equipment(uid, gid)
     alloc = await store.get_skills(uid, gid)
     radius = grid.reveal_radius(
         character.character_stats(equipped, alloc).light_radius)
-    discovered = await store.get_discovered_window(
-        uid, gid, depth, x - radius, x + radius, y - radius, y + radius)
     cell = grid.cell_at(seed, x, y, depth)
     body = grid.render_local_map(seed, x, y, depth, discovered,
                                  radius=radius)

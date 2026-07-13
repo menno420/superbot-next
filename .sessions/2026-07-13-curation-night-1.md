@@ -27,19 +27,24 @@ plugin/manifest architecture; retire the hub's two pending terminals.
 - `sb/domain/mining/grid.py` — the pure seed-deterministic world, oracle
   verbatim (splitmix64 cell hash, 70/10/18/2 feature weights, richness
   folds, fog-of-war map render, light-widened `reveal_radius`).
-- Migration `0056_mining_grid.sql` — `pos_x`/`pos_y` (oracle columns) +
-  `discovered` JSONB on `mining_player_state`. **Flagged deviation:** the
-  oracle keeps fog of war in a dedicated `mining_discovered` table; a NEW
-  declared store table on ported mining reds `check_parity_depth` R2
-  without a `parity/parity.yml` depth-exemption row, and parity.yml is the
-  wp-stack reconcile lane's file tonight — so the visited-cell set rides a
-  single-statement idempotent `discovered || $patch::jsonb` merge on the
-  covered player-state store (erasure via `mining.erase_subject_state`
-  covers the columns with the row).
+- **Position + fog of war are SESSION-scoped (second parity wall,
+  discovered at the CI gate):** the first cut added `pos_x`/`pos_y` +
+  `discovered` columns to `mining_player_state` (migration 0054→0056) — and
+  the REQUIRED golden-parity gate went red with 6 diffs on
+  `mining.use_ration_restore_write`: db_delta snapshots FULL rows, so ANY
+  new column on a row-covered table is "unexpected (new behavior)" on
+  every existing row-bearing golden. Both durable shapes are therefore
+  parity.yml-walled (new table → R2 depth exemption; new columns → a
+  columns disposition), so the migration was retired and (x, y)+fog now
+  ride a per-message domain session dict (`_GRID_SESSIONS`, the settings
+  `_ACCESS_SESSIONS` precedent, cap 512). A navigator open starts at
+  (0, 0) of your PERSISTED depth with fresh fog — the pre-grid shipped
+  baseline; loot/energy/depth/wear/XP stay fully durable in the op txn.
 - `mining.dig` audited op (`sb/domain/mining/ops.py::_record_dig`) — the
-  oracle dig verbatim: energy spend + move (lateral position / light-gated
-  depth) + cell-folded loot grant + fog mark + wear ticks + depth-record &
-  mine XP in ONE txn. First wear-tick writer in the tree
+  oracle dig semantics: energy spend + light-gated depth move + cell-folded
+  loot grant + wear ticks + depth-record & mine XP in ONE txn (lateral x/y
+  threads through params → `after`, session-owned). First wear-tick writer
+  in the tree
   (`_wear_candidates`/`_apply_wear_writes`, oracle-verbatim); the
   `rewards.mine_multiplier` equipped-tool curve landed with it (legacy
   callers still pass `multiplier=None` — fastmine bytes untouched).
@@ -85,12 +90,17 @@ literal with the flip site named in its docstring.
   from this bundle's routes; `mining.dig` owns its own energy spend.
 - WP-3 (#317, open) folds WP-4 wear goldens: this PR's wear helpers are
   append-only in ops.py; if #317 lands its own, fold onto theirs.
-- Fog-of-war table graduation (`mining_discovered` + StoreSpec + erasure +
-  depth exemption) — follow-up for whoever holds the parity.yml pen.
+- Durable grid-state graduation (`mining_discovered` table + StoreSpec +
+  erasure + R2 depth exemption, AND/OR the `mining_player_state`
+  pos_x/pos_y columns + a kernel-surface-drift-style columns disposition
+  for `use_ration_restore_write`) — the same parity.yml owner-lane PR that
+  retires sweep_mine can land all of it; until then `_GRID_SESSIONS` in
+  panels.py is the seam to replace.
 
 ## Verification
 
-- `python3 -m pytest tests/ -q` — **2891 passed, 15 skipped** (57s).
+- `python3 -m pytest tests/ -q` — **2935 passed, 15 skipped** post-merge
+  (60s); the mining/band6 suites re-green after the session-state rework.
 - `python3 bootstrap.py check --strict` — clean once this card flips (the
   only red mid-session was the designed born-red hold; the 4 claims
   advisories are pre-existing and never exit-affecting).
@@ -104,10 +114,16 @@ The required golden-parity gate makes every capture-artifact golden (trap
 11b class: bytes that pin the CAPTURE ENVIRONMENT's failure, not shipped
 behavior) a one-way ratchet against porting the real feature's front door —
 sweep_mine is the first case where the artifact literal now sits in front
-of a fully live system. Worth an owner-lane ruling that mints a FOURTH
+of a fully live system. And the wall is WIDER than
+bytes: this session proved empirically (required gate, 6 diffs on
+use_ration_restore_write) that a row-bearing golden also FREEZES ITS
+TABLE'S COLUMN SET — db_delta snapshots whole rows, so every future
+column on mining_player_state (or any row-covered table) needs a columns
+disposition first. Worth an owner-lane ruling that mints a FOURTH
 disposition class ("capture-artifact superseded by port": golden retires
-without a ratchet decrease penalty, prefix flips same-PR) so future deep
-ports don't strand their prefix bytes one lane behind their systems.
+without a ratchet decrease penalty, prefix flips same-PR) plus a
+standing columns-disposition recipe, so future deep ports don't strand
+their schema one lane behind their systems. Trap-index candidates both.
 
 ## ⟲ Previous-session review
 

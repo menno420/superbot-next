@@ -1,42 +1,24 @@
 """The grid Mine port (curation rework rows 45/59) — the pure grid module
 (oracle ``disbot/utils/mining/grid.py`` @ 9c16365, verbatim), the
-position/fog-of-war store accessors on ``mining_player_state`` (migration
-0056 — pos_x/pos_y oracle columns + the FLAGGED ``discovered`` JSONB
-deviation), and the ``mining.record_dig`` leg's write set.
+navigator's SESSION-scoped position/fog state (the parity wall: durable
+pos_x/pos_y/discovered would change the ``mining_player_state`` row shape
+``goldens/mining/mining_use_ration_restore_write`` snapshots, and the
+disposition/exemption rows live in parity.yml — the wp-stack lane's file;
+the durable graduation is a named follow-up), and the
+``mining.record_dig`` leg's durable write set (energy + loot + depth +
+XP; NO schema change).
 
-DB-free: the ``_RecordingConn`` SQL-shape pin (the 0052 energy-store test
-pattern) plus monkeypatched store reads for the leg test.
+DB-free: monkeypatched store reads for the leg tests (the 0052
+energy-store test pattern's sibling).
 """
 
 from __future__ import annotations
 
 import asyncio
-import json
-from pathlib import Path
 
 run = asyncio.run
 
 GID, P1 = 1, 42
-
-MIGRATION = (Path(__file__).resolve().parents[3] / "migrations"
-             / "0056_mining_grid.sql")
-
-
-class _RecordingConn:
-    def __init__(self, row: dict | None = None):
-        self.row = row
-        self.queries: list[str] = []
-        self.params: list[tuple] = []
-
-    async def fetchrow(self, query: str, *params: object):
-        self.queries.append(query)
-        self.params.append(params)
-        return self.row
-
-    async def execute(self, query: str, *params: object):
-        self.queries.append(query)
-        self.params.append(params)
-        return "OK"
 
 
 # --- the pure grid module -------------------------------------------------------
@@ -146,87 +128,52 @@ def test_mine_multiplier_equipped_tool_wins_legacy_matched():
                                    {}) == 1.5
 
 
-# --- the store accessors (migration 0056 shapes) --------------------------------
+# --- the parity wall pins (no schema change, no new store) ----------------------
 
 
-def test_get_position_missing_row_reads_origin():
-    from sb.domain.mining import store
+def test_grid_added_no_store_and_no_schema_change():
+    """The parity-wall guard: the grid port added NO store row, NO table
+    and NO column — position + fog are session state until the parity.yml
+    lane frees the durable graduation (a new mining_discovered table needs
+    an R2 depth-exemption row; new mining_player_state columns change the
+    row shape the energy write-golden snapshots)."""
+    from pathlib import Path
 
-    conn = _RecordingConn(row=None)
-    assert run(store.get_position(P1, GID, conn=conn)) == (0, 0)
-    assert "pos_x, pos_y FROM mining_player_state" in conn.queries[0]
-    assert conn.params[0] == (str(P1), GID)      # TEXT user ids
-
-
-def test_set_position_upserts_without_now_touch():
-    from sb.domain.mining import store
-
-    conn = _RecordingConn()
-    run(store.set_position(conn, user_id=P1, guild_id=GID, x=3, y=-2))
-    q = conn.queries[0]
-    assert "INSERT INTO mining_player_state" in q
-    assert "ON CONFLICT (user_id, guild_id)" in q
-    assert "pos_x=$3, pos_y=$4" in q
-    assert "now()" not in q                       # BIGINT-epoch band rule
-    assert conn.params[0] == (str(P1), GID, 3, -2)
-
-
-def test_mark_discovered_is_a_single_jsonb_merge():
-    """The flagged 0056 deviation: one idempotent `discovered || $patch`
-    statement (the oracle's ON CONFLICT DO NOTHING posture) — no
-    read-modify-write."""
-    from sb.domain.mining import store
-
-    conn = _RecordingConn()
-    run(store.mark_discovered(conn, user_id=P1, guild_id=GID,
-                              depth=2, x=-1, y=4))
-    q = conn.queries[0]
-    assert len(conn.queries) == 1
-    assert "discovered = mining_player_state.discovered || $3::jsonb" in q
-    assert json.loads(conn.params[0][2]) == {"2:-1:4": 1}
-
-
-def test_get_discovered_window_filters_depth_and_box():
-    from sb.domain.mining import store
-
-    blob = json.dumps({"0:0:1": 1, "0:9:9": 1, "1:0:2": 1, "junk": 1})
-    conn = _RecordingConn(row={"discovered": blob})
-    got = run(store.get_discovered_window(P1, GID, 0, -2, 2, -2, 2,
-                                          conn=conn))
-    assert got == {(0, 1)}   # other-depth, out-of-box and junk keys drop
-    # missing row → empty set
-    assert run(store.get_discovered_window(
-        P1, GID, 0, -2, 2, -2, 2, conn=_RecordingConn(row=None))) == set()
-
-
-def test_migration_0056_shape_and_checksum_row():
-    ddl = MIGRATION.read_text()
-    for frag in (
-        "ALTER TABLE mining_player_state ADD COLUMN IF NOT EXISTS pos_x "
-        "INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE mining_player_state ADD COLUMN IF NOT EXISTS pos_y "
-        "INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE mining_player_state ADD COLUMN IF NOT EXISTS "
-        "discovered JSONB NOT NULL DEFAULT '{}'::jsonb",
-    ):
-        assert frag in ddl
-    # NO new table: fog of war deliberately rides mining_player_state (the
-    # parity R2 / wp-stack-lane rationale lives in the migration header).
-    assert "CREATE TABLE" not in ddl
-    checksums = json.loads(
-        (MIGRATION.parent / "checksums.json").read_text())
-    assert "0056_mining_grid.sql" in checksums
-
-
-def test_no_new_store_spec_for_the_grid():
-    """The deviation's guard: the grid added NO store row — position + fog
-    ride MINING_PLAYER_STATE_STORE (erasure via mining.erase_subject_state
-    covers the columns with the row)."""
+    import sb.domain.mining.store  # noqa: F401 — registration side effects
     from sb.spec.versioning import registered_stores
 
     tables = {s.table for s in registered_stores()}
     assert "mining_player_state" in tables
     assert "mining_discovered" not in tables
+    migrations = Path(__file__).resolve().parents[3] / "migrations"
+    assert not list(migrations.glob("*mining_grid*"))
+    store_src = (Path(__file__).resolve().parents[3]
+                 / "sb" / "domain" / "mining" / "store.py").read_text()
+    assert "pos_x" not in store_src
+    assert "discovered" not in store_src
+
+
+def test_grid_session_state_shape_and_eviction():
+    """The domain-side session dict (the settings `_ACCESS_SESSIONS`
+    precedent): origin default, per-depth fog sets, bounded eviction."""
+    from sb.domain.mining import panels
+
+    panels._GRID_SESSIONS.clear()
+    state = panels._grid_state("m1")
+    assert state == {"x": 0, "y": 0, "discovered": {}}
+    state["x"], state["y"] = 2, -1
+    state["discovered"].setdefault(0, set()).add((2, -1))
+    assert panels._grid_state("m1")["x"] == 2      # same key, same state
+    params = panels._grid_params(state, 0, "note", "success")
+    assert params["grid_x"] == 2 and params["grid_y"] == -1
+    assert tuple(params["grid_discovered"]) == ((2, -1),)
+    # another depth band renders fresh fog
+    assert panels._grid_params(state, 3, "n", "")["grid_discovered"] == ()
+    # bounded: the cap evicts oldest keys
+    for i in range(panels._GRID_SESSIONS_MAX + 5):
+        panels._grid_state(f"k{i}")
+    assert len(panels._GRID_SESSIONS) <= panels._GRID_SESSIONS_MAX
+    panels._GRID_SESSIONS.clear()
 
 
 # --- the record_dig leg ----------------------------------------------------------
@@ -247,9 +194,6 @@ class _Store:
 
     def install(self, monkeypatch):
         from sb.domain.mining import store as real
-
-        async def get_position(uid, gid, conn=None):
-            return self.position
 
         async def get_depth(uid, gid, conn=None):
             return self.depth
@@ -275,9 +219,6 @@ class _Store:
         async def set_energy(uid, gid, energy, updated_at, conn=None):
             self.writes.append(("energy", energy))
 
-        async def set_position(conn, *, user_id, guild_id, x, y):
-            self.writes.append(("position", x, y))
-
         async def set_depth(conn, *, user_id, guild_id, depth):
             self.writes.append(("depth", depth))
 
@@ -285,15 +226,11 @@ class _Store:
                                      delta):
             self.writes.append(("grant", item, delta))
 
-        async def mark_discovered(conn, *, user_id, guild_id, depth, x, y):
-            self.writes.append(("discovered", depth, x, y))
-
         async def record_depth(conn, *, user_id, guild_id, depth):
             self.writes.append(("record_depth", depth))
             return False
 
-        for name, fn in (("get_position", get_position),
-                         ("get_depth", get_depth),
+        for name, fn in (("get_depth", get_depth),
                          ("get_energy", get_energy),
                          ("get_equipment", get_equipment),
                          ("get_skills", get_skills),
@@ -301,15 +238,13 @@ class _Store:
                          ("get_world_seed", get_world_seed),
                          ("get_gear_wear", get_gear_wear),
                          ("set_energy", set_energy),
-                         ("set_position", set_position),
                          ("set_depth", set_depth),
                          ("update_mining_item", update_mining_item),
-                         ("mark_discovered", mark_discovered),
                          ("record_depth", record_depth)):
             monkeypatch.setattr(real, name, fn)
 
 
-def _ctx(direction: str):
+def _ctx(direction: str, x: int = 0, y: int = 0):
     from sb.kernel.workflow.context import WorkflowContext
 
     class _Actor:
@@ -317,12 +252,14 @@ def _ctx(direction: str):
 
     return WorkflowContext(actor=_Actor(), guild_id=GID,
                            request_id="t-dig",
-                           params={"direction": direction})
+                           params={"direction": direction, "x": x, "y": y})
 
 
-def test_record_dig_lateral_moves_mines_marks_and_spends(monkeypatch):
-    """One lateral dig = ONE txn's write set: energy spend + position move
-    + loot grant + fog mark (+ mine XP — patched to a no-award here)."""
+def test_record_dig_lateral_moves_mines_and_spends(monkeypatch):
+    """One lateral dig = ONE txn's durable write set: energy spend + loot
+    grant (+ mine XP — patched to a no-award here); the (x, y) move comes
+    back in `after` for the navigator session (no schema writes — the
+    parity wall)."""
     from sb.domain.mining import ops
     from sb.domain.games import xp as game_xp
 
@@ -335,19 +272,17 @@ def test_record_dig_lateral_moves_mines_marks_and_spends(monkeypatch):
 
     monkeypatch.setattr(game_xp, "award_in_txn", no_award)
 
-    ctx = _ctx("north")
+    ctx = _ctx("north", x=2, y=5)
     out = run(ops._record_dig(None, ctx))
     after = out.after
     assert after["moved"] is True
-    assert (after["x"], after["y"], after["depth"]) == (0, 1, 0)
+    assert (after["x"], after["y"], after["depth"]) == (2, 6, 0)
     assert after["amount"] >= 1 and after["found"]
     assert after["message"] == (f"You dig **north** and mine "
                                 f"**{after['amount']}× "
                                 f"{after['found']}**!")
     kinds = [w[0] for w in doubles.writes]
     assert kinds[0] == "energy"                 # spend settles first
-    assert ("position", 0, 1) in doubles.writes
-    assert ("discovered", 0, 0, 1) in doubles.writes
     assert any(k == "grant" for k in kinds)
     assert "depth" not in kinds                  # lateral: no depth write
     assert ctx.params["_gxp"].action == "mine"

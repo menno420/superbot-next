@@ -913,8 +913,10 @@ def _pack_warning_after(inventory: dict[str, int],
 async def _record_dig(conn, ctx: WorkflowContext) -> LegOutcome:
     """One directional dig — move into the adjacent cell AND mine it
     (oracle ``mining_workflow.dig`` @ 9c16365, the post-#1281 owner model:
-    mining IS locomotion). The energy spend, the move, the loot grant, the
-    fog-of-war mark, the wear tick and the XP awards commit in ONE txn.
+    mining IS locomotion). The energy spend, the depth move, the loot
+    grant, the wear tick and the XP awards commit in ONE txn; the lateral
+    (x, y) move + fog-of-war mark ride the navigator session (see the
+    position note below — the durable columns are parity-walled tonight).
     The route handler gates every not-moved case out before the op (energy
     empty, light-gated Down, Surface Up, unknown token — pure reads, no
     audit row, the ``record_descend`` guard posture); this leg re-checks
@@ -923,7 +925,14 @@ async def _record_dig(conn, ctx: WorkflowContext) -> LegOutcome:
 
     uid, gid, now = _ids(ctx)
     direction = str(ctx.params.get("direction", "")).strip().lower()
-    x, y = await store.get_position(uid, gid, conn=conn)
+    # Lateral position rides the NAVIGATOR SESSION (the panel hands it in;
+    # sb/domain/mining/panels.py owns the per-message session dict) — the
+    # durable pos_x/pos_y columns are parity-walled tonight: any new column
+    # on the row-covered mining_player_state changes the row shape the
+    # mining_use_ration_restore_write golden snapshots, and the disposition
+    # row lives in parity.yml (wp-stack lane). Depth stays fully durable.
+    x = int(ctx.params.get("x", 0) or 0)
+    y = int(ctx.params.get("y", 0) or 0)
     depth = await store.get_depth(uid, gid, conn=conn)
 
     # Energy is the frequency brake (owner's choice over a cooldown): no
@@ -975,15 +984,10 @@ async def _record_dig(conn, ctx: WorkflowContext) -> LegOutcome:
     spent = energy.spend(e_state, now)
     await store.set_energy(uid, gid, spent.current, spent.updated_at,
                            conn=conn)
-    if direction in grid.LATERAL:
-        await store.set_position(conn, user_id=uid, guild_id=gid,
-                                 x=nx, y=ny)
-    else:
+    if direction not in grid.LATERAL:
         await store.set_depth(conn, user_id=uid, guild_id=gid, depth=nz)
     await store.update_mining_item(conn, user_id=uid, guild_id=gid,
                                    item=found, delta=amount)
-    await store.mark_discovered(conn, user_id=uid, guild_id=gid,
-                                depth=nz, x=nx, y=ny)
     report = (await _apply_wear_writes(conn, uid, gid, candidates, wear)
               if candidates else workshop.WearReport())
 

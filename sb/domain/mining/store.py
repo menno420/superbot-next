@@ -47,10 +47,6 @@ __all__ = [
     "set_energy",
     "get_world_seed",
     "set_world_seed",
-    "get_position",
-    "set_position",
-    "get_discovered_window",
-    "mark_discovered",
     "get_mining_inventory",
     "mining_totals",
     "reset_player_inventory",
@@ -510,100 +506,6 @@ async def set_world_seed(conn: Any, *, guild_id: int, seed: int) -> None:
         "INSERT INTO mining_world (guild_id, seed) VALUES ($1,$2) "
         "ON CONFLICT (guild_id) DO UPDATE SET seed=$2, updated_at=now()",
         (guild_id, seed), conn=conn)
-
-
-# --- mining grid (lateral position + fog of war, on mining_player_state) -----
-#
-# The grid Mine navigator's spatial state (oracle utils/db/games/
-# mining_grid.py @ 9c16365). pos_x/pos_y are the shipped columns verbatim;
-# the fog-of-war visited-cell set DEVIATES from the oracle's dedicated
-# mining_discovered table — it rides a JSONB column ({"z:x:y": 1} keys) on
-# the SAME mining_player_state row (migration 0056 header carries the full
-# rationale: a new declared store table needs a parity.yml depth-exemption
-# row owned by the wp-stack lane tonight; columns on a covered store ride
-# free — the 0052 energy precedent). mining.erase_subject_state covers the
-# columns with the row.
-
-
-async def get_position(user_id: int, guild_id: int,
-                       conn: Any = None) -> tuple[int, int]:
-    """The player's lateral ``(pos_x, pos_y)`` for a guild (``(0, 0)`` if
-    none). Shipped ``mining_grid.get_position`` verbatim."""
-    row = await fetchone(
-        "SELECT pos_x, pos_y FROM mining_player_state WHERE user_id=$1 AND "
-        "guild_id=$2", (str(user_id), guild_id), conn=conn)
-    if row is None:
-        return 0, 0
-    return int(row["pos_x"]), int(row["pos_y"])
-
-
-async def set_position(conn: Any, *, user_id: int, guild_id: int,
-                       x: int, y: int) -> None:
-    """Persist the player's lateral position (upsert — one row per player).
-    Shipped ``mining_grid.set_position`` minus the oracle's
-    ``updated_at=now()`` touch (BIGINT-epoch band convention, the
-    ``set_depth`` precedent). Write-boundary: only the audited dig leg
-    (``mining.record_dig``) composes this."""
-    await execute(
-        "INSERT INTO mining_player_state (user_id, guild_id, pos_x, pos_y) "
-        "VALUES ($1,$2,$3,$4) ON CONFLICT (user_id, guild_id) "
-        "DO UPDATE SET pos_x=$3, pos_y=$4",
-        (str(user_id), guild_id, x, y), conn=conn)
-
-
-def _decode_discovered(raw: Any) -> dict:
-    """The JSONB column as a dict — asyncpg returns jsonb as str without a
-    codec (the counting_state read posture)."""
-    import json
-
-    if raw is None:
-        return {}
-    if isinstance(raw, str):
-        try:
-            return dict(json.loads(raw))
-        except (ValueError, TypeError):
-            return {}
-    return dict(raw)
-
-
-async def get_discovered_window(user_id: int, guild_id: int, depth: int,
-                                x_min: int, x_max: int, y_min: int,
-                                y_max: int,
-                                conn: Any = None) -> set[tuple[int, int]]:
-    """The visited ``(x, y)`` cells at *depth* inside the inclusive box
-    (the oracle's windowed fog-of-war read — the window filter runs over
-    the decoded blob here, same contract)."""
-    row = await fetchone(
-        "SELECT discovered FROM mining_player_state WHERE user_id=$1 AND "
-        "guild_id=$2", (str(user_id), guild_id), conn=conn)
-    cells = _decode_discovered(row["discovered"] if row else None)
-    out: set[tuple[int, int]] = set()
-    for key in cells:
-        try:
-            z_s, x_s, y_s = str(key).split(":", 2)
-            z, x, y = int(z_s), int(x_s), int(y_s)
-        except (ValueError, TypeError):
-            continue
-        if z == depth and x_min <= x <= x_max and y_min <= y <= y_max:
-            out.add((x, y))
-    return out
-
-
-async def mark_discovered(conn: Any, *, user_id: int, guild_id: int,
-                          depth: int, x: int, y: int) -> None:
-    """Record that the player has visited cell ``(depth, x, y)`` —
-    idempotent, single statement (the ``||`` jsonb key-merge mirrors the
-    oracle's ``ON CONFLICT DO NOTHING``). Write-boundary: only the audited
-    dig leg composes this."""
-    import json
-
-    patch = json.dumps({f"{depth}:{x}:{y}": 1})
-    await execute(
-        "INSERT INTO mining_player_state (user_id, guild_id, discovered) "
-        "VALUES ($1,$2,$3::jsonb) ON CONFLICT (user_id, guild_id) "
-        "DO UPDATE SET discovered = mining_player_state.discovered || "
-        "$3::jsonb",
-        (str(user_id), guild_id, patch), conn=conn)
 
 
 # --- mining_vault (per-player safe stash; TEXT user ids) + vault_level --------
