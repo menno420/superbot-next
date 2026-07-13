@@ -777,6 +777,7 @@ class Harness:
         is the runner's own step)."""
         from sb.domain.casino.game import reset_games_for_tests
         from sb.domain.casino.table import reset_tables_for_tests
+        from sb.domain.fishing.service import reset_pending_casts_for_tests
         from sb.kernel.interaction import cooldown as cooldown_mod
         from sb.kernel.interaction.resolve import reset_resolver_ports_for_tests
         from sb.kernel.panels import engine as panel_engine
@@ -789,6 +790,10 @@ class Harness:
         # `!poker` in one case never finds the prior case's live table.
         reset_tables_for_tests()
         reset_games_for_tests()
+        # the fishing pending-cast registry (one rolled cast per player)
+        # is the same class of process-global cross-case state — clear it
+        # so a `!fish` in one case never finds the prior case's line.
+        reset_pending_casts_for_tests()
         self.leaked_channels.clear()                     # per-case seed (runner)
         self.leaked_roster.clear()                       # per-case seed (runner)
         self._arm_capture_ports()                        # re-arm what we own

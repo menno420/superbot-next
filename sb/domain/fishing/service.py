@@ -29,7 +29,29 @@ from sb.kernel.interaction.handler_kit import (
     ctx_from_request as _ctx_from_req,
 )
 
-__all__ = ["Reply", "ensure_handler_refs"]
+__all__ = ["Reply", "ensure_handler_refs", "reset_pending_casts_for_tests"]
+
+#: In-flight casts keyed by ``(user_id, guild_id)`` — the shipped
+#: ``active_casts`` guard + the cast view's in-memory rolled state
+#: (views/fishing/cast_view.py:56-63 @cdb26804), collapsed into one
+#: registry: ``cast_open`` (= the shipped ``begin_cast``) rolls the
+#: catch and parks it here; the Reel route pops it and commits through
+#: the audited ``fishing.cast`` op. In-memory only (ADR-002, accepted
+#: for game views — not restart-safe, exactly as shipped). The shipped
+#: guard released via the timed view's terminal paths / 45 s timeout;
+#: the headless port has no timer, so the guard window IS the oracle
+#: ``_VIEW_TIMEOUT``: a pending cast older than that stopped being
+#: reelable in the oracle (view timed out, fish got away) and a new
+#: cast simply overwrites it. The parity harness clears this per case
+#: (boot.reset_case_state → :func:`reset_pending_casts_for_tests`).
+_PENDING_CASTS: dict[tuple[int, int], dict] = {}
+
+#: The shipped safety-net view timeout (cast_view.py ``_VIEW_TIMEOUT``).
+PENDING_CAST_TIMEOUT_SECONDS = 45.0
+
+
+def reset_pending_casts_for_tests() -> None:
+    _PENDING_CASTS.clear()
 
 
 def _fmt_wait(seconds: int) -> str:
@@ -70,16 +92,44 @@ def _register() -> None:
 
     @handler("fishing.cast_open")
     async def cast_open(req) -> Reply:
-        """!fish / the hub Cast button — the shipped ``begin_cast`` lane
-        (services/fishing_workflow.py: settle → out of energy? → spend)
-        ahead of the waiting-for-a-bite panel. The energy spend is the
-        shipped direct game-state write (autocommit, non-money — the
-        mining-energy posture); the golden pins the spent row."""
+        """!fish / the hub Cast button — the FULL shipped ``begin_cast``
+        (services/fishing_workflow.py:384-518 @cdb26804): active-cast
+        guard → one structures read (Boathouse regen + Tide Pool / Dock
+        / Fishery knobs) → settle/gate at the Boathouse-adjusted
+        interval → read rod/venue/weather/bait/gear → compound
+        ``effective_pull`` / ``effective_bite_speed`` / the fishery
+        ``double_catch_chance`` → ROLL the catch now (the shipped
+        ``roll_cast`` timing; energy is only spent once a catch actually
+        rolled, so a catalog-load failure never charges) → spend energy
+        → spend one bait charge (a missed reel still spends both — the
+        shipped "charge per attempt" rule) → park the rolled cast in the
+        pending registry → open the waiting-for-a-bite panel. Energy +
+        bait writes are the shipped direct game-state writes
+        (autocommit, non-money — the energy-spend posture);
+        goldens/fishing/sweep_fish pins the spent fresh-bar row + the
+        shore panel bytes (every knob reads exactly neutral on a fresh
+        player, so the wired cast is byte-identical there)."""
         import dataclasses
 
+        from sb.domain.fishing import bait as bait_mod
+        from sb.domain.fishing import catalog
         from sb.domain.fishing import energy as energy_mod
+        from sb.domain.fishing import gear as gear_mod
+        from sb.domain.fishing import ops as ops_mod
+        from sb.domain.fishing import rods as rods_mod
         from sb.domain.fishing import store
+        from sb.domain.fishing import venue as venue_mod
+        from sb.domain.fishing import weather as weather_mod
         from sb.domain.fishing.panels import CAST_PANEL_ID
+        from sb.domain.games import xp as game_xp
+        from sb.domain.games.store import game_xp_rows
+        from sb.domain.mining import character
+        from sb.domain.mining import structures as structures_mod
+        from sb.domain.mining.store import (
+            get_equipment,
+            get_skills,
+            get_structures,
+        )
         from sb.kernel.panels.engine import open_panel
         from sb.kernel.workflow.context import SYSTEM_CLOCK
         from sb.spec.refs import PanelRef
@@ -87,37 +137,161 @@ def _register() -> None:
         uid = int(getattr(req.actor, "user_id", 0) or 0)
         gid = int(req.guild_id or 0)
         now = int(SYSTEM_CLOCK().timestamp())
+        # the shipped one-line-in-the-water guard (cast_view.py
+        # prepare_cast L86-87); a pending cast past the oracle view
+        # timeout would have timed out live — overwrite it instead.
+        pending = _PENDING_CASTS.get((uid, gid))
+        if (pending is not None
+                and now - pending["rolled_at"]
+                <= PENDING_CAST_TIMEOUT_SECONDS):
+            return Reply(BLOCKED,
+                         "🎣 You've already got a line in the water — "
+                         "reel that one in first!")
+        # ONE structures read serves every structure knob AND the
+        # Boathouse regen speed-up, known before the settle so the
+        # out-of-energy gate + "ready in" wait already reflect it
+        # (begin_cast L393-401). Unbuilt ⇒ ×1.0 ⇒ exactly REGEN_SECONDS.
+        built = await get_structures(uid, gid)
+        regen_seconds = energy_mod.regen_seconds_for(
+            structures_mod.boathouse_regen_mult(
+                built.get(structures_mod.BOATHOUSE, 0)))
         cur, ts = await store.get_fishing_energy(uid, gid)
         state = energy_mod.EnergyState(cur, ts)
-        settled = energy_mod.settle(state, now)
+        settled = energy_mod.settle(state, now,
+                                    regen_seconds=regen_seconds)
         if not energy_mod.can_cast(settled):
-            wait = energy_mod.regen_seconds_for(state, now,
-                                                energy_mod.CAST_COST)
+            wait = energy_mod.seconds_until(state, now,
+                                            energy_mod.CAST_COST,
+                                            regen_seconds=regen_seconds)
             return Reply(BLOCKED,
                          "🎣 You're out of energy — let the line rest. "
                          f"Ready to cast again in **{_fmt_wait(wait)}**.")
-        spent = energy_mod.spend(state, now)
+        rod = rods_mod.rod_for_tier(await store.get_rod_tier(uid, gid))
+        profile = venue_mod.profile_for(
+            await store.get_fishing_venue(uid, gid))
+        weather = weather_mod.current_weather()
+        # the shipped get_active_bait resolve (fishing_workflow.py
+        # L368-381): a stale key or non-positive charges read as none.
+        bait_key, bait_charges = await store.get_active_bait(uid, gid)
+        bait = bait_mod.bait_by_key(bait_key)
+        if bait is None or bait_charges <= 0:
+            bait, bait_charges = None, 0
+        # the 4th "how-well" knob: equipped fishing gear (L430-435).
+        gear_stats = character.character_stats(
+            await get_equipment(uid, gid),
+            await get_skills(uid, gid))
+        gear_pull = gear_mod.fishing_pull_mult(gear_stats)
+        gear_bite_speed = gear_mod.fishing_bite_speed_mult(gear_stats)
+        # the structure knobs (L441-451): all exactly neutral unbuilt.
+        tide_pool_level = built.get(structures_mod.TIDE_POOL, 0)
+        tide_pool_pull = structures_mod.tide_pool_pull_mult(
+            tide_pool_level)
+        dock_level = built.get(structures_mod.DOCK, 0)
+        dock_bite_speed = structures_mod.dock_bite_speed_mult(dock_level)
+        fishery_level = built.get(structures_mod.FISHERY, 0)
+        double_catch_chance = (
+            ops_mod.BONUS_CATCH_CHANCE
+            + structures_mod.fishery_bonus_chance(fishery_level))
+        # the compound formulas — begin_cast L458-471 verbatim:
+        # rod × bait × weather × gear × tide pool (pull) and
+        # rod × bait × weather × gear × dock (bite speed).
+        effective_pull = (
+            rod.rarity_pull
+            * (bait.rarity_pull if bait else 1.0)
+            * weather.rarity_mult
+            * gear_pull
+            * tide_pool_pull
+        )
+        effective_bite_speed = (
+            rod.bite_speed
+            * (bait.bite_speed if bait else 1.0)
+            * weather.bite_speed_mult
+            * gear_bite_speed
+            * dock_bite_speed
+        )
+        # roll the cast NOW — the shipped roll_cast (fishing_workflow.py
+        # L127-171): xp read → level_before → the weighted species roll
+        # on the module's private cast RNG (runner-armed for goldens).
+        xp_rows = {str(r["game"]): int(r["xp"])
+                   for r in await game_xp_rows(uid, gid)}
+        level_before = catalog.fishing_level_from_xp(
+            xp_rows.get(game_xp.GAME_FISHING, 0))
+        catch = ops_mod.roll_catch(level_before, ops_mod.cast_rng(),
+                                   rarity_pull=effective_pull,
+                                   venue=profile.key)
+        if catch is None:
+            # the shipped quiet-venue guard (begin_cast L480-488) —
+            # energy is never spent on a catalog-load failure.
+            return Reply(BLOCKED,
+                         f"{profile.emoji} The {profile.name.lower()} "
+                         "is quiet right now — try later.")
+        spent = energy_mod.spend(state, now, regen_seconds=regen_seconds)
         await store.set_fishing_energy(uid, gid, spent.current,
                                        spent.updated_at)
+        # consume one bait charge — only now that the cast is actually
+        # happening (begin_cast L493-502: the same "charge per attempt"
+        # rule as energy; the pack clears at 0 charges left).
+        charges_left = 0
+        if bait is not None:
+            charges_left = bait_charges - 1
+            if charges_left <= 0:
+                await store.clear_active_bait(uid, gid)
+                charges_left = 0
+            else:
+                await store.set_active_bait(uid, gid, bait.key,
+                                            charges_left)
+        _PENDING_CASTS[(uid, gid)] = {
+            "rolled_at": now,
+            "species": catch.species.name,
+            "weight": catch.weight,
+            "venue": profile.key,
+            "double_catch_chance": double_catch_chance,
+            "level_before": level_before,
+        }
+        # effective_bite_speed is computed + carried for the shipped
+        # CastStart contract but is outcome-inert until the live timing
+        # rung (see the module-tail DEVIATION note).
+        del effective_bite_speed
         await open_panel(
             PanelRef(CAST_PANEL_ID),
             dataclasses.replace(
-                req, args={**dict(req.args),
-                           "cast_energy": spent.current}))
+                req, args={
+                    **dict(req.args),
+                    "cast_energy": spent.current,
+                    "cast_venue": profile.key,
+                    "cast_bait_key": bait.key if bait is not None else "",
+                    "cast_bait_charges_left": charges_left,
+                    "cast_gear_bonus":
+                        gear_mod.has_fishing_bonus(gear_stats),
+                    "cast_tide_pool": tide_pool_level > 0,
+                    "cast_dock": dock_level > 0,
+                }))
         return Reply(SUCCESS, None)
 
     @handler("fishing.fish_route")
     async def fish_route(req) -> Reply:
-        """The cast panel's Reel button — commits the catch through the
-        audited ``fishing.cast`` K7 op (dex upsert + materials + game XP
-        in one leg txn). The shipped live-timing layer (bite delay /
-        fake-out / escape) rides the D-0043 successor port — see the
-        panels module under-port ledger."""
+        """The cast panel's Reel button — pops the pending cast rolled at
+        cast time (the shipped roll-at-cast / commit-at-reel split,
+        cast_view.py ``_land_catch`` → ``commit_catch``) and commits it
+        through the audited ``fishing.cast`` K7 op (dex upsert + pearl /
+        coral / fish materials + game XP in one leg txn). A Reel with no
+        pending cast falls back to the leg's roll-at-commit starter seam
+        (the shipped legacy ``fish()``). The shipped live-timing layer
+        (bite delay / fake-out / escape) rides the D-0043 successor port
+        — see the panels module under-port ledger."""
         from sb.kernel.workflow import engine
         from sb.spec.refs import WorkflowRef
 
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        entry = _PENDING_CASTS.pop((uid, gid), None)
+        params: dict = {}
+        if entry is not None:
+            params = {key: entry[key]
+                      for key in ("species", "weight", "venue",
+                                  "double_catch_chance", "level_before")}
         result = await engine.run(WorkflowRef("fishing.cast"),
-                                  _ctx_from_req(req, {}))
+                                  _ctx_from_req(req, params))
         if result.outcome != SUCCESS:
             return Reply(result.outcome,
                          result.user_message or "The line came back "
@@ -712,11 +886,17 @@ def _register() -> None:
 #: fishing.build_structure write op).
 #: This EMPTIES the fishing deep-system PENDING roster — all 20 shipped
 #: fishing commands are ported (the D-0043 fishing ladder is complete).
-#: The cast LEG still runs the starter shore profile — the
-#: venue/rod/bait/structure→cast wiring (deepwater species pool, coral
-#: drop, rarity_pull, bite speed, the per-cast charge spend, the
-#: pull/bite/regen/double-catch structure mults, minigame difficulty)
-#: rides the minigame rung with the rest of the knobs.
+#: The cast-leg depth wiring then made the cast LEG itself live: the
+#: venue/rod/bait/gear/structure/weather knobs now drive the roll
+#: (deepwater species pool, coral drop, the compounded rarity_pull, the
+#: per-cast bait charge spend, the pull/regen/double-catch structure
+#: mults — cast_open above = the shipped begin_cast; record_cast =
+#: commit_catch). STILL PARKED on the D-0043 minigame rung (real-time
+#: asyncio the headless panel engine doesn't model): the live
+#: bite-delay/fake-out/reel-fight timing — so bite-speed knobs
+#: (rod/bait/weather/gear/dock) and the escape/grace/window knobs are
+#: computed + surfaced but never gate a catch — and the
+#: _FishingDoneView Cast-again continuation.
 PENDING: dict[str, str] = {}
 
 

@@ -35,40 +35,29 @@ Under-port ledger (no golden pins these corners):
 * the shipped cast view ran the live minigame in-place — bite-delay
   timers flipping the button to the reel window, fake-out shakes, early
   reel escapes, a reeled catch EDITING the panel into the result embed
-  (``interaction.response.edit_message``). The port's Reel button routes
-  the audited instant-catch lane (``fishing.cast`` K7 op — dex upsert +
-  materials + game-XP in one leg txn) and opens the result as a fresh
-  result card (the farm in-place-edit under-port precedent); the timing
-  layer (utils/fishing/minigame.py) rides the D-0043 successor port with
-  the rod/bait/venue systems.
-* the shipped ``active_casts`` one-line-in-the-water guard is process
-  state of that timer layer — same successor.
-* the venue (slice 1): the hub "Fishing from" field, the cast footer and
-  the ⛵ Set sail / Dock button now read/write the LIVE stored venue
-  (``fishing_venue``, no row → shore — a fresh player renders the
-  golden-pinned shore bytes verbatim); the cast LEG still rolls the
-  starter shore profile — the venue→cast wiring (deepwater species pool,
-  coral drop, minigame difficulty) rides the rod/bait/minigame rung.
-* the rod (slice 2): the 🎒 Rod hub button, the rod shop and the recipe
-  browser now read/write the LIVE stored rod tier (``fishing_rod``, no
-  row → tier 0 — a fresh player renders the golden-pinned Bare-Rod
-  bytes verbatim); the cast LEG still rolls the starter knobs
-  (rarity_pull 1.0) — the rod→cast wiring rides the same
-  rod/bait/minigame rung as the venue.
-* the bait (slice 3): the 🪱 Bait hub button and the bait shop now
-  read/write the LIVE stored loadout (``fishing_bait``, no row / 0
-  charges → bait-less — a fresh player renders the golden-pinned
-  "No bait loaded" bytes verbatim); the cast LEG still rolls the
-  starter knobs (no loaded rarity/speed multiplier, no charge spend) —
-  the bait→cast wiring rides the same rod/bait/minigame rung.
-* the structures (slice 4, FINAL): the 🏗 Structures hub button, the
-  structures sub-hub and the four coral structure panels now read/write
-  the LIVE built levels (``mining_structures`` via the mining.store
-  sole-writer seam; no row → not built — a fresh player renders the
-  golden-pinned not-built bytes verbatim) and the Build buttons run the
-  audited ``fishing.build_structure`` write; the cast LEG still rolls
-  the starter knobs (pull/bite/regen/double-catch mults ×1.0/+0.0) —
-  the structure→cast wiring rides the same rung. The shipped
+  (``interaction.response.edit_message``). The port's Reel button
+  commits the cast-time roll through the audited ``fishing.cast`` K7 op
+  (dex upsert + pearl/coral/fish materials + game-XP in one leg txn)
+  and opens the result as a fresh result card (the farm in-place-edit
+  under-port precedent); the TIMING layer stays parked on the D-0043
+  minigame rung (real-time asyncio the headless panel engine doesn't
+  model) even though its pure math is now ported
+  (sb/domain/fishing/minigame.py) — see the ops.py DEVIATION header.
+* the shipped ``active_casts`` one-line-in-the-water guard now lives as
+  the service.py pending-cast registry (the guard copy is answered;
+  the 45 s window is modelled without a timer); the timed view
+  lifecycle itself — same successor rung.
+* the cast LEG is WIRED (the cast-leg depth wiring): venue (slice 1),
+  rod (slice 2), bait (slice 3) and the structures (slice 4) state all
+  drive the roll through the shipped ``begin_cast`` compound —
+  deepwater species pool + coral drop, the compounded rarity_pull
+  (rod × bait × weather × gear × tide pool), the per-cast bait charge
+  spend, the boathouse regen interval and the fishery double-catch
+  chance. Every knob reads exactly neutral on a fresh player (no row ⇒
+  shore / tier 0 / bait-less / not built ⇒ ×1.0/+0.0), so every
+  golden-pinned fresh-player byte is unchanged. The bite-SPEED half of
+  the compound (rod/bait/weather/gear/dock) is computed + surfaced but
+  outcome-inert until the timing rung above lands. The shipped
   Build-click in-place panel edit (safe_edit with the ✅/❌ note +
   SUCCESS/ERROR recolor) opens as a fresh result card instead — the
   farm in-place-edit under-port precedent.
@@ -148,7 +137,10 @@ FISHERY_PANEL_ID = "fishing.fishery_panel"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
-#: bytes; ``where`` = "from the shoreline" — every port cast is shore).
+#: bytes) — the SHORE form of the ``where`` line. The grammar TextBlock
+#: carries this static shore copy; ``_render_cast`` recomposes the
+#: description from the cast's live venue profile, which on shore
+#: reproduces this literal byte-for-byte.
 _CAST_DESCRIPTION = (
     "You cast a line from the shoreline… 🏖️\n"
     "*Watch the water — hit **Reel** the moment it bites, but not before!*"
@@ -754,10 +746,15 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
 
 async def _render_cast(spec: PanelSpec, ctx) -> object:
     """renderer_override — cast_view.py's embed dressing (see
-    justification): grammar render + the weather field + the
-    venue/energy footer. The energy was already settled+spent by the
-    cast-open handler (the write precedes the render — the golden's
-    58/60 gauge is the POST-spend read)."""
+    justification): grammar render + the venue-keyed description (the
+    ``where`` line, prepare_cast L100-111), the weather field, and the
+    venue/energy footer with the shipped bait/gear/tide-pool/dock notes
+    (prepare_cast L120-137) driven off the cast-open args. The energy
+    was already settled+spent by the cast-open handler (the write
+    precedes the render — the golden's 58/60 gauge is the POST-spend
+    read). A fresh shore player composes byte-identically to the static
+    ``_CAST_DESCRIPTION`` + bare footer the golden pins."""
+    from sb.domain.fishing import bait as bait_mod
     from sb.domain.fishing import energy as energy_mod
     from sb.domain.fishing import store
     from sb.domain.fishing import venue as venue_mod
@@ -785,14 +782,44 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
         # (clear = silent) — cast_view.py verbatim.
         fields = ((f"{w.emoji} {w.name}",
                    f"*{w.blurb}* ({weather_mod.effect_text(w)})"),)
-    # the LIVE stored venue in the footer (cast_view.py verbatim:
-    # `{profile.emoji} {profile.name} · {energy bar}`; a fresh no-row
-    # player reads shore — the golden-pinned bytes)
+    # the cast's venue: the cast-open hop passes the profile it ROLLED
+    # at; a direct panel open reads the LIVE stored venue (both default
+    # shore — a fresh no-row player renders the golden-pinned bytes).
+    venue_arg = params.get("cast_venue")
     profile = venue_mod.profile_for(
-        await store.get_fishing_venue(uid, gid))
+        str(venue_arg) if venue_arg is not None
+        else await store.get_fishing_venue(uid, gid))
+    # the shipped where-line (prepare_cast L100-111) — on shore this
+    # composes to _CAST_DESCRIPTION byte-for-byte.
+    where = (
+        "from the boat, out over the deep water"
+        if profile.key == venue_mod.DEEPWATER
+        else "from the shoreline"
+    )
+    description = (
+        f"You cast a line {where}… {profile.emoji}\n"
+        "*Watch the water — hit **Reel** the moment it bites, but not "
+        "before!*"
+    )
     footer = (f"{profile.emoji} {profile.name} · "
               + energy_mod.bar(int(current)))
-    embed = _dc_replace(rendered.embed, fields=fields, footer=footer)
+    # the shipped cast-note tail (prepare_cast L121-137, verbatim) —
+    # each note renders only when the cast-open hop said the knob was
+    # on, so a fresh player's footer is byte-identical.
+    bait = bait_mod.bait_by_key(str(params.get("cast_bait_key") or ""))
+    if bait is not None:
+        footer += (
+            f" · {bait.emoji} {bait.name} "
+            f"({int(params.get('cast_bait_charges_left', 0) or 0)} left)"
+        )
+    if params.get("cast_gear_bonus"):
+        footer += " · 🎣 fishing gear"
+    if params.get("cast_tide_pool"):
+        footer += " · 🪸 tide pool"
+    if params.get("cast_dock"):
+        footer += " · ⚓ dock"
+    embed = _dc_replace(rendered.embed, description=description,
+                        fields=fields, footer=footer)
     return _dc_replace(rendered, embed=embed)
 
 

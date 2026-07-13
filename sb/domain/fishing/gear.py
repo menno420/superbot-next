@@ -14,24 +14,78 @@ the normal mining gear panel (CHARM slot).
 The charm *names* are the mining equipment-catalog keys byte-for-byte
 (``sb/domain/mining/equipment.py`` — "fishing charm" / "anglers charm" /
 "master angler charm"), so a crafted charm is indistinguishable from a
-bought one. The gear-multiplier half of the shipped module
-(EffectiveStats pull/bite mults) already lives with the equipment port;
-only the craft shelf lands here.
+bought one. The gear-multiplier half of the shipped module (the
+EffectiveStats → cast-knob converters, oracle ``utils/fishing/gear.py``
+:33-65) lands below with the cast-leg depth wiring: ``fishing_power`` →
+a rarity-pull multiplier (≥ 1) and ``bite_luck`` → a bite-speed
+multiplier (≤ 1 = faster), both bounded and default-preserving — with
+no fishing gear equipped every multiplier is exactly ``1.0``, so a
+cast is byte-identical to the pre-gear behaviour.
 
-Pure + stdlib-only (no Discord, no DB)."""
+Pure + stdlib-only (no Discord, no DB); the converters duck-type the
+mining ``EffectiveStats`` (``fishing_power`` / ``bite_luck``) so this
+module keeps zero imports."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 __all__ = [
+    "BITE_SPEED_PER_BITE_LUCK",
     "CHARM_RECIPES",
     "CRAFTABLE_CHARM_NAMES",
     "CharmRecipe",
+    "MAX_GEAR_PULL",
+    "MIN_GEAR_BITE_SPEED",
+    "PULL_PER_FISHING_POWER",
     "charm_recipe",
     "charm_recipe_text",
     "craftable_charm_for",
+    "fishing_bite_speed_mult",
+    "fishing_pull_mult",
+    "has_fishing_bonus",
 ]
+
+# --- the gear → cast-knob converters (shipped verbatim, oracle
+# utils/fishing/gear.py:33-65) ------------------------------------------------
+
+#: Per-point rarity-pull added by ``fishing_power`` (the full ladder's
+#: ``fishing_power=6`` → ×1.24, a touch under a Silver rod's 1.25 pull).
+PULL_PER_FISHING_POWER = 0.04
+#: Per-point bite-wait reduction from ``bite_luck`` (``bite_luck=3`` → ×0.91).
+BITE_SPEED_PER_BITE_LUCK = 0.03
+
+#: Hard caps so gear can never dominate the rod×bait×weather stack even if a
+#: future item or stacking path pushes the stats far past the charm ladder.
+MAX_GEAR_PULL = 1.40  # ceiling on the rarity-pull multiplier
+MIN_GEAR_BITE_SPEED = 0.75  # floor on the bite-speed multiplier (faster)
+
+
+def fishing_pull_mult(stats) -> float:
+    """Rarity-pull multiplier (≥ 1.0) contributed by ``stats.fishing_power``.
+
+    ``1.0`` when no fishing gear is equipped (``fishing_power <= 0``);
+    rises :data:`PULL_PER_FISHING_POWER` per point, capped at
+    :data:`MAX_GEAR_PULL` (shipped verbatim). *stats* is the mining
+    ``EffectiveStats`` (duck-typed)."""
+    power = max(0, stats.fishing_power)
+    return min(1.0 + PULL_PER_FISHING_POWER * power, MAX_GEAR_PULL)
+
+
+def fishing_bite_speed_mult(stats) -> float:
+    """Bite-speed multiplier (≤ 1.0 = faster) contributed by ``stats.bite_luck``.
+
+    ``1.0`` when no fishing gear is equipped (``bite_luck <= 0``); falls
+    :data:`BITE_SPEED_PER_BITE_LUCK` per point, floored at
+    :data:`MIN_GEAR_BITE_SPEED` (shipped verbatim)."""
+    luck = max(0, stats.bite_luck)
+    return max(1.0 - BITE_SPEED_PER_BITE_LUCK * luck, MIN_GEAR_BITE_SPEED)
+
+
+def has_fishing_bonus(stats) -> bool:
+    """Whether *stats* carry any fishing gear contribution (for the
+    cast-panel 🎣 note — shipped verbatim)."""
+    return stats.fishing_power > 0 or stats.bite_luck > 0
 
 
 @dataclass(frozen=True)
