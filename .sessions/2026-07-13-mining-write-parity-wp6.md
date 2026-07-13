@@ -1,15 +1,16 @@
 # 2026-07-13 — deep-mining WRITE-PARITY lane — WP-6 structure-build PORT + write golden (FINAL slice)
 
-> **Status:** IN FLIGHT (born red) — PORT the oracle
-> `mining_workflow.build_structure` (coin debit + material consume +
-> `mining_structures` level raise in ONE txn) onto the audited
-> `mining.build -> record_build` seam, flip the forge/home 🔥 Build panel
-> terminals from D-0043 pending to live handlers, mint the structure-build
-> write golden(s) byte-identical, and retire the **LAST** mining
-> `guard-only-capture` exemption (`mining_structures`). Adds a
-> `lock_structure_slot` advisory fence + a two-txn double-build concurrency
-> regression. Born red by design; flips complete on the last commit. Stacked on
-> WP-5 (#335, branch `mining-write-parity-wp5`).
+> **Status:** complete (WP-6 DELIVERED — the oracle
+> `mining_workflow.build_structure` ported verbatim onto the audited
+> `mining.build -> record_build` seam, the forge/home 🔥 Build panel terminals
+> flipped from D-0043 pending to live `forge_build_route` / `home_build_route`
+> handlers, two structure-build write goldens minted byte-identical, the LAST
+> mining `guard-only-capture` exemption (`mining_structures`) retired (ratchet
+> mining `{tables:16->17}`), a `lock_structure_slot` advisory fence + a two-txn
+> double-build concurrency regression added (RED→GREEN observed); gate GREEN
+> (479 ported goldens) + all checkers green. PR #344, stacked on #335. **With
+> `mining_structures` retired, the deep-mining WRITE-PARITY lane is COMPLETE —
+> all 8 planned mining exemptions retired.**)
 
 - **📊 Model:** opus-4.8 · high · parity/golden-minting (Q-0194)
 
@@ -69,6 +70,26 @@ the level read, plus a two-transaction Postgres regression proving it serializes
   panel-button-driven (forge/home 🔥 Build) per the oracle. The argful craft
   command stays a D-0043 pending terminal (its product table is already covered,
   so no exemption rides on it).
+
+## 💡 Session idea
+
+WP-6 is the slice where the SPEC's assumed ingress was wrong and the ORACLE was
+right: the scope imagined `!build <structure>` flipping to `build_structure`, but
+the oracle `!build`/`!craft` COMMAND routes to `mining_workflow.craft` (a
+mining_inventory product), while `build_structure` (the mining_structures write)
+is reachable ONLY through the forge/home panel 🔥 Build buttons. Had I flipped
+`build_route` argful to `build_structure` per the spec's table, I'd have shipped
+a live divergence from the oracle that every gate would pass (the golden would
+just pin the fork) — the exact failure mode WP-5's idea warned about, one layer
+up: not an invented WORD but an invented ROUTE. The durable discipline is to
+confirm the command→service EDGE against the oracle cog before trusting a slice
+plan's ingress, not just the copy once you're in the handler. A checker worth
+having: flag a ported command whose oracle cog dispatches to a DIFFERENT service
+function than the target route's op, so a mis-wired ingress is caught at review
+instead of by a play-tester. The capturable-ingress corollary also earned its
+keep — the session-minted forge panel button is driven by `component_index` (the
+stash_all precedent), so a panel-only write is still golden-coverable without a
+command form.
 
 ## ⟲ Previous-session review
 
