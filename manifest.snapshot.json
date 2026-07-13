@@ -11329,17 +11329,11 @@
       "handler:role.assignroles": {
         "module": "sb.domain.role.handlers"
       },
-      "handler:role.assignroles_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:role.create_form_submit": {
         "module": "sb.domain.role.handlers"
       },
       "handler:role.createrole": {
         "module": "sb.domain.role.handlers"
-      },
-      "handler:role.debug_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:role.debugroles": {
         "module": "sb.domain.role.handlers"
@@ -11379,9 +11373,6 @@
       },
       "handler:role.roleinfo": {
         "module": "sb.domain.role.handlers"
-      },
-      "handler:role.roleinfo_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:role.setrole": {
         "module": "sb.domain.role.handlers"
