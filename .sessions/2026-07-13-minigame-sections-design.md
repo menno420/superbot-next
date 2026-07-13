@@ -1,6 +1,6 @@
 # 2026-07-13 — game sections design (ORDER 017 item 4)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · NIGHT-RUN lane · mandate: ORDER 017 item 4
 
@@ -18,7 +18,23 @@ Excludes fishing / mining-WP / energy lanes (peer-claimed).
 
 ## What shipped
 
-_(to be filled at close-out)_
+- `control/claims/minigame-sections.md` — lane claim (design + 3 slices),
+  peer lanes (fishing / mining-WP / energy) explicitly excluded.
+- `docs/decisions.md` [D-0082] — enablement REUSES governance
+  `subsystem_visibility` + K7 `SET_VISIBILITY`; no new store/migration.
+- `docs/design/game-sections.md` (+ new `docs/design/README.md` index,
+  navigation-map row per its placement rule) — every cited seam verified
+  at HEAD 291361d: hub roster `sb/domain/games/panels.py:104-131`,
+  governance write/read `service.py:68`/`:243`, dispatch gate
+  `resolve.py:310-314`, settings hub `_HUB_GROUPS` panels.py:119 +
+  `open_group` handlers.py:67-90, engine render paths `engine.py:382`/
+  `:340`, anchors record-only (a named-successor refresh sweep).
+- Gates: pytest 2056 passed / 13 skipped; `bootstrap.py check --strict`
+  green (known claims-format advisory on mining-write-parity-lane.md).
+- Flag (PL-001): read seam uses a lazy domain→governance import, matching
+  the established `platform/guild_teardown.py:78` shape, not a new port.
+- Flag (PL-001): D-0082 stamped ONLY in the design doc — the stamp checker
+  reds a second citation home (README/nav-map cite the doc, not the id).
 
 ## 💡 Session idea
 
