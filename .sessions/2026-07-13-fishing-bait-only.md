@@ -1,6 +1,6 @@
 # 2026-07-13 — fishing: bait-only port (coordinated fill, lane #324)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude (Fable family) · high · feature build
 
@@ -55,9 +55,52 @@ shapes — `lock_rod_slot`, `fishing.buy_rod` op naming, the
 - **NO rod work anywhere in the diff** — rod/rodrecipes/craftrod are
   #330's, landed.
 
-## Verification target
+## Verification (local, real Postgres per docs/operations/local-verification.md)
 
-The six-gates ladder per docs/operations/local-verification.md: pytest
-tests/ green · manifest_compile + checker fleet · bootstrap check
---strict · check_parity_depth · golden-parity --gate GREEN ·
-tests/integration green.
+- golden-parity `--gate`: **GREEN — all 475 golden(s) across 51 ported
+  subsystem(s) replay clean** (474 at #330's merge + the re-homed
+  sweep_bait replaying through the PORTED fishing row).
+- `check_parity_depth`: OK — 51 subsystems (50 ported), kernel ported,
+  484 goldens.
+- `pytest tests/ -q`: **2086 passed, 2 skipped** ·
+  `tests/integration -q`: 11 passed.
+- `manifest_compile`: green (48 manifests, snapshot recompiled) ·
+  `check_migrations` clean (50) · `check_money_race` 0 violations ·
+  `check_sim_gate` OK (the bait panel's 4 slots are below-floor
+  auto-exempt) · `check_compat_frozen` OK (the bait command's
+  name/aliases/description bytes unchanged by the `_pending`→`_cmd`
+  flip) · namespace / shadowing / no-skip / config-usage /
+  runtime-smoke / escape-hatches / slash-cap all clean.
+- `bootstrap.py check --strict`: exit 0 (the born-red hold flips with
+  this landing commit; one pre-existing claims-format advisory on
+  another lane's claim file).
+- One environmental note: the local `parity_replay` DB carried the OLD
+  branch's 0049 checksum in `schema_migrations` (this container ran the
+  #328 replay earlier); one `DROP SCHEMA public CASCADE` reset per the
+  runbook's recovery posture and the gate ran clean — local state, not
+  a repo defect.
+
+## 💡 Session idea
+
+Adjudicated re-scopes should salvage by PATHS, not by commits: cherry-
+picking any of `3ced297`'s commits would have dragged rod hunks into a
+lane that ceded rod, while path-level extraction (`git show
+SHA:path`, then adapt refs to the landed peer shapes — `lock_rod_slot`,
+`fishing.buy_rod` naming, `fishing.rod_panel` ids) produced a clean
+bait-only diff in one pass. A three-line "salvage by path, adapt names
+to the landed winner, verify the golden byte-for-byte" note in the
+porting skill would make the next collision re-scope mechanical.
+
+## ⟲ Previous-session review
+
+(Covers `.sessions/2026-07-13-fishing-slice2-rod.md@4493cc2` — the peer
+lane's rod slice this fill builds on.) Its shapes transferred verbatim:
+the `lock_rod_slot` fence wording, the `_op_after` handler pattern, the
+guard-as-pure-read posture and the exemption-row format were all
+directly reusable for the bait twin, and its ratchet lesson ("guard-only
+sweeps move nothing — the floor rises only with a row-bearing golden")
+is exactly why this fill ships with the fishing ratchet untouched. One
+friction: its card and #330 body don't state whether the lane's NEXT
+slice had started, so this fill had to prove the negative from the
+remote branch list + open-PR sweep — a one-line "next slice: not
+started" trailer on lane cards would make coordinated fills instant.
