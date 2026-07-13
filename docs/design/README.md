@@ -10,3 +10,7 @@
 
 - [game-sections.md](game-sections.md) — per-guild minigame/casino
   enablement over governance visibility (ORDER 017 item 4).
+- [anchor-refresh-sweep.md](anchor-refresh-sweep.md) — PROPOSED
+  (owner-reviewable, no D-entry yet): the D-0082 successor sweep that
+  would edit anchored channel panels on enablement change; four design
+  calls with options and costs.
