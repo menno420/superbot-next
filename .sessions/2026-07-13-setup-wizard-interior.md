@@ -1,6 +1,6 @@
 # 2026-07-13 — setup wizard interior (ORDER 017 night-run slice)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN fix slice · mandate: ORDER 017 item 1
   (top gap 2: "setup wizard interior — the whole interactive wizard is
@@ -58,6 +58,26 @@ per-suggestion Edit modal/repick flow, and the final-review apply lane.
 Named successors kept honest (declared BLOCKED terminals): essential
 steps 2–8 · the 10 per-section flows + linear wizard steps · the
 per-suggestion Edit lane · the final-review apply lane.
+
+Verification (close-out): pre-merge tree `pytest tests/` **2107
+passed, 2 skipped** (exit 0, clean run — an earlier red was
+cross-process contamination: harness drives sharing `parity_replay`
+with a concurrently replaying suite; dbsnap truncates per case).
+Post-merge (peer lanes fishing-slice2 / diagnostic-mutations /
+curation / game-sections): 2132–2133 passed with 6–7 integration
+RACE-test failures from the ledgered local-env flake class (varying
+set run-to-run, none in this slice's domain — the
+treasury-karma-argv-fix card's known class; CI's required bar is the
+authority). `bootstrap.py check --strict` green; `check_sim_gate`
+OK; `manifest_compile` verify green. End-to-end harness drive +
+adversarial probes recorded in PR #340's body.
+
+**Guard recipe** (for the flake class): the integration race tests
+(`tests/integration/test_*_race.py`) share the `parity_replay` DB
+with any concurrently running harness/replay process — serialize all
+DB-touching runs in one session (one `pytest tests/` at a time, no
+harness drives alongside), or they fail with vanished-row phantoms
+(`dbsnap` TRUNCATE … CASCADE per replay case).
 
 ## 💡 Session idea
 
