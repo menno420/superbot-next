@@ -1,0 +1,49 @@
+# superbot-idle-plugin — the idle-engine game-plugin adapter (PLUG-001).
+#
+# One command (`!idle` / `/idle`) + a status panel (`idle.status`) + three
+# render-forwarding view commands (idle status / shop / prestige), declared as
+# a SubsystemManifest and exported through the `sb.plugins` entry-point group.
+# The superbot-next host discovers it at boot (sb/app/plugin_host.py), verifies
+# it against the committed pin registry (plugins.lock.json), joint-compiles it
+# with the in-tree manifests, and registers it on the same live seams — see
+# docs/game-plugin-contract.md. Sibling in-tree exemplar to
+# examples/superbot-plugin-hello/.
+#
+# VENDORED from superbot-idle (see README.md) pending the split-out plugin
+# repo. Unlike hello (pure declarations), this adapter forwards the real
+# idle-engine render layer, so the `idle_engine` import closure is vendored
+# alongside the plugin package and BOTH are packaged (see packages.find).
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "superbot-idle-plugin"
+version = "0.1.0"
+description = "Idle-engine game plugin for superbot-next — the PLUG-001 adapter (command + status panel + live render-forwarding views)."
+requires-python = ">=3.11"
+# The host process provides the `sb` package. PyYAML is a real runtime dep of
+# the vendored idle_engine.theme loader (import yaml) — it is also a core
+# superbot-next dependency (requirements.txt), so a host checkout always has
+# it; declared here so a STANDALONE install is self-sufficient too.
+dependencies = ["PyYAML>=6.0,<7"]
+
+[project.optional-dependencies]
+# Standalone development (authoring/tests outside a host checkout): install
+# the host kernel from git.
+host = ["superbot-next @ git+https://github.com/menno420/superbot-next"]
+
+# The contract's discovery hook: the host imports this module (which registers
+# the plugin's refs) and reads its MANIFEST attribute.
+[project.entry-points."sb.plugins"]
+idle = "superbot_idle_plugin.manifest"
+
+[tool.setuptools.packages.find]
+# BOTH packages: the plugin shell AND the idle_engine import closure the
+# manifest pulls in (manifest -> render_forward -> idle_engine.render, and
+# idle_engine/__init__ -> theme -> economy). idle's own pyproject omits
+# idle_engine* (its engine lives at that repo's root, outside plugin/); the
+# vendored layout co-locates them, so both are included or an install ships a
+# plugin whose render forwarders cannot import their engine.
+include = ["superbot_idle_plugin*", "idle_engine*"]
