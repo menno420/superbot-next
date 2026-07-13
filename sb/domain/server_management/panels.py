@@ -9,10 +9,12 @@ Cleanup (grey) / Setup (green) + the row-2 utility quartet (Access Map /
 Help Preview / Help editor / Refresh, grey) — every button carrying its
 emoji INSIDE the label and its shipped PERSISTENT custom_id verbatim
 (``server_management:<key>`` via ``custom_id_override``; the economy-hub
-precedent). ``parity/goldens/servermanagement/
+precedent). ``parity/goldens/server_management/
 sweep_slash_server-management.json`` pins every byte of the slash twin
-(the ephemeral type-4, flags 64); the sibling ``server_management`` row's
-prefix golden pins the same panel on the message surface.
+(the ephemeral type-4, flags 64); the sibling prefix golden
+(``sweep_servermanagement.json``, same dir since the row-73 name-pair
+rework unified the split ``servermanagement/`` dir) pins the same panel
+on the message surface.
 
 ANCHORED-PANEL SEMANTICS (the sibling prefix row's flip, PR after #178):
 ``session_lifecycle=False`` — the shipped hub was a panel-MANAGER panel
@@ -20,7 +22,7 @@ ANCHORED-PANEL SEMANTICS (the sibling prefix row's flip, PR after #178):
 channel message and records a ``panel_anchors`` row
 (goldens/server_management/sweep_servermanagement pins it), while the
 slash twin's ephemeral type-4 records none (the engine's
-``_record_anchor`` skips interaction surfaces — goldens/servermanagement
+``_record_anchor`` skips interaction surfaces — the slash sweep golden
 pins the empty delta). Every component stays override-pinned (overrides
 render verbatim on non-session panels too — the moderation modmenu
 precedent).
@@ -241,7 +243,7 @@ def server_management_hub_spec() -> PanelSpec:
             "the shipped hub footer is the literal 'Read-only summary · "
             "click a manager to open it' (hub.py set_footer) — outside "
             "FooterMode's none/subsystem/provenance vocabulary "
-            "(goldens/servermanagement + goldens/server_management pin "
+            "(both goldens/server_management sweeps pin "
             "the byte; the utility/ux_lab/channel precedent). The "
             "override additionally adjusts TWO named component surfaces "
             "(the 12c lane): (1) it DROPS the grammar's injected "
@@ -250,8 +252,8 @@ def server_management_hub_spec() -> PanelSpec:
             "rows; (2) it DROPS the declared help_back action on the "
             "slash surface — the shipped back-to-help hook appended the "
             "button on the panel-manager MESSAGE path only "
-            "(goldens/server_management pins the 4-row prefix shape, "
-            "goldens/servermanagement pins the 3-row slash shape). "
+            "(sweep_servermanagement pins the 4-row prefix shape, "
+            "sweep_slash_server-management pins the 3-row slash shape). "
             "Body, fields, and every other action stay declared."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("moderation", "channels", "roles"),

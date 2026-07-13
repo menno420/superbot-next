@@ -61,7 +61,6 @@ subsystems:
   rps_tournament: unverified
   security: unverified
   server_management: unverified
-  servermanagement: unverified
   settings: unverified
   setup: unverified
   starboard: unverified

@@ -165,7 +165,11 @@ source:
 # to a subsystem directory; port bands re-homed cases as they flipped, and the
 # fishing slice-4 port (the FINAL fishing rung) re-homed the LAST six — the
 # `_unmapped` roster is now EMPTY, its row and directory retired (R1 pairs
-# rows with non-empty golden dirs both ways).
+# rows with non-empty golden dirs both ways). `servermanagement` (the oracle
+# cog-named dir holding only the /server-management slash sweep) retired the
+# same way with the 2026-07-13 curation rework (row 73): its one golden
+# re-homed onto the ported `server_management` row — the subsystem's prefix
+# + slash goldens now share one dir.
 subsystems:
   admin: ported
   ai: ported
@@ -206,7 +210,6 @@ subsystems:
   rps_tournament: ported
   security: ported
   server_management: ported
-  servermanagement: ported
   settings: ported
   setup: ported
   starboard: ported
@@ -1154,7 +1157,6 @@ depth:
     rps_tournament: {events: 1, tables: 3, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
     server_management: {events: 1, tables: 3, settings: 0}
-    servermanagement: {events: 0, tables: 0, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
     setup: {events: 2, tables: 3, settings: 0}
     starboard: {events: 2, tables: 3, settings: 0}
