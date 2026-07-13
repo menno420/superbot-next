@@ -20,11 +20,20 @@ within a pass, collect ALL violations; at a pass boundary, fail fast.
   P7 store_completeness  — dropped StoreSpec needs an owner-signed retirement (ARMS AT K3;
                            baseline None => every store `added`, no drop possible)
   P8 serialize           — canonical JSON + layout-lock overlays ([A]-only) + stable_hash
-  P9 recompile_parity    — recompiled stable_hash == committed snapshot's (leg A / DRIFT)
+  P9 recompile_parity    — recompiled stable_hash == committed BODY's recomputed hash
+                           (leg A / DRIFT)
 
 Hash membership (spec 01 §5, fork 9): the hashed body EXCLUDES `stable_hash`,
 `compiler_version`, `manifest_count`; INCLUDES `schema_version`, `field_roles`,
 `subsystems`, `projections`.
+
+The committed file does NOT carry a `stable_hash` field: because hash
+membership excludes it, the value is purely derivable from the rest of the
+file, and the cached line re-conflicted any two concurrent PRs that both
+recompiled the snapshot (PRs #333/#352 class — runbook:
+docs/operations/manifest-snapshot-conflicts.md). P9 recomputes the committed
+body's hash on the fly via `compute_stable_hash`, which ignores the field if
+a legacy snapshot still carries it — drift detection is unchanged.
 
 Never imported at runtime (tools/ layer); `sb/app/boot_gate.py` wraps it for
 boot leg-A.
@@ -876,7 +885,6 @@ def compile_manifests(
     full_snapshot = {
         "schema_version": snapshot["schema_version"],
         "compiler_version": COMPILER_VERSION,
-        "stable_hash": stable_hash,
         "manifest_count": len(snapshot["subsystems"]),
         "field_roles": snapshot["field_roles"],
         "subsystems": snapshot["subsystems"],
@@ -884,7 +892,9 @@ def compile_manifests(
     }
 
     if committed_snapshot is not None:                        # P9 (leg A)
-        committed_hash = committed_snapshot.get("stable_hash")
+        # Recompute from the committed BODY (the file carries no stable_hash
+        # field; compute_stable_hash ignores one on legacy snapshots).
+        committed_hash = compute_stable_hash(committed_snapshot)
         if committed_hash != stable_hash:
             violations.append(Violation(
                 "recompile_parity", DRIFT, None, SNAPSHOT_FILENAME,

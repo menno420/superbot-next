@@ -17,7 +17,8 @@ from tools.manifest_compile import compile_manifests
 def test_gate_recompile_parity_and_drift():
     committed = compile_manifests().snapshot  # the real (empty) sb.manifest package
     assert gate_recompile(committed) == []
-    tampered = dict(committed, stable_hash="sha256:beef")
+    # No stable_hash field in the snapshot — drift is a BODY divergence.
+    tampered = dict(committed, schema_version=999)
     violations = gate_recompile(tampered)
     assert violations and violations[0].failure_class == "DRIFT"
 
