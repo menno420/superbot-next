@@ -46,7 +46,7 @@ class TestImportedCorpus:
         # / sweep_recent_errors.json, the run-order-dependent log-ring captures —
         # parity.yml source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 494
+        assert len(goldens) == 498
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -78,8 +78,11 @@ class TestImportedCorpus:
         # + 2 WP-5 mining skill-spend PORT write-parity mints
         # (skill_write/skill_bad_branch)
         # + 2 WP-6 mining structure-build PORT write-parity mints
-        # (build_forge_write/build_forge_insufficient) — the FINAL slice
-        assert source["minted_goldens"] == 32
+        # (build_forge_write/build_forge_insufficient) — the FINAL exemption slice
+        # + 4 WP-7 mining residual-pending PORT write-parity mints (respec + craft:
+        # craft_write/craft_no_recipe/respec_write/respec_insufficient) — retires
+        # NO exemption (mining_inventory + player_skills already covered)
+        assert source["minted_goldens"] == 36
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -604,7 +607,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "RED BY DESIGN" in out
-        assert "494 goldens" in out
+        assert "498 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):
