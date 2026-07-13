@@ -179,6 +179,14 @@ def _short_label(op: Any) -> str:
         return f"{subsystem}.{name} = {v}"
     if kind == "clear_binding" and name:
         return f"{subsystem}.{name} ← clear"
+    if kind == "set_cleanup_policy":
+        # the shipped stored-label bytes (cleanup._stage_cleanup_policy's
+        # ``cleanup.{scope}({name}) = {level}``) re-derived from the
+        # payload's review ride-alongs (the settings-write slice).
+        scope = str(payload.get("scope_type") or "?")
+        target = str(payload.get("target_name") or "?")
+        level = payload.get("level")
+        return f"cleanup.{scope}({target}) = {level or '(default)'}"
     if kind.startswith("bind_") and name:
         target_id = payload.get("resource_id")
         target = (str(payload.get("target_name") or "")

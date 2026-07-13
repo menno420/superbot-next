@@ -45,3 +45,14 @@
   `sb/manifest/setup.py`, `manifest.snapshot.json`,
   `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
   `compat/`, `tests/unit/setup_band/` · 2026-07-13
+- `claude/setup-wizard-5` · scope: setup-wizard successors, slice 5 =
+  the settings-write section flows (logging_presets — the Single /
+  Balanced / Detailed / Custom picker staging `create_channel` rows,
+  Apply Recommended = Balanced; moderation — the four-knob detail
+  view staging `set_setting` rows; cleanup — the scope × level walker
+  + profile batch picker staging `set_cleanup_policy` through the K7
+  `governance.set_cleanup` op; roles / role_templates / cog_routing /
+  ticket stay honest terminals) · area: `sb/domain/setup/`,
+  `sb/manifest/setup.py`, `manifest.snapshot.json`,
+  `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
+  `compat/`, `tests/unit/setup_band/` · 2026-07-13
