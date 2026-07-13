@@ -31,11 +31,22 @@ wizard.open_setup_workspace: resume READ → ensure_setup_channel → the
 workspace channel.send → only then the session writes) runs the Discord
 calls INSIDE the record leg, BEFORE the row upsert — a failed row write
 aborts the txn and leaves channel + card standing, exactly like the
-oracle (which never rollback-deleted its workspace). No leg therefore
-declares ``compensator=`` and the allowlist stays EMPTY; the
+oracle (which never rollback-deleted its workspace). No session-write leg
+therefore declares ``compensator=`` and the allowlist stays EMPTY; the
 ``setup.compensate_create_channel`` handler below stays the RULED class
 for any FUTURE DB-first leg shape (D-0077's mandate binds the moment a
-create leg sits after a committed DB leg)."""
+create leg sits after a committed DB leg).
+
+The compound-ops slice landed the first WIRED consumer:
+``setup.ensure_channel`` (the logging_presets ``create_channel`` named
+successor — the oracle ResourceProvisioningPipeline's reachable core as
+one K7 op: name-based reuse or create → slot bind → audit). Its create
+EFFECT leg declares ``compensator=WorkflowRef("setup.compensate_create_
+channel")`` per the COMPENSATABLE-EFFECT grammar fence — id-guarded on
+the same ``_created_channel_id`` stash contract; the BIND leg carries NO
+compensator by DESIGN (the oracle: "Binding failure does NOT roll back
+the created Discord resource — it is audited as ``binding_failed``",
+resource_provisioning.py:52-55)."""
 
 from __future__ import annotations
 
@@ -51,6 +62,7 @@ from sb.kernel.workflow.spec import (
     LegSpec,
     WorkflowLane,
 )
+from sb.spec.outcomes import SUCCESS
 from sb.spec.refs import WorkflowRef, workflow
 
 __all__ = ["ensure_ops_refs", "register_ops"]
@@ -276,6 +288,109 @@ async def _record_workspace_pointer_clear(conn,
         before=None, after="cleared")
 
 
+# --- the ensure-channel legs (the K9 ``create_channel`` apply lane) -----------------
+
+@workflow("setup.ensure_channel_resource")
+async def _ensure_channel_resource(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The oracle ``ensure_channel`` reuse-vs-create semantics
+    (core/runtime/guild_resources.py:124-156) over the D-0077 ports:
+    resolve by name + text kind through the ChannelDirectory READ port
+    (get-before-create is DOMAIN logic — the adapter always creates); a
+    hit is returned UNCHANGED (the oracle: "overwrites are NOT
+    reconciled"); a miss creates ONE text channel through the
+    channel-state port and stashes ``_created_channel_id`` (the D-0077
+    compensator guard) + ``_ensured_channel_id`` (the bind leg's input).
+    A real create emits the shipped ``channel.lifecycle_changed``
+    advisory (essential_steps._create_channel's companion); the AUDIT
+    fact is the op's ONE K7 central row — engine-minted mutation_id, a
+    ledgered divergence from the oracle's shared audit/lifecycle id
+    pair. A directory read failure (headless — no cache installed)
+    degrades to no-match, the same answer the oracle's empty gateway
+    cache gives resolve_channel."""
+    del conn  # EFFECT leg (post-commit)
+    import uuid
+
+    from sb.domain.channel import service as channel_service
+
+    gid = int(ctx.guild_id or 0)
+    name = str(ctx.params.get("resource_name", "") or "").strip()
+    if not name:
+        raise ValueError(
+            "create_channel: requires resource_name (the channel name)")
+    existing_id = None
+    try:
+        for snap in await channel_service.active_directory().list_channels(gid):
+            if snap.name == name and snap.kind == "text":
+                existing_id = int(snap.channel_id)
+                break
+    except Exception:  # noqa: BLE001 — headless/no directory ⇒ no match
+        logger.debug("setup.ensure_channel: directory read failed",
+                     exc_info=True)
+    created = False
+    if existing_id is not None:
+        cid = existing_id
+    else:
+        actions = channel_service.active_actions()  # the D-0077 port binding
+        cid = int(await actions.create_text_channel(
+            gid, name=name, overwrites=(), parent_id=None, reason=None))
+        created = True
+        # the D-0077 stash contract — the id the compensating delete is
+        # guarded on (never a name lookup).
+        ctx.params["_created_channel_id"] = cid
+        await channel_service.emit_channel_lifecycle(
+            gid, mutation_id=str(uuid.uuid4()), operation="create",
+            outcome="success", applied=[cid], failed=[])
+    ctx.params["_ensured_channel_id"] = cid
+    return LegOutcome(
+        step=StepResult(cid, "ensure_channel", True),
+        before={}, after={"channel_id": cid, "created": created,
+                          "resource_name": name})
+
+
+@workflow("setup.bind_ensured_channel")
+async def _bind_ensured_channel(conn, ctx: WorkflowContext) -> LegOutcome:
+    """Step 8 of the oracle provision contract
+    (resource_provisioning.py:795-816): slot-bind the ensured channel
+    through the audited K7 ``settings.bind`` op (the
+    BindingMutationPipeline twin — essential_steps._bind's seam; binding
+    row + binding_audit_log row in ONE txn). A bind failure RAISES so
+    the op folds non-SUCCESS with the channel left standing — fork E
+    records the operator finding and never runs the create leg's
+    compensator (the oracle's ``binding_failed`` outcome: "Binding
+    failure does NOT roll back the created Discord resource",
+    resource_provisioning.py:52-55)."""
+    del conn  # EFFECT leg (post-commit)
+    from sb.kernel.workflow import engine
+
+    cid = int(ctx.params.get("_ensured_channel_id", 0) or 0)
+    if not cid:
+        raise RuntimeError(
+            "ensure_channel: the ensure leg minted no channel — nothing "
+            "to bind")
+    subsystem = str(ctx.params.get("subsystem", "") or "")
+    name = str(ctx.params.get("name", "") or "")
+    if not subsystem or not name:
+        raise ValueError(
+            "create_channel: requires subsystem + name (the binding slot)")
+    bind_ctx = WorkflowContext(
+        actor=ctx.actor, guild_id=int(ctx.guild_id or 0),
+        request_id=f"{ctx.request_id}:bind", confirmed=True,
+        params={"subsystem": subsystem, "name": name,
+                "kind": str(ctx.params.get("kind", "channel") or "channel"),
+                "resource_id": cid},
+        correlation_id=ctx.correlation_id, test_mode=ctx.test_mode,
+        clock=ctx.clock)
+    result = await engine.run(WorkflowRef("settings.bind"), bind_ctx)
+    if result.outcome != SUCCESS:
+        raise RuntimeError(
+            f"binding_failed: settings.bind {subsystem}.{name} → "
+            f"{result.outcome}")
+    return LegOutcome(
+        step=StepResult(cid, "bind_channel", True),
+        before={}, after={"subsystem": subsystem, "name": name,
+                          "resource_id": cid})
+
+
 # --- privacy erasure body (the store-declared ref; flag-18 discipline) --------------
 
 @workflow("setup.erase_subject_session")
@@ -394,9 +509,33 @@ CLEAR_ESSENTIAL_ANCHOR = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="setup.session.essential_anchor_cleared")
 
+#: the K9 ``create_channel`` apply lane (the logging_presets named
+#: successor): the oracle ResourceProvisioningPipeline's reachable core —
+#: ensure (reuse-by-name or create) → slot bind → audit — as ONE K7 op.
+#: NATURAL_KEY: the ensure is name-idempotent (get-before-create — the
+#: designed shared-channel semantics: "on a name match [the pipeline]
+#: returns the existing channel and binds it to the slot") and the bind
+#: an ON CONFLICT upsert, so a resumed apply reuses instead of
+#: duplicating. The create leg is COMPENSATABLE with the D-0077
+#: id-guarded compensator (module docstring); the bind leg deliberately
+#: carries NONE (oracle ``binding_failed``: channel stands, op fails).
+ENSURE_CHANNEL = CompoundOpSpec(
+    op_key="setup.ensure_channel", domain="setup",
+    lane=WorkflowLane.RESOURCE, authority_ref="",
+    legs=(
+        LegSpec("ensure", LegKind.EFFECT,
+                WorkflowRef("setup.ensure_channel_resource"),
+                "compensatable",
+                compensator=WorkflowRef("setup.compensate_create_channel")),
+        LegSpec("bind", LegKind.EFFECT,
+                WorkflowRef("setup.bind_ensured_channel"), "reversible"),
+    ),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.channel_provisioned")
+
 _OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP,
         MARK_IN_PROGRESS, MARK_COMPLETE, CLEAR_WORKSPACE_POINTER,
-        SET_ESSENTIAL_STEP, CLEAR_ESSENTIAL_ANCHOR)
+        SET_ESSENTIAL_STEP, CLEAR_ESSENTIAL_ANCHOR, ENSURE_CHANNEL)
 
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
@@ -409,6 +548,8 @@ _REF_TABLE = (
     ("setup.record_essential_step", _record_essential_step),
     ("setup.record_essential_anchor_clear", _record_essential_anchor_clear),
     ("setup.record_workspace_pointer_clear", _record_workspace_pointer_clear),
+    ("setup.ensure_channel_resource", _ensure_channel_resource),
+    ("setup.bind_ensured_channel", _bind_ensured_channel),
     ("setup.erase_subject_session", _erase_subject_session),
 )
 

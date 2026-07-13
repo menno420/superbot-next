@@ -35,17 +35,17 @@ substrate; this is the setup wizard's user-facing cosmetic catalogue
 
 Kernel-idiom divergences, ledgered (the section_card.py doctrine):
 
-* the ``create_managed_role`` op kind stages FAIL-CLOSED
-  (un-registered in the K9 registry): apply surfaces the rows as
-  skipped "(not yet implemented)" — the logging_presets
-  ``create_channel`` precedent. DECIDE-AND-FLAG: the K9 apply lane
-  resolves op kinds to K7 CompoundOpSpecs only, and no role-create
-  compound op exists — role creation rides the D-0077 provisioning
-  port + companion audit/lifecycle events at HANDLER level
-  (essential_steps._create_role); the ensure-role compound op
-  (create EFFECT leg + threshold fold + audit) is a named successor.
-  The staged rows carry ``resource_name`` so final-review's pending
-  list renders the shipped label bytes today;
+* the ``create_managed_role`` op kind BINDS to the audited K7
+  ``role.create_managed_role`` compound op (the compound-ops slice —
+  this module's previous fail-closed decide-and-flag, resolved): the
+  create EFFECT leg runs the oracle RoleLifecycleService's apply-time
+  UNCONDITIONAL create through the RoleProvisioning port (dedupe stays
+  at plan time — ``plan_template``), the tier leg is the oracle's
+  best-effort threshold-fold companion (a failed tier never undoes the
+  role), and the K7 engine's ONE central audit row carries the audit
+  fact. The staged rows carry ``resource_name`` + ``role_template``
+  (the binding's payload schema) and final-review renders the shipped
+  label bytes from them;
 * the guild's current roles ride the ADVISOR's guild snapshot seam;
   no role index is installed in this build, so the planner sees no
   existing roles (every template role plans as *create* — the
@@ -557,6 +557,35 @@ async def compute_plan(guild_id: int, template: RoleTemplate) -> TemplatePlan:
                          bot_can_manage_roles=True)
 
 
+# --- the op-kind registration (the roles.py set_role_threshold precedent) --------------------
+
+_CREATE_MANAGED_ROLE_OP_KIND = "create_managed_role"
+
+
+def _register_create_managed_role_op_kind() -> None:
+    """Bind the ``create_managed_role`` op kind onto the audited K7
+    ``role.create_managed_role`` compound op (the module docstring's
+    named successor, landed by the compound-ops slice): apply-time
+    unconditional create through the RoleProvisioning port + the
+    best-effort tier fold — the oracle's RoleLifecycleService route
+    (setup_operations.py:1176 → _apply_create_managed_role:1723)."""
+    from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
+    from sb.spec.events import FieldSpec
+    from sb.spec.refs import WorkflowRef
+
+    binding = OpKindBinding(
+        op_kind=_CREATE_MANAGED_ROLE_OP_KIND,
+        workflow_ref=WorkflowRef("role.create_managed_role"),
+        payload_schema=(FieldSpec("resource_name", "str"),
+                        FieldSpec("role_template", "dict")),
+        is_resource_create=True)
+    try:
+        OP_KINDS.register(binding)
+    except ValueError as exc:
+        if "bound twice" not in str(exc):
+            raise
+
+
 # --- draft staging (role_templates.py, semantics verbatim) -----------------------------------
 
 def _normalise_name(name: str) -> str:
@@ -603,6 +632,7 @@ async def _stage_creations(req, *, template: RoleTemplate,
     from sb.domain.setup import section_card, wizard
     from sb.domain.setup.wizard import _refresh_own_panel
 
+    _register_create_managed_role_op_kind()
     guild_id = int(req.guild_id or 0)
     if not guild_id:
         # shipped copy, verbatim.
@@ -857,6 +887,7 @@ _ensure_providers()
 _register()
 _register_panels()
 _register_section()
+_register_create_managed_role_op_kind()
 
 
 def ensure_setup_role_templates_refs() -> None:
@@ -864,3 +895,4 @@ def ensure_setup_role_templates_refs() -> None:
     _register()
     _register_panels()
     _register_section()
+    _register_create_managed_role_op_kind()

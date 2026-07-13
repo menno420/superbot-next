@@ -33,18 +33,18 @@ Kernel-idiom divergences, ledgered (the section_card.py doctrine):
   BindingSpec walk (channels.all_channel_bindings — this
   architecture's ``all_schemas()`` twin); the oracle's duck-typed
   runtime-schema check answered the same question;
-* the ``create_channel`` op kind stages FAIL-CLOSED (un-registered in
-  the K9 registry): apply surfaces the rows as skipped "(not yet
-  implemented)" — the preset_select ``add_automation_rule`` precedent.
-  DECIDE-AND-FLAG: the K9 apply lane resolves op kinds to K7
-  CompoundOpSpecs only (engine._resolve_target), and no channel-create
-  compound op exists — the channel domain's create rides the D-0077
-  port + companion audit/lifecycle events at HANDLER level
-  (essential_steps._create_channel), which carries no K7 txn/once()/
-  central-audit machinery. The ensure-channel compound op (name-based
-  reuse + create EFFECT leg + slot bind + audit) is a named successor;
-  the staged rows already carry ``resource_name`` so final-review's
-  created-resources call-out renders today;
+* the ``create_channel`` op kind BINDS to the audited K7
+  ``setup.ensure_channel`` compound op (the compound-ops slice — this
+  module's previous fail-closed decide-and-flag, resolved): name-based
+  reuse through the ChannelDirectory READ port (get-before-create is
+  DOMAIN logic, D-0077 — the exact shared-channel semantics the preset
+  builders rely on: the first ``#superbot-logs`` op creates, the rest
+  reuse-and-bind) → create through the channel-state port → slot bind
+  through ``settings.bind`` (bind failure NEVER undoes the channel —
+  the oracle ``binding_failed`` outcome) → the K7 engine's ONE central
+  audit row. The staged rows carry ``subsystem``/``name``/``kind``/
+  ``resource_name`` (the binding's payload schema) and final-review's
+  created-resources call-out renders from ``resource_name``;
 * preset rows ride ``replace_recommended_for_section`` so the label
   carries ``[recommended:logging_presets] `` + the oracle's cosmetic
   ``[{preset}] {subsystem}.{binding} → #{channel}`` tail (the oracle
@@ -158,6 +158,37 @@ def supported_bindings() -> tuple[LoggingBinding, ...]:
                  if (entry.subsystem, entry.binding_name) in declared)
 
 
+# --- the op-kind registration (the roles.py set_role_threshold precedent) -----------------
+
+_CREATE_CHANNEL_OP_KIND = "create_channel"
+
+
+def _register_create_channel_op_kind() -> None:
+    """Bind the ``create_channel`` op kind onto the audited K7
+    ``setup.ensure_channel`` compound op (the module docstring's named
+    successor, landed by the compound-ops slice): name-based reuse or
+    create through the D-0077 channel ports, then the slot bind through
+    ``settings.bind`` — the oracle ResourceProvisioningPipeline route
+    (setup_operations.py:1127 → _apply_resource_create:1310)."""
+    from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
+    from sb.spec.events import FieldSpec
+    from sb.spec.refs import WorkflowRef
+
+    binding = OpKindBinding(
+        op_kind=_CREATE_CHANNEL_OP_KIND,
+        workflow_ref=WorkflowRef("setup.ensure_channel"),
+        payload_schema=(FieldSpec("subsystem", "str"),
+                        FieldSpec("name", "str"),
+                        FieldSpec("kind", "str"),
+                        FieldSpec("resource_name", "str")),
+        is_resource_create=True)
+    try:
+        OP_KINDS.register(binding)
+    except ValueError as exc:
+        if "bound twice" not in str(exc):
+            raise
+
+
 # --- preset ops builders (semantics verbatim) ---------------------------------------------
 
 def _build_create_op(entry: LoggingBinding, *, resource_name: str,
@@ -166,6 +197,8 @@ def _build_create_op(entry: LoggingBinding, *, resource_name: str,
     _build_create_op shape over the K9 StagedSectionOp; the label tail
     is the shipped per-op label (LoggingPresetsView's ``labels``)."""
     from sb.domain.setup.section_card import StagedSectionOp
+
+    _register_create_channel_op_kind()
 
     return StagedSectionOp(
         op_kind="create_channel", subsystem=entry.subsystem,
@@ -533,9 +566,11 @@ def _register_section() -> None:
 _register()
 _register_panels()
 _register_section()
+_register_create_channel_op_kind()
 
 
 def ensure_logging_presets_refs() -> None:
     _register()
     _register_panels()
     _register_section()
+    _register_create_channel_op_kind()

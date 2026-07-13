@@ -656,14 +656,29 @@ def test_role_templates_has_no_recommended_builder():
             == "setup.role_templates_detail")
 
 
-def test_create_managed_role_stages_fail_closed():
-    """The K9 registry deliberately carries NO create_managed_role
-    binding (module docstring decide-and-flag: no role-create K7
-    compound op exists — the logging_presets create_channel
-    precedent); apply surfaces the rows as skipped."""
+def test_create_managed_role_op_kind_binds_the_k7_op():
+    """The compound-ops slice retired the fail-closed posture: the
+    create_managed_role op kind binds the audited K7
+    ``role.create_managed_role`` compound op (module docstring's named
+    successor, landed)."""
+    from sb.domain.setup.role_templates import (
+        _register_create_managed_role_op_kind,
+    )
     from sb.kernel.draft.registry import OP_KINDS
 
-    assert not OP_KINDS.is_draftable("create_managed_role")
+    _register_create_managed_role_op_kind()
+    binding = OP_KINDS.get("create_managed_role")
+    assert binding is not None
+    assert binding.workflow_ref.name == "role.create_managed_role"
+    assert binding.is_resource_create is True
+    declared = {f.name for f in binding.payload_schema}
+    assert declared == {"resource_name", "role_template"}
+    # the staged payload (_build_create_op) carries every declared field.
+    from sb.domain.setup import role_templates as rt
+
+    op = rt._build_create_op(rt.RoleSuggestion("Regular", time_days=7),
+                             template=rt.get_template("time-progression"))
+    assert declared <= set(op.payload)
 
 
 # =======================================================================================
