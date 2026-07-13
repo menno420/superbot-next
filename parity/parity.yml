@@ -129,7 +129,25 @@ source:
   # resolved outcome card now carries the live 🔄 Rematch button (the
   # CreatureRematchView affordance) — a deliberate render change re-minted
   # in-PR, not a regression.
-  minted_goldens: 22
+  # +3 minted the fishing cast-leg REEL write goldens (2026-07-13, the
+  # cast-depth lane's PR-B — the first goldens that ever CLICK Reel):
+  # goldens/fishing/fishing_cast_{reel,deepwater_reel,bait_spend}_write.
+  # Each curated case (parity/cases/curated.py) drives `!fish` → the cast
+  # panel's Reel button by component_index (the click carries the pending
+  # cast's identity token through the panel-args binding), so the audited
+  # fishing.cast leg's row-level db_delta is pinned: the FIRST row-bearing
+  # fishing_catch_log capture (fresh shore player — retiring its
+  # session-resolution exemption row below), the deepwater compound
+  # (venue + Silver rod + Shimmer Lure + tide-pool/dock/fishery fixture —
+  # the deepwater pool pick + the coral-eligible commit + the lure charge
+  # decrement) and the last-charge bait spend (fishing_bait cleared to
+  # `('', 0)` — the first row-bearing fishing_bait delta, retiring its
+  # guard-only-capture row below). The reel reply is the oracle
+  # _finish_caught copy verbatim; the seed-42 species → weight → bonus →
+  # pearl → coral trajectory is the runner-armed private cast RNG
+  # (sb/adapters/parity/runner.py); the audited kernel-spine rows ride the
+  # same kernel-surface-drift drop as every domain golden.
+  minted_goldens: 25
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
   # imported + minted − retired = 482). The first retirement (2026-07-12
@@ -649,27 +667,20 @@ depth:
           row), so no imported golden can carry a chicken_farm row; the
           first row-bearing golden lands with a button-driving capture"
     fishing:
-      # fishing's two goldens are the cast OPEN (the waiting-for-a-bite
-      # panel over the spent fishing_energy row — the declared energy
-      # table IS golden-covered) and the fresh-angler fishdex read
-      # (0/32, a pure read); the catch COMMIT (the fishing.cast K7 leg
-      # that writes the dex row) sits behind the cast panel's
-      # run-minted Reel button.
-      - surface: "table:fishing_catch_log"
-        reason: "time-driven: fishing_catch_log rows are written only at
-          interactive-session resolution — the audited fishing.cast K7
-          lane (dex upsert + materials + game XP in one leg txn) fires
-          on the cast panel's run-minted Reel button (session <cid:N>
-          ids no imported click step can reconstruct;
-          disbot/views/fishing/cast_view.py — the shipped capture never
-          reeled: every sweep cast recorded only the waiting panel; the
-          chicken_farm / creature_battle_record / rps_players
-          precedent: writes inside an interactive session view are out
-          of capture scope for the sweep corpus); the read surface IS
-          golden-pinned (goldens/fishing/sweep_fishlog.json pins the
-          fresh-angler 0/32 dex read — no row), so no imported golden
-          can carry a fishing_catch_log row; the first row-bearing
-          golden lands with a button-driving capture"
+      # RETIRED 2026-07-13 (the cast-depth lane's PR-B): the
+      # `table:fishing_catch_log` session-resolution row — its own text
+      # promised "the first row-bearing golden lands with a
+      # button-driving capture", and that capture landed:
+      # goldens/fishing/fishing_cast_{reel,deepwater_reel,bait_spend}
+      # _write drive `!fish` → the cast panel's Reel button by
+      # component_index and pin the fishing.cast leg's fishing_catch_log
+      # db_delta. The `table:fishing_bait` guard-only-capture row
+      # retired with it: the bait-spend capture carries the first
+      # row-bearing fishing_bait delta (the per-cast charge spend's
+      # clear-at-0 face — per-table exemption granularity, the first
+      # row-bearing delta wins: the WP-2 mining_player_state precedent;
+      # the bait SHOP buy/craft/pearl writer faces remain sweep-pinned
+      # guard reads only).
       # Slice-2 rod-ladder port: the fishing_rod writers are the shop's
       # session-minted ⬆️ Upgrade button (a funded coin debit) and the
       # craft lane behind a stocked fish inventory — the imported sweep
@@ -686,24 +697,6 @@ depth:
           oracle txn never opens; the port computes it before the op
           runs) — goldens pin write-free guard paths only; the first
           fishing_rod row lands with a funded/stocked argful capture"
-      # Slice-3 bait-shelf port: the fishing_bait writers are the bait
-      # shop's session-minted buy/craft/pearl selects (a funded coin
-      # debit / a stocked fish pack / a pearl stash) and the argful
-      # craft commands behind stocked inventories — the imported sweeps
-      # drove only the bare fresh-player invocations.
-      - surface: "table:fishing_bait"
-        reason: "guard-only-capture: the loadout writers ARE
-          corpus-expressible (!bait's buy/craft/pearl selects /
-          !craftbait / !craftpearl) but the imported sweeps drove only
-          their bare fresh-player invocations, and every captured case
-          pins a write-free byte — goldens/fishing/sweep_bait.json +
-          sweep_craftbait.json pin the bait-less shop render (pure
-          reads) and goldens/fishing/sweep_craftpearl.json pins the
-          need-4-pearls refusal the empty-stash guard answers as a pure
-          read (the oracle txn never opens; the port computes it before
-          the op runs) — goldens pin write-free guard paths only; the
-          first fishing_bait row lands with a funded/stocked argful
-          capture"
     help:
       # the guild Help presentation overlay (the D-0026 successor lane,
       # armed by the overlay-editor slice / D-0089): its ONLY write
@@ -1135,7 +1128,7 @@ depth:
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
     farm: {events: 1, tables: 2, settings: 0}
-    fishing: {events: 1, tables: 4, settings: 0}
+    fishing: {events: 3, tables: 10, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}
     games: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}

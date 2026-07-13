@@ -612,4 +612,96 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "row(s) named 'combat' and replies `<@u> deleted the **combat** "
             "loadout.` — the remove face of mining_loadout_presets"),
     ),
+    # ------------------------------------------------ fishing cast-leg WRITES
+    # The first goldens that ever CLICK Reel (the imported sweeps only pinned
+    # the waiting panel — parity.yml's own fishing_catch_log exemption text
+    # names this exact button-driving capture as its retirement). Each case
+    # casts (`!fish` — the wired begin_cast rolls the catch on the runner-armed
+    # private cast RNG, spends energy + a bait charge) then clicks the panel's
+    # single Reel button by component_index; the click carries the pending
+    # cast's identity token through the panel-args binding, and the audited
+    # fishing.cast leg commits record_catch → pearl → coral → fish grant →
+    # game XP in one txn (the seed-42 species → weight → bonus → pearl →
+    # coral trajectory). fixture_sql rows are seeded BEFORE the
+    # before-snapshot, so only the cast's own writes land in db_delta. member
+    # persona = 900000000000000102, guild = 700000000000000001.
+    GoldenCase(
+        id="fishing.cast_reel_write",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "fresh player, shore profile — every knob reads exactly neutral "
+            "(no-row venue → shore, rod tier 0, no bait, unbuilt structures, "
+            "fresh gear): `!fish` spends 2 energy off the fresh full bar "
+            "(fishing_energy row 58) and the Reel click drives the audited "
+            "fishing.cast leg — the FIRST row-bearing fishing_catch_log "
+            "capture (dex row + the caught fish in mining_inventory + the "
+            "fishing game-XP award) with the oracle result-card copy "
+            "(retires the fishing_catch_log guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="fishing.cast_deepwater_reel_write",
+        subsystem="fishing",
+        # the loaded profile: deepwater venue + a Silver rod + a Shimmer Lure
+        # + built tide pool / dock / fishery — the full effective_pull /
+        # effective_bite_speed compound (rod × bait × weather × gear ×
+        # structures) plus the fishery-raised double_catch_chance and the
+        # coral 0.06 DEEPWATER-ONLY branch (the shore cases never draw it);
+        # all read pre-reqs seeded before the snapshot.
+        fixture_sql=(
+            "INSERT INTO fishing_venue (user_id, guild_id, venue) VALUES "
+            "(900000000000000102, 700000000000000001, 'deepwater')",
+            "INSERT INTO fishing_rod (user_id, guild_id, tier) VALUES "
+            "(900000000000000102, 700000000000000001, 2)",
+            "INSERT INTO fishing_bait (user_id, guild_id, bait_key, charges) "
+            "VALUES (900000000000000102, 700000000000000001, 'lure', 10)",
+            "INSERT INTO mining_structures (user_id, guild_id, structure, "
+            "level) VALUES "
+            "(900000000000000102, 700000000000000001, 'tide_pool', 2), "
+            "(900000000000000102, 700000000000000001, 'dock', 1), "
+            "(900000000000000102, 700000000000000001, 'fishery', 2)",
+        ),
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "deepwater reel at a loaded profile: the cast panel renders the "
+            "boat where-line + the 🪱/🪸/⚓ footer notes, the roll draws from "
+            "the DEEPWATER species pool under the compounded pull (Silver rod "
+            "1.25 × lure 2.00 × weather × tide pool 1.08), commit rolls "
+            "bonus → pearl → coral with the fishery-raised double-catch "
+            "chance (0.10 + 0.10) and the deepwater-only 0.06 coral draw — "
+            "the seeded trajectory is pinned wherever it lands; db_delta "
+            "carries the catch-log row + the lure charge decrement (10→9) + "
+            "the size `#N of 11 deepwater` result copy"),
+    ),
+    GoldenCase(
+        id="fishing.cast_bait_spend_write",
+        subsystem="fishing",
+        # exactly ONE charge left: the cast's per-attempt spend crosses zero
+        # and the pack CLEARS (the shipped clear_active_bait — bait_key '' /
+        # charges 0), the delta face no other golden pins.
+        fixture_sql=(
+            "INSERT INTO fishing_bait (user_id, guild_id, bait_key, charges) "
+            "VALUES (900000000000000102, 700000000000000001, 'worm', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "the last-charge spend: `!fish` consumes the worm pack's final "
+            "charge — the shipped charge-per-attempt rule clears the loadout "
+            "at 0, so db_delta pins the fishing_bait row modified to "
+            "`('', 0)` (clear-at-0) beside the shore catch commit; the cast "
+            "panel footer still shows the spent-from pack (`🪱 Worm Bait (0 "
+            "left)`) exactly as the oracle CastStart carried it"),
+    ),
 )
