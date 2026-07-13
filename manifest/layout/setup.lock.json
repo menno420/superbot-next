@@ -866,6 +866,85 @@
     ]
    }
   },
+  "setup:setup.wizard_step:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the section-flows slice carries the shipped linear-wizard arrangement as the seed (oracle menno420/superbot views/setup/wizard.py LinearWizardView._rebuild_buttons: Back/Apply Recommended/Customize/Skip on row 0, Continue/Cancel on row 1, the Jump-to-section select on row 2, Apply all recommended on row 3 — explicit row= assignments); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "wiz_back",
+       "wiz_apply_recommended",
+       "wiz_customize",
+       "wiz_skip"
+      ],
+      [
+       "wiz_continue",
+       "wiz_cancel"
+      ],
+      [
+       "wiz_jump"
+      ],
+      [
+       "wiz_apply_all"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.wizard_step:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the section-flows slice carries the shipped linear-wizard arrangement as the seed (oracle menno420/superbot views/setup/wizard.py LinearWizardView._rebuild_buttons: Back/Apply Recommended/Customize/Skip on row 0, Continue/Cancel on row 1, the Jump-to-section select on row 2, Apply all recommended on row 3 — explicit row= assignments); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "wiz_back",
+     "wiz_apply_recommended",
+     "wiz_customize",
+     "wiz_skip"
+    ],
+    [
+     "wiz_continue",
+     "wiz_cancel"
+    ],
+    [
+     "wiz_jump"
+    ],
+    [
+     "wiz_apply_all"
+    ]
+   ]
+  },
+  "setup:setup.wizard_step:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the section-flows slice carries the shipped linear-wizard arrangement as the seed (oracle menno420/superbot views/setup/wizard.py LinearWizardView._rebuild_buttons: Back/Apply Recommended/Customize/Skip on row 0, Continue/Cancel on row 1, the Jump-to-section select on row 2, Apply all recommended on row 3 — explicit row= assignments); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "wiz_back",
+        "wiz_apply_recommended",
+        "wiz_customize",
+        "wiz_skip"
+       ],
+       [
+        "wiz_continue",
+        "wiz_cancel"
+       ],
+       [
+        "wiz_jump"
+       ],
+       [
+        "wiz_apply_all"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "setup:setup:CommandSpec.help_section_order": {
    "provenance": {
     "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"

@@ -36,13 +36,17 @@ prefix bytes).
 from __future__ import annotations
 
 from sb.domain.setup import ai_tasks as _ai_tasks
+from sb.domain.setup import channels as _channels
 from sb.domain.setup import essential_steps as _essential_steps
 from sb.domain.setup import final_review as _final_review
 from sb.domain.setup import handlers as _handlers
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
+from sb.domain.setup import preset_select as _preset_select
+from sb.domain.setup import section_card as _section_card
 from sb.domain.setup import store as _store
 from sb.domain.setup import wizard as _wizard
+from sb.domain.setup import wizard_nav as _wizard_nav
 from sb.domain.setup.sections import SECTIONS
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -176,7 +180,12 @@ MANIFEST = SubsystemManifest(
             _essential_steps.helpdesk_spec(),
             _essential_steps.commands_spec(),
             _essential_steps.summary_spec(), _essential_steps.extras_spec(),
-            _essential_steps.resume_spec()),
+            _essential_steps.resume_spec(),
+            _wizard_nav.wizard_step_spec(),
+            _section_card.card_spec_for("channels"),
+            _channels.channels_detail_spec(),
+            _preset_select.preset_card_spec(),
+            _preset_select.preset_preview_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -191,6 +200,10 @@ def _ensure_refs() -> None:
     _wizard.ensure_wizard_refs()
     _final_review.ensure_final_review_refs()
     _essential_steps.ensure_essential_steps_refs()
+    _wizard_nav.ensure_wizard_nav_refs()
+    _preset_select.ensure_preset_select_refs()
+    _channels.ensure_channels_refs()
+    _section_card.ensure_section_card_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()
     _ai_tasks.register_ai_tasks()
