@@ -1,6 +1,6 @@
 # 2026-07-13 — mining `!minestats` Deepest fix (ORDER 031 phase 2, games lane improve slice)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · games-lane improve slice · mandate: ORDER 031
   phase 2 (claim `control/claims/order-031-games-casino.md`, PR #423),
@@ -29,6 +29,22 @@ Planned as two S-sized read-side items; one dropped at claim re-scan:
   2026-07-13 22:44 — after the mining review's claim scan) claims row 60
   "retire `mining.how_to_pending`" on `claude/curation-night-1`. Claimed
   work is hands-off; reported back to the coordinator instead of racing.
+
+## Close-out
+
+Branched from `f263066`. Item A landed in `494bb26` (one hunk in
+`sb/domain/mining/service.py stats_view`: `get_max_depth` read + Deepest
+renders `describe_position(max_depth)`; stale docstring excuse replaced
+with the live citation). Verified on the provisioned local ladder
+(`docs/operations/local-verification.md`): `python3 -m pytest tests/ -q`
+= **2904 passed, 2 skipped**; `python3 tools/run_golden_parity.py
+--gate` = **gate: GREEN — all 494 golden(s) across 50 ported
+subsystem(s) replay clean** (sweep_minestats byte-identical — the
+predicted golden-neutrality held, no re-pin); `python3 bootstrap.py
+check --strict` = exit 0 once this card flips (the only red was the
+designed born-red hold; the claims-duplicate `tests/` warnings are
+pre-existing and advisory). No golden files changed. Item B dropped
+(claimed by #426 — see Scope).
 
 ## 💡 Session idea
 
