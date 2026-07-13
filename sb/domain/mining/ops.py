@@ -1,8 +1,9 @@
 """Mining K7 lanes (band 6) — the CORE loop (mine / chop / explore / sell
-/ sellall / buy) as one-leg one-txn ops over the shipped math. The deep
-systems (equipment+wear, energy, grid dig, vault, structures, skills,
-forge/workshop, titles, loadouts, descend/ascend) are the D-0043 named
-successor port — their commands are honest pending terminals."""
+/ sellall / buy) as one-leg one-txn ops over the shipped math, plus the
+ported deep-system write lanes (equip/loadout, descend/ascend, vault,
+repair/quickcraft, and the energy-lane cook/use consumables). The still
+unported deep systems (wear ticks, grid dig, the fastmine energy spend —
+slice 3, owner-gated) ride their named successor slices."""
 
 from __future__ import annotations
 
@@ -26,7 +27,8 @@ from sb.kernel.workflow.spec import (
 from sb.spec.events import DeliveryClass
 from sb.spec.refs import WorkflowRef, workflow
 
-__all__ = ["SELL_REASON", "register_ops", "set_rng_for_tests"]
+__all__ = ["COOKED_FISH", "SELL_REASON", "is_fish", "register_ops",
+           "set_rng_for_tests"]
 
 # shipped reason tags verbatim (utils/mining/market.py)
 SELL_REASON = "mining:sell_ore"
@@ -79,6 +81,25 @@ def _qty_from(ctx: WorkflowContext, default: int = 1) -> int:
     if qty <= 0:
         raise ValidatorError("Quantity must be positive.")
     return qty
+
+
+def _rest_from(ctx: WorkflowContext) -> str:
+    """The oracle's consume-rest argument (``*, item: str``) — the FULL arg
+    tail verbatim, digits included, unlike :func:`_item_from`'s sell/buy
+    trailing-qty split (``!use 5 torch`` must refuse on the literal
+    ``5 torch``, the shipped cog contract)."""
+    item = ctx.params.get("item")
+    if item is None:
+        values = tuple(ctx.params.get("values", ()) or ())
+        if values:
+            item = values[0]
+    if item is None:
+        argv = [str(t) for t in tuple(ctx.params.get("argv", ()) or ())]
+        if argv:
+            item = " ".join(argv)
+    if not item:
+        raise ValidatorError("Name an item.")
+    return str(item).strip().lower()
 
 
 @workflow("mining.record_mine")
@@ -687,6 +708,122 @@ async def _record_quick_craft(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"item": last, "message": message})
 
 
+#: The food produced by cooking a fish (eaten via ``!use`` for energy) —
+#: services/mining_workflow.py ``COOKED_FISH`` verbatim (@ 87bbe1d).
+COOKED_FISH = "cooked fish"
+
+
+def is_fish(name: str) -> bool:
+    """True if *name* is a caught fish species — the oracle's
+    ``items.is_fish`` (every ``fish``-tagged catalog row is exactly a
+    fishing species: ``utils/mining/items.py`` builds them from
+    ``utils/fishing/fish.SPECIES``); the port's species home is
+    ``sb.domain.fishing.catalog.SPECIES`` (the ``market._fish_values``
+    seam). Function-level import: the same lazy mining→fishing edge
+    market.py already carries."""
+    from sb.domain.fishing.catalog import SPECIES
+
+    return name in {s.name for s in SPECIES}
+
+
+@workflow("mining.record_use_item")
+async def _record_use_item(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!use <item>` — consume one item from the pack
+    (services/mining_workflow.py ``use_item`` verbatim @ 87bbe1d). Food /
+    boosters (``energy.RESTORE_VALUES``: ration / energy drink / cooked
+    fish) restore mining energy: the item debit and the settled energy
+    raise commit in ONE txn (the oracle's Q-0071 posture); a full bar
+    refuses BEFORE any write (ValidatorError aborts the txn — no row, no
+    audit, the oracle's no-txn ok=False twin). Torch / dynamite / any
+    other item is the flavour-only debit. NOT money-bearing — no coins
+    move; the energy upsert keeps the slice-1 lockless plain posture
+    (game pacing, never money — the fishing-energy precedent; a raced
+    double-use can at worst double-settle a regen tick, never mint or
+    strand coins)."""
+    from sb.domain.mining import energy
+
+    uid, gid, now = _ids(ctx)
+    item = _rest_from(ctx)
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    if inventory.get(item, 0) < 1:
+        raise ValidatorError(f"You don't have **{item}** to use.")
+    restore = energy.restore_value(item)
+    if restore is not None:
+        e_state = energy.EnergyState(
+            *await store.get_energy(uid, gid, conn=conn))
+        if energy.settle(e_state, now).current >= energy.MAX_ENERGY:
+            raise ValidatorError(
+                "Your energy is already full — save it for later.")
+        restored = energy.restore(e_state, now, restore)
+        await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                       item=item, delta=-1)
+        await store.set_energy(uid, gid, restored.current,
+                               restored.updated_at, conn=conn)
+        return LegOutcome(
+            step=StepResult(uid, "use_item", True), before={},
+            after={"item": item,
+                   "message": f"You consume **{item}** and recover energy "
+                              f"({energy.bar(restored.current)})."})
+    if item == "torch":
+        message = "You light a torch and peer into the darkness..."
+    elif item == "dynamite":
+        message = "You ignite dynamite and blow a new path in the mine!"
+    else:
+        message = f"You used **{item}**, but nothing special happened."
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=item, delta=-1)
+    return LegOutcome(step=StepResult(uid, "use_item", True), before={},
+                      after={"item": item, "message": message})
+
+
+@workflow("mining.record_cook")
+async def _record_cook(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!cook [amount] <fish>` — cook caught fish into ``cooked fish`` food
+    at a built 🔥 Campfire (services/mining_workflow.py ``cook`` verbatim @
+    87bbe1d; the leading-amount split is the cog's ``parts[0].isdigit()``
+    parse, so ``!cook 3 minnow`` cooks three and ``!cook minnow 3`` refuses
+    on the literal ``minnow 3`` — NOT the sell/buy trailing-qty grammar).
+    Gates (campfire / not-a-fish / short stack) are pure reads that abort
+    the txn row-less; the raw-fish debit + cooked-fish grant commit in ONE
+    txn (Q-0071). NOT money-bearing — raw fish sell for coins through the
+    market; cooking trades a fish for a meal."""
+    from sb.domain.mining import energy, structures
+
+    uid, gid, _ = _ids(ctx)
+    rest = _rest_from(ctx)
+    qty = 1
+    parts = rest.split()
+    if len(parts) > 1 and parts[0].isdigit():
+        qty = max(1, int(parts[0]))
+        rest = " ".join(parts[1:])
+    fish = rest
+    built = await store.get_structures(uid, gid, conn=conn)
+    if not structures.cooking_unlocked(built.get(structures.CAMPFIRE, 0)):
+        raise ValidatorError(
+            "You need a 🔥 **Campfire** to cook — build one with "
+            "`!build campfire`.")
+    if not is_fish(fish):
+        raise ValidatorError(
+            f"**{fish}** isn't a fish you can cook — catch fish with "
+            "`!fish`.")
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    have = inventory.get(fish, 0)
+    if have < qty:
+        raise ValidatorError(
+            f"You only have **{have}× {fish}** to cook (wanted {qty}).")
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=fish, delta=-qty)
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=COOKED_FISH, delta=qty)
+    gain = energy.RESTORE_VALUES.get(COOKED_FISH, 0)
+    return LegOutcome(
+        step=StepResult(uid, "cook", True), before={},
+        after={"fish": fish, "qty": qty,
+               "message": f"🔥 You cook **{qty}× {fish}** into "
+                          f"**{qty}× cooked fish** (+{gain} ⚡ each when "
+                          f"eaten — `!use cooked fish`)."})
+
+
 @workflow("mining.erase_subject_structures")
 async def _erase_structures(conn, ctx: WorkflowContext) -> LegOutcome:
     subject = int(ctx.params["subject_user_id"])
@@ -815,12 +952,15 @@ REPAIR = _op("mining.repair", "mining_repaired", "mining.record_repair",
              _BALANCE_EMITS)
 QUICK_CRAFT = _op("mining.quick_craft", "mining_quick_crafted",
                   "mining.record_quick_craft", ())
+USE_ITEM = _op("mining.use", "mining_item_used",
+               "mining.record_use_item", ())
+COOK = _op("mining.cook", "mining_cooked", "mining.record_cook", ())
 
 _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
-        REPAIR, QUICK_CRAFT)
+        REPAIR, QUICK_CRAFT, USE_ITEM, COOK)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -844,6 +984,8 @@ _REF_TABLE = (
     ("mining.record_vault_upgrade", _record_vault_upgrade),
     ("mining.record_repair", _record_repair),
     ("mining.record_quick_craft", _record_quick_craft),
+    ("mining.record_use_item", _record_use_item),
+    ("mining.record_cook", _record_cook),
     ("mining.erase_subject_structures", _erase_structures),
     ("mining.erase_subject_vault", _erase_vault),
     ("mining.erase_subject_inventory", _erase_inventory),

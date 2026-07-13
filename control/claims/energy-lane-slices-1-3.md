@@ -19,7 +19,11 @@ stacked on the previous open head per ORDER 017 rule 2.
   `migrations/`, `sb/domain/mining/store.py`, `tests/unit/` · 2026-07-13
 - `claude/energy-slice-2` · **slice 2 — cook/use wiring + argful
   goldens** — `use_route`/`cook_route` BLOCKED→LIVE, one-txn ops,
-  oracle-verbatim copy, canonical-harness goldens · 2026-07-13 (queued)
+  oracle-verbatim copy, canonical-harness goldens · area:
+  `sb/domain/mining/{service,ops}.py`, `sb/manifest/mining.py`,
+  `manifest.snapshot.json`, `parity/cases/curated.py`,
+  `parity/goldens/mining/`, `parity/parity.yml` · 2026-07-13
+  (ACTIVE — branch pushed, stacked on `claude/energy-slice-1` @ #384)
 - `claude/energy-slice-3` · **slice 3 — fastmine dig gating** — energy
   spend + out-of-energy refusal in `record_mine`/`fastmine_route`;
   re-mints `sweep_fastmine`; OWNER-gated (Option A) and sequenced

@@ -39,6 +39,7 @@ def test_full_corpus_reconstructs():
     cases + the 2 minted multi-step tournament-flow cases + the 5 WP-1
     mining write-parity minted cases + the 1 minted paid-tournament
     conservation case + the 2 D-0081 creature picker/bot-guard cases
+    + the 4 energy-slice-2 mining cook/use minted cases
     + the 3 fishing cast-leg reel write cases (2026-07-13 — curated typed
     cases: `!fish` + a Reel click by component_index)
     − 3 retired: sweep_cog.json, the deploy-ops `!cog`
@@ -60,9 +61,11 @@ def test_full_corpus_reconstructs():
     # save·apply·delete) + 1 (paid-tournament conservation, 2026-07-12)
     # + 2 (D-0081 creature picker/bot-guard) + 3 (fishing cast-leg reel
     # writes, 2026-07-13)
+    # + 4 (energy-slice-2 mining cook/use: ration restore / full refusal /
+    # cook campfire / torch flavour, 2026-07-13)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 487
+    assert golden_count == 491
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
