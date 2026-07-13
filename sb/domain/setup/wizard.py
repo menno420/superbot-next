@@ -65,10 +65,32 @@ into the K9 draft; sb/domain/setup/channels.py flips
 channel pick staging ``bind_channel``, and the high-confidence
 Apply-Recommended builder).
 
+The SETTINGS-WRITE section flows are LIVE (the settings-write slice):
+sb/domain/setup/logging_presets.py flips
+``setup.open_section_logging_presets`` — the Single / Balanced /
+Detailed / Custom picker staging ``create_channel`` rows (fail-closed
+op kind, its module-docstring ledger); sb/domain/setup/moderation.py
+flips ``setup.open_section_moderation`` — the four-knob detail view
+staging ``set_setting`` rows through the registered
+``settings.set_scalar`` op kind; sb/domain/setup/cleanup.py flips
+``setup.open_section_cleanup`` — the scope × level walker + the
+six-profile batch picker staging ``set_cleanup_policy`` through the
+newly registered K7 ``governance.set_cleanup`` op.
+
+The ROLES-FAMILY section flows are LIVE (the roles-family slice):
+sb/domain/setup/roles.py flips ``setup.open_section_roles`` — the
+time/XP tier detail staging ``set_role_threshold`` rows through the
+newly registered K7 ``role.set_threshold`` op (time + XP folded per
+role onto the full-row-upsert leg, its module-docstring ledger);
+sb/domain/setup/role_templates.py flips
+``setup.open_section_role_templates`` — the six-template
+permission-free bundle catalogue (pick → preview → stage), each
+missing role staging a ``create_managed_role`` row (fail-closed op
+kind, the logging_presets ``create_channel`` precedent).
+
 Named successors kept honest (each a declared BLOCKED terminal, never
-silent): the remaining SEVEN per-section flows — logging_presets ·
-roles · role_templates · cleanup · moderation · cog_routing · ticket
-(the next section-flow slices ride the armed spine).
+silent): the remaining TWO per-section flows — cog_routing · ticket
+(the final section-flow slice closes the lane).
 """
 
 from __future__ import annotations
@@ -604,8 +626,13 @@ def _register() -> None:
 
     #: slugs whose flows are LIVE — their own modules register the
     #: ``setup.open_section_*`` route (final_review.py · the
-    #: section-flows slice's preset_select.py + channels.py).
-    _LIVE_SECTIONS = frozenset({"final_review", "preset_select", "channels"})
+    #: section-flows slice's preset_select.py + channels.py · the
+    #: settings-write slice's logging_presets.py + moderation.py +
+    #: cleanup.py · the roles-family slice's roles.py +
+    #: role_templates.py).
+    _LIVE_SECTIONS = frozenset({"final_review", "preset_select", "channels",
+                                "logging_presets", "moderation", "cleanup",
+                                "roles", "role_templates"})
 
     for _section in SECTIONS:
         if _section.slug in _LIVE_SECTIONS:

@@ -6359,6 +6359,171 @@
           "value": "preset_cancel"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_presets_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_presets_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_presets_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_presets_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_single"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_balanced"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_detailed"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_custom"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_cancel"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "logging_back_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "moderation_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "moderation_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "moderation_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "moderation_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "mod_back_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cleanup_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cleanup_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cleanup_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cleanup_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cleanup_back_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_time_days"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_xp_level"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "roles_back_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "role_templates_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "role_templates_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "role_templates_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "role_templates_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "tmpl_stage"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "tmpl_back_step"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -7951,6 +8116,56 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.preset_preview"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_logging_presets"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.logging_picker"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_moderation"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.moderation_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_cleanup"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.cleanup_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_roles"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.roles_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_role_templates"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.role_templates_detail"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -11165,6 +11380,21 @@
       "handler:setup.channels_detail_render": {
         "module": "sb.domain.setup.channels"
       },
+      "handler:setup.cleanup_detail_render": {
+        "module": "sb.domain.setup.cleanup"
+      },
+      "handler:setup.cleanup_level_pick": {
+        "module": "sb.domain.setup.cleanup"
+      },
+      "handler:setup.cleanup_profile_pick": {
+        "module": "sb.domain.setup.cleanup"
+      },
+      "handler:setup.cleanup_scope_pick": {
+        "module": "sb.domain.setup.cleanup"
+      },
+      "handler:setup.cleanup_target_pick": {
+        "module": "sb.domain.setup.cleanup"
+      },
       "handler:setup.complete_delete": {
         "module": "sb.domain.setup.final_review"
       },
@@ -11381,11 +11611,44 @@
       "handler:setup.hub_open": {
         "module": "sb.domain.setup.handlers"
       },
+      "handler:setup.logging_picker_render": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "handler:setup.logging_preset_balanced": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "handler:setup.logging_preset_cancel": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "handler:setup.logging_preset_custom": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "handler:setup.logging_preset_detailed": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "handler:setup.logging_preset_single": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "handler:setup.moderation_detail_render": {
+        "module": "sb.domain.setup.moderation"
+      },
+      "handler:setup.moderation_dm_pick": {
+        "module": "sb.domain.setup.moderation"
+      },
+      "handler:setup.moderation_escalation_pick": {
+        "module": "sb.domain.setup.moderation"
+      },
+      "handler:setup.moderation_reason_pick": {
+        "module": "sb.domain.setup.moderation"
+      },
+      "handler:setup.moderation_role_pick": {
+        "module": "sb.domain.setup.moderation"
+      },
       "handler:setup.open_section_channels": {
         "module": "sb.domain.setup.channels"
       },
       "handler:setup.open_section_cleanup": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.cleanup"
       },
       "handler:setup.open_section_cog_routing": {
         "module": "sb.domain.setup.wizard"
@@ -11394,19 +11657,19 @@
         "module": "sb.domain.setup.final_review"
       },
       "handler:setup.open_section_logging_presets": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.logging_presets"
       },
       "handler:setup.open_section_moderation": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.moderation"
       },
       "handler:setup.open_section_preset_select": {
         "module": "sb.domain.setup.preset_select"
       },
       "handler:setup.open_section_role_templates": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.role_templates"
       },
       "handler:setup.open_section_roles": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.roles"
       },
       "handler:setup.open_section_ticket": {
         "module": "sb.domain.setup.wizard"
@@ -11477,19 +11740,118 @@
       "handler:setup.review_stage": {
         "module": "sb.domain.setup.wizard"
       },
+      "handler:setup.role_template_pick": {
+        "module": "sb.domain.setup.role_templates"
+      },
+      "handler:setup.role_template_stage": {
+        "module": "sb.domain.setup.role_templates"
+      },
+      "handler:setup.role_templates_detail_render": {
+        "module": "sb.domain.setup.role_templates"
+      },
+      "handler:setup.roles_detail_render": {
+        "module": "sb.domain.setup.roles"
+      },
+      "handler:setup.roles_time_role_pick": {
+        "module": "sb.domain.setup.roles"
+      },
+      "handler:setup.roles_time_submit": {
+        "module": "sb.domain.setup.roles"
+      },
+      "handler:setup.roles_xp_role_pick": {
+        "module": "sb.domain.setup.roles"
+      },
+      "handler:setup.roles_xp_submit": {
+        "module": "sb.domain.setup.roles"
+      },
       "handler:setup.section_apply_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_apply_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_apply_logging_presets": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_apply_moderation": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_apply_role_templates": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_apply_roles": {
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.section_card_render_channels": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_card_render_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_card_render_logging_presets": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_card_render_moderation": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_card_render_role_templates": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_card_render_roles": {
+        "module": "sb.domain.setup.section_card"
+      },
       "handler:setup.section_customize_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_customize_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_customize_logging_presets": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_customize_moderation": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_customize_role_templates": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_customize_roles": {
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.section_hub_channels": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_hub_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_hub_logging_presets": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_hub_moderation": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_hub_role_templates": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_hub_roles": {
+        "module": "sb.domain.setup.section_card"
+      },
       "handler:setup.section_skip_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_logging_presets": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_moderation": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_role_templates": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_roles": {
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.sections_hub_render": {
@@ -12494,6 +12856,9 @@
       "panel:setup.channels_detail": {
         "module": "sb.domain.setup.channels"
       },
+      "panel:setup.cleanup_detail": {
+        "module": "sb.domain.setup.cleanup"
+      },
       "panel:setup.complete_card": {
         "module": "sb.domain.setup.final_review"
       },
@@ -12539,6 +12904,12 @@
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
       },
+      "panel:setup.logging_picker": {
+        "module": "sb.domain.setup.logging_presets"
+      },
+      "panel:setup.moderation_detail": {
+        "module": "sb.domain.setup.moderation"
+      },
       "panel:setup.preset_card": {
         "module": "sb.domain.setup.preset_select"
       },
@@ -12548,7 +12919,28 @@
       "panel:setup.review_item": {
         "module": "sb.domain.setup.panels"
       },
+      "panel:setup.role_templates_detail": {
+        "module": "sb.domain.setup.role_templates"
+      },
+      "panel:setup.roles_detail": {
+        "module": "sb.domain.setup.roles"
+      },
       "panel:setup.section_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "panel:setup.section_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "panel:setup.section_logging_presets": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "panel:setup.section_moderation": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "panel:setup.section_role_templates": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "panel:setup.section_roles": {
         "module": "sb.domain.setup.section_card"
       },
       "panel:setup.sections_hub": {
@@ -13097,6 +13489,15 @@
       "provider:setup.channels_binding_options": {
         "module": "sb.domain.setup.channels"
       },
+      "provider:setup.cleanup_level_options": {
+        "module": "sb.domain.setup.cleanup"
+      },
+      "provider:setup.cleanup_profile_options": {
+        "module": "sb.domain.setup.cleanup"
+      },
+      "provider:setup.cleanup_scope_options": {
+        "module": "sb.domain.setup.cleanup"
+      },
       "provider:setup.depth_fields": {
         "module": "sb.domain.setup.panels"
       },
@@ -13124,8 +13525,20 @@
       "provider:setup.essential_xp_rate_options": {
         "module": "sb.domain.setup.essential_steps"
       },
+      "provider:setup.moderation_dm_options": {
+        "module": "sb.domain.setup.moderation"
+      },
+      "provider:setup.moderation_escalation_options": {
+        "module": "sb.domain.setup.moderation"
+      },
+      "provider:setup.moderation_reason_options": {
+        "module": "sb.domain.setup.moderation"
+      },
       "provider:setup.preset_options": {
         "module": "sb.domain.setup.preset_select"
+      },
+      "provider:setup.role_template_options": {
+        "module": "sb.domain.setup.role_templates"
       },
       "provider:setup.wizard_jump_options": {
         "module": "sb.domain.setup.wizard_nav"
@@ -59609,6 +60022,1617 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🎛 Preset preview",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "logging_presets_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:logging_presets:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_logging_presets"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_presets_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:logging_presets:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_logging_presets"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_presets_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:logging_presets:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_logging_presets"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_presets_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:logging_presets:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_logging_presets"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "logging_presets_apply_recommended",
+                    "logging_presets_customize",
+                    "logging_presets_skip",
+                    "logging_presets_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_logging_presets",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_logging_presets"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "📜 Logging presets",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "logging_single",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_logging_preset:single",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.logging_preset_single"
+              },
+              "label": "Single channel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_balanced",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_logging_preset:balanced",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📚",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.logging_preset_balanced"
+              },
+              "label": "Balanced",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_detailed",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_logging_preset:detailed",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🗂",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.logging_preset_detailed"
+              },
+              "label": "Detailed",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_custom",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_logging_preset:custom",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🛠",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.logging_preset_custom"
+              },
+              "label": "Custom",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_cancel",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_logging_preset:cancel",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.logging_preset_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "logging_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped logging-presets picker is draft-parameterized end to end (the per-preset ✅ field highlight and the success-style repaint of the current pick — logging_presets.build_logging_presets_embed + LoggingPresetsView._populate_buttons), its binding counts come from the runtime-filtered catalogue, and its ↩ Back to step button rides only the wizard-native path (wizard_nav's injection ledger note) — outside the static grammar vocabulary; the override composes the embed and patches the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "logging_single",
+                    "logging_balanced",
+                    "logging_detailed",
+                    "logging_custom"
+                  ],
+                  [
+                    "logging_cancel"
+                  ],
+                  [
+                    "logging_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.logging_picker",
+          "renderer_override": {
+            "$ref": "handler:setup.logging_picker_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "📜 Logging presets",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "moderation_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:moderation:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_moderation"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "moderation_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:moderation:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_moderation"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "moderation_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:moderation:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_moderation"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "moderation_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:moderation:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_moderation"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "moderation_apply_recommended",
+                    "moderation_customize",
+                    "moderation_skip",
+                    "moderation_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_moderation",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_moderation"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛡️ Moderation",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "mod_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped moderation detail renders a live Detected field (the four current values off the audited settings read — moderation.build_moderation_embed's current-state arguments) and its ↩ Back to step button rides only the wizard-native path (wizard_nav.render_step_detail's row-4 injection) — outside the static grammar vocabulary; the override composes the embed and filters the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "mod_dm"
+                  ],
+                  [
+                    "mod_reason"
+                  ],
+                  [
+                    "mod_escalation"
+                  ],
+                  [
+                    "mod_role"
+                  ],
+                  [
+                    "mod_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.moderation_detail",
+          "renderer_override": {
+            "$ref": "handler:setup.moderation_detail_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.moderation_dm_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.moderation_dm_options"
+              },
+              "page_size": 25,
+              "placeholder": "DM the member on action…",
+              "selector_id": "mod_dm",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.moderation_reason_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.moderation_reason_options"
+              },
+              "page_size": 25,
+              "placeholder": "Require a reason for warn / kick / ban…",
+              "selector_id": "mod_reason",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.moderation_escalation_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.moderation_escalation_options"
+              },
+              "page_size": 25,
+              "placeholder": "Warn escalation action…",
+              "selector_id": "mod_escalation",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.moderation_role_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Moderator role (optional — grants moderation access)…",
+              "selector_id": "mod_role",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛡️ Moderation",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cleanup_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cleanup:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_cleanup"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cleanup_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cleanup:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_cleanup"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cleanup_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cleanup:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_cleanup"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cleanup_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cleanup:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_cleanup"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cleanup_apply_recommended",
+                    "cleanup_customize",
+                    "cleanup_skip",
+                    "cleanup_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_cleanup",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_cleanup"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup inheritance",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cleanup_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped cleanup detail reveals its pickers stepwise (the oracle opened each scope's level select as a second ephemeral view — cleanup._ScopeSelect.callback), the target picker and level select exist only after the prior pick and carry per-pick dynamic placeholders (cleanup._CategoryLevelSelect / _ChannelLevelSelect placeholder f-strings), and its ↩ Back to step button rides only the wizard-native path — all outside the static grammar vocabulary; the override composes the embed and filters/patches the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cleanup_scope"
+                  ],
+                  [
+                    "cleanup_profile"
+                  ],
+                  [
+                    "cleanup_target"
+                  ],
+                  [
+                    "cleanup_level"
+                  ],
+                  [
+                    "cleanup_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.cleanup_detail",
+          "renderer_override": {
+            "$ref": "handler:setup.cleanup_detail_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cleanup_scope_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.cleanup_scope_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a scope to set cleanup for…",
+              "selector_id": "cleanup_scope",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "cleanup_section_profile",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cleanup_profile_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.cleanup_profile_options"
+              },
+              "page_size": 25,
+              "placeholder": "Apply a cleanup profile (batch action)…",
+              "selector_id": "cleanup_profile",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cleanup_target_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel…",
+              "selector_id": "cleanup_target",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cleanup_level_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.cleanup_level_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick the server-wide level…",
+              "selector_id": "cleanup_level",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup inheritance",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "roles_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:roles:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_roles"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "roles_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:roles:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_roles"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "roles_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:roles:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_roles"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "roles_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:roles:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_roles"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "roles_apply_recommended",
+                    "roles_customize",
+                    "roles_skip",
+                    "roles_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_roles",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_roles"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🎖️ Auto roles (time & XP)",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "roles_time_days",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.roles_time_submit"
+              },
+              "label": "Set time tier (days)",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "days",
+                    "label": "Days in server before the role is granted",
+                    "max_length": 4,
+                    "min_length": 1,
+                    "placeholder": "7",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "setup.roles_time_form",
+                "on_submit": {
+                  "$ref": "handler:setup.roles_time_submit"
+                },
+                "title": "Set time tier (days)"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "roles_xp_level",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.roles_xp_submit"
+              },
+              "label": "Set XP tier (level)",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "level",
+                    "label": "XP level at which the role is granted",
+                    "max_length": 4,
+                    "min_length": 1,
+                    "placeholder": "10",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "setup.roles_xp_form",
+                "on_submit": {
+                  "$ref": "handler:setup.roles_xp_submit"
+                },
+                "title": "Set XP tier (level)"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "roles_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped roles detail renders a live Detected field (the configured-tiers summary — roles._read_current_summary) and its threshold forms open off a role pick (_TimeRoleSelect/_XpRoleSelect.callback → send_modal) — a G-10 modal must be the interaction's FIRST response, so each pick reveals its declared defer_mode=MODAL button instead (the cleanup stepwise-reveal precedent), and the ↩ Back to step button rides only the wizard-native path — all outside the static grammar vocabulary; the override composes the embed and filters the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "roles_time_role"
+                  ],
+                  [
+                    "roles_xp_role"
+                  ],
+                  [
+                    "roles_time_days",
+                    "roles_xp_level"
+                  ],
+                  [
+                    "roles_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.roles_detail",
+          "renderer_override": {
+            "$ref": "handler:setup.roles_detail_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.roles_time_role_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Time tier: pick a role to grant after N days…",
+              "selector_id": "roles_time_role",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.roles_xp_role_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "XP tier: pick a role to grant at a level…",
+              "selector_id": "roles_xp_role",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🎖️ Auto roles (time & XP)",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "role_templates_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:role_templates:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_role_templates"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_templates_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:role_templates:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_role_templates"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_templates_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:role_templates:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_role_templates"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "role_templates_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:role_templates:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_role_templates"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "role_templates_apply_recommended",
+                    "role_templates_customize",
+                    "role_templates_skip",
+                    "role_templates_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_role_templates",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_role_templates"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧩 Role templates",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "tmpl_stage",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.role_template_stage"
+              },
+              "label": "Stage new roles",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "tmpl_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped role-templates detail swaps its embed per pick (the catalogue picker vs the per-template create/exists preview — build_template_preview_embed), its stage button is created on first selection with a per-plan count label + disabled state (RoleTemplatesSectionView._sync_stage_button) and the ↩ Back to step button rides only the wizard-native path — all outside the static grammar vocabulary; the override composes the embed and filters/patches the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tmpl_pick"
+                  ],
+                  [
+                    "tmpl_stage"
+                  ],
+                  [
+                    "tmpl_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.role_templates_detail",
+          "renderer_override": {
+            "$ref": "handler:setup.role_templates_detail_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.role_template_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.role_template_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a role template to preview…",
+              "selector_id": "tmpl_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧩 Role templates",
           "usage_weight": 1.0
         }
       ],

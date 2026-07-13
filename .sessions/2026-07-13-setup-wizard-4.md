@@ -40,7 +40,9 @@ per-section pending breakdown on the hub), consider widening
 the label micro-grammar — parse-from-label is one rename away from a
 silent provenance loss.
 
-## Review remark — previous session (slice 3, the Edit lane)
+## ⟲ Previous-session review
+
+(slice 3, the Edit lane)
 
 Clean slice: the two-Edit-faces panel trick (declare both controls,
 renderer keeps one per mode) is exactly the right grammar-side answer

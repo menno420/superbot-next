@@ -1074,12 +1074,11 @@ def test_every_section_flow_route_resolves():
         assert resolve(HandlerRef(name)) is not None
 
 
-def test_remaining_seven_sections_stay_honest_terminals(monkeypatch):
+def test_remaining_two_sections_stay_honest_terminals(monkeypatch):
     from sb.domain.setup import wizard
 
     monkeypatch.setattr(wizard, "can_apply_setup", _Gate(True))
-    for slug in ("logging_presets", "roles", "role_templates", "cleanup",
-                 "moderation", "cog_routing", "ticket"):
+    for slug in ("cog_routing", "ticket"):
         reply = run(_resolve(f"setup.open_section_{slug}")(_req()))
         assert reply.outcome == BLOCKED
         assert "section-flows slice" in reply.user_message

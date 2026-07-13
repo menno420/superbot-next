@@ -179,6 +179,43 @@ def _short_label(op: Any) -> str:
         return f"{subsystem}.{name} = {v}"
     if kind == "clear_binding" and name:
         return f"{subsystem}.{name} ← clear"
+    if kind == "set_cleanup_policy":
+        # the shipped stored-label bytes (cleanup._stage_cleanup_policy's
+        # ``cleanup.{scope}({name}) = {level}``) re-derived from the
+        # payload's review ride-alongs (the settings-write slice).
+        scope = str(payload.get("scope_type") or "?")
+        target = str(payload.get("target_name") or "?")
+        level = payload.get("level")
+        return f"cleanup.{scope}({target}) = {level or '(default)'}"
+    if kind == "set_role_threshold":
+        # the shipped stored-label bytes (roles._stage_threshold's
+        # ``role tier: @{role} after {N}d`` / ``at XP level {N}``)
+        # re-derived from the payload's full-row columns (the
+        # roles-family slice — time + XP fold onto ONE row, so a merged
+        # row renders both halves).
+        target = str(payload.get("target_name")
+                     or payload.get("role_name") or "?")
+        parts: list[str] = []
+        days = payload.get("days_required")
+        if days:
+            parts.append(f"after {days}d")
+        level = payload.get("level_required")
+        if level is not None and payload.get("xp_auto_assign"):
+            parts.append(f"at XP level {level}")
+        tail = " + ".join(parts) if parts else "(no tier)"
+        return f"role tier: @{target} {tail}"
+    if kind == "create_managed_role":
+        # the shipped stored-label bytes (role_templates._op_label's
+        # ``create role @{name} +{N}d +L{N}``) re-derived from the
+        # payload's resource_name + role_template spec ride.
+        resource = str(payload.get("resource_name") or "?")
+        spec = dict(payload.get("role_template") or {})
+        label = f"create role @{resource}"
+        if spec.get("time_days"):
+            label += f" +{spec['time_days']}d"
+        if spec.get("xp_level"):
+            label += f" +L{spec['xp_level']}"
+        return label
     if kind.startswith("bind_") and name:
         target_id = payload.get("resource_id")
         target = (str(payload.get("target_name") or "")
