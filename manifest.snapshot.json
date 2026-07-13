@@ -2294,6 +2294,22 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "surface": "prefix",
+          "value": "craftrod"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
+          "value": "rodrecipes"
+        },
+        {
+          "kind": "command",
+          "parent_group": null,
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "surface": "prefix",
           "value": "bait"
         },
         {
@@ -2311,22 +2327,6 @@
           "subsystem": "fishing",
           "surface": "prefix",
           "value": "craftcharm"
-        },
-        {
-          "kind": "command",
-          "parent_group": null,
-          "source": "sb/manifest/fishing.py",
-          "subsystem": "fishing",
-          "surface": "prefix",
-          "value": "craftrod"
-        },
-        {
-          "kind": "command",
-          "parent_group": null,
-          "source": "sb/manifest/fishing.py",
-          "subsystem": "fishing",
-          "surface": "prefix",
-          "value": "rodrecipes"
         },
         {
           "kind": "command",
@@ -4759,6 +4759,41 @@
           "value": "fishing_reel"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_upgrade"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_craft"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_recipes"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rs_menu"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rr_craft"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rr_back"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "bs_menu"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "wisdom"
@@ -6246,6 +6281,21 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.card"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.rod_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.rod_recipes_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.bait_panel"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -7809,6 +7859,16 @@
           "value": "fishing_venue"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_rod"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_bait"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "game_state"
@@ -8869,28 +8929,52 @@
       "handler:deathmatch.top_view": {
         "module": "sb.domain.deathmatch.service"
       },
-      "handler:diagnostic.automation_pending": {
+      "handler:diagnostic.automation_delete": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.automation_disable": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.automation_enable": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.automation_reopen": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "handler:diagnostic.automation_rule_pick": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
       "handler:diagnostic.check_database_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
-      "handler:diagnostic.cmdlist_page_pending": {
+      "handler:diagnostic.cmdlist_next": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.cmdlist_prev": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.diag_errors_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.diag_latency": {
         "module": "sb.domain.diagnostic.handlers"
       },
-      "handler:diagnostic.diag_pending": {
+      "handler:diagnostic.diag_status_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.diag_sysinfo_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.find_command_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
-      "handler:diagnostic.flag_pending": {
+      "handler:diagnostic.flag_disable": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.flag_enable": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.flag_pick": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.flag_reopen": {
@@ -9070,8 +9154,11 @@
       "handler:farm.render_shop": {
         "module": "sb.domain.farm.panels"
       },
-      "handler:fishing.bait_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.bait_buy_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.bait_shop": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.boathouse_pending": {
         "module": "sb.domain.operator_spine"
@@ -9079,20 +9166,20 @@
       "handler:fishing.cast_open": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.craftbait_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftbait_route": {
+        "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.craftcharm_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftcharm_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.craftcurio_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:fishing.craftpearl_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftpearl_route": {
+        "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.craftrod_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftrod_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.curios_pending": {
         "module": "sb.domain.operator_spine"
@@ -9115,6 +9202,9 @@
       "handler:fishing.menu_view": {
         "module": "sb.domain.fishing.service"
       },
+      "handler:fishing.render_bait_shop": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.render_card": {
         "module": "sb.domain.fishing.panels"
       },
@@ -9127,11 +9217,20 @@
       "handler:fishing.render_log": {
         "module": "sb.domain.fishing.panels"
       },
-      "handler:fishing.rod_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.render_rod_recipes": {
+        "module": "sb.domain.fishing.panels"
       },
-      "handler:fishing.rodrecipes_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.render_rod_shop": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.rod_shop": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rod_upgrade_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rodrecipes_view": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.sail_route": {
         "module": "sb.domain.fishing.service"
@@ -10288,6 +10387,9 @@
       "panel:farm.shop": {
         "module": "sb.domain.farm.panels"
       },
+      "panel:fishing.bait_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
       "panel:fishing.card": {
         "module": "sb.domain.fishing.panels"
       },
@@ -10298,6 +10400,12 @@
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.log": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.rod_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.rod_recipes_panel": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:four_twenty.overview": {
@@ -11482,7 +11590,28 @@
       "workflow:farm.upgrade_coop": {
         "module": "sb.domain.farm.ops"
       },
+      "workflow:fishing.buy_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.buy_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_charm": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_pearl_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.erase_subject_bait": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.erase_subject_catch_log": {
@@ -11491,10 +11620,31 @@
       "workflow:fishing.erase_subject_energy": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.erase_subject_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.erase_subject_venue": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.record_buy_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_buy_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_charm": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_pearl_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_rod": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:games.balance_payload_0": {
@@ -12283,6 +12433,14 @@
         },
         "subsystem": "economy"
       },
+      "fishing_bait": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_bait",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
       "fishing_catch_log": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "fishing_catch_log",
@@ -12294,6 +12452,14 @@
       "fishing_energy": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "fishing_energy",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
+      "fishing_rod": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_rod",
         "sole_writer": {
           "$ref": "engine:fishing.store"
         },
@@ -12662,7 +12828,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:f81cfccddba7da08442ac79296e953f1becb7e7e13478a104cffc35e879c67a9",
+  "stable_hash": "sha256:a1b0b5723093a95be622021458edadcef939e36d31e857416173f2c56b19765a",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -28138,7 +28304,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.diag_status_view"
               },
               "label": "🤖 Bot Status",
               "modal": null,
@@ -28188,7 +28354,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.diag_sysinfo_view"
               },
               "label": "💻 System Info",
               "modal": null,
@@ -28288,7 +28454,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.diag_errors_view"
               },
               "label": "🔍 Recent Errors",
               "modal": null,
@@ -28434,7 +28600,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.cmdlist_page_pending"
+                "$ref": "handler:diagnostic.cmdlist_prev"
               },
               "label": "◀ Prev",
               "modal": null,
@@ -28459,7 +28625,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.cmdlist_page_pending"
+                "$ref": "handler:diagnostic.cmdlist_next"
               },
               "label": "Next ▶",
               "modal": null,
@@ -28723,7 +28889,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.flag_pending"
+                "$ref": "handler:diagnostic.flag_enable"
               },
               "label": "✅ Enable for this guild",
               "modal": null,
@@ -28748,7 +28914,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.flag_pending"
+                "$ref": "handler:diagnostic.flag_disable"
               },
               "label": "🛑 Disable for this guild",
               "modal": null,
@@ -28866,7 +29032,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:diagnostic.flag_pending"
+                "$ref": "handler:diagnostic.flag_pick"
               },
               "options_source": {
                 "$ref": "provider:diagnostic.flag_options"
@@ -28899,7 +29065,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_enable"
               },
               "label": "Enable",
               "modal": null,
@@ -28924,7 +29090,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_disable"
               },
               "label": "Disable",
               "modal": null,
@@ -28949,7 +29115,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_delete"
               },
               "label": "Delete",
               "modal": null,
@@ -29040,7 +29206,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_rule_pick"
               },
               "options_source": {
                 "$ref": "provider:diagnostic.automation_rule_options"
@@ -30655,90 +30821,11 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.rod_pending"
+            "$ref": "handler:fishing.rod_shop"
           },
           "slash_common": false,
           "summary": "The rod shop.",
           "usage": "!rod",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [
-            "baitshop",
-            "buybait"
-          ],
-          "audience_tier": "user",
-          "capability": "fishing",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "modal": null,
-          "name": "bait",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:fishing.bait_pending"
-          },
-          "slash_common": false,
-          "summary": "The bait shop.",
-          "usage": "!bait",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [
-            "baitcraft"
-          ],
-          "audience_tier": "user",
-          "capability": "fishing",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "modal": null,
-          "name": "craftbait",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:fishing.craftbait_pending"
-          },
-          "slash_common": false,
-          "summary": "Craft bait from fish.",
-          "usage": "!craftbait",
-          "usage_weight": 1.0
-        },
-        {
-          "aliases": [
-            "charmcraft"
-          ],
-          "audience_tier": "user",
-          "capability": "fishing",
-          "capability_required": "",
-          "cooldown": null,
-          "cost_posture": "free",
-          "defer_mode": null,
-          "enabled_when": "",
-          "group": "",
-          "help_section_order": 0,
-          "kind": "prefix",
-          "modal": null,
-          "name": "craftcharm",
-          "quota_ref": "",
-          "reply_visibility": null,
-          "route": {
-            "$ref": "handler:fishing.craftcharm_pending"
-          },
-          "slash_common": false,
-          "summary": "Craft a fishing charm.",
-          "usage": "!craftcharm",
           "usage_weight": 1.0
         },
         {
@@ -30760,7 +30847,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.craftrod_pending"
+            "$ref": "handler:fishing.craftrod_route"
           },
           "slash_common": false,
           "summary": "Craft a rod.",
@@ -30787,11 +30874,90 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.rodrecipes_pending"
+            "$ref": "handler:fishing.rodrecipes_view"
           },
           "slash_common": false,
           "summary": "Rod crafting recipes.",
           "usage": "!rodrecipes",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "baitshop",
+            "buybait"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "bait",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.bait_shop"
+          },
+          "slash_common": false,
+          "summary": "The bait shop.",
+          "usage": "!bait",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "baitcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "craftbait",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftbait_route"
+          },
+          "slash_common": false,
+          "summary": "Craft bait from fish.",
+          "usage": "!craftbait",
+          "usage_weight": 1.0
+        },
+        {
+          "aliases": [
+            "charmcraft"
+          ],
+          "audience_tier": "user",
+          "capability": "fishing",
+          "capability_required": "",
+          "cooldown": null,
+          "cost_posture": "free",
+          "defer_mode": null,
+          "enabled_when": "",
+          "group": "",
+          "help_section_order": 0,
+          "kind": "prefix",
+          "modal": null,
+          "name": "craftcharm",
+          "quota_ref": "",
+          "reply_visibility": null,
+          "route": {
+            "$ref": "handler:fishing.craftcharm_route"
+          },
+          "slash_common": false,
+          "summary": "Craft a fishing charm.",
+          "usage": "!craftcharm",
           "usage_weight": 1.0
         },
         {
@@ -30813,7 +30979,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.craftpearl_pending"
+            "$ref": "handler:fishing.craftpearl_route"
           },
           "slash_common": false,
           "summary": "Craft pearl bait.",
@@ -31052,7 +31218,7 @@
               "emoji": "🎒",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.rod_pending"
+                "$ref": "panel:fishing.rod_panel"
               },
               "label": "Rod",
               "modal": null,
@@ -31077,7 +31243,7 @@
               "emoji": "🪱",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.bait_pending"
+                "$ref": "panel:fishing.bait_panel"
               },
               "label": "Bait",
               "modal": null,
@@ -31376,6 +31542,473 @@
           "timeout_s": 180,
           "title": "",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "rs_upgrade",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.rod_upgrade_route"
+              },
+              "label": "⬆️ Upgrade rod",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rs_craft",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.craftrod_route"
+              },
+              "label": "🎣 Craft from fish",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rs_recipes",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.rod_recipes_panel"
+              },
+              "label": "📋 Recipes",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rs_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!rod` reply is a fully live-state-parameterized embed built in the view (views/fishing/rod_shop.py build_rod_embed: the current-rod description + knob summary, the ✅/▶/🔒 ladder field, and the next-upgrade field with the live `Your balance: {n} 🪙` line + the craft-recipe pointer — goldens/fishing/sweep_rod.json pins the fresh tier-0 bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining workshop/home precedent). The renderer patches only the embed and the at-max disabled flags on ⬆️ Upgrade rod / 🎣 Craft from fish (the shipped RodShopView gating); every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rs_upgrade",
+                    "rs_craft",
+                    "rs_recipes"
+                  ],
+                  [
+                    "rs_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.rod_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_rod_shop"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🎣 Your Fishing Rod",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "rr_craft",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.craftrod_route"
+              },
+              "label": "🎣 Craft next",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rr_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.rod_panel"
+              },
+              "label": "↩ Rod shop",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Craft your way up the ladder from caught fish — smallest catches spend first, so your trophies are always safe. Coins remain the fast alternative (`!rod`)."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!rodrecipes` ladder field is live-state-parameterized end to end (views/fishing/rod_recipe_browser.py _recipe_line: every craftable tier renders the player's current eligible-fish count against the requirement — `0/10 eligible fish (size ≤ 6)` — with the ✅ owned / ▶ next / 🔒 locked marks and the ready-to-craft tail; goldens/fishing/sweep_rodrecipes.json pins the fresh tier-0 bytes), outside the static TextBlock/FieldsBlock vocabulary (the rod-shop / mining-workshop precedent). The renderer patches only the embed field and the at-max disabled flag on 🎣 Craft next; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rr_craft"
+                  ],
+                  [
+                    "rr_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.rod_recipes_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_rod_recipes"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "📋 Rod Recipes",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "bs_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!bait` reply is a fully live-state-parameterized embed built in the view (views/fishing/bait_shop.py build_bait_embed: the loaded-bait/charges description, the shelf + craft-from-fish fields, the craft-from-pearls field whose NAME interpolates the live pearl count, and the live `Your balance` field — goldens/fishing/sweep_bait.json pins the fresh bait-less bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the rod-shop / mining-workshop precedent). The renderer patches only the embed; every component (the three static-option selects + the menu button) stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bs_buy"
+                  ],
+                  [
+                    "bs_craft"
+                  ],
+                  [
+                    "bs_pearl"
+                  ],
+                  [
+                    "bs_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.bait_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_bait_shop"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.bait_buy_route"
+              },
+              "options_source": [
+                {
+                  "description": "×10 casts · ×1.25 rarity",
+                  "emoji": "🪱",
+                  "label": "Worm Bait — 150 coins",
+                  "value": "worm"
+                },
+                {
+                  "description": "×10 casts · ×1.5 rarity",
+                  "emoji": "🐛",
+                  "label": "Glow Grub — 400 coins",
+                  "value": "grub"
+                },
+                {
+                  "description": "×10 casts · ×2 rarity",
+                  "emoji": "✨",
+                  "label": "Shimmer Lure — 1000 coins",
+                  "value": "lure"
+                },
+                {
+                  "description": "×10 casts · −20% wait",
+                  "emoji": "🐟",
+                  "label": "Live Minnow — 200 coins",
+                  "value": "minnow"
+                },
+                {
+                  "description": "×10 casts · −40% wait",
+                  "emoji": "🌀",
+                  "label": "Flash Spinner — 600 coins",
+                  "value": "spinner"
+                },
+                {
+                  "description": "×10 casts · ×1.75 rarity · −30% wait",
+                  "emoji": "👑",
+                  "label": "Royal Feast — 1800 coins",
+                  "value": "feast"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Buy a pack of bait…",
+              "selector_id": "bs_buy",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.craftbait_route"
+              },
+              "options_source": [
+                {
+                  "description": "×10 casts · ×1.25 rarity",
+                  "emoji": "🪱",
+                  "label": "Worm Bait — 3 fish (size ≤ 3)",
+                  "value": "worm"
+                },
+                {
+                  "description": "×10 casts · ×1.5 rarity",
+                  "emoji": "🐛",
+                  "label": "Glow Grub — 5 fish (size ≤ 6)",
+                  "value": "grub"
+                },
+                {
+                  "description": "×10 casts · ×2 rarity",
+                  "emoji": "✨",
+                  "label": "Shimmer Lure — 6 fish (size ≤ 9)",
+                  "value": "lure"
+                },
+                {
+                  "description": "×10 casts · −20% wait",
+                  "emoji": "🐟",
+                  "label": "Live Minnow — 3 fish (size ≤ 3)",
+                  "value": "minnow"
+                },
+                {
+                  "description": "×10 casts · −40% wait",
+                  "emoji": "🌀",
+                  "label": "Flash Spinner — 5 fish (size ≤ 6)",
+                  "value": "spinner"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Craft a pack from caught fish…",
+              "selector_id": "bs_craft",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.craftpearl_route"
+              },
+              "options_source": [
+                {
+                  "description": "×10 casts · ×1.75 rarity · −30% wait",
+                  "emoji": "🦪",
+                  "label": "Royal Feast — 4 🦪 pearls",
+                  "value": "feast"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Craft a pack from pearls…",
+              "selector_id": "bs_pearl",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🪱 Bait Shop",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -31462,6 +32095,62 @@
             "$ref": "engine:fishing.store"
           },
           "table": "fishing_venue",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_rod"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_rod",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_rod",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_bait"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_bait",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_bait",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
