@@ -91,6 +91,7 @@ from sb.spec.panels import (
     SelectorSpec,
     TextBlock,
 )
+from sb.spec.outcomes import ReplyVisibility
 from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
 __all__ = [
@@ -104,6 +105,7 @@ __all__ = [
     "LOG_PANEL_ID",
     "ROD_PANEL_ID",
     "ROD_RECIPES_PANEL_ID",
+    "RULES_PANEL_ID",
     "STRUCTURES_PANEL_ID",
     "TIDE_POOL_PANEL_ID",
     "bait_shop_spec",
@@ -118,6 +120,7 @@ __all__ = [
     "log_spec",
     "rod_recipes_spec",
     "rod_shop_spec",
+    "rules_card_spec",
     "structures_hub_spec",
     "tide_pool_spec",
 ]
@@ -134,6 +137,7 @@ TIDE_POOL_PANEL_ID = "fishing.tide_pool_panel"
 DOCK_PANEL_ID = "fishing.dock_panel"
 BOATHOUSE_PANEL_ID = "fishing.boathouse_panel"
 FISHERY_PANEL_ID = "fishing.fishery_panel"
+RULES_PANEL_ID = "fishing.rules_card"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
@@ -148,6 +152,24 @@ _CAST_DESCRIPTION = (
 
 #: views/fishing/menu.py set_footer literal, verbatim.
 _LOG_FOOTER = "🎣 Cast to fish · ⛵ Set sail for the deep · 🎒 Rod to upgrade"
+
+#: views/fishing/menu.py ``_rules_embed`` description, verbatim (the
+#: shipped 📖 how-to-fish quick-reference — a STATIC card,
+#: grammar-rendered; the creature ``_RULES_DESCRIPTION`` precedent).
+_RULES_DESCRIPTION = (
+    "**The loop**\n"
+    "1. **🎣 Cast** — drop a line, then *wait* for the bite.\n"
+    "2. **Bite!** — when the float dips, hit **Reel** before the fish "
+    "spits the hook (reel too early and it spooks).\n"
+    "3. **Fight** the big ones — keep reeling to land a trophy.\n\n"
+    "**Get better catches**\n"
+    "• **🎒 Rod** — upgrade your rod for a wider reel window, faster "
+    "bites, and less escape.\n"
+    "• **🪱 Bait** — load a lure for rarer fish (a consumable knob on "
+    "top of your rod).\n"
+    "• **⛵ Set sail** — head to deepwater for the rare boat-only fish.\n"
+    "• **📖 Fishdex** — track your collection and personal-best weights."
+)
 
 
 def _hub_description() -> str:
@@ -230,7 +252,12 @@ def fishing_hub_spec() -> PanelSpec:
                 action_id="fishing_rules", label="How to fish",
                 emoji="📖", style=ActionStyle.SECONDARY,
                 audience_tier="user",
-                handler=HandlerRef("fishing.howtofish_pending")),
+                # the shipped rules_btn sent _rules_embed as an EPHEMERAL
+                # component reply; routes to the live static rules card
+                # (label/emoji/style unchanged — byte-neutral vs
+                # sweep_fishing, the creature How-to-play precedent).
+                handler=HandlerRef("fishing.rules_view"),
+                reply_visibility=ReplyVisibility.EPHEMERAL),
         ),
         # the shipped standard nav row: 📚 Help + "↩ Games"
         # (nav:help / nav:hub:games — both pinned by the golden);
@@ -253,6 +280,28 @@ def fishing_hub_spec() -> PanelSpec:
             ("fishing_cast", "fishing_sail", "fishing_rod",
              "fishing_bait", "fishing_structures"),
             ("fishing_log", "fishing_rules"),)),)),
+    )
+
+
+def rules_card_spec() -> PanelSpec:
+    """The shipped 'how to fish' quick-reference (views/fishing/menu.py
+    ``_rules_embed`` — the menu's 📖 rules affordance) — a fully STATIC
+    card (no parameters), grammar-rendered: no override. The shipped
+    send was an ephemeral component reply mirroring the blackjack
+    panel's rules affordance; the creature ``rules_card_spec``
+    precedent, mirrored exactly."""
+    return PanelSpec(
+        panel_id=RULES_PANEL_ID,
+        subsystem="fishing",
+        title="📖 How to fish",
+        audience=Audience.INVOKER,
+        # GAME_COLOR purple (10181046, utils/ui_constants.py).
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_RULES_DESCRIPTION),),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=()),)),
+        session_lifecycle=True,
     )
 
 
@@ -1469,6 +1518,11 @@ def _fishery_factory() -> PanelSpec:
     return fishery_spec()
 
 
+@panel(RULES_PANEL_ID)
+def _rules_factory() -> PanelSpec:
+    return rules_card_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
@@ -1482,6 +1536,7 @@ _FACTORIES = (
     (DOCK_PANEL_ID, _dock_factory),
     (BOATHOUSE_PANEL_ID, _boathouse_factory),
     (FISHERY_PANEL_ID, _fishery_factory),
+    (RULES_PANEL_ID, _rules_factory),
 )
 
 _RENDERS = (
@@ -1505,7 +1560,7 @@ def install_fishing_panels() -> tuple[PanelSpec, ...]:
     for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
                   rod_shop_spec, rod_recipes_spec, bait_shop_spec,
                   structures_hub_spec, tide_pool_spec, dock_spec,
-                  boathouse_spec, fishery_spec):
+                  boathouse_spec, fishery_spec, rules_card_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

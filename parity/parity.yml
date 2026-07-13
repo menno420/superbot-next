@@ -162,10 +162,16 @@ source:
   # mining delta (the pre-txn pure-read guard); use_torch_flavour pins the
   # flavour-only debit. Oracle copy verbatim from
   # disbot/services/mining_workflow.py use_item/cook @ 87bbe1d.
-  minted_goldens: 29
+  # The 30th (2026-07-13, the completeness-remainders fishing row):
+  # fishing.howtofish_rules_card — the hub's 📖 How-to-fish click (the
+  # first golden that drives the fishing_rules button): the shipped
+  # ephemeral _rules_embed quick-reference (views/fishing/menu.py
+  # rules_btn @ 9776401), a pure read whose only db_delta is the
+  # message-driven xp.award pair.
+  minted_goldens: 30
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 491). The first retirement (2026-07-12
+  # imported + minted − retired = 492). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

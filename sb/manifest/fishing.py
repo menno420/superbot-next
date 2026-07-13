@@ -89,7 +89,7 @@ MANIFEST = SubsystemManifest(
             _panels.rod_recipes_spec(), _panels.bait_shop_spec(),
             _panels.structures_hub_spec(), _panels.tide_pool_spec(),
             _panels.dock_spec(), _panels.boathouse_spec(),
-            _panels.fishery_spec()),
+            _panels.fishery_spec(), _panels.rules_card_spec()),
     settings=(),
     stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE,
             FISHING_VENUE_STORE, FISHING_ROD_STORE, FISHING_BAIT_STORE),

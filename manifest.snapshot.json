@@ -7333,6 +7333,11 @@
           "value": "fishing.fishery_panel"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.rules_card"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "four_twenty.overview"
@@ -10585,9 +10590,6 @@
       "handler:fishing.forecast_view": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.howtofish_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:fishing.menu_view": {
         "module": "sb.domain.fishing.service"
       },
@@ -10634,6 +10636,9 @@
         "module": "sb.domain.fishing.service"
       },
       "handler:fishing.rodrecipes_view": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rules_view": {
         "module": "sb.domain.fishing.service"
       },
       "handler:fishing.sail_route": {
@@ -12404,6 +12409,9 @@
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.rod_recipes_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.rules_card": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.structures_panel": {
@@ -35595,11 +35603,11 @@
               "emoji": "📖",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.howtofish_pending"
+                "$ref": "handler:fishing.rules_view"
               },
               "label": "How to fish",
               "modal": null,
-              "reply_visibility": null,
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -36875,6 +36883,50 @@
           "subsystem": "fishing",
           "timeout_s": 180,
           "title": "🐟 Fishery",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "**The loop**\n1. **🎣 Cast** — drop a line, then *wait* for the bite.\n2. **Bite!** — when the float dips, hit **Reel** before the fish spits the hook (reel too early and it spooks).\n3. **Fight** the big ones — keep reeling to land a trophy.\n\n**Get better catches**\n• **🎒 Rod** — upgrade your rod for a wider reel window, faster bites, and less escape.\n• **🪱 Bait** — load a lure for rarer fish (a consumable knob on top of your rod).\n• **⛵ Set sail** — head to deepwater for the rare boat-only fish.\n• **📖 Fishdex** — track your collection and personal-best weights."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.rules_card",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "📖 How to fish",
           "usage_weight": 1.0
         }
       ],
