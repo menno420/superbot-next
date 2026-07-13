@@ -91,7 +91,7 @@
 | projmoon | ✅ 11 cmds / 8 actions, 0 pending | ✅ | ✅ |
 | proof_channel | ✅ prize family live (locks table = env-keyed exemption, needs #proof channel, `parity.yml:879`) | ✅ | ✅ |
 | role | ✅ 17 cmds incl. temprole compensator; reaction-roles K7 lanes | ⚑ `role.hub/role_create` pending (live role-provisioning, arms at CUT-1 — `sb/domain/role/handlers.py:588`) | ✅ |
-| rps_tournament | ⚑ `!rpsbot` deep bot-match flow pending (`rps.bot_route` → `sb/domain/rps/handlers.py:613`); tournament core + cross-game guard (#277) live | ✅ | ✅ |
+| rps_tournament | ✅ `!rpsbot` deep bot-match flow armed (ORDER 017 fix slice, the PR that updates this row): per-player button views on the ledgered home-channel deviation, per-round stats through the audited `rps.bot_round` lane (`rps.bot_route`/`rps.botmatch_move` → `sb/domain/rps/bot_match.py`; zero rps pending routes remain); tournament core + cross-game guard (#277) live | ✅ | ✅ |
 | security | ✅ raid window + age gate cores live-proven | ✅ | ✅ 9 settings |
 | server_management | ✅ hub renders; channels forwards to ported channel ops | ⚑ 6 hub actions pending (moderation/roles/cleanup/access_map/help_preview/help_editor → `operator_spine`) | ✅ |
 | settings | ✅ hub + explorer + per-group mutation pages (band-7 settings-mutation slice) | ⚑ 9 actions + 2 selectors pending: hub `needs_setup/invalid/missing_bindings/audit/command_access` + access panel explain/reset/paging + subsystem/scope selects (`operator_spine`) | ✅ K7 declare/read/bind proven live |
@@ -105,10 +105,11 @@
 | xp | ✅ chat award + level-up fan-out live-proven (band 4) | ✅ | ⚑ xp.config panel 4 actions pending (`xp.config_{range,cooldown,channel}_pending` + `xp.import_setup_pending` → `operator_spine`; K7 settings lanes ARE the live workaround) |
 | kernel (panels/engine) | ✅ render/browserview/engine golden-pinned (browse-interaction batch, kernel band `parity.yml:227` ported); `resolve.py:89` NotImplementedError = default port replaced at composition | ✅ | ✅ |
 
-**Headline counts (50 rows):** core **42 ✅ / 8 ⚑** · admin **43 ✅ / 7 ⚑** ·
+**Headline counts (50 rows):** core **43 ✅ / 7 ⚑** · admin **43 ✅ / 7 ⚑** ·
 setup **47 ✅ / 3 ⚑** *(setup-row core flipped ✅ by the wizard-lifecycle
 slice, ORDER 017 night-run; its setup column stays ⚑ for the named
-successors)*. Every flag is a *declared-honest* terminal or an
+successors; rps_tournament core flipped ✅ by the bot-match slice, same
+night-run)*. Every flag is a *declared-honest* terminal or an
 in-flight/owner-gated lane — the sweep found **zero silent gaps** (no
 unregistered refs, no empty-string error paths).
 
@@ -159,8 +160,11 @@ unregistered refs, no empty-string error paths).
    (`sb/domain/btd6/service.py`). Free.
 8. **ticket setup panel** — 3 actions + 2 selectors pending
    (`ticket.setup_pending`); command twins (`!ticketsetup` family) live. Free.
-9. **rps bot-match deep flow** — `!rpsbot` pending
-   (`sb/domain/rps/handlers.py:613`); interactive match orchestration. Free.
+9. ~~**rps bot-match deep flow**~~ — **DONE** (ORDER 017 night-run fix
+   slice): `!rpsbot` armed end-to-end — shipped guards + copy verbatim,
+   one bot-match button view per player (the tournament port's ledgered
+   home-channel deviation), best-of scoring, per-round stats on the
+   audited `rps.bot_round` op (`sb/domain/rps/bot_match.py`).
 10. **hermes egress adapter** — work-order send unarmed
     (`sb/domain/hermes/handlers.py:19`). Small; likely env/owner-keyed.
 11. **starboard threshold modal** — 1 action (`starboard/panels.py:296`);
