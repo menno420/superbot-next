@@ -140,15 +140,16 @@ def test_hub_routes_the_armed_diagnostics_and_keeps_the_frozen_ids():
     spec = settings_hub_spec()
     check_panel(spec)
     by_id = {a.action_id: a for a in spec.actions}
-    # the three armed diagnostics — PanelRef open-child terminals.
+    # the four armed diagnostics — PanelRef open-child terminals
+    # (slice 1: the read-only trio; slice 2: the audit view).
     assert by_id["needs_setup"].handler == PanelRef("settings.needs_setup")
     assert by_id["invalid"].handler == PanelRef("settings.invalid")
     assert by_id["missing_bindings"].handler == PanelRef(
         "settings.missing_bindings")
-    # slices 2/3 keep their honest pending terminals.
-    assert by_id["audit"].handler == HandlerRef("settings.audit_pending")
-    assert by_id["command_access"].handler == HandlerRef(
-        "settings.command_access_pending")
+    assert by_id["audit"].handler == PanelRef("settings.audit")
+    # slice 3 armed the write panel — the door is a PanelRef too.
+    assert by_id["command_access"].handler == PanelRef(
+        "settings.command_access")
     # the compat-frozen wire ids never move.
     for action_id in ("needs_setup", "invalid", "missing_bindings",
                       "audit", "command_access"):
@@ -163,16 +164,17 @@ def test_the_retired_pending_refs_stay_gone_and_the_kept_ones_stay():
     handlers.ensure_handler_refs()
     for name in ("settings.needs_setup_pending",
                  "settings.invalid_pending",
-                 "settings.missing_bindings_pending"):
+                 "settings.missing_bindings_pending",
+                 "settings.audit_pending",         # slice 2 retired it
+                 "settings.command_access_pending"):  # slice 3 retired it
         assert not is_registered(HandlerRef(name)), name
-    for name in ("settings.audit_pending",
-                 "settings.command_access_pending",
-                 "settings.group_pending"):
+    for name in ("settings.group_pending",):
         assert is_registered(HandlerRef(name)), name
 
 
 def test_diagnostic_specs_compile_and_carry_the_back_door():
     from sb.domain.settings.panels import (
+        settings_audit_spec,
         settings_invalid_spec,
         settings_missing_bindings_spec,
         settings_needs_setup_spec,
@@ -181,7 +183,7 @@ def test_diagnostic_specs_compile_and_carry_the_back_door():
     from sb.spec.refs import PanelRef
 
     for spec in (settings_needs_setup_spec(), settings_invalid_spec(),
-                 settings_missing_bindings_spec()):
+                 settings_missing_bindings_spec(), settings_audit_spec()):
         check_panel(spec)
         assert spec.session_lifecycle is True
         assert spec.navigation.parent == PanelRef("settings.hub")

@@ -101,7 +101,16 @@ MANIFEST = SubsystemManifest(
             # invalid_settings,missing_bindings}.py, copy verbatim).
             _panels.settings_needs_setup_spec(),
             _panels.settings_invalid_spec(),
-            _panels.settings_missing_bindings_spec()),
+            _panels.settings_missing_bindings_spec(),
+            # the armed 🕒 Recent-changes audit view (settings-admin
+            # slice 2 — oracle disbot/views/settings/audit_view.py over
+            # the K7 central audit spine).
+            _panels.settings_audit_spec(),
+            # the armed 🚪 Command Access write panel (settings-admin
+            # slice 3 — oracle disbot/views/settings/
+            # edit_command_access.py over the live platform
+            # command-access K7 lanes: set_access_mode/_channels).
+            _panels.settings_command_access_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),
