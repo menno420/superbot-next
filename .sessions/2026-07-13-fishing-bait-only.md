@@ -80,6 +80,31 @@ shapes — `lock_rod_slot`, `fishing.buy_rod` op naming, the
   runbook's recovery posture and the gate ran clean — local state, not
   a repo defect.
 
+## Reconcile addendum (02:51Z)
+
+While #338's first CI run was in flight, the #324 lane landed its OWN
+bait slice — #342 (`3e4a77d`, bait / craftbait / craftpearl /
+craftcharm) — a functional superset of this branch's port with
+near-identical shapes (same `fishing.bait_shop` / `bait_buy_route`
+handler names, same `fishing.bait_panel` id, same `lock_bait_slot` +
+`record_buy_bait` stacking leg; their `bait_effect_text` vs this
+branch's `effect_text` alias the same bytes). Per coordinator ruling:
+this branch merged `origin/main` (merge, never rebase), resolved every
+functional file to main's landed #342 version, and re-scoped the PR to
+the DELTA ONLY — three tests #342's suite lacks, appended to its own
+`tests/unit/band6/test_band6_fishing_bait.py`:
+
+- `test_bait_buy_leg_loads_stacks_and_replaces` — the leg's oracle
+  Loaded/Topped-up copy, same-bait stack / different-bait replace
+  arithmetic, `_balance_changes` shape (main pinned guards only).
+- `test_bait_buy_leg_insufficient_is_defensive_and_writes_nothing` —
+  the defensive leg path rolls back without a load.
+- `test_bait_shop_renderer_loaded_state_bytes` — the LOADED-state shop
+  description (sweep_bait pins only the fresh bait-less open; no golden
+  covers this branch of `build_bait_embed`).
+
+Fishing is fully the #324 lane's from here — no further fishing work.
+
 ## 💡 Session idea
 
 Adjudicated re-scopes should salvage by PATHS, not by commits: cherry-

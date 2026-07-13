@@ -15,10 +15,11 @@ coral drop, minigame difficulty) rides the rod/bait/minigame rung, where
 the oracle's rolled knobs (rarity_pull, bite speed, escape) land
 together. Slice 2 made the ROD STATE live the same way (!rod / !craftrod
 persist ``fishing_rod``; the rod panels read it) — the rod→cast wiring
-(rarity_pull on the roll) rides the same rung. The bait fill made the
-BAIT STATE live too (!bait persists ``fishing_bait`` through the audited
-buy op) — the per-cast bait consume + its knob consumers ride that same
-minigame rung."""
+(rarity_pull on the roll) rides the same rung. Slice 3 made the BAIT
+STATE live the same way (!bait / !craftbait / !craftpearl persist
+``fishing_bait``; the bait panel reads it) — the bait→cast wiring
+(loaded knobs on the roll + the per-cast charge spend) rides the same
+rung."""
 
 from __future__ import annotations
 
@@ -305,17 +306,30 @@ async def _record_craft_rod(conn, ctx: WorkflowContext) -> LegOutcome:
                           "difference!"})
 
 
+# --- the bait shelf write legs (slice 3): the shipped services/
+# fishing_workflow.py buy_bait / craft_bait / craft_pearl_bait / craft_charm
+# verbatim, re-homed onto the audited one-leg one-txn seam. NO golden drives
+# a funded buy or a stocked craft — the imported sweeps drove only the bare
+# fresh-player invocations (goldens/fishing/sweep_bait + sweep_craftbait pin
+# the bait-less shop render, sweep_craftpearl the no-pearls guard,
+# sweep_craftcharm the recipe listing — depth.exemptions.fishing
+# guard-only-capture: fishing_bait), so the guard bytes in service.py are the
+# only parity surface. All settles are advisory-fenced (store.lock_bait_slot /
+# store.lock_charm_slot) against the read-then-settle money / double-craft
+# race (check_money_race, #217) ----------------------------------------------
+
+
 @workflow("fishing.record_buy_bait")
 async def _record_buy_bait(conn, ctx: WorkflowContext) -> LegOutcome:
     """The bait shop's buy select — buy one pack of the picked bait (the
-    shipped ``buy_bait``, the ``buy_rod`` posture): a player loads at
-    most one bait at a time — buying the SAME bait stacks its charges, a
-    DIFFERENT bait replaces the loadout (the message says so). Debit the
-    pack price and load in ONE txn (the debit is economy-audited; the
-    balance event emits after commit). The handler gates the unknown-key
-    / insufficient-funds cases out as pure reads before this leg runs
-    (no write, no audit row — the oracle's rollback posture), so the
-    raises here are defensive."""
+    shipped ``buy_bait``, mirroring ``buy_rod``): debit the coin price
+    and load/stack the bait in ONE txn (the debit is economy-audited;
+    the balance event emits after commit). A player loads at most one
+    bait at a time: buying the SAME bait again stacks its charges;
+    buying a DIFFERENT bait replaces the loadout. The handler gates the
+    unknown-bait / insufficient-funds cases out as pure reads before
+    this leg runs (no write, no audit row — the oracle's rollback
+    posture), so the raises here are defensive."""
     from sb.domain.economy.service import InsufficientFundsError
     from sb.domain.fishing import bait as bait_mod
     from sb.domain.games import wager
@@ -323,13 +337,12 @@ async def _record_buy_bait(conn, ctx: WorkflowContext) -> LegOutcome:
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(ctx.guild_id or 0)
     bait = bait_mod.bait_by_key(str(ctx.params.get("bait_key", "")))
-    if bait is None:
+    if bait is None:  # defensive — the handler validated the key
         raise ValidatorError("That bait doesn't exist on the shelf.")
-    # Fence concurrent buys BEFORE the loadout read → two racing buys of
-    # the same bait stack sequentially (no lost charges — #217).
+    # Fence concurrent buy/craft attempts for this player BEFORE the
+    # loadout read → the debit + load serialize (no double-charge — #217).
     await store.lock_bait_slot(conn, user_id=uid, guild_id=gid)
-    cur_key, cur_charges = await store.get_active_bait(uid, gid,
-                                                       conn=conn)
+    cur_key, cur_charges = await store.get_active_bait(uid, gid, conn=conn)
     stacking = cur_key == bait.key and cur_charges > 0
     new_charges = (cur_charges if stacking else 0) + bait.charges
     try:
@@ -342,22 +355,158 @@ async def _record_buy_bait(conn, ctx: WorkflowContext) -> LegOutcome:
         balance = await get_coins(uid, gid, conn=conn)
         raise ValidatorError(
             f"A pack of **{bait.name}** {bait.emoji} costs "
-            f"**{bait.price}** 🪙 — you only have **{balance}** 🪙."
-        ) from None
-    await store.set_active_bait(uid, gid, bait.key, new_charges,
-                                conn=conn)
+            f"**{bait.price}** 🪙 — you only have "
+            f"**{balance}** 🪙.") from None
+    await store.set_active_bait(uid, gid, bait.key, new_charges, conn=conn)
     ctx.params["_balance_changes"] = [
         (uid, -bait.price, new_balance, BAIT_PURCHASE_REASON)]
     verb = "Topped up" if stacking else "Loaded"
     return LegOutcome(
         step=StepResult(uid, "buy_bait", True), before={},
-        after={"bait_key": bait.key, "charges": new_charges,
+        after={"bait": bait.key, "charges": new_charges,
                "balance": new_balance,
                "message": f"{verb} **{bait.name}** {bait.emoji} "
-                          f"({bait_mod.effect_text(bait)}) — "
+                          f"({bait_mod.bait_effect_text(bait)}) — "
                           f"**{new_charges}** casts ready for "
                           f"**{bait.price}** 🪙. "
                           f"Balance: **{new_balance}** 🪙."})
+
+
+@workflow("fishing.record_craft_bait")
+async def _record_craft_bait(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!craftbait <bait>` / the bait shop's craft select — craft one
+    pack from small caught fish (the shipped ``craft_bait``): an
+    inventory-only conversion (no coins) — debit the eligible fish
+    (smallest-first) and load/stack the bait in ONE txn (the shipped
+    Q-0071 order). Not money-bearing, but the fish spend is
+    advisory-fenced against a concurrent double-craft (the quick_craft
+    posture). The handler answers the unknown-bait / not-enough-fish
+    cases as pure reads before this leg runs."""
+    from sb.domain.fishing import bait as bait_mod, crafting
+    from sb.domain.mining.store import get_mining_inventory, update_mining_item
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    key = str(ctx.params.get("bait_key", ""))
+    bait = bait_mod.bait_by_key(key)
+    recipe = bait_mod.craft_recipe(key)
+    if bait is None or recipe is None:  # defensive — handler-validated
+        raise ValidatorError(
+            "That bait can't be crafted from fish — buy it with `!bait`.")
+    await store.lock_bait_slot(conn, user_id=uid, guild_id=gid)
+    inventory = await get_mining_inventory(uid, gid, conn=conn)
+    spend = crafting.plan_fish_spend(inventory, recipe)
+    if spend is None:
+        raise ValidatorError(
+            f"You need **{recipe.fish_count}** fish of size ≤ "
+            f"**{recipe.max_size_rank}** to craft **{bait.name}** "
+            f"{bait.emoji} — catch more small fish with `!fish`.")
+    cur_key, cur_charges = await store.get_active_bait(uid, gid, conn=conn)
+    stacking = cur_key == bait.key and cur_charges > 0
+    new_charges = (cur_charges if stacking else 0) + bait.charges
+    for name, qty in spend.items():
+        await update_mining_item(conn, user_id=uid, guild_id=gid,
+                                 item=name, delta=-qty)
+    await store.set_active_bait(uid, gid, bait.key, new_charges, conn=conn)
+    used = ", ".join(f"{qty}× {name}" for name, qty in spend.items())
+    verb = "Topped up" if stacking else "Crafted"
+    return LegOutcome(
+        step=StepResult(uid, "craft_bait", True), before={},
+        after={"bait": bait.key, "charges": new_charges,
+               "spend": dict(spend),
+               "message": f"{verb} **{bait.name}** {bait.emoji} "
+                          f"({bait_mod.bait_effect_text(bait)}) from "
+                          f"**{used}** — **{new_charges}** casts ready."})
+
+
+@workflow("fishing.record_craft_pearl_bait")
+async def _record_craft_pearl_bait(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!craftpearl` / the bait shop's pearl select — craft one pack of
+    the premium bait from **pearls** (the shipped ``craft_pearl_bait``),
+    the rare reel-drop's sole sink: an inventory-only conversion (no
+    coins) — debit the pearls and load/stack the bait in ONE txn (the
+    shipped Q-0071 order). Advisory-fenced like the other bait legs. The
+    handler answers the unknown-bait / not-enough-pearls cases as pure
+    reads before this leg runs — the only path any golden pins
+    (goldens/fishing/sweep_craftpearl)."""
+    from sb.domain.fishing import bait as bait_mod
+    from sb.domain.mining.store import get_mining_inventory, update_mining_item
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    key = str(ctx.params.get("bait_key", ""))
+    bait = bait_mod.bait_by_key(key)
+    pearl_cost = bait_mod.pearl_recipe(key)
+    if bait is None or pearl_cost is None:  # defensive — handler-validated
+        raise ValidatorError(
+            "That bait isn't crafted from pearls — buy it with `!bait`.")
+    await store.lock_bait_slot(conn, user_id=uid, guild_id=gid)
+    inventory = await get_mining_inventory(uid, gid, conn=conn)
+    have = inventory.get(PEARL_ITEM, 0)
+    if have < pearl_cost:
+        raise ValidatorError(
+            f"You need **{pearl_cost}** 🦪 pearls to craft "
+            f"**{bait.name}** {bait.emoji} — you have **{have}**. "
+            "Pearls drop rarely when you reel in a fish (bigger fish, "
+            "better odds).")
+    cur_key, cur_charges = await store.get_active_bait(uid, gid, conn=conn)
+    stacking = cur_key == bait.key and cur_charges > 0
+    new_charges = (cur_charges if stacking else 0) + bait.charges
+    await update_mining_item(conn, user_id=uid, guild_id=gid,
+                             item=PEARL_ITEM, delta=-pearl_cost)
+    await store.set_active_bait(uid, gid, bait.key, new_charges, conn=conn)
+    verb = "Topped up" if stacking else "Crafted"
+    return LegOutcome(
+        step=StepResult(uid, "craft_pearl_bait", True), before={},
+        after={"bait": bait.key, "charges": new_charges,
+               "message": f"{verb} **{bait.name}** {bait.emoji} "
+                          f"({bait_mod.bait_effect_text(bait)}) from "
+                          f"**{pearl_cost}** 🦪 pearls — "
+                          f"**{new_charges}** casts ready."})
+
+
+@workflow("fishing.record_craft_charm")
+async def _record_craft_charm(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!craftcharm <charm>` — craft one CHARM-slot fishing charm from
+    small caught fish (the shipped ``craft_charm``, mirroring
+    ``craft_bait``): an inventory-only conversion (no coins) — debit the
+    eligible fish (smallest-first) and grant one charm item into the
+    shared mining inventory in ONE txn (the shipped Q-0071 order). The
+    charm then equips through the normal mining gear panel (its name
+    byte-matches the mining equipment catalog). Not money-bearing, but
+    the fish spend is advisory-fenced against a concurrent double-craft
+    (the quick_craft posture). The handler answers the unknown-charm /
+    not-enough-fish cases as pure reads before this leg runs."""
+    from sb.domain.fishing import crafting, gear as gear_mod
+    from sb.domain.mining.store import get_mining_inventory, update_mining_item
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    recipe = gear_mod.charm_recipe(str(ctx.params.get("charm_name", "")))
+    if recipe is None:  # defensive — the handler validated the name
+        raise ValidatorError(
+            "That charm can't be crafted from fish — buy it with "
+            "`!gear`.")
+    await store.lock_charm_slot(conn, user_id=uid, guild_id=gid)
+    inventory = await get_mining_inventory(uid, gid, conn=conn)
+    spend = crafting.plan_fish_spend(inventory, recipe)
+    if spend is None:
+        raise ValidatorError(
+            f"You need **{recipe.fish_count}** fish of size ≤ "
+            f"**{recipe.max_size_rank}** to craft a **{recipe.charm}** "
+            "— catch more fish with `!fish`.")
+    for name, qty in spend.items():
+        await update_mining_item(conn, user_id=uid, guild_id=gid,
+                                 item=name, delta=-qty)
+    await update_mining_item(conn, user_id=uid, guild_id=gid,
+                             item=recipe.charm, delta=1)
+    used = ", ".join(f"{qty}× {name}" for name, qty in spend.items())
+    return LegOutcome(
+        step=StepResult(uid, "craft_charm", True), before={},
+        after={"charm": recipe.charm, "spend": dict(spend),
+               "message": f"Crafted a **{recipe.charm}** from "
+                          f"**{used}** — equip it from the gear panel "
+                          "(`!gear`) to fish better."})
 
 
 _XP_EMITS = (
@@ -407,13 +556,43 @@ BUY_BAIT = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="fishing_bait_bought", emits=_BALANCE_EMITS)
 
-_OPS = (CAST, BUY_ROD, CRAFT_ROD, BUY_BAIT)
+CRAFT_BAIT = CompoundOpSpec(
+    op_key="fishing.craft_bait", domain="fishing", lane=WorkflowLane.DOMAIN,
+    authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_craft_bait"), "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_bait_crafted", emits=())
+
+CRAFT_PEARL_BAIT = CompoundOpSpec(
+    op_key="fishing.craft_pearl_bait", domain="fishing",
+    lane=WorkflowLane.DOMAIN, authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_craft_pearl_bait"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_pearl_bait_crafted", emits=())
+
+CRAFT_CHARM = CompoundOpSpec(
+    op_key="fishing.craft_charm", domain="fishing",
+    lane=WorkflowLane.DOMAIN, authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_craft_charm"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_charm_crafted", emits=())
+
+_OPS = (CAST, BUY_ROD, CRAFT_ROD, BUY_BAIT, CRAFT_BAIT, CRAFT_PEARL_BAIT,
+        CRAFT_CHARM)
 
 _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
     ("fishing.record_buy_rod", _record_buy_rod),
     ("fishing.record_craft_rod", _record_craft_rod),
     ("fishing.record_buy_bait", _record_buy_bait),
+    ("fishing.record_craft_bait", _record_craft_bait),
+    ("fishing.record_craft_pearl_bait", _record_craft_pearl_bait),
+    ("fishing.record_craft_charm", _record_craft_charm),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
     ("fishing.erase_subject_energy", _erase_energy),
     ("fishing.erase_subject_venue", _erase_venue),

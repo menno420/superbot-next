@@ -681,24 +681,24 @@ depth:
           oracle txn never opens; the port computes it before the op
           runs) — goldens pin write-free guard paths only; the first
           fishing_rod row lands with a funded/stocked argful capture"
-      # Bait fill (coordinated, lane #324): !bait is a read-only panel
-      # OPEN (goldens/fishing/sweep_bait pins the fresh bait-less shop
-      # bytes with NO row); the buy WRITE sits behind a run-minted
-      # session select.
+      # Slice-3 bait-shelf port: the fishing_bait writers are the bait
+      # shop's session-minted buy/craft/pearl selects (a funded coin
+      # debit / a stocked fish pack / a pearl stash) and the argful
+      # craft commands behind stocked inventories — the imported sweeps
+      # drove only the bare fresh-player invocations.
       - surface: "table:fishing_bait"
-        reason: "select-driven: fishing_bait rows are written only by
-          the audited fishing.buy_bait lane (advisory-fenced debit +
-          load in one leg txn) behind the bait shop's run-minted
-          buy-a-pack select PICK — click steps reconstruct STATIC
-          custom_ids only and carry no component values, and session
-          select ids normalize to <cid:N> at import
-          (disbot/views/fishing/bait_shop.py _BaitSelect; the
-          role_automation_exemptions / D-0064 select-ingress
-          precedent); the read surface IS golden-pinned
-          (goldens/fishing/sweep_bait.json pins the bait-less shelf
-          read — no row), so no imported golden can carry a
-          fishing_bait row; the first row-bearing golden lands with a
-          value-carrying select capture"
+        reason: "guard-only-capture: the loadout writers ARE
+          corpus-expressible (!bait's buy/craft/pearl selects /
+          !craftbait / !craftpearl) but the imported sweeps drove only
+          their bare fresh-player invocations, and every captured case
+          pins a write-free byte — goldens/fishing/sweep_bait.json +
+          sweep_craftbait.json pin the bait-less shop render (pure
+          reads) and goldens/fishing/sweep_craftpearl.json pins the
+          need-4-pearls refusal the empty-stash guard answers as a pure
+          read (the oracle txn never opens; the port computes it before
+          the op runs) — goldens pin write-free guard paths only; the
+          first fishing_bait row lands with a funded/stocked argful
+          capture"
     games:
       # games' four goldens are the read/render hub family (the 🎮 hub
       # prefix+slash pair + the re-homed 🗺️ Explore hub + 🪪 world card)

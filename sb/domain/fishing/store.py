@@ -1,14 +1,15 @@
 """fishing_catch_log + fishing_energy + fishing_venue + fishing_rod +
 fishing_bait CRUD (band 6) — the dex/trophy record (shipped 075/095
 shape), the per-(user, guild) cast-energy bar (shipped 088 shape), the
-per-(user, guild) current venue (shipped 094 shape), the owned rod tier
-(shipped 087 shape) and the loaded bait + charges (shipped 091 shape);
+per-(user, guild) current venue (shipped 094 shape), the
+per-(user, guild) owned rod tier (shipped 087 shape) and the
+per-(user, guild) loaded bait + remaining charges (shipped 091 shape);
 all NAME_STABLE, MEMBER_ID delete erasure. Plain CRUD only — the energy
 regen math and the cast cost live in sb/domain/fishing/energy.py, the
 venue keys + per-venue tuning in sb/domain/fishing/venue.py, the rod
-ladder knobs + recipes in sb/domain/fishing/rods.py and the bait
-catalog + craft shelves in sb/domain/fishing/bait.py (the shipped
-layering, verbatim)."""
+ladder knobs + recipes in sb/domain/fishing/rods.py, the bait catalog +
+craft shelves in sb/domain/fishing/bait.py (the shipped layering,
+verbatim)."""
 
 from __future__ import annotations
 
@@ -30,12 +31,14 @@ __all__ = [
     "FISHING_ENERGY_STORE",
     "FISHING_ROD_STORE",
     "FISHING_VENUE_STORE",
+    "clear_active_bait",
     "get_active_bait",
     "get_catch_log",
     "get_fishing_energy",
     "get_fishing_venue",
     "get_rod_tier",
     "lock_bait_slot",
+    "lock_charm_slot",
     "lock_rod_slot",
     "record_catch",
     "set_active_bait",
@@ -265,12 +268,12 @@ async def lock_rod_slot(conn: Any, *, user_id: int,
 
 async def get_active_bait(user_id: int, guild_id: int,
                           conn: Any = None) -> tuple[str, int]:
-    """The player's loaded ``(bait_key, charges)`` (``("", 0)`` when no
-    row — the shipped ``utils/db/games/fishing_bait.py`` default
-    posture). The caller resolves the key against the catalog (a stale
-    key or non-positive charges both read as no bait). A PLAIN read on
-    the read surfaces; the buy leg re-reads it behind
-    :func:`lock_bait_slot` inside its own txn."""
+    """The player's loaded ``(bait_key, charges)`` (``("", 0)`` when none
+    — the shipped ``utils/db/games/fishing_bait.py`` default posture).
+    An empty key or non-positive charge count both mean "no bait"; the
+    caller resolves the key to a :class:`sb.domain.fishing.bait.Bait`. A
+    PLAIN read on the read surfaces; the buy/craft legs re-read it
+    behind :func:`lock_bait_slot` inside their own txn."""
     row = await fetchone(
         "SELECT bait_key, charges FROM fishing_bait WHERE user_id=$1 "
         "AND guild_id=$2", (user_id, guild_id), conn=conn)
@@ -281,10 +284,10 @@ async def get_active_bait(user_id: int, guild_id: int,
 
 async def set_active_bait(user_id: int, guild_id: int, bait_key: str,
                           charges: int, conn: Any = None) -> None:
-    """Load *bait_key* with *charges* (insert the row or replace it —
-    the shipped ``_SET_BAIT_SQL`` upsert shape). Transaction-aware: the
-    buy workflow debits coins and loads the pack in ONE workflow-owned
-    txn (the shipped Q-0071 posture)."""
+    """Load *bait_key* with *charges* for the player (insert the row or
+    replace — the shipped ``_SET_BAIT_SQL`` upsert shape).
+    Transaction-aware: the buy workflow debits coins and loads the bait
+    in ONE workflow-owned txn (the shipped Q-0071 posture)."""
     await execute(
         "INSERT INTO fishing_bait (user_id, guild_id, bait_key, charges) "
         "VALUES ($1,$2,$3,$4) "
@@ -293,18 +296,43 @@ async def set_active_bait(user_id: int, guild_id: int, bait_key: str,
         (user_id, guild_id, bait_key, charges), conn=conn)
 
 
+async def clear_active_bait(user_id: int, guild_id: int,
+                            conn: Any = None) -> None:
+    """Drop the player's loaded bait (charges spent) → back to bait-less
+    fishing (the shipped ``clear_active_bait`` — the per-cast consume's
+    empty-pack leg, which rides the bait/minigame rung)."""
+    await set_active_bait(user_id, guild_id, "", 0, conn=conn)
+
+
 async def lock_bait_slot(conn: Any, *, user_id: int,
                          guild_id: int) -> None:
-    """Fence concurrent bait buys for one (user, guild) against the
-    read-then-settle stack race (two racing buys of the same bait must
-    stack sequentially, not overwrite — the loser blocks here until the
-    winner's txn commits, then re-reads the winner's committed charges;
-    the ``lock_rod_slot`` shape, same #213/#217 doctrine — a fresh
-    player has no fishing_bait row, so FOR UPDATE alone can lock
-    nothing). Auto-released at commit/rollback."""
+    """Fence concurrent bait buy/craft attempts for one (user, guild)
+    against a first-insert / read-then-settle double-charge (the
+    #213/#217 doctrine; ``lock_rod_slot`` precedent). All three bait
+    legs read the current loadout (to stack or replace charges), debit
+    coins / fish / pearls, then write the loadout — a read-then-settle
+    over a natural-key row that may not exist yet (a fresh player has no
+    fishing_bait row), so FOR UPDATE alone can lock nothing. A
+    transaction-scoped advisory lock keyed on the SAME (guild, user)
+    pair serializes two racing loads: the loser blocks here until the
+    winner's txn commits, then re-reads the winner's committed loadout.
+    Auto-released at commit/rollback."""
     await execute(
         "SELECT pg_advisory_xact_lock(hashtext($1))",
         (f"fishing:bait:{guild_id}:{user_id}",), conn=conn)
+
+
+async def lock_charm_slot(conn: Any, *, user_id: int,
+                          guild_id: int) -> None:
+    """Fence concurrent charm-craft attempts for one (user, guild)
+    against a double-craft over the same fish (the mining quick_craft
+    posture — materials, not coins, so this lock is the only guard).
+    The charm leg reads the fish inventory, plans the spend, then
+    debits + grants — a read-then-settle; the advisory lock serializes
+    two racing crafts. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:charm:{guild_id}:{user_id}",), conn=conn)
 
 
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
