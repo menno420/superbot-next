@@ -1,6 +1,6 @@
 # 2026-07-13 — setup wizard successors slice 2: essential steps 2–8
 
-> **Status:** in-progress
+> **Status:** complete
 
 - **📊 Model:** Fable · setup-wizard successor lane, slice 2
 
