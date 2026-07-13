@@ -57,16 +57,17 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     # descend_route / ascend_route / mineworld_route register at import.
     # forge/repair/quickcraft/cook/use pruned by the slice-4 port — the
     # mining.forge PanelSpec + repair_route / quickcraft_route / cook_route /
-    # use_route register at module import (the forge 🔥 Build pending terminal
-    # registers at import in panels.py, so it is import-visible too).
+    # use_route register at module import (the forge 🔥 Build is a LIVE
+    # forge_build_route as of WP-6, registered at import in service._register()).
     # skill/skills/titles pruned by the slice-5 port — the mining.skills +
     # mining.titles PanelSpecs + skill_route register at module import (the
     # skills-panel spend/respec pending terminals register at import in
     # panels.py, so they are import-visible too).
     # home/workshop pruned by the slice-6 port — the mining.home +
-    # mining.workshop PanelSpecs register at module import (the home-build,
-    # workshop-craft, and workshop-hub pending terminals register at import in
-    # panels.py, so they are import-visible too).
+    # mining.workshop PanelSpecs register at module import (the home 🏠 Build is
+    # a LIVE home_build_route as of WP-6, registered at import in
+    # service._register(); the workshop-craft and workshop-hub pending terminals
+    # register at import in panels.py, so they are import-visible too).
     "panel:role.hub",
 })
 
