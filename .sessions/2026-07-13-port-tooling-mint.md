@@ -1,6 +1,6 @@
 # 2026-07-13 — tools: mint_golden — codify the D-0073 golden mint
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** fable-5 · port-tooling lane (claim
   `control/claims/port-tooling-mint-orphan.md`, mint half; branch
@@ -58,7 +58,38 @@ inside `tests/unit/parity_gate/test_mint_golden.py` (or a
 
 ## Verification
 
-Pending — filled at close-out.
+Shipped as PR #416 (`claude/port-tooling` @ cf2271f, off main @ 5dac6ce;
+origin/main moved one claims-only commit (#414) during the slice — no
+overlap, no merge needed):
+
+- `python3 -m pytest tests/unit/parity_gate/test_mint_golden.py -q`:
+  **23 passed in 0.90s**.
+- `python3 -m pytest tests/ -q` (local Postgres up this session — it was
+  provisioned for the live capture verify below): **2857 passed, 2
+  skipped, 1 warning in 356.43s**.
+- `python3 bootstrap.py check --strict`: green modulo this card's
+  designed born-red hold (flips with this commit) + the two pre-existing
+  claims-format advisories (mining-write-parity-lane.md +
+  port-tooling-mint-orphan.md — on main before this branch, never
+  exit-affecting).
+- LIVE tool verify (tools/setup_local_env.py → Postgres up): dry-run
+  `mint_golden karma.thanks_grant --force` captured green, printed the
+  strip (audit_log/event_outbox tables + command.dispatched dropped),
+  reported corpus 494 with all three pin files as no-ops, wrote NOTHING
+  (git clean); dry-run `mint_golden kernel.audited_prefix_command
+  --force` double-captured byte-identical across two independent boots
+  with the spine kept. Corpus untouched: still 494, every pin
+  byte-stable — the tool ships inert.
+- Found-and-fixed en route: `parity/harness/runner.
+  apply_isolation_resets` references `tests/_isolation.py`, which no
+  longer exists in the tree — the tool's first draft called it and
+  FileNotFoundError'd; the shipped tool relies on `capture_case`'s own
+  `reset_case_state()` + capture-world reseeds instead. Guard recipe:
+  either restore `tests/_isolation.py` or retire
+  `apply_isolation_resets` (parity/harness/runner.py:33, imported-
+  harness code — needs a ruling before touching) + its
+  `parity/README.md:80` mention; a one-line loadability pin in
+  tests/unit/parity_gate/ would hold whichever way is ruled.
 
 ## 💡 Session idea
 
