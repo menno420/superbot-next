@@ -34,12 +34,18 @@ from sb.spec.refs import PanelRef, resolve as resolve_ref
 logger = logging.getLogger("sb.kernel.panels.engine")
 
 __all__ = [
+    "EDIT_EDITED",
+    "EDIT_FAILED",
+    "EDIT_MISSING",
+    "EDIT_UNAVAILABLE",
     "EphemeralComponent",
     "PanelPresenterNotInstalled",
     "PanelSession",
+    "edit_anchored_panel",
     "ephemeral_route",
     "handle_nav",
     "install_panel_anchor_store",
+    "install_panel_message_editor",
     "install_panel_presenter",
     "may_interact",
     "open_panel",
@@ -72,6 +78,66 @@ _presenter: PanelPresenter = _no_presenter
 def install_panel_presenter(presenter: PanelPresenter) -> None:
     global _presenter
     _presenter = presenter
+
+
+# --- message-editor port (the on-ready resume sweep's edit lane) ----------------
+#
+# The oracle's ``on_ready`` sweeps edited persisted panel messages in place
+# (``channel.fetch_message`` → ``message.edit`` — setup_cog._resume_one_launcher
+# / essential_setup.revive_one_essential_flow). At boot there is no live
+# interaction origin and no PanelSession, so the presenter port cannot carry
+# the edit; this dedicated port takes a kernel-rendered panel plus the
+# PERSISTED (channel_id, message_id) pair. The discord adapter implements it
+# (sb/adapters/discord/panel_view.DiscordPanelMessageEditor); uninstalled it
+# answers EDIT_UNAVAILABLE (headless/CI — never a crash).
+
+#: the edit was applied.
+EDIT_EDITED = "edited"
+#: the message is GONE (the oracle ``discord.NotFound`` branch) — callers may
+#: clear their persisted pointer so the sweep stops retrying it.
+EDIT_MISSING = "missing"
+#: the edit could not be applied (channel uncached / forbidden / HTTP error —
+#: the oracle's log-and-skip branches, folded).
+EDIT_FAILED = "failed"
+#: no editor installed (headless composition — the sweep degrades to a no-op).
+EDIT_UNAVAILABLE = "unavailable"
+
+# editor(rendered, *, channel_id, message_id) -> EDIT_EDITED|EDIT_MISSING|EDIT_FAILED
+_message_editor = None
+
+
+def install_panel_message_editor(editor) -> None:
+    global _message_editor
+    _message_editor = editor
+
+
+async def edit_anchored_panel(ref: PanelRef, *, guild_id: int | None,
+                              channel_id: int, message_id: int,
+                              actor, params: dict | None = None) -> str:
+    """Re-render panel *ref* fresh and edit it onto the persisted channel
+    message (the boot-time twin of ``refresh_session_view`` — no live
+    session required). Returns one of the ``EDIT_*`` outcomes.
+
+    Component ids are NOT session-minted here: a boot edit re-binds only
+    components whose wire ids are static (``custom_id_override`` /
+    persistent panels) — exactly the oracle's persistent-view doctrine
+    (the rebound message keeps working because custom ids never change).
+    Renderers see ``PanelOrigin.ANCHOR`` with the caller's *actor* (the
+    sweep passes a system actor)."""
+    if _message_editor is None:
+        return EDIT_UNAVAILABLE
+    spec = get_panel(ref.name)
+    ctx = PanelContext(
+        bot=None, guild_id=guild_id, actor=actor,
+        channel_id=channel_id, origin=PanelOrigin.ANCHOR,
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(params or {}), surface=None)
+    if spec.renderer_override is not None:
+        rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
+    else:
+        rendered = await render_panel(spec, ctx)
+    return await _message_editor(rendered, channel_id=int(channel_id),
+                                 message_id=int(message_id))
 
 
 # --- anchor-store port (the shipped panel_anchors registry) ---------------------
@@ -265,9 +331,10 @@ def _mint_ephemeral(spec: PanelSpec, rendered: RenderedPanel,
 
 
 def reset_panel_engine_for_tests() -> None:
-    global _presenter, _anchor_store
+    global _presenter, _anchor_store, _message_editor
     _presenter = _no_presenter
     _anchor_store = None
+    _message_editor = None
     _sessions.clear()
     _ephemeral.clear()
 
