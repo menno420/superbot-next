@@ -1,6 +1,6 @@
 # 2026-07-13 — night verify: fishing cast-leg profile wiring (ORDER 019 item 4)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN verify-first slice · mandate:
   ORDER 019 item 4 — verify the venue/rod/bait/structure→cast wiring
@@ -75,6 +75,9 @@ The #410 how-to-fish content in the row is preserved.
 
 Decide-and-flag adjacency: the completeness-remainders claim also
 touches this file — disjoint rows, coordinated by claim scope.
+
+Verification: `python3 -m pytest tests/ -q` — **2872 passed, 15
+skipped**; `python3 bootstrap.py check --strict` exit 0. PR: **#436**.
 
 ## 💡 Session idea
 
