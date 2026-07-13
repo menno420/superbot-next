@@ -73,7 +73,7 @@
 | diagnostic | ✅ 42 cmds live | ✅ 10 actions + 2 selectors implemented (ORDER 017 fix slice): hub `diag_status/sysinfo/errors` live successor reads (`process_state.py`/`log_buffer.py` + gateway-census seam), cmdlist pages 1–14 (oracle-extracted, page 1 golden-verified), flag-manager select→detail + guard-ladder mutations (`flag_catalog.py`), automation-panel pick + shipped guards — zero `*_pending` routes remain in `sb/domain/diagnostic/` | ✅ |
 | economy | ✅ full value loop live + atomicity proven (band 3); INV-F clean | ✅ | ✅ |
 | farm | ✅ hub + 3 K7 money lanes | ✅ | ✅ |
-| fishing | ⚑⚑ **largest pending block**: 15 of 20 cmds pending (forecast/sail/rod/bait/craft* family → `operator_spine`) + 5 hub actions + structures; cast→Reel core loop IS live (`fishing.fish_route` commits `fishing.cast`, `sb/domain/fishing/service.py:96`). **IN-FLIGHT: fishing slice 1 #313, owner-gated deep-systems decision — hands off** | ✅ | ✅ |
+| fishing | ⚑ all 20 shipped commands ported — the fishing lane landed slices 1–4 tonight (#313 forecast/sail · #330 rod ladder · #342 bait shelf · #350 curios/tidepool/dock/boathouse/fishery; claim closed #353; the deep-system `PENDING` roster is empty, `sb/domain/fishing/service.py:720`); residue: the cast leg still runs the starter shore profile (venue/rod/bait/structure→cast wiring rides the minigame rung, per the service PENDING-roster note) + the 🎣 how-to-fish hub guide (`fishing.howtofish_pending`) — *morning true-up 2026-07-13; row was written pre-landing* | ✅ | ✅ |
 | four_twenty | ✅ | ✅ | ✅ |
 | games | ✅ hubs + substrate (checkpoints/game-xp covered-elsewhere, `parity.yml:668`) | ✅ | ✅ |
 | general | ✅ 8 cmds + menu | ✅ | ✅ |
@@ -105,40 +105,50 @@
 | xp | ✅ chat award + level-up fan-out live-proven (band 4) | ✅ | ⚑ xp.config panel 4 actions pending (`xp.config_{range,cooldown,channel}_pending` + `xp.import_setup_pending` → `operator_spine`; K7 settings lanes ARE the live workaround) |
 | kernel (panels/engine) | ✅ render/browserview/engine golden-pinned (browse-interaction batch, kernel band `parity.yml:227` ported); `resolve.py:89` NotImplementedError = default port replaced at composition | ✅ | ✅ |
 
-**Headline counts (50 rows):** core **43 ✅ / 7 ⚑** · admin **43 ✅ / 7 ⚑** ·
-setup **47 ✅ / 3 ⚑** *(setup-row core flipped ✅ by the wizard-lifecycle
-slice, ORDER 017 night-run; its setup column stays ⚑ for the named
-successors; rps_tournament core flipped ✅ by the bot-match slice, same
-night-run)*. Every flag is a *declared-honest* terminal or an
+**Headline counts (49 rows — morning true-up recount 2026-07-13 at HEAD,
+after the night's fix slices landed):** core **43 ✅ / 6 ⚑** (ai · casino ·
+cleanup · fishing · hermes · mining) · admin **44 ✅ / 5 ⚑** (btd6 ·
+cleanup · server_management · settings · utility) · setup **47 ✅ / 2 ⚑**
+(setup · xp) *(the original "50 rows" counted the header line; per-slice
+flip annotations consolidated into this recount)*. Every flag is a *declared-honest* terminal or an
 in-flight/owner-gated lane — the sweep found **zero silent gaps** (no
 unregistered refs, no empty-string error paths).
 
 ## In-flight peer lanes (flagged, NOT worked here)
 
 - mining write-parity **WP-2 (#312)** / **WP-3 (#317)** — vault + depth/world/
-  wear write goldens (stacked; retire the remaining `guard-only-capture` rows).
+  wear write goldens (stacked; retire the remaining `guard-only-capture` rows);
+  **WP-5 (#335)** / **WP-6 (#344)** now open behind them (skill-spend +
+  structure-build write goldens).
 - mining **energy domain core (#320)** — unblocks the `!cook`/`!use` terminals;
   dig-gating awaits an owner decision, sequenced after WP-3.
-- **fishing slice 1 (#313)** — owner-gated (the deep-systems successor decision); its pending block is
-  the lane's scope.
+- ~~**fishing slice 1 (#313)**~~ — **MERGED** (morning true-up 2026-07-13):
+  the whole fishing lane landed overnight — slices 1–4 (#313/#330/#342/#350),
+  claim closed (#353).
 - settings-hub group-select navigation — claimed
   (`control/claims/operator-hubs-interactive.md`, 2026-07-12).
 
 ## Top gaps (ranked, worst first — the night's fix-slice driver)
 
-1. **fishing deep systems** — 15/20 commands + 6 panel actions pending
-   (`sb/manifest/fishing.py` → `operator_spine`); the single largest pending
-   block in the fleet. **Owner-gated (#313, the deep-systems successor decision) — needs owner go, not a
-   free slice.**
+1. ~~**fishing deep systems**~~ — **DONE** (fishing port lane, ORDER 017
+   night-run; morning true-up 2026-07-13): slices 1–4 merged
+   (#313/#330/#342/#350; claim closed #353) — all 20 shipped fishing
+   commands ported, the deep-system `PENDING` roster is empty
+   (`sb/domain/fishing/service.py:720`). Residue (small, ledgered in the
+   service's roster note): the cast leg still runs the starter shore
+   profile (venue/rod/bait/structure→cast wiring rides the minigame rung)
+   and the 🎣 how-to-fish hub guide stays a pending terminal
+   (`fishing.howtofish_pending`).
 2. ~~**setup wizard interior**~~ — **DONE** (wizard-lifecycle slice, ORDER
    017 night-run): the 10 counted actions + selector + `/setup-skip` armed
    (`sb/domain/setup/wizard.py`). Remaining named successors (smaller, now
    individually sliceable): essential steps 2–8 · the 10 per-section flows ·
    the suggestion Edit lane · the final-review apply lane.
-3. **mining argful write faces** — `!skill` spend (WP-5), argful
-   `!build`/`!craft` (WP-6), `!cook`/`!use` (energy, #320), 12 panel-button
-   writes; **partially in-flight — only WP-5/WP-6 slices are free AFTER
-   WP-2/WP-3 land** (same tables re-freezing).
+3. **mining argful write faces** — `!skill` spend (WP-5, **PR #335 open**),
+   argful `!build`/`!craft` (WP-6, **PR #344 open**), `!cook`/`!use`
+   (energy, #320), 12 panel-button writes; **fully in-flight — WP-5/WP-6
+   are now open PRs stacked behind WP-2 (#312) / WP-3 (#317)** (same
+   tables re-freezing).
 4. **settings access/audit admin surface** — 9 actions + 2 selectors pending
    (command-access matrix, audit view, health chips); the settings hub
    advertises controls that all refuse. Adjacent to the
