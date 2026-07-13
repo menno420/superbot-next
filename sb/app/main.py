@@ -669,6 +669,14 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         install_ai_operator_ports(bot)
 
+        # 14b³. the setup-advisor guild reads: the deterministic advisor's
+        #       channel index + the channel-recommender's perms-bearing
+        #       guild-snapshot source (uninstalled they degrade to the
+        #       advisor-fallback hints — never a crash).
+        from sb.adapters.discord.setup_reads import install_setup_read_ports
+
+        install_setup_read_ports(bot)
+
         # 14c. the reaction feed — raw reaction add/remove → the kernel
         #      reaction seam (band 6; the tournament sign-up consumer rides
         #      it, starboard/reaction-roles/AI-review 👎 are named
