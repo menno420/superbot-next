@@ -1,6 +1,6 @@
 # 2026-07-13 — setup wizard successors slice 4: the section-flow spine + first two flows
 
-> **Status:** in-progress
+> **Status:** complete
 
 - **📊 Model:** Fable · setup-wizard successor lane, slice 4
 
