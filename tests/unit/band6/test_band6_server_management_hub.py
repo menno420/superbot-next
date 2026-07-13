@@ -9,9 +9,10 @@ display/editor surfaces all forward to ported panels since the
 Oracle: menno420/superbot disbot/cogs/server_management_cog.py +
 disbot/views/server_management/hub.py (build_server_management_hub) +
 disbot/services/server_management_hub.py (the read-only badge composer);
-parity/goldens/servermanagement/sweep_slash_server-management.json pins
-the slash wire bytes (the sibling server_management row's prefix golden
-pins the message surface and flips separately).
+parity/goldens/server_management/sweep_slash_server-management.json pins
+the slash wire bytes and sweep_servermanagement.json the message surface
+(one dir since the row-73 name-pair rework retired the split
+servermanagement/ dir onto the ported server_management row).
 """
 
 from __future__ import annotations
@@ -177,7 +178,7 @@ def test_render_carries_the_footer_and_the_two_health_fields():
 
 def test_render_drops_the_back_to_help_button_on_the_slash_surface():
     """The shipped slash twin never passed through the panel manager —
-    goldens/servermanagement pins exactly three component rows."""
+    the slash sweep golden pins exactly three component rows."""
     from sb.domain.server_management.panels import (
         _render_hub,
         server_management_hub_spec,
@@ -244,6 +245,57 @@ def test_manifest_declares_both_front_doors():
     # R2 stays vacuous: no declared stores/events/settings.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()
+
+
+def test_name_pair_goldens_share_one_directory():
+    """Row-73 name-pair regularization: the prefix + slash sweeps for the
+    differently-named front-door pair live in ONE golden dir attributed
+    to the manifest subsystem, the split oracle-cog-named dir is retired,
+    and every mapping surface agrees (golden `subsystem` field, dir name,
+    parity.yml roster, verified_live.yml mirror)."""
+    import json
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[3]
+    goldens = repo / "parity" / "goldens"
+    unified = goldens / "server_management"
+    prefix_golden = unified / "sweep_servermanagement.json"
+    slash_golden = unified / "sweep_slash_server-management.json"
+    assert prefix_golden.is_file()
+    assert slash_golden.is_file()
+    # the retired split dir stays retired (R1 pairs rows with dirs).
+    assert not (goldens / "servermanagement").exists()
+    # both docs attribute themselves to the manifest subsystem — the
+    # replay adapter reconstructs the case dir FROM this field
+    # (sb/adapters/parity/cases.py), so field and dir must agree.
+    for path in (prefix_golden, slash_golden):
+        assert json.loads(path.read_text())["subsystem"] == \
+            "server_management", path
+    parity_text = (repo / "parity" / "parity.yml").read_text()
+    assert "\n  server_management: ported" in parity_text
+    assert "\n  servermanagement:" not in parity_text
+    verified_text = (repo / "verification" / "verified_live.yml").read_text()
+    assert "\n  servermanagement:" not in verified_text
+
+
+def test_name_pair_is_ledgered_deliberate():
+    """The two-spec declaration for the differently-named pair carries
+    the deliberate-pair ledger (the setup.py DELIBERATELY-NOT-DECLARED
+    precedent): the module docstring must say WHY two specs is the
+    regular shape, so the pair never reads as an accidental duplicate."""
+    import sb.manifest.server_management as manifest_mod
+    from sb.spec.commands import CommandKind
+
+    doc = manifest_mod.__doc__ or ""
+    assert "DELIBERATE NAME PAIR" in doc
+    # the ledger's load-bearing claims stay true in code: exactly one
+    # spec per kind, different names, one shared route.
+    commands = manifest_mod.MANIFEST.commands
+    assert len(commands) == 2
+    by_kind = {c.kind: c for c in commands}
+    assert set(by_kind) == {CommandKind.PREFIX, CommandKind.SLASH}
+    assert by_kind[CommandKind.PREFIX].name != by_kind[CommandKind.SLASH].name
+    assert by_kind[CommandKind.PREFIX].route == by_kind[CommandKind.SLASH].route
 
 
 def test_no_pending_terminals_remain():

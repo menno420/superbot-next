@@ -13928,7 +13928,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:826b5f62cf2440cb75a72a798b82f8575b78d5bd457bec899a302f0bfb1b8773",
+  "stable_hash": "sha256:736bc9cc995331fe4057168c339d0c27d57e8f2508206da176d9b54fb52f9769",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -52194,7 +52194,7 @@
             "style_token": "red",
             "thumbnail_ref": ""
           },
-          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/servermanagement + goldens/server_management pin the byte; the utility/ux_lab/channel precedent). The override additionally adjusts TWO named component surfaces (the 12c lane): (1) it DROPS the grammar's injected nav:back:help.home button — the shipped hub never rendered a grammar nav row, both goldens pin exactly the declared rows; (2) it DROPS the declared help_back action on the slash surface — the shipped back-to-help hook appended the button on the panel-manager MESSAGE path only (goldens/server_management pins the 4-row prefix shape, goldens/servermanagement pins the 3-row slash shape). Body, fields, and every other action stay declared.",
+          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (both goldens/server_management sweeps pin the byte; the utility/ux_lab/channel precedent). The override additionally adjusts TWO named component surfaces (the 12c lane): (1) it DROPS the grammar's injected nav:back:help.home button — the shipped hub never rendered a grammar nav row, both goldens pin exactly the declared rows; (2) it DROPS the declared help_back action on the slash surface — the shipped back-to-help hook appended the button on the panel-manager MESSAGE path only (sweep_servermanagement pins the 4-row prefix shape, sweep_slash_server-management pins the 3-row slash shape). Body, fields, and every other action stay declared.",
           "layout": {
             "pages": [
               {
