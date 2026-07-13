@@ -5889,6 +5889,26 @@
           "value": "audit_back"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "ca_all_channels"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "ca_selected_channels"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "ca_disabled"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "command_access_back"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "depth_quick"
@@ -7761,6 +7781,11 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.audit"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.command_access"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -11032,8 +11057,11 @@
       "handler:settings.access_view": {
         "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.command_access_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.ca_channels": {
+        "module": "sb.domain.settings.handlers"
+      },
+      "handler:settings.ca_mode": {
+        "module": "sb.domain.settings.handlers"
       },
       "handler:settings.group_pending": {
         "module": "sb.domain.operator_spine"
@@ -11045,6 +11073,9 @@
         "module": "sb.domain.settings.panels"
       },
       "handler:settings.render_audit": {
+        "module": "sb.domain.settings.panels"
+      },
+      "handler:settings.render_command_access": {
         "module": "sb.domain.settings.panels"
       },
       "handler:settings.render_hub": {
@@ -12376,6 +12407,9 @@
       "panel:settings.audit": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:settings.command_access": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
@@ -12974,6 +13008,9 @@
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.audit_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.command_access_fields": {
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.hub_fields": {
@@ -53768,7 +53805,7 @@
               "emoji": "🚪",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.command_access_pending"
+                "$ref": "panel:settings.command_access"
               },
               "label": "Command access",
               "modal": null,
@@ -54683,6 +54720,191 @@
           "subsystem": "settings",
           "timeout_s": 180,
           "title": "🕒 Recent settings changes",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "ca_all_channels",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🌐",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.ca_mode"
+              },
+              "label": "All channels",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ca_selected_channels",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.ca_mode"
+              },
+              "label": "Selected channels",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ca_disabled",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🚫",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:settings.ca_mode"
+              },
+              "label": "Disabled except bootstrap",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "command_access_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:settings.hub"
+              },
+              "label": "Back to Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Configure where prefix and slash commands are allowed in this server.  Applies to **both** invocation surfaces — the same channels permit `!bj` and `/blackjack` alike.\n\nBootstrap commands (`/setup`, `/help`, `/settings`, `/platform`, `/diagnostics`) always remain reachable for guild operators so you cannot lock yourself out."
+            },
+            {
+              "provider": {
+                "$ref": "provider:settings.command_access_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Command-Access footer is the literal 'Applies to prefix + slash commands.  Mode buttons + the channel selector are admin-only.' (views/settings/edit_command_access.py build_command_access_embed set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (the settings-hub footer-literal precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, selector, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "ca_all_channels",
+                    "ca_selected_channels",
+                    "ca_disabled"
+                  ],
+                  [
+                    "ca_channels"
+                  ],
+                  [
+                    "command_access_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:settings.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.command_access",
+          "renderer_override": {
+            "$ref": "handler:settings.render_command_access"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 25,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:settings.ca_channels"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Set allowed channels (selected_channels mode)…",
+              "selector_id": "ca_channels",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "🚪 Command Access",
           "usage_weight": 1.0
         }
       ],

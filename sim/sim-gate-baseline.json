@@ -6519,6 +6519,70 @@
     ]
    }
   },
+  "settings:settings.command_access:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "ca_all_channels",
+       "ca_selected_channels",
+       "ca_disabled"
+      ],
+      [
+       "ca_channels"
+      ],
+      [
+       "command_access_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "settings:settings.command_access:PageSpec.rows": {
+   "provenance": {
+    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "ca_all_channels",
+     "ca_selected_channels",
+     "ca_disabled"
+    ],
+    [
+     "ca_channels"
+    ],
+    [
+     "command_access_back"
+    ]
+   ]
+  },
+  "settings:settings.command_access:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "oracle-verbatim seed: the settings-admin slice-3 port carries the shipped CommandAccessView ordering/grouping (disbot/views/settings/edit_command_access.py \u2014 mode buttons row 0, the channel allowlist select row 1, Back-to-Hub last; the delete-blocked toggle row is the ledgered under-port, no store column here) as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "ca_all_channels",
+        "ca_selected_channels",
+        "ca_disabled"
+       ],
+       [
+        "ca_channels"
+       ],
+       [
+        "command_access_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "settings:settings.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

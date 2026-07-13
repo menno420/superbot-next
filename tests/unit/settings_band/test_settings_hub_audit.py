@@ -213,10 +213,13 @@ def test_audit_footer_renders_only_on_the_rows_path(monkeypatch):
     assert rendered.embed.footer == ""     # the shipped early return
 
 
-def test_audit_pending_terminal_is_retired_command_access_stays():
+def test_audit_pending_terminal_is_retired_group_pending_stays():
     from sb.domain.settings import handlers
     from sb.spec.refs import HandlerRef, is_registered
 
     handlers.ensure_handler_refs()
     assert not is_registered(HandlerRef("settings.audit_pending"))
-    assert is_registered(HandlerRef("settings.command_access_pending"))
+    # slice 3 retired the command-access terminal too; only the
+    # per-group edit page keeps its honest terminal.
+    assert not is_registered(HandlerRef("settings.command_access_pending"))
+    assert is_registered(HandlerRef("settings.group_pending"))

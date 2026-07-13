@@ -45,11 +45,9 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   on the honest pending terminal for every other group; the per-group
   scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
   settings-mutation slice's port;
-* the hub's remaining pending click (🚪 Command access) lands on a
-  declared + honest pending terminal (sb/domain/settings/handlers.py) —
-  the Command Access panel (``settings_command_access.*`` family) is a
-  later slice's port, as is the per-group mutation page
-  (``settings_subsystem.*``).
+* the per-group mutation page (``settings_subsystem.*``) stays the
+  settings-mutation slice's port (the honest ``settings.group_pending``
+  terminal — sb/domain/settings/handlers.py).
   The EXPLORER'S six controls are ARMED (curation rows 82-87):
   subsystem/scope selects, Explain, Reset and the page-turn pair drive
   the governance diagnostic read seam
@@ -64,6 +62,13 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   slice 2): the shipped audit_view.py last-10 read, ported over the K7
   central audit spine (``audit_log`` rows with ``subsystem='settings'``
   — the shipped ``settings_mutation_audit`` table's successor here).
+  The 🚪 COMMAND ACCESS panel is ARMED (settings-admin slice 3 — the
+  set's one WRITE surface): the shipped edit_command_access.py port
+  (PR-6) whose mutations REUSE the live platform command-access K7
+  lanes (``platform.set_access_mode`` / ``set_access_channels`` —
+  sb/domain/platform/command_access.py, the setup-wizard step-8 seam);
+  the oracle's ``delete_blocked_commands`` toggle has no seam in the
+  policy store here (mode + channels only) — an honest under-port.
 """
 
 from __future__ import annotations
@@ -100,6 +105,7 @@ __all__ = [
     "install_settings_panels",
     "settings_access_spec",
     "settings_audit_spec",
+    "settings_command_access_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
     "settings_missing_bindings_spec",
@@ -335,9 +341,11 @@ def settings_hub_spec() -> PanelSpec:
                         PanelRef("settings.missing_bindings")),
             _hub_button("audit", "Recent changes", "🕒",
                         PanelRef("settings.audit")),
-            # row 2 — the Command access door (PR-6's panel is the
-            # command-access slice's port; pending terminal).
-            _hub_button("command_access", "Command access", "🚪"),
+            # row 2 — the Command access door, ARMED (settings-admin
+            # slice 3): PR-6's shipped panel as a PanelRef open-child
+            # terminal over the live platform K7 write lanes.
+            _hub_button("command_access", "Command access", "🚪",
+                        PanelRef("settings.command_access")),
         ),
         # the shipped hub carried NO standard nav row — the goldens pin
         # exactly three component rows; session_lifecycle takes the
@@ -877,6 +885,205 @@ async def _render_audit(spec: PanelSpec, ctx) -> object:
                        embed=_dc_replace(rendered.embed, footer=footer))
 
 
+# --- the armed Command Access panel (settings-admin slice 3) -------------------------
+#
+# Oracle-verbatim port of the shipped 🚪 Command Access panel (PR-6 —
+# disbot/views/settings/edit_command_access.py: the three mode buttons
+# all_channels / selected_channels / disabled_except_bootstrap, the
+# multi-ChannelSelect allowlist replace, Back-to-Hub; copy verbatim,
+# double spaces included). Every mutation routed through the shipped
+# ``services.command_access_service`` (cache invalidation + audit in the
+# canonical path) — here that canonical path is the LIVE platform
+# command-access K7 lanes (``platform.set_access_mode`` /
+# ``set_access_channels``, sb/domain/platform/command_access.py — the
+# setup-wizard step-8 seam): audited compound ops on the administrator
+# authority floor with the post-commit cache forget; the handlers
+# (sb/domain/settings/handlers.py) REUSE them, no new write lane. The
+# oracle's atomic ``replace_allowed_channels`` composite maps onto
+# ``set_access_channels`` (full DELETE + re-INSERT in ONE leg; implies
+# selected_channels when no policy row — the same shape). Deliberate
+# under-port: the oracle's ``delete_blocked_commands`` toggle + embed
+# field have NO seam here — the policy store carries mode + channels
+# only (guild_command_access_policy / _channels) — so both stay out
+# until that store column ports (honest absence, never a dead control).
+# The panel's controls are run-minted per-panel leaves (the shipped
+# ``settings_command_access.*`` ids are NOT in the compat freeze; the
+# slice-1 back-button precedent — one claimant per custom_id leaf
+# repo-wide).
+
+_CA_DESCRIPTION = (
+    "Configure where prefix and slash commands are allowed in "
+    "this server.  Applies to **both** invocation surfaces — "
+    "the same channels permit `!bj` and `/blackjack` alike.\n\n"
+    "Bootstrap commands (`/setup`, `/help`, `/settings`, "
+    "`/platform`, `/diagnostics`) always remain reachable "
+    "for guild operators so you cannot lock yourself out."
+)
+
+#: the shipped mode labels (edit_command_access.py _MODE_LABELS), verbatim.
+_CA_MODE_LABELS: dict[str, str] = {
+    "all_channels": "All channels",
+    "selected_channels": "Selected channels",
+    "disabled_except_bootstrap": "Disabled except bootstrap",
+}
+
+#: the shipped mode descriptions (_MODE_DESCRIPTIONS), verbatim.
+_CA_MODE_DESCRIPTIONS: dict[str, str] = {
+    "all_channels": (
+        "Normal prefix + slash commands work in every guild channel "
+        "(subject to per-command permissions and governance)."
+    ),
+    "selected_channels": (
+        "Normal commands only work in the channels you list below. "
+        "Bootstrap commands (`/setup`, `/help`, `/settings`, etc.) "
+        "still work everywhere for guild operators."
+    ),
+    "disabled_except_bootstrap": (
+        "Normal commands are denied. Only bootstrap commands "
+        "remain reachable so an operator can re-enable from "
+        "`!setup` or this panel."
+    ),
+}
+
+#: the shipped DM/no-guild placeholder + recovery copy, verbatim.
+_CA_NO_GUILD = "*Guild context not available.*"
+_CA_RECOVERY = (
+    "Normal commands are currently denied.  Pick **All "
+    "channels** or **Selected channels** above to re-enable, "
+    "or run `!setup` to revisit onboarding."
+)
+
+#: the shipped footer literal (edit_command_access.py set_footer) — kept
+#: verbatim; renders via the override (outside FooterMode's vocabulary).
+_CA_FOOTER = ("Applies to prefix + slash commands.  "
+              "Mode buttons + the channel selector are admin-only.")
+
+
+def _format_channel_list(channel_ids: frozenset[int]) -> str:
+    """The shipped allowlist rendering (edit_command_access.py
+    _format_channel_list, verbatim): mention list, 950-char truncation
+    with a trailing count so the 1024-cap field never fails."""
+    if not channel_ids:
+        return "*(none configured)*"
+    rendered = " ".join(f"<#{cid}>" for cid in sorted(channel_ids))
+    if len(rendered) > 950:
+        head = " ".join(f"<#{cid}>" for cid in sorted(channel_ids)[:30])
+        return f"{head} … (+{len(channel_ids) - 30} more)"
+    return rendered
+
+
+async def _command_access_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Command-Access body (build_command_access_embed):
+    no-guild placeholder → the live policy read (the K8 reader's cached
+    ``read_policy_snapshot`` — the write lanes forget the cache post-
+    commit, so a refresh reads fresh) → Current mode + Allowed channels
+    (+ the Recovery field in the disabled mode), copy verbatim. The
+    shipped Delete-blocked-commands field is the ledgered under-port
+    (no store column here — the section comment)."""
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Current mode", _CA_NO_GUILD),)
+
+    from sb.domain.platform import command_access
+
+    snapshot = await command_access.read_policy_snapshot(guild_id)
+    mode_label = (
+        _CA_MODE_LABELS.get(snapshot.mode, snapshot.mode)
+        if snapshot.mode is not None
+        else "All channels (default — no policy row)")
+    mode_description = (
+        _CA_MODE_DESCRIPTIONS.get(snapshot.mode, "—")
+        if snapshot.mode is not None
+        else _CA_MODE_DESCRIPTIONS["all_channels"])
+    fields = [
+        ("Current mode", f"**{mode_label}**\n{mode_description}"),
+        (f"Allowed channels ({len(snapshot.allowed_channels)})",
+         _format_channel_list(snapshot.allowed_channels)),
+    ]
+    if snapshot.mode == "disabled_except_bootstrap":
+        fields.append(("Recovery", _CA_RECOVERY))
+    return tuple(fields)
+
+
+def settings_command_access_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.command_access",
+        subsystem="settings",
+        title="🚪 Command Access",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple().
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_CA_DESCRIPTION),
+              FieldsBlock(
+                  provider=ProviderRef("settings.command_access_fields"))),
+        selectors=(
+            # the shipped multi-ChannelSelect (min 0 / max 25 — a blank
+            # selection CLEARS the allowlist, the atomic replace).
+            SelectorSpec(
+                selector_id="ca_channels", kind=SelectorKind.CHANNEL,
+                on_select=HandlerRef("settings.ca_channels"),
+                min_values=0, max_values=25,
+                placeholder="Set allowed channels (selected_channels "
+                            "mode)…",
+                audience_tier="administrator"),
+        ),
+        actions=(
+            # the shipped mode-button trio (row 0: label/emoji/style
+            # verbatim; ids run-minted — the section comment).
+            PanelActionSpec(
+                action_id="ca_all_channels", label="All channels",
+                emoji="🌐", style=ActionStyle.SUCCESS,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.ca_mode")),
+            PanelActionSpec(
+                action_id="ca_selected_channels",
+                label="Selected channels", emoji="📋",
+                style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.ca_mode")),
+            PanelActionSpec(
+                action_id="ca_disabled",
+                label="Disabled except bootstrap", emoji="🚫",
+                style=ActionStyle.DANGER,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.ca_mode")),
+            _diag_back_action("command_access_back"),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_command_access"),
+        justification=(
+            "the shipped Command-Access footer is the literal 'Applies "
+            "to prefix + slash commands.  Mode buttons + the channel "
+            "selector are admin-only.' (views/settings/"
+            "edit_command_access.py build_command_access_embed "
+            "set_footer) — outside FooterMode's none/subsystem/"
+            "provenance vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, selector, "
+            "actions and layout stay declared."),
+        # the shipped rows: mode buttons (row 0), the channel select
+        # (row 1), Back to Hub (the delete-blocked toggle's row 2 is the
+        # ledgered under-port — the section comment).
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("ca_all_channels", "ca_selected_channels", "ca_disabled"),
+            ("ca_channels",),
+            ("command_access_back",),
+        )),)),
+    )
+
+
+async def _render_command_access(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped footer literal (see justification)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed, footer=_CA_FOOTER))
+
+
 # --- the access-explorer spec --------------------------------------------------------
 
 #: the explorer's scope labels (the _ACCESS_SCOPES roster, keyed).
@@ -1165,6 +1372,8 @@ def _register_refs() -> None:
         panel("settings.missing_bindings")(settings_missing_bindings_spec)
     if not is_registered(PanelRef("settings.audit")):
         panel("settings.audit")(settings_audit_spec)
+    if not is_registered(PanelRef("settings.command_access")):
+        panel("settings.command_access")(settings_command_access_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -1175,6 +1384,8 @@ def _register_refs() -> None:
         handler("settings.render_invalid")(_render_invalid)
     if not is_registered(HandlerRef("settings.render_audit")):
         handler("settings.render_audit")(_render_audit)
+    if not is_registered(HandlerRef("settings.render_command_access")):
+        handler("settings.render_command_access")(_render_command_access)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
@@ -1187,20 +1398,22 @@ def _register_refs() -> None:
         provider("settings.missing_bindings_fields")(_missing_bindings_fields)
     if not is_registered(ProviderRef("settings.audit_fields")):
         provider("settings.audit_fields")(_audit_fields)
+    if not is_registered(ProviderRef("settings.command_access_fields")):
+        provider("settings.command_access_fields")(_command_access_fields)
 
 
 _register_refs()
 
 
 def install_settings_panels() -> PanelSpec:
-    """Register the hub + explorer + the four armed diagnostics with the
-    panels registry (fences run here); composition-root/boot call.
-    Idempotent for identical specs. Returns the hub spec (the band-1
-    contract shape)."""
+    """Register the hub + explorer + the four armed diagnostics + the
+    Command Access write panel with the panels registry (fences run
+    here); composition-root/boot call. Idempotent for identical specs.
+    Returns the hub spec (the band-1 contract shape)."""
     hub = settings_hub_spec()
     for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
                  settings_invalid_spec(), settings_missing_bindings_spec(),
-                 settings_audit_spec()):
+                 settings_audit_spec(), settings_command_access_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:
