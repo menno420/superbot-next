@@ -1,6 +1,6 @@
 # 2026-07-13 — tools: check_orphan_pendings — guard the PR #412 bug class
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · port-tooling lane (claim
   `control/claims/port-tooling-mint-orphan.md`, orphan-checker leg;
@@ -66,6 +66,28 @@ rule reds otherwise; the blackjack pair also needs the
 tests/unit/invariants/test_composition_parity.py:150 re-pointed at a
 live ref, and `manifest_compile --write` to drop the refs projections
 (the #412 procedure).
+
+## Verification (close-out)
+
+Shipped as PR #415 (`claude/port-tooling-orphan` @ f542328 + this flip,
+off main @ 5dac6ce). Verbatim final lines:
+
+- `python3 tools/check_orphan_pendings.py` → `check_orphan_pendings:
+  OK — 23 registered *_pending handler(s) (14 referenced, 9 on the
+  burn-down baseline); 882 handler ref(s) walked from manifests +
+  registered panels, 0 dangling, 0 new orphans`
+- `pytest tests/unit/app/test_orphan_pendings.py -q` →
+  `11 passed in 0.04s`
+- `pytest tests/ -q` → `2830 passed, 9 skipped in 63.20s (0:01:03)`
+  (full suite; this container's uv-tool pytest needed
+  `uv tool install --with pyyaml pytest` first — the bare tool env
+  lacked pyyaml and failed collection on two checker-importing tests)
+- the full 24-name committed checker fleet + `manifest_compile`
+  (sha256:99ebfbcd…, 48 manifests) green locally;
+  `python3 bootstrap.py check --strict` green except the DESIGNED
+  born-red hold on this card (flipped by this commit) and the two
+  pre-existing claims-format advisories (never exit-affecting;
+  one is this lane's own claim file from #413 — pre-dates this branch).
 
 ## ⟲ previous-session review
 
