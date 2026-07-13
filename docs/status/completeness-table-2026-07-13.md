@@ -66,7 +66,7 @@
 | cleanup | ⚑ `!cleanuphistory` runtime-gated (honest refusal when HistoryReader unarmed, `handlers.py:114-117`; non-prohibited scan modes refuse honestly `:125`) | ⚑ 8 hub/word-panel actions pending (`cleanup.{logging,settings,policies}_pending` + words `word_add/word_remove/word_refresh/scan_history/anti_evasion` → `operator_spine`) — the `!word` K7 command lane IS live | ✅ |
 | community | ✅ hub + 10 actions live | ✅ | ✅ |
 | community_spotlight | ✅ glance + clicks live | ✅ | ✅ |
-| counters | ✅ status/templates over real census | ⚑ argful `!counterpreset <name>` apply pending (channel renames — `counters.preset_pending`, `sb/domain/counters/panels.py:190-196`); bare list live | ✅ 4 settings |
+| counters | ✅ status/templates over real census | ✅ argful `!counterpreset <name>` apply live — three audited `settings.set_scalar` template writes + the shipped ack (`sb/domain/counters/panels.py` `_preset_view`; ORDER 017 operator-hub edits A); renames ride the sync loop as shipped | ✅ 4 settings |
 | counting | ✅ 10 cmds + manager live (`counting_state` select-driven depth exemption, `parity.yml:515`) | ✅ | ✅ |
 | creature | ✅ dex/battle/picker/rematch live (D-0079/D-0081 goldens); catch RNG env-exemption `parity.yml:537` | ✅ | ✅ |
 | deathmatch | ✅ challenge card live (duel-resolution stats = time-driven exemption `parity.yml:561`) | ✅ | ✅ |
@@ -90,7 +90,7 @@
 | platform | ✅ declaration-only manifest by design (stores only — kernel-band home) | ✅ | ✅ |
 | projmoon | ✅ 11 cmds / 8 actions, 0 pending | ✅ | ✅ |
 | proof_channel | ✅ prize family live (locks table = env-keyed exemption, needs #proof channel, `parity.yml:879`) | ✅ | ✅ |
-| role | ✅ 17 cmds incl. temprole compensator; reaction-roles K7 lanes | ⚑ `role.hub/role_create` pending (live role-provisioning, arms at CUT-1 — `sb/domain/role/handlers.py:588`) | ✅ |
+| role | ✅ 17 cmds incl. temprole compensator; reaction-roles K7 lanes | ✅ hub 📝 Create = the shipped `RoleCreateModal` over the live `!createrole` lane (`role.create_form_submit`; ORDER 017 operator-hub edits A — hoist/mentionable ride the provisioning-port extension, the preset creation menu is a named successor) | ✅ |
 | rps_tournament | ⚑ `!rpsbot` deep bot-match flow pending (`rps.bot_route` → `sb/domain/rps/handlers.py:613`); tournament core + cross-game guard (#277) live | ✅ | ✅ |
 | security | ✅ raid window + age gate cores live-proven | ✅ | ✅ 9 settings |
 | server_management | ✅ hub renders; channels forwards to ported channel ops | ⚑ 6 hub actions pending (moderation/roles/cleanup/access_map/help_preview/help_editor → `operator_spine`) | ✅ |
@@ -99,7 +99,7 @@
 | starboard | ✅ config command family + ignore writes | ✅ | ⚑ threshold modal pending (`starboard.panel_threshold`, `sb/domain/starboard/panels.py:296-303`; workaround `!starboard #channel <n>` live) |
 | ticket | ✅ 12 cmds live (RoleSelect wiring live, `handlers.py:597`) | ✅ | ⚑ ticket.setup panel: 3 actions + 2 selectors pending (`ticket.setup_pending`, `sb/domain/ticket/handlers.py:289`) |
 | treasury | ✅ contribute modal + K7 round-trip + overdraw refusals | ✅ | ✅ |
-| utility | ✅ 14 cmds | ⚑ utility.panel 4 actions pending (poll/remind/invite/open_four_twenty → `operator_spine`) — command twins live | ✅ |
+| utility | ✅ 14 cmds | ⚑ 1 of 4 panel actions pending: 🔗 Invite (in-flight peer PR #332 wires it to the live `utility.invite_view`); Poll/Remind = G-10 modal ingresses over the live twin lanes + 420 forwards to the ported `four_twenty.overview` (ORDER 017 operator-hub edits A) | ✅ |
 | welcome | ✅ templates over real census | ✅ | ✅ 10 settings |
 | ux_lab | ✅ 2 cmds / 9 actions, 0 pending | ✅ | ✅ |
 | xp | ✅ chat award + level-up fan-out live-proven (band 4) | ✅ | ⚑ xp.config panel 4 actions pending (`xp.config_{range,cooldown,channel}_pending` + `xp.import_setup_pending` → `operator_spine`; K7 settings lanes ARE the live workaround) |
@@ -153,15 +153,16 @@ unregistered refs, no empty-string error paths).
    wire-clicks-to-existing-ops family. Coordinate with the
    `operator-hubs-interactive` claim (read-only nav slice already claimed;
    the EDIT controls are explicitly deferred to a settings-mutation-style
-   slice). **PARTIALLY DONE (ORDER 017 night-run): operator-hub edits C
-   (this PR) arms the cogmgr select + windowing and reclassifies the
-   deploy trio by-design; edits B (#356, merged) delivered the channel
-   hub's five sub-panel flows; edits A (#358, in flight — supersedes
-   #355) covers utility Poll/Remind/420 + role Create + counter-preset
-   apply; peers own xp config (#345), cleanup words (#333),
-   server_management nav trio + utility Invite (#332). Remaining free:
-   server_management access_map/help_preview/help_editor (a 2.3k-line
-   oracle projection pair — its own slice).**
+   slice). **PARTIALLY DONE (ORDER 017 night-run): operator-hub edits A
+   (this PR, #358 — supersedes #355) delivers utility Poll/Remind modal
+   ingress + the 420 forward, role.hub Create over the live createrole
+   lane, and the argful counter-preset apply; edits B (#356, merged)
+   delivered the channel hub's five sub-panel flows; edits C (#357,
+   merged) armed the cogmgr select + windowing and reclassified the
+   deploy trio by-design; peers own xp config (#345), cleanup words
+   (#333), server_management nav trio + utility Invite (#332).
+   Remaining free: server_management access_map/help_preview/
+   help_editor (a 2.3k-line oracle projection pair — its own slice).**
 7. **btd6 paragon calculator** — 3 actions + 4 selectors pending
    (`btd6.paragon_pending`); a self-contained pure-compute port
    (`sb/domain/btd6/service.py`). Free.
