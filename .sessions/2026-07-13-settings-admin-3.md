@@ -1,8 +1,8 @@
 # 2026-07-13 — settings admin slice 3: arm the hub Command Access panel
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Lane:** settings-admin, slice 3 of 3 (FINAL)
+- **📊 Model:** `fable-5` · settings-admin lane, slice 3 of 3 (FINAL)
   (branch `claude/settings-admin-3`, stacked on `claude/settings-admin-2`
   @ 93eea69 — PR #400, itself stacked on `claude/settings-admin-1`
   @ b7245e3 — PR #399)
@@ -37,8 +37,21 @@ routes).
 
 ## 💡 Session idea
 
-(close-out fills this)
+Both write handlers here end with the same hand-rolled tail: re-read
+the policy, re-render the owning panel in place, confirm. A declared
+`refresh_after` facet on mutation handler registrations — "after this
+handler commits, re-render panel X for the invoking session" — would
+make in-place refresh engine-owned and delete that tail from every
+future write panel (this one, the starboard modal, the section flows
+to come).
 
 ## ⟲ Previous-session review
 
-(close-out fills this)
+This previous-session review covers slice 2 (#400): the read-side
+pattern held for a write surface without modification — only the
+handler layer grew, exactly as the lane plan predicted — and reusing
+the setup-wizard step-8 K7 lanes (#397) meant the audit/authority/cache
+story came for free. Friction: the retired terminal rippled into
+slice-1 AND slice-2 test files (cross-slice coupling, same churn slice
+2 flagged), and the above-floor panel forced a sim-gate baseline
+regeneration whose exempt-overlay prose is copy-pasted per key.
