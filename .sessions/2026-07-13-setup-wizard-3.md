@@ -32,11 +32,15 @@ per-render state (final-review drops Apply when nothing is staged, the
 hub depth-filters its section buttons, now review_item swaps which Edit
 button shows by suggestion mode) — and each does it by filtering
 `base.components` on hardcoded custom_id strings inside its renderer
-override. A `visible_when=ProviderRef(...)` facet on PanelActionSpec
-(engine-evaluated at render, provider named in the manifest) would make
-the visibility rule declared data instead of renderer prose, and the
-sim gate could then reason about the REACHABLE component sets instead
-of the declared superset.
+override, even though the grammar already HAS a declared
+`visible_when` facet with render-time + dispatch-time evaluation
+(games panels use it). The facet's EvalContext only reaches
+guild-scoped reads (settings/bindings/capabilities/flags), so
+per-`guild:user` session state — walkthrough index, staged-count,
+flow phase — can't ride it. Extending EvalContext with an optional
+session-state read would let all three setup panels declare their
+visibility rules as data, and the dispatch-time re-evaluation would
+replace every hand-rolled stale-card guard for free.
 
 ## ⟲ Previous-session review
 
