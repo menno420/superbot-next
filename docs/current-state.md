@@ -29,6 +29,15 @@ The live guild-effect adapters (moderation / role / channel) are driven by a
 human operator per the runbook
 [`docs/operations/live-drive-guild-effects.md`](operations/live-drive-guild-effects.md)
 — there is no automated CI live-drive (no gateway token in CI).
+The game-plugin contract's live seam (install the plugin dist → boot with
+token+guild → slash-sync → dispatch `/hello`) has the same human-operator
+runbook [`docs/operations/plugin-proof-live-drive.md`](operations/plugin-proof-live-drive.md);
+its headless half (a REAL external plugin boots against the committed pin and
+its panel registers) IS proven in CI —
+`tests/unit/app/test_plugin_boot_real_exemplar.py` + `tools/check_runtime_smoke.py`.
+Local verification (Postgres roles/DBs + env, CI-derived) is one command —
+[`docs/operations/local-verification.md`](operations/local-verification.md)
++ `tools/setup_local_env.py`.
 The flag-13 ruling landed (ORDER 009): the corpus-red dispositions are
 applied at replay-diff time per `docs/parity/flag-13-disposition-2026-07-10.md`.
 

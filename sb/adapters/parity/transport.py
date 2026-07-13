@@ -151,6 +151,21 @@ def _option_payload(option: Any) -> dict[str, Any]:
 
 def _component_payload(component: Any) -> dict[str, Any]:
     if component.kind == "selector":
+        if getattr(component, "native_picker", "") == "user":
+            # discord.py UserSelect.to_component_dict(): wire type 5, NO
+            # options, and "required" false even at min_values 1 — the
+            # shipped creature-battle opponent picker shape (mirrors the
+            # role type-6 / channel type-8 native pickers).
+            return {
+                "type": 5,
+                "custom_id": component.custom_id,
+                "min_values": component.min_values,
+                "max_values": component.max_values,
+                "disabled": bool(component.disabled),
+                "required": False,
+                **({"placeholder": component.placeholder}
+                   if component.placeholder else {}),
+            }
         if getattr(component, "native_picker", "") == "role":
             # discord.py RoleSelect.to_component_dict(): wire type 6, NO
             # options, and "required" false even at min_values 1 — the

@@ -1,0 +1,424 @@
+{
+ "case_id": "creature.challenge_picker",
+ "db_delta": {
+  "audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "actor_type": "user",
+     "correlation_id": null,
+     "detail": {
+      "changes": [],
+      "legs": [
+       {
+        "error": null,
+        "leg_id": "award",
+        "ok": true
+       }
+      ]
+     },
+     "guild_id": "<guild>",
+     "mutation_id": "<uuid>",
+     "mutation_type": "xp_awarded",
+     "new_value": {
+      "award": {
+       "delta": 25,
+       "leveled_up": false,
+       "new_level": 0,
+       "new_xp": 25,
+       "source": "chat"
+      }
+     },
+     "occurred_at": "<ts>",
+     "prev_value": {
+      "award": {
+       "xp": 0
+      }
+     },
+     "scope": "guild",
+     "subsystem": "xp",
+     "target": "xp.award"
+    }
+   ]
+  },
+  "event_outbox": {
+   "added": [
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "xp_awarded",
+      "new_value": {
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "award": {
+        "xp": 0
+       }
+      },
+      "scope": "guild",
+      "subsystem": "xp",
+      "target": "xp.award"
+     },
+     "status": "pending"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1794177977,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the native member picker: hub Challenge opens a user_select (wire type 5); selecting a trainer routes through creature.challenge_pick into the Accept/Decline challenge card",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🐾"
+          },
+          "label": "Catch",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📖"
+          },
+          "label": "Dex",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⚔️"
+          },
+          "label": "Challenge",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🏆"
+          },
+          "label": "Ladder",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📖"
+          },
+          "label": "How to play",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 3066993,
+        "description": "Catch from **36** original creatures across 6 elements. Rarer creatures show up less often and are harder to catch — fill out your dex, then battle other trainers in a level-normalized PvP where type matchups decide it.\n\n**🐾 Catch** — head into the wild\n**📖 Dex** — browse your collection by element\n**⚔️ Challenge** — battle another trainer\n**🏆 Ladder** — the server's top trainers\n**📖 How to play** — the rules",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Your progress",
+          "value": "**0/36** creatures · level **1**"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Only you can use this panel."
+        },
+        "title": "🐾 Creatures",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "creatures",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "prefix"
+     }
+    },
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!creatures",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {
+       "flags": 64
+      },
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "creature.challenge_select.challenge_opponent",
+          "disabled": false,
+          "max_values": 1,
+          "min_values": 1,
+          "placeholder": "Choose a trainer to battle…",
+          "required": false,
+          "type": 5
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:back:creature.hub",
+          "disabled": false,
+          "label": "↩ Back",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 15158332,
+        "description": "Pick the trainer you want to battle. They'll get an Accept / Decline prompt; teams are level-normalized, so your collection and type matchups decide it.",
+        "flags": 0,
+        "title": "⚔️ Challenge a trainer",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "creature.hub.creature_challenge",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "component"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:3>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "⚔️"
+          },
+          "label": "Accept",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:7>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "❌"
+          },
+          "label": "Decline",
+          "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": "<@<@second_member>> — <@<@member>> challenges you to a creature battle! Teams are level-normalized; your collection and type matchups decide it.",
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "command.dispatched",
+     "payload": {
+      "actor_id": "<@member>",
+      "authority_ref": "user",
+      "base_allowed": true,
+      "command_key": "creature.challenge_select.challenge_opponent",
+      "guild_id": "<guild>",
+      "lane": "tier",
+      "orchestration_id": null,
+      "outcome": "success",
+      "override_applied": false,
+      "reason": "allowed",
+      "request_id": "<uuid>",
+      "surface": "component"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "creature.challenge_select.challenge_opponent",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1,
+    "values": [
+     "900000000000000103"
+    ]
+   }
+  }
+ ],
+ "subsystem": "creature"
+}

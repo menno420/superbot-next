@@ -50,6 +50,21 @@ def _parse_target(argv: tuple) -> int | None:
     return None
 
 
+async def _opponent_is_bot(req, opponent: int) -> bool:
+    """True iff the opponent is a bot member, read through the guild
+    directory bot-flag seam (MemberInfo.is_bot). Degrades to False when the
+    directory is absent/headless (the avatar-fetch degradation posture — the
+    guard cannot invent data, so it simply cannot fire)."""
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        info = await guild_directory().member_info(
+            int(req.guild_id or 0), int(opponent))
+    except Exception:  # noqa: BLE001 — no directory ⇒ the guard degrades
+        return False
+    return bool(getattr(info, "is_bot", False))
+
+
 async def _open(req, panel_id: str, params: dict | None = None) -> None:
     from sb.kernel.panels.engine import open_panel
     from sb.spec.refs import PanelRef
@@ -141,13 +156,84 @@ def _register() -> None:
             # cogs/creature_battle_cog.py, verbatim.
             return Reply(BLOCKED, "🪞 You can't battle yourself — "
                                   "challenge someone else!")
-        # UNDER-PORT: the shipped `opponent.bot` guard ('🤖 You can't
-        # battle a bot…') needs a member bot-flag read the
-        # guild-directory port does not carry — the guard cannot fire
-        # until the seam grows (no invented data).
+        # the shipped `opponent.bot` guard (cogs/creature_battle_cog.py,
+        # verbatim) — now live over the guild-directory bot-flag seam
+        # (MemberInfo.is_bot). Read through the directory (never the
+        # interaction payload) so the kernel stays Member-free and ONE
+        # bot-flag read site serves both the prefix and picker paths; a
+        # headless/absent directory degrades to no-block (the avatar-fetch
+        # degradation posture — no invented data).
+        if await _opponent_is_bot(req, opponent):
+            return Reply(BLOCKED, "🤖 You can't battle a bot — "
+                                  "challenge a real trainer!")
         await _open(req, "creature.challenge",
                     {"cb_challenger_id": challenger,
                      "cb_opponent_id": opponent})
+        return Reply(SUCCESS, None)
+
+    @handler("creature.challenge_pick")
+    async def challenge_pick(req) -> Reply:
+        """The native user-select opponent picker's selection
+        (_OpponentSelect.callback, verbatim): the three shipped guards —
+        non-member ('Both trainers must be server members.'), bot ('🤖 You
+        can't battle a bot…'), self ('🪞 You can't battle yourself — pick
+        someone else!') — then open the challenge card. The chosen id
+        arrives on the ordinary select ``values`` round-trip (the kernel
+        never dereferences the interaction's resolved members)."""
+        from sb.domain.utility.service import guild_directory
+
+        values = tuple(req.args.get("values", ()) or ())
+        if not values:
+            # an empty select round-trip — nothing to open (the picker
+            # stays up); never an error byte.
+            return Reply(SUCCESS, None)
+        opponent = _parse_target((str(values[0]),))
+        challenger = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        if opponent is None:
+            return Reply(BLOCKED, "Both trainers must be server members.")
+        # non-member guard: the opponent must resolve as a guild member
+        # through the directory (the shipped isinstance(..., Member) check).
+        try:
+            info = await guild_directory().member_info(gid, opponent)
+        except Exception:  # noqa: BLE001 — unresolvable ⇒ not a member
+            info = None
+        if info is None:
+            return Reply(BLOCKED, "Both trainers must be server members.")
+        if bool(getattr(info, "is_bot", False)):
+            return Reply(BLOCKED, "🤖 You can't battle a bot — "
+                                  "challenge a real trainer!")
+        if opponent == challenger:
+            # the shipped picker copy ('pick someone else!') — distinct
+            # from the prefix cog's 'challenge someone else!'.
+            return Reply(BLOCKED, "🪞 You can't battle yourself — "
+                                  "pick someone else!")
+        await _open(req, "creature.challenge",
+                    {"cb_challenger_id": challenger,
+                     "cb_opponent_id": opponent})
+        return Reply(SUCCESS, None)
+
+    @handler("creature.challenge_rematch")
+    async def challenge_rematch(req) -> Reply:
+        """The shipped 🔄 Rematch (CreatureRematchView.rematch): either
+        fighter may click; the clicker re-challenges (becomes challenger),
+        the other fighter becomes the opponent who Accepts/Declines. No new
+        battle logic — it re-issues a fresh challenge card (the shipped
+        re-challenge copy rides the ``cb_rematch`` flag)."""
+        clicker = int(getattr(req.actor, "user_id", 0) or 0)
+        fighter_a = int(req.args.get("cb_challenger_id") or 0)
+        fighter_b = int(req.args.get("cb_opponent_id") or 0)
+        if clicker not in (fighter_a, fighter_b):
+            # CreatureRematchView.interaction_check, verbatim.
+            return Reply(BLOCKED,
+                         "Only the two fighters can start a rematch — "
+                         "challenge with `!cbattle` to play your own.")
+        challenger = clicker
+        opponent = fighter_b if challenger == fighter_a else fighter_a
+        await _open(req, "creature.challenge",
+                    {"cb_challenger_id": challenger,
+                     "cb_opponent_id": opponent,
+                     "cb_rematch": True})
         return Reply(SUCCESS, None)
 
     @handler("creature.challenge_accept")

@@ -178,9 +178,62 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         ),
         notes=(
             "challenge -> Accept auto-resolves the 6v6 and records the W/L "
-            "pair + battle-win game-xp (creature.record_battle_result)"
+            "pair + battle-win game-xp (creature.record_battle_result); the "
+            "resolved outcome card now carries the live 🔄 Rematch button"
         ),
     ),
+    GoldenCase(
+        id="creature.cbattle_bot_guard",
+        subsystem="creature",
+        steps=(
+            # !cbattle against the guild's bot member (World.BOT_USER_ID) —
+            # the shipped opponent.bot guard, now live over MemberInfo.is_bot.
+            Step(
+                kind="command",
+                content="!cbattle <@500000000000000001>",
+                persona="member",
+            ),
+        ),
+        notes=(
+            "the shipped opponent.bot guard: !cbattle against a bot member "
+            "is BLOCKED ('🤖 You can't battle a bot…') with no challenge "
+            "card and an empty db_delta — the MemberInfo.is_bot seam"
+        ),
+    ),
+    GoldenCase(
+        id="creature.challenge_picker",
+        subsystem="creature",
+        steps=(
+            # open the hub, then the shipped Challenge button opens the
+            # native user-select opponent picker (wire type 5)…
+            Step(kind="command", content="!creatures", persona="member"),
+            Step(kind="click", target_message=1, component_index=2,
+                 persona="member"),
+            # …and selecting a trainer opens the challenge card (the
+            # selected id rides the ordinary select `values` round-trip).
+            # The picker is an ephemeral followup (no click-targetable
+            # message id), so the select is driven by its stable custom_id
+            # on the originating hub message — the dex-browse control
+            # precedent (goldens/creature/creature_dex_filter_element).
+            Step(kind="click", target_message=1,
+                 custom_id="creature.challenge_select.challenge_opponent",
+                 component_type=5, persona="member",
+                 values=("900000000000000103",)),
+        ),
+        notes=(
+            "the native member picker: hub Challenge opens a user_select "
+            "(wire type 5); selecting a trainer routes through "
+            "creature.challenge_pick into the Accept/Decline challenge card"
+        ),
+    ),
+    # NOTE (slice 3 — Rematch): the 🔄 Rematch button rides the resolved
+    # OUTCOME card, which is an in-place edit (edit_followup, no
+    # click-targetable message id) whose session-minted button custom_ids
+    # cannot be referenced from the static case model — so a rematch-CLICK
+    # golden is not cleanly capturable here. The affordance's rendered bytes
+    # ARE pinned: creature.battle_accept's resolved-card output now carries
+    # the live 🔄 Rematch button (re-minted this slice). The handler
+    # (creature.challenge_rematch) is unit-covered.
     # ------------------------------------------------------------- casino
     GoldenCase(
         id="casino.poker_full_hand",
@@ -243,6 +296,47 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "'You're already registered!' duplicate refusal) → !bjstart "
             "launch → per-entrant round → all-done settle → champion payout "
             "+ results embed (self-cleaning: end_tournament + clear_active)"
+        ),
+    ),
+    GoldenCase(
+        id="blackjack.tournament_paid_flow",
+        subsystem="blackjack",
+        # Both entrants are pre-funded via fixture_sql (BEFORE the
+        # before-snapshot, so the seed credits never appear in db_delta —
+        # only the tournament's own money legs do). 100 🪙 each clears the
+        # 25 🪙 join affordability gate; the fee debits at launch, not join.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 100), "
+            "(900000000000000103, 700000000000000001, 100)",
+        ),
+        steps=(
+            # open a PAID single-round tournament (fee 25, rounds 1)
+            Step(kind="command", content="!bjtournament 25 1", persona="admin"),
+            # member signs up via the 🃏 Join button (affordability passes)
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+            # a second player signs up → the roster reaches two
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="second_member"),
+            # admin launches: per-entrant fee debit (tournament:entry_fee)
+            # + first round table view
+            Step(kind="command", content="!bjstart", persona="admin"),
+            # each entrant Stands their single round (Stand = 2nd button)
+            Step(kind="click", target_message=3, component_index=1,
+                 persona="member"),
+            Step(kind="click", target_message=5, component_index=1,
+                 persona="second_member"),
+        ),
+        notes=(
+            "minted (D-0073): the PAID-pot money path #302's free-tournament "
+            "golden left unpinned — open (fee 25) → two Join sign-ups → "
+            "!bjstart debits each entrant 25 (tournament:entry_fee) → "
+            "per-entrant round → all-done settle → champion paid the pooled "
+            "50 pot (blackjack:tournament_win) + clear_active, self-cleaning. "
+            "CONSERVATION: the two 25 entry_fee debits sum to the single 50 "
+            "tournament_win payout — the exact economy_audit_log rows are the "
+            "golden's assertion (no coins minted or stranded on the paid leg)"
         ),
     ),
     # ----------------------------------------------------- rps tournament
