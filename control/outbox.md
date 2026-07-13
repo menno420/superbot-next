@@ -136,3 +136,20 @@ NEXT-3:
 2. Owner sweep: superbot #2058/#2061 draft flips, WP stack #312→#317→#335→#344, then
    #320.
 3. Energy slices 1–3 + SBW sections integration once the spec answer lands.
+
+## 2026-07-13T10:45Z · coordinator seat — SEAT CLOSE: PROMPT-DELTA PROPOSAL + BAKED LIST
+
+PROMPT-DELTA PROPOSAL (registry v3.4 → v3.5, for the manager — the seat cannot edit
+the registry):
+1. Drop every "golden-parity red-by-design / judge only the gate job" line from the
+   SuperBot 2.0 seat brief + dictionary; replace with: "report job = live green since
+   2026-07-13T04:00Z (run 29222893993); a red report is a REAL regression".
+2. Add to the seat rider: `mergeable_state: dirty` ⇒ zero check runs (merge main into
+   the branch to attach checks); claims must land on main via the control fast lane
+   BEFORE work starts (branch-borne claims are invisible to collision scans).
+3. Note: the auto-merge enabler is now installed in superbot-next (`e9f1cd5`) —
+   landing-doctrine lines saying "NO enabler" are stale.
+
+BAKED THIS SHIFT (already durable in-repo, no registry action needed): #316 telemetry
+union driver + runbook; #361 session-card mtime-lottery gate defuse; #369 doctrine
+docs sweep (red-by-design retired); CAPABILITIES.md appends; flip-playbook trap 10(e).
