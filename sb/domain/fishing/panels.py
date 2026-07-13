@@ -75,27 +75,43 @@ from sb.spec.panels import (
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
-from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
+from sb.spec.refs import (
+    HandlerRef,
+    PanelRef,
+    ProviderRef,
+    handler,
+    is_registered,
+    panel,
+    provider,
+)
 
 __all__ = [
+    "BAIT_SHOP_PANEL_ID",
     "CARD_PANEL_ID",
     "CAST_PANEL_ID",
     "HUB_PANEL_ID",
     "LOG_PANEL_ID",
+    "ROD_SHOP_PANEL_ID",
+    "bait_shop_spec",
     "cast_spec",
     "ensure_panel_refs",
     "fishing_card_spec",
     "fishing_hub_spec",
     "install_fishing_panels",
     "log_spec",
+    "rod_shop_spec",
 ]
 
 CAST_PANEL_ID = "fishing.cast_panel"
 LOG_PANEL_ID = "fishing.log"
 HUB_PANEL_ID = "fishing.hub"
 CARD_PANEL_ID = "fishing.card"
+ROD_SHOP_PANEL_ID = "fishing.rod_shop"
+BAIT_SHOP_PANEL_ID = "fishing.bait_shop"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
@@ -171,11 +187,11 @@ def fishing_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="fishing_rod", label="Rod", emoji="🎒",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("fishing.rod_pending")),
+                handler=PanelRef(ROD_SHOP_PANEL_ID)),
             PanelActionSpec(
                 action_id="fishing_bait", label="Bait", emoji="🪱",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("fishing.bait_pending")),
+                handler=PanelRef(BAIT_SHOP_PANEL_ID)),
             PanelActionSpec(
                 action_id="fishing_structures", label="Structures",
                 emoji="🏗", style=ActionStyle.SECONDARY,
@@ -305,6 +321,388 @@ def log_spec() -> PanelSpec:
             "components; the renderer only composes the embed."),
         session_lifecycle=True,
     )
+
+
+def _knob_summary(rod) -> str:
+    """A friendly one-liner of what a rod's knobs buy (vs. the bare
+    starter) — views/fishing/rod_shop.py ``_knob_summary`` verbatim
+    (goldens/fishing/sweep_rod pins the rendered bytes)."""
+    if rod.tier == 0:
+        return "the trusty starter — catches everything, just no bonuses"
+    bits = [
+        f"+{rod.window_bonus:.1f}s reaction time",
+        f"bites {round((1 - rod.bite_speed) * 100)}% faster",
+        "better catches in your band",
+        f"{round(rod.escape_resist * 100)}% less escape in fights",
+        f"{round(rod.premature_grace * 100)}% chance to forgive an early "
+        "reel",
+    ]
+    return " · ".join(bits)
+
+
+def _gear_pending_handlers() -> dict[str, HandlerRef]:
+    """Pending terminals for the shop panels' deferred CRAFT lanes — the
+    craft* rung of D-0043 (the mining workshop precedent). Registered at
+    IMPORT (module bottom), never ensure-only (#111 doctrine); the copy
+    is the same text the service PENDING loop mints for the matching
+    commands, so the button/select and the command answer identically.
+    No golden drives a shop click, so the terminal copy is unpinned."""
+    from sb.domain.operator_spine import pending_handler
+
+    def _msg(name: str, system: str) -> str:
+        return (f"🎣 `!{name}` needs the fishing {system} — the fishing "
+                "depth port is named successor work (D-0043); the core "
+                "cast loop is live at the starter profile.")
+
+    return {
+        "craftrod": pending_handler(
+            "fishing.craftrod_pending", _msg("craftrod", "rod crafting")),
+        "rodrecipes": pending_handler(
+            "fishing.rodrecipes_pending",
+            _msg("rodrecipes", "rod crafting")),
+        "craftbait": pending_handler(
+            "fishing.craftbait_pending",
+            _msg("craftbait", "bait crafting")),
+        "craftpearl": pending_handler(
+            "fishing.craftpearl_pending",
+            _msg("craftpearl", "pearl bait crafting")),
+    }
+
+
+#: the bait-select options provider ids (registered at import in
+#: _register_providers).
+_BAIT_BUY_OPTIONS = "fishing.bait_buy_options"
+_BAIT_CRAFT_OPTIONS = "fishing.bait_craft_options"
+_BAIT_PEARL_OPTIONS = "fishing.bait_pearl_options"
+
+
+def _ensure_bait_option_providers() -> tuple[ProviderRef, ProviderRef,
+                                             ProviderRef]:
+    """The bait shop's three selects — the shipped ``_BaitSelect`` /
+    ``_BaitCraftSelect`` / ``_PearlCraftSelect`` option rows verbatim
+    (views/fishing/bait_shop.py; goldens/fishing/sweep_bait pins every
+    option byte). Catalog-derived (no player state), but provider-fed
+    like the mining workshop select — rich label/description/emoji rows
+    ride the provider seam, never a static spec tuple."""
+    buy_ref = ProviderRef(_BAIT_BUY_OPTIONS)
+    craft_ref = ProviderRef(_BAIT_CRAFT_OPTIONS)
+    pearl_ref = ProviderRef(_BAIT_PEARL_OPTIONS)
+    if not is_registered(buy_ref):
+        @provider(_BAIT_BUY_OPTIONS)
+        async def bait_buy_options(ctx: object):
+            from sb.domain.fishing import bait as bait_mod
+
+            return tuple(
+                {"label": f"{b.name} — {b.price} coins", "value": b.key,
+                 "emoji": b.emoji,
+                 "description": (f"×{b.charges} casts · "
+                                 f"{bait_mod.effect_text(b)}")}
+                for b in bait_mod.BAIT_CATALOG)
+    if not is_registered(craft_ref):
+        @provider(_BAIT_CRAFT_OPTIONS)
+        async def bait_craft_options(ctx: object):
+            from sb.domain.fishing import bait as bait_mod
+
+            options = []
+            for key in bait_mod.CRAFTABLE_KEYS:
+                b = bait_mod.bait_by_key(key)
+                recipe = bait_mod.craft_recipe(key)
+                if b is None or recipe is None:
+                    continue
+                options.append(
+                    {"label": f"{b.name} — {bait_mod.recipe_text(recipe)}",
+                     "value": b.key, "emoji": b.emoji,
+                     "description": (f"×{b.charges} casts · "
+                                     f"{bait_mod.effect_text(b)}")})
+            return tuple(options)
+    if not is_registered(pearl_ref):
+        @provider(_BAIT_PEARL_OPTIONS)
+        async def bait_pearl_options(ctx: object):
+            from sb.domain.fishing import bait as bait_mod
+
+            options = []
+            for key in bait_mod.PEARL_CRAFTABLE_KEYS:
+                b = bait_mod.bait_by_key(key)
+                cost = bait_mod.pearl_recipe(key)
+                if b is None or cost is None:
+                    continue
+                options.append(
+                    {"label": (f"{b.name} — "
+                               f"{bait_mod.pearl_recipe_text(cost)}"),
+                     "value": b.key, "emoji": "🦪",
+                     "description": (f"×{b.charges} casts · "
+                                     f"{bait_mod.effect_text(b)}")})
+            return tuple(options)
+    return buy_ref, craft_ref, pearl_ref
+
+
+def rod_shop_spec() -> PanelSpec:
+    """The shipped rod shop (disbot/views/fishing/rod_shop.py
+    ``RodShopView`` + ``build_rod_embed``): the 🎣 Your Fishing Rod
+    ECONOMY_COLOR gold embed over the shipped THREE buttons (⬆️ Upgrade
+    rod success · 🎣 Craft from fish primary · 📋 Recipes secondary —
+    emoji-in-label, trap 15a's other flavor) and the shipped ↩ Fishing
+    menu back row (NO standard nav — the shipped view carried only its
+    own back button). goldens/fishing/sweep_rod pins every byte:
+    run-minted ``<cid:N>`` ids (timeout session view ⇒
+    ``session_lifecycle=True``, no ``panel_anchors`` row), the ladder /
+    next-upgrade fields, the tier-1 craft line."""
+    _gear_pending_handlers()
+    return PanelSpec(
+        panel_id=ROD_SHOP_PANEL_ID,
+        subsystem="fishing",
+        title="🎣 Your Fishing Rod",
+        audience=Audience.INVOKER,
+        # ECONOMY_COLOR gold (15844367, utils/ui_constants.py); the live
+        # description/fields ride the override (see justification).
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="rod_upgrade", label="⬆️ Upgrade rod",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("fishing.rod_upgrade_route"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="rod_craft", label="🎣 Craft from fish",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("fishing.craftrod_pending")),
+            PanelActionSpec(
+                action_id="rod_recipes", label="📋 Recipes",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("fishing.rodrecipes_pending")),
+            PanelActionSpec(
+                action_id="rod_back", label="↩ Fishing menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped RodShopView carried ONLY its own back button — no
+        # 📚 Help / ↩ Games nav row (the golden pins the two rows).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_rod_shop"),
+        justification=(
+            "the shipped `!rod` reply is a fully live-state-parameterized "
+            "embed built in the view (views/fishing/rod_shop.py "
+            "build_rod_embed: the wielding description, the per-tier "
+            "ladder field with ✅/▶/🔒 marks, the next-upgrade field "
+            "interpolating knobs + live balance + the craft-recipe line — "
+            "goldens/fishing/sweep_rod pins the fresh-player bytes), "
+            "read-parameterized state outside the static TextBlock/"
+            "FieldsBlock vocabulary (the mining workshop precedent). The "
+            "renderer patches only the embed and the at-max disabled "
+            "flags; every component stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("rod_upgrade", "rod_craft", "rod_recipes"),
+            ("rod_back",),
+        )),)),
+    )
+
+
+def bait_shop_spec() -> PanelSpec:
+    """The shipped bait shop (disbot/views/fishing/bait_shop.py
+    ``BaitShopView`` + ``build_bait_embed``): the 🪱 Bait Shop
+    ECONOMY_COLOR gold embed over the shipped THREE selects (buy a pack
+    · craft from fish · craft from pearls — one per row) and the ↩
+    Fishing menu back row (NO standard nav). goldens/fishing/sweep_bait
+    pins every byte: run-minted ``<cid:N>`` ids, the 6/5/1 option rows
+    with their emoji/description bytes, the shelf / craft / pearl /
+    balance fields."""
+    _gear_pending_handlers()
+    buy_ref, craft_ref, pearl_ref = _ensure_bait_option_providers()
+    return PanelSpec(
+        panel_id=BAIT_SHOP_PANEL_ID,
+        subsystem="fishing",
+        title="🪱 Bait Shop",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="bait_buy", kind=SelectorKind.ENTITY,
+                on_select=HandlerRef("fishing.bait_buy_route"),
+                options_source=buy_ref,
+                placeholder="Buy a pack of bait…",
+                empty_state="Buy a pack of bait…",
+                audience_tier="user"),
+            SelectorSpec(
+                selector_id="bait_craft", kind=SelectorKind.ENTITY,
+                on_select=HandlerRef("fishing.craftbait_pending"),
+                options_source=craft_ref,
+                placeholder="Craft a pack from caught fish…",
+                empty_state="Craft a pack from caught fish…",
+                audience_tier="user"),
+            SelectorSpec(
+                selector_id="bait_pearl", kind=SelectorKind.ENTITY,
+                on_select=HandlerRef("fishing.craftpearl_pending"),
+                options_source=pearl_ref,
+                placeholder="Craft a pack from pearls…",
+                empty_state="Craft a pack from pearls…",
+                audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="bait_back", label="↩ Fishing menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped BaitShopView carried ONLY its own back button — no
+        # 📚 Help / ↩ Games nav row (the golden pins the four rows).
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_bait_shop"),
+        justification=(
+            "the shipped `!bait` reply is a fully live-state-parameterized "
+            "embed built in the view (views/fishing/bait_shop.py "
+            "build_bait_embed: the loaded-bait/bare description, the "
+            "shelf field, the craft-from-fish and craft-from-pearls "
+            "fields interpolating the live pearl count, the balance "
+            "field — goldens/fishing/sweep_bait pins the fresh-player "
+            "bytes), read-parameterized state outside the static "
+            "TextBlock/FieldsBlock vocabulary (the mining workshop "
+            "precedent). The selects' options ride the declared "
+            "providers; the renderer patches only the embed; every "
+            "component stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("bait_buy",),
+            ("bait_craft",),
+            ("bait_pearl",),
+            ("bait_back",),
+        )),)),
+    )
+
+
+async def _render_rod_shop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — build_rod_embed verbatim (see justification):
+    the wielding description, the ladder field, the next-upgrade field
+    (knobs + live balance + the craft line), and the at-max disabled
+    flags on Upgrade/Craft. A fresh player reads tier 0 / balance 0 —
+    the bytes goldens/fishing/sweep_rod pins."""
+    from sb.domain.economy.store import get_coins
+    from sb.domain.fishing import rods as rods_mod, store
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    tier = await store.get_rod_tier(uid, gid)
+    current = rods_mod.rod_for_tier(tier)
+    nxt = rods_mod.next_rod(tier)
+    balance = await get_coins(uid, gid)
+
+    ladder_lines = []
+    for rod in rods_mod.ROD_LADDER:
+        if rod.tier < current.tier:
+            mark = "✅"
+        elif rod.tier == current.tier:
+            mark = "**▶**"
+        else:
+            mark = "🔒"
+        price = "—" if rod.price == 0 else f"{rod.price} 🪙"
+        ladder_lines.append(f"{mark} {rod.emoji} **{rod.name}** ({price})")
+    fields: list[tuple[str, str]] = [
+        ("The ladder", "\n".join(ladder_lines))]
+    if nxt is None:
+        fields.append(("Next upgrade",
+                       "You wield the finest rod there is. 💎"))
+    else:
+        recipe = rods_mod.rod_recipe(nxt.tier)
+        craft_line = (
+            f"\n🎣 _or craft from {rods_mod.rod_recipe_text(recipe)}_"
+            " (📋 Recipes shows your live progress)"
+            if recipe is not None else "")
+        fields.append((
+            f"Next: {nxt.emoji} {nxt.name} — {nxt.price} 🪙",
+            f"_{_knob_summary(nxt)}_\nYour balance: **{balance}** 🪙"
+            f"{craft_line}"))
+    embed = _dc_replace(
+        rendered.embed,
+        description=(f"You're wielding the **{current.name}** "
+                     f"{current.emoji}\n*{_knob_summary(current)}*"),
+        fields=tuple(fields))
+    at_max = nxt is None
+    components = tuple(
+        _dc_replace(c, disabled=True)
+        if (at_max and (getattr(c, "custom_id", "").endswith(".rod_upgrade")
+                        or getattr(c, "custom_id",
+                                   "").endswith(".rod_craft")))
+        else c
+        for c in rendered.components)
+    return _dc_replace(rendered, embed=embed, components=components)
+
+
+async def _render_bait_shop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — build_bait_embed verbatim (see justification):
+    the loaded/bare description, the shelf, the craft shelves (fish +
+    pearls with the live pearl count) and the balance field. A fresh
+    player reads no loadout / 0 pearls / balance 0 — the bytes
+    goldens/fishing/sweep_bait pins."""
+    from sb.domain.economy.store import get_coins
+    from sb.domain.fishing import bait as bait_mod, store
+    from sb.domain.fishing.ops import PEARL_ITEM
+    from sb.domain.mining.store import get_mining_inventory
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    key, charges = await store.get_active_bait(uid, gid)
+    active = bait_mod.bait_by_key(key)
+    if active is None or charges <= 0:
+        active, charges = None, 0
+    balance = await get_coins(uid, gid)
+    inventory = await get_mining_inventory(uid, gid)
+    pearls = int(inventory.get(PEARL_ITEM, 0))
+
+    if active is not None and charges > 0:
+        description = (
+            f"Loaded: **{active.name}** {active.emoji} — "
+            f"**{charges}** casts left "
+            f"({bait_mod.effect_text(active)}).\n"
+            "*Each cast spends one charge and applies these on top of "
+            "your rod.*")
+    else:
+        description = (
+            "No bait loaded — you're fishing bare (which catches "
+            "fine!).\n"
+            "*Load a pack for rarer, bigger fish or quicker bites.*")
+
+    shelf = [
+        f"{b.emoji} **{b.name}** — {b.price} 🪙 "
+        f"(×{b.charges} casts, {bait_mod.effect_text(b)})"
+        for b in bait_mod.BAIT_CATALOG]
+    fields: list[tuple[str, str]] = [("The shelf", "\n".join(shelf))]
+    craftable = []
+    for k in bait_mod.CRAFTABLE_KEYS:
+        b = bait_mod.bait_by_key(k)
+        recipe = bait_mod.craft_recipe(k)
+        if b is None or recipe is None:
+            continue
+        craftable.append(
+            f"{b.emoji} **{b.name}** — {bait_mod.recipe_text(recipe)}")
+    if craftable:
+        fields.append((
+            "Craft from fish",
+            "\n".join(craftable)
+            + "\n*Turn small catches into bait — no coins needed.*"))
+    pearl_craftable = []
+    for k in bait_mod.PEARL_CRAFTABLE_KEYS:
+        b = bait_mod.bait_by_key(k)
+        cost = bait_mod.pearl_recipe(k)
+        if b is None or cost is None:
+            continue
+        pearl_craftable.append(
+            f"{b.emoji} **{b.name}** — {bait_mod.pearl_recipe_text(cost)}")
+    if pearl_craftable:
+        fields.append((
+            f"Craft from pearls (you have {pearls} 🦪)",
+            "\n".join(pearl_craftable)
+            + "\n*Pearls drop rarely when you reel in a fish — bigger "
+            "fish, better odds.*"))
+    fields.append(("Your balance", f"**{balance}** 🪙"))
+    embed = _dc_replace(rendered.embed, description=description,
+                        fields=tuple(fields))
+    return _dc_replace(rendered, embed=embed)
 
 
 async def _member_display_name(user_id: int, guild_id: int) -> str:
@@ -507,11 +905,23 @@ def _card_factory() -> PanelSpec:
     return fishing_card_spec()
 
 
+@panel(ROD_SHOP_PANEL_ID)
+def _rod_shop_factory() -> PanelSpec:
+    return rod_shop_spec()
+
+
+@panel(BAIT_SHOP_PANEL_ID)
+def _bait_shop_factory() -> PanelSpec:
+    return bait_shop_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
     (HUB_PANEL_ID, _hub_factory),
     (CARD_PANEL_ID, _card_factory),
+    (ROD_SHOP_PANEL_ID, _rod_shop_factory),
+    (BAIT_SHOP_PANEL_ID, _bait_shop_factory),
 )
 
 _RENDERS = (
@@ -519,12 +929,15 @@ _RENDERS = (
     ("fishing.render_log", _render_log),
     ("fishing.render_hub", _render_hub),
     ("fishing.render_card", _render_card),
+    ("fishing.render_rod_shop", _render_rod_shop),
+    ("fishing.render_bait_shop", _render_bait_shop),
 )
 
 
 def install_fishing_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec):
+    for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
+                  rod_shop_spec, bait_shop_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

@@ -1,7 +1,8 @@
 """FISHING subsystem manifest (band 6, checkpoint family) — the FULL
 shipped command surface verbatim (20 commands): the core cast + dex/
-trophy/leaderboard reads are live; gear/venue/craft/structure surfaces
-are honest pending terminals riding the D-0043 named successor port."""
+trophy/leaderboard reads, the slice-1 weather/venue surfaces and the
+slice-2 gear shops are live; craft/structure surfaces are honest
+pending terminals riding the D-0043 named successor port."""
 
 from __future__ import annotations
 
@@ -10,8 +11,10 @@ from sb.domain.fishing import service as _service
 from sb.domain.fishing.ops import register_ops
 from sb.domain.fishing.panels import fishing_hub_spec
 from sb.domain.fishing.store import (
+    FISHING_BAIT_STORE,
     FISHING_CATCH_LOG_STORE,
     FISHING_ENERGY_STORE,
+    FISHING_ROD_STORE,
     FISHING_VENUE_STORE,
 )
 from sb.spec.commands import CommandKind, CommandSpec
@@ -51,9 +54,12 @@ _COMMANDS = (
          ("fishforecast", "fishingweather")),
     _cmd("sail", HandlerRef("fishing.sail_route"),
          "Set sail to the deepwater venue.", ("setsail",)),
-    # --- gear/craft/structure systems (the D-0043 named successor port) ---
-    _pending("rod", "The rod shop.", ("rodshop", "buyrod")),
-    _pending("bait", "The bait shop.", ("baitshop", "buybait")),
+    # --- gear shops (fishing depth slice 2 — LIVE) -------------------------
+    _cmd("rod", HandlerRef("fishing.rod_view"), "The rod shop.",
+         ("rodshop", "buyrod")),
+    _cmd("bait", HandlerRef("fishing.bait_view"), "The bait shop.",
+         ("baitshop", "buybait")),
+    # --- craft/structure systems (the D-0043 named successor port) --------
     _pending("craftbait", "Craft bait from fish.", ("baitcraft",)),
     _pending("craftcharm", "Craft a fishing charm.", ("charmcraft",)),
     _pending("craftrod", "Craft a rod.", ("rodcraft",)),
@@ -77,10 +83,11 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=_COMMANDS,
     panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec(),
-            _panels.fishing_card_spec()),
+            _panels.fishing_card_spec(), _panels.rod_shop_spec(),
+            _panels.bait_shop_spec()),
     settings=(),
     stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE,
-            FISHING_VENUE_STORE),
+            FISHING_VENUE_STORE, FISHING_ROD_STORE, FISHING_BAIT_STORE),
     events=(),
     capabilities=(),
 )

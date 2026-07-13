@@ -4751,6 +4751,31 @@
           "value": "fishing_reel"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rod_upgrade"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rod_craft"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rod_recipes"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "rod_back"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "bait_back"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "wisdom"
@@ -6228,6 +6253,16 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.card"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.rod_shop"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.bait_shop"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -7786,6 +7821,16 @@
           "value": "fishing_venue"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_rod"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_bait"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "game_state"
@@ -9047,8 +9092,11 @@
       "handler:farm.render_shop": {
         "module": "sb.domain.farm.panels"
       },
-      "handler:fishing.bait_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.bait_buy_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.bait_view": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.boathouse_pending": {
         "module": "sb.domain.operator_spine"
@@ -9092,6 +9140,9 @@
       "handler:fishing.menu_view": {
         "module": "sb.domain.fishing.service"
       },
+      "handler:fishing.render_bait_shop": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.render_card": {
         "module": "sb.domain.fishing.panels"
       },
@@ -9104,8 +9155,14 @@
       "handler:fishing.render_log": {
         "module": "sb.domain.fishing.panels"
       },
-      "handler:fishing.rod_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.render_rod_shop": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.rod_upgrade_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.rod_view": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.rodrecipes_pending": {
         "module": "sb.domain.operator_spine"
@@ -10253,6 +10310,9 @@
       "panel:farm.shop": {
         "module": "sb.domain.farm.panels"
       },
+      "panel:fishing.bait_shop": {
+        "module": "sb.domain.fishing.panels"
+      },
       "panel:fishing.card": {
         "module": "sb.domain.fishing.panels"
       },
@@ -10263,6 +10323,9 @@
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.log": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.rod_shop": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:four_twenty.overview": {
@@ -10771,6 +10834,15 @@
       },
       "provider:economy.shop_overview": {
         "module": "sb.domain.economy.panels"
+      },
+      "provider:fishing.bait_buy_options": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "provider:fishing.bait_craft_options": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "provider:fishing.bait_pearl_options": {
+        "module": "sb.domain.fishing.panels"
       },
       "provider:games.hub_fields": {
         "module": "sb.domain.games.panels"
@@ -11435,7 +11507,13 @@
       "workflow:farm.upgrade_coop": {
         "module": "sb.domain.farm.ops"
       },
+      "workflow:fishing.bait_buy": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.erase_subject_bait": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.erase_subject_catch_log": {
@@ -11444,10 +11522,22 @@
       "workflow:fishing.erase_subject_energy": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.erase_subject_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.erase_subject_venue": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.record_bait_buy": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_rod_upgrade": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.rod_upgrade": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:games.balance_payload_0": {
@@ -12236,6 +12326,14 @@
         },
         "subsystem": "economy"
       },
+      "fishing_bait": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_bait",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
       "fishing_catch_log": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "fishing_catch_log",
@@ -12247,6 +12345,14 @@
       "fishing_energy": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "fishing_energy",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
+      "fishing_rod": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_rod",
         "sole_writer": {
           "$ref": "engine:fishing.store"
         },
@@ -12615,7 +12721,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:07a3111c894ff15e99262047a64da42f88b6a735df93ac880ee09cfe7a22353b",
+  "stable_hash": "sha256:b360f09b85dba9d4229bba1c09b1de4e8de414dc95ce12cd19e6e4722db4da4f",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -30608,7 +30714,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.rod_pending"
+            "$ref": "handler:fishing.rod_view"
           },
           "slash_common": false,
           "summary": "The rod shop.",
@@ -30635,7 +30741,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.bait_pending"
+            "$ref": "handler:fishing.bait_view"
           },
           "slash_common": false,
           "summary": "The bait shop.",
@@ -31005,7 +31111,7 @@
               "emoji": "🎒",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.rod_pending"
+                "$ref": "panel:fishing.rod_shop"
               },
               "label": "Rod",
               "modal": null,
@@ -31030,7 +31136,7 @@
               "emoji": "🪱",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.bait_pending"
+                "$ref": "panel:fishing.bait_shop"
               },
               "label": "Bait",
               "modal": null,
@@ -31329,6 +31435,300 @@
           "timeout_s": 180,
           "title": "",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "rod_upgrade",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.rod_upgrade_route"
+              },
+              "label": "⬆️ Upgrade rod",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rod_craft",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.craftrod_pending"
+              },
+              "label": "🎣 Craft from fish",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rod_recipes",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.rodrecipes_pending"
+              },
+              "label": "📋 Recipes",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "rod_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!rod` reply is a fully live-state-parameterized embed built in the view (views/fishing/rod_shop.py build_rod_embed: the wielding description, the per-tier ladder field with ✅/▶/🔒 marks, the next-upgrade field interpolating knobs + live balance + the craft-recipe line — goldens/fishing/sweep_rod pins the fresh-player bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining workshop precedent). The renderer patches only the embed and the at-max disabled flags; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "rod_upgrade",
+                    "rod_craft",
+                    "rod_recipes"
+                  ],
+                  [
+                    "rod_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.rod_shop",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_rod_shop"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🎣 Your Fishing Rod",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "bait_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!bait` reply is a fully live-state-parameterized embed built in the view (views/fishing/bait_shop.py build_bait_embed: the loaded-bait/bare description, the shelf field, the craft-from-fish and craft-from-pearls fields interpolating the live pearl count, the balance field — goldens/fishing/sweep_bait pins the fresh-player bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining workshop precedent). The selects' options ride the declared providers; the renderer patches only the embed; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bait_buy"
+                  ],
+                  [
+                    "bait_craft"
+                  ],
+                  [
+                    "bait_pearl"
+                  ],
+                  [
+                    "bait_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.bait_shop",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_bait_shop"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "Buy a pack of bait…",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.bait_buy_route"
+              },
+              "options_source": {
+                "$ref": "provider:fishing.bait_buy_options"
+              },
+              "page_size": 25,
+              "placeholder": "Buy a pack of bait…",
+              "selector_id": "bait_buy",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "Craft a pack from caught fish…",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.craftbait_pending"
+              },
+              "options_source": {
+                "$ref": "provider:fishing.bait_craft_options"
+              },
+              "page_size": 25,
+              "placeholder": "Craft a pack from caught fish…",
+              "selector_id": "bait_craft",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "Craft a pack from pearls…",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.craftpearl_pending"
+              },
+              "options_source": {
+                "$ref": "provider:fishing.bait_pearl_options"
+              },
+              "page_size": 25,
+              "placeholder": "Craft a pack from pearls…",
+              "selector_id": "bait_pearl",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🪱 Bait Shop",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -31415,6 +31815,62 @@
             "$ref": "engine:fishing.store"
           },
           "table": "fishing_venue",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_rod"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_rod",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_rod",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_bait"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_bait",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_bait",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

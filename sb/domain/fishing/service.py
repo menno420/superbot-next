@@ -1,13 +1,14 @@
 """Fishing handlers (band 6) — the shipped cast-open lane (energy gate →
 spend → the waiting-for-a-bite panel), the Reel commit route,
-dex/leaderboard/trophy reads + the slice-1 weather/venue surfaces
-(``!forecast`` / ``!sail``); rod/bait/craft/structure surfaces are
-honest pending terminals until the gear systems port (D-0043 successor
-work). ``goldens/fishing/sweep_fish.json`` pins the cast-open bytes
-(the spent ``fishing_energy`` row + the panel), sweep_forecast the Rain
-forecast embed, sweep_sail the deepwater toggle + its ``fishing_venue``
-row; the dex embed lives on ``fishing.log``
-(sb/domain/fishing/panels.py)."""
+dex/leaderboard/trophy reads, the slice-1 weather/venue surfaces
+(``!forecast`` / ``!sail``) + the slice-2 gear shops (``!rod`` /
+``!bait`` and their buy routes); craft/structure surfaces are honest
+pending terminals until the craft* rung ports (D-0043 successor work).
+``goldens/fishing/sweep_fish.json`` pins the cast-open bytes (the spent
+``fishing_energy`` row + the panel), sweep_forecast the Rain forecast
+embed, sweep_sail the deepwater toggle + its ``fishing_venue`` row,
+sweep_rod / sweep_bait the fresh-player shop panels; the dex embed
+lives on ``fishing.log`` (sb/domain/fishing/panels.py)."""
 
 from __future__ import annotations
 
@@ -164,6 +165,112 @@ def _register() -> None:
                 "`!fish`.")
         return Reply(SUCCESS, message)
 
+    @handler("fishing.rod_view")
+    async def rod_view(req) -> Reply:
+        """!rod / the hub 🎒 Rod button — open the rod shop panel
+        (fishing_cog.py ``rod`` → views/fishing/rod_shop.py
+        ``RodShopView`` + ``build_rod_embed``; a pure read — tier +
+        balance render in the panel's renderer override;
+        goldens/fishing/sweep_rod pins the fresh-player bytes)."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import ROD_SHOP_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(ROD_SHOP_PANEL_ID),
+                         dataclasses.replace(req))
+        return Reply(SUCCESS, None)
+
+    @handler("fishing.bait_view")
+    async def bait_view(req) -> Reply:
+        """!bait / the hub 🪱 Bait button — open the bait shop panel
+        (fishing_cog.py ``bait`` → views/fishing/bait_shop.py
+        ``BaitShopView`` + ``build_bait_embed``; a pure read —
+        loadout + balance + pearls render in the renderer override;
+        goldens/fishing/sweep_bait pins the fresh-player bytes)."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import BAIT_SHOP_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(BAIT_SHOP_PANEL_ID),
+                         dataclasses.replace(req))
+        return Reply(SUCCESS, None)
+
+    @handler("fishing.rod_upgrade_route")
+    async def rod_upgrade_route(req) -> Reply:
+        """The rod panel's ⬆️ Upgrade button — buy the next rod up the
+        ladder (fishing_workflow ``buy_rod``). The maxed / insufficient
+        cases answer as PURE READS (oracle refusal copy verbatim — its
+        txn rolls back, writing nothing; the vaultupgrade_route
+        precedent); only a funded upgrade runs the audited
+        debit-and-bump op. No golden drives the click (the run-minted
+        button id) — the shop OPEN is the pinned surface."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.fishing import rods as rods_mod, store
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        tier = await store.get_rod_tier(uid, gid)
+        nxt = rods_mod.next_rod(tier)
+        if nxt is None:
+            top = rods_mod.rod_for_tier(tier)
+            return Reply(BLOCKED,
+                         f"You already wield the **{top.name}** "
+                         f"{top.emoji} — the finest rod there is!")
+        balance = await get_coins(uid, gid)
+        if balance < nxt.price:
+            return Reply(BLOCKED,
+                         f"The **{nxt.name}** {nxt.emoji} costs "
+                         f"**{nxt.price}** 🪙 — you only have "
+                         f"**{balance}** 🪙.")
+        result = await engine.run(WorkflowRef("fishing.rod_upgrade"),
+                                  _ctx_from_req(req, {}))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Couldn't do that.")
+        after = (result.after or {}).get("rod_upgrade", {})
+        return Reply(SUCCESS, after.get("message", ""))
+
+    @handler("fishing.bait_buy_route")
+    async def bait_buy_route(req) -> Reply:
+        """The bait panel's buy select — buy one pack of the picked
+        bait (fishing_workflow ``buy_bait``). Unknown-key /
+        insufficient cases answer as PURE READS (oracle refusal copy
+        verbatim); only a funded buy runs the audited debit-and-load
+        op. No golden drives the pick (run-minted select ids carry no
+        values in the corpus) — the shop OPEN is the pinned surface."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.fishing import bait as bait_mod
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        values = tuple(req.args.get("values", ()) or ())
+        bait = bait_mod.bait_by_key(str(values[0]) if values else "")
+        if bait is None:
+            return Reply(BLOCKED,
+                         "That bait doesn't exist on the shelf.")
+        balance = await get_coins(uid, gid)
+        if balance < bait.price:
+            return Reply(BLOCKED,
+                         f"A pack of **{bait.name}** {bait.emoji} "
+                         f"costs **{bait.price}** 🪙 — you only have "
+                         f"**{balance}** 🪙.")
+        result = await engine.run(
+            WorkflowRef("fishing.bait_buy"),
+            _ctx_from_req(req, {"bait_key": bait.key}))
+        if result.outcome != SUCCESS:
+            return Reply(result.outcome,
+                         result.user_message or "Couldn't do that.")
+        after = (result.after or {}).get("bait_buy", {})
+        return Reply(SUCCESS, after.get("message", ""))
+
     @handler("fishing.menu_view")
     async def menu_view(req) -> Reply:
         from sb.domain.fishing import catalog
@@ -217,13 +324,13 @@ def _register() -> None:
         return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 
-#: Gear/craft/structure surfaces awaiting the fishing depth port
-#: (D-0043). forecast/sail left this dict in slice 1 (weather + venue);
-#: the cast LEG still runs the starter shore profile — the venue→cast
-#: wiring (deepwater species pool, coral drop, minigame difficulty)
-#: rides the rod/bait/minigame rung with the rest of the gear knobs.
+#: Craft/structure surfaces awaiting the fishing depth port (D-0043).
+#: forecast/sail left this dict in slice 1 (weather + venue); rod/bait
+#: left in slice 2 (the gear shops — their craft* siblings stay, riding
+#: the craft* rung). The cast LEG still runs the starter shore profile —
+#: the venue/rod/bait→cast wiring (deepwater species pool, coral drop,
+#: rolled knobs, per-cast bait consume) rides the minigame rung.
 PENDING = {
-    "rod": "rod ladder", "bait": "bait system",
     "craftbait": "bait crafting", "craftcharm": "charm crafting",
     "craftrod": "rod crafting", "rodrecipes": "rod crafting",
     "craftpearl": "pearl bait crafting", "curios": "curio collection",

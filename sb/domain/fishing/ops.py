@@ -11,9 +11,13 @@ terminals). At the starter profile the roll is byte-identical to a fresh
 shipped player's. Slice 1 made the VENUE STATE live (!sail persists
 ``fishing_venue``; the hub/cast renders read it) but the cast LEG still
 rolls the shore pool — the venue→cast wiring (deepwater species pool,
-coral drop, minigame difficulty) rides the rod/bait/minigame rung, where
-the oracle's rolled knobs (rarity_pull, bite speed, escape) land
-together."""
+coral drop, minigame difficulty) rides the minigame rung, where the
+oracle's rolled knobs (rarity_pull, bite speed, escape) land together.
+Slice 2 made the GEAR STATE live the same way (!rod / !bait persist
+``fishing_rod`` / ``fishing_bait`` through the audited buy ops below)
+but the cast LEG still rolls starter knobs — the owned rod's
+rarity_pull and the loaded bait's per-cast consume ride that same
+minigame rung."""
 
 from __future__ import annotations
 
@@ -166,12 +170,143 @@ async def _erase_venue(conn, ctx: WorkflowContext) -> LegOutcome:
                       before={}, after={"rows": rows})
 
 
+@workflow("fishing.erase_subject_rod")
+async def _erase_rod(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_rod(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_rod", True),
+                      before={}, after={"rows": rows})
+
+
+@workflow("fishing.erase_subject_bait")
+async def _erase_bait(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_bait(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_bait", True),
+                      before={}, after={"rows": rows})
+
+
+# --- gear-shop buy legs (slice 2): the shipped services/fishing_workflow.py
+# buy_rod / buy_bait verbatim, re-homed onto the audited one-leg one-txn
+# seam (the mining.record_vault_upgrade precedent). The handlers gate the
+# maxed / unknown-key / insufficient-funds cases out as PURE READS before
+# these legs run (no write, no audit row — the oracle's txn rolls back and
+# loads nothing), so the raises here are defensive. Both settles are
+# advisory-fenced against the read-then-settle money race (#213/#217;
+# check_money_race) ------------------------------------------------------------
+
+# shipped reason strings verbatim (services/fishing_workflow.py)
+ROD_PURCHASE_REASON = "fishing:rod_purchase"
+BAIT_PURCHASE_REASON = "fishing:bait_purchase"
+
+
+@workflow("fishing.record_rod_upgrade")
+async def _record_rod_upgrade(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The `!rod` panel's ⬆️ Upgrade button — buy the next rod up the
+    ladder (fishing_workflow ``buy_rod``): debit the next tier's price
+    and raise the owned tier in ONE txn (the debit audits itself); the
+    balance event emits after commit."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.fishing import rods as rods_mod
+    from sb.domain.games import wager
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    # Fence concurrent upgrades BEFORE the tier read → the debit + tier
+    # bump serialize (no double-charge / lost tier — #217).
+    await store.lock_rod_upgrade_slot(conn, user_id=uid, guild_id=gid)
+    tier = await store.get_rod_tier(uid, gid, conn=conn)
+    nxt = rods_mod.next_rod(tier)
+    if nxt is None:
+        top = rods_mod.rod_for_tier(tier)
+        raise ValidatorError(
+            f"You already wield the **{top.name}** {top.emoji} — the "
+            "finest rod there is!")
+    try:
+        balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=nxt.price,
+            reason=ROD_PURCHASE_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        held = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"The **{nxt.name}** {nxt.emoji} costs **{nxt.price}** 🪙 — "
+            f"you only have **{held}** 🪙.") from None
+    await store.set_rod_tier(uid, gid, nxt.tier, conn=conn)
+    ctx.params["_balance_changes"] = [
+        (uid, -nxt.price, balance, ROD_PURCHASE_REASON)]
+    return LegOutcome(
+        step=StepResult(uid, "rod_upgrade", True), before={},
+        after={"tier": nxt.tier, "balance": balance,
+               "message": f"You upgraded to the **{nxt.name}** "
+                          f"{nxt.emoji} for **{nxt.price}** 🪙! "
+                          f"Balance: **{balance}** 🪙."})
+
+
+@workflow("fishing.record_bait_buy")
+async def _record_bait_buy(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The `!bait` panel's buy select — buy one pack (fishing_workflow
+    ``buy_bait``): a player loads at most one bait at a time — buying
+    the SAME bait stacks its charges, a DIFFERENT bait replaces the
+    loadout (the message says so). Debit + load in ONE txn; the balance
+    event emits after commit."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.fishing import bait as bait_mod
+    from sb.domain.games import wager
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    bait = bait_mod.bait_by_key(str(ctx.params.get("bait_key", "")))
+    if bait is None:
+        raise ValidatorError("That bait doesn't exist on the shelf.")
+    # Fence concurrent buys BEFORE the loadout read → two racing buys of
+    # the same bait stack sequentially (no lost charges — #217).
+    await store.lock_bait_slot(conn, user_id=uid, guild_id=gid)
+    cur_key, cur_charges = await store.get_active_bait(uid, gid,
+                                                       conn=conn)
+    stacking = cur_key == bait.key and cur_charges > 0
+    new_charges = (cur_charges if stacking else 0) + bait.charges
+    try:
+        balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=bait.price,
+            reason=BAIT_PURCHASE_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        held = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"A pack of **{bait.name}** {bait.emoji} costs "
+            f"**{bait.price}** 🪙 — you only have **{held}** 🪙."
+        ) from None
+    await store.set_active_bait(uid, gid, bait.key, new_charges,
+                                conn=conn)
+    ctx.params["_balance_changes"] = [
+        (uid, -bait.price, balance, BAIT_PURCHASE_REASON)]
+    verb = "Topped up" if stacking else "Loaded"
+    return LegOutcome(
+        step=StepResult(uid, "bait_buy", True), before={},
+        after={"bait_key": bait.key, "charges": new_charges,
+               "balance": balance,
+               "message": f"{verb} **{bait.name}** {bait.emoji} "
+                          f"({bait_mod.effect_text(bait)}) — "
+                          f"**{new_charges}** casts ready for "
+                          f"**{bait.price}** 🪙. "
+                          f"Balance: **{balance}** 🪙."})
+
+
 _XP_EMITS = (
     EventEmitSpec("game_xp.awarded",
                   WorkflowRef("games.game_xp_awarded_payload"),
                   DeliveryClass.BEST_EFFORT),
     EventEmitSpec("game_xp.level_up",
                   WorkflowRef("games.game_xp_levelup_payload"),
+                  DeliveryClass.BEST_EFFORT),
+)
+
+_BALANCE_EMITS = (
+    EventEmitSpec("economy.balance_changed",
+                  WorkflowRef("games.balance_payload_0"),
                   DeliveryClass.BEST_EFFORT),
 )
 
@@ -183,13 +318,35 @@ CAST = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="fish_caught", emits=_XP_EMITS)
 
-_OPS = (CAST,)
+ROD_UPGRADE = CompoundOpSpec(
+    op_key="fishing.rod_upgrade", domain="fishing",
+    lane=WorkflowLane.DOMAIN, authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_rod_upgrade"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_rod_upgraded", emits=_BALANCE_EMITS)
+
+BAIT_BUY = CompoundOpSpec(
+    op_key="fishing.bait_buy", domain="fishing",
+    lane=WorkflowLane.DOMAIN, authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_bait_buy"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_bait_loaded", emits=_BALANCE_EMITS)
+
+_OPS = (CAST, ROD_UPGRADE, BAIT_BUY)
 
 _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
+    ("fishing.record_rod_upgrade", _record_rod_upgrade),
+    ("fishing.record_bait_buy", _record_bait_buy),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
     ("fishing.erase_subject_energy", _erase_energy),
     ("fishing.erase_subject_venue", _erase_venue),
+    ("fishing.erase_subject_rod", _erase_rod),
+    ("fishing.erase_subject_bait", _erase_bait),
 )
 
 

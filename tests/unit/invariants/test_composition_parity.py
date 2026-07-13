@@ -33,19 +33,18 @@ from pathlib import Path
 # a live RefUnresolved waiting to fire (see the ideas ledger). Burn down to
 # empty; never grow.
 _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
-    "handler:fishing.bait_pending",
     "handler:fishing.boathouse_pending",
-    "handler:fishing.craftbait_pending",
     "handler:fishing.craftcharm_pending",
     "handler:fishing.craftcurio_pending",
-    "handler:fishing.craftpearl_pending",
-    "handler:fishing.craftrod_pending",
     "handler:fishing.curios_pending",
     "handler:fishing.dock_pending",
     "handler:fishing.fishery_pending",
-    "handler:fishing.rod_pending",
-    "handler:fishing.rodrecipes_pending",
     "handler:fishing.tidepool_pending",
+    # rod/bait pruned by the fishing slice-2 port — their real rod_view /
+    # bait_view handlers register at module import, and the craftbait /
+    # craftpearl / craftrod / rodrecipes pending terminals now register
+    # at import in fishing/panels.py (the shop buttons/selects reference
+    # them), so they are import-visible too.
     # build/buildlist/buildable pruned by the slice-6 port — their real
     # build_route / buildlist_route / buildable_view handlers register at
     # module import.
