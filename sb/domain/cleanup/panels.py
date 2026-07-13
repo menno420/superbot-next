@@ -38,11 +38,16 @@ Inventory-literal / servermanagement badge-literal precedent):
   slice;
 * the ``🛡️ Anti-evasion matching`` field is the shipped default-off
   literal — the anti-evasion setting read/toggle is the same slice;
-* every click (hub routing buttons, word add/remove modals, scan,
-  anti-evasion toggle) lands on a declared + honest pending terminal
-  (sb/domain/cleanup/handlers.py) except 🔤 Prohibited Words (opens the
-  ported words manager), 🧹 refresh (re-renders the hub in place) and
-  the nav row.
+* the remaining pending clicks (sb/domain/cleanup/handlers.py): the
+  hub's ⚙️ Settings / 🧹 Cleanup Policies sub-views and the words
+  manager's 🛡️ Anti-evasion toggle. Everything else routes for real:
+  🔤 Prohibited Words opens the ported words manager, 📝 Logging Status
+  opens the ported ``logging.hub`` (the server-logging slice landed),
+  ➕/➖ open G-10 word modals whose submits run the audited
+  ``cleanup.word_add_op``/``word_remove_op`` command twins (the
+  moderation.hub.warn modal-ingress precedent), 🔄 refresh re-renders
+  each panel in place, and 🔍 Scan History runs the live
+  ``cleanup.history_scan`` handler (``!cleanuphistory``'s route).
 """
 
 from __future__ import annotations
@@ -53,10 +58,13 @@ from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
     Audience,
+    DeferMode,
     EmbedFrameSpec,
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -68,6 +76,7 @@ from sb.spec.refs import (
     HandlerRef,
     PanelRef,
     ProviderRef,
+    WorkflowRef,
     is_registered,
     panel,
     provider,
@@ -112,6 +121,27 @@ _WORDS_FOOTER = "Use buttons below to manage prohibited words."
 #: memory).
 _WORDS_CURRENT = "`test`"
 _WORDS_ANTI_EVASION = "⚫ **Off** — exact word match only"
+
+
+# --- the word-mutation prompt modals (the moderation.hub.warn G-10 ingress
+# precedent: button → declared ModalSpec → the audited K7 command twin).
+# The shipped view's per-button modals prompted for one word; field_id
+# "word" feeds ops._word_from (ctx.params["word"]) directly, exactly like
+# `!word add <word>` / `!word remove <word>` (goldens sweep_word_add /
+# sweep_word_remove pin the reply copy the twins answer with).
+
+_WORD_FIELD = ModalFieldSpec(
+    field_id="word", label="Word or phrase",
+    placeholder="e.g. badword", required=True, max_length=100)
+
+WORD_ADD_MODAL = ModalSpec(
+    modal_id="cleanup.word_add_form", title="Add Prohibited Word",
+    fields=(_WORD_FIELD,),
+    on_submit=WorkflowRef("cleanup.word_add_op"))
+WORD_REMOVE_MODAL = ModalSpec(
+    modal_id="cleanup.word_remove_form", title="Remove Prohibited Word",
+    fields=(_WORD_FIELD,),
+    on_submit=WorkflowRef("cleanup.word_remove_op"))
 
 
 # --- field providers ---------------------------------------------------------------
@@ -167,7 +197,11 @@ def cleanup_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="logging", label="📝 Logging Status",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.logging_pending"),
+                # the shipped hub opened the Logging Status view — its
+                # successor slice (server-logging) landed, so the click
+                # routes to the PORTED logging.hub (the admin.hub
+                # `admin_logging` nav precedent).
+                handler=PanelRef("logging.hub"),
                 custom_id_override="cleanup:logging"),
             PanelActionSpec(
                 action_id="settings", label="⚙️ Settings",
@@ -232,23 +266,33 @@ def cleanup_words_spec() -> PanelSpec:
         actions=(
             # row 0 — the shipped word-mutation trio (run-minted auto-ids;
             # the golden pins <cid:1>..<cid:3>; emoji IN the labels).
+            # ➕/➖ open the G-10 word modals whose submits run the audited
+            # command twins (the moderation.hub.warn ingress precedent).
             PanelActionSpec(
                 action_id="word_add", label="➕ Add Word",
                 style=ActionStyle.SUCCESS, audience_tier="administrator",
-                handler=HandlerRef("cleanup.word_add_pending")),
+                defer_mode=DeferMode.MODAL, modal=WORD_ADD_MODAL,
+                handler=WorkflowRef("cleanup.word_add_op")),
             PanelActionSpec(
                 action_id="word_remove", label="➖ Remove Word",
                 style=ActionStyle.DANGER, audience_tier="administrator",
-                handler=HandlerRef("cleanup.word_remove_pending")),
+                defer_mode=DeferMode.MODAL, modal=WORD_REMOVE_MODAL,
+                handler=WorkflowRef("cleanup.word_remove_op")),
+            # the shipped grey in-place refresh (the hub's cl_refresh
+            # pattern; the golden-pinned field literals re-render — the
+            # live Current Words read stays the word-mutation slice's).
             PanelActionSpec(
                 action_id="word_refresh", label="🔄 Refresh",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.word_refresh_pending")),
+                handler=PanelRef("cleanup.words"),
+                result_render=ResultRender.REFRESH_PANEL),
             # row 1 — the shipped scan/anti-evasion pair (<cid:4>/<cid:5>).
+            # 🔍 runs the live history scan (`!cleanuphistory`'s handler —
+            # the shipped button ran the same sweep, default args).
             PanelActionSpec(
                 action_id="scan_history", label="🔍 Scan History",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.scan_history_pending")),
+                handler=HandlerRef("cleanup.history_scan")),
             PanelActionSpec(
                 action_id="anti_evasion", label="🛡️ Anti-evasion",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",

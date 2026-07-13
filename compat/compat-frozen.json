@@ -2598,6 +2598,8 @@
   "chain.delete_form",
   "chain.set_limit_form",
   "channel.create_name_form",
+  "cleanup.word_add_form",
+  "cleanup.word_remove_form",
   "cleanup:logging",
   "cleanup:policies",
   "cleanup:refresh",

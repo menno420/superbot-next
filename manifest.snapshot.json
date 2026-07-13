@@ -9499,9 +9499,6 @@
       "handler:cleanup.history_scan": {
         "module": "sb.domain.cleanup.handlers"
       },
-      "handler:cleanup.logging_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:cleanup.policies_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -9511,23 +9508,11 @@
       "handler:cleanup.render_words": {
         "module": "sb.domain.cleanup.panels"
       },
-      "handler:cleanup.scan_history_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:cleanup.settings_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:cleanup.word_add_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:cleanup.word_list": {
         "module": "sb.domain.cleanup.ops"
-      },
-      "handler:cleanup.word_refresh_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:cleanup.word_remove_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:community.render_hub": {
         "module": "sb.domain.community.panels"
@@ -13958,7 +13943,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:547deb335cb5d16300c02af61081463c80be164ad7c865bed2220e88d3a476b1",
+  "stable_hash": "sha256:9302289790f6957bf689d233ed55dd27e073e83fc5bf6c7629833ad69aa0543c",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -26940,7 +26925,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.logging_pending"
+                "$ref": "panel:logging.hub"
               },
               "label": "📝 Logging Status",
               "modal": null,
@@ -27097,15 +27082,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.word_add_pending"
+                "$ref": "workflow:cleanup.word_add_op"
               },
               "label": "➕ Add Word",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "word",
+                    "label": "Word or phrase",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. badword",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "cleanup.word_add_form",
+                "on_submit": {
+                  "$ref": "workflow:cleanup.word_add_op"
+                },
+                "title": "Add Prohibited Word"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -27122,15 +27125,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.word_remove_pending"
+                "$ref": "workflow:cleanup.word_remove_op"
               },
               "label": "➖ Remove Word",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "word",
+                    "label": "Word or phrase",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. badword",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "cleanup.word_remove_form",
+                "on_submit": {
+                  "$ref": "workflow:cleanup.word_remove_op"
+                },
+                "title": "Remove Prohibited Word"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -27152,13 +27173,13 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.word_refresh_pending"
+                "$ref": "panel:cleanup.words"
               },
               "label": "🔄 Refresh",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
-              "result_render": "result_card",
+              "result_render": "refresh_panel",
               "slash_common": false,
               "style": "secondary",
               "usage_weight": 1.0,
@@ -27177,7 +27198,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.scan_history_pending"
+                "$ref": "handler:cleanup.history_scan"
               },
               "label": "🔍 Scan History",
               "modal": null,
