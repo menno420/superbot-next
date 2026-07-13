@@ -27,7 +27,7 @@ plugin/manifest architecture; retire the hub's two pending terminals.
 - `sb/domain/mining/grid.py` — the pure seed-deterministic world, oracle
   verbatim (splitmix64 cell hash, 70/10/18/2 feature weights, richness
   folds, fog-of-war map render, light-widened `reveal_radius`).
-- Migration `0054_mining_grid.sql` — `pos_x`/`pos_y` (oracle columns) +
+- Migration `0056_mining_grid.sql` — `pos_x`/`pos_y` (oracle columns) +
   `discovered` JSONB on `mining_player_state`. **Flagged deviation:** the
   oracle keeps fog of war in a dedicated `mining_discovered` table; a NEW
   declared store table on ported mining reds `check_parity_depth` R2
