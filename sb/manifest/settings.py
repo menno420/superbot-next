@@ -95,7 +95,13 @@ MANIFEST = SubsystemManifest(
             capability="settings",
         ),
     ),
-    panels=(_panels.settings_hub_spec(), _panels.settings_access_spec()),
+    panels=(_panels.settings_hub_spec(), _panels.settings_access_spec(),
+            # the three armed read-only hub diagnostics (settings-admin
+            # slice 1 — oracle disbot/views/settings/{needs_setup,
+            # invalid_settings,missing_bindings}.py, copy verbatim).
+            _panels.settings_needs_setup_spec(),
+            _panels.settings_invalid_spec(),
+            _panels.settings_missing_bindings_spec()),
     settings=(),
     stores=(SETTINGS_STORE, BINDINGS_STORE, BINDING_AUDIT_STORE),
     events=(SETTINGS_CHANGED_EVENT, BINDINGS_CHANGED_EVENT),

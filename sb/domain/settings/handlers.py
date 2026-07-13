@@ -2,13 +2,16 @@
 the declared + honest pending terminals for every hub click whose target
 is its own port slice (the role/utility/channel-band precedent, never a
 silent stub): the per-group settings pages (``settings_subsystem.*``),
-the four diagnostic sub-panels (``settings_needs_setup.back`` family)
-and the Command Access panel (``settings_command_access.*``, PR-6) stay
-pending with the settings-mutation slice; the Access Policy Explorer's
-six controls are ARMED (curation rows 82-87) over the governance
-diagnostic read seam (``governance.resolve_subsystem_state``) and the
-K7 ``SET_VISIBILITY`` clear lane (Reset). Refs register at MODULE IMPORT
-(the composition-parity invariant — the live root never runs
+the audit view and the Command Access panel
+(``settings_command_access.*``, PR-6) stay pending with their own
+slices. The Access Policy Explorer's six controls are ARMED (curation
+rows 82-87) over the governance diagnostic read seam
+(``governance.resolve_subsystem_state``) and the K7 ``SET_VISIBILITY``
+clear lane (Reset); the hub's three READ-ONLY diagnostics (Needs setup /
+Invalid settings / Missing bindings — settings-admin slice 1) are ARMED
+as declared PanelRef open-child routes (sb/domain/settings/panels.py) —
+no handler here, the grammar owns the dispatch. Refs register at MODULE
+IMPORT (the composition-parity invariant — the live root never runs
 ENSURE_REFS)."""
 
 from __future__ import annotations
@@ -195,14 +198,12 @@ def _register() -> None:
     from sb.domain.operator_spine import pending_handler
     from sb.spec.refs import HandlerRef, handler, is_registered
 
+    # The three read-only diagnostics' pending refs are RETIRED
+    # (settings-admin slice 1 armed them as PanelRef open-child routes —
+    # the retired-explorer-pending precedent); audit + command access
+    # keep their honest terminals until their own slices land.
     pending_handler("settings.group_pending",
                     f"⚙️ The per-group settings page{_PENDING}")
-    pending_handler("settings.needs_setup_pending",
-                    f"📋 The Needs-setup diagnostic{_PENDING}")
-    pending_handler("settings.invalid_pending",
-                    f"⚠️ The Invalid-settings diagnostic{_PENDING}")
-    pending_handler("settings.missing_bindings_pending",
-                    f"🔗 The Missing-bindings diagnostic{_PENDING}")
     pending_handler("settings.audit_pending",
                     f"🕒 The Recent-changes audit view{_PENDING}")
     pending_handler("settings.command_access_pending",

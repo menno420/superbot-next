@@ -5869,6 +5869,21 @@
           "value": "access_next"
         },
         {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "needs_setup_back"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "invalid_back"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "missing_bindings_back"
+        },
+        {
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "depth_quick"
@@ -7651,6 +7666,21 @@
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings.access"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.needs_setup"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.invalid"
+        },
+        {
+          "source": "sb/manifest/settings.py",
+          "subsystem": "settings",
+          "value": "settings.missing_bindings"
         },
         {
           "source": "sb/manifest/setup.py",
@@ -10906,15 +10936,6 @@
       "handler:settings.group_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:settings.invalid_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:settings.missing_bindings_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:settings.needs_setup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:settings.open_group": {
         "module": "sb.domain.settings.handlers"
       },
@@ -10922,6 +10943,12 @@
         "module": "sb.domain.settings.panels"
       },
       "handler:settings.render_hub": {
+        "module": "sb.domain.settings.panels"
+      },
+      "handler:settings.render_invalid": {
+        "module": "sb.domain.settings.panels"
+      },
+      "handler:settings.render_needs_setup": {
         "module": "sb.domain.settings.panels"
       },
       "handler:setup.advanced_open": {
@@ -12175,6 +12202,15 @@
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:settings.invalid": {
+        "module": "sb.domain.settings.panels"
+      },
+      "panel:settings.missing_bindings": {
+        "module": "sb.domain.settings.panels"
+      },
+      "panel:settings.needs_setup": {
+        "module": "sb.domain.settings.panels"
+      },
       "panel:setup.apply_recovery": {
         "module": "sb.domain.setup.final_review"
       },
@@ -12746,6 +12782,15 @@
         "module": "sb.domain.settings.panels"
       },
       "provider:settings.hub_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.invalid_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.missing_bindings_fields": {
+        "module": "sb.domain.settings.panels"
+      },
+      "provider:settings.needs_setup_fields": {
         "module": "sb.domain.settings.panels"
       },
       "provider:setup.depth_fields": {
@@ -53413,7 +53458,7 @@
               "emoji": "📋",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.needs_setup_pending"
+                "$ref": "panel:settings.needs_setup"
               },
               "label": "Needs setup",
               "modal": null,
@@ -53438,7 +53483,7 @@
               "emoji": "⚠️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.invalid_pending"
+                "$ref": "panel:settings.invalid"
               },
               "label": "Invalid settings",
               "modal": null,
@@ -53463,7 +53508,7 @@
               "emoji": "🔗",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.missing_bindings_pending"
+                "$ref": "panel:settings.missing_bindings"
               },
               "label": "Missing bindings",
               "modal": null,
@@ -54098,6 +54143,253 @@
           "subsystem": "settings",
           "timeout_s": 180,
           "title": "🔍 Access Policy Explorer",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "needs_setup_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:settings.hub"
+              },
+              "label": "Back to Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Subsystems whose schema declares **required** bindings or resource requirements.  This shows what _should_ be configured; the *bound vs unresolved* status of each slot lives in the **Missing bindings** view."
+            },
+            {
+              "provider": {
+                "$ref": "provider:settings.needs_setup_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Needs-setup footer is the DYNAMIC coverage count 'N subsystem(s) with required bindings · N with required resources · N subsystems total.' (views/settings/needs_setup.py set_footer), rendered only when a requirement exists — count-keyed copy outside FooterMode's none/subsystem/provenance vocabulary (the settings-hub footer-literal precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "needs_setup_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:settings.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.needs_setup",
+          "renderer_override": {
+            "$ref": "handler:settings.render_needs_setup"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "📋 Needs setup",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "invalid_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:settings.hub"
+              },
+              "label": "Back to Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Settings whose current KV value failed coercion or validation.  Resolver fell back to the declared default for runtime safety; fix the underlying KV row via the subsystem page's edit/reset control."
+            },
+            {
+              "provider": {
+                "$ref": "provider:settings.invalid_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "orange",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped Invalid-settings footer ('S6 introduces the edit flow that fixes these in place.' — views/settings/invalid_settings.py set_footer) renders CONDITIONALLY, only when an invalid row exists — state-keyed presence outside FooterMode's none/subsystem/provenance vocabulary (the settings-hub footer-literal precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "invalid_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:settings.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.invalid",
+          "renderer_override": {
+            "$ref": "handler:settings.render_invalid"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "⚠️ Invalid settings",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "missing_bindings_back",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "↩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:settings.hub"
+              },
+              "label": "Back to Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Declared bindings whose runtime status is not `bound`.  Includes unresolved slots (no row yet), targets that disappeared from Discord, and kind-drift cases.  Bind controls land alongside the setup wizard's binding section (planned)."
+            },
+            {
+              "provider": {
+                "$ref": "provider:settings.missing_bindings_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "missing_bindings_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:settings.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "settings.missing_bindings",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "settings",
+          "timeout_s": 180,
+          "title": "🔗 Missing bindings",
           "usage_weight": 1.0
         }
       ],
