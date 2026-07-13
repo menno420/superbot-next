@@ -23,6 +23,7 @@ from __future__ import annotations
 from sb.domain.btd6 import ai_tasks as _ai_tasks
 from sb.domain.btd6 import oracle_surface as _oracle
 from sb.domain.btd6 import panels as _panels
+from sb.domain.btd6 import paragon_surface as _paragon
 from sb.domain.btd6 import service as _service
 from sb.domain.btd6.ops import register_ops
 from sb.domain.btd6.store import BTD6_DATA_BLOBS_STORE, BTD6_STRATEGIES_STORE
@@ -351,6 +352,7 @@ def _ensure_refs() -> None:
     _panels.ensure_panel_refs()
     _service.ensure_handler_refs()
     _oracle.ensure_oracle_refs()
+    _paragon.ensure_paragon_surface_refs()
     register_ops()
     _ai_tasks.register_btd6_ai()
 

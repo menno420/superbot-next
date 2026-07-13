@@ -8465,8 +8465,32 @@
       "handler:btd6.ops_usage_view": {
         "module": "sb.domain.btd6.service"
       },
-      "handler:btd6.paragon_pending": {
-        "module": "sb.domain.btd6.service"
+      "handler:btd6.paragon_calc_submit": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_degree_select": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_degree_submit": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_reopen": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_requirements_open": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_select": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_stats_open": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_strategy_select": {
+        "module": "sb.domain.btd6.paragon_surface"
+      },
+      "handler:btd6.paragon_target_submit": {
+        "module": "sb.domain.btd6.paragon_surface"
       },
       "handler:btd6.ref_ct_pending": {
         "module": "sb.domain.btd6.service"
@@ -8502,6 +8526,12 @@
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_paragon": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "handler:btd6.render_paragon_requirements": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "handler:btd6.render_paragon_stats": {
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.strat_audit_view": {
@@ -10121,6 +10151,12 @@
       "panel:btd6.paragon": {
         "module": "sb.domain.btd6.panels"
       },
+      "panel:btd6.paragon_requirements": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "panel:btd6.paragon_stats": {
+        "module": "sb.domain.btd6.panels"
+      },
       "panel:btd6.strategy_submit": {
         "module": "sb.domain.btd6.panels"
       },
@@ -10708,6 +10744,21 @@
       },
       "provider:automod.hub_settings": {
         "module": "sb.domain.operator_spine"
+      },
+      "provider:btd6.paragon_difficulty_options": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "provider:btd6.paragon_options": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "provider:btd6.paragon_players_options": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "provider:btd6.paragon_strategy_options": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "provider:btd6.paragon_tier5_options": {
+        "module": "sb.domain.btd6.panels"
       },
       "provider:casino.hub_fields": {
         "module": "sb.domain.casino.panels"
@@ -12615,7 +12666,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:07a3111c894ff15e99262047a64da42f88b6a735df93ac880ee09cfe7a22353b",
+  "stable_hash": "sha256:c41df2e67682e84e5a6fcb7738dbd1d089ffeb51d6b016c6caed764d536a2e8a",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -21327,16 +21378,74 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_calc_submit"
               },
               "label": "🧮 Calculate degree",
-              "modal": null,
-              "reply_visibility": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "pops",
+                    "label": "Pops (total damage)",
+                    "max_length": 15,
+                    "min_length": null,
+                    "placeholder": "e.g. 8000000",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "cash_spent",
+                    "label": "Cash spent (non-T5 towers)",
+                    "max_length": 12,
+                    "min_length": null,
+                    "placeholder": "e.g. 150000",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "slider_cash",
+                    "label": "Slider cash",
+                    "max_length": 12,
+                    "min_length": null,
+                    "placeholder": "e.g. 0",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "upgrade_count",
+                    "label": "Upgrade tiers (a 0-2-4 tower = 6)",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "e.g. 60",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "geraldo_totems",
+                    "label": "Geraldo totems",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "e.g. 0",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.paragon_forward_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.paragon_calc_submit"
+                },
+                "title": "Paragon — enter your numbers"
+              },
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -21357,7 +21466,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_requirements_open"
               },
               "label": "🎯 Requirements",
               "modal": null,
@@ -21382,7 +21491,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_stats_open"
               },
               "label": "📊 Stats",
               "modal": null,
@@ -21482,88 +21591,11 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
-              "options_source": [
-                {
-                  "default": true,
-                  "description": "Dart Monkey",
-                  "label": "Apex Plasma Master",
-                  "value": "apex_plasma_master"
-                },
-                {
-                  "default": false,
-                  "description": "Boomerang Monkey",
-                  "label": "Glaive Dominus",
-                  "value": "glaive_dominus"
-                },
-                {
-                  "default": false,
-                  "description": "Ninja Monkey",
-                  "label": "Ascended Shadow",
-                  "value": "ascended_shadow"
-                },
-                {
-                  "default": false,
-                  "description": "Monkey Buccaneer",
-                  "label": "Navarch of the Seas",
-                  "value": "navarch_of_the_seas"
-                },
-                {
-                  "default": false,
-                  "description": "Monkey Sub",
-                  "label": "Nautic Siege Core",
-                  "value": "nautic_siege_core"
-                },
-                {
-                  "default": false,
-                  "description": "Engineer Monkey",
-                  "label": "Master Builder",
-                  "value": "master_builder"
-                },
-                {
-                  "default": false,
-                  "description": "Wizard Monkey",
-                  "label": "Magus Perfectus",
-                  "value": "magus_perfectus"
-                },
-                {
-                  "default": false,
-                  "description": "Monkey Ace",
-                  "label": "Goliath Doomship",
-                  "value": "goliath_doomship"
-                },
-                {
-                  "default": false,
-                  "description": "Tack Shooter",
-                  "label": "Crucible of Steel and Flame",
-                  "value": "crucible_of_steel_and_flame"
-                },
-                {
-                  "default": false,
-                  "description": "Spike Factory",
-                  "label": "Mega Massive Munitions Factory",
-                  "value": "mega_massive_munitions_factory"
-                },
-                {
-                  "default": false,
-                  "description": "Bomb Shooter",
-                  "label": "Ballistic Obliteration Missile Bunker (B.O.M.B.)",
-                  "value": "ballistic_obliteration_missile_bunker"
-                },
-                {
-                  "default": false,
-                  "description": "Ice Monkey",
-                  "label": "Herald of Everfrost",
-                  "value": "herald_of_everfrost"
-                },
-                {
-                  "default": false,
-                  "description": "Druid",
-                  "label": "Root of all Nature",
-                  "value": "root_of_all_nature"
-                }
-              ],
+              "options_source": {
+                "$ref": "provider:btd6.paragon_options"
+              },
               "page_size": 25,
               "placeholder": "Choose a paragon…",
               "selector_id": "paragon",
@@ -21579,30 +21611,11 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
-              "options_source": [
-                {
-                  "default": true,
-                  "label": "Solo (1 player)",
-                  "value": "1"
-                },
-                {
-                  "default": false,
-                  "label": "Co-op (2 players)",
-                  "value": "2"
-                },
-                {
-                  "default": false,
-                  "label": "Co-op (3 players)",
-                  "value": "3"
-                },
-                {
-                  "default": false,
-                  "label": "Co-op (4 players)",
-                  "value": "4"
-                }
-              ],
+              "options_source": {
+                "$ref": "provider:btd6.paragon_players_options"
+              },
               "page_size": 25,
               "placeholder": "Players…",
               "selector_id": "players",
@@ -21618,30 +21631,11 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
-              "options_source": [
-                {
-                  "default": false,
-                  "label": "Easy (0.85x)",
-                  "value": "easy"
-                },
-                {
-                  "default": true,
-                  "label": "Medium (1.0x)",
-                  "value": "medium"
-                },
-                {
-                  "default": false,
-                  "label": "Hard (1.08x)",
-                  "value": "hard"
-                },
-                {
-                  "default": false,
-                  "label": "Impoppable (1.2x)",
-                  "value": "impoppable"
-                }
-              ],
+              "options_source": {
+                "$ref": "provider:btd6.paragon_difficulty_options"
+              },
               "page_size": 25,
               "placeholder": "Difficulty…",
               "selector_id": "difficulty",
@@ -21657,20 +21651,11 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
-              "options_source": [
-                {
-                  "default": true,
-                  "label": "0 extra T5",
-                  "value": "0"
-                },
-                {
-                  "default": false,
-                  "label": "1 extra T5",
-                  "value": "1"
-                }
-              ],
+              "options_source": {
+                "$ref": "provider:btd6.paragon_tier5_options"
+              },
               "page_size": 25,
               "placeholder": "Extra T5s…",
               "selector_id": "tier5",
