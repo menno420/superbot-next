@@ -10582,20 +10582,20 @@
       "handler:server_management.render_hub": {
         "module": "sb.domain.server_management.panels"
       },
-      "handler:settings.access_explain_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_explain": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_page_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_page": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_reset_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_reset": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_scope_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_scope": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_subsystem_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_subsystem": {
+        "module": "sb.domain.settings.handlers"
       },
       "handler:settings.access_view": {
         "module": "sb.domain.settings.handlers"
@@ -13928,7 +13928,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:d575cf11147e8bdbec7cf762b9cc93a515a4ed2cf5949fd21591bdfcff6eb5b3",
+  "stable_hash": "sha256:826b5f62cf2440cb75a72a798b82f8575b78d5bd457bec899a302f0bfb1b8773",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -52912,7 +52912,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_explain_pending"
+                "$ref": "handler:settings.access_explain"
               },
               "label": "🔬 Explain Access",
               "modal": null,
@@ -52937,7 +52937,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_reset_pending"
+                "$ref": "handler:settings.access_reset"
               },
               "label": "🔄 Reset",
               "modal": null,
@@ -52962,7 +52962,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_page_pending"
+                "$ref": "handler:settings.access_page"
               },
               "label": "◀ Prev",
               "modal": null,
@@ -52987,7 +52987,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_page_pending"
+                "$ref": "handler:settings.access_page"
               },
               "label": "Next ▶",
               "modal": null,
@@ -53067,7 +53067,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:settings.access_subsystem_pending"
+                "$ref": "handler:settings.access_subsystem"
               },
               "options_source": [
                 {
@@ -53236,7 +53236,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:settings.access_scope_pending"
+                "$ref": "handler:settings.access_scope"
               },
               "options_source": [
                 {
