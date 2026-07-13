@@ -556,7 +556,11 @@ def test_stage_gate_refusal_is_the_shipped_copy(monkeypatch):
         "operations. Ask the owner to grant you `/setup-delegate`.")
 
 
-def test_stage_writes_the_accepted_set_into_the_draft(monkeypatch):
+def test_stage_writes_the_draft_then_opens_final_review(monkeypatch):
+    """The shipped _stage_final flow: stage the accepted set, then land
+    on the FinalReviewView (the final-review slice's live destination —
+    the earlier staged-confirmation text retired with the honest
+    terminal it carried)."""
     from sb.domain.setup import wizard
     from sb.kernel.panels import engine as panels_engine
 
@@ -571,16 +575,22 @@ def test_stage_writes_the_accepted_set_into_the_draft(monkeypatch):
     async def fake_refresh(req, *, message_key, params, expire=False):
         return True
 
+    opened = []
+
+    async def fake_open(ref, req):
+        opened.append(ref.name)
+        return "msg-key"
+
     monkeypatch.setattr(wizard, "stage_accepted", fake_stage)
     monkeypatch.setattr(panels_engine, "refresh_session_view", fake_refresh)
+    monkeypatch.setattr(panels_engine, "open_panel", fake_open)
     state = wizard.seed_review_state(99, 42, _draft(_rec()))
     state.add(_rec())
     reply = run(_resolve("setup.review_stage")(_req()))
-    assert reply.outcome == SUCCESS
+    assert reply is None
     assert staged == [(99, state.accepted)]
-    assert reply.user_message.startswith(
-        "✅ Staged **1** operation into the setup draft — nothing has "
-        "changed yet.")
+    assert opened == ["setup.final_review"]
+    assert state.last_status == "Staged 1 operation into the setup draft."
 
 
 def test_stage_accepted_replaces_the_suggestions_rows(monkeypatch):
@@ -784,7 +794,8 @@ def test_interior_panels_ride_the_manifest():
     panel_ids = [p.panel_id for p in m.MANIFEST.panels]
     assert panel_ids == [
         "setup.hub", "setup.essential_card", "setup.status_card",
-        "setup.suggestions_card", "setup.sections_hub", "setup.review_item"]
+        "setup.suggestions_card", "setup.sections_hub", "setup.review_item",
+        "setup.final_review", "setup.apply_recovery", "setup.complete_card"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {

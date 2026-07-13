@@ -36,6 +36,7 @@ prefix bytes).
 from __future__ import annotations
 
 from sb.domain.setup import ai_tasks as _ai_tasks
+from sb.domain.setup import final_review as _final_review
 from sb.domain.setup import handlers as _handlers
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
@@ -164,7 +165,9 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.setup_hub_spec(), _panels.essential_card_spec(),
             _panels.status_card_spec(), _panels.suggestions_card_spec(),
-            _panels.sections_hub_spec(), _panels.review_item_spec()),
+            _panels.sections_hub_spec(), _panels.review_item_spec(),
+            _final_review.final_review_spec(), _final_review.recovery_spec(),
+            _final_review.complete_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -177,6 +180,7 @@ def _ensure_refs() -> None:
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _wizard.ensure_wizard_refs()
+    _final_review.ensure_final_review_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()
     _ai_tasks.register_ai_tasks()
