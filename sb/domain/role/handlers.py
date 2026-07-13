@@ -1,8 +1,9 @@
 """Role command handlers (band 5) — thin HandlerRef routes: text views
-over the DB truth, K7-lane routes for the audited writes, and honest
-pending terminals for surfaces needing the live guild view / the
-role-provisioning port (roleinfo, createrole/deleterole, assignroles,
-debugroles, refreshmembers, rolecreator — the band-2 precedent).
+over the DB truth, K7-lane routes for the audited writes, and live
+guild-view surfaces via the actions/provisioning ports (roleinfo,
+createrole/deleterole, assignroles, debugroles, refreshmembers — all
+live since ORDER 017 edits A; the polite pending terminals are retired,
+see the module-import registration note below).
 """
 
 from __future__ import annotations
@@ -31,6 +32,36 @@ def _leg_after(result, step_name: str) -> dict:
     after = result.after if isinstance(result.after, dict) else {}
     leg = after.get(step_name)
     return leg if isinstance(leg, dict) else {}
+
+
+async def _create_role_lane(req, *, name: str, color: int) -> Reply:
+    """The shipped create lane, shared by `!createrole` and the hub
+    Create modal: the provisioning-port write, then the
+    RoleLifecycleService companions verbatim — ONE mutation_id shared by
+    the best-effort audit event and the advisory lifecycle event
+    (services/role_lifecycle_service.py; goldens/role/sweep_createrole
+    pins both payloads + the ✅ ack)."""
+    import uuid
+
+    from sb.domain.role import service
+
+    gid = int(req.guild_id or 0)
+    try:
+        rid = await service.active_provisioning().create_guild_role(
+            gid, name=name, color=color, reason=None)
+    except RuntimeError as exc:
+        return Reply(BLOCKED, f"❌ Could not create role: {exc}")
+    mutation_id = str(uuid.uuid4())
+    actor_id = int(getattr(req.actor, "user_id", 0) or 0)
+    await service.emit_role_audit(
+        gid, mutation_id=mutation_id, mutation_type="role_create",
+        target=f"role:{rid}", new_value=f"create role '{name}'",
+        actor_id=actor_id, actor_type="admin")
+    await service.emit_role_lifecycle(
+        gid, mutation_id=mutation_id, operation="create",
+        outcome="success", applied=[rid], failed=[])
+    # the shipped ack verbatim (role_cog.createrole)
+    return Reply(SUCCESS, f"✅ Created role **{name}**.")
 
 
 def _register() -> None:
@@ -427,8 +458,6 @@ def _register_guild_surfaces() -> None:
         the role-provisioning port (fake_http captured guild.create_role
         as the `create_role` wire verb; goldens/role/sweep_createrole
         pins the call + the ✅ ack)."""
-        from sb.domain.role import service
-
         argv = tuple(req.args.get("argv", ()) or ())
         if not argv:
             return Reply(BLOCKED, "Usage: `!createrole <name> [color]`")
@@ -440,29 +469,36 @@ def _register_guild_surfaces() -> None:
                 color = int(token, 16)
             except ValueError:
                 color = 0
-        gid = int(req.guild_id or 0)
-        try:
-            rid = await service.active_provisioning().create_guild_role(
-                gid, name=name, color=color, reason=None)
-        except RuntimeError as exc:
-            return Reply(BLOCKED, f"❌ Could not create role: {exc}")
-        # the shipped RoleLifecycleService companions verbatim — ONE
-        # mutation_id shared by the best-effort audit event and the
-        # advisory lifecycle event (services/role_lifecycle_service.py;
-        # goldens/role/sweep_createrole pins both payloads).
-        import uuid
+        return await _create_role_lane(req, name=name, color=color)
 
-        mutation_id = str(uuid.uuid4())
-        actor_id = int(getattr(req.actor, "user_id", 0) or 0)
-        await service.emit_role_audit(
-            gid, mutation_id=mutation_id, mutation_type="role_create",
-            target=f"role:{rid}", new_value=f"create role '{name}'",
-            actor_id=actor_id, actor_type="admin")
-        await service.emit_role_lifecycle(
-            gid, mutation_id=mutation_id, operation="create",
-            outcome="success", applied=[rid], failed=[])
-        # the shipped ack verbatim (role_cog.createrole)
-        return Reply(SUCCESS, f"✅ Created role **{name}**.")
+    @handler("role.create_form_submit")
+    async def create_form_submit(req) -> Reply:
+        """The hub 📝 Create button's `RoleCreateModal` submit
+        (views/roles/creation_panel.py) — the shipped hex-colour guard
+        verbatim, then the SAME audited create lane as `!createrole`
+        (provisioning port + the shared-mutation_id audit/lifecycle
+        companions). The shipped modal's hoist/mentionable fields ride
+        the provisioning-port extension (a named successor — the port's
+        create verb carries name+color today); the shipped preset picker
+        + 📦 Role Packs creation menu and the XP-automation follow-up
+        stay the creation-menu slice's."""
+        name = str(req.args.get("name", "") or "").strip()
+        if not name:
+            # required field — an empty submit only reaches here through
+            # a non-Discord surface.
+            return Reply(BLOCKED, "❌ Role name is required.")
+        color = 0
+        raw = str(req.args.get("color", "") or "").strip()
+        if raw:
+            try:
+                color = int(raw.lstrip("#"), 16)
+                if not (0 <= color <= 0xFFFFFF):
+                    raise ValueError
+            except (ValueError, OverflowError):
+                # the shipped modal refusal, verbatim (creation_panel.py).
+                return Reply(BLOCKED,
+                             "❌ Invalid color — use hex like `#3498db`.")
+        return await _create_role_lane(req, name=name, color=color)
 
     @handler("role.deleterole")
     async def deleterole(req) -> Reply:
@@ -576,37 +612,22 @@ def _parse_duration(token: str) -> int | None:
     return value if value > 0 else None
 
 
-def _register_pending() -> None:
-    """The four polite pending terminals. Registered at MODULE IMPORT
-    (declaring IS reserving) — the live root imports and dispatches without
-    ever running the manifest ENSURE_REFS hooks when zero plugins are
-    admitted, so an ensure-only registration left `!roleinfo`/`!createrole`/
-    `!assignroles`/`!debugroles` and the role:create click dying in
-    RefUnresolved BUG envelopes live (band-5 live-drive ledger, bug 1)."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler("role.create_pending",
-                    "📝 Role creation needs the live role-provisioning "
-                    "port (arms with the live adapter at CUT-1).")
-    pending_handler("role.roleinfo_pending",
-                    "ℹ️ Role info needs the live guild view "
-                    "(arms with the live adapter).")
-    pending_handler("role.assignroles_pending",
-                    "⏱️ The role check needs the live guild view "
-                    "(arms with the live adapter).")
-    pending_handler("role.debug_pending",
-                    "🔧 Live role diagnostics need the gateway cache "
-                    "(arms with the live adapter).")
-
-
 def ensure_handler_refs() -> None:
     _register()
     _register_guild_surfaces()
     _register_task_fire()
-    _register_pending()
 
 
+# Registered at MODULE IMPORT (declaring IS reserving) — the live root
+# imports and dispatches without ever running the manifest ENSURE_REFS
+# hooks when zero plugins are admitted; an ensure-only registration left
+# commands dying in RefUnresolved BUG envelopes live (band-5 live-drive
+# ledger, bug 1). The polite role pending terminals are ALL retired:
+# role:create at the 2026-07-13 operator-hub edits A (#358 — the hub
+# Create modal runs the live create lane); roleinfo/assignroles/
+# debugroles at the 2026-07-13 orphan-refs true-up — their live handlers
+# (role.roleinfo / role.assignroles / role.debugroles) landed via #358,
+# leaving the pendings registered but unreachable.
 _register()
 _register_guild_surfaces()
 _register_task_fire()
-_register_pending()

@@ -181,6 +181,11 @@ class _WorldGuildDirectory:
                 f"https://cdn.discordapp.com/embed/avatars/{index}.png"),
             created_at=self._snowflake_time(int(user_id)),
             joined_at=datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            # the capture world's one bot member is the bot user itself
+            # (boot.py _member: the personas are humans, bot=False; the
+            # GalaxyBotParity member alone carries bot=True) — the
+            # opponent.bot guard's read.
+            is_bot=(int(user_id) == World.BOT_USER_ID),
         )
 
 
@@ -772,6 +777,7 @@ class Harness:
         is the runner's own step)."""
         from sb.domain.casino.game import reset_games_for_tests
         from sb.domain.casino.table import reset_tables_for_tests
+        from sb.domain.fishing.service import reset_pending_casts_for_tests
         from sb.kernel.interaction import cooldown as cooldown_mod
         from sb.kernel.interaction.resolve import reset_resolver_ports_for_tests
         from sb.kernel.panels import engine as panel_engine
@@ -784,6 +790,10 @@ class Harness:
         # `!poker` in one case never finds the prior case's live table.
         reset_tables_for_tests()
         reset_games_for_tests()
+        # the fishing pending-cast registry (one rolled cast per player)
+        # is the same class of process-global cross-case state — clear it
+        # so a `!fish` in one case never finds the prior case's line.
+        reset_pending_casts_for_tests()
         self.leaked_channels.clear()                     # per-case seed (runner)
         self.leaked_roster.clear()                       # per-case seed (runner)
         self._arm_capture_ports()                        # re-arm what we own

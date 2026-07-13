@@ -178,9 +178,62 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         ),
         notes=(
             "challenge -> Accept auto-resolves the 6v6 and records the W/L "
-            "pair + battle-win game-xp (creature.record_battle_result)"
+            "pair + battle-win game-xp (creature.record_battle_result); the "
+            "resolved outcome card now carries the live 🔄 Rematch button"
         ),
     ),
+    GoldenCase(
+        id="creature.cbattle_bot_guard",
+        subsystem="creature",
+        steps=(
+            # !cbattle against the guild's bot member (World.BOT_USER_ID) —
+            # the shipped opponent.bot guard, now live over MemberInfo.is_bot.
+            Step(
+                kind="command",
+                content="!cbattle <@500000000000000001>",
+                persona="member",
+            ),
+        ),
+        notes=(
+            "the shipped opponent.bot guard: !cbattle against a bot member "
+            "is BLOCKED ('🤖 You can't battle a bot…') with no challenge "
+            "card and an empty db_delta — the MemberInfo.is_bot seam"
+        ),
+    ),
+    GoldenCase(
+        id="creature.challenge_picker",
+        subsystem="creature",
+        steps=(
+            # open the hub, then the shipped Challenge button opens the
+            # native user-select opponent picker (wire type 5)…
+            Step(kind="command", content="!creatures", persona="member"),
+            Step(kind="click", target_message=1, component_index=2,
+                 persona="member"),
+            # …and selecting a trainer opens the challenge card (the
+            # selected id rides the ordinary select `values` round-trip).
+            # The picker is an ephemeral followup (no click-targetable
+            # message id), so the select is driven by its stable custom_id
+            # on the originating hub message — the dex-browse control
+            # precedent (goldens/creature/creature_dex_filter_element).
+            Step(kind="click", target_message=1,
+                 custom_id="creature.challenge_select.challenge_opponent",
+                 component_type=5, persona="member",
+                 values=("900000000000000103",)),
+        ),
+        notes=(
+            "the native member picker: hub Challenge opens a user_select "
+            "(wire type 5); selecting a trainer routes through "
+            "creature.challenge_pick into the Accept/Decline challenge card"
+        ),
+    ),
+    # NOTE (slice 3 — Rematch): the 🔄 Rematch button rides the resolved
+    # OUTCOME card, which is an in-place edit (edit_followup, no
+    # click-targetable message id) whose session-minted button custom_ids
+    # cannot be referenced from the static case model — so a rematch-CLICK
+    # golden is not cleanly capturable here. The affordance's rendered bytes
+    # ARE pinned: creature.battle_accept's resolved-card output now carries
+    # the live 🔄 Rematch button (re-minted this slice). The handler
+    # (creature.challenge_rematch) is unit-covered.
     # ------------------------------------------------------------- casino
     GoldenCase(
         id="casino.poker_full_hand",
@@ -243,6 +296,47 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "'You're already registered!' duplicate refusal) → !bjstart "
             "launch → per-entrant round → all-done settle → champion payout "
             "+ results embed (self-cleaning: end_tournament + clear_active)"
+        ),
+    ),
+    GoldenCase(
+        id="blackjack.tournament_paid_flow",
+        subsystem="blackjack",
+        # Both entrants are pre-funded via fixture_sql (BEFORE the
+        # before-snapshot, so the seed credits never appear in db_delta —
+        # only the tournament's own money legs do). 100 🪙 each clears the
+        # 25 🪙 join affordability gate; the fee debits at launch, not join.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 100), "
+            "(900000000000000103, 700000000000000001, 100)",
+        ),
+        steps=(
+            # open a PAID single-round tournament (fee 25, rounds 1)
+            Step(kind="command", content="!bjtournament 25 1", persona="admin"),
+            # member signs up via the 🃏 Join button (affordability passes)
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+            # a second player signs up → the roster reaches two
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="second_member"),
+            # admin launches: per-entrant fee debit (tournament:entry_fee)
+            # + first round table view
+            Step(kind="command", content="!bjstart", persona="admin"),
+            # each entrant Stands their single round (Stand = 2nd button)
+            Step(kind="click", target_message=3, component_index=1,
+                 persona="member"),
+            Step(kind="click", target_message=5, component_index=1,
+                 persona="second_member"),
+        ),
+        notes=(
+            "minted (D-0073): the PAID-pot money path #302's free-tournament "
+            "golden left unpinned — open (fee 25) → two Join sign-ups → "
+            "!bjstart debits each entrant 25 (tournament:entry_fee) → "
+            "per-entrant round → all-done settle → champion paid the pooled "
+            "50 pot (blackjack:tournament_win) + clear_active, self-cleaning. "
+            "CONSERVATION: the two 25 entry_fee debits sum to the single 50 "
+            "tournament_win payout — the exact economy_audit_log rows are the "
+            "golden's assertion (no coins minted or stranded on the paid leg)"
         ),
     ),
     # ----------------------------------------------------- rps tournament
@@ -814,5 +908,267 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "bad-branch error face (skill_service.allocate copy verbatim); the "
             "denial records a normalized audit_log row, NO player_skills "
             "db_delta"),
+    ),
+    # ------------------------------------------- mining ENERGY (slice 2)
+    # Argful !use / !cook writes over the energy lane (docs/scoping/
+    # energy-system-scope.md slice 2; oracle copy: disbot/services/
+    # mining_workflow.py use_item/cook @ 87bbe1d). Same conventions as the
+    # WP-1 block above: fixture rows seed BEFORE the before-snapshot;
+    # member persona = 900000000000000102, guild = 700000000000000001;
+    # success replies carry the shipped `<@u> ` mention, refusals are
+    # PLAIN (the cog's ok=False ctx.send(result.message) branch). The
+    # restore capture is the first golden whose db_delta carries a
+    # mining_player_state row (retires that guard-only-capture exemption).
+    GoldenCase(
+        id="mining.use_ration_restore_write",
+        subsystem="mining",
+        # own a ration + hold a below-cap energy row. energy_updated_at is
+        # pinned FUTURE-of-the-logical-clock (2100-01-01 epoch) so settle()
+        # clamps elapsed to 0 and the pre-use bar is exactly 10 regardless
+        # of the case's logical-time base — deterministic by construction
+        # (the same math both bots run; a past stamp would regen to full).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'ration', 1)",
+            "INSERT INTO mining_player_state (user_id, guild_id, energy, "
+            "energy_updated_at) VALUES "
+            "('900000000000000102', 700000000000000001, 10, 4102444800)",
+        ),
+        steps=(
+            Step(kind="command", content="!use ration", persona="member"),
+        ),
+        notes=(
+            "argful !use ration drives mining.use → record_use_item: ONE "
+            "txn debits the ration and raises settled energy 10→35 "
+            "(RESTORE_VALUES['ration']=25), replying `<@u> You consume "
+            "**ration** and recover energy (⚡ 35/60 [▰▰▰▰▰▰▱▱▱▱]).` — the "
+            "first mining_player_state row-bearing golden (retires the "
+            "guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="mining.use_ration_full_refusal",
+        subsystem="mining",
+        # own a ration but NO energy row: the (0,0) missing-row default
+        # settles to a FULL bar (huge elapsed clamps to MAX_ENERGY), so the
+        # full-energy refusal fires and the txn aborts row-less — the
+        # ration is NOT consumed (the oracle's pre-txn ok=False twin).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'ration', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!use ration", persona="member"),
+        ),
+        notes=(
+            "!use ration at a full bar refuses PLAIN (`Your energy is "
+            "already full — save it for later.`) with NO mining db_delta — "
+            "the item survives (mining_workflow.use_item's pre-write "
+            "refusal, ported as a txn-aborting ValidatorError)"),
+    ),
+    GoldenCase(
+        id="mining.cook_campfire_write",
+        subsystem="mining",
+        # a built campfire (cooking_unlocked ⇔ level ≥ 1; mining_structures
+        # user_id is BIGINT, unlike the TEXT inventory ids) + one raw fish.
+        fixture_sql=(
+            "INSERT INTO mining_structures (user_id, guild_id, structure, "
+            "level) VALUES "
+            "(900000000000000102, 700000000000000001, 'campfire', 1)",
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'minnow', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!cook minnow", persona="member"),
+        ),
+        notes=(
+            "argful !cook minnow behind a built campfire drives mining.cook "
+            "→ record_cook: ONE txn debits the minnow and grants 1× cooked "
+            "fish, replying `<@u> 🔥 You cook **1× minnow** into **1× "
+            "cooked fish** (+30 ⚡ each when eaten — `!use cooked fish`).` — "
+            "the fish→meal trade the campfire gate guards"),
+    ),
+    GoldenCase(
+        id="mining.use_torch_flavour",
+        subsystem="mining",
+        # a non-food consumable: the flavour-only debit branch.
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'torch', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!use torch", persona="member"),
+        ),
+        notes=(
+            "argful !use torch drives the flavour branch: debits the torch "
+            "and replies `<@u> You light a torch and peer into the "
+            "darkness...` — no energy movement, no mining_player_state row"),
+    ),
+    # ------------------------------------------------ fishing cast-leg WRITES
+    # The first goldens that ever CLICK Reel (the imported sweeps only pinned
+    # the waiting panel — parity.yml's own fishing_catch_log exemption text
+    # names this exact button-driving capture as its retirement). Each case
+    # casts (`!fish` — the wired begin_cast rolls the catch on the runner-armed
+    # private cast RNG, spends energy + a bait charge) then clicks the panel's
+    # single Reel button by component_index; the click carries the pending
+    # cast's identity token through the panel-args binding, and the audited
+    # fishing.cast leg commits record_catch → pearl → coral → fish grant →
+    # game XP in one txn (the seed-42 species → weight → bonus → pearl →
+    # coral trajectory). fixture_sql rows are seeded BEFORE the
+    # before-snapshot, so only the cast's own writes land in db_delta. member
+    # persona = 900000000000000102, guild = 700000000000000001.
+    GoldenCase(
+        id="fishing.cast_reel_write",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "fresh player, shore profile — every knob reads exactly neutral "
+            "(no-row venue → shore, rod tier 0, no bait, unbuilt structures, "
+            "fresh gear): `!fish` spends 2 energy off the fresh full bar "
+            "(fishing_energy row 58) and the Reel click drives the audited "
+            "fishing.cast leg — the FIRST row-bearing fishing_catch_log "
+            "capture (dex row + the caught fish in mining_inventory + the "
+            "fishing game-XP award) with the oracle result-card copy "
+            "(retires the fishing_catch_log guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="fishing.cast_deepwater_reel_write",
+        subsystem="fishing",
+        # the loaded profile: deepwater venue + a Silver rod + a Shimmer Lure
+        # + built tide pool / dock / fishery — the full effective_pull /
+        # effective_bite_speed compound (rod × bait × weather × gear ×
+        # structures) plus the fishery-raised double_catch_chance and the
+        # coral 0.06 DEEPWATER-ONLY branch (the shore cases never draw it);
+        # all read pre-reqs seeded before the snapshot.
+        fixture_sql=(
+            "INSERT INTO fishing_venue (user_id, guild_id, venue) VALUES "
+            "(900000000000000102, 700000000000000001, 'deepwater')",
+            "INSERT INTO fishing_rod (user_id, guild_id, tier) VALUES "
+            "(900000000000000102, 700000000000000001, 2)",
+            "INSERT INTO fishing_bait (user_id, guild_id, bait_key, charges) "
+            "VALUES (900000000000000102, 700000000000000001, 'lure', 10)",
+            "INSERT INTO mining_structures (user_id, guild_id, structure, "
+            "level) VALUES "
+            "(900000000000000102, 700000000000000001, 'tide_pool', 2), "
+            "(900000000000000102, 700000000000000001, 'dock', 1), "
+            "(900000000000000102, 700000000000000001, 'fishery', 2)",
+        ),
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "deepwater reel at a loaded profile: the cast panel renders the "
+            "boat where-line + the 🪱/🪸/⚓ footer notes, the roll draws from "
+            "the DEEPWATER species pool under the compounded pull (Silver rod "
+            "1.25 × lure 2.00 × weather × tide pool 1.08), commit rolls "
+            "bonus → pearl → coral with the fishery-raised double-catch "
+            "chance (0.10 + 0.10) and the deepwater-only 0.06 coral draw — "
+            "the seeded trajectory is pinned wherever it lands; db_delta "
+            "carries the catch-log row + the lure charge decrement (10→9) + "
+            "the size `#N of 11 deepwater` result copy"),
+    ),
+    GoldenCase(
+        id="fishing.cast_bait_spend_write",
+        subsystem="fishing",
+        # exactly ONE charge left: the cast's per-attempt spend crosses zero
+        # and the pack CLEARS (the shipped clear_active_bait — bait_key '' /
+        # charges 0), the delta face no other golden pins.
+        fixture_sql=(
+            "INSERT INTO fishing_bait (user_id, guild_id, bait_key, charges) "
+            "VALUES (900000000000000102, 700000000000000001, 'worm', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member"),
+        ),
+        notes=(
+            "the last-charge spend: `!fish` consumes the worm pack's final "
+            "charge — the shipped charge-per-attempt rule clears the loadout "
+            "at 0, so db_delta pins the fishing_bait row modified to "
+            "`('', 0)` (clear-at-0) beside the shore catch commit; the cast "
+            "panel footer still shows the spent-from pack (`🪱 Worm Bait (0 "
+            "left)`) exactly as the oracle CastStart carried it"),
+    ),
+    GoldenCase(
+        id="fishing.howtofish_rules_card",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fishing", persona="member"),
+            # …the hub's 📖 How to fish button (row two, after Fishdex —
+            # flattened index 6 over the 5+2 layout rows) opens the
+            # static rules card as an ephemeral reply.
+            Step(kind="click", target_message=1, component_index=6,
+                 persona="member"),
+        ),
+        notes=(
+            "the hub 📖 How-to-fish affordance: the shipped rules_btn sent "
+            "_rules_embed as an ephemeral component reply (views/fishing/"
+            "menu.py) — a fully static purple quick-reference card with no "
+            "fields, footer or components and an EMPTY db_delta (a pure "
+            "read; the creature rules-card posture). Pins the "
+            "oracle-verbatim loop/get-better-catches copy the "
+            "fishing.howtofish_pending terminal answered with a stub "
+            "until 2026-07-13"),
+    ),
+    # ------------------------------------------- cleanup anti-evasion WRITE
+    # The first golden that CLICKS the words manager's 🛡️ Anti-evasion
+    # button (the 2026-07-13 residue port armed it — the imported sweep only
+    # pinned the panel open): `!wordmenu` renders the session view (empty DB
+    # → the shipped empty-state description + the default-off anti-evasion
+    # field), then the component_index click drives the audited
+    # cleanup.wordfilter_strict_op — the FIRST row-bearing wordfilter_config
+    # capture (migration 0053) with the in-place re-render flipping the
+    # field to the shipped 🟢 On literal. admin persona (the words manager
+    # is an Administrator surface).
+    GoldenCase(
+        id="cleanup.anti_evasion_toggle_write",
+        subsystem="cleanup",
+        steps=(
+            Step(kind="command", content="!wordmenu", persona="admin"),
+            Step(kind="click", target_message=1, component_index=4,
+                 persona="admin"),
+        ),
+        notes=(
+            "the anti-evasion opt-in: the 🛡️ click writes strict=true "
+            "through the audited cleanup.wordfilter_strict_op (db_delta "
+            "pins the wordfilter_config upsert + the audit row) and the "
+            "session view re-renders in place — the anti-evasion field "
+            "flips to the shipped 🟢 On copy while the empty word list "
+            "keeps the shipped no-words description"),
+    ),
+    # ------------------------------------------- cleanup policies open
+    # The hub's 🧹 Cleanup Policies button (the LAST cleanup pending,
+    # retired 2026-07-13 by the cleanup-policy slice): `!cleanup` renders
+    # the hub, then the component_index click (row 0: words/logging/
+    # settings/POLICIES → flattened 3) opens the ported cleanup.policies
+    # diagnostics view — empty DB → the oracle empty state. admin persona
+    # (the hub is an Administrator surface).
+    GoldenCase(
+        id="cleanup.policies_open",
+        subsystem="cleanup",
+        steps=(
+            Step(kind="command", content="!cleanup", persona="admin"),
+            Step(kind="click", target_message=1, component_index=3,
+                 persona="admin"),
+        ),
+        notes=(
+            "the 🧹 Cleanup Policies open: the shipped btn_policies EDITED "
+            "the hub message into the diagnostics panel "
+            "(views/cleanup/policy_panel.py diagnostics_embed_from) — the "
+            "red embed with the resolution-walk description, the empty "
+            "'Configured policies' state, the ℹ️ Command Access tip and "
+            "the 'Use “Set a policy” to add one.' footer over the "
+            "persistent cleanup_policy:build/remove/refresh trio — a pure "
+            "read (no cleanup_policies db_delta)"),
     ),
 )

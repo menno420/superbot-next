@@ -84,7 +84,15 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
     "teal": 1752220,          # discord.Color.teal() — the shipped BTD6
                               # CT-relic detail card (cogs/btd6/_builders.py
                               # build_ct_relic_embed; unpinned found-relic
-                              # path of the golden-pinned relic command)
+                              # path of the golden-pinned relic command) +
+                              # the shipped Tide Pool panel
+                              # (views/fishing/tide_pool.py _TIDE_POOL_COLOR;
+                              # goldens/fishing/sweep_tidepool pins the byte)
+    "dark_teal": 1146986,     # discord.Color.dark_teal() — the shipped
+                              # Dock / Boathouse / Fishery structure panels
+                              # (views/fishing/{dock,boathouse,fishery}.py;
+                              # goldens/fishing/sweep_dock + sweep_boathouse
+                              # + sweep_fishery pin the byte)
     "dark_red": 10038562,     # discord.Color.dark_red() — the shipped AI
                               # review-log cards (cogs/ai_review_cog.py
                               # _REVIEW_COLOR; goldens/ai/sweep_aireview
@@ -460,6 +468,25 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                         min_values=cspec.min_values,
                         max_values=cspec.max_values,
                         native_picker="role"))
+                    continue
+                if cspec.kind is _SK.MEMBER and not cspec.options_source:
+                    # Discord-native member picker (wire type 5,
+                    # discord.ui.UserSelect): same posture as ROLE/CHANNEL —
+                    # the client supplies the roster, so no options
+                    # materialize and the component can never be
+                    # empty-disabled. The shipped creature-battle opponent
+                    # picker (_OpponentSelect; the selected id arrives on the
+                    # ordinary select `values` round-trip, so the kernel
+                    # never dereferences the interaction's resolved members).
+                    components.append(RenderedComponent(
+                        kind="selector", custom_id=custom_id,
+                        label=resolver.resolve(cspec.placeholder, locale=loc),
+                        row=row_idx,
+                        placeholder=resolver.resolve(cspec.placeholder,
+                                                     locale=loc),
+                        min_values=cspec.min_values,
+                        max_values=cspec.max_values,
+                        native_picker="user"))
                     continue
                 if isinstance(cspec.options_source, tuple):
                     options = cspec.options_source

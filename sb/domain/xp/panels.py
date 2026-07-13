@@ -19,7 +19,6 @@ session-lifecycle view: run-minted component ids, never anchored
 
 from __future__ import annotations
 
-from sb.domain.operator_spine import pending_handler as _pending_handler
 from sb.kernel.panels.registry import register_panel
 from sb.spec.confirmation import Challenge, ConfirmationSpec
 from sb.spec.outcomes import DeferMode
@@ -111,39 +110,72 @@ def _ensure_hub_provider() -> ProviderRef:
 _CONFIG_PROVIDER = "xp.config_overview"
 
 # The shipped config buttons open settings modals (_XpRangeModal /
-# _XpCooldownModal / _XpChannelModal, disbot/views/xp/modals.py) and the
-# import button opens the XpImportSetupView channel/source picker
-# (disbot/views/xp/import_panel.py — select-driven). Their write flows are
-# the settings-mutation / import-preview slices' port; until then the
-# actions are declared pending terminals (the D-0030 channel-hub posture:
-# declared + honest refusal, never silent). No golden clicks them.
-# Registered at module import AND from ensure_panel_refs (the #141
-# doctrine: a registry clear must be repairable through ENSURE_REFS).
-def _register_pending() -> tuple[HandlerRef, ...]:
-    return (
-        _pending_handler(
-            "xp.config_range_pending",
-            "⚙️ The XP-Range modal ports with the settings-mutation "
-            "slice — the xp_min/xp_max keys ride `!settings` until then."),
-        _pending_handler(
-            "xp.config_cooldown_pending",
-            "⚙️ The Cooldown modal ports with the settings-mutation "
-            "slice — the xp_cooldown key rides `!settings` until then."),
-        _pending_handler(
-            "xp.config_channel_pending",
-            "⚙️ The Level-up Channel modal ports with the "
-            "settings-mutation slice — the announce binding rides "
-            "`!settings` until then."),
-        _pending_handler(
-            "xp.import_setup_pending",
-            "📥 The import setup picker ports with the import-preview "
-            "slice — `!xpimport [source] [#channel] [limit]` is the "
-            "command front door."),
-    )
+# _XpCooldownModal / _XpChannelModal, disbot/views/xp/modals.py); the
+# 2026-07-13 curation rework (backlog slice 1) arms them as G-10 modal
+# ingresses over the live K7 lanes — settings.set_scalar for the two
+# scalar keys, settings.bind/unbind for the announce-channel pointer
+# (P0-3 binding lane) — the cleanup-words / moderation.hub.warn
+# modal-ingress precedent. The import button's shipped target is the
+# select-driven XpImportSetupView picker (disbot/views/xp/
+# import_panel.py); its modal collects the SAME source/channel/limit
+# args the `!xpimport` front door walks and delegates to that live
+# flow — the picker's preview/apply half stays the import-preview
+# slice's port (the scan's honest BLOCKED boundaries are unchanged).
+# No golden clicks these buttons (handler refs are not wire bytes).
 
+XP_RANGE_MODAL = ModalSpec(
+    modal_id="xp.range_form",
+    title="Set XP Range",                         # shipped modal title
+    fields=(
+        ModalFieldSpec(field_id="xp_min", label="Min XP per message",
+                       placeholder="15", required=True, max_length=4),
+        ModalFieldSpec(field_id="xp_max", label="Max XP per message",
+                       placeholder="25", required=True, max_length=4),
+    ),
+    on_submit=HandlerRef("xp.config_range_submit"),
+)
 
-(_PENDING_XP_RANGE, _PENDING_XP_COOLDOWN,
- _PENDING_XP_CHANNEL, _PENDING_XP_IMPORT_SETUP) = _register_pending()
+XP_COOLDOWN_MODAL = ModalSpec(
+    modal_id="xp.cooldown_form",
+    title="Set XP Cooldown",                      # shipped modal title
+    fields=(
+        ModalFieldSpec(field_id="seconds", label="Cooldown in seconds",
+                       placeholder="60", required=True, max_length=5),
+    ),
+    on_submit=HandlerRef("xp.config_cooldown_submit"),
+)
+
+XP_CHANNEL_MODAL = ModalSpec(
+    modal_id="xp.channel_form",
+    title="Level-up Announcement Channel",        # shipped modal title
+    fields=(
+        ModalFieldSpec(field_id="channel_id",
+                       label="Channel ID (leave blank = same channel)",
+                       required=False, max_length=25),
+    ),
+    on_submit=HandlerRef("xp.config_channel_submit"),
+)
+
+XP_IMPORT_MODAL = ModalSpec(
+    modal_id="xp.import_form",
+    title="📥 Import XP from another bot",        # shipped picker title
+    fields=(
+        # the same three args the `!xpimport` front door walks
+        # (usage: !xpimport [source] [#channel] [limit]).
+        ModalFieldSpec(field_id="source",
+                       label="Which bot posted them? (default: arcane)",
+                       placeholder="arcane", required=False,
+                       max_length=20),
+        ModalFieldSpec(field_id="channel",
+                       label="Level-up channel (ID; blank = here)",
+                       placeholder="123456789", required=False,
+                       max_length=25),
+        ModalFieldSpec(field_id="limit",
+                       label="Max messages to scan (blank = all)",
+                       placeholder="1000", required=False, max_length=6),
+    ),
+    on_submit=HandlerRef("xp.import_setup_submit"),
+)
 
 
 def _ensure_config_provider() -> ProviderRef:
@@ -256,22 +288,30 @@ def xp_config_spec() -> PanelSpec:
                 action_id="xp_range", label="XP Range",
                 style=ActionStyle.PRIMARY,           # ButtonStyle.blurple
                 audience_tier="",                    # ADMIN floor (shipped)
-                handler=_PENDING_XP_RANGE),
+                defer_mode=DeferMode.MODAL,
+                modal=XP_RANGE_MODAL,
+                handler=HandlerRef("xp.config_range_submit")),
             PanelActionSpec(
                 action_id="xp_cooldown", label="Cooldown",
                 style=ActionStyle.PRIMARY,
                 audience_tier="",
-                handler=_PENDING_XP_COOLDOWN),
+                defer_mode=DeferMode.MODAL,
+                modal=XP_COOLDOWN_MODAL,
+                handler=HandlerRef("xp.config_cooldown_submit")),
             PanelActionSpec(
                 action_id="xp_levelup_channel", label="Level-up Channel",
                 style=ActionStyle.PRIMARY,
                 audience_tier="",
-                handler=_PENDING_XP_CHANNEL),
+                defer_mode=DeferMode.MODAL,
+                modal=XP_CHANNEL_MODAL,
+                handler=HandlerRef("xp.config_channel_submit")),
             PanelActionSpec(
                 action_id="xp_import", label="📥 Import from another bot",
                 style=ActionStyle.SECONDARY,         # ButtonStyle.grey;
                 audience_tier="",                    # glyph IN-LABEL (15a)
-                handler=_PENDING_XP_IMPORT_SETUP),
+                defer_mode=DeferMode.MODAL,
+                modal=XP_IMPORT_MODAL,
+                handler=HandlerRef("xp.import_setup_submit")),
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
         # views/xp/__init__.py: "all views here are ephemeral,
@@ -510,7 +550,6 @@ def ensure_panel_refs() -> None:
 
     _ensure_hub_provider()
     _ensure_config_provider()
-    _register_pending()
     _register_renderers()
     if not _is(_P("xp.hub")):
         _panel("xp.hub")(_hub_factory)

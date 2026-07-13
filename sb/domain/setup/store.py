@@ -29,12 +29,24 @@ from sb.spec.versioning import (
 )
 
 __all__ = [
+    "KNOWN_DEPTHS",
     "SETUP_SESSION_STORE",
+    "clear_essential_anchor",
+    "clear_workspace_pointers",
     "ensure_refs",
     "get_session_row",
+    "mark_in_progress",
     "scrub_subject_session",
+    "set_depth",
+    "set_essential_step",
+    "set_section_skip",
+    "set_session_status",
     "upsert_session",
 ]
+
+#: shipped value set, verbatim (disbot utils/db/setup_session.py
+#: ``KNOWN_DEPTHS`` — the migration-038 CHECK constraint's Python twin).
+KNOWN_DEPTHS: frozenset[str] = frozenset({"quick", "standard", "advanced"})
 
 SETUP_SESSION_STORE = register_store(StoreSpec(
     table="setup_session",
@@ -109,6 +121,104 @@ async def upsert_session(conn: Any, *, guild_id: int, guild_name: str,
         "    updated_at       = NOW()",
         (guild_id, guild_name, owner_id, setup_status,
          setup_channel_id, setup_message_id, current_step), conn=conn)
+
+
+async def set_depth(conn: Any, *, guild_id: int, depth: str | None) -> None:
+    """The shipped ``set_depth`` UPDATE verbatim shape (disbot
+    utils/db/setup_session.py: value-checked against ``KNOWN_DEPTHS``, a
+    bare UPDATE keyed on the guild — no row means a silent no-op, the
+    shipped semantics)."""
+    if depth is not None and depth not in KNOWN_DEPTHS:
+        raise ValueError(
+            f"depth must be one of {sorted(KNOWN_DEPTHS)} or None, got {depth!r}")
+    await execute(
+        "UPDATE setup_session SET depth = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, depth), conn=conn)
+
+
+async def set_section_skip(conn: Any, *, guild_id: int, slug: str,
+                           skipped: bool) -> None:
+    """The shipped ``add_skipped_section`` / ``remove_skipped_section``
+    UPDATE pair verbatim shape (idempotent set semantics: append via
+    DISTINCT UNNEST, drop via ARRAY_REMOVE; no row = silent no-op)."""
+    if skipped:
+        await execute(
+            "UPDATE setup_session "
+            "   SET skipped_sections = ("
+            "           SELECT ARRAY(SELECT DISTINCT UNNEST(skipped_sections || $2::TEXT)) "
+            "           FROM setup_session WHERE guild_id = $1"
+            "       ), "
+            "       updated_at = NOW() "
+            " WHERE guild_id = $1", (guild_id, slug), conn=conn)
+    else:
+        await execute(
+            "UPDATE setup_session "
+            "   SET skipped_sections = ARRAY_REMOVE(skipped_sections, $2::TEXT), "
+            "       updated_at = NOW() "
+            " WHERE guild_id = $1", (guild_id, slug), conn=conn)
+
+
+async def mark_in_progress(conn: Any, *, guild_id: int,
+                           step: str | None) -> None:
+    """The shipped ``setup_session.mark_in_progress`` write shape
+    (services/setup_session.py: ``set_status("in_progress")`` +
+    ``set_step(step)`` — two bare keyed UPDATEs, folded into one; no row
+    means a silent no-op, the set_depth semantics twin). Every section
+    open / staging lane records its step marker through this (the
+    section-flows slice)."""
+    if step is None:
+        await execute(
+            "UPDATE setup_session SET setup_status = 'in_progress', "
+            "updated_at = NOW() WHERE guild_id = $1", (guild_id,), conn=conn)
+    else:
+        await execute(
+            "UPDATE setup_session SET setup_status = 'in_progress', "
+            "current_step = $2, updated_at = NOW() "
+            "WHERE guild_id = $1", (guild_id, step), conn=conn)
+
+
+async def set_session_status(conn: Any, *, guild_id: int,
+                             status: str) -> None:
+    """The shipped ``mark_complete`` UPDATE shape (disbot
+    utils/db/setup_session.py: a bare status UPDATE keyed on the guild —
+    no row means a silent no-op, the set_depth semantics twin). The
+    final-review apply lane writes ``complete`` on full success."""
+    await execute(
+        "UPDATE setup_session SET setup_status = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, status), conn=conn)
+
+
+async def set_essential_step(conn: Any, *, guild_id: int, step: int) -> None:
+    """The shipped ``setup_session.set_essential_step`` UPDATE shape
+    (the migration-099 essential-flow anchor: the 0-based step index the
+    resume lane rebuilds at). A bare keyed UPDATE — no row means a
+    silent no-op, the set_depth semantics twin (the ``!setup`` entry
+    mints no session row; the golden-pinned empty delta stands)."""
+    await execute(
+        "UPDATE setup_session SET essential_step = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, int(step)), conn=conn)
+
+
+async def clear_essential_anchor(conn: Any, *, guild_id: int) -> None:
+    """The shipped ``setup_session.clear_essential_anchor`` UPDATE shape
+    (the flow reached the summary — null the anchor pair so the on-ready
+    resume sweep stops trying to revive a done flow)."""
+    await execute(
+        "UPDATE setup_session SET essential_message_id = NULL, "
+        "essential_step = NULL, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id,), conn=conn)
+
+
+async def clear_workspace_pointers(conn: Any, *, guild_id: int) -> None:
+    """The shipped post-cleanup pointer nulls (setup_channel.py
+    ``set_session_channel_id(guild_id, None)`` +
+    ``set_session_message_id(guild_id, None)`` — folded into one keyed
+    UPDATE; no row = silent no-op) so the next ``/setup`` re-creates a
+    fresh channel."""
+    await execute(
+        "UPDATE setup_session SET setup_channel_id = NULL, "
+        "setup_message_id = NULL, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id,), conn=conn)
 
 
 # --- privacy erasure row helper (flag-18 discipline) --------------------------------

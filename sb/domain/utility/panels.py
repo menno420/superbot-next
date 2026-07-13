@@ -31,10 +31,14 @@ from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
     Audience,
+    DeferMode,
     EmbedFrameSpec,
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalFieldStyle,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -87,6 +91,38 @@ _LEGEND = (
 _FOOTER = "Click an action below."
 
 
+# --- the shipped prompt modals (utility_cog `_PollModal` / `_RemindModal`) --------
+# The moderation.hub.warn G-10 ingress precedent: button → declared
+# ModalSpec → the LIVE lane the command twin runs. Titles, labels,
+# placeholders and length caps are oracle-verbatim; field ids feed the
+# submit handlers (sb/domain/utility/handlers.py `utility.poll_form_submit`
+# / `utility.remind_form_submit`) directly.
+
+POLL_MODAL = ModalSpec(
+    modal_id="utility.poll_form", title="Create Poll",
+    fields=(
+        ModalFieldSpec(field_id="question", label="Poll question",
+                       required=True, max_length=200),
+        ModalFieldSpec(field_id="options",
+                       label="Options (one per line, 2–10)",
+                       style=ModalFieldStyle.PARAGRAPH,
+                       placeholder="Option 1\nOption 2\nOption 3",
+                       required=True, max_length=500),
+    ),
+    on_submit=HandlerRef("utility.poll_form_submit"))
+
+REMIND_MODAL = ModalSpec(
+    modal_id="utility.remind_form", title="Set Reminder",
+    fields=(
+        ModalFieldSpec(field_id="minutes", label="Minutes from now",
+                       placeholder="30", required=True, max_length=5),
+        ModalFieldSpec(field_id="message", label="Reminder message",
+                       style=ModalFieldStyle.PARAGRAPH,
+                       required=True, max_length=500),
+    ),
+    on_submit=HandlerRef("utility.remind_form_submit"))
+
+
 async def _children_field(ctx) -> tuple[tuple[str, str], ...]:
     """The shipped ``More in Utility`` embed field (one field, the shipped
     per-child line format verbatim)."""
@@ -103,10 +139,11 @@ def _child_action(key: str, name: str, emoji: str) -> PanelActionSpec:
         label=f"{emoji} {name}",                 # emoji IN the label (wire shape)
         style=ActionStyle.PRIMARY,               # the shipped blurple child row
         audience_tier="user",
-        # general's panel is ported — forward straight to it; four_twenty is
-        # a pending band, so its click lands on the polite pending terminal.
+        # both children's panels are ported — forward straight to them
+        # (four_twenty.overview landed with the four_twenty band; the
+        # pending terminal is retired — 2026-07-13 operator-hub edits A).
         handler=(PanelRef("general.menu") if key == "general"
-                 else HandlerRef("utility.four_twenty_pending")),
+                 else PanelRef("four_twenty.overview")),
         custom_id_override=f"utility:open:{key}",  # the shipped persistent id
     )
 
@@ -136,23 +173,25 @@ def utility_panel_spec() -> PanelSpec:
                 action_id="avatar", label="🖼️ Avatar",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=HandlerRef("utility.avatar_view")),
-            # row 1 — the shipped grey tool trio. Poll/Remind opened modals
-            # and Invite created a one-use channel invite in the shipped
-            # cog; their Discord effect ports (reaction egress, timed
-            # delivery, invite mint) are not armed yet — the polite pending
-            # terminal (the role-band precedent), never a silent stub.
+            # row 1 — the shipped grey tool trio. Poll/Remind open the
+            # shipped modals (G-10 ingress over the live command-twin
+            # lanes — 2026-07-13 operator-hub edits A); Invite routes to
+            # the live `!invite` handler (D-0077 channel-ops port; the
+            # curation rework 2026-07-13 retired its pending terminal).
             PanelActionSpec(
                 action_id="poll", label="📊 Poll",
                 audience_tier="user",
-                handler=HandlerRef("utility.poll_pending")),
+                defer_mode=DeferMode.MODAL, modal=POLL_MODAL,
+                handler=HandlerRef("utility.poll_form_submit")),
             PanelActionSpec(
                 action_id="remind", label="🔔 Remind Me",
                 audience_tier="user",
-                handler=HandlerRef("utility.remind_pending")),
+                defer_mode=DeferMode.MODAL, modal=REMIND_MODAL,
+                handler=HandlerRef("utility.remind_form_submit")),
             PanelActionSpec(
                 action_id="invite", label="🔗 Invite",
                 audience_tier="user",
-                handler=HandlerRef("utility.invite_pending")),
+                handler=HandlerRef("utility.invite_view")),
             # row 2 — the shipped grey re-render Overview.
             PanelActionSpec(
                 action_id="utility_overview", label="↩ Overview",

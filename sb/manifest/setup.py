@@ -3,7 +3,9 @@ surface verbatim (ORACLE @befc6d0d: cogs/quicksetup_cog.py ``!setup`` /
 ``/setup``; cogs/setup_cog.py + cogs/setup/_wizard_entry.py the
 ``setup-*`` hyphen-namespaced slash family — discord.py forbids
 whitespace in slash names, so the oracle shipped multi-token setup
-commands as ``setup-*``), the four golden-pinned panels, the
+commands as ``setup-*``), the four golden-pinned panels + the two wizard-interior
+panels (sections hub + per-suggestion walkthrough — the wizard-lifecycle
+slice; no golden pins them, the oracle sources do), the
 ``setup_session`` store, the K7 session ops, and the G-19
 wizard_sections facet (all 10 shipped registrants, band-1 carried).
 
@@ -34,10 +36,24 @@ prefix bytes).
 from __future__ import annotations
 
 from sb.domain.setup import ai_tasks as _ai_tasks
+from sb.domain.setup import channels as _channels
+from sb.domain.setup import cleanup as _cleanup
+from sb.domain.setup import cog_routing as _cog_routing
+from sb.domain.setup import essential_steps as _essential_steps
+from sb.domain.setup import final_review as _final_review
 from sb.domain.setup import handlers as _handlers
+from sb.domain.setup import logging_presets as _logging_presets
+from sb.domain.setup import moderation as _moderation
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
+from sb.domain.setup import preset_select as _preset_select
+from sb.domain.setup import role_templates as _role_templates
+from sb.domain.setup import roles as _roles
+from sb.domain.setup import section_card as _section_card
 from sb.domain.setup import store as _store
+from sb.domain.setup import ticket as _ticket
+from sb.domain.setup import wizard as _wizard
+from sb.domain.setup import wizard_nav as _wizard_nav
 from sb.domain.setup.sections import SECTIONS
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -160,7 +176,35 @@ MANIFEST = SubsystemManifest(
         ),
     ),
     panels=(_panels.setup_hub_spec(), _panels.essential_card_spec(),
-            _panels.status_card_spec(), _panels.suggestions_card_spec()),
+            _panels.status_card_spec(), _panels.suggestions_card_spec(),
+            _panels.sections_hub_spec(), _panels.review_item_spec(),
+            _final_review.final_review_spec(), _final_review.recovery_spec(),
+            _final_review.complete_spec(),
+            _essential_steps.greet_spec(), _essential_steps.mods_spec(),
+            _essential_steps.spam_spec(), _essential_steps.log_spec(),
+            _essential_steps.reward_spec(),
+            _essential_steps.reward_role_spec(),
+            _essential_steps.helpdesk_spec(),
+            _essential_steps.commands_spec(),
+            _essential_steps.summary_spec(), _essential_steps.extras_spec(),
+            _essential_steps.resume_spec(),
+            _wizard_nav.wizard_step_spec(),
+            _section_card.card_spec_for("channels"),
+            _channels.channels_detail_spec(),
+            _preset_select.preset_card_spec(),
+            _preset_select.preset_preview_spec(),
+            _section_card.card_spec_for("logging_presets"),
+            _logging_presets.logging_picker_spec(),
+            _section_card.card_spec_for("moderation"),
+            _moderation.moderation_detail_spec(),
+            _section_card.card_spec_for("cleanup"),
+            _cleanup.cleanup_detail_spec(),
+            _section_card.card_spec_for("roles"),
+            _roles.roles_detail_spec(),
+            _section_card.card_spec_for("role_templates"),
+            _role_templates.role_templates_detail_spec(),
+            _section_card.card_spec_for("cog_routing"),
+            _cog_routing.cog_routing_detail_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -172,6 +216,20 @@ _ops.register_ops()
 def _ensure_refs() -> None:
     _store.ensure_refs()
     _ops.ensure_ops_refs()
+    _wizard.ensure_wizard_refs()
+    _final_review.ensure_final_review_refs()
+    _essential_steps.ensure_essential_steps_refs()
+    _wizard_nav.ensure_wizard_nav_refs()
+    _preset_select.ensure_preset_select_refs()
+    _channels.ensure_channels_refs()
+    _logging_presets.ensure_logging_presets_refs()
+    _moderation.ensure_setup_moderation_refs()
+    _cleanup.ensure_setup_cleanup_refs()
+    _roles.ensure_setup_roles_refs()
+    _role_templates.ensure_setup_role_templates_refs()
+    _cog_routing.ensure_setup_cog_routing_refs()
+    _ticket.ensure_setup_ticket_refs()
+    _section_card.ensure_section_card_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()
     _ai_tasks.register_ai_tasks()

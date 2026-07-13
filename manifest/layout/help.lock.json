@@ -2,9 +2,70 @@
  "entries": {
   "help:help:CommandSpec.help_section_order": {
    "provenance": {
-    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+    "exempt": "legacy-seed: band-1 port carries the shipped ordering as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
    },
    "value": 0
+  },
+  "help:help.editor_entity:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the help overlay editor port carries the shipped views/help/editor.py button arrangement (row-0 edit trio + row-1 reset trio) as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": [
+    [
+     "ee_hide",
+     "ee_rename",
+     "ee_redescribe"
+    ],
+    [
+     "ee_reset_name",
+     "ee_reset_desc",
+     "ee_reset_entity"
+    ]
+   ]
+  },
+  "help:help.editor_entity:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the help overlay editor port carries the shipped views/help/editor.py button arrangement (row-0 edit trio + row-1 reset trio) as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "ee_hide",
+       "ee_rename",
+       "ee_redescribe"
+      ],
+      [
+       "ee_reset_name",
+       "ee_reset_desc",
+       "ee_reset_entity"
+      ]
+     ]
+    }
+   ]
+  },
+  "help:help.editor_entity:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the help overlay editor port carries the shipped views/help/editor.py button arrangement (row-0 edit trio + row-1 reset trio) as the seed arrangement (design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "ee_hide",
+        "ee_rename",
+        "ee_redescribe"
+       ],
+       [
+        "ee_reset_name",
+        "ee_reset_desc",
+        "ee_reset_entity"
+       ]
+      ]
+     }
+    ]
+   }
   }
  },
  "schema_version": 1,

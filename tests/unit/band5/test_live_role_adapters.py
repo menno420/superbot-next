@@ -119,8 +119,8 @@ class _FakeGuild:
     def get_role(self, role_id):
         return self._role
 
-    async def create_role(self, *, name, colour, reason):
-        self.calls.append(("create_role", name, colour, reason))
+    async def create_role(self, *, name, colour, reason, **extra):
+        self.calls.append(("create_role", name, colour, reason, dict(extra)))
         return _FakeRole(_NEW_ROLE_ID)
 
 
@@ -199,12 +199,29 @@ def test_create_guild_role_wraps_colour_and_returns_new_id():
     # the created role's id flows back through the port
     assert new_id == _NEW_ROLE_ID
     (call,) = guild.calls
-    verb, name, colour, reason = call
+    verb, name, colour, reason, extra = call
     assert verb == "create_role"
     assert name == "VIP"
     # the int colour is wrapped in discord.Colour, value preserved
     assert isinstance(colour, _FakeColour) and colour.value == 0xFF00FF
     assert reason == "!createrole"
+    # the shipped !createrole call shape carries NO cosmetic kwargs — the
+    # only-pass-when-set guard keeps the default lane byte-identical.
+    assert extra == {}
+
+
+def test_create_guild_role_passes_hoist_and_mentionable_only_when_set():
+    """The role-template lane's cosmetic pair (setup compound-ops slice):
+    hoist/mentionable ride the create_role call ONLY when set (the
+    oracle's only-pass-when-set create-kwargs guard)."""
+    guild = _FakeGuild()
+    prov = DiscordRoleProvisioning(_FakeBot(guild), allowed_guild_id=_GUILD)
+    run(prov.create_guild_role(_GUILD, name="Owner", color=0xE91E63,
+                               reason="setup role template (x)", hoist=True,
+                               mentionable=True))
+    (call,) = guild.calls
+    assert call[0] == "create_role"
+    assert call[4] == {"hoist": True, "mentionable": True}
 
 
 def test_delete_role_resolves_cached_role_then_deletes():

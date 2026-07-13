@@ -504,7 +504,7 @@ def test_refs_registered_and_manifest_routes():
     for pid in ("creature.hub", "creature.dex_card", "creature.dex",
                 "creature.collectors_card", "creature.record_card",
                 "creature.battletop_card", "creature.challenge",
-                "creature.rules_card"):
+                "creature.challenge_select", "creature.rules_card"):
         assert is_registered(PanelRef(pid)), pid
     # the interactive dex's provider + per-row line renderer.
     from sb.spec.refs import ProviderRef
@@ -518,7 +518,8 @@ def test_refs_registered_and_manifest_routes():
                  "creature.battletop_view", "creature.rules_view",
                  "creature.cbattle_route", "creature.challenge_decline",
                  "creature.challenge_accept",
-                 "creature.challenge_pick_pending"):
+                 "creature.challenge_pick",
+                 "creature.challenge_rematch"):
         assert is_registered(HandlerRef(name)), name
 
     by_name = {c.name: c for c in MANIFEST.commands}
@@ -533,4 +534,4 @@ def test_refs_registered_and_manifest_routes():
         "creature.hub", "creature.dex_card", "creature.dex",
         "creature.collectors_card", "creature.record_card",
         "creature.battletop_card", "creature.challenge",
-        "creature.rules_card"}
+        "creature.challenge_select", "creature.rules_card"}

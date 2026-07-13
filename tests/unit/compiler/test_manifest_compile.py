@@ -403,17 +403,26 @@ def test_recompile_parity_drift():
     assert first.ok
     green = compile_manifests(manifests=[_economy()], committed_snapshot=first.snapshot)
     assert green.ok
-    tampered = dict(first.snapshot, stable_hash="sha256:0000")
+    # The snapshot carries NO stable_hash field — drift is a BODY divergence.
+    assert "stable_hash" not in first.snapshot
+    tampered = dict(first.snapshot, schema_version=999)
     red = compile_manifests(manifests=[_economy()], committed_snapshot=tampered)
     assert not red.ok
     assert red.violations[0].failure_class == "DRIFT"
+    # A legacy committed snapshot still carrying the field stays green —
+    # compute_stable_hash ignores it (hash membership, spec 01 §5 fork 9).
+    legacy = dict(first.snapshot, stable_hash="sha256:0000")
+    assert compile_manifests(manifests=[_economy()],
+                             committed_snapshot=legacy).ok
 
 
 def test_hash_excludes_tool_metadata_and_includes_content():
     _register_basics()
-    snapshot = compile_manifests(manifests=[_economy()]).snapshot
+    result = compile_manifests(manifests=[_economy()])
+    snapshot = result.snapshot
     rehashed = compute_stable_hash(dict(snapshot, compiler_version="9.9.9",
-                                        manifest_count=999))
-    assert rehashed == snapshot["stable_hash"]
+                                        manifest_count=999,
+                                        stable_hash="sha256:cafe"))
+    assert rehashed == result.stable_hash
     content_changed = dict(snapshot, schema_version=2)
-    assert compute_stable_hash(content_changed) != snapshot["stable_hash"]
+    assert compute_stable_hash(content_changed) != result.stable_hash

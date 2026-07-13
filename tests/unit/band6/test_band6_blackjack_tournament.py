@@ -324,6 +324,40 @@ def test_bjstart_without_tournament_keeps_the_pinned_guard(skeleton):
     assert not economy.audit
 
 
+def test_bjtournament_refuses_when_a_foreign_tournament_is_active(skeleton):
+    """The reverse of #277's cross-game guard: an RPS tournament owns the
+    shared ``active_tournament`` flag → ``!bjtournament`` must REFUSE.
+
+    #277 fixed the bj→rps direction (rps registration clobbered a live
+    blackjack flag) and pinned it with
+    ``test_rpsregister_refuses_when_a_foreign_tournament_is_active``. The
+    symmetric rps→bj direction — the blackjack opener's own foreign-flag
+    guard (``sb/domain/blackjack/handlers.py::tournament_open_route``:
+    ``if existing and existing != "blackjack": … return``) — shipped with
+    #277's partner but had no regression test. This pins it: seeding the
+    shared flag to ``"rps"`` (a live RPS tournament) makes ``!bjtournament``
+    refuse with the oracle copy verbatim, leaving the RPS flag untouched
+    and opening no blackjack tournament. Oracle: menno420/superbot
+    ``disbot/cogs/blackjack/actions.py`` / ``rps_tournament_cog.py`` —
+    ``f"A **{existing}** tournament is already active in this server."``."""
+    harness, economy, games, flags = skeleton
+    from sb.domain.blackjack import tournament
+
+    # an RPS tournament already owns the shared flag row
+    flags.flags[W_GUILD] = "rps"
+    run(harness.send_command("!bjtournament", persona="admin"))
+    calls = harness.take_calls()
+    # oracle copy verbatim (menno420/superbot blackjack actions.py /
+    # rps_tournament_cog.py): "A **{existing}** tournament is already
+    # active in this server."
+    assert any("A **rps** tournament is already active in this server."
+               in str(c.payload) for c in calls if c.payload)
+    # the foreign flag is untouched and NO blackjack tournament was opened
+    assert flags.flags[W_GUILD] == "rps"
+    assert tournament.state_or_none(W_GUILD) is None
+    assert not economy.audit
+
+
 def test_walking_skeleton_blackjack_tournament_end_to_end(skeleton):
     harness, economy, games, flags = skeleton
     from sb.domain.blackjack import tournament
