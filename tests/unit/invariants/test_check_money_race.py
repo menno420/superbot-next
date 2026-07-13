@@ -16,6 +16,7 @@ import pytest
 from tools.check_money_race import (
     ALLOWLIST,
     KNOWN_RISKS,
+    Analyzer,
     analyze_sources,
     classify_upsert,
     collect_sources,
@@ -284,6 +285,51 @@ async def _record_sell(conn, ctx):
 '''
 
 
+# The repair shape (WP-2..7 follow-up, fixed here): a money-bearing leg whose
+# OWNERSHIP read is the PLAIN (for_update=False) face of a lockable store read
+# — the conditional "FOR UPDATE" literal inside get_mining_inventory must NOT
+# promote that plain call to a fence. The advisory fence lands AFTER the
+# ownership read, so rule A must still see the unlocked-read-then-settle shape.
+MINING_STORE_REPAIR = MINING_STORE_POST + '''
+
+
+async def lock_workshop_slot(conn, *, user_id, guild_id):
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:workshop:{guild_id}:{user_id}",), conn=conn)
+
+
+async def get_gear_wear(user_id, guild_id, conn=None):
+    rows = await fetchall(
+        "SELECT item_name, wear FROM mining_gear_wear WHERE "
+        "user_id=$1 AND guild_id=$2",
+        (str(user_id), guild_id), conn=conn)
+    return {str(r["item_name"]): int(r["wear"]) for r in rows}
+'''
+
+MINING_OPS_REPAIR = '''
+from sb.domain.games import wager
+from sb.domain.mining import store, workshop
+
+
+async def _record_repair(conn, ctx):
+    uid, gid, _ = _ids(ctx)
+    item = _item_from(ctx)
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    if inventory.get(item, 0) < 1:
+        raise ValidatorError("not owned")
+    await store.lock_workshop_slot(conn, user_id=uid, guild_id=gid)
+    wear = await store.get_gear_wear(uid, gid, conn=conn)
+    if item not in wear:
+        raise ValidatorError("full durability")
+    cost = workshop.repair_cost(item, wear[item])
+    balance = await wager.debit_in_txn(
+        conn, guild_id=gid, user_id=uid, amount=cost,
+        reason="mining:repair", actor_id=uid)
+    return balance
+'''
+
+
 def _farm_modules(store_src: str, ops_src: str) -> dict[str, str]:
     return {
         "sb/domain/farm/store.py": store_src,
@@ -369,6 +415,56 @@ class TestGreenOnShippedFixes:
             "INSERT INTO economy (user_id, guild_id) VALUES ($1, $2) "
             "ON CONFLICT DO NOTHING"
         ) == "atomic"
+
+
+# ------------------------- conditional-FOR-UPDATE ownership SELECT (fixed)
+class TestConditionalForUpdateOwnershipRead:
+    """A store read whose FOR UPDATE rides its `for_update` param fences
+    ONLY at call sites passing for_update=True — the plain face is an
+    unlocked read. Pre-fix, _fence_fixpoint's propagation promoted such
+    helpers to fence NAMES off their own conditional "FOR UPDATE" literal,
+    so the ops.py _record_repair ownership SELECT classified "fence" and
+    rule A went silently green (the WP-2/3/5/6/7 flagged follow-up)."""
+
+    def test_conditional_for_update_helper_is_not_a_fence_name(self):
+        an = Analyzer(_mining_modules(MINING_STORE_REPAIR, MINING_OPS_REPAIR))
+        assert "get_mining_inventory" not in an.fence_names
+        # the unconditional advisory helper IS a fence name
+        assert "lock_workshop_slot" in an.fence_names
+
+    def test_plain_ownership_read_then_settle_flags_rule_a(self):
+        findings = analyze_sources(
+            _mining_modules(MINING_STORE_REPAIR, MINING_OPS_REPAIR))
+        repair = [f for f in findings
+                  if f.func == "_record_repair" and f.rule == "A"]
+        assert repair, (
+            "the plain (for_update=False) get_mining_inventory ownership "
+            "read followed by debit_in_txn MUST be flagged rule A — the "
+            "helper's conditional FOR UPDATE literal must not fence it"
+        )
+        assert "unlocked read `get_mining_inventory`" in repair[0].message
+
+    def test_for_update_true_call_site_still_fences(self):
+        # the sell shape (for_update=True at the call site) stays green
+        findings = analyze_sources(
+            _mining_modules(MINING_STORE_REPAIR, MINING_OPS_POST_SELL))
+        assert findings == [], [f.message for f in findings]
+
+    def test_real_tree_repair_site_is_read_and_allowlisted(self):
+        """Pin the ops.py site itself: the plain ownership read classifies
+        `read` (never `fence`), the rule-A finding surfaces, and it is
+        dispositioned as a verified-safe ALLOWLIST row."""
+        an = Analyzer(collect_sources())
+        assert "get_mining_inventory" not in an.fence_names
+        assert "get_farm" not in an.fence_names
+        info = an.modules["sb/domain/mining/ops.py"]["_record_repair"]
+        plain = [c for c in info.calls
+                 if c.name == "get_mining_inventory" and not c.for_update_true]
+        assert plain, "_record_repair lost its plain ownership read?"
+        assert all(an.classify(info.module, c) == "read" for c in plain)
+        key = ("sb/domain/mining/ops.py", "_record_repair", "A")
+        assert key in {f.key for f in analyze_sources(collect_sources())}
+        assert key in ALLOWLIST and key not in KNOWN_RISKS
 
 
 # ------------------------------------------------------- real-tree baseline
