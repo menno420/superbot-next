@@ -1,24 +1,33 @@
 """CLEANUP subsystem manifest (band 2) — the word-filter lanes (K7 ops +
-prohibited_words store, migration 0011) + the shipped panel surfaces (the
-parity flip): ``!cleanup`` opens the REAL Cleanup Hub, ``!wordmenu`` the
-REAL Prohibited Words Manager (sb/domain/cleanup/panels.py —
-goldens/cleanup/ pins every wire byte), and ``!cleanuphistory`` runs the
-shipped channel-history scan through the domain history-reader port
-(sb/domain/cleanup/service.py; the deletion leg stays the channel-ops
-slice's port)."""
+prohibited_words store, migration 0011; the wordfilter_config strict flag,
+migration 0053) + the shipped panel surfaces (the parity flip):
+``!cleanup`` opens the REAL Cleanup Hub, ``!wordmenu`` the REAL Prohibited
+Words Manager (sb/domain/cleanup/panels.py — goldens/cleanup/ pins every
+wire byte), the hub's ⚙️ Settings opens the ported subsystem settings page
+(cleanup.settings + its numeric-presets widget page), and
+``!cleanuphistory`` runs the shipped channel-history scan through the
+domain history-reader port (sb/domain/cleanup/service.py; the deletion
+leg stays the channel-ops slice's port). The settings facet is the
+shipped CLEANUP_CONFIG_SCHEMA scalar (sb/domain/cleanup/
+settings_schema.py — the domain module is the single source, the
+ai-manifest precedent)."""
 
 from __future__ import annotations
 
 from sb.domain.cleanup import handlers as _handlers
 from sb.domain.cleanup import ops as _ops
 from sb.domain.cleanup import panels as _panels
+from sb.domain.cleanup import settings_widgets as _settings_widgets
 from sb.domain.cleanup import store as _store
 from sb.domain.cleanup.ops import register_ops
-from sb.domain.cleanup.store import PROHIBITED_WORDS_STORE
+from sb.domain.cleanup.settings_schema import SHIPPED_CLEANUP_SETTINGS
+from sb.domain.cleanup.store import (
+    PROHIBITED_WORDS_STORE,
+    WORDFILTER_CONFIG_STORE,
+)
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef, WorkflowRef
-from sb.spec.settings import SettingSpec
 
 
 def _cmd(name, route, summary, *, group="", tier=""):
@@ -50,14 +59,11 @@ MANIFEST = SubsystemManifest(
         _cmd("list", HandlerRef("cleanup.word_list"),
              "List the prohibited words.", group="word"),
     ),
-    panels=(_panels.cleanup_hub_spec(), _panels.cleanup_words_spec()),
-    settings=(
-        SettingSpec(name="spam_window_seconds", value_type=int, default=15,
-                    settings_key="cleanup_spam_window_seconds",
-                    bounds=(1, 3600),
-                    hint="Repeated-message window for cleanup sweeps."),
-    ),
-    stores=(PROHIBITED_WORDS_STORE,),
+    panels=(_panels.cleanup_hub_spec(), _panels.cleanup_words_spec(),
+            _panels.cleanup_settings_spec(),
+            _panels.cleanup_settings_edit_presets_spec()),
+    settings=SHIPPED_CLEANUP_SETTINGS,
+    stores=(PROHIBITED_WORDS_STORE, WORDFILTER_CONFIG_STORE),
     events=(), capabilities=(),
 )
 
@@ -69,6 +75,7 @@ def _ensure_refs() -> None:
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
+    _settings_widgets.ensure_widget_refs()
 
 
 ENSURE_REFS = _ensure_refs

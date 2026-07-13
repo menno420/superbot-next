@@ -162,10 +162,19 @@ source:
   # mining delta (the pre-txn pure-read guard); use_torch_flavour pins the
   # flavour-only debit. Oracle copy verbatim from
   # disbot/services/mining_workflow.py use_item/cook @ 87bbe1d.
-  minted_goldens: 29
+  # +1 minted the cleanup ANTI-EVASION toggle golden (2026-07-13, the
+  # completeness-remainders residue port, same D-0073 capture_case
+  # procedure): goldens/cleanup/cleanup_anti_evasion_toggle_write.json —
+  # `!wordmenu` → the words manager's 🛡️ Anti-evasion button by
+  # component_index. The FIRST row-bearing wordfilter_config capture
+  # (migration 0053): the click drives the audited
+  # cleanup.wordfilter_strict_op (strict=true upsert + audit row) and the
+  # session view re-renders in place with the shipped 🟢 On field literal
+  # (oracle disbot/cogs/cleanup_cog.py _WordMenuView.btn_strict @ 9776401).
+  minted_goldens: 30
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 491). The first retirement (2026-07-12
+  # imported + minted − retired = 492). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

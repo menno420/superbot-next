@@ -103,6 +103,12 @@ CAPTURE_WORLD_COUNTERS: dict[str, dict[str, int]] = {
 #: invalidation would otherwise leak `test` differently per mode).
 CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
     "sweep.word_list": ("test",),
+    # the words manager renders the SAME leaked cache state (`!wordmenu`
+    # ran after `!word add test` in the alphabetical sweep) — the panel's
+    # Current Words field went live with the anti-evasion residue port,
+    # so the capture trajectory seeds here exactly like word_list
+    # (goldens/cleanup/sweep_wordmenu.json pins "Current Words: `test`").
+    "sweep.wordmenu": ("test",),
 }
 
 #: CAPTURE-WORLD LEAKED CHANNELS, reconstructed (world state — the
