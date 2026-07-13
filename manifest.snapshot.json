@@ -4879,6 +4879,16 @@
           "value": "world_card"
         },
         {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "enable_all_competitive"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "enable_all_activities"
+        },
+        {
           "source": "sb/manifest/general.py",
           "subsystem": "general",
           "value": "fact"
@@ -6391,6 +6401,11 @@
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "games.world_card"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games.sections"
         },
         {
           "source": "sb/manifest/general.py",
@@ -9345,6 +9360,18 @@
       "handler:games.render_world_card": {
         "module": "sb.domain.games.panels"
       },
+      "handler:games.sections_enable_all_activities": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_enable_all_competitive": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_pick_activities": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_pick_competitive": {
+        "module": "sb.domain.games.sections_panel"
+      },
       "handler:games.session_gc_fire": {
         "module": "sb.domain.games.service"
       },
@@ -10569,6 +10596,9 @@
       "panel:games.hub": {
         "module": "sb.domain.games.panels"
       },
+      "panel:games.sections": {
+        "module": "sb.domain.games.sections_panel"
+      },
       "panel:games.world": {
         "module": "sb.domain.games.panels"
       },
@@ -11078,6 +11108,15 @@
       },
       "provider:games.hub_fields": {
         "module": "sb.domain.games.panels"
+      },
+      "provider:games.sections_fields": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "provider:games.sections_options_activities": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "provider:games.sections_options_competitive": {
+        "module": "sb.domain.games.sections_panel"
       },
       "provider:games.world_fields": {
         "module": "sb.domain.games.panels"
@@ -12989,7 +13028,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:258f0d4e25b8dd02748e0b0ed35cc98fd7cb7beb888643d4e5888a338e98558c",
+  "stable_hash": "sha256:fde845b29702c7e9eca5cf58639065a951d4538037b5e3a9630c67ec1b3b6509",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -33193,6 +33232,160 @@
           "timeout_s": 180,
           "title": "🪪 world card",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "enable_all_competitive",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.sections_enable_all_competitive"
+              },
+              "label": "Enable all — Competitive",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "enable_all_activities",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎲",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.sections_enable_all_activities"
+              },
+              "label": "Enable all — Activities",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Enable whole game sections or pick a few games for this server. **Enable all** clears every override in a section (back to default-enabled); the dropdowns show what is enabled right now — change the selection to toggle individual games. Disabled games drop off the Games hub and their commands are refused."
+            },
+            {
+              "provider": {
+                "$ref": "provider:games.sections_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pick_competitive"
+                  ],
+                  [
+                    "pick_activities"
+                  ],
+                  [
+                    "enable_all_competitive",
+                    "enable_all_activities"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:settings.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "games.sections",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 4,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:games.sections_pick_competitive"
+              },
+              "options_source": {
+                "$ref": "provider:games.sections_options_competitive"
+              },
+              "page_size": 25,
+              "placeholder": "🏆 Competitive — pick the enabled games…",
+              "selector_id": "pick_competitive",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 6,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:games.sections_pick_activities"
+              },
+              "options_source": {
+                "$ref": "provider:games.sections_options_activities"
+              },
+              "page_size": 25,
+              "placeholder": "🎲 Activities — pick the enabled games…",
+              "selector_id": "pick_activities",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "games",
+          "timeout_s": 180,
+          "title": "🎮 Game sections",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -48246,6 +48439,12 @@
                   "emoji": "✂️",
                   "label": "Rock Paper Scissors",
                   "value": "rps_tournament"
+                },
+                {
+                  "description": "Competitive games and channel activities",
+                  "emoji": "🎮",
+                  "label": "Games",
+                  "value": "games"
                 }
               ],
               "page_size": 25,

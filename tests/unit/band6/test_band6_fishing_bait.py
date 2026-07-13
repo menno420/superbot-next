@@ -367,3 +367,151 @@ def test_manifest_and_hub_route_the_live_lanes():
     for name in ("bait", "craftbait", "craftpearl", "craftcharm"):
         assert name not in service.PENDING
         assert not is_registered(HandlerRef(f"fishing.{name}_pending"))
+
+
+# --- the buy leg's stack/replace semantics + loaded-state render (delta
+# --- tests from the ceded #328/#338 lane — coordinator-adjudicated fill:
+# --- the landed slice pins the guards and the component tree; these pin
+# --- the LEG's oracle success copy, the same-bait stack / different-bait
+# --- replace arithmetic, the defensive insufficient path, and the
+# --- loaded-state shop description no golden covers (sweep_bait pins the
+# --- fresh bait-less open only) -----------------------------------------------------
+
+
+def _leg_ctx():
+    return SimpleNamespace(
+        actor=SimpleNamespace(user_id=P1, actor_type="user"),
+        guild_id=GID, params={})
+
+
+def test_bait_buy_leg_loads_stacks_and_replaces(monkeypatch):
+    from sb.domain.fishing import ops, store as fs
+    from sb.domain.games import wager
+
+    state = {"bait": ("", 0), "locks": []}
+
+    async def lock_bait_slot(conn, *, user_id, guild_id):
+        state["locks"].append((guild_id, user_id))
+
+    async def get_active_bait(uid, gid, conn=None):
+        return state["bait"]
+
+    async def set_active_bait(uid, gid, key, charges, conn=None):
+        state["bait"] = (key, charges)
+
+    async def debit_in_txn(conn, *, guild_id, user_id, amount, reason,
+                           actor_id):
+        return 1000 - amount
+
+    monkeypatch.setattr(fs, "lock_bait_slot", lock_bait_slot)
+    monkeypatch.setattr(fs, "get_active_bait", get_active_bait)
+    monkeypatch.setattr(fs, "set_active_bait", set_active_bait)
+    monkeypatch.setattr(wager, "debit_in_txn", debit_in_txn)
+
+    # fresh load — the oracle "Loaded" copy verbatim; the fence precedes
+    # the loadout read (#217)
+    ctx = _leg_ctx()
+    ctx.params["bait_key"] = "worm"
+    out = run(ops._record_buy_bait(object(), ctx))
+    assert state["locks"] == [(GID, P1)]
+    assert state["bait"] == ("worm", 10)
+    assert out.after["message"] == (
+        "Loaded **Worm Bait** 🪱 (×1.25 rarity) — **10** casts ready "
+        "for **150** 🪙. Balance: **850** 🪙.")
+    assert ctx.params["_balance_changes"] == [
+        (P1, -150, 850, "fishing:bait_purchase")]
+
+    # same bait again stacks — the oracle "Topped up" verb
+    ctx = _leg_ctx()
+    ctx.params["bait_key"] = "worm"
+    out = run(ops._record_buy_bait(object(), ctx))
+    assert state["bait"] == ("worm", 20)
+    assert out.after["message"].startswith("Topped up **Worm Bait**")
+
+    # a different bait replaces the loadout (never merges)
+    ctx = _leg_ctx()
+    ctx.params["bait_key"] = "minnow"
+    out = run(ops._record_buy_bait(object(), ctx))
+    assert state["bait"] == ("minnow", 10)
+    assert out.after["message"].startswith("Loaded **Live Minnow**")
+
+
+def test_bait_buy_leg_insufficient_is_defensive_and_writes_nothing(
+        monkeypatch):
+    import pytest
+
+    import sb.domain.economy.store as economy_store
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.fishing import ops, store as fs
+    from sb.domain.games import wager
+    from sb.kernel.interaction.errors import ValidatorError
+
+    state = {"bait": ("", 0)}
+
+    async def lock_bait_slot(conn, *, user_id, guild_id):
+        pass
+
+    async def get_active_bait(uid, gid, conn=None):
+        return state["bait"]
+
+    async def set_active_bait(uid, gid, key, charges, conn=None):
+        state["bait"] = (key, charges)
+
+    async def debit_in_txn(conn, **kw):
+        raise InsufficientFundsError("❌ You only have **10** 🪙.")
+
+    async def get_coins(uid, gid, conn=None):
+        return 10
+
+    monkeypatch.setattr(fs, "lock_bait_slot", lock_bait_slot)
+    monkeypatch.setattr(fs, "get_active_bait", get_active_bait)
+    monkeypatch.setattr(fs, "set_active_bait", set_active_bait)
+    monkeypatch.setattr(wager, "debit_in_txn", debit_in_txn)
+    monkeypatch.setattr(economy_store, "get_coins", get_coins)
+    ctx = _leg_ctx()
+    ctx.params["bait_key"] = "feast"
+    with pytest.raises(ValidatorError) as exc:
+        run(ops._record_buy_bait(object(), ctx))
+    assert ("A pack of **Royal Feast** 👑 costs **1800** 🪙 — you only "
+            "have **10** 🪙.") in str(exc.value)
+    assert state["bait"] == ("", 0)  # no load — the txn owner rolls back
+
+
+def test_bait_shop_renderer_loaded_state_bytes(monkeypatch):
+    from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
+
+    import sb.domain.economy.store as economy_store
+    import sb.domain.mining.store as mining_store
+    import sb.kernel.panels.render as render_mod
+    from sb.domain.fishing import panels, store as fs
+
+    async def render_panel(spec, ctx):
+        return RenderedPanel(
+            panel_id="x", embed=RenderedEmbed(title="t", description=""),
+            components=())
+
+    async def get_active_bait(uid, gid, conn=None):
+        return "spinner", 7
+
+    async def get_coins(uid, gid, conn=None):
+        return 350
+
+    async def get_mining_inventory(uid, gid, conn=None, for_update=False):
+        return {"pearl": 3}
+
+    monkeypatch.setattr(render_mod, "render_panel", render_panel)
+    monkeypatch.setattr(fs, "get_active_bait", get_active_bait)
+    monkeypatch.setattr(economy_store, "get_coins", get_coins)
+    monkeypatch.setattr(mining_store, "get_mining_inventory",
+                        get_mining_inventory)
+    out = run(panels._render_bait_shop(panels.bait_shop_spec(),
+                                       _req()))
+    # build_bait_embed's LOADED branch, byte-for-byte (no golden pins it
+    # — sweep_bait captured only the fresh bait-less open)
+    assert out.embed.description == (
+        "Loaded: **Flash Spinner** 🌀 — **7** casts left (−40% wait).\n"
+        "*Each cast spends one charge and applies these on top of "
+        "your rod.*")
+    fields = dict((f[0], f[1]) for f in out.embed.fields)
+    assert "Craft from pearls (you have 3 🦪)" in fields
+    assert fields["Your balance"] == "**350** 🪙"
