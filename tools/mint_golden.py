@@ -313,15 +313,16 @@ def docs_byte_identical(a: dict[str, Any], b: dict[str, Any]) -> bool:
 
 
 async def _capture_once(case: Any) -> dict[str, Any]:
-    """One INDEPENDENT harness boot → capture → close (module singletons
-    reset through the suite's canonical isolation registry first, so two
-    boots in one process stay independent — the D-0075 double-capture
-    posture)."""
-    from parity.harness.runner import apply_isolation_resets
+    """One INDEPENDENT harness boot → capture → close — the D-0075
+    double-capture posture. Per-case process state is reset by
+    capture_case itself (``harness.reset_case_state()`` + the
+    capture-world reseeds); the old harness's ``apply_isolation_resets``
+    is NOT used — its ``tests/_isolation.py`` registry no longer exists
+    in the tree (dead reference in parity/harness/runner.py; the new-bot
+    lane never called it)."""
     from sb.adapters.parity.boot import Harness
     from sb.adapters.parity.runner import capture_case
 
-    apply_isolation_resets()
     harness = await Harness.start()
     try:
         return await capture_case(harness, case)
