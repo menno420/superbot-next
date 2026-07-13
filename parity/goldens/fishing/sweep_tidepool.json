@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.boathouse",
+ "case_id": "sweep.tidepool",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 1801269870,
+     "last_xp": 2041952690,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -55,7 +55,7 @@
          {
           "custom_id": "<cid:1>",
           "disabled": false,
-          "label": "🛖 Build",
+          "label": "🪸 Build",
           "style": 3,
           "type": 2
          },
@@ -92,13 +92,13 @@
       "content": null,
       "embeds": [
        {
-        "color": 1146986,
-        "description": "Build a boathouse with **coral** and **wood** so your fishing energy refills faster — less waiting when the line needs to rest. Coral drops on a **deepwater** reel (`!sail`); wood you already mine. More fishing (Boathouse) vs. rarer fish (Tide Pool) vs. faster bites (Dock) — spend your coral where you like.",
+        "color": 1752220,
+        "description": "Stock a reef pool with **coral** to nudge your casts toward rarer fish. Coral drops on a **deepwater** reel (`!sail`) — the same coral you can carve into curios, now with a second, *useful* home.",
         "fields": [
          {
           "inline": false,
           "name": "Level",
-          "value": "**(not built)** (0/2)"
+          "value": "**(not built)** (0/3)"
          },
          {
           "inline": false,
@@ -107,15 +107,15 @@
          },
          {
           "inline": false,
-          "name": "Next: Boathouse → 12% faster energy regen",
-          "value": "3× coral, 20× wood + **2000** 🪙"
+          "name": "Next: Reef Pool → +4% pull toward rarer fish",
+          "value": "3× coral + **1500** 🪙"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "🛖 Build  •  ↩ Structures"
+         "text": "🪸 Build  •  ↩ Structures"
         },
-        "title": "🛖 Boathouse",
+        "title": "🪸 Tide Pool",
         "type": "rich"
        }
       ],
@@ -145,11 +145,11 @@
     }
    ],
    "input": {
-    "content": "!boathouse",
+    "content": "!tidepool",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "fishing"
 }

@@ -13,11 +13,29 @@ __all__ = [
     "sell_price",
     "sellable_inventory",
     "shop_listing",
+    "structure_build_reason",
 ]
 
 #: The economy-ledger reason tag for the vault-capacity coin sink (shipped
 #: ``utils/mining/market.py`` VAULT_UPGRADE_REASON verbatim).
 VAULT_UPGRADE_REASON = "mining:vault_upgrade"
+
+
+def structure_build_reason(structure: str) -> str:
+    """The economy-audit reason tag for building *structure* (the
+    money-flow tag) — shipped ``utils/mining/market.py``
+    ``structure_build_reason`` verbatim.
+
+    Derived generically as ``mining:{structure}_build`` — exactly what
+    the oracle's named ``*_BUILD_REASON`` constants spelled; the generic
+    derivation means a newly-registered structure can **never** crash the
+    build path for want of a map entry (the oracle's boathouse
+    ``KeyError``, BUG-0031). The ``mining:`` prefix is kept for the
+    fishing structures too — they are ``mining_structures`` rows and the
+    oracle tagged their debits identically (``mining:tide_pool_build``
+    et al.).
+    """
+    return f"mining:{structure.strip().lower()}_build"
 
 #: The shipped RESOURCE rows (items.py): commonness inverse of worth.
 RESOURCE_VALUES: dict[str, int] = {

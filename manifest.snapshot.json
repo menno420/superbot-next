@@ -4794,6 +4794,71 @@
           "value": "bs_menu"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "st_tidepool"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "st_dock"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "st_boathouse"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "st_fishery"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "st_menu"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "tp_build"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "tp_back"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "dk_build"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "dk_back"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "bh_build"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "bh_back"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fy_build"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fy_back"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "wisdom"
@@ -6381,6 +6446,31 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.bait_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.structures_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.tide_pool_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.dock_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.boathouse_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.fishery_panel"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -9255,8 +9345,8 @@
       "handler:fishing.bait_shop": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.boathouse_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.boathouse_build_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.cast_open": {
         "module": "sb.domain.fishing.service"
@@ -9267,8 +9357,8 @@
       "handler:fishing.craftcharm_route": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.craftcurio_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftcurio_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.craftpearl_route": {
         "module": "sb.domain.fishing.service"
@@ -9276,17 +9366,17 @@
       "handler:fishing.craftrod_route": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.curios_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.curios_view": {
+        "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.dock_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.dock_build_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.fish_route": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.fishery_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.fishery_build_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.forecast_view": {
         "module": "sb.domain.fishing.service"
@@ -9300,10 +9390,19 @@
       "handler:fishing.render_bait_shop": {
         "module": "sb.domain.fishing.panels"
       },
+      "handler:fishing.render_bh_structure": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.render_card": {
         "module": "sb.domain.fishing.panels"
       },
       "handler:fishing.render_cast": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.render_dk_structure": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.render_fy_structure": {
         "module": "sb.domain.fishing.panels"
       },
       "handler:fishing.render_hub": {
@@ -9318,6 +9417,12 @@
       "handler:fishing.render_rod_shop": {
         "module": "sb.domain.fishing.panels"
       },
+      "handler:fishing.render_structures_hub": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "handler:fishing.render_tp_structure": {
+        "module": "sb.domain.fishing.panels"
+      },
       "handler:fishing.rod_shop": {
         "module": "sb.domain.fishing.service"
       },
@@ -9330,11 +9435,8 @@
       "handler:fishing.sail_route": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.structures_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:fishing.tidepool_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.tidepool_build_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.top_view": {
         "module": "sb.domain.fishing.service"
@@ -10572,10 +10674,19 @@
       "panel:fishing.bait_panel": {
         "module": "sb.domain.fishing.panels"
       },
+      "panel:fishing.boathouse_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
       "panel:fishing.card": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.cast_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.dock_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.fishery_panel": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.hub": {
@@ -10588,6 +10699,12 @@
         "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.rod_recipes_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.structures_panel": {
+        "module": "sb.domain.fishing.panels"
+      },
+      "panel:fishing.tide_pool_panel": {
         "module": "sb.domain.fishing.panels"
       },
       "panel:four_twenty.overview": {
@@ -11808,6 +11925,9 @@
       "workflow:farm.upgrade_coop": {
         "module": "sb.domain.farm.ops"
       },
+      "workflow:fishing.build_structure": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.buy_bait": {
         "module": "sb.domain.fishing.ops"
       },
@@ -11821,6 +11941,9 @@
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.craft_charm": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_curio": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.craft_pearl_bait": {
@@ -11844,6 +11967,9 @@
       "workflow:fishing.erase_subject_venue": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.record_build_structure": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_buy_bait": {
         "module": "sb.domain.fishing.ops"
       },
@@ -11857,6 +11983,9 @@
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.record_craft_charm": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_curio": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.record_craft_pearl_bait": {
@@ -13058,7 +13187,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:1cd39a0ceb8866b47b9acf91baca2707eefa98a6ad7755d01aa76141f4472f34",
+  "stable_hash": "sha256:78a9be5b838750b7c5b90db4c0146e39106ae33c279df8a19c78bfc6f82cd8ac",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -31236,7 +31365,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.curios_pending"
+            "$ref": "handler:fishing.curios_view"
           },
           "slash_common": false,
           "summary": "Your curio collection.",
@@ -31263,7 +31392,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.craftcurio_pending"
+            "$ref": "handler:fishing.craftcurio_route"
           },
           "slash_common": false,
           "summary": "Carve a curio from coral.",
@@ -31290,7 +31419,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.tidepool_pending"
+            "$ref": "panel:fishing.tide_pool_panel"
           },
           "slash_common": false,
           "summary": "The tide pool structure.",
@@ -31317,7 +31446,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.dock_pending"
+            "$ref": "panel:fishing.dock_panel"
           },
           "slash_common": false,
           "summary": "The dock structure.",
@@ -31344,7 +31473,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.boathouse_pending"
+            "$ref": "panel:fishing.boathouse_panel"
           },
           "slash_common": false,
           "summary": "The boathouse structure.",
@@ -31371,7 +31500,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.fishery_pending"
+            "$ref": "panel:fishing.fishery_panel"
           },
           "slash_common": false,
           "summary": "The fishery structure.",
@@ -31498,7 +31627,7 @@
               "emoji": "🏗",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.structures_pending"
+                "$ref": "panel:fishing.structures_panel"
               },
               "label": "Structures",
               "modal": null,
@@ -32238,6 +32367,596 @@
           "subsystem": "fishing",
           "timeout_s": 180,
           "title": "🪱 Bait Shop",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "st_tidepool",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🪸",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.tide_pool_panel"
+              },
+              "label": "Tide Pool",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "st_dock",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "⚓",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.dock_panel"
+              },
+              "label": "Dock",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "st_boathouse",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🛖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.boathouse_panel"
+              },
+              "label": "Boathouse",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "st_fishery",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🐟",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.fishery_panel"
+              },
+              "label": "Fishery",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "st_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Spend the **coral** you reel in out on the **deepwater** (`!sail`) on structures that make every cast better. Pick one to build or upgrade."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped sub-hub embed renders every coral structure's LIVE status at a glance (views/fishing/structures_hub.py build_structures_embed: one field per structure whose value interpolates the player's built level, its max and the level's bonus — `**Reef Pool** (1/3) — +4% pull toward rarer fish`), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary, plus the shipped literal footer outside FooterMode's vocabulary. The renderer patches only the embed fields + footer; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "st_tidepool",
+                    "st_dock",
+                    "st_boathouse",
+                    "st_fishery"
+                  ],
+                  [
+                    "st_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "fishing.structures_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_structures_hub"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🏗 Fishing structures",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "tp_build",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.tidepool_build_route"
+              },
+              "label": "🪸 Build",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "tp_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.structures_panel"
+              },
+              "label": "↩ Structures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Stock a reef pool with **coral** to nudge your casts toward rarer fish. Coral drops on a **deepwater** reel (`!sail`) — the same coral you can carve into curios, now with a second, *useful* home."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "teal",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped structure panel embed is live-state-parameterized (views/fishing/ build_*_embed: the Level field reads the player's built mining_structures level, Current bonus renders the level's mult, and the Next field interpolates the ladder cost — the matching goldens/fishing sweep pins the fresh not-built bytes), and the FOOTER switches between the Build hint and the maxed form — read-parameterized state outside the static TextBlock/FieldsBlock + FooterMode vocabulary (the rod-shop / mining-forge precedent). The renderer patches only the embed fields + footer; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "tp_build",
+                    "tp_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "fishing.tide_pool_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_tp_structure"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🪸 Tide Pool",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "dk_build",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.dock_build_route"
+              },
+              "label": "⚓ Build",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "dk_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.structures_panel"
+              },
+              "label": "↩ Structures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Build a dock with **coral** and **wood** so the fish bite sooner — the cheap, early counterpart to the Tide Pool. Coral drops on a **deepwater** reel (`!sail`); wood you already mine. Faster bites vs. the Tide Pool's rarer fish — spend your coral where you like."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_teal",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped structure panel embed is live-state-parameterized (views/fishing/ build_*_embed: the Level field reads the player's built mining_structures level, Current bonus renders the level's mult, and the Next field interpolates the ladder cost — the matching goldens/fishing sweep pins the fresh not-built bytes), and the FOOTER switches between the Build hint and the maxed form — read-parameterized state outside the static TextBlock/FieldsBlock + FooterMode vocabulary (the rod-shop / mining-forge precedent). The renderer patches only the embed fields + footer; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "dk_build",
+                    "dk_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "fishing.dock_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_dk_structure"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "⚓ Dock",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "bh_build",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.boathouse_build_route"
+              },
+              "label": "🛖 Build",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bh_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.structures_panel"
+              },
+              "label": "↩ Structures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Build a boathouse with **coral** and **wood** so your fishing energy refills faster — less waiting when the line needs to rest. Coral drops on a **deepwater** reel (`!sail`); wood you already mine. More fishing (Boathouse) vs. rarer fish (Tide Pool) vs. faster bites (Dock) — spend your coral where you like."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_teal",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped structure panel embed is live-state-parameterized (views/fishing/ build_*_embed: the Level field reads the player's built mining_structures level, Current bonus renders the level's mult, and the Next field interpolates the ladder cost — the matching goldens/fishing sweep pins the fresh not-built bytes), and the FOOTER switches between the Build hint and the maxed form — read-parameterized state outside the static TextBlock/FieldsBlock + FooterMode vocabulary (the rod-shop / mining-forge precedent). The renderer patches only the embed fields + footer; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bh_build",
+                    "bh_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "fishing.boathouse_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_bh_structure"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🛖 Boathouse",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "fy_build",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:fishing.fishery_build_route"
+              },
+              "label": "🐟 Build",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "fy_back",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.structures_panel"
+              },
+              "label": "↩ Structures",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Build a fishery with **coral** and **wood** to keep the waters well-stocked — a landed reel is more likely to hook a **second** fish (extra craft fodder). Coral drops on a **deepwater** reel (`!sail`); wood you already mine. More fish per catch (Fishery) vs. rarer fish (Tide Pool) vs. faster bites (Dock) vs. faster energy (Boathouse) — spend your coral where you like."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_teal",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped structure panel embed is live-state-parameterized (views/fishing/ build_*_embed: the Level field reads the player's built mining_structures level, Current bonus renders the level's mult, and the Next field interpolates the ladder cost — the matching goldens/fishing sweep pins the fresh not-built bytes), and the FOOTER switches between the Build hint and the maxed form — read-parameterized state outside the static TextBlock/FieldsBlock + FooterMode vocabulary (the rod-shop / mining-forge precedent). The renderer patches only the embed fields + footer; every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "fy_build",
+                    "fy_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "games",
+            "parent": null,
+            "show_help": true,
+            "show_home": true,
+            "show_rules": false
+          },
+          "panel_id": "fishing.fishery_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_fy_structure"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🐟 Fishery",
           "usage_weight": 1.0
         }
       ],

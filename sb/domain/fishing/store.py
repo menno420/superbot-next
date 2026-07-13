@@ -39,6 +39,7 @@ __all__ = [
     "get_rod_tier",
     "lock_bait_slot",
     "lock_charm_slot",
+    "lock_coral_slot",
     "lock_rod_slot",
     "record_catch",
     "set_active_bait",
@@ -333,6 +334,26 @@ async def lock_charm_slot(conn: Any, *, user_id: int,
     await execute(
         "SELECT pg_advisory_xact_lock(hashtext($1))",
         (f"fishing:charm:{guild_id}:{user_id}",), conn=conn)
+
+
+async def lock_coral_slot(conn: Any, *, user_id: int,
+                          guild_id: int) -> None:
+    """Fence EVERY fishing-side coral spend for one (user, guild) — the
+    curio carve AND the structure build take this SAME key, so a racing
+    `!craftcurio` × Build pair serializes (PR #350 codex finding): the
+    shared ``mining_inventory`` decrement floors at zero
+    (``GREATEST(0, quantity + delta)``), so two unserialized spenders
+    could both pass their pre-spend guards and both be granted from one
+    coral stack — the lock makes the loser re-read the winner's
+    committed count and refuse honestly. Materials, not coins, so for
+    the carve this lock is the only guard (the ``lock_charm_slot``
+    posture); the build additionally holds ``mining.store.
+    lock_structure_build_slot`` (taken FIRST, a stable order — no
+    deadlock: the carve holds only this key). Auto-released at
+    commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:coral:{guild_id}:{user_id}",), conn=conn)
 
 
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
