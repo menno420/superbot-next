@@ -55,7 +55,7 @@
 
 | Subsystem | core | admin | setup |
 |---|---|---|---|
-| admin | ✅ 7 cmds live (coglist/slashes/loglevel/serverstats/adminmenu) | ⚑ cogmgr deploy ops pending: 6 actions + 1 selector (`admin.cogmgr_*` → `sb/domain/operator_spine.py`; deploy-ops class, capture-skipped by design — see docs/decisions.md) + `admin.hub/reload_all` | ✅ honest-empty (declares no settings; explanatory empty state, PR #71) |
+| admin | ✅ 7 cmds live (coglist/slashes/loglevel/serverstats/adminmenu) | ✅ cogmgr select pick + ◀/▶ windowing live (ORDER 017 operator-hub edits C); the Load/Unload/Reload trio + `admin.hub/reload_all` are BY-DESIGN terminals, not gaps (docs/decisions.md — extension management has no compiled-architecture analog; final copy states it) | ✅ honest-empty (declares no settings; explanatory empty state, PR #71) |
 | ai | ⚑ env-gated only: NL answer path dormant without `ANTHROPIC_API_KEY` (`parity.yml:361` ai_review_log exemption); all 24 cmds / 36 actions / 17 selectors live | ✅ `!aireview` family live (preset + review-channel writes golden-covered) | ✅ policy/preset/orchestration mutation live — "No chooser pending terminals remain" (`sb/domain/ai/panels.py:39`) |
 | automod | ✅ decision core live-proven (band-2s2) | ✅ hub read-view | ✅ 15 settings resolve |
 | blackjack | ✅ solo + tournament full flow, paid-pot conservation golden | ✅ `!bjstart` launch | ✅ 1 setting |
@@ -153,7 +153,15 @@ unregistered refs, no empty-string error paths).
    wire-clicks-to-existing-ops family. Coordinate with the
    `operator-hubs-interactive` claim (read-only nav slice already claimed;
    the EDIT controls are explicitly deferred to a settings-mutation-style
-   slice).
+   slice). **PARTIALLY DONE (ORDER 017 night-run): operator-hub edits C
+   (this PR) arms the cogmgr select + windowing and reclassifies the
+   deploy trio by-design; edits A (#355) covers utility
+   Poll/Remind/420 + role Create + counter-preset apply; edits B (#356)
+   covers the channel hub's five sub-panel flows; peers own xp config
+   (#345), cleanup words (#333), server_management nav trio + utility
+   Invite (#332). Remaining free: server_management
+   access_map/help_preview/help_editor (a 2.3k-line oracle projection
+   pair — its own slice).**
 7. **btd6 paragon calculator** — 3 actions + 4 selectors pending
    (`btd6.paragon_pending`); a self-contained pure-compute port
    (`sb/domain/btd6/service.py`). Free.
