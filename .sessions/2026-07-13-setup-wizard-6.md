@@ -1,6 +1,6 @@
 # 2026-07-13 — setup wizard successors slice 6: the roles-family section flows
 
-> **Status:** in-progress
+> **Status:** complete
 
 - **📊 Model:** Fable · setup-wizard successor lane, slice 6
 
