@@ -141,3 +141,50 @@ provenance: filed by the fleet manager — owner-review adoption 2026-07-12; sou
 do: RUNTIME-SMOKE MERGE GATE — add a CI job (a new required check, or a job inside the existing gate workflow) that, per PR: imports the bot package headless, loads ALL cogs, wires ALL views, and asserts the registry + EventBus subscription graph is intact — every emit has its expected subscriber, every REGISTRY callback resolves. This catches the "locally correct, systemically wrong" class that static checks cannot see. Cheap first tier only (no live token/guild needed); a dispatch-tier live-boot job may follow later.
 why: static/import guards pass while wiring breaks slip through; a headless boot-and-wire smoke is the cheapest gate that sees the whole graph (owner-review adoption 2026-07-12, source article above).
 done-when: the job runs required on PRs, is green on current main, and a deliberate wiring break (test fixture) turns it red — cite the proof run. Scale: superbot-next only; do NOT mandate fleet-wide.
+
+## ORDER 017 · 2026-07-13T00:43Z · status: new
+
+(provenance: owner live turn in the coordinator chat, 2026-07-13 night run; landed verbatim by the coordinator seat per the owner's direction)
+
+DIRECT ORDER — SUPERBOT 2.0 (owner, 2026-07-13, night run). Land this verbatim in your
+inbox (top-precedence owner turn), then execute all night.
+
+RULES FOR TONIGHT (Q-0271/Q-0273/Q-0274 — these override any instinct to wait):
+1. I am away until morning; that is the system's normal state. Silence = consent = done.
+   Never hold or re-confirm finished work.
+2. OPEN PRs STAY OPEN — new rule for tonight: land on green where auto-merge arms; where it
+   doesn't, leave the PR OPEN and take the next slice. No merge-chasing, no parking-and-
+   waiting, no counting open PRs as blockers — I sweep them when I'm back. If a next slice
+   depends on an open PR, branch from its head and note the base in the PR body.
+3. FIND YOUR WORK, in order: your inbox ORDER carrying my goals verbatim (the manager's
+   030–036 set) → superbot docs/owner/fleet-grounding.md §3 (my mission + ordered goals for
+   you) → your band plan/backlog at HEAD → your generative rung. An empty queue means
+   GENERATE, never idle.
+4. NO STALLS UNDER ANY CIRCUMSTANCES: probe before declaring a wall (attempt once, verbatim
+   error; quote fresh documented walls instead of re-probing); genuinely-owner-only item →
+   six-field owner-queue entry (VENUE:hub if merge/destructive-shaped) → CONTINUE same turn;
+   design/feasibility uncertainty → SIM-REQUEST via outbox → CONTINUE.
+5. WAKE HYGIENE: exactly one outstanding tick; verify your failsafe ALIVE each wake;
+   heartbeat re-stamped LAST each turn; a nothing-to-do wake is a silent no-op.
+6. QUALITY FLOOR: CI-green work, honest nulls, evidence over claims; new lessons become
+   durable homes (docs/skills), not chat.
+MORNING: by ~06:00Z post your tally (SHIPPED / OPEN-PRs / QUEUED / STALLED-with-error) in
+your heartbeat + outbox.
+
+YOUR SEAT TONIGHT (the finalization mandate — completeness + polish; live-testing comes
+later):
+1. CORE + ALL ADMIN + ALL SETUP functions to fully-complete, production-ready: sweep every
+   ported subsystem for stubs, unwired buttons, TODO paths, missing error copy — finish
+   them. Definition of done per surface: implemented + tested + golden-parity where
+   applicable + error paths + final copy.
+2. COMMAND/BUTTON CURATION: simulations + reviews over the complete command and component
+   surface → an evidenced KEEP / REWORK / DROP verdict per item; ship contained reworks;
+   compile the drops into ONE curation report for me.
+3. FINISH THE STARTED DEEP-GAME LANES: mining write-parity, fishing, energy — to green.
+4. MINIGAME/CASINO SECTION: build the dynamic panel consolidation (sections,
+   enable-all-or-pick-a-few, panels update to the enabled set) consuming SuperBot World's
+   inventory + spec from your inbox/outbox exchange.
+5. PROD-BOT LANE (superbot repo): the mineverse bot-side FLAGs per its control/status.md
+   specs; post landing notes to your outbox as each lands.
+6. Stack PRs freely — open is fine tonight. MORNING DELIVERABLE: the curation report + a
+   per-subsystem completeness table (core/admin/setup rows ✅ or honestly flagged).
