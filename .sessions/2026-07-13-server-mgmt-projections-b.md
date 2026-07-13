@@ -1,6 +1,6 @@
 # 2026-07-13 — server-management Help Preview (ORDER 017 night-run follow-up, slice B)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN follow-up slice (ORDER 017
   item 1) · mandate: the server_management hub's remaining pending
