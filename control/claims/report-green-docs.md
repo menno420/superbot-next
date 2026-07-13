@@ -1,0 +1,3 @@
+# Claim
+
+- `report-green-docs` · **docs sweep — retire the red-by-design doctrine now that the golden-parity `report` leg is live green** (verified: run 29238825392, `report` job success, 484/484 goldens · 51/51 subsystems, 2026-07-13) — update the live-guidance hits only (README.md, docs/status/README-first.md, docs/current-state.md, docs/operations/local-verification.md, parity/README.md, comment-only edits in .github/workflows/golden-parity.yml + named-gates.yml); historical records (.sessions/, docs/retro/, docs/decisions.md, dated control reports) stay untouched; NO workflow logic changes · branch `claude/report-green-docs` · 2026-07-13T09:42Z
