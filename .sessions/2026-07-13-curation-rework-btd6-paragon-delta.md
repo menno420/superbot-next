@@ -1,6 +1,8 @@
 # 2026-07-13 — btd6 paragon arbitration delta (stats degree view onto #339)
 
-> **Status:** `in-progress`
+> **Status:** `complete` — delta ported onto #339's head; `python3 -m
+> pytest tests/ -q` green (2130 passed, 13 skipped); snapshot + compat
+> pins regenerated in-PR; CI parked (Actions outage ~03:40Z — no kicks)
 
 - **📊 Model:** `Claude Fable` · arbitration delta lane · mandate: first
   claim wins — #339 (claim 01:16:21Z) is senior over #336 (01:45:05Z) on
