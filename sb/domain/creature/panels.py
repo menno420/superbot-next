@@ -78,6 +78,8 @@ from sb.spec.panels import (
     PageSpec,
     PanelActionSpec,
     PanelSpec,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
 from sb.spec.refs import (
@@ -93,6 +95,7 @@ from sb.spec.refs import (
 __all__ = [
     "BATTLETOP_PANEL_ID",
     "CHALLENGE_PANEL_ID",
+    "CHALLENGE_SELECT_PANEL_ID",
     "COLLECTORS_PANEL_ID",
     "DEX_BROWSE_PANEL_ID",
     "DEX_CARD_PANEL_ID",
@@ -100,6 +103,7 @@ __all__ = [
     "RECORD_PANEL_ID",
     "RULES_PANEL_ID",
     "battletop_card_spec",
+    "challenge_select_spec",
     "challenge_spec",
     "collectors_card_spec",
     "creature_hub_spec",
@@ -120,6 +124,7 @@ COLLECTORS_PANEL_ID = "creature.collectors_card"
 RECORD_PANEL_ID = "creature.record_card"
 BATTLETOP_PANEL_ID = "creature.battletop_card"
 CHALLENGE_PANEL_ID = "creature.challenge"
+CHALLENGE_SELECT_PANEL_ID = "creature.challenge_select"
 RULES_PANEL_ID = "creature.rules_card"
 
 #: the shipped footer literal (views/creature/embeds.py build_menu_embed)
@@ -187,27 +192,15 @@ _RULES_DESCRIPTION = (
 )
 
 
-# The shipped hub Challenge button opened _ChallengePickView (a user
-# select); a native USER picker seam does not exist yet, so it stays a
-# declared pending terminal (the D-0030 xp-config posture: declared +
-# honest refusal, never silent; challenge directly with `!cbattle
-# @member` meanwhile). The Accept battle-resolution terminal is NO LONGER
-# pending — it ports here as the real auto-resolve handler
-# (creature.challenge_accept in service.py; D-0079). Registered at module
-# import AND from ensure_panel_refs (the #141 doctrine).
+# The shipped hub Challenge button opened _ChallengePickView (a native
+# user-select opponent picker). That seam is now LIVE: the button opens
+# creature.challenge_select (a SelectorKind.MEMBER native user_select, wire
+# type 5), whose selection routes through the ordinary `values` round-trip
+# into creature.challenge_pick (the non-member / bot / self guards, then the
+# challenge open). The pending terminal (creature.challenge_pick_pending) is
+# RETIRED — it was the repo's only opponent/target picker refusal.
 def _register_pending() -> tuple[HandlerRef, ...]:
-    from sb.domain.operator_spine import pending_handler as _pending
-
-    return (
-        _pending(
-            "creature.challenge_pick_pending",
-            "⚔️ The trainer picker ports with the native user-select "
-            "seam — challenge directly with `!cbattle @member` until "
-            "then."),
-    )
-
-
-(_PENDING_CHALLENGE_PICK,) = _register_pending()
+    return ()
 
 
 def creature_hub_spec() -> PanelSpec:
@@ -245,7 +238,14 @@ def creature_hub_spec() -> PanelSpec:
                 action_id="creature_challenge", label="Challenge",
                 emoji="⚔️", style=ActionStyle.PRIMARY,
                 audience_tier="user",
-                handler=HandlerRef("creature.challenge_pick_pending"),
+                # the shipped Challenge button opened the native user-select
+                # opponent picker (_ChallengePickView); it routes to the
+                # ported picker panel (creature.challenge_select). Repointing
+                # the target never touches the hub's rendered bytes
+                # (goldens/creature/sweep_creatures pins the button
+                # label/emoji/style, not its route — the Dex-button
+                # precedent).
+                handler=PanelRef(CHALLENGE_SELECT_PANEL_ID),
                 reply_visibility=ReplyVisibility.EPHEMERAL),
             PanelActionSpec(
                 action_id="creature_ladder", label="Ladder", emoji="🏆",
@@ -590,6 +590,16 @@ def challenge_spec() -> PanelSpec:
                 style=ActionStyle.DANGER, audience_tier="user",
                 handler=HandlerRef("creature.challenge_decline"),
                 reply_visibility=ReplyVisibility.EPHEMERAL),
+            # the shipped 🔄 Rematch (CreatureRematchView) — attached to the
+            # battle-OUTCOME card only. render_challenge drops it from the
+            # OPEN/declined stages (so goldens/creature/sweep_cbattle keeps
+            # its exact two-button open) and enables it (accept/decline
+            # disabled) on the resolved stage; either fighter may click.
+            PanelActionSpec(
+                action_id="cbattle_rematch", label="Rematch", emoji="🔄",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("creature.challenge_rematch"),
+                reply_visibility=ReplyVisibility.EPHEMERAL),
         ),
         # the shipped CreatureBattleChallengeView carried ONLY its two
         # buttons (no nav slots; timeout session view) — the golden pins
@@ -612,7 +622,56 @@ def challenge_spec() -> PanelSpec:
             "bytes; the two buttons delegate to render_panel."),
         session_lifecycle=True,
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("cbattle_accept", "cbattle_decline"),)),)),
+            ("cbattle_accept", "cbattle_decline"),
+            ("cbattle_rematch",),
+        )),)),
+    )
+
+
+def challenge_select_spec() -> PanelSpec:
+    """The opponent picker — the shipped hub Challenge button opened a
+    native user-select (_OpponentSelect: placeholder 'Choose a trainer to
+    battle…', min/max 1) on a red 'Challenge a trainer' embed. Made
+    declarative: a SelectorKind.MEMBER native picker (wire type 5) whose
+    selection routes through the ordinary `values` round-trip into
+    creature.challenge_pick. Opened ephemerally by the hub Challenge button
+    (the Dex-button open lane)."""
+    return PanelSpec(
+        panel_id=CHALLENGE_SELECT_PANEL_ID,
+        subsystem="creature",
+        title="⚔️ Challenge a trainer",
+        audience=Audience.INVOKER,
+        # discord.Color.red() (the shipped challenge_btn embed accent).
+        frame=EmbedFrameSpec(style_token="red",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(
+            "Pick the trainer you want to battle. They'll get an Accept / "
+            "Decline prompt; teams are level-normalized, so your collection "
+            "and type matchups decide it."),),
+        selectors=(
+            # discord.ui.UserSelect, row 0 (shipped placeholder verbatim) —
+            # the native member picker (wire type 5, Discord supplies the
+            # roster).
+            SelectorSpec(
+                selector_id="challenge_opponent",
+                kind=SelectorKind.MEMBER,
+                on_select=HandlerRef("creature.challenge_pick"),
+                placeholder="Choose a trainer to battle…",
+                audience_tier="user"),
+        ),
+        # the shipped CreatureChallengeSelectView carried a ◀ Back button to
+        # the creature menu (back_btn → open_creature_menu); the nav parent
+        # renders it and satisfies the reachability fence WITHOUT
+        # session_lifecycle — so the selector keeps a STABLE custom_id
+        # (creature.challenge_select.challenge_opponent) the router
+        # dispatches to creature.challenge_pick directly (the picker is
+        # opened ephemerally, so only the invoker sees/clicks it, and the
+        # selection carries the challenger via req.actor + the opponent via
+        # the select `values`; no session args are needed).
+        navigation=NavigationSpec(parent=PanelRef(HUB_PANEL_ID),
+                                  show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("challenge_opponent",),)),)),
     )
 
 
@@ -742,13 +801,22 @@ async def _render_battletop(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+def _is_rematch(component: object) -> bool:
+    """The 🔄 Rematch action carried by the challenge panel — identified by
+    its static custom_id suffix (minted before the session re-mint)."""
+    return str(getattr(component, "custom_id", "")).endswith(".cbattle_rematch")
+
+
 async def _render_challenge(spec: PanelSpec, ctx) -> object:
     """renderer_override — the shipped CONTENT-only challenge send +
     the opponent lock; ``params['stage']`` swaps stages: ``declined``
     renders the shipped decline edit (both buttons disabled — the shipped
     ``item.disabled = True`` walk), ``resolved`` renders the auto-resolve
     outcome (the battle embed, or the go-catch nudge when a fighter has no
-    team) with the buttons disabled (D-0079)."""
+    team) with the accept/decline buttons disabled and the 🔄 Rematch
+    button LIVE (the shipped CreatureRematchView; either fighter may click).
+    The Rematch action is dropped from every non-resolved stage so the
+    challenge OPEN keeps its exact two-button shape (D-0079)."""
     from sb.kernel.panels.render import RenderedEmbed, render_panel
 
     rendered = await render_panel(spec, ctx)
@@ -757,10 +825,14 @@ async def _render_challenge(spec: PanelSpec, ctx) -> object:
     challenger = int(params.get("cb_challenger_id")
                      or getattr(ctx.actor, "user_id", 0) or 0)
     stage = str(params.get("stage", "") or "")
+    # the OPEN + declined + no-team stages carry no rematch affordance —
+    # drop it so the shipped two-button card is byte-exact.
+    without_rematch = tuple(c for c in rendered.components
+                            if not _is_rematch(c))
     if stage == "declined":
         name = await _member_display(opponent, int(ctx.guild_id or 0))
         components = tuple(_dc_replace(c, disabled=True)
-                           for c in rendered.components)
+                           for c in without_rematch)
         return _dc_replace(
             rendered, embed=None,
             content=f"❌ {name} declined the challenge.",
@@ -769,13 +841,21 @@ async def _render_challenge(spec: PanelSpec, ctx) -> object:
     if stage == "resolved":
         from sb.domain.creature.battle_service import NO_TEAM_MSG
 
-        components = tuple(_dc_replace(c, disabled=True)
-                           for c in rendered.components)
         if params.get("cb_no_team"):
-            # neither/one fighter has a team — the shipped go-catch nudge.
+            # neither/one fighter has a team — the shipped go-catch nudge
+            # (no outcome card ⇒ no rematch affordance).
+            components = tuple(_dc_replace(c, disabled=True)
+                               for c in without_rematch)
             return _dc_replace(
                 rendered, embed=None, content=NO_TEAM_MSG,
                 components=components, invoker_lock=opponent or None)
+        # the outcome card: accept/decline disabled, 🔄 Rematch LIVE (the
+        # shipped CreatureRematchView rides the resolved message; its
+        # interaction_check widens to both fighters — see
+        # creature.challenge_rematch).
+        components = tuple(c if _is_rematch(c)
+                           else _dc_replace(c, disabled=True)
+                           for c in rendered.components)
         embed = RenderedEmbed(
             title="⚔️ Creature Battle",
             description=str(params.get("cb_desc") or ""),
@@ -784,12 +864,21 @@ async def _render_challenge(spec: PanelSpec, ctx) -> object:
             style_token="green")
         return _dc_replace(
             rendered, embed=embed, content=None, components=components,
-            invoker_lock=opponent or None)
-    content = (
-        f"<@{opponent}> — <@{challenger}> challenges you to a creature "
-        "battle! Teams are level-normalized; your collection and type "
-        "matchups decide it.")
+            invoker_lock=None)
+    if params.get("cb_rematch"):
+        # the shipped CreatureRematchView re-challenge copy ('wants a
+        # rematch!'), clicker = challenger.
+        content = (
+            f"<@{opponent}> — <@{challenger}> wants a rematch! "
+            "Teams are level-normalized; your collection and type "
+            "matchups decide it.")
+    else:
+        content = (
+            f"<@{opponent}> — <@{challenger}> challenges you to a creature "
+            "battle! Teams are level-normalized; your collection and type "
+            "matchups decide it.")
     return _dc_replace(rendered, embed=None, content=content,
+                       components=without_rematch,
                        invoker_lock=opponent or None)
 
 
@@ -828,6 +917,11 @@ def _challenge_factory() -> PanelSpec:
     return challenge_spec()
 
 
+@panel(CHALLENGE_SELECT_PANEL_ID)
+def _challenge_select_factory() -> PanelSpec:
+    return challenge_select_spec()
+
+
 @panel(RULES_PANEL_ID)
 def _rules_factory() -> PanelSpec:
     return rules_card_spec()
@@ -836,7 +930,7 @@ def _rules_factory() -> PanelSpec:
 _ALL_SPECS = (
     creature_hub_spec, dex_card_spec, dex_browse_spec, collectors_card_spec,
     record_card_spec, battletop_card_spec, challenge_spec,
-    rules_card_spec,
+    challenge_select_spec, rules_card_spec,
 )
 
 _FACTORIES = (
@@ -847,6 +941,7 @@ _FACTORIES = (
     (RECORD_PANEL_ID, _record_factory),
     (BATTLETOP_PANEL_ID, _battletop_factory),
     (CHALLENGE_PANEL_ID, _challenge_factory),
+    (CHALLENGE_SELECT_PANEL_ID, _challenge_select_factory),
     (RULES_PANEL_ID, _rules_factory),
 )
 

@@ -19,7 +19,9 @@
 schema_version: 1
 
 subsystems:
-  _unmapped: unverified
+  # `_unmapped` retired with the fishing slice-4 port — the last six sweeps
+  # re-homed into fishing/ and the parity.yml row + golden dir went with
+  # them (this roster mirrors parity.yml, checker-enforced V4).
   admin: unverified
   ai: unverified
   automod: unverified
@@ -59,7 +61,6 @@ subsystems:
   rps_tournament: unverified
   security: unverified
   server_management: unverified
-  servermanagement: unverified
   settings: unverified
   setup: unverified
   starboard: unverified

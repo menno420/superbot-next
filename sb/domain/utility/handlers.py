@@ -37,10 +37,6 @@ _GENERIC_ERROR = "⚠️ An unexpected error occurred. Please try again."
 #: handler and the prefix command's success lane.
 _POLL_DOWN = ("📊 Poll creation needs the reaction egress port "
               "(arms with the live adapter).")
-_REMIND_DOWN = ("🔔 Reminders need the timed-delivery port "
-                "(arms with the live adapter).")
-_INVITE_DOWN = ("🔗 Invite creation needs the live invite port "
-                "(arms with the live adapter).")
 _CLEAR_DOWN = ("🧹 Purging needs the live message view "
                "(arms with the live adapter).")
 
@@ -397,6 +393,46 @@ def _register() -> None:
             SUCCESS,
             f"⏳ Reminder set for **{minutes}** minute(s): {message}")
 
+    @handler("utility.poll_form_submit")
+    async def poll_form_submit(req):
+        """The 📊 Poll button's `_PollModal` submit (utility_cog.py) —
+        the shipped validation copy verbatim (one option per LINE, the
+        modal's own guards — distinct from the `!poll` argv copy). The
+        success lane (poll embed + numbered reactions) still needs the
+        reaction egress port — the command twin's honest refusal, never
+        a silent stub."""
+        opts = [o.strip()
+                for o in str(req.args.get("options", "") or "").split("\n")
+                if o.strip()]
+        if len(opts) < 2:
+            return Reply(BLOCKED, "❌ Need at least 2 options.")
+        if len(opts) > 10:
+            return Reply(BLOCKED, "❌ Max 10 options.")
+        return Reply(BLOCKED, _POLL_DOWN)
+
+    @handler("utility.remind_form_submit")
+    async def remind_form_submit(req):
+        """The 🔔 Remind Me button's `_RemindModal` submit
+        (utility_cog.py) — the shipped validation + ack copy verbatim.
+        Same lane as the live `!remind` twin: the ack is real, the
+        delivery itself rides the timed-delivery port (the twin's
+        documented named successor — the golden capture window closed
+        before any delivery, so only the ack is pinned)."""
+        try:
+            minutes = int(str(req.args.get("minutes", "")).strip())
+            if minutes <= 0:
+                raise ValueError
+        except ValueError:
+            return Reply(BLOCKED, "❌ Minutes must be a positive integer.")
+        message = str(req.args.get("message", "") or "").strip()
+        if not message:
+            # required field — an empty submit only reaches here through
+            # a non-Discord surface; the shipped generic net answers.
+            return Reply(BLOCKED, _GENERIC_ERROR)
+        return Reply(
+            SUCCESS,
+            f"⏳ Reminder set for **{minutes}** minute(s): {message}")
+
     @handler("utility.invite_view")
     async def invite_view(req):
         """!invite — the shipped one-use channel invite
@@ -454,24 +490,8 @@ def _register() -> None:
         return Reply(SUCCESS, f"Cleared {len(deleted)} messages.")
 
 
-def _register_pending() -> None:
-    """The shipped Poll/Remind/Invite tools and the 420 child panel need
-    Discord effect ports that have not armed (reaction egress, timed
-    delivery, invite mint) or bands that have not ported (four_twenty) —
-    declared + honest refusal, never silent (the role-band precedent)."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler("utility.poll_pending", _POLL_DOWN)
-    pending_handler("utility.remind_pending", _REMIND_DOWN)
-    pending_handler("utility.invite_pending", _INVITE_DOWN)
-    pending_handler("utility.four_twenty_pending",
-                    "🍃 The 420 panel ports with its own band.")
-
-
 _register()
-_register_pending()
 
 
 def ensure_handler_refs() -> None:
     _register()
-    _register_pending()

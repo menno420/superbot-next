@@ -156,9 +156,9 @@ async def _render_presets(spec: PanelSpec, ctx) -> object:
     from sb.kernel.panels.render import RenderedEmbed, RenderedPanel
 
     lines = []
-    for key, label, total_template in TEMPLATE_PRESETS:
-        sample = render_counter_name(total_template, 1234)
-        lines.append(f"**`{key}`** — {label}\n-# e.g. `{sample}`")
+    for preset in TEMPLATE_PRESETS:
+        sample = render_counter_name(preset.template_for("total"), 1234)
+        lines.append(f"**`{preset.key}`** — {preset.label}\n-# e.g. `{sample}`")
 
     embed = RenderedEmbed(
         title=spec.title,
@@ -173,31 +173,68 @@ async def _render_presets(spec: PanelSpec, ctx) -> object:
         anchor_policy=spec.anchor_policy.value)
 
 
+#: the shipped ~10-min counter sync cadence (counters_cog.py
+#: ``_COUNTER_LOOP_MINUTES`` — the apply ack interpolates it).
+_COUNTER_LOOP_MINUTES = 10
+
+
 async def _preset_view(req):
     """`!counterpreset [name]` — the shipped split (counters_cog.py): no
-    name lists the catalog (the golden-pinned card above); a name APPLIED
-    all three templates through the audited SettingsMutationPipeline +
-    the rename loop — that write path is a successor slice, so the named
-    branch lands on the declared + honest pending terminal (no golden
-    drives it)."""
+    name lists the catalog (the golden-pinned card above); a name APPLIES
+    the preset — all three kind templates written through the audited
+    `settings.set_scalar` lane, exactly as the per-template `!settings`
+    widget writes (coercion, declared-key guard, audit and the ADMIN
+    floor all run), then the shipped ack. The shipped rename effect rides
+    the ~10-min sync loop, NOT this command — the ack says so verbatim
+    (2026-07-13 operator-hub edits A; the pending terminal is retired)."""
     import dataclasses as _dc
 
-    from sb.domain.operator_spine import pending_handler
+    from sb.domain import counters as counter_config
+    from sb.kernel import settings as ksettings
+    from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
     from sb.kernel.panels.engine import open_panel
-    from sb.spec.refs import resolve as _resolve_ref
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import BLOCKED, SUCCESS
+    from sb.spec.refs import WorkflowRef
 
     argv = tuple(req.args.get("argv", ()) or ())
-    if argv:
-        # same copy as sb/manifest/counters.py's _PENDING declaration
-        # (pending_handler is register-once — the first registration wins).
-        ref = pending_handler(
-            "counters.preset_pending",
-            "Counter presets apply channel renames — armed with the "
-            "channel-ops port slice.")
-        return await _resolve_ref(ref)(req)
-    await open_panel(PanelRef(PRESETS_PANEL_ID),
-                     _dc.replace(req, args=dict(req.args)))
-    return None
+    if not argv:
+        await open_panel(PanelRef(PRESETS_PANEL_ID),
+                         _dc.replace(req, args=dict(req.args)))
+        return None
+
+    name = str(argv[0])
+    preset = counter_config.get_preset(name)
+    if preset is None:
+        # the shipped unknown-preset refusal, verbatim (counters_cog.py).
+        keys = ", ".join(f"`{p.key}`"
+                         for p in counter_config.TEMPLATE_PRESETS)
+        return Reply(BLOCKED, f"❌ Unknown preset `{name}`. Try one of: {keys}.")
+
+    # the shipped write order (preset_setting_writes — total/humans/bots);
+    # a failed write short-circuits with the shipped refusal shape.
+    for setting_name, template in counter_config.preset_setting_writes(preset):
+        result = await engine.run(
+            WorkflowRef("settings.set_scalar"),
+            ctx_from_request(req, {
+                "key": ksettings.persisted_key("counters", setting_name),
+                "value": template,
+                "subsystem": "counters",
+                "name": setting_name,
+            }))
+        if result.outcome != SUCCESS:
+            # the shipped SettingsMutationError refusal shape
+            # (`❌ Could not apply preset: …`).
+            detail = result.user_message or f"could not write {setting_name}"
+            return Reply(result.outcome,
+                         f"❌ Could not apply preset: {detail}")
+
+    # the shipped apply ack, verbatim (counters_cog.counter_preset).
+    return Reply(
+        SUCCESS,
+        f"✅ Applied the **{preset.label}** preset to all three counter "
+        "name templates. Bound channels refresh on the next sync "
+        f"(~{_COUNTER_LOOP_MINUTES} min).")
 
 
 @panel(STATUS_PANEL_ID)

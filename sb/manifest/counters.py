@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from sb.domain.counters import DEFAULT_TEMPLATES
 from sb.domain.counters import panels as _panels
-from sb.domain.operator_spine import ensure_hub, hub_spec, pending_handler
+from sb.domain.operator_spine import ensure_hub, hub_spec
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import HandlerRef, PanelRef
@@ -14,11 +14,6 @@ from sb.spec.settings import Activation, BindingKind, BindingSpec, SettingSpec
 _TITLE, _BLURB = "Server counters", ("Live member-count channels "
                                      "(total · humans · bots).")
 ensure_hub("counters", _TITLE, _BLURB)
-
-_PENDING = pending_handler(
-    "counters.preset_pending",
-    "Counter presets apply channel renames — armed with the channel-ops "
-    "port slice.")
 
 _SETTINGS = (
     SettingSpec(name="enabled", value_type=bool, default=False,
@@ -63,9 +58,9 @@ MANIFEST = SubsystemManifest(
                     capability="counters"),
         # the shipped `!counterpreset [name]` split: no name lists the
         # curated catalog (goldens/counters/sweep_counterpreset pins the
-        # card); a name applied all three templates through the audited
-        # settings pipeline — that write path stays on the pending
-        # terminal (sb/domain/counters/panels.py `_preset_view`).
+        # card); a name APPLIES all three templates through the audited
+        # settings.set_scalar lane (sb/domain/counters/panels.py
+        # `_preset_view` — 2026-07-13 operator-hub edits A).
         CommandSpec(name="counterpreset", kind=CommandKind.PREFIX,
                     route=HandlerRef("counters.preset_view"),
                     summary="List or apply a counter name-template "
@@ -81,7 +76,6 @@ MANIFEST = SubsystemManifest(
 
 def _ensure_refs() -> None:
     ensure_hub("counters", _TITLE, _BLURB)
-    pending_handler("counters.preset_pending", "")
     _panels.ensure_panel_refs()
 
 

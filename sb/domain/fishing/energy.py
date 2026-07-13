@@ -26,6 +26,7 @@ __all__ = [
     "bar",
     "can_cast",
     "regen_seconds_for",
+    "seconds_until",
     "settle",
     "spend",
 ]
@@ -82,13 +83,19 @@ def spend(
     """Settle then pay for one cast — the per-attempt pacing brake.
 
     Caller checks :func:`can_cast` first; the floor-clamp keeps a raced
-    write honest rather than minting negative energy."""
-    settled = settle(state, now, max_energy=max_energy,
-                     regen_seconds=regen_seconds)
-    return EnergyState(max(0, settled.current - cost), now)
+    write honest rather than minting negative energy. Returns the
+    settled ``updated_at`` (shipped verbatim — ``utils/fishing/energy.py``
+    ``spend`` keeps ``s.updated_at``, remainder-preserving): stamping
+    ``now`` instead (the pre-wiring port drift) silently discarded up to
+    ``regen_seconds - 1`` seconds of partial regen on every below-cap
+    spend. A fresh full bar settles to ``(MAX, now)``, so the
+    golden-pinned fresh-player row is byte-identical either way."""
+    s = settle(state, now, max_energy=max_energy,
+               regen_seconds=regen_seconds)
+    return EnergyState(max(0, s.current - cost), s.updated_at)
 
 
-def regen_seconds_for(
+def seconds_until(
     state: EnergyState,
     now: int,
     target: int,
@@ -97,14 +104,31 @@ def regen_seconds_for(
     regen_seconds: int = REGEN_SECONDS,
 ) -> int:
     """Seconds of passive regen until settled energy reaches *target*
-    (0 if already)."""
+    (0 if already) — the shipped ``seconds_until`` verbatim (the
+    pre-wiring port carried this function under the WRONG NAME
+    ``regen_seconds_for``; that name now belongs to the boathouse
+    interval hook below, as shipped)."""
     s = settle(state, now, max_energy=max_energy,
                regen_seconds=regen_seconds)
     if s.current >= target:
         return 0
-    missing = target - s.current
-    already = max(0, now - s.updated_at)
-    return missing * regen_seconds - already
+    needed = min(max_energy, target) - s.current
+    remainder = now - s.updated_at  # 0 ≤ remainder < regen_seconds
+    return max(0, needed * regen_seconds - remainder)
+
+
+def regen_seconds_for(regen_mult: float, *, base: int = REGEN_SECONDS) -> int:
+    """The effective regen interval when a structure speeds regen by
+    *regen_mult* (shipped verbatim — ``utils/fishing/energy.py``).
+
+    A built **Boathouse** (``sb.domain.mining.structures.
+    boathouse_regen_mult``) grants a multiplier ≤ 1.0 (lower = faster
+    refill); this turns it into the ``regen_seconds`` the
+    :func:`settle` / :func:`spend` / :func:`seconds_until` calls use.
+    ``regen_mult`` of ``1.0`` (unbuilt) returns exactly *base* ⇒
+    byte-identical energy. Never below 1 (a 0-second interval would
+    divide-by-zero the regen math)."""
+    return max(1, round(base * regen_mult))
 
 
 def bar(current: int, max_energy: int = MAX_ENERGY, *, width: int = 10) -> str:
