@@ -8891,28 +8891,52 @@
       "handler:deathmatch.top_view": {
         "module": "sb.domain.deathmatch.service"
       },
-      "handler:diagnostic.automation_pending": {
+      "handler:diagnostic.automation_delete": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.automation_disable": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.automation_enable": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.automation_reopen": {
         "module": "sb.domain.diagnostic.panels"
       },
+      "handler:diagnostic.automation_rule_pick": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
       "handler:diagnostic.check_database_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
-      "handler:diagnostic.cmdlist_page_pending": {
+      "handler:diagnostic.cmdlist_next": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.cmdlist_prev": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.diag_errors_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.diag_latency": {
         "module": "sb.domain.diagnostic.handlers"
       },
-      "handler:diagnostic.diag_pending": {
+      "handler:diagnostic.diag_status_view": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.diag_sysinfo_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.find_command_view": {
         "module": "sb.domain.diagnostic.handlers"
       },
-      "handler:diagnostic.flag_pending": {
+      "handler:diagnostic.flag_disable": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.flag_enable": {
+        "module": "sb.domain.diagnostic.handlers"
+      },
+      "handler:diagnostic.flag_pick": {
         "module": "sb.domain.diagnostic.handlers"
       },
       "handler:diagnostic.flag_reopen": {
@@ -12698,7 +12722,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:1a2009b057f8f35a32ec1ffe3a2dbbe23475cf645cf71d10535ed13fb51a5db4",
+  "stable_hash": "sha256:8d7d0acf318a8b703b5186d2be9f0aa3eb7ba8f21e04e11ba548f36ca9483699",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -28174,7 +28198,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.diag_status_view"
               },
               "label": "🤖 Bot Status",
               "modal": null,
@@ -28224,7 +28248,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.diag_sysinfo_view"
               },
               "label": "💻 System Info",
               "modal": null,
@@ -28324,7 +28348,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.diag_pending"
+                "$ref": "handler:diagnostic.diag_errors_view"
               },
               "label": "🔍 Recent Errors",
               "modal": null,
@@ -28470,7 +28494,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.cmdlist_page_pending"
+                "$ref": "handler:diagnostic.cmdlist_prev"
               },
               "label": "◀ Prev",
               "modal": null,
@@ -28495,7 +28519,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.cmdlist_page_pending"
+                "$ref": "handler:diagnostic.cmdlist_next"
               },
               "label": "Next ▶",
               "modal": null,
@@ -28759,7 +28783,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.flag_pending"
+                "$ref": "handler:diagnostic.flag_enable"
               },
               "label": "✅ Enable for this guild",
               "modal": null,
@@ -28784,7 +28808,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.flag_pending"
+                "$ref": "handler:diagnostic.flag_disable"
               },
               "label": "🛑 Disable for this guild",
               "modal": null,
@@ -28902,7 +28926,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:diagnostic.flag_pending"
+                "$ref": "handler:diagnostic.flag_pick"
               },
               "options_source": {
                 "$ref": "provider:diagnostic.flag_options"
@@ -28935,7 +28959,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_enable"
               },
               "label": "Enable",
               "modal": null,
@@ -28960,7 +28984,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_disable"
               },
               "label": "Disable",
               "modal": null,
@@ -28985,7 +29009,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_delete"
               },
               "label": "Delete",
               "modal": null,
@@ -29076,7 +29100,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:diagnostic.automation_pending"
+                "$ref": "handler:diagnostic.automation_rule_pick"
               },
               "options_source": {
                 "$ref": "provider:diagnostic.automation_rule_options"

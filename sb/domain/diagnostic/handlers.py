@@ -64,7 +64,12 @@ from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
 from sb.spec.outcomes import BLOCKED, SUCCESS
 from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered
 
-__all__ = ["ensure_handler_refs", "install_ws_latency_reader"]
+__all__ = [
+    "ensure_handler_refs",
+    "flag_pick_for",
+    "install_gateway_census_reader",
+    "install_ws_latency_reader",
+]
 
 _UNPORTED_PROCESS_VIEWS = ("health", "runtime", "slow", "startup", "status")
 
@@ -80,6 +85,54 @@ def install_ws_latency_reader(fn) -> None:
     pins ``nan ms`` (sweep_latency)."""
     global _ws_latency_reader
     _ws_latency_reader = fn
+
+
+# --- the gateway-census read seam (Bot Status: guilds/members/commands) ---------
+
+_gateway_census_reader = None
+
+
+def install_gateway_census_reader(fn) -> None:
+    """Arm the live gateway census behind the hub's 🤖 Bot Status card
+    (``fn() -> {"guilds": int, "members": int, "commands": int}`` — the
+    composition root computes it from ``bot.guilds`` + the live manifest
+    command count; the install_ws_latency_reader boot family). Unarmed
+    (headless/tests/parity) the card truthfully renders ``n/a`` — the
+    capture skipped this view as nondeterministic process state, so no
+    golden constrains the bytes."""
+    global _gateway_census_reader
+    _gateway_census_reader = fn
+
+
+def _gateway_census() -> dict:
+    if _gateway_census_reader is None:
+        return {}
+    try:
+        return dict(_gateway_census_reader() or {})
+    except Exception:  # noqa: BLE001 — a broken reader degrades to n/a
+        return {}
+
+
+# --- panel pick memory (per guild+invoker, process-local) -----------------------
+#
+# The shipped views kept the operator's dropdown pick on the View instance
+# (FlagManagerView.selected_flag / AutomationPanelView.selected_rule_id);
+# the port keys it per (guild, invoker), in-memory — the counting
+# ``_manage_target`` precedent. Never golden-rendered: no sweep clicks a
+# flag/rule select, so golden runs never seed a pick (playbook trap 20).
+
+_flag_pick: dict[tuple[int, int], str] = {}
+_auto_pick: dict[tuple[int, int], int] = {}
+
+
+def _pick_key(gid, uid) -> tuple[int, int]:
+    return (int(gid or 0), int(uid or 0))
+
+
+def flag_pick_for(guild_id, user_id) -> str | None:
+    """The Flag Manager renderer's read of the operator's current pick
+    (panels.py `_render_flag_manager`)."""
+    return _flag_pick.get(_pick_key(guild_id, user_id))
 
 
 def _ws_latency_seconds() -> float:
@@ -262,14 +315,36 @@ def _register() -> None:
                         "`/home/user/superbot/data/json`",
             style_token="orange"))
 
-    @handler("diagnostic.cmdlist_page_pending")
-    async def cmdlist_page_pending(req):
-        """◀ Prev / Next ▶ on the command-list paginator — pages 2-14 of
-        the shipped registry land with the paginator's interaction slice
-        (the admin cogmgr page-window precedent)."""
-        return Reply(BLOCKED,
-                     "ℹ️ Command-list pages 2-14 land with the "
-                     "paginator's interaction slice.")
+    async def _cmdlist_step(req, delta: int):
+        """◀ Prev / Next ▶ — the shipped ``_PaginatorView`` index step
+        (paginator.py: ``self.index ± 1`` + button re-disable), re-opened
+        fresh with the new page in the panel args (the projmoon
+        edit-in-place → fresh-re-open class; the counting _reopen
+        precedent). The page rides ``cmdlist_page`` — the session-minted
+        buttons carry the OPENING args, so each open's buttons know the
+        page they were rendered on."""
+        from sb.domain.diagnostic.command_catalog import COMMAND_LIST_PAGES
+        from sb.kernel.panels.engine import open_panel
+
+        try:
+            current = int(req.args.get("cmdlist_page", 0) or 0)
+        except (TypeError, ValueError):
+            current = 0
+        page = min(max(current + delta, 0), len(COMMAND_LIST_PAGES) - 1)
+        args = {**dict(req.args), "cmdlist_page": page}
+        await open_panel(PanelRef("diagnostic.command_list"),
+                         dataclasses.replace(req, args=args))
+        return Reply(SUCCESS, None)
+
+    @handler("diagnostic.cmdlist_prev")
+    async def cmdlist_prev(req):
+        """◀ Prev on the command-list paginator."""
+        return await _cmdlist_step(req, -1)
+
+    @handler("diagnostic.cmdlist_next")
+    async def cmdlist_next(req):
+        """Next ▶ on the command-list paginator."""
+        return await _cmdlist_step(req, +1)
 
     @handler("diagnostic.pf_finding_route")
     async def pf_finding(req):
@@ -388,28 +463,202 @@ def _register() -> None:
         await open_panel(PanelRef("diagnostic.platform_hub"), req)
         return None
 
-    @handler("diagnostic.flag_pending")
-    async def flag_pending(req):
-        """Flag-manager mutations (enable/disable) and refresh — the
-        rollout pipeline is unported; honest pending copy."""
-        return Reply(BLOCKED,
-                     "ℹ️ The flag rollout pipeline is not ported yet.")
+    # --- the 🚩 Flag Manager (views/diagnostic/flag_manager.py) --------------
 
-    @handler("diagnostic.automation_pending")
-    async def automation_pending(req):
-        """Automation-rule mutations — the scheduler is unported."""
-        return Reply(BLOCKED,
-                     "ℹ️ The automation scheduler is not ported yet.")
+    @handler("diagnostic.flag_pick")
+    async def flag_pick(req):
+        """The flag select — the shipped ``handle_select``: remember the
+        pick and re-render the manager onto the flag's DETAIL embed
+        (fresh re-open, projmoon class; the renderer reads the pick)."""
+        from sb.domain.diagnostic.flag_catalog import FLAG_DECLARATIONS
+        from sb.kernel.panels.engine import open_panel
 
-    @handler("diagnostic.diag_pending")
-    async def diag_pending(req):
-        """Diagnostics-hub tools that are still process-state under-ports
-        (Bot Status / System Info / Recent Errors — the capture skipped
-        their command twins as nondeterministic process state, and the
-        query_logs/recent_errors sweeps were retired under the 2026-07-12
-        corpus ruling for the same class)."""
+        values = req.args.get("values") or ()
+        name = str(values[0]) if values else ""
+        if not name or name not in FLAG_DECLARATIONS:
+            # the select only offers declared flags; a stale/foreign value
+            # answers the oracle's no-flags copy shape.
+            return Reply(BLOCKED, "No flags are declared in this build.")
+        key = _pick_key(req.guild_id, getattr(req.actor, "user_id", 0))
+        _flag_pick[key] = name
+        await open_panel(PanelRef("diagnostic.flag_manager"), req)
+        return Reply(SUCCESS, None)
+
+    async def _flag_apply(req, new_state: str):
+        """✅ Enable / 🛑 Disable — the shipped ``_apply_state`` guard
+        ladder with v1-truthful final copy. The oracle wrote per-guild
+        overrides through RolloutMutationPipeline.set_flag_state and
+        REFUSED any write the evaluator would ignore ("offering
+        Enable/Disable for them would be a silent no-op"); in THIS build
+        no runtime code reads ANY of the 8 capture flags (v1 gates ride
+        the RC-10 Config seam), so the same honesty rule refuses the
+        no-op write for every flag — final copy, not a pending stub."""
+        from sb.domain.diagnostic.flag_catalog import flag_details
+
+        picked = flag_pick_for(req.guild_id,
+                               getattr(req.actor, "user_id", 0))
+        if not picked:
+            # oracle copy, verbatim.
+            return Reply(BLOCKED,
+                         "Pick a flag from the dropdown before changing "
+                         "its state.")
+        if req.guild_id is None:
+            # oracle copy, verbatim.
+            return Reply(BLOCKED,
+                         "Guild context is required to set a per-guild "
+                         "override.")
+        details = flag_details(picked)
+        if not details["db_editable"]:
+            # the oracle's env-only refusal (minus its SUPERBOT_FF_* env
+            # pointer — no v1 code reads that variable, so pointing an
+            # operator at it would be false guidance).
+            return Reply(BLOCKED,
+                         f"`{picked}` is an env-only / internal gate — "
+                         "its per-guild override is ignored by the "
+                         "evaluator, so this control would do nothing.")
+        del new_state  # validated by the button split; no store consumes it
         return Reply(BLOCKED,
-                     "ℹ️ This diagnostic tool is not ported yet.")
+                     f"`{picked}` has no consumer in this build — no "
+                     "runtime code reads it, so a per-guild override "
+                     "would change nothing. Enable/Disable re-arm when "
+                     "a consumer lands (no silent no-op writes).")
+
+    @handler("diagnostic.flag_enable")
+    async def flag_enable(req):
+        """✅ Enable for this guild."""
+        return await _flag_apply(req, "on")
+
+    @handler("diagnostic.flag_disable")
+    async def flag_disable(req):
+        """🛑 Disable for this guild."""
+        return await _flag_apply(req, "off")
+
+    # --- the 🤖 Automation panel (views/diagnostic/automation_panel.py) ------
+
+    @handler("diagnostic.automation_rule_pick")
+    async def automation_rule_pick(req):
+        """The rule select — the shipped ``_on_pick``: remember the pick
+        (the placeholder row's value is ``0`` — "no valid selection" in
+        the oracle's own arithmetic) and re-render the panel unchanged
+        (the oracle re-edited the SAME embed; fresh re-open here)."""
+        from sb.kernel.panels.engine import open_panel
+
+        values = req.args.get("values") or ()
+        try:
+            picked = int(str(values[0])) if values else 0
+        except (TypeError, ValueError):
+            picked = 0
+        key = _pick_key(req.guild_id, getattr(req.actor, "user_id", 0))
+        _auto_pick[key] = picked
+        await open_panel(PanelRef("diagnostic.automation_panel"), req)
+        return Reply(SUCCESS, None)
+
+    def _auto_selected(req) -> int:
+        return _auto_pick.get(
+            _pick_key(req.guild_id, getattr(req.actor, "user_id", 0)), 0)
+
+    async def _auto_mutate(req, verb: str):
+        """Enable / Disable / Delete — the shipped guard (``rule_id <= 0``
+        → "Pick a rule…", covering the placeholder row) plus the
+        rule-not-found rejection for a stale positive id. v1 has no
+        automation-rule store (the panel's own snapshot line says so), so
+        the zero-rule world makes these guards the COMPLETE behavior —
+        the pipeline leg re-arms with the scheduler port."""
+        selected = _auto_selected(req)
+        if selected <= 0:
+            # oracle copy, verbatim.
+            return Reply(BLOCKED, "Pick a rule from the dropdown first.")
+        # a positive id can only be stale — this build stores no rules.
+        del verb
+        return Reply(BLOCKED,
+                     f"Rule `#{selected}` no longer exists in this guild "
+                     "— hit Refresh to reload the rule list.")
+
+    @handler("diagnostic.automation_enable")
+    async def automation_enable(req):
+        """Enable the selected rule."""
+        return await _auto_mutate(req, "enabled")
+
+    @handler("diagnostic.automation_disable")
+    async def automation_disable(req):
+        """Disable the selected rule."""
+        return await _auto_mutate(req, "disabled")
+
+    @handler("diagnostic.automation_delete")
+    async def automation_delete(req):
+        """Delete the selected rule."""
+        return await _auto_mutate(req, "deleted")
+
+    # --- the hub process-state trio (services/diagnostic_helpers.py) ---------
+
+    @handler("diagnostic.diag_status_view")
+    async def diag_status_view(req) -> None:
+        """🤖 Bot Status — the shipped ``build_bot_status_embed`` SHAPE
+        (title/fields/formats verbatim) over v1's live reads: the
+        gateway-census seam (guilds/members/commands — ``n/a`` unarmed),
+        the ws-latency seam, and /proc-based CPU/RAM/uptime
+        (process_state.py; the capture skipped this view as
+        nondeterministic process state — no golden constrains it)."""
+        from sb.domain.diagnostic import process_state
+        from sb.kernel.panels.render import RenderedEmbed
+
+        census = _gateway_census()
+
+        def _count(key: str) -> str:
+            value = census.get(key)
+            return str(int(value)) if value is not None else "n/a"
+
+        cpu = await process_state.cpu_percent()
+        ram = process_state.ram_percent()
+        ms = _ws_latency_seconds() * 1000
+        await _card(req, RenderedEmbed(
+            title="Bot Status", description="",
+            fields=(("Guilds", _count("guilds"), True),
+                    ("Members", _count("members"), True),
+                    ("Commands", _count("commands"), True),
+                    ("Latency", f"{ms:.1f} ms", True),
+                    ("CPU", f"{cpu}%" if cpu is not None else "n/a", True),
+                    ("RAM", f"{ram}%" if ram is not None else "n/a", True),
+                    ("Uptime", process_state.uptime_text(), True)),
+            style_token="green"))
+
+    @handler("diagnostic.diag_sysinfo_view")
+    async def diag_sysinfo_view(req) -> None:
+        """💻 System Info — the shipped ``build_system_info_embed``
+        verbatim (Python / OS / Disk over ``/`` — the oracle's fallback
+        branch when its data dir is absent, which is v1's truth)."""
+        import platform
+
+        from sb.domain.diagnostic.process_state import disk_usage_line
+        from sb.kernel.panels.render import RenderedEmbed
+
+        await _card(req, RenderedEmbed(
+            title="System Information", description="",
+            fields=(("Python", platform.python_version(), True),
+                    ("OS", f"{platform.system()} {platform.release()}",
+                     True),
+                    ("Disk", disk_usage_line(), False)),
+            style_token="teal"))
+
+    @handler("diagnostic.diag_errors_view")
+    async def diag_errors_view(req) -> None:
+        """🔍 Recent Errors — the shipped
+        ``build_query_logs_embed(event_type="ERROR", limit=10)`` over the
+        ported in-process log ring (log_buffer.py; the composition root
+        installs it — unarmed/empty answers the shipped empty copy)."""
+        from sb.domain.diagnostic.log_buffer import recent
+        from sb.kernel.panels.render import RenderedEmbed
+
+        rows = recent(level="ERROR", limit=10)
+        await _card(req, RenderedEmbed(
+            title="Recent Logs",
+            description=("" if rows
+                         else "No logs found matching the criteria."),
+            fields=tuple(
+                (f"[{str(row.get('timestamp', '?'))[:19]}] {row['level']}",
+                 str(row["message"])[:256], False)
+                for row in rows),
+            style_token="dark_red"))
 
     @handler("diagnostic.diag_latency")
     async def diag_latency(req) -> None:
