@@ -1,6 +1,6 @@
 # 2026-07-13 — setup wizard successors slice 1: the final-review apply lane
 
-> **Status:** in-progress
+> **Status:** complete
 
 - **📊 Model:** Fable · setup-wizard successor lane, slice 1
 
