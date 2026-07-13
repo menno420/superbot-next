@@ -97,5 +97,5 @@ jobs:
           python-version: "3.11"
       - name: Install runtime deps from the hash-pinned lock (S13)
         run: pip install --require-hashes -r requirements.lock
-      - name: Red-until-parity full-corpus report (EXPECTED RED)
+      - name: Full-corpus golden parity report
         run: python3 tools/run_golden_parity.py --report
