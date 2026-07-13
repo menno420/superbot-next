@@ -123,25 +123,21 @@
       "actor_type": "user",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "xp_awarded",
+      "mutation_type": "mining_vault_upgraded",
       "new_value": {
-       "award": {
-        "delta": 25,
-        "leveled_up": false,
-        "new_level": 0,
-        "new_xp": 25,
-        "source": "chat"
+       "vault_upgrade": {
+        "balance": 500,
+        "cost": 2000,
+        "message": "Vault upgraded to capacity **45** item types for **2000** 🪙. Balance: **500** 🪙."
        }
       },
       "occurred_at": "<ts>",
       "prev_value": {
-       "award": {
-        "xp": 0
-       }
+       "vault_upgrade": {}
       },
       "scope": "guild",
-      "subsystem": "xp",
-      "target": "xp.award"
+      "subsystem": "mining",
+      "target": "mining.vault_upgrade"
      },
      "status": "pending"
     },
@@ -162,21 +158,25 @@
       "actor_type": "user",
       "guild_id": "<guild>",
       "mutation_id": "<uuid>",
-      "mutation_type": "mining_vault_upgraded",
+      "mutation_type": "xp_awarded",
       "new_value": {
-       "vault_upgrade": {
-        "balance": 500,
-        "cost": 2000,
-        "message": "Vault upgraded to capacity **45** item types for **2000** 🪙. Balance: **500** 🪙."
+       "award": {
+        "delta": 25,
+        "leveled_up": false,
+        "new_level": 0,
+        "new_xp": 25,
+        "source": "chat"
        }
       },
       "occurred_at": "<ts>",
       "prev_value": {
-       "vault_upgrade": {}
+       "award": {
+        "xp": 0
+       }
       },
       "scope": "guild",
-      "subsystem": "mining",
-      "target": "mining.vault_upgrade"
+      "subsystem": "xp",
+      "target": "xp.award"
      },
      "status": "pending"
     }
