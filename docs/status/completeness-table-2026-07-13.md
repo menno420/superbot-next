@@ -73,7 +73,7 @@
 | diagnostic | ✅ 42 cmds live | ✅ 10 actions + 2 selectors implemented (ORDER 017 fix slice): hub `diag_status/sysinfo/errors` live successor reads (`process_state.py`/`log_buffer.py` + gateway-census seam), cmdlist pages 1–14 (oracle-extracted, page 1 golden-verified), flag-manager select→detail + guard-ladder mutations (`flag_catalog.py`), automation-panel pick + shipped guards — zero `*_pending` routes remain in `sb/domain/diagnostic/` | ✅ |
 | economy | ✅ full value loop live + atomicity proven (band 3); INV-F clean | ✅ | ✅ |
 | farm | ✅ hub + 3 K7 money lanes | ✅ | ✅ |
-| fishing | ✅ all 20 shipped commands ported (slices 1–4: #313/#330/#342/#350, claim closed #353) and the 📖 How-to-fish hub guide now routes to the live rules card (#410 — `fishing.howtofish_pending` retired, the hub-pending set is EMPTY, `sb/domain/fishing/service.py:1048`); the surviving residue is ledgered fidelity, not a pending terminal: the cast leg still runs the starter shore profile (venue/rod/bait/structure→cast wiring rides the minigame rung, per the service PENDING-roster note) — *evening true-up 2026-07-13* | ✅ | ✅ |
+| fishing | ✅ all 20 shipped commands ported (slices 1–4: #313/#330/#342/#350, claim closed #353) and the 📖 How-to-fish hub guide now routes to the live rules card (#410 — `fishing.howtofish_pending` retired, the hub-pending set is EMPTY, `sb/domain/fishing/service.py:1048`); the cast LEG is live too: venue/rod/bait/gear/structure/weather → cast wiring shipped (#373 — deepwater species pool + coral drop, compounded `effective_pull`, per-cast bait charge spend, Tide Pool/Boathouse/Fishery mults; write goldens #387, claim closed #389); the surviving residue is ledgered fidelity, not a pending terminal: the D-0043 real-time minigame rung (bite-delay/fake-out/reel-fight timing — the bite-speed + escape/grace/window knobs are computed + surfaced but never gate a catch) + the `_FishingDoneView` Cast-again continuation, per the service PENDING-roster note (`sb/domain/fishing/service.py:1032`) — *night true-up 2026-07-13* | ✅ | ✅ |
 | four_twenty | ✅ | ✅ | ✅ |
 | games | ✅ hubs + substrate (checkpoints/game-xp covered-elsewhere, `parity.yml:668`) | ✅ | ✅ |
 | general | ✅ 8 cmds + menu | ✅ | ✅ |
@@ -137,10 +137,14 @@ unregistered refs, no empty-string error paths).
    commands ported, the deep-system `PENDING` roster is empty
    (`sb/domain/fishing/service.py:720`). Residue trued up (evening
    2026-07-13): the 🎣 how-to-fish hub guide is DONE — #410 routes it to
-   the live rules card and retires `fishing.howtofish_pending`; the one
-   surviving residue is the cast leg still running the starter shore
-   profile (venue/rod/bait/structure→cast wiring rides the minigame rung,
-   ledgered in the service's roster note).
+   the live rules card and retires `fishing.howtofish_pending`. Cast-leg
+   residue trued up (night 2026-07-13, verified in code at HEAD): the
+   venue/rod/bait/gear/structure/weather → cast wiring is LIVE (#373 —
+   write goldens #387, claim closed #389); the only parked residue is
+   the D-0043 real-time minigame rung (bite-delay/fake-out/reel-fight
+   timing — knobs computed + surfaced but never gating a catch) + the
+   `_FishingDoneView` Cast-again continuation, per the service
+   PENDING-roster note (`sb/domain/fishing/service.py:1032`).
 2. ~~**setup wizard interior**~~ — **DONE** (wizard-lifecycle slice, ORDER
    017 night-run): the 10 counted actions + selector + `/setup-skip` armed
    (`sb/domain/setup/wizard.py`). The final-review apply lane is ALSO DONE
