@@ -47,6 +47,7 @@ from sb.domain.setup import moderation as _moderation
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
 from sb.domain.setup import preset_select as _preset_select
+from sb.domain.setup import resume as _resume
 from sb.domain.setup import role_templates as _role_templates
 from sb.domain.setup import roles as _roles
 from sb.domain.setup import section_card as _section_card
@@ -211,6 +212,10 @@ MANIFEST = SubsystemManifest(
 
 _ai_tasks.register_ai_tasks()
 _ops.register_ops()
+# the app-boot seam wiring (ORDER 019 item 5a): the on-ready resume sweep
+# registers on the kernel boot-hook registry here — the composition root
+# fires it once RUNNING; no kernel→domain import edge.
+_resume.register_setup_boot_hook()
 
 
 def _ensure_refs() -> None:
@@ -234,6 +239,7 @@ def _ensure_refs() -> None:
     _handlers.ensure_handler_refs()
     _ai_tasks.register_ai_tasks()
     _ops.register_ops()
+    _resume.register_setup_boot_hook()
 
 
 # module-attribute hook convention (D-0026)
