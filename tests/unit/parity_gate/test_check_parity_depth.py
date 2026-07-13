@@ -597,10 +597,13 @@ class TestGateDriver:
         assert "vacuously" not in out
         assert "flipped `ported` but no replay is possible" in out
 
-    def test_report_leg_is_born_red_by_design(self, capsys):
+    def test_report_leg_prints_full_corpus_banner(self, capsys):
+        # No replay binding in the unit env, so the leg exits nonzero;
+        # the banner is the neutral full-corpus report wording (the leg
+        # is live-green in CI since 2026-07-13).
         assert run_report() == 1
         out = capsys.readouterr().out
-        assert "RED BY DESIGN" in out
+        assert "full-corpus parity report" in out
         assert "491 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,

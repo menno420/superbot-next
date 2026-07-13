@@ -1,1 +1,0 @@
-- `fix/poker-pot-preset-oracle-parity` · **poker raise `pot` preset fidelity** — align the ported play-layer `pot` quick-bet to the oracle's own definition (raise-TO of `pot_total`, not `current_bet + pot_total`) · `sb/domain/casino/view.py`, `tests/unit/band6/test_band6_poker_play.py` · 2026-07-12

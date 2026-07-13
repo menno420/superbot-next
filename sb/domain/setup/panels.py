@@ -40,9 +40,10 @@ while the goldens keep pinning every OPEN render byte. Two interior
 panels ride along: ``setup.sections_hub`` (views/setup/hub.py — the
 depth click's shipped destination) and ``setup.review_item``
 (views/setup/ai_review/per_recommendation.py — the one-at-a-time
-walkthrough). Named successors stay honest terminals: the essential
-steps 2–8, the ten per-section flows + the linear wizard steps, the
-per-suggestion Edit lane, and the final-review apply lane (the
+walkthrough). The FINAL-REVIEW APPLY LANE is live (final_review.py —
+its three panels ride the manifest). Named successors stay honest
+terminals: the essential steps 2–8, the remaining nine per-section
+flows + the linear wizard steps, and the per-suggestion Edit lane (the
 wizard.py module docstring routes them).
 """
 

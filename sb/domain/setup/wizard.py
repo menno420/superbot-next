@@ -33,13 +33,17 @@ destination panel through ``open_panel`` (the #295 settings-hub
 precedent) and refreshes a panel's OWN card in place via
 ``refresh_session_view``.
 
+The FINAL-REVIEW APPLY LANE is LIVE (the final-review slice —
+sb/domain/setup/final_review.py): the ``final_review`` section button
+lands on the ported FinalReviewView card, Apply executes the staged
+ops through the K9 DraftPipeline over the audited K7 seams, and the
+apply-summary / partial-recovery / setup-complete views ride along.
+
 Named successors kept honest (each a declared BLOCKED terminal, never
 silent): the essential flow's steps 2–8 (essential-steps slice), the
-ten per-section flows + the linear wizard steps behind ↩ Back to
-wizard (section-flows slice), the per-suggestion Edit modal/re-pick
-flow (suggestion-edit slice), and the final-review apply lane
-(final-review slice — staged ops apply nowhere yet; ``/setup-reset``
-clears them).
+remaining NINE per-section flows + the linear wizard steps behind
+↩ Back to wizard (section-flows slice), and the per-suggestion Edit
+modal/re-pick flow (suggestion-edit slice).
 """
 
 from __future__ import annotations
@@ -350,8 +354,9 @@ def _register_op_kind() -> None:
     """Bind the ONE op kind the deterministic advisor's recommendations
     stage (``bind_channel`` — the G-19 section vocabulary's channel-bind
     entry) onto the audited K7 ``settings.bind`` op, so the K9 pipeline's
-    fail-closed registry accepts the staged rows. The APPLY lane stays
-    the final-review slice's port — staging only ever writes draft rows."""
+    fail-closed registry accepts the staged rows. The final-review APPLY
+    lane (final_review.py) executes them through the same registry;
+    staging itself only ever writes draft rows."""
     from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
     from sb.spec.events import FieldSpec
     from sb.spec.refs import WorkflowRef
@@ -555,6 +560,10 @@ def _register() -> None:
     from sb.domain.setup.sections import SECTIONS
 
     for _section in SECTIONS:
+        if _section.slug == "final_review":
+            continue    # LIVE — the final-review slice's lane
+                        # (sb/domain/setup/final_review.py registers
+                        # setup.open_section_final_review).
         handler(f"setup.open_section_{_section.slug}")(
             _section_handler(_section.slug))
 
@@ -772,13 +781,12 @@ def _register() -> None:
         return None
 
     @handler("setup.review_stage")
-    async def review_stage(req) -> Reply:
+    async def review_stage(req) -> Reply | None:
         """Stage & open Final review (main_panel ``_stage_final``): the
         shipped guards verbatim, then the accepted set lands in the K9
         draft (the sole apply path's staging leg — "nothing has changed
-        yet"). The FinalReviewView render + apply lane is the
-        final-review slice's port; until then the confirmation carries
-        the staged truth and ``/setup-reset`` clears it."""
+        yet") and the FINAL-REVIEW card opens (the shipped destination —
+        the final-review slice's live lane)."""
         state = await review_state(int(req.guild_id or 0),
                                    int(getattr(req.actor, "user_id", 0) or 0))
         if not state.accepted:
@@ -803,11 +811,13 @@ def _register() -> None:
         await _refresh_own_panel(req, {
             "setup_plan_draft": state.draft,
             "review_status": state.last_status})
-        return Reply(SUCCESS,
-                     f"✅ Staged **{staged}** {word} into the setup draft — "
-                     "nothing has changed yet. The Final-review apply lane "
-                     "lands with the final-review slice; `/setup-reset` "
-                     "clears the staged set.")
+        # the shipped destination: the FinalReviewView opens over the
+        # freshly staged draft (main_panel._stage_final's view swap —
+        # the ported open_panel navigation lane).
+        from sb.domain.setup.final_review import FINAL_REVIEW_PANEL_ID
+
+        await _open(req, FINAL_REVIEW_PANEL_ID)
+        return None
 
     # ---- the per-suggestion walkthrough (ai_review/per_recommendation) ----
 

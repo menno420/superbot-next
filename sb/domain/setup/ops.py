@@ -200,6 +200,35 @@ async def _record_section_skip(conn, ctx: WorkflowContext) -> LegOutcome:
                       before=None, after={"section": slug, "skipped": skipped})
 
 
+@workflow("setup.record_session_complete")
+async def _record_session_complete(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The final-review apply lane's full-success session write — the
+    shipped ``setup_session.mark_complete`` (status → ``complete``; the
+    oracle emitted the ``setup.session.completed`` audit for exactly
+    this transition)."""
+    from sb.domain.setup import store
+
+    await store.set_session_status(conn, guild_id=int(ctx.guild_id or 0),
+                                   status="complete")
+    return LegOutcome(step=StepResult(0, "record_session_complete", True),
+                      before=None, after="complete")
+
+
+@workflow("setup.record_workspace_pointer_clear")
+async def _record_workspace_pointer_clear(conn,
+                                          ctx: WorkflowContext) -> LegOutcome:
+    """The setup-complete Delete-now lane's pointer nulls — the shipped
+    post-cleanup ``set_setup_channel_id(None)`` +
+    ``set_setup_message_id(None)`` pair (setup_channel.py), so the next
+    ``/setup`` re-creates a fresh channel."""
+    from sb.domain.setup import store
+
+    await store.clear_workspace_pointers(conn, guild_id=int(ctx.guild_id or 0))
+    return LegOutcome(
+        step=StepResult(0, "record_workspace_pointer_clear", True),
+        before=None, after="cleared")
+
+
 # --- privacy erasure body (the store-declared ref; flag-18 discipline) --------------
 
 @workflow("setup.erase_subject_session")
@@ -260,7 +289,31 @@ SET_SECTION_SKIP = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="setup.session.section_skip")
 
-_OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP)
+#: the final-review slice's session writes. ``setup.session.completed``
+#: is the shipped mutation vocabulary (services/setup_session.py
+#: ``_emit_session_audit`` — started/completed/dismissed); the pointer
+#: clear had NO oracle audit (a bare service write) — the K7 central
+#: audit row is additive, the SET_DEPTH ledger note's class.
+MARK_COMPLETE = CompoundOpSpec(
+    op_key="setup.mark_complete", domain="setup", lane=WorkflowLane.DOMAIN,
+    authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_session_complete"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.completed")
+
+CLEAR_WORKSPACE_POINTER = CompoundOpSpec(
+    op_key="setup.clear_workspace_pointer", domain="setup",
+    lane=WorkflowLane.DOMAIN, authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_workspace_pointer_clear"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.workspace_cleared")
+
+_OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP,
+        MARK_COMPLETE, CLEAR_WORKSPACE_POINTER)
 
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
@@ -268,6 +321,8 @@ _REF_TABLE = (
     ("setup.record_workspace_open", _record_workspace_open),
     ("setup.record_depth", _record_depth),
     ("setup.record_section_skip", _record_section_skip),
+    ("setup.record_session_complete", _record_session_complete),
+    ("setup.record_workspace_pointer_clear", _record_workspace_pointer_clear),
     ("setup.erase_subject_session", _erase_subject_session),
 )
 
