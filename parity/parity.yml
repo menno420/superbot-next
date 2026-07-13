@@ -178,10 +178,21 @@ source:
   # drives the fishing_rules button): the shipped ephemeral _rules_embed
   # quick-reference (views/fishing/menu.py rules_btn @ 9776401), a pure
   # read whose only db_delta is the message-driven xp.award pair.
-  minted_goldens: 31
+  # +1 minted the cleanup POLICIES-OPEN golden (2026-07-13, the
+  # cleanup-policy slice — the LAST cleanup pending retired, same D-0073
+  # procedure): goldens/cleanup/cleanup_policies_open.json — `!cleanup` →
+  # the hub's 🧹 Cleanup Policies button by component_index (the first
+  # golden that drives the policies button past its retired pending
+  # terminal): the ported cleanup.policies diagnostics view (oracle
+  # disbot/views/cleanup/policy_panel.py diagnostics_embed_from
+  # @ 9776401) — the empty-state embed + the 'Use "Set a policy" to add
+  # one.' footer over the persistent cleanup_policy:build/remove/refresh
+  # trio, a pure read (no cleanup_policies db_delta; only the
+  # message-driven xp.award pair rides the delta).
+  minted_goldens: 32
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 493). The first retirement (2026-07-12
+  # imported + minted − retired = 494). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

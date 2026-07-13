@@ -849,4 +849,29 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "flips to the shipped 🟢 On copy while the empty word list "
             "keeps the shipped no-words description"),
     ),
+    # ------------------------------------------- cleanup policies open
+    # The hub's 🧹 Cleanup Policies button (the LAST cleanup pending,
+    # retired 2026-07-13 by the cleanup-policy slice): `!cleanup` renders
+    # the hub, then the component_index click (row 0: words/logging/
+    # settings/POLICIES → flattened 3) opens the ported cleanup.policies
+    # diagnostics view — empty DB → the oracle empty state. admin persona
+    # (the hub is an Administrator surface).
+    GoldenCase(
+        id="cleanup.policies_open",
+        subsystem="cleanup",
+        steps=(
+            Step(kind="command", content="!cleanup", persona="admin"),
+            Step(kind="click", target_message=1, component_index=3,
+                 persona="admin"),
+        ),
+        notes=(
+            "the 🧹 Cleanup Policies open: the shipped btn_policies EDITED "
+            "the hub message into the diagnostics panel "
+            "(views/cleanup/policy_panel.py diagnostics_embed_from) — the "
+            "red embed with the resolution-walk description, the empty "
+            "'Configured policies' state, the ℹ️ Command Access tip and "
+            "the 'Use “Set a policy” to add one.' footer over the "
+            "persistent cleanup_policy:build/remove/refresh trio — a pure "
+            "read (no cleanup_policies db_delta)"),
+    ),
 )

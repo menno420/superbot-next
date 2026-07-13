@@ -72,13 +72,14 @@ def test_hub_spec_shape_matches_the_golden():
 
     # 📝 Logging Status routes to the PORTED logging.hub (curation
     # rework); ⚙️ Settings routes to the PORTED cleanup.settings page
-    # (the 2026-07-13 residue port); 🧹 Cleanup Policies stays the ONE
-    # honest pending terminal (its own multi-view slice).
-    from sb.spec.refs import HandlerRef, PanelRef
+    # (the 2026-07-13 residue port); 🧹 Cleanup Policies routes to the
+    # PORTED cleanup.policies diagnostics view (the cleanup-policy
+    # slice — the LAST cleanup pending retired).
+    from sb.spec.refs import PanelRef
 
     assert by_id["logging"].handler == PanelRef("logging.hub")
     assert by_id["settings"].handler == PanelRef("cleanup.settings")
-    assert by_id["policies"].handler == HandlerRef("cleanup.policies_pending")
+    assert by_id["policies"].handler == PanelRef("cleanup.policies")
 
 
 def test_hub_registers_and_renders_the_golden_bytes():
@@ -217,9 +218,9 @@ def test_words_buttons_route_to_their_live_targets():
 
 def test_retired_pending_terminals_are_gone():
     """The retired refs must not linger — a stale pending handler hides
-    a regression of the same name (the burn-down posture). The residue
-    port retired settings/anti_evasion; policies stays the ONE honest
-    terminal."""
+    a regression of the same name (the burn-down posture). The
+    cleanup-policy slice retired the LAST one (policies_pending) —
+    cleanup carries NO pending terminals."""
     from sb.domain.cleanup import handlers
     from sb.spec.refs import HandlerRef, is_registered
 
@@ -227,9 +228,9 @@ def test_retired_pending_terminals_are_gone():
     for name in ("cleanup.word_add_pending", "cleanup.word_remove_pending",
                  "cleanup.word_refresh_pending",
                  "cleanup.scan_history_pending", "cleanup.logging_pending",
-                 "cleanup.settings_pending", "cleanup.anti_evasion_pending"):
+                 "cleanup.settings_pending", "cleanup.anti_evasion_pending",
+                 "cleanup.policies_pending"):
         assert not is_registered(HandlerRef(name)), name
-    assert is_registered(HandlerRef("cleanup.policies_pending"))
 
 
 def test_words_renderer_renders_the_golden_bytes_over_the_seeded_cache():
@@ -310,7 +311,15 @@ def test_manifest_routes_match_the_flip():
     assert by_name[("", "cleanuphistory")].audience_tier == "moderator"
     panel_ids = [p.panel_id for p in MANIFEST.panels]
     assert panel_ids == ["cleanup.hub", "cleanup.words", "cleanup.settings",
-                         "cleanup.settings_edit_presets"]
+                         "cleanup.settings_edit_presets",
+                         # the cleanup-policy slice (the LAST pending
+                         # retired): the 🧹 policy panel family.
+                         "cleanup.policies", "cleanup.policies_scope",
+                         "cleanup.policies_channel_pick",
+                         "cleanup.policies_category_pick",
+                         "cleanup.policies_level", "cleanup.policies_custom",
+                         "cleanup.policies_preview",
+                         "cleanup.policies_remove"]
     # the migration-0053 strict-flag table rides the manifest store list.
     assert [s.table for s in MANIFEST.stores] == [
         "prohibited_words", "wordfilter_config"]

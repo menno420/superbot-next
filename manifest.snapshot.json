@@ -4609,6 +4609,36 @@
           "value": "cl_override_btn"
         },
         {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_pol_build"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_pol_remove"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_pol_refresh"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_pol_custom_preview"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_pol_apply"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cl_pol_cancel"
+        },
+        {
           "source": "sb/manifest/community.py",
           "subsystem": "community",
           "value": "co_ticket"
@@ -7176,6 +7206,46 @@
           "source": "sb/manifest/cleanup.py",
           "subsystem": "cleanup",
           "value": "cleanup.settings_edit_presets"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_scope"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_channel_pick"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_category_pick"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_level"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_custom"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_preview"
+        },
+        {
+          "source": "sb/manifest/cleanup.py",
+          "subsystem": "cleanup",
+          "value": "cleanup.policies_remove"
         },
         {
           "source": "sb/manifest/community.py",
@@ -10254,11 +10324,56 @@
       "handler:cleanup.history_scan": {
         "module": "sb.domain.cleanup.handlers"
       },
-      "handler:cleanup.policies_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:cleanup.policies_apply": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_cancel": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_category_pick": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_channel_pick": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_custom_after": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_custom_failed": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_custom_invalid": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_custom_preview": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_level_pick": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_remove_pick": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_remove_route": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "handler:cleanup.policies_scope_pick": {
+        "module": "sb.domain.cleanup.policy_widgets"
       },
       "handler:cleanup.render_hub": {
         "module": "sb.domain.cleanup.panels"
+      },
+      "handler:cleanup.render_policies": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "handler:cleanup.render_policies_custom": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "handler:cleanup.render_policies_level": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "handler:cleanup.render_policies_preview": {
+        "module": "sb.domain.cleanup.policy_panels"
       },
       "handler:cleanup.render_presets_widget": {
         "module": "sb.domain.cleanup.panels"
@@ -12417,6 +12532,30 @@
       "panel:cleanup.hub": {
         "module": "sb.domain.cleanup.panels"
       },
+      "panel:cleanup.policies": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_category_pick": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_channel_pick": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_custom": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_level": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_preview": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_remove": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "panel:cleanup.policies_scope": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
       "panel:cleanup.settings": {
         "module": "sb.domain.cleanup.panels"
       },
@@ -13199,6 +13338,27 @@
       },
       "provider:cleanup.hub_fields": {
         "module": "sb.domain.cleanup.panels"
+      },
+      "provider:cleanup.policies_after_options": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "provider:cleanup.policies_category_options": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "provider:cleanup.policies_failed_options": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "provider:cleanup.policies_fields": {
+        "module": "sb.domain.cleanup.policy_panels"
+      },
+      "provider:cleanup.policies_invalid_options": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "provider:cleanup.policies_level_options": {
+        "module": "sb.domain.cleanup.policy_widgets"
+      },
+      "provider:cleanup.policies_remove_options": {
+        "module": "sb.domain.cleanup.policy_widgets"
       },
       "provider:cleanup.settings_fields": {
         "module": "sb.domain.cleanup.panels"
@@ -28448,7 +28608,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.policies_pending"
+                "$ref": "panel:cleanup.policies"
               },
               "label": "🧹 Cleanup Policies",
               "modal": null,
@@ -29101,6 +29261,801 @@
           "subsystem": "cleanup",
           "timeout_s": 180,
           "title": "",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cl_pol_build",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup_policy:build",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:cleanup.policies_scope"
+              },
+              "label": "🔧 Set a policy",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cl_pol_remove",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup_policy:remove",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.policies_remove_route"
+              },
+              "label": "🗑️ Remove a policy",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cl_pol_refresh",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "cleanup_policy:refresh",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:cleanup.policies"
+              },
+              "label": "🔄 Refresh",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "refresh_panel",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Resolution walks **channel → category → guild → default**; the most specific override wins. Threads inherit from their parent channel."
+            },
+            {
+              "provider": {
+                "$ref": "provider:cleanup.policies_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped footer swaps on emptiness — 'Use “Set a policy” to add one.' with no stored rows, else 'Read-only summary. Use the buttons below to set or remove policies.' (views/cleanup/policy_panel.py diagnostics_embed_from) — dynamic copy outside FooterMode's none/subsystem/provenance vocabulary (the cleanup-hub footer precedent). The override delegates to the grammar renderer and replaces ONLY the footer; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_build",
+                    "cl_pol_remove",
+                    "cl_pol_refresh"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Cleanup",
+                "route": {
+                  "$ref": "panel:cleanup.hub"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies",
+          "renderer_override": {
+            "$ref": "handler:cleanup.render_policies"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Diagnostics",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Choose what to set cleanup for:"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_scope"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_scope",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_scope_pick"
+              },
+              "options_source": [
+                {
+                  "description": "Baseline level for every channel without an override.",
+                  "emoji": "🌐",
+                  "label": "Guild default",
+                  "value": "guild"
+                },
+                {
+                  "description": "Override one category (its channels inherit unless overridden).",
+                  "emoji": "📁",
+                  "label": "Category override",
+                  "value": "category"
+                },
+                {
+                  "description": "Override one specific channel.",
+                  "emoji": "📡",
+                  "label": "Channel override",
+                  "value": "channel"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a scope to set cleanup for…",
+              "selector_id": "cl_pol_scope",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Set a policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a channel to override:"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_channel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_channel_pick",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_channel_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel…",
+              "selector_id": "cl_pol_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Set a policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a category to override:"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_category"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_category_pick",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_category_pick"
+              },
+              "options_source": {
+                "$ref": "provider:cleanup.policies_category_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a category…",
+              "selector_id": "cl_pol_category",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Set a policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the page's prompt/summary copy is parameterized on the PICKED flow state (scope label, staged column values) — per-open copy outside the static grammar (the ai.policy_scope_edit / ai.settings_edit_presets precedent). The override delegates to the grammar renderer and supplies ONLY the dynamic description (+ the level page's oracle placeholder byte).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_level"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_level",
+          "renderer_override": {
+            "$ref": "handler:cleanup.render_policies_level"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_level_pick"
+              },
+              "options_source": {
+                "$ref": "provider:cleanup.policies_level_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a cleanup level…",
+              "selector_id": "cl_pol_level",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Set a policy",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cl_pol_custom_preview",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.policies_custom_preview"
+              },
+              "label": "🔎 Preview & apply",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the page's prompt/summary copy is parameterized on the PICKED flow state (scope label, staged column values) — per-open copy outside the static grammar (the ai.policy_scope_edit / ai.settings_edit_presets precedent). The override delegates to the grammar renderer and supplies ONLY the dynamic description (+ the level page's oracle placeholder byte).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_after"
+                  ],
+                  [
+                    "cl_pol_invalid"
+                  ],
+                  [
+                    "cl_pol_failed"
+                  ],
+                  [
+                    "cl_pol_custom_preview"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_custom",
+          "renderer_override": {
+            "$ref": "handler:cleanup.render_policies_custom"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_custom_after"
+              },
+              "options_source": {
+                "$ref": "provider:cleanup.policies_after_options"
+              },
+              "page_size": 25,
+              "placeholder": "Delete after…",
+              "selector_id": "cl_pol_after",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_custom_invalid"
+              },
+              "options_source": {
+                "$ref": "provider:cleanup.policies_invalid_options"
+              },
+              "page_size": 25,
+              "placeholder": "Delete invalid commands?",
+              "selector_id": "cl_pol_invalid",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_custom_failed"
+              },
+              "options_source": {
+                "$ref": "provider:cleanup.policies_failed_options"
+              },
+              "page_size": 25,
+              "placeholder": "Delete failed commands?",
+              "selector_id": "cl_pol_failed",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Custom level",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cl_pol_apply",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.policies_apply"
+              },
+              "label": "✅ Apply",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cl_pol_cancel",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:cleanup.policies_cancel"
+              },
+              "label": "✖ Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "orange",
+            "thumbnail_ref": ""
+          },
+          "justification": "the dry-run embed is fully runtime-parameterized: current-vs-after resolution over the real resolver, the orange/greyple will_change accent, the No-change field and the per-preview ⚠️ Note warnings (views/cleanup/policy_panel.py preview_embed_from) — outside the static grammar. The override delegates to the grammar renderer and supplies the description, fields, footer and style token.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_apply",
+                    "cl_pol_cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_preview",
+          "renderer_override": {
+            "$ref": "handler:cleanup.render_policies_preview"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🔎 Dry run — review before applying",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick the override to remove (it will fall back to its parent scope):"
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cl_pol_remove_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [
+              {
+                "emoji": "",
+                "label": "↩ Back to Policies",
+                "route": {
+                  "$ref": "panel:cleanup.policies"
+                }
+              }
+            ],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "cleanup.policies_remove",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "There are no stored cleanup overrides to remove.",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:cleanup.policies_remove_pick"
+              },
+              "options_source": {
+                "$ref": "provider:cleanup.policies_remove_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a policy to remove…",
+              "selector_id": "cl_pol_remove_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "cleanup",
+          "timeout_s": 180,
+          "title": "🧹 Cleanup Policies — Remove a policy",
           "usage_weight": 1.0
         }
       ],

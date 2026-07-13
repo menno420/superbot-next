@@ -10,13 +10,18 @@ domain history-reader port (sb/domain/cleanup/service.py; the deletion
 leg stays the channel-ops slice's port). The settings facet is the
 shipped CLEANUP_CONFIG_SCHEMA scalar (sb/domain/cleanup/
 settings_schema.py — the domain module is the single source, the
-ai-manifest precedent)."""
+ai-manifest precedent). The hub's 🧹 Cleanup Policies opens the ported
+policy panel family (diagnostics + presets/custom builder + remove
+flow over the K7 governance cleanup lanes —
+sb/domain/cleanup/policy_panels.py, the 2026-07-13 residue port)."""
 
 from __future__ import annotations
 
 from sb.domain.cleanup import handlers as _handlers
 from sb.domain.cleanup import ops as _ops
 from sb.domain.cleanup import panels as _panels
+from sb.domain.cleanup import policy_panels as _policy_panels
+from sb.domain.cleanup import policy_widgets as _policy_widgets
 from sb.domain.cleanup import settings_widgets as _settings_widgets
 from sb.domain.cleanup import store as _store
 from sb.domain.cleanup.ops import register_ops
@@ -61,7 +66,15 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.cleanup_hub_spec(), _panels.cleanup_words_spec(),
             _panels.cleanup_settings_spec(),
-            _panels.cleanup_settings_edit_presets_spec()),
+            _panels.cleanup_settings_edit_presets_spec(),
+            _policy_panels.cleanup_policies_spec(),
+            _policy_panels.cleanup_policies_scope_spec(),
+            _policy_panels.cleanup_policies_channel_pick_spec(),
+            _policy_panels.cleanup_policies_category_pick_spec(),
+            _policy_panels.cleanup_policies_level_spec(),
+            _policy_panels.cleanup_policies_custom_spec(),
+            _policy_panels.cleanup_policies_preview_spec(),
+            _policy_panels.cleanup_policies_remove_spec()),
     settings=SHIPPED_CLEANUP_SETTINGS,
     stores=(PROHIBITED_WORDS_STORE, WORDFILTER_CONFIG_STORE),
     events=(), capabilities=(),
@@ -74,8 +87,10 @@ def _ensure_refs() -> None:
     _store.ensure_refs()
     _ops.ensure_ops_refs()
     _panels.ensure_panel_refs()
+    _policy_panels.ensure_policy_panel_refs()
     _handlers.ensure_handler_refs()
     _settings_widgets.ensure_widget_refs()
+    _policy_widgets.ensure_policy_widget_refs()
 
 
 ENSURE_REFS = _ensure_refs

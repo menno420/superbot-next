@@ -47,11 +47,12 @@ leftovers, claim `completeness-remainders` item 2):
   precedent), whose edit/reset selects drive the numeric-presets widget
   page + Override… G-10 form over the audited ``settings.set_scalar``
   lane (sb/domain/cleanup/settings_widgets.py);
-* ONE remaining pending click: the hub's 🧹 Cleanup Policies sub-view
-  (diagnostics + presets builder + remove flow,
-  views/cleanup/policy_panel.py) stays the declared + honest terminal —
-  its own slice (multi-view chained-select builder over the governance
-  cleanup_policies lanes). Everything else routes for real:
+* the hub's 🧹 Cleanup Policies opens the PORTED ``cleanup.policies``
+  diagnostics view (+ the presets/custom builder and remove flow over
+  the K7 governance cleanup lanes —
+  sb/domain/cleanup/policy_panels.py; views/cleanup/policy_panel.py
+  was the oracle; the cleanup-policy slice retired the LAST pending).
+  Everything else routes for real:
   🔤 Prohibited Words opens the ported words manager, 📝 Logging Status
   opens the ported ``logging.hub`` (the server-logging slice landed),
   ➕/➖ open G-10 word modals whose submits run the audited
@@ -252,7 +253,13 @@ def cleanup_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="policies", label="🧹 Cleanup Policies",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("cleanup.policies_pending"),
+                # the shipped hub EDITED the message into the policy
+                # panel (cogs/cleanup/panel.py btn_policies) — the
+                # PORTED cleanup.policies diagnostics view
+                # (sb/domain/cleanup/policy_panels.py, the 2026-07-13
+                # residue port; byte-neutral repoint — the Dex-button
+                # precedent).
+                handler=PanelRef("cleanup.policies"),
                 custom_id_override="cleanup:policies"),
             # row 1 — the shipped grey in-place refresh (K1 custom_id
             # claims are repo-global on action_id — treasury owns bare
