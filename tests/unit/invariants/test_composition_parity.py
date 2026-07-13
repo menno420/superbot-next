@@ -147,7 +147,7 @@ def test_the_sweep_sees_the_live_roster():
     import_root, _ = _both_roots()
     # 563 import-root refs when this invariant landed; the roster only grows
     assert len(import_root) >= 550
-    for ref in ("handler:blackjack.tournament_open_pending",
-                "handler:rps.register_pending",
+    for ref in ("handler:blackjack.tournament_open_route",
+                "handler:rps.register_route",
                 "handler:role.create_form_submit"):
         assert ref in import_root, ref

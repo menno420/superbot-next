@@ -425,13 +425,24 @@ def test_profile_pick_unknown_answers_the_shipped_copy(monkeypatch):
     assert reply.user_message == "Unknown cog routing profile `nope`."
 
 
-def test_set_cog_routing_stays_fail_closed():
-    """No live routing resolver exists in this build (the
-    access_projection axis-3 ledger) — the op kind must stay
-    UN-registered so apply surfaces the rows as skipped."""
+def test_set_cog_routing_binds_the_k7_routing_op():
+    """The compound-ops slice landed the routing port — the former
+    fail-closed pin flips to a binding pin: the op kind maps onto the
+    audited K7 ``routing.set_policy`` op and the staged payload carries
+    every declared field."""
+    from sb.domain.setup import cog_routing
     from sb.kernel.draft.registry import OP_KINDS
 
-    assert OP_KINDS.get("set_cog_routing") is None
+    cog_routing._register_set_cog_routing_op_kind()
+    binding = OP_KINDS.get("set_cog_routing")
+    assert binding is not None
+    assert binding.workflow_ref.name == "routing.set_policy"
+    assert binding.is_resource_create is False
+    declared = {f.name for f in binding.payload_schema}
+    op = cog_routing._routing_op(
+        scope_kind="channel", scope_id=42, scope_name="general",
+        cog_name="games", enabled=False)
+    assert declared <= set(op.payload)
 
 
 # =======================================================================================

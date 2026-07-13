@@ -319,7 +319,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 48,
+  "manifest_count": 49,
   "projections": {
     "events": {
       "ai.orchestration.category_changed": {
@@ -4196,6 +4196,16 @@
         {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
+          "value": "confirm"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "cancel"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
           "value": "open_strategy_form"
         },
         {
@@ -7145,6 +7155,11 @@
         {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
+          "value": "btd6.ctteam_confirm"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
           "value": "btd6.strategy_submit"
         },
         {
@@ -8972,6 +8987,11 @@
           "value": "ai"
         },
         {
+          "source": "sb/manifest/automation.py",
+          "subsystem": "automation",
+          "value": "automation"
+        },
+        {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod"
@@ -9232,6 +9252,11 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai_instruction_profile"
+        },
+        {
+          "source": "sb/manifest/automation.py",
+          "subsystem": "automation",
+          "value": "automation_rules"
         },
         {
           "source": "sb/manifest/btd6.py",
@@ -9509,6 +9534,11 @@
           "value": "rps_players"
         },
         {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "command_routing_policy"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -9566,6 +9596,9 @@
       },
       "engine:ai.store": {
         "module": "sb.domain.ai.store"
+      },
+      "engine:automation.store": {
+        "module": "sb.domain.automation.store"
       },
       "engine:btd6.store": {
         "module": "sb.domain.btd6.store"
@@ -9629,6 +9662,9 @@
       },
       "engine:rps.stats_store": {
         "module": "sb.domain.rps.stats"
+      },
+      "engine:server_management.routing_store": {
+        "module": "sb.domain.server_management.routing"
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
@@ -9891,14 +9927,8 @@
       "handler:blackjack.tournament_join": {
         "module": "sb.domain.blackjack.handlers"
       },
-      "handler:blackjack.tournament_open_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:blackjack.tournament_open_route": {
         "module": "sb.domain.blackjack.handlers"
-      },
-      "handler:blackjack.tournament_start_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:blackjack.tournament_start_route": {
         "module": "sb.domain.blackjack.handlers"
@@ -10008,13 +10038,16 @@
       "handler:btd6.cmd_tower": {
         "module": "sb.domain.btd6.oracle_surface"
       },
-      "handler:btd6.ctteam_set_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:btd6.ctteam_cancel": {
+        "module": "sb.domain.btd6.ct_team"
+      },
+      "handler:btd6.ctteam_confirm_submit": {
+        "module": "sb.domain.btd6.ct_team"
+      },
+      "handler:btd6.ctteam_set_submit": {
+        "module": "sb.domain.btd6.ct_team"
       },
       "handler:btd6.events_grounding_view": {
-        "module": "sb.domain.btd6.service"
-      },
-      "handler:btd6.events_pending": {
         "module": "sb.domain.btd6.service"
       },
       "handler:btd6.events_usage_view": {
@@ -10022,9 +10055,6 @@
       },
       "handler:btd6.grp_bare": {
         "module": "sb.domain.btd6.oracle_surface"
-      },
-      "handler:btd6.ops_pending": {
-        "module": "sb.domain.btd6.service"
       },
       "handler:btd6.ops_usage_view": {
         "module": "sb.domain.btd6.service"
@@ -10059,9 +10089,6 @@
       "handler:btd6.paragon_target_submit": {
         "module": "sb.domain.btd6.paragon_panel"
       },
-      "handler:btd6.ref_ct_pending": {
-        "module": "sb.domain.btd6.service"
-      },
       "handler:btd6.ref_hero_view": {
         "module": "sb.domain.btd6.service"
       },
@@ -10087,6 +10114,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_ctteam": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "handler:btd6.render_ctteam_confirm": {
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_hub": {
@@ -11469,9 +11499,6 @@
       "handler:rps.help_view": {
         "module": "sb.domain.rps.handlers"
       },
-      "handler:rps.matchup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:rps.matchup_route": {
         "module": "sb.domain.rps.handlers"
       },
@@ -11480,9 +11507,6 @@
       },
       "handler:rps.pvp_click": {
         "module": "sb.domain.rps.handlers"
-      },
-      "handler:rps.register_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:rps.register_route": {
         "module": "sb.domain.rps.handlers"
@@ -11504,9 +11528,6 @@
       },
       "handler:rps.settings_view": {
         "module": "sb.domain.rps.handlers"
-      },
-      "handler:rps.start_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:rps.start_route": {
         "module": "sb.domain.rps.handlers"
@@ -12532,6 +12553,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.ctteam": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "panel:btd6.ctteam_confirm": {
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.hub": {
@@ -13977,6 +14001,15 @@
       "workflow:ai.set_role_policy": {
         "module": "sb.domain.ai.policy_ops"
       },
+      "workflow:automation.add_rule": {
+        "module": "sb.domain.automation.ops"
+      },
+      "workflow:automation.record_add_rule": {
+        "module": "sb.domain.automation.ops"
+      },
+      "workflow:automation.tombstone_rule_creator": {
+        "module": "sb.domain.automation.ops"
+      },
       "workflow:blackjack.pvp_accept": {
         "module": "sb.domain.blackjack.ops"
       },
@@ -14052,6 +14085,9 @@
       "workflow:btd6.record_announce_channel": {
         "module": "sb.domain.btd6.ops"
       },
+      "workflow:btd6.record_ct_team": {
+        "module": "sb.domain.btd6.ops"
+      },
       "workflow:btd6.record_review_strategy": {
         "module": "sb.domain.btd6.ops"
       },
@@ -14071,6 +14107,9 @@
         "module": "sb.domain.btd6.ops"
       },
       "workflow:btd6.set_announce_channel": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.set_ct_team": {
         "module": "sb.domain.btd6.ops"
       },
       "workflow:btd6.submit_strategy": {
@@ -14820,6 +14859,15 @@
       "workflow:role.update_menu": {
         "module": "sb.domain.role.ops"
       },
+      "workflow:routing.record_set_policy": {
+        "module": "sb.domain.server_management.ops"
+      },
+      "workflow:routing.set_policy": {
+        "module": "sb.domain.server_management.ops"
+      },
+      "workflow:routing.tombstone_policy_actor": {
+        "module": "sb.domain.server_management.ops"
+      },
       "workflow:rps.bot_round": {
         "module": "sb.domain.rps.ops"
       },
@@ -15146,6 +15194,14 @@
         },
         "subsystem": "ai"
       },
+      "automation_rules": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "automation_rules",
+        "sole_writer": {
+          "$ref": "engine:automation.store"
+        },
+        "subsystem": "automation"
+      },
       "binding_audit_log": {
         "checkpoint_class": "ledger",
         "invariant_tag": "binding_audit_log",
@@ -15201,6 +15257,14 @@
           "$ref": "engine:governance.store"
         },
         "subsystem": "governance"
+      },
+      "command_routing_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "command_routing_policy",
+        "sole_writer": {
+          "$ref": "engine:server_management.routing_store"
+        },
+        "subsystem": "server_management"
       },
       "counting_state": {
         "checkpoint_class": "aggregate",
@@ -20815,6 +20879,46 @@
       "version": 1,
       "wizard_sections": []
     },
+    "automation": {
+      "capabilities": [],
+      "commands": [],
+      "data_invariants": [],
+      "events": [],
+      "key": "automation",
+      "panels": [],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:automation.tombstone_rule_creator"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "automation_rules",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:automation.store"
+          },
+          "table": "automation_rules",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
     "automod": {
       "capabilities": [],
       "commands": [
@@ -24176,16 +24280,34 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "🛡️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.ctteam_set_pending"
+                "$ref": "handler:btd6.ctteam_set_submit"
               },
               "label": "Set CT team…",
-              "modal": null,
-              "reply_visibility": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "raw",
+                    "label": "CT bracket URL or id",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "https://…/leaderboard/group/<id> or the bare id",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.ctteam_set_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.ctteam_set_submit"
+                },
+                "title": "Set CT team"
+              },
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -24236,6 +24358,104 @@
           "subsystem": "btd6",
           "timeout_s": 180,
           "title": "🛡️ BTD6 — Your CT Team",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "confirm",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ctteam_confirm_submit"
+              },
+              "label": "Confirm",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cancel",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ctteam_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped CTGroupConfirmView (views/btd6/ct_group_flow.py): author-locked Confirm/Cancel on discord.py auto-minted ids over the preview embed's ` • ctx=btd6_ct:confirm` footer — the Confirm callback re-checks Manage Server at execution time (views rule → the action's staff tier + the op's staff floor); golden-UNPINNED (no golden drives the guided flow).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "confirm",
+                    "cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "btd6.ctteam_confirm",
+          "renderer_override": {
+            "$ref": "handler:btd6.render_ctteam_confirm"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "btd6",
+          "timeout_s": 180,
+          "title": "🛡️ BTD6 — Confirm CT team",
           "usage_weight": 1.0
         },
         {
@@ -55922,7 +56142,36 @@
         }
       ],
       "settings": [],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:routing.tombstone_policy_actor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "command_routing_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "server_management",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:server_management.routing_store"
+          },
+          "table": "command_routing_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },

@@ -25,8 +25,10 @@ and the PORTED owner each delegates to:**
                             admission legs — lifecycle drain / DM — run
                             upstream of resolve() and are not
                             re-evaluated here)
- 3       cog routing        NOT PORTED (a setup-wizard section slug only)
-                            — recorded ``skipped``, never guessed
+ 3       cog routing        ``server_management.routing.is_cog_enabled``
+                            (the routing port — the oracle resolver's
+                            channel → category → guild → default-true
+                            chain, keyed on the subsystem key)
  4       governance         ``governance.resolve_visibility`` (the same
                             read every governance surface uses; the
                             Q-0045/D-0039 declared-tier path)
@@ -68,7 +70,7 @@ class AccessAxis(enum.Enum):
     """The composed policy axes, in evaluation order (shipped verbatim)."""
 
     COMMAND_ACCESS = "command_access"  # axes 1+2 (channel admission)
-    ROUTING = "routing"                # axis 3 (not ported — skipped)
+    ROUTING = "routing"                # axis 3 (per-channel cog routing)
     GOVERNANCE = "governance"          # axis 4 (visibility + tier)
     AVAILABILITY = "availability"      # axis 5 (future — stubbed)
     HELP = "help"                      # axis 6 (informational, non-gating)
@@ -383,21 +385,37 @@ async def _axis_command_access(
     )
 
 
-def _axis_routing(feature: FeatureEntry, ctx: AccessContext) -> AxisOutcome:
-    """Axis 3 — per-channel cog routing.
+async def _axis_routing(feature: FeatureEntry,
+                        ctx: AccessContext) -> AxisOutcome:
+    """Axis 3 — per-channel cog routing via
+    ``server_management.routing.is_cog_enabled`` (the routing port —
+    the setup compound-ops slice flipped the former "NOT PORTED" ledger
+    note true; oracle ``services/access_projection._axis_routing``,
+    semantics verbatim).
 
-    NOT PORTED: the compiled architecture carries cog routing only as a
-    setup-wizard section slug (sb/domain/setup/sections.py) — there is no
-    live routing resolver to delegate to. A ``skipped`` axis never
-    affects the effective result; it is recorded so the chain documents
-    the axis exists and is intentionally inert until the routing port.
+    Routing keys on the **subsystem key** (the oracle's verified fact:
+    ``cog_routing_profiles`` writes ``cog_name="games"``/``"economy"``/
+    ...), so the snake_case feature key is passed straight through.
     """
-    del feature, ctx
-    return AxisOutcome(
-        AccessAxis.ROUTING,
-        "skipped",
-        detail="cog routing not ported (setup-wizard section only)",
-    )
+    if ctx.guild_id is None:
+        return AxisOutcome(AccessAxis.ROUTING, "skipped", detail="no guild")
+    from sb.domain.server_management import routing
+
+    try:
+        enabled = await routing.is_cog_enabled(
+            guild_id=int(ctx.guild_id),
+            cog_name=feature.subsystem,
+            channel_id=ctx.channel_id,
+            category_id=ctx.category_id,
+        )
+    except Exception as exc:  # noqa: BLE001 — a read model must never crash
+        logger.warning("access_projection: routing axis raised: %s", exc)
+        return AxisOutcome(AccessAxis.ROUTING, "unknown",
+                           detail="resolver error")
+    if enabled:
+        return AxisOutcome(AccessAxis.ROUTING, "allow")
+    return AxisOutcome(AccessAxis.ROUTING, "deny",
+                       reason_code="routing_disabled")
 
 
 async def _axis_governance(
@@ -553,7 +571,7 @@ async def resolve_feature_access(
     if ca.state == "deny":
         return _denied(feature, ca, chain)
 
-    rt = _axis_routing(feature, ctx)
+    rt = await _axis_routing(feature, ctx)
     chain.append(rt)
     if rt.state == "deny":
         return _denied(feature, rt, chain)

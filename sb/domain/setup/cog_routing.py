@@ -28,19 +28,15 @@ game/mining tag pair):
 
 Kernel-idiom divergences, ledgered (the section_card.py doctrine):
 
-* the ``set_cog_routing`` op kind stages FAIL-CLOSED (un-registered in
-  the K9 registry): apply surfaces the rows as skipped "(not yet
-  implemented)" — the logging_presets ``create_channel`` precedent.
-  DECIDE-AND-FLAG: the compiled architecture carries NO live
-  command-routing resolver or ``command_routing_policy`` table — its
-  own ledger says so (sb/domain/server_management/access_projection.py
-  axis 3: "cog routing NOT PORTED (a setup-wizard section slug
-  only)") — so there is no K7 seam to bind; the routing-resolver port
-  (+ the ``routing.set_policy`` compound op the oracle's Final-Review
-  dispatcher routed through) is a named follow-up in the completeness
-  table's setup row. The staged payload carries the full
-  ``services.command_routing.set_policy`` param shape so the
-  dispatcher-to-be reads it back unchanged;
+* the ``set_cog_routing`` op kind is REGISTERED onto the audited K7
+  ``routing.set_policy`` compound op (the compound-ops slice landed the
+  routing port: ``command_routing_policy`` migration 0054 + the
+  sb/domain/server_management/routing.py resolver/store + the op in
+  server_management/ops.py — the access_projection axis-3 "NOT PORTED"
+  ledger flipped true), so staged rows are draftable AND appliable
+  through the fail-closed K9 registry. The staged payload carries the
+  full ``services.command_routing.set_policy`` param shape and the
+  dispatcher reads it back unchanged (the design held);
 * the COG PICKER windows at the grammar ENUM select's 25-option cap
   (the access_map first-25 window precedent): the oracle paginated the
   operator-visible list past 25 via ``PaginatedSelectView`` (its
@@ -184,13 +180,44 @@ def _classify(name: str) -> set[str]:
 
 # --- staged-op builder -------------------------------------------------------------------
 
+_SET_COG_ROUTING_OP_KIND = "set_cog_routing"
+
+
+def _register_set_cog_routing_op_kind() -> None:
+    """Bind the ``set_cog_routing`` op kind onto the audited K7
+    ``routing.set_policy`` compound op (the module docstring's named
+    follow-up, landed by the compound-ops slice): read-old → ON CONFLICT
+    upsert → central audit with the real prev_value — the oracle
+    ``command_routing.set_policy`` route (setup_operations.py:1160 →
+    _apply_set_cog_routing:1559)."""
+    from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
+    from sb.spec.events import FieldSpec
+    from sb.spec.refs import WorkflowRef
+
+    binding = OpKindBinding(
+        op_kind=_SET_COG_ROUTING_OP_KIND,
+        workflow_ref=WorkflowRef("routing.set_policy"),
+        payload_schema=(FieldSpec("name", "str"),
+                        FieldSpec("scope_type", "str"),
+                        FieldSpec("scope_id", "int", required=False),
+                        FieldSpec("cog_name", "str"),
+                        FieldSpec("enabled", "bool"),
+                        FieldSpec("target_name", "str", required=False)),
+        is_resource_create=False)
+    try:
+        OP_KINDS.register(binding)
+    except ValueError as exc:
+        if "bound twice" not in str(exc):
+            raise
+
+
 def _routing_op(*, scope_kind: str, scope_id: int | None, scope_name: str,
                 cog_name: str, enabled: bool,
                 label_body: str | None = None):
     """One ``set_cog_routing`` StagedSectionOp: the full
     ``command_routing.set_policy`` param shape (scope_type / scope_id /
     cog_name / enabled) plus the review-renderer ride-alongs
-    (target_name; the extra keys ride ABOVE the dispatcher-to-be's
+    (target_name; the extra keys ride ABOVE the dispatcher's
     minimum — the stage_accepted precedent). ``name`` keys the
     replace-on-conflict slot per (scope, cog) — a re-picked flag
     replaces, never duplicates (the oracle rollback note: "Re-stage
@@ -199,6 +226,8 @@ def _routing_op(*, scope_kind: str, scope_id: int | None, scope_name: str,
     (``{scope_type}:{scope_id if scope_id is not None else 'guild'}:
     {cog_name}``)."""
     from sb.domain.setup.section_card import StagedSectionOp
+
+    _register_set_cog_routing_op_kind()
 
     slot_scope = scope_id if scope_id is not None else "guild"
     default_label = (f"cog_routing.{scope_kind}({scope_name}).{cog_name} = "
@@ -789,6 +818,7 @@ _ensure_providers()
 _register()
 _register_panels()
 _register_section()
+_register_set_cog_routing_op_kind()
 
 
 def ensure_setup_cog_routing_refs() -> None:
@@ -796,3 +826,4 @@ def ensure_setup_cog_routing_refs() -> None:
     _register()
     _register_panels()
     _register_section()
+    _register_set_cog_routing_op_kind()
