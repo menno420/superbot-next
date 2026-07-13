@@ -13943,7 +13943,6 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:9302289790f6957bf689d233ed55dd27e073e83fc5bf6c7629833ad69aa0543c",
   "subsystems": {
     "admin": {
       "capabilities": [],
