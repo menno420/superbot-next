@@ -1,6 +1,6 @@
 # 2026-07-13 — Hygiene: stale-claim cleanup + golden-parity banner retirement
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · contained hygiene slice: independently
   re-verify the stale claim-file candidates against LIVE GitHub PR state
