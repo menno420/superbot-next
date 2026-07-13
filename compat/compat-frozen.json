@@ -2717,6 +2717,7 @@
   "settings_subsystem.open_panel",
   "setup.essential_log_names_form",
   "setup.essential_reward_name_form",
+  "setup.review_item_edit_form",
   "setup_complete:delete",
   "setup_complete:keep",
   "setup_depth:advanced",

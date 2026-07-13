@@ -42,10 +42,19 @@ lands on the ported FinalReviewView card, Apply executes the staged
 ops through the K9 DraftPipeline over the audited K7 seams, and the
 apply-summary / partial-recovery / setup-complete views ride along.
 
+The per-suggestion EDIT lane is LIVE (the suggestion-edit slice): a
+``create`` suggestion's Edit opens the "Edit suggestion" rename modal
+(G-10 form; submit rewrites the draft row + re-accepts it and
+advances — the oracle ``apply_edit``/``_swap_and_accept``), a ``bind``
+suggestion's Edit answers the shipped can't-re-pick explanation (the
+native ChannelSelect/RoleSelect re-pick sub-view — oracle
+``_RepickTargetView`` — is the flagged follow-up), and the staged
+``bind_channel`` payload carries ``target_name`` so the (possibly
+edited) name round-trips into the final-review pending line.
+
 Named successors kept honest (each a declared BLOCKED terminal, never
 silent): the remaining NINE per-section flows + the linear wizard steps
-behind ↩ Back to wizard (section-flows slice), and the per-suggestion
-Edit modal/re-pick flow (suggestion-edit slice).
+behind ↩ Back to wizard (section-flows slice).
 """
 
 from __future__ import annotations
@@ -434,8 +443,16 @@ async def stage_accepted(guild_id: int, accepted: list) -> int:
             op_kind=_BIND_CHANNEL_OP_KIND,
             subsystem=rec.subsystem,
             authority_ref="",          # the ADMIN floor (settings.bind's own)
+            # ``target_name`` rides ABOVE the op-kind's declared minimum
+            # (the suggestion-edit slice): the final-review pending line
+            # prefers it over the raw id (draft_render._short_label's
+            # bind branch), so a renamed suggestion round-trips into the
+            # staged card; the settings.bind legs read only their own
+            # params and ignore it. Pre-slice staged rows lack the key —
+            # the renderer's ``<id>`` fallback still answers.
             payload={"subsystem": rec.subsystem, "name": rec.binding_name,
-                     "kind": rec.target_kind, "resource_id": rec.target_id},
+                     "kind": rec.target_kind, "resource_id": rec.target_id,
+                     "target_name": rec.target_name},
             label=(f"{_SUGGESTIONS_LABEL_PREFIX}{rec.subsystem}."
                    f"{_BIND_CHANNEL_OP_KIND}")))
         staged += 1
@@ -890,15 +907,73 @@ def _register() -> None:
         await _return_to_overview(req, state)
         return None
 
-    # the per-suggestion Edit lane (rename a `create` proposal / re-pick
-    # a `bind` target) — modal + native-picker successor, honest terminal.
-    from sb.domain.operator_spine import pending_handler
+    # ---- the per-suggestion Edit lane (per_recommendation._edit +
+    # _EditRecommendationModal — the suggestion-edit slice) ----
 
-    pending_handler(
-        "setup.review_item_edit_pending",
-        "The Edit lane (rename / re-pick) isn't armed in this build yet — "
-        "it lands with the suggestion-edit slice. **Deny** this suggestion "
-        "and bind a different one if it isn't right.")
+    def _bind_edit_refusal(rec) -> str:
+        # shipped copy, verbatim (per_recommendation._edit's
+        # can't-re-pick branch — the native picker sub-view is the
+        # flagged follow-up, so every ``bind`` kind answers it).
+        return (f"**Edit** can't re-pick a `{rec.target_kind}` here — "
+                "**Deny** this suggestion and bind a different one if it "
+                "isn't right.")
+
+    @handler("setup.review_item_edit")
+    async def review_item_edit(req) -> Reply | None:
+        """Edit on a ``bind`` suggestion (the renderer's bind face):
+        an existing resource can't be renamed — explain (oracle
+        docstring: "A ``bind`` suggestion (an existing resource) can't
+        be renamed — Edit explains that")."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = state.draft.recommendations
+        if not (0 <= state.index < len(recs)):
+            await _return_to_overview(req, state)
+            return None
+        rec = recs[state.index]
+        if getattr(rec, "mode", "bind") == "create":
+            # stale card (the create face renders the rename modal
+            # button): re-render so the right Edit face shows.
+            if not await _refresh_own_panel(req, {}):
+                await _open(req, "setup.review_item")
+            return None
+        return Reply(BLOCKED, _bind_edit_refusal(rec))
+
+    @handler("setup.review_item_edit_rename")
+    async def review_item_edit_rename(req) -> Reply | None:
+        """_EditRecommendationModal.on_submit → PerRecommendationView.
+        apply_edit → _swap_and_accept, ported: rewrite the ``create``
+        suggestion's target name in the shared draft, re-accept it
+        under the (unchanged) binding key, advance the walkthrough.
+        Pure in-memory state mutation — no DB write, no Discord
+        resource creation (the edited op still applies only through
+        the gated Final Review)."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = state.draft.recommendations
+        if not (0 <= state.index < len(recs)):
+            await _return_to_overview(req, state)
+            return None
+        rec = recs[state.index]
+        if getattr(rec, "mode", "bind") != "create":
+            # stale form (the walkthrough moved off the create
+            # suggestion the form was opened on): the bind explanation
+            # answers — nothing is changed.
+            return Reply(BLOCKED, _bind_edit_refusal(rec))
+        new_name = str(req.args.get("new_name") or "").strip()
+        if not new_name:
+            # shipped copy, verbatim (_EditRecommendationModal.on_submit).
+            return Reply(BLOCKED,
+                         "The name can't be empty — nothing was changed.")
+        edited = replace(rec, target_name=new_name)
+        swapped = list(recs)
+        swapped[state.index] = edited
+        state.draft = replace(state.draft,
+                              recommendations=tuple(swapped))
+        state.remove(rec.subsystem, rec.binding_name)
+        state.add(edited)
+        await _advance_or_return(req, state)
+        return None
 
 
 _register()

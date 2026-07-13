@@ -63,7 +63,7 @@ def _ctx(*, guild_id=99, user_id=42, params=None):
 
 
 def _rec(subsystem="logging", binding="audit_channel", confidence="high",
-         target_id=1234, target_name="audit"):
+         target_id=1234, target_name="audit", mode="bind"):
     from sb.domain.setup.plan import SetupRecommendation
 
     return SetupRecommendation(
@@ -71,7 +71,8 @@ def _rec(subsystem="logging", binding="audit_channel", confidence="high",
         target_id=target_id, target_name=target_name,
         confidence=confidence,
         reason=f"channel `{target_name}` matches token `{binding}` "
-               f"({confidence})")
+               f"({confidence})",
+        mode=mode)
 
 
 def _draft(*recs):
@@ -544,10 +545,137 @@ def test_review_item_render_pins_the_shipped_walkthrough_bytes():
     assert rendered.embed.style_token == "gold"
 
 
-def test_review_item_edit_holds_the_named_successor_terminal():
-    reply = run(_resolve("setup.review_item_edit_pending")(_req()))
+def test_review_item_render_keeps_one_edit_face_per_mode():
+    """The mode-dependent Edit control (per_recommendation._edit): the
+    bind face keeps the explain button, the create face keeps the
+    rename-modal button, never both."""
+    from sb.domain.setup import wizard
+    from sb.domain.setup.panels import review_item_spec
+
+    wizard.seed_review_state(99, 42, _draft(_rec()))
+    rendered = run(_resolve("setup.review_item_render")(
+        review_item_spec(), _ctx()))
+    ids = {c.custom_id for c in rendered.components}
+    assert "setup.review_item.item_edit" in ids
+    assert "setup.review_item.item_edit_rename" not in ids
+
+    wizard.seed_review_state(99, 42, _draft(_rec(mode="create")))
+    rendered = run(_resolve("setup.review_item_render")(
+        review_item_spec(), _ctx()))
+    ids = {c.custom_id for c in rendered.components}
+    assert "setup.review_item.item_edit_rename" in ids
+    assert "setup.review_item.item_edit" not in ids
+
+
+def test_review_item_render_create_mode_pins_the_oracle_bytes():
+    """build_per_recommendation_embed's create branch, verbatim: the
+    Create & bind target line + the Edit-to-rename footer hint."""
+    from sb.domain.setup import wizard
+    from sb.domain.setup.panels import review_item_spec
+
+    wizard.seed_review_state(99, 42, _draft(_rec(mode="create")))
+    rendered = run(_resolve("setup.review_item_render")(
+        review_item_spec(), _ctx()))
+    embed = rendered.embed
+    assert ("**Create & bind:** ➕ `audit` (new `channel`)"
+            in embed.description)
+    assert "**Target:**" not in embed.description
+    assert embed.footer == (
+        "Accepted set: 0 · Accept / Deny / Edit · Edit to rename before "
+        "accepting · Skip to defer, Back to return.")
+
+
+def test_review_item_edit_on_a_bind_suggestion_explains():
+    """per_recommendation._edit's can't-re-pick branch, verbatim — the
+    suggestion-edit slice's bind face (the native picker sub-view is
+    the flagged follow-up)."""
+    from sb.domain.setup import wizard
+
+    wizard.seed_review_state(99, 42, _draft(_rec()))
+    reply = run(_resolve("setup.review_item_edit")(_req()))
     assert reply.outcome == BLOCKED
-    assert "suggestion-edit slice" in reply.user_message
+    assert reply.user_message == (
+        "**Edit** can't re-pick a `channel` here — **Deny** this "
+        "suggestion and bind a different one if it isn't right.")
+
+
+def test_review_item_edit_rename_swaps_accepts_and_advances(monkeypatch):
+    """_EditRecommendationModal.on_submit → apply_edit →
+    _swap_and_accept, ported: the create suggestion's target name is
+    rewritten in the shared draft, the edited row is accepted under
+    the unchanged binding key, and the walkthrough advances."""
+    from sb.domain.setup import wizard
+    from sb.kernel.panels import engine as panels_engine
+
+    async def fake_refresh(req, *, message_key, params, expire=False):
+        return True
+
+    monkeypatch.setattr(panels_engine, "refresh_session_view", fake_refresh)
+    old = _rec(mode="create")
+    state = wizard.seed_review_state(99, 42, _draft(
+        old, _rec(binding="mod_channel", confidence="medium")))
+    state.add(old)
+    reply = run(_resolve("setup.review_item_edit_rename")(
+        _req(args={"new_name": "  audit-log  "})))
+    assert reply is None
+    edited = state.draft.recommendations[0]
+    assert edited.target_name == "audit-log"       # stripped, oracle body
+    assert edited.mode == "create"
+    assert edited.binding_name == old.binding_name  # key unchanged
+    # re-accepted: the OLD row is out, the EDITED row is in.
+    assert state.count == 1
+    assert state.contains(edited)
+    assert state.accepted[0].target_name == "audit-log"
+    assert state.index == 1                        # advanced
+
+
+def test_review_item_edit_rename_empty_name_answers_the_shipped_copy():
+    from sb.domain.setup import wizard
+
+    state = wizard.seed_review_state(99, 42, _draft(_rec(mode="create")))
+    reply = run(_resolve("setup.review_item_edit_rename")(
+        _req(args={"new_name": "   "})))
+    assert reply.outcome == BLOCKED
+    # shipped copy, verbatim (_EditRecommendationModal.on_submit).
+    assert reply.user_message == (
+        "The name can't be empty — nothing was changed.")
+    assert state.index == 0                        # did not advance
+    assert state.draft.recommendations[0].target_name == "audit"
+
+
+def test_review_item_edit_rename_on_a_bind_row_refuses_stale_form():
+    """A submit landing after the walkthrough moved onto a bind row
+    (stale form) changes nothing — the bind explanation answers."""
+    from sb.domain.setup import wizard
+
+    state = wizard.seed_review_state(99, 42, _draft(_rec()))
+    reply = run(_resolve("setup.review_item_edit_rename")(
+        _req(args={"new_name": "audit-log"})))
+    assert reply.outcome == BLOCKED
+    assert "can't re-pick" in reply.user_message
+    assert state.draft.recommendations[0].target_name == "audit"
+    assert state.count == 0
+
+
+def test_review_item_edit_out_of_range_returns_to_overview(monkeypatch):
+    from sb.domain.setup import wizard
+    from sb.kernel.panels import engine as panels_engine
+
+    opened = []
+
+    async def fake_open(ref, req):
+        opened.append(ref.name)
+        return "msg-key"
+
+    monkeypatch.setattr(panels_engine, "open_panel", fake_open)
+    state = wizard.seed_review_state(99, 42, _draft(_rec()))
+    state.index = 5
+    run(_resolve("setup.review_item_edit")(_req()))
+    assert opened == ["setup.suggestions_card"]
+    state.index = 5
+    run(_resolve("setup.review_item_edit_rename")(
+        _req(args={"new_name": "audit-log"})))
+    assert opened == ["setup.suggestions_card", "setup.suggestions_card"]
 
 
 def test_stage_without_accepts_answers_the_shipped_guard():
@@ -645,8 +773,12 @@ def test_stage_accepted_replaces_the_suggestions_rows(monkeypatch):
     kinds = [op.op_kind for _d, op in calls["added"]]
     assert kinds == ["bind_channel", "bind_channel"]
     payload = calls["added"][0][1].payload
+    # ``target_name`` rides above the op-kind's declared minimum so the
+    # (possibly Edit-renamed) name round-trips into the final-review
+    # pending line (the suggestion-edit slice).
     assert payload == {"subsystem": "logging", "name": "audit_channel",
-                       "kind": "channel", "resource_id": 1234}
+                       "kind": "channel", "resource_id": 1234,
+                       "target_name": "audit"}
     assert calls["added"][0][1].label == "[suggestions] logging.bind_channel"
     # the op kind is DRAFTABLE (fail-closed registry) and bound to the
     # audited settings.bind K7 op.
@@ -655,6 +787,35 @@ def test_stage_accepted_replaces_the_suggestions_rows(monkeypatch):
     binding = OP_KINDS.get("bind_channel")
     assert binding is not None
     assert binding.workflow_ref.name == "settings.bind"
+
+
+def test_staged_target_name_round_trips_into_the_final_review_line(
+        monkeypatch):
+    """The suggestion-edit slice's round-trip: an Edit-renamed create
+    suggestion stages with its new name, and the final-review pending
+    line renders it (draft_render._short_label's bind branch prefers
+    ``target_name`` over the raw id)."""
+    from sb.domain.setup import wizard
+    from sb.domain.setup.final_review import _short_label
+    from sb.kernel.draft import store as draft_store_module
+
+    calls = {"added": []}
+
+    class FakeStore:
+        async def list_open(self, scope):
+            return ()
+
+        async def create(self, *, producer, owner_scope):
+            return SimpleNamespace(draft_id="d-1", operations=())
+
+        async def add(self, draft_id, op):
+            calls["added"].append(op)
+
+    monkeypatch.setattr(draft_store_module, "DraftStore", FakeStore)
+    run(wizard.stage_accepted(
+        99, [_rec(mode="create", target_id=0, target_name="audit-log")]))
+    assert _short_label(calls["added"][0]) == (
+        "logging.audit_channel → audit-log")
 
 
 # --- /setup-skip · /setup-unskip · /setup-reset ----------------------------------------
@@ -838,6 +999,35 @@ def test_interior_panels_ride_the_manifest():
         "setup.review_stage"}
 
 
+def test_review_item_edit_pair_carries_the_g10_form():
+    """The suggestion-edit slice's wiring: two Edit faces (both labeled
+    Edit — the renderer keeps one per mode); the create face is the
+    declared G-10 rename modal, submit routed to the rename handler."""
+    from sb.spec.outcomes import DeferMode
+
+    import sb.manifest.setup as m
+
+    review_item = m.MANIFEST.panels[5]
+    assert review_item.panel_id == "setup.review_item"
+    actions = {a.action_id: a for a in review_item.actions}
+    plain = actions["item_edit"]
+    assert plain.label == "Edit"
+    assert plain.handler.name == "setup.review_item_edit"
+    assert plain.modal is None
+    rename = actions["item_edit_rename"]
+    assert rename.label == "Edit"
+    assert rename.defer_mode is DeferMode.MODAL
+    assert rename.modal is not None
+    assert rename.modal.modal_id == "setup.review_item_edit_form"
+    assert rename.modal.title == "Edit suggestion"
+    field = rename.modal.fields[0]
+    assert field.field_id == "new_name"
+    assert (field.required, field.min_length, field.max_length) == (
+        True, 1, 100)
+    assert rename.modal.on_submit.name == "setup.review_item_edit_rename"
+    assert rename.handler.name == "setup.review_item_edit_rename"
+
+
 def test_every_interior_route_resolves():
     from sb.spec.refs import HandlerRef, resolve
 
@@ -850,7 +1040,8 @@ def test_every_interior_route_resolves():
             "setup.review_reject_ai", "setup.review_rerun",
             "setup.review_stage", "setup.review_item_accept",
             "setup.review_item_deny", "setup.review_item_skip",
-            "setup.review_item_back", "setup.review_item_edit_pending",
+            "setup.review_item_back", "setup.review_item_edit",
+            "setup.review_item_edit_rename",
             *(f"setup.open_section_{slug}" for slug in (
                 "preset_select", "channels", "logging_presets", "roles",
                 "role_templates", "cleanup", "moderation", "cog_routing",

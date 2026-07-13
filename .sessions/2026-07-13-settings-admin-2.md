@@ -1,8 +1,8 @@
 # 2026-07-13 — settings admin slice 2: arm the hub audit view
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
-- **📊 Lane:** settings-admin, slice 2 of 3
+- **📊 Model:** `fable-5` · settings-admin lane, slice 2 of 3
   (branch `claude/settings-admin-2`, stacked on `claude/settings-admin-1`
   @ b7245e3 — PR #399)
 
@@ -29,8 +29,21 @@ routes).
 
 ## 💡 Session idea
 
-(close-out fills this)
+Binding-leg audit rows render an honest under-label here because the
+engine's prev/new rollup carries only `resource_id` — the human slot
+name lives in `binding_audit_log`. One write-side field would fix every
+future reader at once: have `emit_central_audit` include the binding
+slot name in the rollup JSON for `settings.bind`/`unbind` legs, so any
+audit-spine consumer renders the shipped label without a second-table
+join.
 
 ## ⟲ Previous-session review
 
-(close-out fills this)
+This previous-session review covers slice 1 (#399): its pattern
+(declared PanelSpec + FieldsBlock provider + PanelRef open-child, back
+button as a run-minted per-panel leaf) reused byte-for-byte — the
+slice-2 panel needed no new grammar at all, and the btd6 D-0046
+audit-spine-read precedent it pointed at was exactly the right seam.
+Friction: slice 1's diagnostics tests assert the full manifest panels
+tuple, so arming one more panel meant editing slice-1's test file — a
+per-slice membership assertion would decouple the slices.
