@@ -332,6 +332,58 @@
      }
     ]
    }
+  },
+  "setup:setup.final_review:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the final-review slice carries the shipped FinalReviewView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/final_review.py: the five @discord.ui.button declarations pack one row — Apply staged setup / 🧠 Ask AI to review / Edit setup / Back / Cancel; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "final_apply",
+       "final_ai_review",
+       "final_edit",
+       "final_back",
+       "final_cancel"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.final_review:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the final-review slice carries the shipped FinalReviewView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/final_review.py: the five @discord.ui.button declarations pack one row — Apply staged setup / 🧠 Ask AI to review / Edit setup / Back / Cancel; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "final_apply",
+     "final_ai_review",
+     "final_edit",
+     "final_back",
+     "final_cancel"
+    ]
+   ]
+  },
+  "setup:setup.final_review:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the final-review slice carries the shipped FinalReviewView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/final_review.py: the five @discord.ui.button declarations pack one row — Apply staged setup / 🧠 Ask AI to review / Edit setup / Back / Cancel; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "final_apply",
+        "final_ai_review",
+        "final_edit",
+        "final_back",
+        "final_cancel"
+       ]
+      ]
+     }
+    ]
+   }
   }
  },
  "schema_version": 1,

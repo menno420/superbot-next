@@ -31,11 +31,13 @@ from sb.spec.versioning import (
 __all__ = [
     "KNOWN_DEPTHS",
     "SETUP_SESSION_STORE",
+    "clear_workspace_pointers",
     "ensure_refs",
     "get_session_row",
     "scrub_subject_session",
     "set_depth",
     "set_section_skip",
+    "set_session_status",
     "upsert_session",
 ]
 
@@ -151,6 +153,29 @@ async def set_section_skip(conn: Any, *, guild_id: int, slug: str,
             "   SET skipped_sections = ARRAY_REMOVE(skipped_sections, $2::TEXT), "
             "       updated_at = NOW() "
             " WHERE guild_id = $1", (guild_id, slug), conn=conn)
+
+
+async def set_session_status(conn: Any, *, guild_id: int,
+                             status: str) -> None:
+    """The shipped ``mark_complete`` UPDATE shape (disbot
+    utils/db/setup_session.py: a bare status UPDATE keyed on the guild —
+    no row means a silent no-op, the set_depth semantics twin). The
+    final-review apply lane writes ``complete`` on full success."""
+    await execute(
+        "UPDATE setup_session SET setup_status = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, status), conn=conn)
+
+
+async def clear_workspace_pointers(conn: Any, *, guild_id: int) -> None:
+    """The shipped post-cleanup pointer nulls (setup_channel.py
+    ``set_session_channel_id(guild_id, None)`` +
+    ``set_session_message_id(guild_id, None)`` — folded into one keyed
+    UPDATE; no row = silent no-op) so the next ``/setup`` re-creates a
+    fresh channel."""
+    await execute(
+        "UPDATE setup_session SET setup_channel_id = NULL, "
+        "setup_message_id = NULL, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id,), conn=conn)
 
 
 # --- privacy erasure row helper (flag-18 discipline) --------------------------------

@@ -6004,6 +6004,56 @@
           "value": "item_back"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "final_apply"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "final_ai_review"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "final_edit"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "final_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "final_cancel"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_retry"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_finish"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_cancel"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "complete_delete"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "complete_keep"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -7466,6 +7516,21 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.review_item"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.final_review"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.apply_recovery"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.complete_card"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -10648,6 +10713,15 @@
       "handler:setup.change_depth": {
         "module": "sb.domain.setup.wizard"
       },
+      "handler:setup.complete_delete": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.complete_keep": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.complete_render": {
+        "module": "sb.domain.setup.final_review"
+      },
       "handler:setup.depth_pick_advanced": {
         "module": "sb.domain.setup.wizard"
       },
@@ -10678,6 +10752,24 @@
       "handler:setup.essential_skip": {
         "module": "sb.domain.setup.wizard"
       },
+      "handler:setup.final_ai_review": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.final_apply": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.final_back": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.final_cancel": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.final_edit": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.final_review_render": {
+        "module": "sb.domain.setup.final_review"
+      },
       "handler:setup.hub_open": {
         "module": "sb.domain.setup.handlers"
       },
@@ -10691,7 +10783,7 @@
         "module": "sb.domain.setup.wizard"
       },
       "handler:setup.open_section_final_review": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.final_review"
       },
       "handler:setup.open_section_logging_presets": {
         "module": "sb.domain.setup.wizard"
@@ -10710,6 +10802,18 @@
       },
       "handler:setup.open_section_ticket": {
         "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.recovery_cancel": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.recovery_finish": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.recovery_render": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "handler:setup.recovery_retry": {
+        "module": "sb.domain.setup.final_review"
       },
       "handler:setup.reset_view": {
         "module": "sb.domain.setup.handlers"
@@ -11692,8 +11796,17 @@
       "panel:settings.hub": {
         "module": "sb.domain.settings.panels"
       },
+      "panel:setup.apply_recovery": {
+        "module": "sb.domain.setup.final_review"
+      },
+      "panel:setup.complete_card": {
+        "module": "sb.domain.setup.final_review"
+      },
       "panel:setup.essential_card": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.final_review": {
+        "module": "sb.domain.setup.final_review"
       },
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
@@ -13246,10 +13359,16 @@
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
       },
+      "workflow:setup.clear_workspace_pointer": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.compensate_create_channel": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.erase_subject_session": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.mark_complete": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.open_workspace": {
@@ -13261,10 +13380,16 @@
       "workflow:setup.record_section_skip": {
         "module": "sb.domain.setup.ops"
       },
+      "workflow:setup.record_session_complete": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.record_session_started": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.record_workspace_open": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_workspace_pointer_clear": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.set_depth": {
@@ -54889,6 +55014,404 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🤖 Smart suggestions",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "final_apply",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_final_review:apply",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.final_apply"
+              },
+              "label": "Apply staged setup",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "final_ai_review",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_final_review:ai_review",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.final_ai_review"
+              },
+              "label": "🧠 Ask AI to review",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "final_edit",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_final_review:edit",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.final_edit"
+              },
+              "label": "Edit setup",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "final_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_final_review:back",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.final_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "final_cancel",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_final_review:cancel",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.final_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped final-review card is draft-parameterized end to end (the staged-op count description, the Pending list, the created-resources call-out, the heads-up field — final_review.build_final_review_embed) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "final_apply",
+                    "final_ai_review",
+                    "final_edit",
+                    "final_back",
+                    "final_cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.final_review",
+          "renderer_override": {
+            "$ref": "handler:setup.final_review_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 Final review",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "recovery_retry",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.recovery_retry"
+              },
+              "label": "Retry",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_finish",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.recovery_finish"
+              },
+              "label": "Finish anyway",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_cancel",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.recovery_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped partial-apply card is summary-parameterized (applied/failed/skipped counts + lists — build_final_review_embed's partial branch); the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "recovery_retry",
+                    "recovery_finish",
+                    "recovery_cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.apply_recovery",
+          "renderer_override": {
+            "$ref": "handler:setup.recovery_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 Final review · partially applied",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "complete_delete",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_complete:delete",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.complete_delete"
+              },
+              "label": "Delete now",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "complete_keep",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_complete:keep",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.complete_keep"
+              },
+              "label": "Keep setup channel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped setup-complete card is summary-parameterized (the applied count — build_final_review_embed's full-success branch); the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "complete_delete",
+                    "complete_keep"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.complete_card",
+          "renderer_override": {
+            "$ref": "handler:setup.complete_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 Setup complete",
           "usage_weight": 1.0
         }
       ],
