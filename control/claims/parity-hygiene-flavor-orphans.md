@@ -1,0 +1,3 @@
+# Claim — parity hygiene: golden flavor re-mints + harness dead-ref + orphan triage
+
+- `claude/parity-hygiene` · **parity hygiene slice — flavor re-mints + harness dead-ref fix + orphan-pendings triage** — re-mint 2 goldens (`creature_battle_accept`, `cleanup_policies_open`) to the stripped D-0073 flavor; fix the dead `tests/_isolation.py` reference in `parity/harness/runner.py` (registry no longer exists in the tree — PR #416 body documents the class); triage the 9-row `_KNOWN_ORPHANS` burn-down baseline in `tools/check_orphan_pendings.py` (blackjack/btd6/rps/settings pendings from PR #415) · `parity/goldens/`, `parity/harness/runner.py`, `tools/check_orphan_pendings.py`, `tests/` · 2026-07-13
