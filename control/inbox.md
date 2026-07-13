@@ -196,3 +196,63 @@ provenance: filed by the Fleet Manager — owner live ask 2026-07-13 morning (th
 do: NIGHT REPORT REQUEST — owner ask 2026-07-13 (relayed via Fleet Manager). Post a THOROUGH night report, window 2026-07-12T22:30Z→now, to your control/status.md heartbeat AND your outbox (manager-addressed): SHIPPED (merges/PRs with numbers+SHAs) · OPEN PRs + check states · ORDERS served + outstanding · SIM-REQUESTs/asks pending · STALLS/denials verbatim · wake-chain health (failsafe + pacemaker ids/fires) · next-3.
 why: owner morning review.
 done-when: report posted in both files; the Fleet Manager compiles the fleet roll-up from them.
+
+## ORDER 019 · 2026-07-13T22:13Z · status: new
+**EAP final-night worklist — owner directive relay (fm ORDER 045, Phase 3 fan-out).**
+
+Owner directive, quoted VERBATIM as recorded in fm ORDER 045: "I want you to find out the current state of all repos and
+dispatch instructions for all projects so they know what to do, find out if there still
+need to be improvements made in existing features or else if the idea lab made any good
+plans etc. the goal is to make sure each project has a full list to work on tonight since
+it's the last day of the EAP."
+
+Citations: fm ORDER 045, control/inbox.md @ ca1ce28 · docs/eap-final-night-worklists-2026-07-13.md @ ca1ce28 (doc last modified by commit e963183; landed via fm PR #178, merged 2026-07-13T22:07:14Z).
+
+**Your seat's full night worklist, copied faithfully from the doc:**
+
+## superbot-next — swept @ `5dac6ce`
+
+All 18 inbox ORDERs served except owner-side ORDER 001 (live-test token). NOTE: a
+session is actively working this repo (claims #413/#414 landed 21:35–21:40Z) —
+night workers must re-scan `control/claims/` at start.
+
+1. WP-stack conflict reconcile — #312→#317→#335→#344→#371 now verifiably conflicts with main (4 files: `parity/cases/curated.py`, `parity/parity.yml`, 2 count-pin tests, via merge-tree) + re-mint the migration-0052-invalidated WP-2/3 goldens; merge itself stays owner-click (superbot-next PRs #312–#371) `[lane]`
+2. Curation REWORK backlog bundle — next ~17 of the 27 backlog rows (`docs/review/curation-report-2026-07-13.md@5dac6ce`; 3 bundles already shipped as precedent) `[standing]` (ORDER 017 residue)
+3. `tools/check_money_race.py` mis-classification fix — conditional-FOR-UPDATE ownership SELECT at `sb/domain/mining/ops.py:598` read as a fence; flagged in five consecutive WP PR bodies, never fixed `[improve]`
+4. Fishing cast-leg profile wiring — venue/rod/bait/structure → cast (`sb/domain/fishing/service.py` PENDING-roster note; completeness table @`5dac6ce`) `[improve]`
+5. Setup successor follow-ups, unclaimed subset — on-ready resume sweep, automation-rule apply seam, SectionRecoveryView, channel-recommender port; the compound-ops + routing-resolver subset is CLAIMED (PR #414) — do not duplicate (`docs/status/completeness-table-2026-07-13.md@5dac6ce`) `[lane]`
+6. Host-side `plugins.lock.json` pin for the idle plugin adapter — executed from this seat; closes superbot-idle's live wiring gap (superbot-idle `control/status.md` Next-3 @`1f4d774`) `[lane]` (cross-repo)
+7. Windowed-select grammar successor — needed on ≥2 surfaces, unlocks the parked mining title-equip select (completeness table @`5dac6ce`; PR #371 body) `[improve]`
+8. Doc-only PR: band-binding doctrine + effect-arming compensator checklist — one `docs/collaboration-model.md` PR, gives ORDER 004 its `done=` citation hook (idea-engine `ideas/superbot-next/band-binding-doctrine-encoding-2026-07-10.md` + sibling @`2e5d73f`) `[build-direct]`
+
+**Blocked (do not schedule):** casino/minigame section (ORDER 017 item 4 — awaits the SBW inventory/spec SIM-REQUEST answer, ⚑5) · hermes egress + AI NL lane (owner-keyed env) · ORDER 001 live-test band 1 (owner token) · mineverse #2058/#2061 flips + DROP-list ratify + the stamped owner decision in `docs/owner-queue.md` (owner).
+
+Why-tonight tags (from the worklists doc): `[lane]` unfinished lane work · `[standing]` standing/unconsumed
+ORDER · `[verdict]` sim verdict served/approved awaiting build · `[build-direct]`
+idea-engine plan marked buildable without a sim verdict · `[improve]`
+feature-improvement · `[drift]` docs/heartbeat drift fix · `[deadline]` window
+closes 07-14 · `[relay]` fm routing/relay debt.
+
+---
+
+**ADDITIONAL DISTINCT WORKLIST ITEM — fm ORDER 031 (mining/fishing/idle finalization + casino inventory/spec).**
+The fm sweep found ORDER 031 landed in NO seat inbox at all (worklists doc,
+cross-cutting finding 1 + fm self item 3, @ ca1ce28); its named owner seat
+(SuperBot World / superbot-games) is DARK. Decide-and-flag: **superbot-next is
+primary owner** of this relayed order. Split notes: the IDLE-GAME component is
+referenced onto superbot-idle's night list (idle seat's item 2 lane + its own
+relay); the CASINO-SPEC dependency stands per the doc's cross-cutting findings
+and your Blocked line (casino/minigame section awaits the SBW inventory/spec
+answer) — build what is unblocked, flag the rest. ORDER 031 verbatim from fm
+control/inbox.md @ ca1ce28:
+
+> ## ORDER 031 · 2026-07-13T00:01Z · status: new
+> priority: P1 — games finalization + casino inventory/spec
+> owner: SuperBot World seat (superbot-games + superbot-idle + superbot-mineverse)
+> do: Owner's words, verbatim: "finalize the mining game completely as a standalone game, with integration in the exploration/world hub" — review end-to-end first, then extend/improve wherever possible; "same for fishing and the idle game". Card games and all minigames consolidated "into one minigame/casino section" with expanded options ("any kind of minigame they can add should be there"), in sections with enable-all-or-pick-a-few and dynamically updating panels — this seat owns the game inventory, section spec, and per-game readiness; the panel build is superbot-next's (ORDER 030): publish the spec for it via heartbeat/outbox. Context: these goals are being consolidated into a fleet grounding doc by the hub venue (superbot docs/owner/fleet-grounding.md, pending commit) — read it when it lands.
+> why: owner goals message — owner live in the fleet-manager coordinator chat, 2026-07-13T00:1xZ.
+> done-when: mining/fishing/idle each have a review+finalize+improve report and landed PRs; the casino inventory+spec is published and referenced in the heartbeat.
+
+
+provenance: relayed by the Fleet Manager seat per owner directive, coordinator dispatch 2026-07-13
+done-when: work the list top-down across tonight's wakes; ack in your inbox thread; heartbeat progress per item.
