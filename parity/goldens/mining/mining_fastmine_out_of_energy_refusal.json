@@ -1,39 +1,8 @@
 {
- "case_id": "mining.ascend_write",
+ "case_id": "mining.fastmine_out_of_energy_refusal",
  "db_delta": {
   "audit_log": {
    "added": [
-    {
-     "actor_id": "<@member>",
-     "actor_type": "user",
-     "correlation_id": null,
-     "detail": {
-      "changes": [],
-      "legs": [
-       {
-        "error": null,
-        "leg_id": "ascend",
-        "ok": true
-       }
-      ]
-     },
-     "guild_id": "<guild>",
-     "mutation_id": "<uuid>",
-     "mutation_type": "mining_ascended",
-     "new_value": {
-      "ascend": {
-       "depth": 0,
-       "message": "climbed up to 🌳 Surface (depth 0/3)."
-      }
-     },
-     "occurred_at": "<ts>",
-     "prev_value": {
-      "ascend": {}
-     },
-     "scope": "guild",
-     "subsystem": "mining",
-     "target": "mining.ascend"
-    },
     {
      "actor_id": "<@member>",
      "actor_type": "user",
@@ -112,70 +81,6 @@
       "target": "xp.award"
      },
      "status": "pending"
-    },
-    {
-     "available_at": "<ts>",
-     "claims": 0,
-     "correlation_id": "<uuid>",
-     "created_at": "<ts>",
-     "dedup_key": "audit:<guild>:<uuid>",
-     "delivered_at": null,
-     "delivery_attempts": 0,
-     "event_name": "audit.action_recorded",
-     "guild_id": "<guild>",
-     "last_error": null,
-     "outbox_id": "<uuid>",
-     "payload": {
-      "actor_id": "<@member>",
-      "actor_type": "user",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "mining_ascended",
-      "new_value": {
-       "ascend": {
-        "depth": 0,
-        "message": "climbed up to 🌳 Surface (depth 0/3)."
-       }
-      },
-      "occurred_at": "<ts>",
-      "prev_value": {
-       "ascend": {}
-      },
-      "scope": "guild",
-      "subsystem": "mining",
-      "target": "mining.ascend"
-     },
-     "status": "pending"
-    }
-   ]
-  },
-  "mining_player_state": {
-   "added": [
-    {
-     "depth": 0,
-     "energy": 0,
-     "energy_updated_at": 0,
-     "equipped_title": null,
-     "guild_id": "<guild>",
-     "last_broken_item": null,
-     "max_depth": 1,
-     "updated_at": 0,
-     "user_id": "<@member>",
-     "vault_level": 0
-    }
-   ],
-   "removed": [
-    {
-     "depth": 1,
-     "energy": 0,
-     "energy_updated_at": 0,
-     "equipped_title": null,
-     "guild_id": "<guild>",
-     "last_broken_item": null,
-     "max_depth": 1,
-     "updated_at": 0,
-     "user_id": "<@member>",
-     "vault_level": 0
     }
    ]
   },
@@ -183,7 +88,7 @@
    "added": [
     {
      "guild_id": "<guild>",
-     "last_xp": 1808715141,
+     "last_xp": 1877604675,
      "level": 0,
      "messages": 1,
      "user_id": "<@member>",
@@ -193,7 +98,7 @@
   }
  },
  "harness_version": 1,
- "notes": "!ascend (depth 1 seeded) drives mining.ascend -> record_ascend: set_depth 1->0 and replies `<@u> climbed up to the Surface band` — the ascend depth-write face of mining_player_state (mining_cog.py ascend copy verbatim)",
+ "notes": "!fastmine on an empty bar refuses PLAIN with the oracle dig() hint (`⚡ You're out of energy — rest a moment (~{wait}s until your next dig) or eat a **ration** / **energy drink** (`!use ration`).`) — a pre-txn pure read: no loot, no energy write, no game XP, no mining db_delta",
  "seed": 42,
  "steps": [
   {
@@ -205,7 +110,7 @@
      "method": "send_message",
      "payload": {
       "components": [],
-      "content": "<@<@member>> climbed up to 🌳 Surface (depth 0/3).",
+      "content": "⚡ You're out of energy — rest a moment (~5s until your next dig) or eat a **ration** / **energy drink** (`!use ration`).",
       "tts": false
      }
     }
@@ -217,11 +122,11 @@
       "actor_id": "<@member>",
       "authority_ref": "user",
       "base_allowed": true,
-      "command_key": "ascend",
+      "command_key": "fastmine",
       "guild_id": "<guild>",
       "lane": "tier",
       "orchestration_id": null,
-      "outcome": "success",
+      "outcome": "blocked",
       "override_applied": false,
       "reason": "allowed",
       "request_id": "<uuid>",
@@ -241,7 +146,7 @@
     }
    ],
    "input": {
-    "content": "!ascend",
+    "content": "!fastmine",
     "kind": "command",
     "persona": "member"
    }

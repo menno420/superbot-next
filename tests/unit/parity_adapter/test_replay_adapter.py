@@ -31,7 +31,7 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (500/500) — curated
+    """Every golden on disk yields a replayable case (501/501) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
@@ -42,6 +42,7 @@ def test_full_corpus_reconstructs():
     minted cases + the 1 minted paid-tournament
     conservation case + the 2 D-0081 creature picker/bot-guard cases
     + the 4 energy-slice-2 mining cook/use minted cases
+    + the 1 energy-slice-3 fastmine out-of-energy refusal case
     + the 3 fishing cast-leg reel write cases (2026-07-13 — curated typed
     cases: `!fish` + a Reel click by component_index)
     − 3 retired: sweep_cog.json, the deploy-ops `!cog`
@@ -68,9 +69,10 @@ def test_full_corpus_reconstructs():
     # writes, 2026-07-13)
     # + 4 (energy-slice-2 mining cook/use: ration restore / full refusal /
     # cook campfire / torch flavour, 2026-07-13)
+    # + 1 (energy-slice-3 fastmine out-of-energy refusal, 2026-07-13)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 500
+    assert golden_count == 501
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
