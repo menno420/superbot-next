@@ -9841,14 +9841,8 @@
       "handler:blackjack.tournament_join": {
         "module": "sb.domain.blackjack.handlers"
       },
-      "handler:blackjack.tournament_open_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:blackjack.tournament_open_route": {
         "module": "sb.domain.blackjack.handlers"
-      },
-      "handler:blackjack.tournament_start_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:blackjack.tournament_start_route": {
         "module": "sb.domain.blackjack.handlers"
@@ -9964,17 +9958,11 @@
       "handler:btd6.events_grounding_view": {
         "module": "sb.domain.btd6.service"
       },
-      "handler:btd6.events_pending": {
-        "module": "sb.domain.btd6.service"
-      },
       "handler:btd6.events_usage_view": {
         "module": "sb.domain.btd6.service"
       },
       "handler:btd6.grp_bare": {
         "module": "sb.domain.btd6.oracle_surface"
-      },
-      "handler:btd6.ops_pending": {
-        "module": "sb.domain.btd6.service"
       },
       "handler:btd6.ops_usage_view": {
         "module": "sb.domain.btd6.service"
@@ -10008,9 +9996,6 @@
       },
       "handler:btd6.paragon_target_submit": {
         "module": "sb.domain.btd6.paragon_panel"
-      },
-      "handler:btd6.ref_ct_pending": {
-        "module": "sb.domain.btd6.service"
       },
       "handler:btd6.ref_hero_view": {
         "module": "sb.domain.btd6.service"
@@ -11401,9 +11386,6 @@
       "handler:rps.help_view": {
         "module": "sb.domain.rps.handlers"
       },
-      "handler:rps.matchup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:rps.matchup_route": {
         "module": "sb.domain.rps.handlers"
       },
@@ -11412,9 +11394,6 @@
       },
       "handler:rps.pvp_click": {
         "module": "sb.domain.rps.handlers"
-      },
-      "handler:rps.register_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:rps.register_route": {
         "module": "sb.domain.rps.handlers"
@@ -11436,9 +11415,6 @@
       },
       "handler:rps.settings_view": {
         "module": "sb.domain.rps.handlers"
-      },
-      "handler:rps.start_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:rps.start_route": {
         "module": "sb.domain.rps.handlers"
