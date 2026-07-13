@@ -412,7 +412,32 @@ def sections_hub_spec() -> PanelSpec:
 def review_item_spec() -> PanelSpec:
     """The per-suggestion walkthrough card (views/setup/ai_review/
     per_recommendation.py): Accept · Deny · Edit / Skip · Back to
-    overview over one recommendation at a time."""
+    overview over one recommendation at a time. TWO Edit faces ride the
+    spec (the suggestion-edit slice) and the renderer keeps exactly one
+    per render (the mode-dependent control — the final-review
+    Apply-drop precedent): ``item_edit_rename`` carries the G-10
+    "Edit suggestion" rename modal for a ``create`` suggestion
+    (_EditRecommendationModal — the modal must be the interaction's
+    FIRST response, so the create face is its own declared
+    defer_mode=MODAL action, never a handler branch);
+    ``item_edit`` answers a ``bind`` suggestion with the shipped
+    can't-re-pick explanation."""
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.panels import ModalFieldSpec, ModalSpec
+
+    rename_modal = ModalSpec(
+        modal_id="setup.review_item_edit_form",
+        title="Edit suggestion",
+        fields=(
+            # oracle label f"{rec.target_kind.title()} name to create"
+            # + default=rec.target_name are per-open dynamic; a G-10
+            # form's wire bytes are static (resolve.py's stash note),
+            # so the label is the kind-generic spelling and the card's
+            # own target line shows the proposed name — ledgered.
+            ModalFieldSpec(field_id="new_name", label="Name to create",
+                           required=True, min_length=1, max_length=100),
+        ),
+        on_submit=HandlerRef("setup.review_item_edit_rename"))
     return PanelSpec(
         panel_id=REVIEW_ITEM_PANEL_ID,
         subsystem="setup",
@@ -431,7 +456,12 @@ def review_item_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="item_edit", label="Edit",
                 style=ActionStyle.PRIMARY,
-                handler=HandlerRef("setup.review_item_edit_pending")),
+                handler=HandlerRef("setup.review_item_edit")),
+            PanelActionSpec(
+                action_id="item_edit_rename", label="Edit",
+                style=ActionStyle.PRIMARY,
+                defer_mode=DeferMode.MODAL, modal=rename_modal,
+                handler=HandlerRef("setup.review_item_edit_rename")),
             PanelActionSpec(
                 action_id="item_skip", label="Skip",
                 style=ActionStyle.SECONDARY,
@@ -443,7 +473,7 @@ def review_item_spec() -> PanelSpec:
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(PageSpec(rows=(
-            ("item_accept", "item_deny", "item_edit"),
+            ("item_accept", "item_deny", "item_edit", "item_edit_rename"),
             ("item_skip", "item_back"))),)),
         renderer_override=HandlerRef("setup.review_item_render"),
         justification=(
@@ -451,9 +481,13 @@ def review_item_spec() -> PanelSpec:
             "title (Suggestion i/N · accepted/pending), description "
             "(the per-recommendation lines), footer (the accepted "
             "count) and COLOR (the per-confidence accent — "
-            "per_recommendation._CONFIDENCE_COLOR); all outside the "
+            "per_recommendation._CONFIDENCE_COLOR), and its EDIT "
+            "control is mode-dependent (a create suggestion's Edit "
+            "opens the rename modal, a bind suggestion's Edit "
+            "explains — per_recommendation._edit); all outside the "
             "static grammar vocabulary, so the override composes the "
-            "embed (no golden pins it — the oracle source does)."),
+            "embed and keeps one Edit face (no golden pins it — the "
+            "oracle source does)."),
         session_lifecycle=True,
     )
 
@@ -678,11 +712,22 @@ async def _render_sections_hub(spec: PanelSpec, ctx) -> object:
                                components=tuple(repacked))
 
 
+def _one_edit_face(components, mode: str):
+    """Keep exactly ONE Edit control for the rendered suggestion's mode
+    (per_recommendation._edit: a ``create`` suggestion's Edit opens the
+    rename modal, a ``bind`` suggestion's Edit explains) — the
+    final-review Apply-drop precedent for state-dependent controls."""
+    drop = (f"{REVIEW_ITEM_PANEL_ID}.item_edit" if mode == "create"
+            else f"{REVIEW_ITEM_PANEL_ID}.item_edit_rename")
+    return tuple(c for c in components if c.custom_id != drop)
+
+
 async def _render_review_item(spec: PanelSpec, ctx) -> object:
     """renderer_override — per_recommendation.build_per_recommendation_
     embed verbatim: one recommendation at the walkthrough index, the
-    accepted/pending title state, the per-confidence accent, the
-    accepted-count footer."""
+    accepted/pending title state, the mode-dependent target line, the
+    per-confidence accent, the accepted-count footer (+ the create
+    mode's Edit-to-rename hint), one Edit face per mode."""
     import dataclasses
 
     from sb.domain.setup import wizard
@@ -697,16 +742,27 @@ async def _render_review_item(spec: PanelSpec, ctx) -> object:
             title="🤖 Smart suggestions",
             description="No recommendations to review.",
             style_token="dark_grey")
-        return dataclasses.replace(base, embed=embed)
+        return dataclasses.replace(
+            base, embed=embed,
+            components=_one_edit_face(base.components, "bind"))
     index = max(0, min(state.index, len(recs) - 1))
     rec = recs[index]
     accepted = state.contains(rec)
     state_label = "✅ accepted" if accepted else "⬜ pending"
-    # the deterministic advisor's recommendations are all ``bind`` mode
-    # (the shipped mode default) — the bind target line renders.
-    target_line = f"**Target:** `{rec.target_name}` (id `{rec.target_id}`)\n"
+    # the oracle mode branch: a "create" rec has no existing id — it
+    # proposes making the resource and binding it; a "bind" rec wires
+    # an existing one (shown with its id).
+    mode = str(getattr(rec, "mode", "bind"))
+    if mode == "create":
+        target_line = (f"**Create & bind:** ➕ `{rec.target_name}` "
+                       f"(new `{rec.target_kind}`)\n")
+    else:
+        target_line = (f"**Target:** `{rec.target_name}` "
+                       f"(id `{rec.target_id}`)\n")
     source = getattr(rec, "source", None) or str(
         getattr(state.draft, "source", "deterministic"))
+    edit_hint = (" · Edit to rename before accepting"
+                 if mode == "create" else "")
     embed = RenderedEmbed(
         title=f"🤖 Suggestion {index + 1} / {len(recs)} · {state_label}",
         description=(
@@ -717,9 +773,11 @@ async def _render_review_item(spec: PanelSpec, ctx) -> object:
             f"**Source:** `{source}`\n\n"
             f"_{rec.reason}_"),
         footer=(f"Accepted set: {state.count} · Accept / Deny / Edit"
-                f" · Skip to defer, Back to return."),
+                f"{edit_hint} · Skip to defer, Back to return."),
         style_token=_CONFIDENCE_TOKEN.get(rec.confidence, "blurple"))
-    return dataclasses.replace(base, embed=embed)
+    return dataclasses.replace(
+        base, embed=embed,
+        components=_one_edit_face(base.components, mode))
 
 
 # --- registration ---------------------------------------------------------------------

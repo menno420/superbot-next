@@ -6,6 +6,16 @@
 > docstring (final-review apply lane · essential steps 2–8 · the ten
 > per-section flows · the suggestion Edit lane).
 
+- `claude/setup-wizard-3` · scope: setup-wizard successors, slice 3 =
+  the suggestion Edit lane (the per-suggestion walkthrough's Edit
+  action: the rename modal for `create` suggestions + the shipped
+  can't-re-pick explanation for `bind` suggestions, edited state
+  flowing through the staged draft into final-review; the ten
+  per-section flows and the linear wizard steps stay honest
+  terminals) · area: `sb/domain/setup/`, `sb/manifest/setup.py`,
+  `manifest.snapshot.json`, `manifest/layout/setup.lock.json`,
+  `sim/sim-gate-baseline.json`, `compat/`, `tests/unit/setup_band/` ·
+  2026-07-13
 - `claude/setup-wizard-2` · scope: setup-wizard successors, slice 2 =
   essential steps 2–8 (the guided spine after the Step-1 starter set:
   greet · moderators · spam · log channels · rewards · help desk ·
