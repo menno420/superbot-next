@@ -84,7 +84,15 @@ STYLE_TOKEN_COLORS: dict[str, int] = {
     "teal": 1752220,          # discord.Color.teal() — the shipped BTD6
                               # CT-relic detail card (cogs/btd6/_builders.py
                               # build_ct_relic_embed; unpinned found-relic
-                              # path of the golden-pinned relic command)
+                              # path of the golden-pinned relic command) +
+                              # the shipped Tide Pool panel
+                              # (views/fishing/tide_pool.py _TIDE_POOL_COLOR;
+                              # goldens/fishing/sweep_tidepool pins the byte)
+    "dark_teal": 1146986,     # discord.Color.dark_teal() — the shipped
+                              # Dock / Boathouse / Fishery structure panels
+                              # (views/fishing/{dock,boathouse,fishery}.py;
+                              # goldens/fishing/sweep_dock + sweep_boathouse
+                              # + sweep_fishery pin the byte)
     "dark_red": 10038562,     # discord.Color.dark_red() — the shipped AI
                               # review-log cards (cogs/ai_review_cog.py
                               # _REVIEW_COLOR; goldens/ai/sweep_aireview
