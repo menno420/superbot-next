@@ -1,6 +1,6 @@
 # 2026-07-13 — cleanup: port the 🧹 Cleanup Policies panel (the last reachable cleanup pending)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude (Fable family) · completeness-remainders lane
   (claim `control/claims/completeness-remainders.md`, item 2 residue —
@@ -89,12 +89,65 @@ Planned shape:
 
 ## Verification
 
-(filled at close-out)
+Shipped as PR #411 (`claude/cleanup-policies-panel` @ 9e6e36e, off main
+@ 1eab517 — origin/main did not move during the slice, no merge needed):
+
+- `python3 -m pytest tests/ -q` (local Postgres DOWN — the banner-test
+  posture): **2821 passed, 15 skipped**.
+- `python3 tools/run_golden_parity.py --gate` (local Postgres up):
+  **GREEN — all 494 golden(s) across 50 ported subsystem(s) replay
+  clean**, including the new `cleanup_policies_open` (minted via the
+  canonical D-0073 capture path, double-captured across fresh harness
+  boots — byte-identical ×2; pins the hub open + the 🧹 click editing
+  into the empty-state diagnostics embed with the persistent
+  `cleanup_policy:build/remove/refresh` trio + the `nav:back:cleanup.hub`
+  route; a pure read — no `cleanup_policies` db_delta).
+- `tools/check_parity_depth.py` OK (494); `manifest_compile` green
+  (sha 99a39ac5…); `check_compat_frozen` regenerated (--write, the new
+  persistent `cleanup_policy:*` roots — the #408 procedure) then OK;
+  namespace / shadowing / no-skip / config-usage clean.
+- `bootstrap.py check --strict`: green modulo this card's designed
+  born-red hold (flips with this commit) + one pre-existing
+  claims-format advisory (control/claims/mining-write-parity-lane.md,
+  not this lane's file).
+- FULL port — no deferred legs. Fidelity deltas are ledgered engine
+  idioms only (page-swap chain + ↩ Back routes, roster category select
+  per D-0070(a), engine authority grammar for the admin re-checks);
+  nothing for docs/question-router.md.
+- COUNT-PIN CORRECTION for successors: the corpus pins are FIVE call
+  sites, not the four the #410 card listed — parity.yml
+  (`minted_goldens` + the on-disk arithmetic comment),
+  test_replay_adapter.py (docstring + `golden_count`),
+  test_check_parity_depth.py ×3 (`len(goldens)`, the "N goldens" output
+  byte, AND `source["minted_goldens"]` — the one the four-site list
+  missed; this session found it as a post-mint test red).
 
 ## 💡 Session idea
 
-(filled at close-out)
+`grep -rn "== 493"` before minting would have found all five pin sites
+up front; instead the fifth (`source["minted_goldens"] == 31`) surfaced
+as a full-suite red AFTER the bump. Until #410's derive-don't-pin idea
+lands (single authoritative triple in parity.yml + tests asserting
+against IT — still the right structural fix), the cheap interim guard
+is one test that greps the tree for the literal corpus count and fails
+listing every site when they disagree — turning the scavenger hunt into
+a single red with a checklist. Guard recipe: extend
+tests/unit/parity_gate/test_check_parity_depth.py with a
+count-pin-coherence test over parity.yml `minted_goldens` +
+`_golden_counts()`.
 
 ## ⟲ Previous-session review
 
-(filled at close-out)
+(Covers `.sessions/2026-07-13-fishing-howtofish.md` @ 1eab517, PR #410.)
+Load-bearing and accurate: its Postgres-DOWN pytest posture, its
+mint-ledger paragraph (the direct template for this card's golden
+entry), and its double-capture-×2 discipline all transferred verbatim.
+Its 💡 (derive the corpus counts, don't pin them) was proven right
+AGAIN within hours — this session hit the exact collision class it
+predicted, plus a fifth pin site its own four-site enumeration missed
+(corrected above), which strengthens rather than weakens its argument:
+prose enumerations of pin sites go stale the moment a new test pins the
+same number. Its previous-session review's "third re-invention — build
+the tool" call on `tools/mint_golden.py` is now a FOURTH re-invention
+(this session's scratch mint script); the tool remains unbuilt and
+remains the single highest-leverage small build on this corpus.
