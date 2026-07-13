@@ -135,9 +135,11 @@ async def _hub_health(ctx) -> tuple[tuple[str, str], ...]:
 
 def _pending(key: str, label: str, *,
              style: ActionStyle = ActionStyle.PRIMARY) -> PanelActionSpec:
-    """One shipped manager button whose target is its own port slice —
+    """One shipped hub button whose target is its own port slice —
     the click lands on the polite pending terminal (role/utility-band
-    precedent); the shipped persistent custom_id survives verbatim."""
+    precedent); the shipped persistent custom_id survives verbatim.
+    Remaining users: the display-only Access Map / Help Preview surfaces
+    and the Help editor (the manager trio forwards to its ported hubs)."""
     return PanelActionSpec(
         action_id=key, label=label, style=style,
         audience_tier="administrator",       # the shipped admin floor
@@ -159,8 +161,16 @@ def server_management_hub_spec() -> PanelSpec:
         body=(TextBlock(_DESCRIPTION),
               FieldsBlock(provider=ProviderRef("server_management.hub_health"))),
         actions=(
-            # row 0 — the shipped blurple manager trio.
-            _pending("moderation", "🛡️ Moderation"),
+            # row 0 — the shipped blurple manager trio. All three managers
+            # are PORTED hubs now — forward straight to them (the
+            # channel.hub pattern; curation rework 2026-07-13).
+            PanelActionSpec(
+                action_id="moderation", label="🛡️ Moderation",
+                style=ActionStyle.PRIMARY, audience_tier="administrator",
+                # the shipped hub routed into the moderation manager view —
+                # the PORTED moderation.hub panel.
+                handler=PanelRef("moderation.hub"),
+                custom_id_override="server_management:moderation"),
             PanelActionSpec(
                 action_id="channels", label="📺 Channels",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
@@ -168,9 +178,21 @@ def server_management_hub_spec() -> PanelSpec:
                 # the PORTED channel.hub panel (#131).
                 handler=PanelRef("channel.hub"),
                 custom_id_override="server_management:channels"),
-            _pending("roles", "🎭 Roles"),
+            PanelActionSpec(
+                action_id="roles", label="🎭 Roles",
+                style=ActionStyle.PRIMARY, audience_tier="administrator",
+                # the shipped hub routed into the roles manager view —
+                # the PORTED role.hub panel.
+                handler=PanelRef("role.hub"),
+                custom_id_override="server_management:roles"),
             # row 1 — grey Cleanup + the green Setup wizard entry.
-            _pending("cleanup", "🧹 Cleanup", style=ActionStyle.SECONDARY),
+            PanelActionSpec(
+                action_id="cleanup", label="🧹 Cleanup",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                # the shipped hub routed into the cleanup manager view —
+                # the PORTED cleanup.hub panel.
+                handler=PanelRef("cleanup.hub"),
+                custom_id_override="server_management:cleanup"),
             PanelActionSpec(
                 action_id="setup", label="🧩 Setup",
                 style=ActionStyle.SUCCESS, audience_tier="administrator",

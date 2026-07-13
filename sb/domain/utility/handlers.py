@@ -39,8 +39,6 @@ _POLL_DOWN = ("📊 Poll creation needs the reaction egress port "
               "(arms with the live adapter).")
 _REMIND_DOWN = ("🔔 Reminders need the timed-delivery port "
                 "(arms with the live adapter).")
-_INVITE_DOWN = ("🔗 Invite creation needs the live invite port "
-                "(arms with the live adapter).")
 _CLEAR_DOWN = ("🧹 Purging needs the live message view "
                "(arms with the live adapter).")
 
@@ -455,15 +453,16 @@ def _register() -> None:
 
 
 def _register_pending() -> None:
-    """The shipped Poll/Remind/Invite tools and the 420 child panel need
-    Discord effect ports that have not armed (reaction egress, timed
-    delivery, invite mint) or bands that have not ported (four_twenty) —
-    declared + honest refusal, never silent (the role-band precedent)."""
+    """The shipped Poll/Remind tools and the 420 child panel need Discord
+    effect ports that have not armed (reaction egress, timed delivery) or
+    bands that have not ported (four_twenty) — declared + honest refusal,
+    never silent (the role-band precedent). The Invite button routes to the
+    live `utility.invite_view` (its `invite_pending` terminal retired by the
+    2026-07-13 curation rework)."""
     from sb.domain.operator_spine import pending_handler
 
     pending_handler("utility.poll_pending", _POLL_DOWN)
     pending_handler("utility.remind_pending", _REMIND_DOWN)
-    pending_handler("utility.invite_pending", _INVITE_DOWN)
     pending_handler("utility.four_twenty_pending",
                     "🍃 The 420 panel ports with its own band.")
 

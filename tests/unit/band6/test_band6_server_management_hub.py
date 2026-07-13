@@ -2,7 +2,8 @@
 as a declarative panel): the golden-pinned spec bytes, the compile
 fences, the manifest surface (both front doors; the direct-answer slash
 twin), the footer renderer_override, the verbatim persistent custom_ids,
-and the pending manager terminals.
+and the remaining pending display/editor terminals (the manager trio
+forwards to its ported hubs since the 2026-07-13 curation rework).
 
 Oracle: menno420/superbot disbot/cogs/server_management_cog.py +
 disbot/views/server_management/hub.py (build_server_management_hub) +
@@ -98,14 +99,18 @@ def test_ported_forwards_and_pending_terminals():
     from sb.spec.refs import HandlerRef, PanelRef
 
     by_id = {a.action_id: a for a in server_management_hub_spec().actions}
-    # the shipped hub routed into the managers: Channels → the PORTED
-    # channel.hub (#131); Setup → the band-1 setup hub; Refresh → self.
+    # the shipped hub routed into the managers — every manager hub is
+    # PORTED now (curation rework 2026-07-13): Moderation → moderation.hub;
+    # Channels → channel.hub (#131); Roles → role.hub; Cleanup →
+    # cleanup.hub; Setup → the band-1 setup hub; Refresh → self.
+    assert by_id["moderation"].handler == PanelRef("moderation.hub")
     assert by_id["channels"].handler == PanelRef("channel.hub")
+    assert by_id["roles"].handler == PanelRef("role.hub")
+    assert by_id["cleanup"].handler == PanelRef("cleanup.hub")
     assert by_id["setup"].handler == PanelRef("setup.hub")
     assert by_id["sm_refresh"].handler == PanelRef("server_management.hub")
-    # unported managers land on declared pending terminals.
-    for aid in ("moderation", "roles", "cleanup", "access_map",
-                "help_preview", "help_editor"):
+    # unported display/editor surfaces land on declared pending terminals.
+    for aid in ("access_map", "help_preview", "help_editor"):
         assert by_id[aid].handler == HandlerRef(
             f"server_management.{aid}_pending"), aid
 
@@ -201,10 +206,10 @@ def test_panel_and_handler_refs_registered():
     handlers.ensure_handler_refs()
     assert is_registered(PanelRef("server_management.hub"))
     assert is_registered(ProviderRef("server_management.hub_health"))
+    # the manager-trio pending refs (moderation/roles/cleanup) retired
+    # with the 2026-07-13 curation rework — nav forwards to the ported
+    # hubs; only the display/editor terminals remain.
     for name in ("server_management.render_hub",
-                 "server_management.moderation_pending",
-                 "server_management.roles_pending",
-                 "server_management.cleanup_pending",
                  "server_management.access_map_pending",
                  "server_management.help_preview_pending",
                  "server_management.help_editor_pending"):
@@ -238,14 +243,16 @@ def test_manifest_declares_both_front_doors():
     assert MANIFEST.settings == ()
 
 
-def test_manager_clicks_land_on_the_polite_pending_terminal():
+def test_unported_clicks_land_on_the_polite_pending_terminal():
+    """The manager trio forwards to its ported hubs now (curation rework
+    2026-07-13); the display/editor surfaces still refuse politely."""
     from types import SimpleNamespace
 
     from sb.domain.server_management import handlers  # noqa: F401
     from sb.spec.outcomes import BLOCKED
     from sb.spec.refs import HandlerRef, resolve
 
-    reply = run(resolve(HandlerRef("server_management.moderation_pending"))(
+    reply = run(resolve(HandlerRef("server_management.access_map_pending"))(
         SimpleNamespace(args={}, guild_id=1)))
     assert reply.outcome == BLOCKED
-    assert "Moderation manager" in reply.user_message
+    assert "Access Map display" in reply.user_message

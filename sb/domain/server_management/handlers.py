@@ -1,13 +1,13 @@
-"""Server-management hub action terminals — the shipped specialised
-managers (moderation / roles / cleanup — the manager panels the hub
-routes into via ``build_help_menu_view``; the display-only Access Map /
-Help Preview surfaces and the Help editor —
-disbot/views/server_management/) are their own port slices; every hub
-click on an unported manager lands on the declared + honest refusal
+"""Server-management hub action terminals — the display-only Access
+Map / Help Preview surfaces and the Help editor
+(disbot/views/server_management/) are their own port slices; every hub
+click on an unported surface lands on the declared + honest refusal
 terminal (the role/utility-band precedent), never a silent stub. The
-Channels and Setup buttons forward to real panels and live in
-panels.py. Refs register at MODULE IMPORT (the composition-parity
-invariant — the live root never runs ENSURE_REFS)."""
+manager trio (Moderation / Roles / Cleanup — retired here by the
+2026-07-13 curation rework) plus Channels and Setup forward to their
+PORTED hub panels and live in panels.py. Refs register at MODULE
+IMPORT (the composition-parity invariant — the live root never runs
+ENSURE_REFS)."""
 
 from __future__ import annotations
 
@@ -21,12 +21,6 @@ _PENDING = " ports with its own manager slice."
 def _register_pending() -> None:
     from sb.domain.operator_spine import pending_handler
 
-    pending_handler("server_management.moderation_pending",
-                    f"🛡️ The Moderation manager{_PENDING}")
-    pending_handler("server_management.roles_pending",
-                    f"🎭 The Roles manager{_PENDING}")
-    pending_handler("server_management.cleanup_pending",
-                    f"🧹 The Cleanup manager{_PENDING}")
     pending_handler("server_management.access_map_pending",
                     f"🔓 The Access Map display{_PENDING}")
     pending_handler("server_management.help_preview_pending",

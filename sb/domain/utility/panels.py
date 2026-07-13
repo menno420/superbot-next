@@ -137,10 +137,11 @@ def utility_panel_spec() -> PanelSpec:
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=HandlerRef("utility.avatar_view")),
             # row 1 — the shipped grey tool trio. Poll/Remind opened modals
-            # and Invite created a one-use channel invite in the shipped
-            # cog; their Discord effect ports (reaction egress, timed
-            # delivery, invite mint) are not armed yet — the polite pending
+            # in the shipped cog; their Discord effect ports (reaction
+            # egress, timed delivery) are not armed yet — the polite pending
             # terminal (the role-band precedent), never a silent stub.
+            # Invite routes to the live `!invite` handler (D-0077 channel-ops
+            # port; curation rework 2026-07-13 retired its pending terminal).
             PanelActionSpec(
                 action_id="poll", label="📊 Poll",
                 audience_tier="user",
@@ -152,7 +153,7 @@ def utility_panel_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="invite", label="🔗 Invite",
                 audience_tier="user",
-                handler=HandlerRef("utility.invite_pending")),
+                handler=HandlerRef("utility.invite_view")),
             # row 2 — the shipped grey re-render Overview.
             PanelActionSpec(
                 action_id="utility_overview", label="↩ Overview",
