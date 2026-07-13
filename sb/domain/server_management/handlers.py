@@ -1,12 +1,12 @@
 """Server-management hub action terminals — the shipped specialised
 managers (moderation / roles / cleanup — the manager panels the hub
-routes into via ``build_help_menu_view``; the Help editor —
-disbot/views/help/editor.py) are their own port slices; every hub click on an
-unported manager lands on the declared + honest refusal terminal (the
+routes into) are their own port slices; every hub click on an unported
+manager lands on the declared + honest refusal terminal (the
 role/utility-band precedent), never a silent stub. The Channels, Setup,
-Access Map and Help Preview buttons forward to real panels and live in
-panels.py / access_map.py / help_preview.py. Refs register at MODULE IMPORT (the composition-parity
-invariant — the live root never runs ENSURE_REFS)."""
+Access Map, Help Preview and Help editor buttons forward to real panels
+and live in panels.py / access_map.py / help_preview.py /
+sb/domain/help/editor.py. Refs register at MODULE IMPORT (the
+composition-parity invariant — the live root never runs ENSURE_REFS)."""
 
 from __future__ import annotations
 
@@ -26,8 +26,6 @@ def _register_pending() -> None:
                     f"🎭 The Roles manager{_PENDING}")
     pending_handler("server_management.cleanup_pending",
                     f"🧹 The Cleanup manager{_PENDING}")
-    pending_handler("server_management.help_editor_pending",
-                    f"✏️ The Help editor{_PENDING}")
 
 
 _register_pending()

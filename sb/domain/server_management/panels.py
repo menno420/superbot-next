@@ -58,11 +58,12 @@ Deliberate under-port notes (parity beyond the golden):
   slices, so the golden-pinned badge literal ships here (the ux_lab
   Exhibits-line precedent) and re-derivation lands as each manager
   ports;
-* Moderation/Roles/Cleanup/Help editor clicks land on declared pending
-  terminals; Channels forwards to the PORTED ``channel.hub`` panel,
-  Setup to the band-1 ``setup.hub``, and Access Map / Help Preview to
-  the PORTED ``server_management.access_map`` / ``.help_preview``
-  subpanels (the shipped hub routed into those managers).
+* Moderation/Roles/Cleanup clicks land on declared pending terminals;
+  Channels forwards to the PORTED ``channel.hub`` panel, Setup to the
+  band-1 ``setup.hub``, Access Map / Help Preview to the PORTED
+  ``server_management.access_map`` / ``.help_preview`` subpanels, and
+  Help editor to the PORTED ``help.editor_home`` overlay-editor flow
+  (the shipped hub routed into those managers).
 """
 
 from __future__ import annotations
@@ -193,8 +194,13 @@ def server_management_hub_spec() -> PanelSpec:
                 # help_preview.py); the shipped wire id survives verbatim.
                 handler=PanelRef("server_management.help_preview"),
                 custom_id_override="server_management:help_preview"),
-            _pending("help_editor", "✏️ Help editor",
-                     style=ActionStyle.SECONDARY),
+            PanelActionSpec(
+                action_id="help_editor", label="✏️ Help editor",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                # PORTED (the overlay-editor flow — sb/domain/help/
+                # editor.py); the shipped wire id survives verbatim.
+                handler=PanelRef("help.editor_home"),
+                custom_id_override="server_management:help_editor"),
             PanelActionSpec(
                 # K1 custom_id claims are repo-global on action_id —
                 # treasury owns bare "refresh" (the general_overview

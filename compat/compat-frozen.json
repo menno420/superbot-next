@@ -2640,6 +2640,8 @@
   "games:open:mining",
   "games:open:rps_tournament",
   "general.eightball_form",
+  "help.editor_redescribe_form",
+  "help.editor_rename_form",
   "help:back",
   "help_categories:select",
   "logging_panel.create_cleanup",

@@ -108,8 +108,9 @@ def test_ported_forwards_and_pending_terminals():
         "server_management.access_map")
     assert by_id["help_preview"].handler == PanelRef(
         "server_management.help_preview")
+    assert by_id["help_editor"].handler == PanelRef("help.editor_home")
     # unported managers land on declared pending terminals.
-    for aid in ("moderation", "roles", "cleanup", "help_editor"):
+    for aid in ("moderation", "roles", "cleanup"):
         assert by_id[aid].handler == HandlerRef(
             f"server_management.{aid}_pending"), aid
 
@@ -208,8 +209,7 @@ def test_panel_and_handler_refs_registered():
     for name in ("server_management.render_hub",
                  "server_management.moderation_pending",
                  "server_management.roles_pending",
-                 "server_management.cleanup_pending",
-                 "server_management.help_editor_pending"):
+                 "server_management.cleanup_pending"):
         assert is_registered(HandlerRef(name)), name
 
 
