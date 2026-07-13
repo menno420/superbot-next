@@ -59,7 +59,7 @@
 | ai | ⚑ env-gated only: NL answer path dormant without `ANTHROPIC_API_KEY` (`parity.yml:361` ai_review_log exemption); all 24 cmds / 36 actions / 17 selectors live | ✅ `!aireview` family live (preset + review-channel writes golden-covered) | ✅ policy/preset/orchestration mutation live — "No chooser pending terminals remain" (`sb/domain/ai/panels.py:39`) |
 | automod | ✅ decision core live-proven (band-2s2) | ✅ hub read-view | ✅ 15 settings resolve |
 | blackjack | ✅ solo + tournament full flow, paid-pot conservation golden | ✅ `!bjstart` launch | ✅ 1 setting |
-| btd6 | ⚑ paragon calculator panel pending: 3 actions + 4 selectors (`btd6.paragon_pending`, `sb/domain/btd6/service.py`); 74 cmds live incl. the wire-type-5 strategy modal (minted-golden procedure) | ⚑ `btd6.ctteam/set_team` pending (NK-bracket ingestion successor, `sb/domain/btd6/oracle_surface.py:623`); seed-data live | ✅ 1 setting |
+| btd6 | ✅ paragon calculator armed (3 actions + 4 selectors live, `btd6.paragon_pending` retired — `sb/domain/btd6/paragon_panel.py`, ORDER 017 slice A; live-API reconciliation stays a named successor, stamped in that module) | ⚑ `btd6.ctteam/set_team` pending (NK-bracket ingestion successor, `sb/domain/btd6/oracle_surface.py:623`); seed-data live | ✅ 1 setting |
 | casino | ⚑ roulette disabled = SHIPPED parity byte (`sb/domain/casino/service.py:99`); poker play layer golden-pinned; per-player ephemeral hands = owner-armed live step (ledgered decision) | ✅ | ✅ |
 | chain | ✅ 7 cmds + create modal live (`chain_channels` guard-only depth debt, `parity.yml:485` — coverage, not function) | ✅ | ✅ |
 | channel | ✅ 17 channel-op cmds implemented over the ChannelActions adapter with real failure copy (`sb/domain/channel/handlers.py`) | ✅ hub 5 sub-panel flows live (create/delete/restrict/move/visibility + the toggle grid over the audited twin lanes — ORDER 017 operator-hub edits B; Send to Top/Bottom + create-new-category answer honest port-extension refusals) | ✅ |
@@ -97,7 +97,7 @@
 | settings | ✅ hub + explorer + per-group mutation pages (band-7 settings-mutation slice) | ⚑ 9 actions + 2 selectors pending: hub `needs_setup/invalid/missing_bindings/audit/command_access` + access panel explain/reset/paging + subsystem/scope selects (`operator_spine`) | ✅ K7 declare/read/bind proven live |
 | setup | ✅ wizard interior live (wizard-lifecycle slice, ORDER 017): the 10 counted actions + the `essential_kind` selector armed — depth choice persists + lands on the ported sections hub, essential Step-1 applies the starter set through K7 `settings.set_scalar`, the suggestions review/walkthrough/stage lanes mutate state + write the K9 draft; `/setup-skip`+`/setup-unskip` session writes + `/setup-reset` clearing branch live (`sb/domain/setup/wizard.py`) | ✅ | ⚑ named successors (declared-honest terminals, `wizard.py` docstring): essential steps 2–8, the 10 per-section flows + linear wizard steps (`setup.open_section_*` / `setup.back_to_wizard`), the suggestion Edit lane, the final-review apply lane |
 | starboard | ✅ config command family + ignore writes | ✅ | ✅ threshold modal armed (the shipped `_ThresholdModal` G-10 form over the audited `starboard.configure` op — `sb/domain/starboard/panels.py`, ORDER 017 slice C) |
-| ticket | ✅ 12 cmds live (RoleSelect wiring live, `handlers.py:597`) | ✅ | ⚑ ticket.setup panel: 3 actions + 2 selectors pending (`ticket.setup_pending`, `sb/domain/ticket/handlers.py:289`) |
+| ticket | ✅ 12 cmds live (RoleSelect wiring live) | ✅ | ✅ ticket.setup panel armed: 3 actions + 2 selectors live over the audited config/channel ops (`ticket.setup_pending` retired — `sb/domain/ticket/setup_panel.py`, ORDER 017 slice B; the ticket-OPEN provisioning flow stays a named successor, stamped in that module) |
 | treasury | ✅ contribute modal + K7 round-trip + overdraw refusals | ✅ | ✅ |
 | utility | ✅ 14 cmds | ⚑ 1 of 4 panel actions pending: 🔗 Invite (in-flight peer PR #332 wires it to the live `utility.invite_view`); Poll/Remind = G-10 modal ingresses over the live twin lanes + 420 forwards to the ported `four_twenty.overview` (ORDER 017 operator-hub edits A) | ✅ |
 | welcome | ✅ templates over real census | ✅ | ✅ 10 settings |
@@ -163,11 +163,12 @@ unregistered refs, no empty-string error paths).
    (#333), server_management nav trio + utility Invite (#332).
    Remaining free: server_management access_map/help_preview/
    help_editor (a 2.3k-line oracle projection pair — its own slice).**
-7. **btd6 paragon calculator** — 3 actions + 4 selectors pending
-   (`btd6.paragon_pending`); a self-contained pure-compute port
-   (`sb/domain/btd6/service.py`). Free.
-8. **ticket setup panel** — 3 actions + 2 selectors pending
-   (`ticket.setup_pending`); command twins (`!ticketsetup` family) live. Free.
+7. **btd6 paragon calculator** — ✅ DONE (ORDER 017 night-run slice A):
+   the 3 actions + 4 selectors armed as the pure-compute port
+   (`sb/domain/btd6/paragon_panel.py`); `btd6.paragon_pending` retired.
+8. **ticket setup panel** — ✅ DONE (ORDER 017 night-run slice B): the
+   3 actions + 2 selectors armed over the audited config/channel ops
+   (`sb/domain/ticket/setup_panel.py`); `ticket.setup_pending` retired.
 9. **rps bot-match deep flow** — `!rpsbot` pending
    (`sb/domain/rps/handlers.py:613`); interactive match orchestration. Free.
 10. **hermes egress adapter** — work-order send unarmed
