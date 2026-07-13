@@ -4229,6 +4229,16 @@
           "value": "back_calc"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "enter_degree"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "back_stats"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino_new_poker"
@@ -6521,6 +6531,11 @@
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6.paragon_requirements"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6.paragon_stats"
         },
         {
           "source": "sb/manifest/casino.py",
@@ -9145,6 +9160,12 @@
       "handler:btd6.paragon_calc_submit": {
         "module": "sb.domain.btd6.paragon_panel"
       },
+      "handler:btd6.paragon_degree_select": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_degree_submit": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
       "handler:btd6.paragon_req_select": {
         "module": "sb.domain.btd6.paragon_panel"
       },
@@ -9152,6 +9173,9 @@
         "module": "sb.domain.btd6.paragon_panel"
       },
       "handler:btd6.paragon_select": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_stats_back": {
         "module": "sb.domain.btd6.paragon_panel"
       },
       "handler:btd6.paragon_stats_view": {
@@ -9197,6 +9221,9 @@
         "module": "sb.domain.btd6.paragon_panel"
       },
       "handler:btd6.render_paragon_requirements": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.render_paragon_stats": {
         "module": "sb.domain.btd6.paragon_panel"
       },
       "handler:btd6.strat_audit_view": {
@@ -11117,6 +11144,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.paragon_requirements": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "panel:btd6.paragon_stats": {
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.strategy_submit": {
@@ -13913,7 +13943,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:0395dfb9ec4919e60924e102f71093f8377fe7471f9ee581d3fc475608d2290e",
+  "stable_hash": "sha256:9302289790f6957bf689d233ed55dd27e073e83fc5bf6c7629833ad69aa0543c",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -23197,6 +23227,205 @@
           "subsystem": "btd6",
           "timeout_s": 180,
           "title": "🎯 Requirements",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "enter_degree",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_degree_submit"
+              },
+              "label": "🔢 Enter degree",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "degree",
+                    "label": "Degree",
+                    "max_length": 3,
+                    "min_length": null,
+                    "placeholder": "1–100",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.paragon_degree_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.paragon_degree_submit"
+                },
+                "title": "Paragon degree (1–100)"
+              },
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "back_stats",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_stats_back"
+              },
+              "label": "↩ Calculator",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped per-degree stats embed is fully data-parameterized (power/boss-multiplier headline + per-attack scaled cells with the 'BTD6 stats v<version>' footer) — outside FooterMode and the block grammar's provider-fed field vocabulary. The override delegates the degree select + two buttons to the grammar renderer and replaces ONLY the embed (no golden pins this click route).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "degree_pick"
+                  ],
+                  [
+                    "enter_degree",
+                    "back_stats"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "btd6.paragon_stats",
+          "renderer_override": {
+            "$ref": "handler:btd6.render_paragon_stats"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:btd6.paragon_degree_select"
+              },
+              "options_source": [
+                {
+                  "default": true,
+                  "label": "Degree 1",
+                  "value": "1"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 5",
+                  "value": "5"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 10",
+                  "value": "10"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 20",
+                  "value": "20"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 30",
+                  "value": "30"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 40",
+                  "value": "40"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 50",
+                  "value": "50"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 60",
+                  "value": "60"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 70",
+                  "value": "70"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 80",
+                  "value": "80"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 90",
+                  "value": "90"
+                },
+                {
+                  "default": false,
+                  "label": "Degree 100",
+                  "value": "100"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Pick a degree…",
+              "selector_id": "degree_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "btd6",
+          "timeout_s": 180,
+          "title": "👑 Paragon stats",
           "usage_weight": 1.0
         }
       ],
