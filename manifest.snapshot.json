@@ -13028,7 +13028,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:fde845b29702c7e9eca5cf58639065a951d4538037b5e3a9630c67ec1b3b6509",
+  "stable_hash": "sha256:03a9cb7c72ba4cd6842356aca54843a01067ba9c10368261da333d0313264b45",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -50501,7 +50501,7 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
@@ -50509,8 +50509,26 @@
                 "$ref": "handler:starboard.panel_threshold"
               },
               "label": "✏️ Threshold",
-              "modal": null,
-              "reply_visibility": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "threshold",
+                    "label": "Stars needed to enter the board",
+                    "max_length": 4,
+                    "min_length": 1,
+                    "placeholder": "e.g. 3",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "starboard.threshold_form",
+                "on_submit": {
+                  "$ref": "handler:starboard.panel_threshold"
+                },
+                "title": "Starboard threshold"
+              },
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
