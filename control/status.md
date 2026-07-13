@@ -1,10 +1,22 @@
 # superbot-next · status
-updated: 2026-07-13T08:55Z
+updated: 2026-07-13T09:25Z
 phase: SEAT OPEN — coordinator session_01KhzyfUk76YB9Bj2TPF6h5z active; ORDER 017 complete incl. post-encore — 09:00Z refresh of the 05:09Z tally below. Landing mode unchanged: repo auto-merge enabler is canonical for non-draft claude/* PRs (#321).
 health: main at `eee9a69` (#364 help editor D-0089, merged 2026-07-13) at refresh sync; golden-parity gate job green at last landing, `report` leg red-by-design.
 kit: v1.15.0
-orders: acked=001–017 done=002–016; ORDER 017 — this tally closes the night mandate; ORDER 001 still open owner-side (band-1 live-drive needs an owner run with the Discord token; pointer: PR #298 body).
+orders: acked=001–018 done=002–016; 017 served (night mandate — tally 05:09Z, outbox); 018 served (thorough night report — compact section below, full manager-addressed report in outbox 09:25Z); ORDER 001 still open owner-side (band-1 live-drive needs an owner run with the Discord token; pointer: PR #298 body).
 routines: failsafe `trig_01TuQrpMVpDCXB3K3VbjQUoA` cron `0 1-23/2 * * *` + pacemaker send_later chain healthy. Night incidents, both recovered: scheduler wedge 01:07–02:44Z (failsafe slot + pacemaker fires stalled platform-side, flushed 02:44Z, chain re-armed); GitHub Actions check-run outage ~03:40Z (runs not spawning; cleared, queued CI now draining). Business crons unchanged: `trig_01Jm57GAjNCFrYJn1oLMiYGE` kit-lab (never-rebind); `trig_015aNMg5ncoSE2Roe4MKjQnr` trading (other seat); `trig_018wP6XTPmf9DLnxrG4RpGVh` docs-recon (poke-only).
+
+## ORDER 018 NIGHT REPORT (2026-07-13T09:25Z) — compact; full report in outbox 09:25Z
+
+Window 2026-07-12T22:30Z → 2026-07-13T09:25Z. Evidence: origin/main log per-SHA; GitHub check-runs API 09:15–09:19Z; trigger platform 09:19Z.
+
+- SHIPPED: 44 merges to superbot-next main in-window, #306→#366 (`2bde1c5`→`902791d`), every SHA verified (full list in outbox). Correction vs the relayed expectation (~35, #302..#365): #302–#304/#307–#309 merged 21:48–22:29Z, just pre-window; #365/#366 extend the tail. superbot: 7 merges per 05:09Z ledger (#2054–#2057 #2059 #2060 #2062) — superbot API unreachable from the report seat (verbatim error in outbox), so per-ledger, not re-verified; no evidence of a #2063 merge anywhere in the ledger.
+- OPEN PRs: 10 on superbot-next. `gate` ✅ on all 8 heads with checks attached; `report` leg red-by-design across the board; the ONLY genuine functional red is #354 `check_compat_frozen` ❌ (04:16Z); #333 + #345 have ZERO check-runs attached (post-outage dirty-merge-ref residue — need a CI re-trigger); #332 enabler-armed (enable-auto-merge ✅ 01:49Z); WP stack #312→#317→#335→#344 + #320 gate-green, held for the owner sweep (non-claude/* branches, outside enabler scope; #320 review-merge classifier-denied). superbot #2058/#2061 draft deploy-holds per ledger.
+- ORDERS: line above; 016 runtime-smoke verified done in-tree (`tools/check_runtime_smoke.py` in ci.yml checkers + named-gates.yml:75; inbox `status: new` is stale metadata).
+- ASKS PENDING: SBW inventory+spec (SIM-REQUEST 00:55Z via #325); D-0083 anchor call (#346); DROP-list ratification (60 items, #327); OWNER-ACTIONs 3+5; settings-prune; ORDER 001 token run; hermes egress creds (`CLAUDE_ROUTINE_FIRE_URL` + token); ANTHROPIC_API_KEY/AI_ENABLED.
+- STALLS/DENIALS: 8 verbatim quotes + 2 recovered platform incidents in the outbox 09:25Z entry; pointers: #313/#320/#321 comments, #2058 body, scratch-branch 403, hermes missing_config.
+- WAKE CHAIN: failsafe `trig_01TuQrpMVpDCXB3K3VbjQUoA` enabled, fires 23:07 / 02:44 (late flush of 01:07 slot) / 03:07 / 05:08 / 07:08 / 09:08Z; pacemaker chain continuous (01:37/01:58 ticks flushed late 02:46Z, run_once_fired platform-verified), current tick `trig_019n8aT77SZrwYNKnSBjVr2a` → 10:00Z (re-verified enabled + coordinator-bound at 09:19Z); backup child wake delivered 05:05Z.
+- NEXT-3: 1) curation tail to green — #332 armed, #333/#345 re-attach checks, #352 enabler, #354 fix compat_frozen (#355 CLOSED, superseded by #358 — dropped from the set); 2) owner sweep (mineverse #2058/#2061 flips, WP stack #312→#317→#335→#344, then #320); 3) energy slices 1–3 + SBW sections integration once unblocked.
 
 ## ORDER 017 MORNING TALLY (2026-07-13T05:09Z)
 
