@@ -32,16 +32,21 @@ description precedent); the manifest registry (`admin.subsystems_view`)
 is the honest successor read if a future golden pins a different
 roster.
 
-Deliberate under-port notes (no golden drives any click):
+Interaction surface (operator-hub edits C — no golden drives any click,
+so the bare open stays byte-identical):
+* the cog SELECT is LIVE: it stashes the pick per (guild, invoker) and
+  re-renders with the shipped ``← selected`` roster marker + the
+  ``Selected: cogs.<name>`` footer swap (cog_manager.build_embed).
+* ◀ Prev / Next ▶ are LIVE: the shipped SelectWindow page flip over the
+  3-page 25-option roster windows, edge-disabled, with the shipped
+  ``page N/3`` placeholder.
 * Load / Unload / Reload reloaded discord.py extensions IN-PROCESS —
-  deploy-ops (the ``_sweep_skips`` ``unloadall``/``cog`` class); the
-  clicks land on the declared + honest pending terminal (the hub's
-  Reload All precedent).
-* the cog SELECT armed those deploy-ops buttons (stored the selection,
-  footer swap) — same pending terminal.
-* ◀ Prev / Next ▶ re-windowed the select in place; the page-2/3 windows
-  land with the manager's interaction slice (the settings.access
-  ``access_page_pending`` precedent).
+  deploy-ops, DELIBERATELY not ported (docs/decisions.md: extension
+  management has no analog in the compiled architecture — subsystems
+  are manifests, not runtime-loadable cogs); the clicks land on the
+  declared BY-DESIGN terminal whose copy states exactly that (the
+  hub's Reload All precedent). This is the surface's end state, not a
+  pending port.
 * 🔄 Refresh re-scanned the cogs dir and re-rendered; the port's
   refresh re-renders the panel in place (REFRESH_PANEL — an honest
   re-render over the pinned roster).
@@ -116,13 +121,52 @@ _LEGEND = ("✅ Loaded  ❌ Unloaded  🟢 OK  🔴 Syntax error  "
 #: renderer override / justification).
 _FOOTER = "No cog selected."
 
+#: the shipped select window size (paginated_select MAX_OPTIONS) and the
+#: derived page count over the 58-cog roster (58 → 25/25/8 = 3 pages,
+#: the golden-pinned "page 1/3" placeholder's denominator).
+_PAGE_SIZE = 25
+_PAGE_COUNT = (len(_COGS) + _PAGE_SIZE - 1) // _PAGE_SIZE
 
-def _description() -> str:
+
+# --- the operator's pick/page memory (operator-hub edits C) -----------------------
+#
+# The shipped view kept `selected_module` + the SelectWindow page on the
+# View instance; the port keys them per (guild, invoker), in-memory —
+# the diagnostic `_flag_pick` precedent (#331). Never golden-rendered:
+# no sweep clicked the select or the window nav, so golden runs never
+# seed a pick/page (the bare `!coglist` open stays byte-identical).
+
+_cog_pick: dict[tuple[int, int], str] = {}
+_cog_page: dict[tuple[int, int], int] = {}
+
+
+def _mem_key(guild_id, user_id) -> tuple[int, int]:
+    return (int(guild_id or 0), int(user_id or 0))
+
+
+def cog_pick_for(guild_id, user_id) -> str | None:
+    """The renderer's read of the operator's current pick (the shipped
+    ``selected_module`` — e.g. ``cogs.admin_cog``)."""
+    return _cog_pick.get(_mem_key(guild_id, user_id))
+
+
+def cog_page_for(guild_id, user_id) -> int:
+    """The renderer's read of the select window page (0-based, clamped)."""
+    return min(max(_cog_page.get(_mem_key(guild_id, user_id), 0), 0),
+               _PAGE_COUNT - 1)
+
+
+def _description(selected: str | None = None) -> str:
+    """The shipped roster description; ``selected`` appends the shipped
+    ``  ← selected`` marker to the picked line (cog_manager.build_embed —
+    the bare open passes None and stays the golden-pinned bytes)."""
+    picked = (selected or "").removeprefix("cogs.")
     lines = ["**Pick a cog from the dropdown, then Load / Unload / Reload.**",
              ""]
     for name in _COGS:
         suffix = " 🛡" if name in _PROTECTED else ""
-        lines.append(f"✅ 🟢  `{name}`{suffix}")
+        marker = "  ← selected" if name == picked else ""
+        lines.append(f"✅ 🟢  `{name}`{suffix}{marker}")
     lines.extend(["", _LEGEND])
     return "\n".join(lines)
 
@@ -163,7 +207,7 @@ def cogmgr_spec() -> PanelSpec:
                 options_source=ProviderRef("admin.cogmgr_options"),
                 placeholder="Choose a cog… — page 1/3",
                 audience_tier="administrator",
-                on_select=HandlerRef("admin.cogmgr_select_pending")),
+                on_select=HandlerRef("admin.cogmgr_select")),
         ),
         actions=(
             # row 1 — the shipped deploy-ops trio (PERSISTENT custom_ids,
@@ -193,16 +237,17 @@ def cogmgr_spec() -> PanelSpec:
                 result_render=ResultRender.REFRESH_PANEL,
                 custom_id_override="admin:cogmgr:refresh"),
             # row 3 — the shipped session window pair (run-minted ids; the
-            # golden pins <cid:2>/<cid:3>; Prev renders disabled on page 1
-            # via the renderer override).
+            # golden pins <cid:2>/<cid:3>; the edge pages render disabled
+            # via the renderer override — operator-hub edits C armed the
+            # page steps).
             PanelActionSpec(
                 action_id="cogmgr_prev", label="◀ Prev",
                 audience_tier="administrator",
-                handler=HandlerRef("admin.cogmgr_page_pending")),
+                handler=HandlerRef("admin.cogmgr_prev")),
             PanelActionSpec(
                 action_id="cogmgr_next", label="Next ▶",
                 audience_tier="administrator",
-                handler=HandlerRef("admin.cogmgr_page_pending")),
+                handler=HandlerRef("admin.cogmgr_next")),
         ),
         # the shipped view carried ONLY its own components (session view,
         # no nav slots) — the golden pins exactly four component rows.
@@ -230,22 +275,47 @@ def cogmgr_spec() -> PanelSpec:
 
 
 async def _render_cogmgr(spec: PanelSpec, ctx) -> object:
-    """Grammar render + the two shipped adjustments (see justification):
-    the 'No cog selected.' footer, first-page ◀ Prev disabled."""
+    """Grammar render + the shipped state-keyed adjustments (see
+    justification): the selection-dependent footer ('No cog selected.' /
+    'Selected: cogs.<name>'), the ``← selected`` roster marker, the
+    windowed select page (25-option windows, 'page N/3' placeholder) and
+    the edge-disabled ◀ Prev / Next ▶ pair. Page 0 with no pick renders
+    the golden-pinned bare-open bytes exactly (goldens/admin/
+    sweep_coglist — the grammar's own first-25 window, Prev disabled,
+    the initial footer)."""
     from sb.kernel.panels.render import render_panel
 
     rendered = await render_panel(spec, ctx)
-    components = tuple(
-        _dc_replace(c, disabled=True)
-        if c.custom_id == f"{spec.panel_id}.cogmgr_prev" else c
-        for c in rendered.components)
+    gid = getattr(ctx, "guild_id", 0)
+    uid = getattr(getattr(ctx, "actor", None), "user_id", 0)
+    page = cog_page_for(gid, uid)
+    picked = cog_pick_for(gid, uid)
+    components = []
+    for c in rendered.components:
+        leaf = c.custom_id.rsplit(".", 1)[-1].rsplit(":", 1)[-1]
+        if leaf == "cogmgr_prev":
+            c = _dc_replace(c, disabled=(page == 0))
+        elif leaf == "cogmgr_next":
+            c = _dc_replace(c, disabled=(page == _PAGE_COUNT - 1))
+        elif c.kind == "selector" and leaf == "cogmgr_select":
+            options = tuple(await _cog_options(ctx))
+            window = options[page * _PAGE_SIZE:(page + 1) * _PAGE_SIZE]
+            c = _dc_replace(
+                c, options=window,
+                placeholder=f"Choose a cog… — page {page + 1}/{_PAGE_COUNT}")
+        components.append(c)
+    embed = rendered.embed
+    if picked:
+        embed = _dc_replace(embed, description=_description(picked))
+    footer = f"Selected: {picked}" if picked else _FOOTER
     return _dc_replace(
-        rendered, components=components,
-        embed=_dc_replace(rendered.embed, footer=_FOOTER))
+        rendered, components=tuple(components),
+        embed=_dc_replace(embed, footer=footer))
 
 
 def _register_refs() -> None:
     from sb.domain.operator_spine import pending_handler
+    from sb.kernel.interaction.handler_kit import Reply
     from sb.spec.refs import handler
 
     if not is_registered(PanelRef("admin.cogmgr")):
@@ -259,15 +329,57 @@ def _register_refs() -> None:
         "📋 Extension load/unload/reload is deploy-ops in the compiled "
         "architecture — subsystems recompile at boot, not in-process "
         "(the Reload All / `!cog` class).")
-    pending_handler(
-        "admin.cogmgr_select_pending",
-        "📋 Cog selection armed the in-process Load/Unload/Reload trio — "
-        "deploy-ops in the compiled architecture (subsystems recompile "
-        "at boot, not in-process).")
-    pending_handler(
-        "admin.cogmgr_page_pending",
-        "📋 The select's page-2/3 windows land with the cog manager's "
-        "interaction slice.")
+
+    from sb.spec.outcomes import SUCCESS
+
+    async def _reopen(req):
+        import dataclasses
+
+        from sb.kernel.panels.engine import open_panel
+
+        await open_panel(PanelRef("admin.cogmgr"),
+                         dataclasses.replace(req, args=dict(req.args)))
+        return None
+
+    def _req_key(req) -> tuple[int, int]:
+        return _mem_key(req.guild_id,
+                        getattr(req.actor, "user_id", 0))
+
+    if not is_registered(HandlerRef("admin.cogmgr_select")):
+        @handler("admin.cogmgr_select")
+        async def cogmgr_select(req):
+            """The windowed cog select (operator-hub edits C) — the
+            shipped `_on_cog_selected`: stash the pick, re-render with
+            the `← selected` marker + the 'Selected: cogs.<name>'
+            footer (fresh re-open, the projmoon class). The deploy trio
+            it arms stays the by-design deploy-ops terminal."""
+            values = tuple(req.args.get("values") or ())
+            if not values:
+                # the shipped empty-window sentinel reply, verbatim.
+                return Reply(SUCCESS, "No cogs available.")
+            _cog_pick[_req_key(req)] = str(values[0])
+            await _reopen(req)
+            return Reply(SUCCESS, None)
+
+        async def _page_step(req, delta: int):
+            """◀/▶ — the shipped SelectWindow page flip, clamped to the
+            3-page roster (the diagnostic cmdlist step precedent)."""
+            key = _req_key(req)
+            page = min(max(_cog_page.get(key, 0) + delta, 0),
+                       _PAGE_COUNT - 1)
+            _cog_page[key] = page
+            await _reopen(req)
+            return Reply(SUCCESS, None)
+
+        @handler("admin.cogmgr_prev")
+        async def cogmgr_prev(req):
+            """◀ Prev on the cog select window."""
+            return await _page_step(req, -1)
+
+        @handler("admin.cogmgr_next")
+        async def cogmgr_next(req):
+            """Next ▶ on the cog select window."""
+            return await _page_step(req, +1)
 
 
 _register_refs()

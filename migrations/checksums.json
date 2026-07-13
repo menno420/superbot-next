@@ -47,5 +47,7 @@
   "0046_mining_structures.sql": "sha256:fd4de07be9dfef24560397fa2a4745bc342a52d23e6de56bff47081d2e9515e3",
   "0047_mining_equipped_title.sql": "sha256:cb87b0bb033b7440254bfa9aed0efc84c3b3050b45794af0b19e6d54aea3a2a3",
   "0048_fishing_venue.sql": "sha256:cb72104dd3cd48e74ddaa9294f546d2d04ea41b0c0b431774cc0fb62d15135fe",
-  "0049_fishing_rod.sql": "sha256:f0b5eaaf37b393575fffbe059055be721b7ce9520d8bfe0d5a869ed8f7d3e17c"
+  "0049_fishing_rod.sql": "sha256:f0b5eaaf37b393575fffbe059055be721b7ce9520d8bfe0d5a869ed8f7d3e17c",
+  "0050_fishing_bait.sql": "sha256:8a0ffb49510d8121bf69168262f2d50495cb38a63c05b637fb98019088e1160c",
+  "0051_help_overlay.sql": "sha256:9206da786e848ab11618483c53b5677c83a4d236b5fb099096e2e9240d57b53a"
 }

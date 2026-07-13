@@ -107,6 +107,22 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-13 · wall · Hermes work-order transmit is OWNER-KEYED, not
+  free-sliceable: the un-ported egress leg (`sb/domain/hermes/handlers.py:17`
+  pending terminal; the oracle implementation exists at
+  `disbot/cogs/hermes_cog.py:44-81`, an aiohttp POST) sits behind
+  DORMANT-posture owner credentials — `CLAUDE_ROUTINE_FIRE_URL` +
+  `CLAUDE_ROUTINE_TOKEN` (`sb/spec/config.py:197-204`; the token is an
+  owner credential, ANTHROPIC_CONSOLE revocation,
+  `sb/spec/credentials.py:163-166`) · evidence: verified 2026-07-13 in the
+  rps-bot-match worker seat — env carries neither var
+  (`CLAUDE_ROUTINE_FIRE_URL: None`, token absent),
+  `service.bridge_configured() == False`, one-shot attempt at the oracle
+  gate → verbatim `RuntimeError: missing_config` · workaround: none
+  agent-side — porting the ~40-line POST adapter is a small code slice,
+  but it cannot be verified live (or even reach its own pending terminal)
+  until the owner keys the two env vars; sequence the port WITH the owner
+  keying, not before.
 - 2026-07-12 · capability · Worker-session port-oracle path VERIFIED WORKING
   (`subagent` venue): claude-code-remote `list_repos` → `add_repo
   menno420/superbot` → local shallow clone, read as a read-only oracle —
