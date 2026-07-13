@@ -101,16 +101,25 @@ def bait_by_key(key: str | None) -> Bait | None:
     return _BY_KEY.get(key)
 
 
-def effect_text(bait: Bait) -> str:
+def _effect_text(bait: Bait) -> str:
     """A short human label of a bait's knobs, e.g. ``×1.5 rarity ·
     −35% wait`` — shared by the shop shelf/selects and the purchase
-    message so a speed bait never mislabels itself (shipped verbatim)."""
+    message so a speed bait never mislabels itself (shipped verbatim).
+    Private def + public alias below (the ``wager.debit_in_txn``
+    pattern): the sibling weather module owns the package's public
+    ``effect_text`` def, and the namespace guard forbids a second
+    public def of the same name in one package."""
     parts: list[str] = []
     if bait.rarity_pull > 1.0:
         parts.append(f"×{bait.rarity_pull:g} rarity")
     if bait.bite_speed < 1.0:
         parts.append(f"−{round((1.0 - bait.bite_speed) * 100)}% wait")
     return " · ".join(parts) or "no effect"
+
+
+#: public name — the shipped ``bait.effect_text`` call shape, kept for
+#: every caller (shop providers/renderer, the buy leg, tests).
+effect_text = _effect_text
 
 
 # ---------------------------------------------------------------------------
