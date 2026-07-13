@@ -521,15 +521,28 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
             # READS ONLY, never a mutation; the guild directory refuses any
             # non-test guild as NOT-ARMED (the polite pre-arm copy).
             from sb.adapters.discord.utility_reads import DiscordGuildDirectory
-            from sb.domain.diagnostic.handlers import install_ws_latency_reader
+            from sb.domain.diagnostic.handlers import (
+                install_gateway_census_reader,
+                install_ws_latency_reader,
+            )
             from sb.domain.utility.service import install_guild_directory
 
             install_guild_directory(
                 DiscordGuildDirectory(bot, allowed_guild_id=test_guild_id))
             install_ws_latency_reader(lambda: bot.latency)
+            # the hub 🤖 Bot Status census (guilds/members from the gateway
+            # cache, commands from the LIVE manifests — the same read
+            # family; unarmed the card renders n/a).
+            command_count = sum(
+                len(getattr(m, "commands", ()) or ()) for m in manifests)
+            install_gateway_census_reader(lambda: {
+                "guilds": len(bot.guilds),
+                "members": sum((g.member_count or 0) for g in bot.guilds),
+                "commands": command_count,
+            })
             logger.info("utility/diagnostic READ seams ARMED (test plane, "
                         "guild %d ONLY): gateway-cache guild/member census + "
-                        "ws latency", test_guild_id)
+                        "ws latency + bot-status census", test_guild_id)
 
         # 10b. the local app-command tree, from the SAME live manifests
         #      dispatch resolves on (D-0050) — populated before connect;
@@ -767,6 +780,13 @@ def cli() -> int:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    # the diagnostic log ring (Recent Errors card): attach right after
+    # logging config so the buffer sees the whole boot — the shipped
+    # DiagnosticCog.setup() install, re-homed to the composition root
+    # (in-memory only; no I/O, no Discord dependency).
+    from sb.domain.diagnostic.log_buffer import install as install_log_ring
+
+    install_log_ring()
     return asyncio.run(run_app())
 
 

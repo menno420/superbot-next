@@ -9,10 +9,13 @@ byte parity (goldens/diagnostic/* @ corpus sha 7f7628e1):
   logging/D-0067 oracle-wins lane). 📡 Latency, 🗄️ Database, 📄 JSON
   Files, 📋 Commands and 🔔 Test Notify route their ported tools (the
   wave-9 re-home — the same cards/panel the command twins render); Bot
-  Status / System Info / Recent Errors stay process-state under-ports
-  on the honest pending terminal (the capture skipped their command
-  twins — parity/goldens/_sweep_skips.json — and the
-  query_logs/recent_errors sweeps were retired to the same class).
+  Status / System Info / Recent Errors are LIVE SUCCESSOR READS (ORDER
+  017 fix slice): the capture skipped their command twins as
+  nondeterministic process state (parity/goldens/_sweep_skips.json), so
+  no golden constrains their bytes — the cards keep the shipped SHAPE
+  (diagnostic_helpers builders verbatim) over v1's own reads
+  (handlers.py diag_status_view / diag_sysinfo_view / diag_errors_view;
+  process_state.py + log_buffer.py + the gateway-census seam).
 
 * ``diagnostic.card`` — the generic one-embed reply card (the ai.card
   lane) every ``!platform <view>`` / ``!latency`` handler presents.
@@ -23,8 +26,11 @@ byte parity (goldens/diagnostic/* @ corpus sha 7f7628e1):
   true session view (both button ids run-minted → ``<cid:N>``), the
   ◀ Prev / Next ▶ secondary pair with Prev disabled on page 1, page 1
   of the shipped 14-page registry as the capture literal
-  (command_catalog.py; the admin cogmgr roster precedent). Pages 2-14
-  land with the paginator's interaction slice.
+  (command_catalog.py; the admin cogmgr roster precedent). ALL 14
+  pages page in place (ORDER 017 fix slice): ◀/▶ re-open the panel on
+  the stepped ``cmdlist_page`` (the projmoon fresh-re-open class) and
+  the renderer edge-disables both buttons (the shipped
+  ``_update_buttons``).
 
 * ``diagnostic.platform_hub`` — the shipped 🛰 Platform hub
   (disbot/views/diagnostic/platform_panel.py — sweep_platform +
@@ -41,16 +47,24 @@ byte parity (goldens/diagnostic/* @ corpus sha 7f7628e1):
 * ``diagnostic.flag_manager`` — the shipped 🚩 Flag Manager
   (sweep_platform_flag): the persistent ``flag_manager:*`` ids pinned
   verbatim (the help:back precedent); the option list is the capture
-  world's 8-flag declaration registry (pinned — the v1 kernel has no
-  flag rollout pipeline; mutations land on the honest pending
-  terminal).
+  world's 8-flag declaration registry (pinned; declarations ported
+  verbatim in flag_catalog.py). ORDER 017 fix slice: the select renders
+  the flag's DETAIL embed (the shipped handle_select →
+  build_flag_detail_embed shape) and Enable/Disable run the shipped
+  guard ladder, REFUSING the silent no-op write with final copy — the
+  v1 kernel has no flag rollout pipeline and no flag consumer, and the
+  oracle's own rule is "never offer a no-op control".
 
 * ``diagnostic.automation_panel`` — the shipped 🤖 Automation panel
   (sweep_platform_automation): a true session view (all five component
   ids run-minted → ``<cid:N>``), the no-rules placeholder option, the
   orange scheduler-not-registered snapshot line (true in BOTH worlds —
   the capture harness never started services.automation_scheduler and
-  v1 has no scheduler yet).
+  v1 has no scheduler yet). ORDER 017 fix slice: the rule select tracks
+  the pick (the shipped _on_pick; the placeholder row's value ``0`` is
+  the oracle's own "no valid selection") and Enable/Disable/Delete run
+  the shipped guards — the complete truthful behavior of the zero-rule
+  world; the pipeline leg re-arms with the scheduler port.
 
 Internal component ids are ``pf_*``/``diag_*``-prefixed subsystem-unique
 tokens (K1 claims panel action_ids BARE and cross-subsystem — the #167
@@ -335,7 +349,6 @@ def diagnostic_hub_spec() -> PanelSpec:
             action_id=action_id, label=label, style=style,
             audience_tier=_TIER, handler=route)
 
-    pending = HandlerRef("diagnostic.diag_pending")
     return PanelSpec(
         panel_id="diagnostic.hub",
         subsystem="diagnostic",
@@ -345,11 +358,11 @@ def diagnostic_hub_spec() -> PanelSpec:
                              footer_mode=FooterMode.NONE),
         actions=(
             _btn("diag_status", "🤖 Bot Status", ActionStyle.PRIMARY,
-                 pending),
+                 HandlerRef("diagnostic.diag_status_view")),
             _btn("diag_latency", "📡 Latency", ActionStyle.PRIMARY,
                  HandlerRef("diagnostic.diag_latency")),
             _btn("diag_sysinfo", "💻 System Info", ActionStyle.PRIMARY,
-                 pending),
+                 HandlerRef("diagnostic.diag_sysinfo_view")),
             _btn("diag_database", "🗄️ Database", ActionStyle.SECONDARY,
                  HandlerRef("diagnostic.check_database_view")),
             _btn("diag_json", "📄 JSON Files", ActionStyle.SECONDARY,
@@ -357,7 +370,7 @@ def diagnostic_hub_spec() -> PanelSpec:
             _btn("diag_commands", "📋 Commands", ActionStyle.SECONDARY,
                  PanelRef("diagnostic.command_list")),
             _btn("diag_errors", "🔍 Recent Errors", ActionStyle.DANGER,
-                 pending),
+                 HandlerRef("diagnostic.diag_errors_view")),
             _btn("diag_notify", "🔔 Test Notify", ActionStyle.SECONDARY,
                  HandlerRef("diagnostic.test_notification_view")),
         ),
@@ -414,16 +427,17 @@ def command_list_spec() -> PanelSpec:
                              footer_mode=FooterMode.NONE),
         actions=(
             # the shipped _PaginatorView pair (ButtonStyle.secondary,
-            # session auto-ids — the golden pins <cid:1>/<cid:2>; Prev
-            # renders disabled on page 1 via the renderer override).
+            # session auto-ids — the golden pins <cid:1>/<cid:2>; the
+            # index-edge buttons render disabled via the renderer
+            # override, the shipped _update_buttons).
             PanelActionSpec(
                 action_id="cmdlist_prev", label="◀ Prev",
                 style=ActionStyle.SECONDARY, audience_tier=_TIER,
-                handler=HandlerRef("diagnostic.cmdlist_page_pending")),
+                handler=HandlerRef("diagnostic.cmdlist_prev")),
             PanelActionSpec(
                 action_id="cmdlist_next", label="Next ▶",
                 style=ActionStyle.SECONDARY, audience_tier=_TIER,
-                handler=HandlerRef("diagnostic.cmdlist_page_pending")),
+                handler=HandlerRef("diagnostic.cmdlist_next")),
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
         layout=LayoutSpec(pages=(PageSpec(rows=(
@@ -524,7 +538,7 @@ def flag_manager_spec() -> PanelSpec:
         selectors=(
             SelectorSpec(
                 selector_id="pf_flag_pick", kind=SelectorKind.ENUM,
-                on_select=HandlerRef("diagnostic.flag_pending"),
+                on_select=HandlerRef("diagnostic.flag_pick"),
                 options_source=ProviderRef("diagnostic.flag_options"),
                 placeholder="Choose a flag…", audience_tier=_TIER,
                 custom_id_override="flag_manager:select"),
@@ -534,13 +548,13 @@ def flag_manager_spec() -> PanelSpec:
                 action_id="pf_flag_enable",
                 label="✅ Enable for this guild",
                 style=ActionStyle.SUCCESS, audience_tier=_TIER,
-                handler=HandlerRef("diagnostic.flag_pending"),
+                handler=HandlerRef("diagnostic.flag_enable"),
                 custom_id_override="flag_manager:enable"),
             PanelActionSpec(
                 action_id="pf_flag_disable",
                 label="🛑 Disable for this guild",
                 style=ActionStyle.DANGER, audience_tier=_TIER,
-                handler=HandlerRef("diagnostic.flag_pending"),
+                handler=HandlerRef("diagnostic.flag_disable"),
                 custom_id_override="flag_manager:disable"),
             PanelActionSpec(
                 action_id="pf_flag_refresh", label="🔄 Refresh",
@@ -573,7 +587,6 @@ def flag_manager_spec() -> PanelSpec:
 
 def automation_panel_spec() -> PanelSpec:
     """The shipped 🤖 Automation panel (module docstring)."""
-    pending = HandlerRef("diagnostic.automation_pending")
     return PanelSpec(
         panel_id="diagnostic.automation_panel",
         subsystem="diagnostic",
@@ -584,7 +597,7 @@ def automation_panel_spec() -> PanelSpec:
         selectors=(
             SelectorSpec(
                 selector_id="pf_auto_rule", kind=SelectorKind.ENUM,
-                on_select=pending,
+                on_select=HandlerRef("diagnostic.automation_rule_pick"),
                 options_source=ProviderRef(
                     "diagnostic.automation_rule_options"),
                 placeholder="Pick a rule…", audience_tier=_TIER),
@@ -593,15 +606,15 @@ def automation_panel_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="pf_auto_enable", label="Enable",
                 style=ActionStyle.SUCCESS, audience_tier=_TIER,
-                handler=pending),
+                handler=HandlerRef("diagnostic.automation_enable")),
             PanelActionSpec(
                 action_id="pf_auto_disable", label="Disable",
                 style=ActionStyle.SECONDARY, audience_tier=_TIER,
-                handler=pending),
+                handler=HandlerRef("diagnostic.automation_disable")),
             PanelActionSpec(
                 action_id="pf_auto_delete", label="Delete",
                 style=ActionStyle.DANGER, audience_tier=_TIER,
-                handler=pending),
+                handler=HandlerRef("diagnostic.automation_delete")),
             PanelActionSpec(
                 action_id="pf_auto_refresh", label="Refresh",
                 style=ActionStyle.PRIMARY, audience_tier=_TIER,
@@ -659,23 +672,35 @@ def _embed_override(title: str, description: str,
 
 
 async def _render_command_list(spec: PanelSpec, ctx) -> object:
-    """Grammar render + the two shipped adjustments (see the panel's
-    justification): the page-1 capture-literal embed, first-page ◀ Prev
-    disabled (the admin cogmgr override pattern)."""
-    from sb.domain.diagnostic.command_catalog import (
-        COMMAND_LIST_PAGE1_FIELDS,
-        COMMAND_LIST_PAGE1_TITLE,
-    )
+    """Grammar render + the shipped adjustments (see the panel's
+    justification): the requested capture-literal page (``cmdlist_page``
+    in the panel args, default page 1 — the golden's bare open), and the
+    shipped ``_update_buttons`` edge-disable (◀ Prev on the first page,
+    Next ▶ on the last; the admin cogmgr override pattern)."""
+    from sb.domain.diagnostic.command_catalog import COMMAND_LIST_PAGES
     from sb.kernel.panels.render import RenderedEmbed, render_panel
 
+    try:
+        index = int((ctx.params or {}).get("cmdlist_page", 0) or 0)
+    except (TypeError, ValueError):
+        index = 0
+    index = min(max(index, 0), len(COMMAND_LIST_PAGES) - 1)
+    title, fields = COMMAND_LIST_PAGES[index]
+
     base = await render_panel(spec, ctx)
-    components = tuple(
-        _dc_replace(c, disabled=True)
-        if c.custom_id == f"{spec.panel_id}.cmdlist_prev" else c
-        for c in base.components)
+
+    def _edge(component):
+        if component.custom_id == f"{spec.panel_id}.cmdlist_prev":
+            return _dc_replace(component, disabled=(index == 0))
+        if component.custom_id == f"{spec.panel_id}.cmdlist_next":
+            return _dc_replace(
+                component, disabled=(index == len(COMMAND_LIST_PAGES) - 1))
+        return component
+
+    components = tuple(_edge(c) for c in base.components)
     embed = RenderedEmbed(
-        title=COMMAND_LIST_PAGE1_TITLE, description="",
-        fields=tuple((n, v, False) for n, v in COMMAND_LIST_PAGE1_FIELDS),
+        title=title, description="",
+        fields=tuple((n, v, False) for n, v in fields),
         style_token="blue")
     return _dc_replace(base, components=components, embed=embed)
 
@@ -688,9 +713,68 @@ _render_platform_hub = _embed_override(
     "🛰 Platform hub", _HUB_DESCRIPTION, _HUB_FIELDS,
     footer=_HUB_FOOTER, style_token="blurple")
 
-_render_flag_manager = _embed_override(
+#: the Flag Manager detail footer — FINAL v1 copy (the oracle's footer
+#: named RolloutMutationPipeline.set_flag_state, which does not exist in
+#: this build; naming it would be false provenance).
+_FLAG_DETAIL_FOOTER = ("Enable/Disable refuse while a flag has no consumer "
+                       "in this build — no silent no-op writes.")
+
+_render_flag_overview = _embed_override(
     "🚩 Flag Manager", _FLAG_DESCRIPTION,
     footer=_FLAG_FOOTER, style_token="red")
+
+
+async def _render_flag_manager(spec: PanelSpec, ctx) -> object:
+    """The shipped FlagManagerView render split: the overview embed until
+    a flag is picked (goldens/diagnostic/sweep_platform_flag — no sweep
+    clicks the select, so the golden's bare open always lands here), the
+    flag DETAIL embed after (``build_flag_detail_embed`` shape verbatim;
+    the pick memory lives in handlers.py, per guild+invoker)."""
+    from sb.domain.diagnostic.flag_catalog import flag_details
+    from sb.domain.diagnostic.handlers import flag_pick_for
+    from sb.kernel.panels.render import RenderedEmbed, render_panel
+
+    picked = flag_pick_for(ctx.guild_id, getattr(ctx.actor, "user_id", 0))
+    if not picked:
+        return await _render_flag_overview(spec, ctx)
+
+    details = flag_details(picked)
+    fields = [
+        ("Key", f"`{details['name']}`", True),
+        ("Audience", f"`{details['audience']}`", True),
+        ("Editable",
+         "`per-guild`" if details["db_editable"] else "`env-only`", True),
+        ("Default", f"`{details['default']}`", True),
+        ("Effective", f"`{details['effective']}`", True),
+        ("Source", f"`{details['source']}`", True),
+        ("Owner", f"`{details['owner']}`", True),
+        ("Guild override",
+         "`yes`" if details["has_guild_override"] else "`none`", True),
+    ]
+    if details["removal_target"]:
+        fields.append(("Removal target", details["removal_target"], True))
+    # the oracle's plain-language Notes, kept where TRUE in this build
+    # (its SUPERBOT_FF_* env-var pointers are dropped — nothing in v1
+    # reads those variables).
+    notes = []
+    if details["no_consumer"]:
+        notes.append("⚠️ **Inactive / no consumer** — declared but no "
+                     "runtime code reads this flag in this build, so "
+                     "toggling it changes nothing today.")
+    if not details["db_editable"]:
+        notes.append("🔒 **Env-only** — per-guild DB overrides are "
+                     "ignored by the evaluator.")
+    if notes:
+        fields.append(("Notes", "\n".join(notes)[:1024], False))
+
+    base = await render_panel(spec, ctx)
+    embed = RenderedEmbed(
+        title=f"🚩 {details['label'] or details['name']}",
+        description=details["description"] or "_No description._",
+        fields=tuple(fields),
+        footer=_FLAG_DETAIL_FOOTER,
+        style_token="red")
+    return _dc_replace(base, embed=embed)
 
 _render_automation = _embed_override(
     "🤖 Automation panel", _AUTOMATION_DESCRIPTION,
