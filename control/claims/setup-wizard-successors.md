@@ -56,6 +56,19 @@
   `sb/manifest/setup.py`, `manifest.snapshot.json`,
   `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
   `compat/`, `tests/unit/setup_band/` · 2026-07-13
+- `claude/setup-wizard-7` · scope: setup-wizard successors, slice 7 =
+  FINAL — the cog_routing + ticket section flows (cog_routing — the
+  scope → target → cog → Enable/Disable walker + the four named
+  routing profiles staging `set_cog_routing` rows fail-closed, no
+  live routing resolver exists in the compiled architecture; ticket —
+  the thin adapter opening the shipped `ticket.setup` panel, no
+  staged op, the oracle posture) + LANE CLOSURE (wizard.py docstring
+  flip · completeness-table setup row · this claim file closes by
+  deletion, the PR #404 convention) · area: `sb/domain/setup/`,
+  `sb/manifest/setup.py`, `manifest.snapshot.json`,
+  `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
+  `compat/`, `tests/unit/setup_band/`,
+  `docs/status/completeness-table-2026-07-13.md` · 2026-07-13
 - `claude/setup-wizard-6` · scope: setup-wizard successors, slice 6 =
   the roles-family section flows (roles — the time/XP auto-role tier
   detail staging `set_role_threshold` rows through the newly
