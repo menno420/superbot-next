@@ -1,0 +1,6 @@
+# Claim — ORDER 019 items 4+6 (night lane, dispatched)
+
+- `claude/night-fishing-castleg` · **ORDER 019 item 4 — fishing cast-leg profile wiring, verify-first** — verify the cast-leg depth wiring already landed as #373 (`d7b18b2`) + reel write goldens #387; port/finish any residual venue/rod/bait/structure→cast profile gap the verify surfaces (the service PENDING-roster note says the roll knobs are live and only the real-time bite-timing rung stays parked — confirm against the completeness-table fishing row and true up the table if the residue is doc-only) · `sb/domain/fishing/service.py`, `parity/goldens/fishing/`, `docs/status/completeness-table-2026-07-13.md`, `tests/` · 2026-07-13
+- `claude/night-idle-lock-pin` · **ORDER 019 item 6 — host-side plugins.lock.json pin for the idle plugin adapter** — pin the idle plugin adapter in `plugins.lock.json` via `tools/plugin_pin.py --write` (root pin file currently carries the in-tree exemplar `superbot-idle-plugin` pin; close superbot-idle's live wiring gap per its `control/status.md` Next-3 @ `1f4d774`) · `plugins.lock.json`, `tools/plugin_pin.py` (read-only), `tests/unit/app/` · 2026-07-13
+
+Session note: dispatched night lane. Claimed 2026-07-13T22:56:36Z (UTC).

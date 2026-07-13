@@ -709,38 +709,8 @@ def _register() -> None:
                      f"Setting `{setting}` updated to `{coerced}`.")
 
 
-def _register_pending() -> None:
-    """The polite pending terminals. Registered at MODULE IMPORT
-    (declaring IS reserving) — the live root imports and dispatches
-    without ever running the manifest ENSURE_REFS hooks when zero
-    plugins are admitted, so an ensure-only registration leaves
-    `!rpsregister`/`!rpsstart` and the tournament matchup
-    click dying in RefUnresolved BUG envelopes live (BUG A class,
-    band-5 live-drive ledger bug 1 — same fix as
-    sb/domain/role/handlers.py). ``rps.bot_pending`` retired: the deep
-    bot-match flow is live (rps.bot_route/rps.botmatch_move)."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler(
-        "rps.register_pending",
-        "✂️ Tournament registration needs the live orchestration "
-        "(reaction sign-up + announce embeds — arms with the live "
-        "adapter at CUT-1; entry-fee money lanes are live).")
-    pending_handler(
-        "rps.start_pending",
-        "✂️ Tournament rounds need the live orchestration (match "
-        "channels + no-prefix move parsing — arms with the live "
-        "adapter / message band).")
-    pending_handler(
-        "rps.matchup_pending",
-        "✂️ Manual matchups need the live tournament orchestration "
-        "(arms with the live adapter).")
-
-
 def ensure_handler_refs() -> None:
     _register()
-    _register_pending()
 
 
 _register()
-_register_pending()

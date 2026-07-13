@@ -2810,6 +2810,7 @@
  "subsystem_keys": [
   "admin",
   "ai",
+  "automation",
   "automod",
   "blackjack",
   "btd6",
