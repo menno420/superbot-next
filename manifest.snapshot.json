@@ -5482,6 +5482,46 @@
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
+          "value": "gr_north"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_west"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_east"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_south"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_down"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_up"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_menu"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "hw_hub"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
           "value": "va_deposit"
         },
         {
@@ -7957,6 +7997,16 @@
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
           "value": "mining.hub"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.grid"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.howto"
         },
         {
           "source": "sb/manifest/mining.py",
@@ -11189,13 +11239,25 @@
       "handler:mining.gear_view": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.grid_view_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.gr_down": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_east": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_north": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_south": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_up": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_west": {
+        "module": "sb.domain.mining.panels"
       },
       "handler:mining.home_build_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:mining.how_to_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:mining.inventory_view": {
@@ -11222,7 +11284,13 @@
       "handler:mining.render_forge": {
         "module": "sb.domain.mining.panels"
       },
+      "handler:mining.render_grid": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.render_home": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.render_howto": {
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.render_hub": {
@@ -13001,7 +13069,13 @@
       "panel:mining.forge": {
         "module": "sb.domain.mining.panels"
       },
+      "panel:mining.grid": {
+        "module": "sb.domain.mining.panels"
+      },
       "panel:mining.home": {
+        "module": "sb.domain.mining.panels"
+      },
+      "panel:mining.howto": {
         "module": "sb.domain.mining.panels"
       },
       "panel:mining.hub": {
@@ -14432,6 +14506,9 @@
       "workflow:mining.descend": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.dig": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.equip": {
         "module": "sb.domain.mining.ops"
       },
@@ -14487,6 +14564,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_descend": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_dig": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_equip": {
@@ -48899,7 +48979,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.grid_view_pending"
+                "$ref": "panel:mining.grid"
               },
               "label": "⛏️ Mine",
               "modal": null,
@@ -49049,7 +49129,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.how_to_pending"
+                "$ref": "panel:mining.howto"
               },
               "label": "📖 How-to",
               "modal": null,
@@ -49118,6 +49198,322 @@
           "subsystem": "mining",
           "timeout_s": 180,
           "title": "⛏️ Mining Hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "gr_north",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_north"
+              },
+              "label": "⛏️ North",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_west",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_west"
+              },
+              "label": "⛏️ West",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_east",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_east"
+              },
+              "label": "⛏️ East",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_south",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_south"
+              },
+              "label": "⛏️ South",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_down",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_down"
+              },
+              "label": "⛏️ Deeper",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_up",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_up"
+              },
+              "label": "⛏️ Up",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Roam the underground — every ⛏️ dig moves you one cell and mines it."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped navigator embed is fully live-state-parameterized (views/mining/grid_mine_view.py build_grid_embed): the note+describe_cell DESCRIPTION, the 📍 Depth / 🧭 Position / ⚡ Energy / 🌐 World seed inline FIELDS, the fog-of-war 🗺️ Map code block + legend, the dig-note COLOR swap (MINING/SUCCESS/ERROR — the shipped _rerender color parameter, rendered as the green/red style tokens), and the shipped footer literal — all read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub/home live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "gr_north"
+                  ],
+                  [
+                    "gr_west",
+                    "gr_east"
+                  ],
+                  [
+                    "gr_south"
+                  ],
+                  [
+                    "gr_down",
+                    "gr_up"
+                  ],
+                  [
+                    "gr_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "mining.grid",
+          "renderer_override": {
+            "$ref": "handler:mining.render_grid"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 120,
+          "title": "⛏️ Mine",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "hw_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "New to mining? Here's the whole loop in one screen.\n\n**1. ⛏️ Mine** — open the grid and roam the underground with the movement buttons, then **Mine here** to dig the ore under you. Deeper depths hold richer ore (and need a better 💡 light to see — grab a torch, then a lantern).\n**2. 🌲 Harvest** — chop wood, the basic crafting material. No tools needed.\n**3. 🧰 Gear** — equip your best tool, light, and combat gear. **Equip Best** does it in one click; matching set pieces give a bonus.\n**4. 🔨 Workshop** — turn raw resources into better gear and structures: **Craft** (build it), **Repair** (worn tools), **🔥 Forge** (gates the top gear tiers), **🛒 Market** (buy/sell).\n**5. 🧍 Character** — everything about you: **Inventory** · **Stats** · **🌳 Skills** (spend points to specialize) · **🏦 Vault** (stash loot safely, off your pack) · **🏠 Home**.\n\n**Watch your 🎒 pack** — it holds a limited number of *item types*; sell or vault what you don't need. **Watch durability** — tools wear down and break; repair or re-craft them at the Workshop. Level up by mining and harvesting to unlock deeper ladders and skill points."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "one shipped surface sits outside the grammar's vocabulary: the FOOTER is the shared invoker-lock literal 'Only you can interact with this panel.' (build_how_to_embed set_footer) — outside FooterMode's vocabulary (the mining-hub/games/community precedent). Title, description, color and the back button stay grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "hw_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "mining.howto",
+          "renderer_override": {
+            "$ref": "handler:mining.render_howto"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "📖 How mining works",
           "usage_weight": 1.0
         },
         {
