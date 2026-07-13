@@ -70,7 +70,7 @@
 | counting | ✅ 10 cmds + manager live (`counting_state` select-driven depth exemption, `parity.yml:515`) | ✅ | ✅ |
 | creature | ✅ dex/battle/picker/rematch live (D-0079/D-0081 goldens); catch RNG env-exemption `parity.yml:537` | ✅ | ✅ |
 | deathmatch | ✅ challenge card live (duel-resolution stats = time-driven exemption `parity.yml:561`) | ✅ | ✅ |
-| diagnostic | ✅ 42 cmds live | ⚑ 10 actions + 2 selectors pending: hub `diag_status/sysinfo/errors` (process-state class), cmdlist paging, flag-manager + automation-panel mutations (`sb/domain/diagnostic/handlers.py` `*_pending`) | ✅ |
+| diagnostic | ✅ 42 cmds live | ✅ 10 actions + 2 selectors implemented (ORDER 017 fix slice): hub `diag_status/sysinfo/errors` live successor reads (`process_state.py`/`log_buffer.py` + gateway-census seam), cmdlist pages 1–14 (oracle-extracted, page 1 golden-verified), flag-manager select→detail + guard-ladder mutations (`flag_catalog.py`), automation-panel pick + shipped guards — zero `*_pending` routes remain in `sb/domain/diagnostic/` | ✅ |
 | economy | ✅ full value loop live + atomicity proven (band 3); INV-F clean | ✅ | ✅ |
 | farm | ✅ hub + 3 K7 money lanes | ✅ | ✅ |
 | fishing | ⚑⚑ **largest pending block**: 15 of 20 cmds pending (forecast/sail/rod/bait/craft* family → `operator_spine`) + 5 hub actions + structures; cast→Reel core loop IS live (`fishing.fish_route` commits `fishing.cast`, `sb/domain/fishing/service.py:96`). **IN-FLIGHT: fishing slice 1 #313, owner-gated deep-systems decision — hands off** | ✅ | ✅ |
@@ -138,9 +138,10 @@ unregistered refs, no empty-string error paths).
    (command-access matrix, audit view, health chips); the settings hub
    advertises controls that all refuse. Adjacent to the
    `operator-hubs-interactive` claim — coordinate before starting.
-5. **diagnostic operator mutations** — 10 actions + 2 selectors pending
-   (flag manager, automation panel, process-state trio, cmdlist paging;
-   `sb/domain/diagnostic/handlers.py`). Free.
+5. **diagnostic operator mutations** — **DONE** (ORDER 017 fix slice, the
+   PR that updates this row): 10 actions + 2 selectors implemented (flag
+   manager, automation panel, process-state trio, cmdlist paging;
+   `sb/domain/diagnostic/handlers.py` carries zero `*_pending` routes).
 6. **operator-hub admin action cluster** — cleanup words panel (8),
    server_management hub (6), channel hub (5), admin cogmgr (7), utility
    panel (4), xp config (4), counters preset (1), role create (1): ~36

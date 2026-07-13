@@ -665,6 +665,22 @@ depth:
           fresh-angler 0/32 dex read — no row), so no imported golden
           can carry a fishing_catch_log row; the first row-bearing
           golden lands with a button-driving capture"
+      # Slice-2 rod-ladder port: the fishing_rod writers are the shop's
+      # session-minted ⬆️ Upgrade button (a funded coin debit) and the
+      # craft lane behind a stocked fish inventory — the imported sweep
+      # drove only the bare fresh-player invocations.
+      - surface: "table:fishing_rod"
+        reason: "guard-only-capture: the tier writers ARE
+          corpus-expressible (!rod's ⬆️ Upgrade rod button / !craftrod)
+          but the imported sweep drove only their bare fresh-player
+          invocations, and every captured case pins a write-free byte —
+          goldens/fishing/sweep_rod.json + sweep_rodrecipes.json pin the
+          tier-0 shop / recipe-browser renders (pure reads) and
+          goldens/fishing/sweep_craftrod.json pins the not-enough-fish
+          refusal the empty-pack guard answers as a pure read (the
+          oracle txn never opens; the port computes it before the op
+          runs) — goldens pin write-free guard paths only; the first
+          fishing_rod row lands with a funded/stocked argful capture"
     games:
       # games' four goldens are the read/render hub family (the 🎮 hub
       # prefix+slash pair + the re-homed 🗺️ Explore hub + 🪪 world card)
