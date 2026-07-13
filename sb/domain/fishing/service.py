@@ -1,10 +1,13 @@
 """Fishing handlers (band 6) — the shipped cast-open lane (energy gate →
-spend → the waiting-for-a-bite panel), the Reel commit route +
-dex/leaderboard/trophy reads; rod/bait/craft/venue/structure surfaces are
+spend → the waiting-for-a-bite panel), the Reel commit route,
+dex/leaderboard/trophy reads + the slice-1 weather/venue surfaces
+(``!forecast`` / ``!sail``); rod/bait/craft/structure surfaces are
 honest pending terminals until the gear systems port (D-0043 successor
 work). ``goldens/fishing/sweep_fish.json`` pins the cast-open bytes
-(the spent ``fishing_energy`` row + the panel); the dex embed lives on
-``fishing.log`` (sb/domain/fishing/panels.py)."""
+(the spent ``fishing_energy`` row + the panel), sweep_forecast the Rain
+forecast embed, sweep_sail the deepwater toggle + its ``fishing_venue``
+row; the dex embed lives on ``fishing.log``
+(sb/domain/fishing/panels.py)."""
 
 from __future__ import annotations
 
@@ -111,6 +114,56 @@ def _register() -> None:
         after = (result.after or {}).get("cast", {})
         return Reply(SUCCESS, after.get("message", ""))
 
+    @handler("fishing.forecast_view")
+    async def forecast_view(req) -> Reply:
+        """!forecast — the shipped date-seeded forecast embed
+        (fishing_cog.py ``forecast``: _FISHING_COLOR blue; title
+        ``{emoji} Today's fishing forecast: {name}``, description
+        ``{blurb}\\n\\n**Effect on every cast:** {effect}``, footer
+        ``Same for everyone today · 🎣 !fish to cast`` —
+        goldens/fishing/sweep_forecast pins the capture-day Rain bytes;
+        the replay seam is CAPTURE_WORLD_WEATHER, trap 36a)."""
+        from sb.domain.fishing import weather as weather_mod
+        from sb.kernel.panels.render import RenderedEmbed
+
+        w = weather_mod.current_weather()
+        embed = RenderedEmbed(
+            title=f"{w.emoji} Today's fishing forecast: {w.name}",
+            description=(f"{w.blurb}\n\n**Effect on every cast:** "
+                         f"{weather_mod.effect_text(w)}"),
+            footer="Same for everyone today · 🎣 !fish to cast",
+            style_token="blue")
+        return await _card(req, embed)
+
+    @handler("fishing.sail_route")
+    async def sail_route(req) -> Reply:
+        """!sail / the hub ⛵ Set sail / Dock button — the shipped venue
+        toggle (fishing_cog.py ``sail`` → services/fishing_workflow.py
+        ``toggle_venue``/``set_venue``): flip shore ↔ deepwater and
+        persist it. The write is the shipped direct game-state upsert
+        (autocommit, non-money, no audit — the energy-spend posture);
+        goldens/fishing/sweep_sail pins the deepwater message + the
+        minted ``fishing_venue`` row."""
+        from sb.domain.fishing import store, venue as venue_mod
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        current = await store.get_fishing_venue(uid, gid)
+        profile = venue_mod.profile_for(venue_mod.toggle(current))
+        await store.set_fishing_venue(uid, gid, profile.key)
+        if profile.key == venue_mod.DEEPWATER:
+            message = (
+                f"{profile.emoji} **You set sail for deepwater.** Rare "
+                "boat-only fish lurk here — they bite slower and fight "
+                "harder to break free, so a rod with good escape-resist "
+                "pays off. Cast with `!fish`.")
+        else:
+            message = (
+                f"{profile.emoji} **You docked back on the shore.** "
+                "Relaxed casting for the everyday catch. Cast with "
+                "`!fish`.")
+        return Reply(SUCCESS, message)
+
     @handler("fishing.menu_view")
     async def menu_view(req) -> Reply:
         from sb.domain.fishing import catalog
@@ -164,9 +217,12 @@ def _register() -> None:
         return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 
-#: Gear/venue/craft surfaces awaiting the fishing depth port (D-0043).
+#: Gear/craft/structure surfaces awaiting the fishing depth port
+#: (D-0043). forecast/sail left this dict in slice 1 (weather + venue);
+#: the cast LEG still runs the starter shore profile — the venue→cast
+#: wiring (deepwater species pool, coral drop, minigame difficulty)
+#: rides the rod/bait/minigame rung with the rest of the gear knobs.
 PENDING = {
-    "forecast": "weather system", "sail": "venue (boat) system",
     "rod": "rod ladder", "bait": "bait system",
     "craftbait": "bait crafting", "craftcharm": "charm crafting",
     "craftrod": "rod crafting", "rodrecipes": "rod crafting",

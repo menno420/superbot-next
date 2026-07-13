@@ -135,6 +135,9 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # the hub open renders the same capture-day forecast field
     # (goldens/fishing/sweep_fishing pins "Today's forecast: 🌧️ Rain").
     "sweep.fishing": "rain",
+    # the forecast command renders the same capture-day condition
+    # (goldens/fishing/sweep_forecast pins the 🌧️ Rain embed — slice 1).
+    "sweep.forecast": "rain",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {

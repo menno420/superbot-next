@@ -43,10 +43,8 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     "handler:fishing.curios_pending",
     "handler:fishing.dock_pending",
     "handler:fishing.fishery_pending",
-    "handler:fishing.forecast_pending",
     "handler:fishing.rod_pending",
     "handler:fishing.rodrecipes_pending",
-    "handler:fishing.sail_pending",
     "handler:fishing.tidepool_pending",
     # build/buildlist/buildable pruned by the slice-6 port — their real
     # build_route / buildlist_route / buildable_view handlers register at

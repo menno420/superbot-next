@@ -7781,6 +7781,11 @@
           "value": "fishing_energy"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_venue"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "game_state"
@@ -9078,8 +9083,8 @@
       "handler:fishing.fishery_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:fishing.forecast_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.forecast_view": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.howtofish_pending": {
         "module": "sb.domain.operator_spine"
@@ -9105,8 +9110,8 @@
       "handler:fishing.rodrecipes_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:fishing.sail_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.sail_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.structures_pending": {
         "module": "sb.domain.operator_spine"
@@ -11439,6 +11444,9 @@
       "workflow:fishing.erase_subject_energy": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.erase_subject_venue": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_cast": {
         "module": "sb.domain.fishing.ops"
       },
@@ -12244,6 +12252,14 @@
         },
         "subsystem": "fishing"
       },
+      "fishing_venue": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_venue",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
       "game_state": {
         "checkpoint_class": "session",
         "invariant_tag": "game_state",
@@ -12599,7 +12615,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:2f6fcdc43a09ed728b6d98ee5c3d3ffc30dfdfe5c8682a506523f0da24c057e4",
+  "stable_hash": "sha256:07a3111c894ff15e99262047a64da42f88b6a735df93ac880ee09cfe7a22353b",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -30539,7 +30555,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.forecast_pending"
+            "$ref": "handler:fishing.forecast_view"
           },
           "slash_common": false,
           "summary": "Today's fishing weather.",
@@ -30565,7 +30581,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.sail_pending"
+            "$ref": "handler:fishing.sail_route"
           },
           "slash_common": false,
           "summary": "Set sail to the deepwater venue.",
@@ -30964,7 +30980,7 @@
               "emoji": "⛵",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.sail_pending"
+                "$ref": "handler:fishing.sail_route"
               },
               "label": "Set sail / Dock",
               "modal": null,
@@ -31371,6 +31387,34 @@
             "$ref": "engine:fishing.store"
           },
           "table": "fishing_energy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_venue"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_venue",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_venue",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

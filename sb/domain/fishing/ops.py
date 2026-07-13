@@ -5,10 +5,15 @@ game-XP award) in ONE leg txn.
 
 DEVIATION (D-0043): casts run at the STARTER profile — starter rod
 (rarity_pull 1.0), no bait, shore venue, neutral weather, base
-double-catch chance — until the rod/bait/venue/energy/minigame/structure
+double-catch chance — until the rod/bait/energy/minigame/structure
 systems port (named successor work; their commands are honest pending
 terminals). At the starter profile the roll is byte-identical to a fresh
-shipped player's."""
+shipped player's. Slice 1 made the VENUE STATE live (!sail persists
+``fishing_venue``; the hub/cast renders read it) but the cast LEG still
+rolls the shore pool — the venue→cast wiring (deepwater species pool,
+coral drop, minigame difficulty) rides the rod/bait/minigame rung, where
+the oracle's rolled knobs (rarity_pull, bite speed, escape) land
+together."""
 
 from __future__ import annotations
 
@@ -153,6 +158,14 @@ async def _erase_energy(conn, ctx: WorkflowContext) -> LegOutcome:
                       before={}, after={"rows": rows})
 
 
+@workflow("fishing.erase_subject_venue")
+async def _erase_venue(conn, ctx: WorkflowContext) -> LegOutcome:
+    subject = int(ctx.params["subject_user_id"])
+    rows = await store.erase_subject_venue(conn, user_id=subject)
+    return LegOutcome(step=StepResult(0, "erase_subject_venue", True),
+                      before={}, after={"rows": rows})
+
+
 _XP_EMITS = (
     EventEmitSpec("game_xp.awarded",
                   WorkflowRef("games.game_xp_awarded_payload"),
@@ -176,6 +189,7 @@ _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
     ("fishing.erase_subject_energy", _erase_energy),
+    ("fishing.erase_subject_venue", _erase_venue),
 )
 
 
