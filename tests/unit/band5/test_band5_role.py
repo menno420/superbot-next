@@ -531,7 +531,7 @@ def test_pending_terminals_registered_at_module_import():
     sys.modules.pop("sb.domain.role.handlers", None)
     try:
         importlib.import_module("sb.domain.role.handlers")
-        for name in ("role.create_pending", "role.roleinfo_pending",
+        for name in ("role.create_form_submit", "role.roleinfo_pending",
                      "role.assignroles_pending", "role.debug_pending",
                      "role.time_roles_view", "role.setrole"):
             assert is_registered(HandlerRef(name)), name
