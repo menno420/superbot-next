@@ -43,6 +43,8 @@ __all__ = [
     "record_depth",
     "get_max_depth",
     "get_equipped_title",
+    "get_energy",
+    "set_energy",
     "get_world_seed",
     "set_world_seed",
     "get_mining_inventory",
@@ -440,6 +442,46 @@ async def get_equipped_title(user_id: int, guild_id: int,
         "SELECT equipped_title FROM mining_player_state WHERE user_id=$1 AND "
         "guild_id=$2", (str(user_id), guild_id), conn=conn)
     return row["equipped_title"] if row and row["equipped_title"] else None
+
+
+async def get_energy(user_id: int, guild_id: int,
+                     conn: Any = None) -> tuple[int, int]:
+    """``(energy, energy_updated_at)`` — the player's stored dig-energy fuel.
+
+    Shipped ``mining_player_state.get_energy`` verbatim (oracle @ 87bbe1d):
+    a missing row returns ``(0, 0)`` — ``sb.domain.mining.energy.settle``
+    reads that as "0 energy as of the epoch", which regenerates to a full
+    bar by now, so a fresh (or pre-energy) player always starts full
+    without this layer knowing ``MAX_ENERGY`` (no constant duplicated
+    outside the pure energy domain). A PLAIN read — energy is game pacing,
+    never coins (the ``get_fishing_energy`` non-money posture; the shipped
+    read carried no lock)."""
+    row = await fetchone(
+        "SELECT energy, energy_updated_at FROM mining_player_state "
+        "WHERE user_id=$1 AND guild_id=$2", (str(user_id), guild_id),
+        conn=conn)
+    if row is None:
+        return 0, 0
+    return int(row["energy"]), int(row["energy_updated_at"])
+
+
+async def set_energy(user_id: int, guild_id: int, energy: int,
+                     updated_at: int, conn: Any = None) -> None:
+    """Upsert the settled ``(energy, energy_updated_at)`` pair.
+
+    Shipped ``mining_player_state.set_energy`` (oracle @ 87bbe1d) minus the
+    oracle's ``updated_at=now()`` touch — the target's ``updated_at`` is a
+    BIGINT epoch (band convention, the ``set_depth`` precedent), left to its
+    column default. Plain non-audited upsert (the ``set_fishing_energy``
+    non-money posture); with *conn* given it composes inside the caller's
+    transaction (the slice-2 cook/use debit+restore legs, the slice-3 dig
+    spend — callers own commit)."""
+    await execute(
+        "INSERT INTO mining_player_state "
+        "(user_id, guild_id, energy, energy_updated_at) "
+        "VALUES ($1,$2,$3,$4) ON CONFLICT (user_id, guild_id) "
+        "DO UPDATE SET energy=$3, energy_updated_at=$4",
+        (str(user_id), guild_id, energy, updated_at), conn=conn)
 
 
 # --- mining_world (per-guild world seed; guild-keyed, no member data) ---------
