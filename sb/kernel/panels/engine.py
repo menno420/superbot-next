@@ -284,8 +284,17 @@ def _context_from_request(spec: PanelSpec, req: ResolveRequest) -> PanelContext:
 
 
 async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
-                              page: int = 0, browse=None) -> str:
+                              page: int = 0, browse=None,
+                              window=None) -> str:
     ctx = _context_from_request(spec, req)
+    if window is not None:
+        # windowed-select position: rides the reserved ctx.params key so it
+        # reaches render_panel through EVERY render path — the grammar
+        # renderer's fallback AND a renderer_override that re-calls
+        # ``render_panel(spec, ctx)`` itself (the cog_routing detail).
+        from sb.kernel.panels import selectwindow
+
+        ctx.params[selectwindow.WINDOW_PARAM] = window
     if spec.renderer_override is not None:
         # tier-2 escape hatch: a registered renderer produces the RenderedPanel.
         rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
@@ -398,6 +407,8 @@ async def handle_nav(binding: NavBinding, req: ResolveRequest) -> None:
         await _render_and_present(get_panel(panel_id), req, page=int(page))
     elif binding.kind == "browse":
         await _handle_browse(binding.target, req)
+    elif binding.kind == "selwin":
+        await _handle_selwin(binding.target, req)
     else:  # pragma: no cover — the registry mints only the recognized kinds
         raise ValueError(f"unknown nav binding kind {binding.kind!r}")
 
@@ -439,3 +450,54 @@ async def _handle_browse(custom_id: str, req: ResolveRequest) -> None:
     values = req.args.get("values") if req.args else None
     new_state = browserview.apply_delta(control, state, block_spec, values)
     await _render_and_present(spec, req, browse=new_state)
+
+
+async def _handle_selwin(custom_id: str, req: ResolveRequest) -> None:
+    """Dispatch a windowed-select ◀ Prev / Next ▶ click (the windowed-select
+    grammar successor): decode the current window against the panel spec,
+    step it, and re-render with the new window — the options re-resolve
+    fresh at click time (§2.4), and the upper bound clamps at render where
+    the fresh count is known. A live session under the clicked message
+    refreshes IN PLACE (the shipped SelectWindow edited its own message; a
+    window flip must never spawn a second card); without one it re-presents
+    (the browse/page-turn posture). A malformed/stale id — unknown panel,
+    unknown selector, or a selector no longer declared windowed — degrades
+    to the §3.4 polite-expiry terminal, never a crash."""
+    from sb.kernel.panels import selectwindow
+    from sb.kernel.panels.router import EXPIRY_MESSAGE
+
+    async def _expire() -> None:
+        try:
+            await req.responder.deny(EXPIRY_MESSAGE, ephemeral=True)
+        except Exception:  # noqa: BLE001 — a failed expiry render never raises
+            logger.warning("selwin expiry render failed for %r", custom_id,
+                           exc_info=True)
+
+    panel_id = selectwindow.window_panel_id(custom_id)
+    if panel_id is None:
+        await _expire()
+        return
+    try:
+        spec = get_panel(panel_id)
+    except LookupError:
+        await _expire()
+        return
+    decoded = selectwindow.decode_window(custom_id, spec)
+    if decoded is None:
+        await _expire()
+        return
+    control, _selector, state = decoded
+    new_state = selectwindow.apply_window_delta(control, state)
+    message = getattr(req.origin, "message", None)
+    message_key = str(getattr(message, "id", "") or "")
+    if message_key:
+        try:
+            refreshed = await refresh_session_view(
+                req, message_key=message_key,
+                params={selectwindow.WINDOW_PARAM: new_state})
+            if refreshed:
+                return
+        except Exception:  # noqa: BLE001 — degrade to the fresh present
+            logger.warning("selwin in-place refresh failed for %r", custom_id,
+                           exc_info=True)
+    await _render_and_present(spec, req, window=new_state)

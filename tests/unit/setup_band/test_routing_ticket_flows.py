@@ -198,7 +198,7 @@ def test_profile_catalogue_carries_the_shipped_bundles():
         "channels whose name matches its intent.")
 
 
-def test_cog_options_window_the_visible_harvest_at_25():
+def test_cog_options_carry_the_full_visible_harvest():
     from sb.domain.setup.cog_routing import (
         _COG_OPTIONS_PROVIDER, operator_visible_cogs,
     )
@@ -208,14 +208,26 @@ def test_cog_options_window_the_visible_harvest_at_25():
     assert len(cogs) == 43              # the shipped 43-row harvest
     assert cogs == tuple(sorted(cogs))  # the shipped sorted contract
     options = run(resolve(ProviderRef(_COG_OPTIONS_PROVIDER))(_ctx()))
-    # the access_map first-25 window precedent (module docstring
-    # ledger; the windowed-select grammar successor is the follow-up).
-    assert len(options) == 25
-    assert [o["value"] for o in options] == list(cogs[:25])
+    # the FULL harvest — the ad-hoc first-25 window is retired: the
+    # declared ``windowed`` select pages it at the 25-option cap through
+    # the kernel selectwindow engine (the windowed-select grammar
+    # successor; module docstring ledger).
+    assert len(options) == 43
+    assert [o["value"] for o in options] == list(cogs)
     # the shipped presentation rides display_name + emoji.
     admin = options[0]
     assert admin["label"] == "Administration"
     assert admin["emoji"] == "⚙️"
+
+
+def test_cog_select_is_declared_windowed_at_the_cap():
+    from sb.domain.setup.cog_routing import cog_routing_detail_spec
+
+    spec = cog_routing_detail_spec()
+    cog_sel = next(s for s in spec.selectors
+                   if s.selector_id == "routing_cog")
+    assert cog_sel.windowed is True
+    assert cog_sel.page_size == 25
 
 
 def test_flag_buttons_carry_the_shipped_option_labels():
@@ -467,14 +479,22 @@ def test_detail_render_reveals_stepwise(monkeypatch):
     assert _leafs(rendered, COG_ROUTING_DETAIL_PANEL_ID) == [
         "routing_scope", "cog_routing_section_profile"]
     assert rendered.embed.title == "🧭 Cog routing"
-    # guild scope: the cog select reveals with the shipped placeholder.
+    # guild scope: the cog select reveals with the shipped placeholder —
+    # plus its windowed page suffix and the engine ◀ Prev / Next ▶ window
+    # nav (43 cogs span two 25-option windows; the grammar successor).
     _pick_walk(scope="guild")
     rendered = run(_render_cog_routing_detail(spec, _ctx()))
     leafs = _leafs(rendered, COG_ROUTING_DETAIL_PANEL_ID)
     assert leafs == ["routing_scope", "cog_routing_section_profile",
-                     "routing_cog"]
-    cog_select = rendered.components[-1]
-    assert cog_select.placeholder == "Pick a cog for guild scope…"
+                     "routing_cog",
+                     "nav:selwin:prev:setup.cog_routing_detail:routing_cog:0",
+                     "nav:selwin:next:setup.cog_routing_detail:routing_cog:0"]
+    cog_select = rendered.components[2]
+    assert cog_select.placeholder == \
+        "Pick a cog for guild scope… — page 1/2"
+    # every one of the 43 rows stays reachable: window 1 shows 25, the
+    # Next click's window shows the remaining 18.
+    assert len(cog_select.options) == 25
     # override scope: the target picker reveals first.
     _pick_walk(scope="category")
     rendered = run(_render_cog_routing_detail(spec, _ctx()))
@@ -482,12 +502,14 @@ def test_detail_render_reveals_stepwise(monkeypatch):
     assert leafs == ["routing_scope", "cog_routing_section_profile",
                      "routing_target"]
     assert rendered.components[-1].placeholder == "Pick a category…"
-    # target picked: the cog select joins.
+    # target picked: the cog select joins (with its window nav).
     _pick_walk(scope="channel", target=(1234, "arcade"))
     rendered = run(_render_cog_routing_detail(spec, _ctx()))
     leafs = _leafs(rendered, COG_ROUTING_DETAIL_PANEL_ID)
     assert leafs == ["routing_scope", "cog_routing_section_profile",
-                     "routing_target", "routing_cog"]
+                     "routing_target", "routing_cog",
+                     "nav:selwin:prev:setup.cog_routing_detail:routing_cog:0",
+                     "nav:selwin:next:setup.cog_routing_detail:routing_cog:0"]
     assert rendered.components[2].placeholder == "Pick a channel…"
 
 
@@ -510,10 +532,18 @@ def test_detail_render_reveals_the_flag_pair_after_a_cog_pick(monkeypatch):
     assert leafs == ["routing_scope", "cog_routing_section_profile",
                      "routing_target", "routing_cog",
                      "routing_enable", "routing_disable",
-                     "routing_back_step"]
-    # the cog select carries the shipped per-scope placeholder.
+                     "routing_back_step",
+                     "nav:selwin:prev:setup.cog_routing_detail:routing_cog:0",
+                     "nav:selwin:next:setup.cog_routing_detail:routing_cog:0"]
+    # the full walk fits Discord's 5-per-row button budget: row 4 carries
+    # Enable + Disable + ↩ Back to step + the ◀/▶ window pair — exactly 5.
+    row4_buttons = [c for c in rendered.components
+                    if c.kind == "button" and c.row == 4]
+    assert len(row4_buttons) == 5
+    # the cog select carries the shipped per-scope placeholder — the
+    # windowed page suffix survives the patch.
     assert rendered.components[3].placeholder == \
-        "Pick a cog for channel scope…"
+        "Pick a cog for channel scope… — page 1/2"
 
 
 def test_detail_back_step_rides_only_the_wizard_origin():
