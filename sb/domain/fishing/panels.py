@@ -694,11 +694,34 @@ async def _member_display_name(user_id: int, guild_id: int) -> str:
     return member.tag.rsplit("#", 1)[0]
 
 
+async def _settled_energy(uid: int, gid: int, now: int) -> int:
+    """The player's settled current energy at the Boathouse-adjusted
+    regen interval — the shipped ``get_energy`` gauge read
+    (services/fishing_workflow.py:349-365 @cdb26804): the ⚡ gauge must
+    match the faster refill a built Boathouse grants, or the hub can
+    claim the player is short while the cast gate lets them cast (codex
+    #373). Unbuilt (level 0) ⇒ ×1.0 ⇒ exactly REGEN_SECONDS ⇒ the
+    golden-pinned fresh-player bytes are unchanged."""
+    from sb.domain.fishing import energy as energy_mod
+    from sb.domain.fishing import store
+    from sb.domain.mining import structures as structures_mod
+    from sb.domain.mining.store import get_structures
+
+    built = await get_structures(uid, gid)
+    regen_seconds = energy_mod.regen_seconds_for(
+        structures_mod.boathouse_regen_mult(
+            built.get(structures_mod.BOATHOUSE, 0)))
+    cur, ts = await store.get_fishing_energy(uid, gid)
+    return energy_mod.settle(energy_mod.EnergyState(cur, ts), now,
+                             regen_seconds=regen_seconds).current
+
+
 async def _render_hub(spec: PanelSpec, ctx) -> object:
     """renderer_override — grammar render + the shipped three live fields
     (views/fishing/menu.py build_fishing_menu_embed, verbatim; see
     justification). The energy field is the honest settled read — the hub
-    open never spends."""
+    open never spends — at the Boathouse-adjusted interval (the shipped
+    ``get_energy`` read, :func:`_settled_energy`)."""
     from sb.domain.fishing import energy as energy_mod
     from sb.domain.fishing import store
     from sb.domain.fishing import venue as venue_mod
@@ -710,8 +733,7 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(ctx.guild_id or 0)
     now = int(SYSTEM_CLOCK().timestamp())
-    cur, ts = await store.get_fishing_energy(uid, gid)
-    current = energy_mod.settle(energy_mod.EnergyState(cur, ts), now).current
+    current = await _settled_energy(uid, gid, now)
     # the LIVE stored venue (slice 1 — no row reads as shore, so a fresh
     # player renders the golden-pinned shore bytes verbatim)
     profile = venue_mod.profile_for(
@@ -767,14 +789,13 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
     gid = int(ctx.guild_id or 0)
     current = params.get("cast_energy")
     if current is None:
-        # direct panel open (no cast-open hop) — honest settled read,
-        # no spend.
+        # direct panel open (no cast-open hop) — honest settled read, no
+        # spend, at the Boathouse-adjusted interval (the shipped
+        # ``get_energy`` gauge read, :func:`_settled_energy`).
         from sb.kernel.workflow.context import SYSTEM_CLOCK
 
         now = int(SYSTEM_CLOCK().timestamp())
-        cur, ts = await store.get_fishing_energy(uid, gid)
-        current = energy_mod.settle(energy_mod.EnergyState(cur, ts),
-                                    now).current
+        current = await _settled_energy(uid, gid, now)
     w = weather_mod.current_weather()
     fields: tuple = ()
     if w.bite_speed_mult != 1.0 or w.rarity_mult != 1.0:

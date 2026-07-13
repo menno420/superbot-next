@@ -664,10 +664,11 @@ def test_fish_route_pops_the_pending_cast_into_the_op(monkeypatch):
 
     service.ensure_handler_refs()
     service.reset_pending_casts_for_tests()
+    _freeze_clock(monkeypatch)
     route = resolve(HandlerRef("fishing.fish_route"))
     service._PENDING_CASTS[(P1, GID)] = {
-        "rolled_at": NOW, "species": "lanternfish", "weight": 3.5,
-        "venue": "deepwater", "double_catch_chance": 0.20,
+        "rolled_at": NOW, "token": 7, "species": "lanternfish",
+        "weight": 3.5, "venue": "deepwater", "double_catch_chance": 0.20,
         "level_before": 1}
     seen: list = []
 
@@ -683,9 +684,184 @@ def test_fish_route_pops_the_pending_cast_into_the_op(monkeypatch):
     assert seen == [{"species": "lanternfish", "weight": 3.5,
                      "venue": "deepwater", "double_catch_chance": 0.20,
                      "level_before": 1}]
-    # popped — a second Reel finds no pending cast (the fallback seam)
+    # popped — a second token-less Reel finds no pending cast (the
+    # direct-invocation fallback seam)
     assert (P1, GID) not in service._PENDING_CASTS
     reply = run(route(_req()))
     assert reply.outcome is SUCCESS
     assert seen[1] == {}
+    service.reset_pending_casts_for_tests()
+
+
+def _reel_req(token=None):
+    args = {} if token is None else {"cast_token": token}
+    return _FakeReq(actor=SimpleNamespace(user_id=P1, actor_type="user"),
+                    guild_id=GID, args=args)
+
+
+def test_fish_route_stale_token_never_pops_the_newer_cast(monkeypatch):
+    """codex #373 P1: a late Reel from a replaced cast answers the
+    shipped got-away terminal (cast_view.py window-expiry copy) and the
+    NEWER pending cast stays parked, untouched."""
+    from sb.domain.fishing import service
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import BLOCKED
+    from sb.spec.refs import HandlerRef, resolve
+
+    service.ensure_handler_refs()
+    service.reset_pending_casts_for_tests()
+    _freeze_clock(monkeypatch)
+    route = resolve(HandlerRef("fishing.fish_route"))
+    newer = {"rolled_at": NOW, "token": 2, "species": "minnow",
+             "weight": 0.2, "venue": "shore",
+             "double_catch_chance": 0.10, "level_before": 1}
+    service._PENDING_CASTS[(P1, GID)] = newer
+
+    async def fake_run(ref, ctx):  # must never be reached
+        raise AssertionError("stale Reel must not commit")
+
+    monkeypatch.setattr(engine, "run", fake_run)
+    reply = run(route(_reel_req(token=1)))     # the OLD cast's click
+    assert reply.outcome is BLOCKED
+    assert reply.user_message == (
+        "🌊 *...the line goes slack. The fish got away.*")
+    assert service._PENDING_CASTS[(P1, GID)] is newer   # untouched
+    service.reset_pending_casts_for_tests()
+
+
+def test_fish_route_expired_cast_answers_the_got_away_clue(monkeypatch):
+    """codex #373 P1/P2: a Reel past the 45 s oracle window surfaces the
+    paid timed-out cast with the shipped _got_away soft-fail (trophy
+    clue at the cast's own level_before) and never lands the fish."""
+    from sb.domain.fishing import service
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import BLOCKED
+    from sb.spec.refs import HandlerRef, resolve
+
+    service.ensure_handler_refs()
+    service.reset_pending_casts_for_tests()
+    _freeze_clock(monkeypatch)
+    route = resolve(HandlerRef("fishing.fish_route"))
+    # sardine #3 IS a trophy at level 1 (cap 3) → the clue line appends
+    service._PENDING_CASTS[(P1, GID)] = {
+        "rolled_at": NOW - 46, "token": 5, "species": "sardine",
+        "weight": 1.0, "venue": "shore", "double_catch_chance": 0.10,
+        "level_before": 1}
+
+    async def fake_run(ref, ctx):  # must never be reached
+        raise AssertionError("expired Reel must not commit")
+
+    monkeypatch.setattr(engine, "run", fake_run)
+    reply = run(route(_reel_req(token=5)))
+    assert reply.outcome is BLOCKED
+    assert reply.user_message == (
+        "🌊 *...the line goes slack. The fish got away.*\n"
+        "💭 *...it looked like a real **Sardine**, too.*")
+    assert (P1, GID) not in service._PENDING_CASTS
+    service.reset_pending_casts_for_tests()
+
+
+def test_fish_route_restores_the_paid_cast_on_a_failed_commit(
+        monkeypatch):
+    """codex #373 P2: the entry is popped exclusively for the commit and
+    RESTORED when the workflow returns non-success — the paid cast stays
+    landable."""
+    from sb.domain.fishing import service
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import BLOCKED, SUCCESS
+    from sb.spec.refs import HandlerRef, resolve
+
+    service.ensure_handler_refs()
+    service.reset_pending_casts_for_tests()
+    _freeze_clock(monkeypatch)
+    route = resolve(HandlerRef("fishing.fish_route"))
+    entry = {"rolled_at": NOW, "token": 3, "species": "minnow",
+             "weight": 0.2, "venue": "shore",
+             "double_catch_chance": 0.10, "level_before": 1}
+    service._PENDING_CASTS[(P1, GID)] = entry
+    outcomes = [BLOCKED, SUCCESS]
+
+    async def fake_run(ref, ctx):
+        outcome = outcomes.pop(0)
+        return SimpleNamespace(
+            outcome=outcome, after={"cast": {"message": "ok"}},
+            user_message="db hiccup" if outcome is BLOCKED else None)
+
+    monkeypatch.setattr(engine, "run", fake_run)
+    reply = run(route(_reel_req(token=3)))
+    assert reply.outcome is BLOCKED
+    assert service._PENDING_CASTS[(P1, GID)] is entry   # restored
+    # the retry lands it and clears the slot
+    reply = run(route(_reel_req(token=3)))
+    assert reply.outcome is SUCCESS
+    assert (P1, GID) not in service._PENDING_CASTS
+    service.reset_pending_casts_for_tests()
+
+
+def test_cast_open_reserves_before_the_first_await(monkeypatch):
+    """codex #373 P1: two concurrent Casts for one player can never both
+    pass the guard — the slot is reserved synchronously before the first
+    await (the oracle's own TOCTOU: guard at prepare_cast L86 but
+    active_casts.add only in view.start() L184)."""
+    import asyncio
+
+    from sb.spec.outcomes import BLOCKED, SUCCESS
+
+    route = _cast_route()
+    _freeze_clock(monkeypatch)
+    _install_world(monkeypatch)
+    _capture_open_panel(monkeypatch)
+
+    async def both():
+        return await asyncio.gather(route(_req()), route(_req()))
+
+    first, second = run(both())
+    assert sorted([first.outcome, second.outcome],
+                  key=str) == sorted([SUCCESS, BLOCKED], key=str)
+    blocked = first if first.outcome is BLOCKED else second
+    assert blocked.user_message == (
+        "🎣 You've already got a line in the water — reel that one in "
+        "first!")
+    from sb.domain.fishing import service
+
+    # exactly ONE energy/bait-bearing cast parked
+    entry = service._PENDING_CASTS[(P1, GID)]
+    assert "species" in entry
+    service.reset_pending_casts_for_tests()
+
+
+def test_cast_open_releases_the_reservation_on_blocked_exits(monkeypatch):
+    """The reservation never outlives a refused cast — an out-of-energy
+    gate leaves the registry empty (a raise path is covered by the same
+    finally)."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import BLOCKED
+
+    route = _cast_route()
+    _freeze_clock(monkeypatch)
+    _install_world(monkeypatch, energy=(0, NOW))     # drained, no regen
+    reply = run(route(_req()))
+    assert reply.outcome is BLOCKED
+    assert service._PENDING_CASTS == {}
+
+
+def test_cast_open_sweeps_expired_lines(monkeypatch):
+    """codex #373 P2: abandoned pending casts past the 45 s window are
+    swept opportunistically on any cast open (the oracle view's
+    on-timeout active_casts.discard, cast_view.py:188)."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import SUCCESS
+
+    route = _cast_route()
+    _freeze_clock(monkeypatch)
+    _install_world(monkeypatch)
+    _capture_open_panel(monkeypatch)
+    # another player's abandoned line, long past the window
+    service._PENDING_CASTS[(999, GID)] = {
+        "rolled_at": NOW - 300, "token": 1, "species": "minnow",
+        "weight": 0.2, "venue": "shore", "double_catch_chance": 0.10,
+        "level_before": 1}
+    assert run(route(_req())).outcome is SUCCESS
+    assert (999, GID) not in service._PENDING_CASTS
+    assert (P1, GID) in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()

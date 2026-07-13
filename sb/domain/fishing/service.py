@@ -41,17 +41,55 @@ __all__ = ["Reply", "ensure_handler_refs", "reset_pending_casts_for_tests"]
 #: guard released via the timed view's terminal paths / 45 s timeout;
 #: the headless port has no timer, so the guard window IS the oracle
 #: ``_VIEW_TIMEOUT``: a pending cast older than that stopped being
-#: reelable in the oracle (view timed out, fish got away) and a new
-#: cast simply overwrites it. The parity harness clears this per case
-#: (boot.reset_case_state → :func:`reset_pending_casts_for_tests`).
+#: reelable in the oracle (view timed out, fish got away) — its late
+#: Reel click answers the shipped got-away terminal, and ``cast_open``
+#: sweeps expired entries opportunistically (the oracle view's
+#: on-timeout ``active_casts.discard``, cast_view.py:188) so abandoned
+#: lines never accumulate. A timed-out cast's ECONOMICS match the
+#: oracle exactly (it spent its energy + bait charge and landed
+#: nothing); the oracle's UNPROMPTED got-away message — the background
+#: window task's edit — rides the parked timing rung, so a player who
+#: recasts over a dead line sees the loss only on the dead panel's own
+#: click (scope-doc, codex #373). Entries carry a per-cast ``token``
+#: echoed through the panel-args binding, so a Reel click only ever
+#: lands its OWN cast — never a newer one that replaced it. The parity
+#: harness clears this per case (boot.reset_case_state →
+#: :func:`reset_pending_casts_for_tests`).
 _PENDING_CASTS: dict[tuple[int, int], dict] = {}
 
 #: The shipped safety-net view timeout (cast_view.py ``_VIEW_TIMEOUT``).
 PENDING_CAST_TIMEOUT_SECONDS = 45.0
 
+#: The shipped got-away terminal (cast_view.py _run_bite window expiry —
+#: the copy a dead line answers; ``minigame.escape_clue`` may append the
+#: trophy tease, the oracle ``_got_away`` soft-fail).
+_GOT_AWAY = "🌊 *...the line goes slack. The fish got away.*"
+
+#: Per-cast identity tokens — monotonic, process-local, never rendered
+#: and never persisted (they ride the in-memory panel-args binding only).
+_cast_token_counter = 0
+
+
+def _next_cast_token() -> int:
+    global _cast_token_counter
+    _cast_token_counter += 1
+    return _cast_token_counter
+
+
+def _sweep_expired_casts(now: int) -> None:
+    """Drop every pending cast past the oracle view timeout — the
+    opportunistic stand-in for the shipped view's on-timeout
+    ``active_casts.discard`` (cast_view.py:188, codex #373)."""
+    stale = [key for key, entry in _PENDING_CASTS.items()
+             if now - entry["rolled_at"] > PENDING_CAST_TIMEOUT_SECONDS]
+    for key in stale:
+        del _PENDING_CASTS[key]
+
 
 def reset_pending_casts_for_tests() -> None:
+    global _cast_token_counter
     _PENDING_CASTS.clear()
+    _cast_token_counter = 0
 
 
 def _fmt_wait(seconds: int) -> str:
@@ -139,7 +177,9 @@ def _register() -> None:
         now = int(SYSTEM_CLOCK().timestamp())
         # the shipped one-line-in-the-water guard (cast_view.py
         # prepare_cast L86-87); a pending cast past the oracle view
-        # timeout would have timed out live — overwrite it instead.
+        # timeout would have timed out live — sweep it (and every other
+        # expired line) instead: its got-away terminal surfaces on the
+        # dead panel's own Reel click.
         pending = _PENDING_CASTS.get((uid, gid))
         if (pending is not None
                 and now - pending["rolled_at"]
@@ -147,111 +187,140 @@ def _register() -> None:
             return Reply(BLOCKED,
                          "🎣 You've already got a line in the water — "
                          "reel that one in first!")
-        # ONE structures read serves every structure knob AND the
-        # Boathouse regen speed-up, known before the settle so the
-        # out-of-energy gate + "ready in" wait already reflect it
-        # (begin_cast L393-401). Unbuilt ⇒ ×1.0 ⇒ exactly REGEN_SECONDS.
-        built = await get_structures(uid, gid)
-        regen_seconds = energy_mod.regen_seconds_for(
-            structures_mod.boathouse_regen_mult(
-                built.get(structures_mod.BOATHOUSE, 0)))
-        cur, ts = await store.get_fishing_energy(uid, gid)
-        state = energy_mod.EnergyState(cur, ts)
-        settled = energy_mod.settle(state, now,
-                                    regen_seconds=regen_seconds)
-        if not energy_mod.can_cast(settled):
-            wait = energy_mod.seconds_until(state, now,
-                                            energy_mod.CAST_COST,
-                                            regen_seconds=regen_seconds)
-            return Reply(BLOCKED,
-                         "🎣 You're out of energy — let the line rest. "
-                         f"Ready to cast again in **{_fmt_wait(wait)}**.")
-        rod = rods_mod.rod_for_tier(await store.get_rod_tier(uid, gid))
-        profile = venue_mod.profile_for(
-            await store.get_fishing_venue(uid, gid))
-        weather = weather_mod.current_weather()
-        # the shipped get_active_bait resolve (fishing_workflow.py
-        # L368-381): a stale key or non-positive charges read as none.
-        bait_key, bait_charges = await store.get_active_bait(uid, gid)
-        bait = bait_mod.bait_by_key(bait_key)
-        if bait is None or bait_charges <= 0:
-            bait, bait_charges = None, 0
-        # the 4th "how-well" knob: equipped fishing gear (L430-435).
-        gear_stats = character.character_stats(
-            await get_equipment(uid, gid),
-            await get_skills(uid, gid))
-        gear_pull = gear_mod.fishing_pull_mult(gear_stats)
-        gear_bite_speed = gear_mod.fishing_bite_speed_mult(gear_stats)
-        # the structure knobs (L441-451): all exactly neutral unbuilt.
-        tide_pool_level = built.get(structures_mod.TIDE_POOL, 0)
-        tide_pool_pull = structures_mod.tide_pool_pull_mult(
-            tide_pool_level)
-        dock_level = built.get(structures_mod.DOCK, 0)
-        dock_bite_speed = structures_mod.dock_bite_speed_mult(dock_level)
-        fishery_level = built.get(structures_mod.FISHERY, 0)
-        double_catch_chance = (
-            ops_mod.BONUS_CATCH_CHANCE
-            + structures_mod.fishery_bonus_chance(fishery_level))
-        # the compound formulas — begin_cast L458-471 verbatim:
-        # rod × bait × weather × gear × tide pool (pull) and
-        # rod × bait × weather × gear × dock (bite speed).
-        effective_pull = (
-            rod.rarity_pull
-            * (bait.rarity_pull if bait else 1.0)
-            * weather.rarity_mult
-            * gear_pull
-            * tide_pool_pull
-        )
-        effective_bite_speed = (
-            rod.bite_speed
-            * (bait.bite_speed if bait else 1.0)
-            * weather.bite_speed_mult
-            * gear_bite_speed
-            * dock_bite_speed
-        )
-        # roll the cast NOW — the shipped roll_cast (fishing_workflow.py
-        # L127-171): xp read → level_before → the weighted species roll
-        # on the module's private cast RNG (runner-armed for goldens).
-        xp_rows = {str(r["game"]): int(r["xp"])
-                   for r in await game_xp_rows(uid, gid)}
-        level_before = catalog.fishing_level_from_xp(
-            xp_rows.get(game_xp.GAME_FISHING, 0))
-        catch = ops_mod.roll_catch(level_before, ops_mod.cast_rng(),
-                                   rarity_pull=effective_pull,
-                                   venue=profile.key)
-        if catch is None:
-            # the shipped quiet-venue guard (begin_cast L480-488) —
-            # energy is never spent on a catalog-load failure.
-            return Reply(BLOCKED,
-                         f"{profile.emoji} The {profile.name.lower()} "
-                         "is quiet right now — try later.")
-        spent = energy_mod.spend(state, now, regen_seconds=regen_seconds)
-        await store.set_fishing_energy(uid, gid, spent.current,
-                                       spent.updated_at)
-        # consume one bait charge — only now that the cast is actually
-        # happening (begin_cast L493-502: the same "charge per attempt"
-        # rule as energy; the pack clears at 0 charges left).
-        charges_left = 0
-        if bait is not None:
-            charges_left = bait_charges - 1
-            if charges_left <= 0:
-                await store.clear_active_bait(uid, gid)
-                charges_left = 0
-            else:
-                await store.set_active_bait(uid, gid, bait.key,
-                                            charges_left)
-        _PENDING_CASTS[(uid, gid)] = {
-            "rolled_at": now,
-            "species": catch.species.name,
-            "weight": catch.weight,
-            "venue": profile.key,
-            "double_catch_chance": double_catch_chance,
-            "level_before": level_before,
-        }
+        _sweep_expired_casts(now)
+        # RESERVE the slot BEFORE the first await: no await sits between
+        # the guard read above and this write, so two Cast interactions
+        # for one player on one event loop can never both pass the guard
+        # and double-spend energy/bait (codex #373 P1 — the oracle had
+        # the same TOCTOU: its guard read at prepare_cast L86 but its
+        # ``active_casts.add`` only ran in view.start() L184, after
+        # begin_cast's awaits; the reservation closes it). Every
+        # non-parked exit below releases the reservation.
+        token = _next_cast_token()
+        reservation = {"rolled_at": now, "token": token}
+        _PENDING_CASTS[(uid, gid)] = reservation
+        parked = False
+        try:
+            # ONE structures read serves every structure knob AND the
+            # Boathouse regen speed-up, known before the settle so the
+            # out-of-energy gate + "ready in" wait already reflect it
+            # (begin_cast L393-401). Unbuilt ⇒ ×1.0 ⇒ REGEN_SECONDS.
+            built = await get_structures(uid, gid)
+            regen_seconds = energy_mod.regen_seconds_for(
+                structures_mod.boathouse_regen_mult(
+                    built.get(structures_mod.BOATHOUSE, 0)))
+            cur, ts = await store.get_fishing_energy(uid, gid)
+            state = energy_mod.EnergyState(cur, ts)
+            settled = energy_mod.settle(state, now,
+                                        regen_seconds=regen_seconds)
+            if not energy_mod.can_cast(settled):
+                wait = energy_mod.seconds_until(
+                    state, now, energy_mod.CAST_COST,
+                    regen_seconds=regen_seconds)
+                return Reply(BLOCKED,
+                             "🎣 You're out of energy — let the line "
+                             "rest. Ready to cast again in "
+                             f"**{_fmt_wait(wait)}**.")
+            rod = rods_mod.rod_for_tier(
+                await store.get_rod_tier(uid, gid))
+            profile = venue_mod.profile_for(
+                await store.get_fishing_venue(uid, gid))
+            weather = weather_mod.current_weather()
+            # the shipped get_active_bait resolve (fishing_workflow.py
+            # L368-381): a stale key / non-positive charges read as none.
+            bait_key, bait_charges = await store.get_active_bait(uid, gid)
+            bait = bait_mod.bait_by_key(bait_key)
+            if bait is None or bait_charges <= 0:
+                bait, bait_charges = None, 0
+            # the 4th "how-well" knob: equipped fishing gear (L430-435).
+            gear_stats = character.character_stats(
+                await get_equipment(uid, gid),
+                await get_skills(uid, gid))
+            gear_pull = gear_mod.fishing_pull_mult(gear_stats)
+            gear_bite_speed = gear_mod.fishing_bite_speed_mult(gear_stats)
+            # the structure knobs (L441-451): all exactly neutral unbuilt.
+            tide_pool_level = built.get(structures_mod.TIDE_POOL, 0)
+            tide_pool_pull = structures_mod.tide_pool_pull_mult(
+                tide_pool_level)
+            dock_level = built.get(structures_mod.DOCK, 0)
+            dock_bite_speed = structures_mod.dock_bite_speed_mult(
+                dock_level)
+            fishery_level = built.get(structures_mod.FISHERY, 0)
+            double_catch_chance = (
+                ops_mod.BONUS_CATCH_CHANCE
+                + structures_mod.fishery_bonus_chance(fishery_level))
+            # the compound formulas — begin_cast L458-471 verbatim:
+            # rod × bait × weather × gear × tide pool (pull) and
+            # rod × bait × weather × gear × dock (bite speed).
+            effective_pull = (
+                rod.rarity_pull
+                * (bait.rarity_pull if bait else 1.0)
+                * weather.rarity_mult
+                * gear_pull
+                * tide_pool_pull
+            )
+            effective_bite_speed = (
+                rod.bite_speed
+                * (bait.bite_speed if bait else 1.0)
+                * weather.bite_speed_mult
+                * gear_bite_speed
+                * dock_bite_speed
+            )
+            # roll the cast NOW — the shipped roll_cast
+            # (fishing_workflow.py L127-171): xp read → level_before →
+            # the weighted species roll on the module's private cast RNG
+            # (runner-armed for goldens).
+            xp_rows = {str(r["game"]): int(r["xp"])
+                       for r in await game_xp_rows(uid, gid)}
+            level_before = catalog.fishing_level_from_xp(
+                xp_rows.get(game_xp.GAME_FISHING, 0))
+            catch = ops_mod.roll_catch(level_before, ops_mod.cast_rng(),
+                                       rarity_pull=effective_pull,
+                                       venue=profile.key)
+            if catch is None:
+                # the shipped quiet-venue guard (begin_cast L480-488) —
+                # energy is never spent on a catalog-load failure.
+                return Reply(BLOCKED,
+                             f"{profile.emoji} The {profile.name.lower()} "
+                             "is quiet right now — try later.")
+            spent = energy_mod.spend(state, now,
+                                     regen_seconds=regen_seconds)
+            await store.set_fishing_energy(uid, gid, spent.current,
+                                           spent.updated_at)
+            # consume one bait charge — only now that the cast is
+            # actually happening (begin_cast L493-502: the same "charge
+            # per attempt" rule as energy; the pack clears at 0 left).
+            charges_left = 0
+            if bait is not None:
+                charges_left = bait_charges - 1
+                if charges_left <= 0:
+                    await store.clear_active_bait(uid, gid)
+                    charges_left = 0
+                else:
+                    await store.set_active_bait(uid, gid, bait.key,
+                                                charges_left)
+            _PENDING_CASTS[(uid, gid)] = {
+                "rolled_at": now,
+                "token": token,
+                "species": catch.species.name,
+                "weight": catch.weight,
+                "venue": profile.key,
+                "double_catch_chance": double_catch_chance,
+                "level_before": level_before,
+            }
+            parked = True
+        finally:
+            # release the reservation on every non-parked exit (the
+            # BLOCKED gates above, or a raise) — never a parked cast.
+            if (not parked
+                    and _PENDING_CASTS.get((uid, gid)) is reservation):
+                del _PENDING_CASTS[(uid, gid)]
         # effective_bite_speed is computed + carried for the shipped
         # CastStart contract but is outcome-inert until the live timing
         # rung (see the module-tail DEVIATION note).
         del effective_bite_speed
+        # the panel opens OUTSIDE the try: a failed send keeps the
+        # rolled, PAID cast parked and reelable (its costs are spent).
         await open_panel(
             PanelRef(CAST_PANEL_ID),
             dataclasses.replace(
@@ -265,34 +334,80 @@ def _register() -> None:
                         gear_mod.has_fishing_bonus(gear_stats),
                     "cast_tide_pool": tide_pool_level > 0,
                     "cast_dock": dock_level > 0,
+                    # the cast's identity — rides the in-memory
+                    # panel-args binding to the Reel click, so a stale
+                    # Reel can never pop a newer cast (codex #373 P1).
+                    "cast_token": token,
                 }))
         return Reply(SUCCESS, None)
 
     @handler("fishing.fish_route")
     async def fish_route(req) -> Reply:
-        """The cast panel's Reel button — pops the pending cast rolled at
-        cast time (the shipped roll-at-cast / commit-at-reel split,
-        cast_view.py ``_land_catch`` → ``commit_catch``) and commits it
-        through the audited ``fishing.cast`` K7 op (dex upsert + pearl /
-        coral / fish materials + game XP in one leg txn). A Reel with no
-        pending cast falls back to the leg's roll-at-commit starter seam
-        (the shipped legacy ``fish()``). The shipped live-timing layer
-        (bite delay / fake-out / escape) rides the D-0043 successor port
-        — see the panels module under-port ledger."""
+        """The cast panel's Reel button — lands the pending cast rolled
+        at cast time (the shipped roll-at-cast / commit-at-reel split,
+        cast_view.py ``_land_catch`` → ``commit_catch``) through the
+        audited ``fishing.cast`` K7 op (dex upsert + pearl / coral /
+        fish materials + game XP in one leg txn). The click carries the
+        cast's identity token (the panel-args binding), so a STALE Reel
+        — the cast timed out, or a newer cast replaced it — answers the
+        shipped got-away terminal (cast_view.py window-expiry copy +
+        the ``_got_away`` trophy clue) instead of landing a dead fish or
+        popping a newer cast (codex #373 P1). The entry is popped only
+        for the commit and RESTORED on a failed commit, so a transient
+        failure never loses the paid cast (codex #373 P2). A token-less
+        Reel with no pending cast keeps the leg's roll-at-commit starter
+        seam (the shipped legacy ``fish()`` — the direct-invocation
+        path). The shipped live-timing layer (bite delay / fake-out /
+        escape) rides the D-0043 successor port — see the panels module
+        under-port ledger."""
+        from sb.domain.fishing import catalog, minigame
         from sb.kernel.workflow import engine
+        from sb.kernel.workflow.context import SYSTEM_CLOCK
         from sb.spec.refs import WorkflowRef
 
         uid = int(getattr(req.actor, "user_id", 0) or 0)
         gid = int(req.guild_id or 0)
-        entry = _PENDING_CASTS.pop((uid, gid), None)
+        now = int(SYSTEM_CLOCK().timestamp())
+        key = (uid, gid)
+        token = req.args.get("cast_token")
+        entry = _PENDING_CASTS.get(key)
+        if entry is not None and "species" not in entry:
+            entry = None  # a mid-flight reservation is never reelable
+        if token is not None and (entry is None
+                                  or entry.get("token") != token):
+            # this Reel belongs to an OLDER cast whose line is dead —
+            # timed out and swept, or replaced by a newer cast (which
+            # stays parked, untouched). The oracle's timed-out view was
+            # no longer reelable; answer its terminal.
+            return Reply(BLOCKED, _GOT_AWAY)
+        if (entry is not None
+                and now - entry["rolled_at"] > PENDING_CAST_TIMEOUT_SECONDS):
+            # the oracle view timed out at 45 s — the PAID cast got away
+            # (the shipped economics: energy + bait already spent, no
+            # write); surface it with the oracle ``_got_away`` soft-fail
+            # clue at the cast's own level_before.
+            del _PENDING_CASTS[key]
+            species = catalog.species_by_name(str(entry["species"]))
+            clue = (minigame.escape_clue(species,
+                                         int(entry["level_before"]))
+                    if species is not None else None)
+            return Reply(BLOCKED,
+                         f"{_GOT_AWAY}\n{clue}" if clue else _GOT_AWAY)
         params: dict = {}
         if entry is not None:
-            params = {key: entry[key]
-                      for key in ("species", "weight", "venue",
-                                  "double_catch_chance", "level_before")}
+            # pop EXCLUSIVELY for the commit (two racing Reels can never
+            # double-land one cast) …
+            _PENDING_CASTS.pop(key, None)
+            params = {k: entry[k]
+                      for k in ("species", "weight", "venue",
+                                "double_catch_chance", "level_before")}
         result = await engine.run(WorkflowRef("fishing.cast"),
                                   _ctx_from_req(req, params))
         if result.outcome != SUCCESS:
+            # … and RESTORE the paid cast on a failed commit so it stays
+            # landable — unless a newer cast already took the slot.
+            if entry is not None and key not in _PENDING_CASTS:
+                _PENDING_CASTS[key] = entry
             return Reply(result.outcome,
                          result.user_message or "The line came back "
                                                 "empty.")

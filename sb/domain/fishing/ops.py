@@ -279,6 +279,13 @@ async def _record_cast(conn, ctx: WorkflowContext) -> LegOutcome:
     from sb.domain.fishing import minigame
     from sb.domain.fishing import venue as venue_mod
 
+    # at level_AFTER, deliberately: the shipped result card judges the
+    # trophy title at ``result.fishing_level`` — the POST-award level
+    # (cast_view.py:413; FishResult.fishing_level = level_after,
+    # commit_catch L262-266). The level_BEFORE check at cast_view.py:333
+    # is a different branch — the BITE-phase reel-fight decision, which
+    # rides the parked timing rung. Codex #373 flagged the level-up
+    # suppression; it is the oracle's own shipped result-title semantics.
     trophy = minigame.is_trophy(catch.species, level_after)
     pool_size = len(catalog.species_for_venue(catch.species.venue))
     profile = venue_mod.profile_for(venue)
