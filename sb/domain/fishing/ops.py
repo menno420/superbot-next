@@ -441,7 +441,16 @@ async def _record_craft_rod(conn, ctx: WorkflowContext) -> LegOutcome:
     advisory-fenced against a concurrent double-craft (the quick_craft
     posture). The handler answers the maxed / not-enough-fish cases as
     pure reads before this leg runs — the only path any golden pins
-    (goldens/fishing/sweep_craftrod)."""
+    (goldens/fishing/sweep_craftrod). Ledgered posture (cross-craft
+    fish spend): the fish-spending crafts are fenced PER KIND (rod /
+    bait / charm each key their own advisory lock), so a raced craftrod
+    × craftbait/craftcharm pair can both plan over one fish stack and
+    the floor-0 ``update_mining_item`` debit masks the loser — two
+    grants from one stack, matching-or-narrower than the oracle (which
+    fenced nothing; same-kind races ARE serialized here). Materials,
+    never coins, so ``check_money_race`` does not cover it; if a coin
+    leg ever joins a cross-kind spend, the fix is one SHARED key (the
+    ``lock_coral_slot`` precedent)."""
     from sb.domain.fishing import crafting, rods as rods_mod
     from sb.domain.mining.store import get_mining_inventory, update_mining_item
 
@@ -556,7 +565,9 @@ async def _record_craft_bait(conn, ctx: WorkflowContext) -> LegOutcome:
     Q-0071 order). Not money-bearing, but the fish spend is
     advisory-fenced against a concurrent double-craft (the quick_craft
     posture). The handler answers the unknown-bait / not-enough-fish
-    cases as pure reads before this leg runs."""
+    cases as pure reads before this leg runs. Cross-craft fish-spend
+    posture ledgered at ``_record_craft_rod`` (per-kind locks — a raced
+    OTHER-kind craft over the same stack is not serialized)."""
     from sb.domain.fishing import bait as bait_mod, crafting
     from sb.domain.mining.store import get_mining_inventory, update_mining_item
 
@@ -651,7 +662,10 @@ async def _record_craft_charm(conn, ctx: WorkflowContext) -> LegOutcome:
     byte-matches the mining equipment catalog). Not money-bearing, but
     the fish spend is advisory-fenced against a concurrent double-craft
     (the quick_craft posture). The handler answers the unknown-charm /
-    not-enough-fish cases as pure reads before this leg runs."""
+    not-enough-fish cases as pure reads before this leg runs.
+    Cross-craft fish-spend posture ledgered at ``_record_craft_rod``
+    (per-kind locks — a raced OTHER-kind craft over the same stack is
+    not serialized)."""
     from sb.domain.fishing import crafting, gear as gear_mod
     from sb.domain.mining.store import get_mining_inventory, update_mining_item
 

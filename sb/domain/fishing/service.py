@@ -141,9 +141,14 @@ def _register() -> None:
         rolled, so a catalog-load failure never charges) → spend energy
         → spend one bait charge (a missed reel still spends both — the
         shipped "charge per attempt" rule) → park the rolled cast in the
-        pending registry → open the waiting-for-a-bite panel. Energy +
-        bait writes are the shipped direct game-state writes
-        (autocommit, non-money — the energy-spend posture);
+        pending registry → open the waiting-for-a-bite panel. The energy
+        write is the shipped direct game-state write (autocommit,
+        non-money — the energy-spend posture); the bait consume is a
+        single conditional relative decrement
+        (``store.consume_bait_charge``) so a coin-bought bait load
+        committing behind ``lock_bait_slot`` mid-cast is never clobbered
+        by a stale absolute write-back (the #213/#217 doctrine — bait is
+        money-bearing; user-visible bytes unchanged);
         goldens/fishing/sweep_fish pins the spent fresh-bar row + the
         shore panel bytes (every knob reads exactly neutral on a fresh
         player, so the wired cast is byte-identical there)."""
@@ -290,15 +295,24 @@ def _register() -> None:
             # consume one bait charge — only now that the cast is
             # actually happening (begin_cast L493-502: the same "charge
             # per attempt" rule as energy; the pack clears at 0 left).
+            # ONE conditional relative decrement, never an absolute
+            # write-back of the stale read above: the buy/craft legs
+            # stack/replace the loadout behind lock_bait_slot in their
+            # own txn, and this lockless leg racing them with
+            # set_active_bait(bait_charges - 1) would eat a purchase's
+            # coin-bought charges (or clear a freshly replaced pack) —
+            # the #213/#217 read-then-settle lost update on a
+            # money-bearing slot. consume_bait_charge decrements the
+            # COMMITTED count (and clears the pack in-statement at 0);
+            # None = the loadout was swapped/emptied concurrently — the
+            # shipped "no bait" posture (nothing to spend), the cast
+            # keeps the effects it rolled with.
             charges_left = 0
             if bait is not None:
-                charges_left = bait_charges - 1
-                if charges_left <= 0:
-                    await store.clear_active_bait(uid, gid)
-                    charges_left = 0
-                else:
-                    await store.set_active_bait(uid, gid, bait.key,
-                                                charges_left)
+                remaining = await store.consume_bait_charge(
+                    uid, gid, bait.key)
+                if remaining is not None:
+                    charges_left = remaining
             _PENDING_CASTS[(uid, gid)] = {
                 "rolled_at": now,
                 "token": token,

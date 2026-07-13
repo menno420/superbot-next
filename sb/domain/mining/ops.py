@@ -786,7 +786,13 @@ async def _record_cook(conn, ctx: WorkflowContext) -> LegOutcome:
     Gates (campfire / not-a-fish / short stack) are pure reads that abort
     the txn row-less; the raw-fish debit + cooked-fish grant commit in ONE
     txn (Q-0071). NOT money-bearing — raw fish sell for coins through the
-    market; cooking trades a fish for a meal."""
+    market; cooking trades a fish for a meal. Lockless by ledgered
+    posture (the ``_record_use_item`` twin above): two raced cooks over
+    one short stack can both pass the in-txn stack read and the floor-0
+    ``update_mining_item`` debit masks the loser — an extra meal minted
+    from one stack, matching the oracle's own unfenced cook; cooked fish
+    has no coin sink (``market.sell_price`` knows only resources + raw
+    species), so a raced cook can never mint or strand coins."""
     from sb.domain.mining import energy, structures
 
     uid, gid, _ = _ids(ctx)
