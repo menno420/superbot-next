@@ -160,6 +160,27 @@ class TestContractFences:
         assert report.manifests == ()
         assert any("COLLISION" in v for v in report.violations)
 
+    def test_joint_compile_catches_a_slash_root_group_collision(self):
+        """A plugin whose slash subcommand GROUP name equals a host slash
+        ROOT command name is the discord.py CommandAlreadyRegistered shape
+        (Finding #3, PR #370): the joint compile's app_tree fence reds it
+        before a live boot ever tries ``tree.add_command`` twice."""
+        host = SubsystemManifest(
+            key="plugraidhost",
+            commands=(CommandSpec(name="raid", kind=CommandKind.SLASH,
+                                  summary="host raid root"),))
+        plugin = SubsystemManifest(
+            key="plugraidguest",
+            commands=(CommandSpec(name="start", kind=CommandKind.SLASH,
+                                  group="raid", summary="plugin raid start"),))
+        ep = _ep("plug-raid", plugin)
+        pins = plugin_host.build_pins(plugin_host.discover_plugins((ep,)))
+        report = plugin_host.load_plugins([host], pins=pins,
+                                          entry_points=(ep,))
+        assert report.manifests == ()
+        assert any("slash_root_group_collision" in v for v in report.violations), \
+            report.violations
+
     def test_joint_compile_green_admits_the_union(self):
         host = _manifest("plughostb", "plughostbcmd")
         plugin = _manifest("plugguest", "plugguestcmd")

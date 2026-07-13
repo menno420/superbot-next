@@ -205,7 +205,8 @@ def test_band4_manifest_surfaces():
 
     assert {m.key for m in (xp, karma, community, spotlight, leaderboard)} \
         == {"xp", "karma", "community", "community_spotlight", "leaderboard"}
-    # shipped alias set verbatim on !leaderboard
+    # shipped alias set verbatim on !leaderboard — exact-tuple pin lives
+    # in test_leaderboard_alias_set_is_ledgered_deliberate below
     lb = leaderboard.commands[0]
     assert set(lb.aliases) == {"lb", "rankings", "minelb",
                                "miningleaderboard", "fishlb",
@@ -220,3 +221,43 @@ def test_band4_manifest_surfaces():
     # spotlight/community/leaderboard own no stores or settings
     for m in (community, spotlight, leaderboard):
         assert m.stores == () and m.settings == ()
+
+
+def test_leaderboard_alias_set_is_ledgered_deliberate():
+    """Curation row 44 guard: the ELEVEN legacy aliases are DELIBERATE.
+
+    Q-A03 (owner-held default, applied at D-0038 docs/decisions.md:290)
+    rules "legacy routes stay callable" — the oracle-marked
+    legacy_duplicate alias set stays VERBATIM, ledgered in the
+    DELIBERATE ALIAS SET block in sb/manifest/leaderboard.py. Drift in
+    EITHER direction (a trimmed alias or a grown one) is a contradiction
+    of that ruling and must arrive as an owner turn amending Q-A03, with
+    this pin and the ledger block updated together.
+    """
+    import inspect
+
+    import sb.manifest.leaderboard as lb_manifest
+
+    drift_msg = (
+        "leaderboard alias tuple drifted — the 11-alias set is pinned "
+        "VERBATIM by the owner-held Q-A03 ruling (docs/decisions.md:290, "
+        "'legacy routes stay callable'); see the DELIBERATE ALIAS SET "
+        "ledger block in sb/manifest/leaderboard.py. Changing the set "
+        "requires an owner turn amending Q-A03, not a code-side edit.")
+    lb = lb_manifest.MANIFEST.commands[0]
+    assert lb.name == "leaderboard" and lb.kind.name == "PREFIX", drift_msg
+    # exact tuple, order included — the shipped declaration verbatim
+    assert lb.aliases == ("lb", "rankings", "minelb",
+                          "miningleaderboard", "fishlb",
+                          "dm_leaderboard", "dm_lb", "rpslb", "farmlb",
+                          "countlb", "counting_leaderboard"), drift_msg
+
+    # the ledger block itself must stay present and name its authority —
+    # a future edit that trims the comment silently un-ledgers the set
+    source = inspect.getsource(lb_manifest)
+    for marker in ("DELIBERATE ALIAS SET", "Q-A03", "legacy_duplicate"):
+        assert marker in source, (
+            f"sb/manifest/leaderboard.py lost its '{marker}' ledger "
+            "marker — the DELIBERATE ALIAS SET block (curation row 44) "
+            "must ride above the CommandSpec; see Q-A03 at "
+            "docs/decisions.md:290.")

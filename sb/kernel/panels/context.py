@@ -39,6 +39,6 @@ class PanelContext:
     #: "component"/…, None when the caller has no request) — surface-keyed
     #: rendering for renderer overrides (the shipped panel-manager
     #: back-to-help hook appended its button on the MESSAGE path only;
-    #: goldens/server_management vs goldens/servermanagement pin the
+    #: goldens/server_management's prefix vs slash sweeps pin the
     #: split). Read-only, engine-set; grammar panels may ignore it.
     surface: str | None = None

@@ -9472,9 +9472,6 @@
       "handler:cleanup.history_scan": {
         "module": "sb.domain.cleanup.handlers"
       },
-      "handler:cleanup.logging_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:cleanup.policies_pending": {
         "module": "sb.domain.operator_spine"
       },
@@ -9484,23 +9481,11 @@
       "handler:cleanup.render_words": {
         "module": "sb.domain.cleanup.panels"
       },
-      "handler:cleanup.scan_history_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:cleanup.settings_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:cleanup.word_add_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:cleanup.word_list": {
         "module": "sb.domain.cleanup.ops"
-      },
-      "handler:cleanup.word_refresh_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:cleanup.word_remove_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:community.render_hub": {
         "module": "sb.domain.community.panels"
@@ -10363,9 +10348,6 @@
       "handler:mining.workshop_craft_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.workshop_hub_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:moderation.modlogs_view": {
         "module": "sb.domain.moderation.service"
       },
@@ -10573,14 +10555,8 @@
       "handler:server_management.access_map_tier": {
         "module": "sb.domain.server_management.access_map"
       },
-      "handler:server_management.cleanup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:server_management.help_preview_tier": {
         "module": "sb.domain.server_management.help_preview"
-      },
-      "handler:server_management.moderation_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:server_management.render_access_map": {
         "module": "sb.domain.server_management.access_map"
@@ -10591,23 +10567,20 @@
       "handler:server_management.render_hub": {
         "module": "sb.domain.server_management.panels"
       },
-      "handler:server_management.roles_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_explain": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_explain_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_page": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_page_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_reset": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_reset_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_scope": {
+        "module": "sb.domain.settings.handlers"
       },
-      "handler:settings.access_scope_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:settings.access_subsystem_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:settings.access_subsystem": {
+        "module": "sb.domain.settings.handlers"
       },
       "handler:settings.access_view": {
         "module": "sb.domain.settings.handlers"
@@ -10885,9 +10858,6 @@
       "handler:utility.info_view": {
         "module": "sb.domain.utility.handlers"
       },
-      "handler:utility.invite_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:utility.invite_view": {
         "module": "sb.domain.utility.handlers"
       },
@@ -10981,20 +10951,20 @@
       "handler:welcome.status_render": {
         "module": "sb.domain.welcome.panels"
       },
-      "handler:xp.config_channel_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.config_channel_submit": {
+        "module": "sb.domain.xp.handlers"
       },
-      "handler:xp.config_cooldown_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.config_cooldown_submit": {
+        "module": "sb.domain.xp.handlers"
       },
-      "handler:xp.config_range_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.config_range_submit": {
+        "module": "sb.domain.xp.handlers"
       },
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
       },
-      "handler:xp.import_setup_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.import_setup_submit": {
+        "module": "sb.domain.xp.handlers"
       },
       "handler:xp.rank_card_render": {
         "module": "sb.domain.xp.panels"
@@ -13943,7 +13913,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:dcc38f23a901c20ef66fe2e047d705b0b5c3e999b5edaee831c2bc251fe32e3a",
+  "stable_hash": "sha256:0395dfb9ec4919e60924e102f71093f8377fe7471f9ee581d3fc475608d2290e",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -26726,7 +26696,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.logging_pending"
+                "$ref": "panel:logging.hub"
               },
               "label": "📝 Logging Status",
               "modal": null,
@@ -26883,15 +26853,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.word_add_pending"
+                "$ref": "workflow:cleanup.word_add_op"
               },
               "label": "➕ Add Word",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "word",
+                    "label": "Word or phrase",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. badword",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "cleanup.word_add_form",
+                "on_submit": {
+                  "$ref": "workflow:cleanup.word_add_op"
+                },
+                "title": "Add Prohibited Word"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -26908,15 +26896,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.word_remove_pending"
+                "$ref": "workflow:cleanup.word_remove_op"
               },
               "label": "➖ Remove Word",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "word",
+                    "label": "Word or phrase",
+                    "max_length": 100,
+                    "min_length": null,
+                    "placeholder": "e.g. badword",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "cleanup.word_remove_form",
+                "on_submit": {
+                  "$ref": "workflow:cleanup.word_remove_op"
+                },
+                "title": "Remove Prohibited Word"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -26938,13 +26944,13 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.word_refresh_pending"
+                "$ref": "panel:cleanup.words"
               },
               "label": "🔄 Refresh",
               "modal": null,
               "reply_visibility": null,
               "result_card": null,
-              "result_render": "result_card",
+              "result_render": "refresh_panel",
               "slash_common": false,
               "style": "secondary",
               "usage_weight": 1.0,
@@ -26963,7 +26969,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:cleanup.scan_history_pending"
+                "$ref": "handler:cleanup.history_scan"
               },
               "label": "🔍 Scan History",
               "modal": null,
@@ -46397,7 +46403,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.workshop_hub_pending"
+                "$ref": "panel:mining.hub"
               },
               "label": "↩ Workshop",
               "modal": null,
@@ -51950,7 +51956,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.moderation_pending"
+                "$ref": "panel:moderation.hub"
               },
               "label": "🛡️ Moderation",
               "modal": null,
@@ -52000,7 +52006,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.roles_pending"
+                "$ref": "panel:role.hub"
               },
               "label": "🎭 Roles",
               "modal": null,
@@ -52025,7 +52031,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.cleanup_pending"
+                "$ref": "panel:cleanup.hub"
               },
               "label": "🧹 Cleanup",
               "modal": null,
@@ -52209,7 +52215,7 @@
             "style_token": "red",
             "thumbnail_ref": ""
           },
-          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (goldens/servermanagement + goldens/server_management pin the byte; the utility/ux_lab/channel precedent). The override additionally adjusts TWO named component surfaces (the 12c lane): (1) it DROPS the grammar's injected nav:back:help.home button — the shipped hub never rendered a grammar nav row, both goldens pin exactly the declared rows; (2) it DROPS the declared help_back action on the slash surface — the shipped back-to-help hook appended the button on the panel-manager MESSAGE path only (goldens/server_management pins the 4-row prefix shape, goldens/servermanagement pins the 3-row slash shape). Body, fields, and every other action stay declared.",
+          "justification": "the shipped hub footer is the literal 'Read-only summary · click a manager to open it' (hub.py set_footer) — outside FooterMode's none/subsystem/provenance vocabulary (both goldens/server_management sweeps pin the byte; the utility/ux_lab/channel precedent). The override additionally adjusts TWO named component surfaces (the 12c lane): (1) it DROPS the grammar's injected nav:back:help.home button — the shipped hub never rendered a grammar nav row, both goldens pin exactly the declared rows; (2) it DROPS the declared help_back action on the slash surface — the shipped back-to-help hook appended the button on the panel-manager MESSAGE path only (sweep_servermanagement pins the 4-row prefix shape, sweep_slash_server-management pins the 3-row slash shape). Body, fields, and every other action stay declared.",
           "layout": {
             "pages": [
               {
@@ -52927,7 +52933,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_explain_pending"
+                "$ref": "handler:settings.access_explain"
               },
               "label": "🔬 Explain Access",
               "modal": null,
@@ -52952,7 +52958,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_reset_pending"
+                "$ref": "handler:settings.access_reset"
               },
               "label": "🔄 Reset",
               "modal": null,
@@ -52977,7 +52983,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_page_pending"
+                "$ref": "handler:settings.access_page"
               },
               "label": "◀ Prev",
               "modal": null,
@@ -53002,7 +53008,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:settings.access_page_pending"
+                "$ref": "handler:settings.access_page"
               },
               "label": "Next ▶",
               "modal": null,
@@ -53082,7 +53088,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:settings.access_subsystem_pending"
+                "$ref": "handler:settings.access_subsystem"
               },
               "options_source": [
                 {
@@ -53251,7 +53257,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:settings.access_scope_pending"
+                "$ref": "handler:settings.access_scope"
               },
               "options_source": [
                 {
@@ -56775,7 +56781,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.invite_pending"
+                "$ref": "handler:utility.invite_view"
               },
               "label": "🔗 Invite",
               "modal": null,
@@ -58611,15 +58617,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.config_range_pending"
+                "$ref": "handler:xp.config_range_submit"
               },
               "label": "XP Range",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "xp_min",
+                    "label": "Min XP per message",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "15",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "xp_max",
+                    "label": "Max XP per message",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "25",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.range_form",
+                "on_submit": {
+                  "$ref": "handler:xp.config_range_submit"
+                },
+                "title": "Set XP Range"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -58636,15 +58670,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.config_cooldown_pending"
+                "$ref": "handler:xp.config_cooldown_submit"
               },
               "label": "Cooldown",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "seconds",
+                    "label": "Cooldown in seconds",
+                    "max_length": 5,
+                    "min_length": null,
+                    "placeholder": "60",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.cooldown_form",
+                "on_submit": {
+                  "$ref": "handler:xp.config_cooldown_submit"
+                },
+                "title": "Set XP Cooldown"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -58661,15 +58713,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.config_channel_pending"
+                "$ref": "handler:xp.config_channel_submit"
               },
               "label": "Level-up Channel",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel_id",
+                    "label": "Channel ID (leave blank = same channel)",
+                    "max_length": 25,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.channel_form",
+                "on_submit": {
+                  "$ref": "handler:xp.config_channel_submit"
+                },
+                "title": "Level-up Announcement Channel"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -58686,15 +58756,53 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.import_setup_pending"
+                "$ref": "handler:xp.import_setup_submit"
               },
               "label": "📥 Import from another bot",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "source",
+                    "label": "Which bot posted them? (default: arcane)",
+                    "max_length": 20,
+                    "min_length": null,
+                    "placeholder": "arcane",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Level-up channel (ID; blank = here)",
+                    "max_length": 25,
+                    "min_length": null,
+                    "placeholder": "123456789",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "limit",
+                    "label": "Max messages to scan (blank = all)",
+                    "max_length": 6,
+                    "min_length": null,
+                    "placeholder": "1000",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.import_form",
+                "on_submit": {
+                  "$ref": "handler:xp.import_setup_submit"
+                },
+                "title": "📥 Import XP from another bot"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
