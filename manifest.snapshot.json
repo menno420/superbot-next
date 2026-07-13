@@ -9383,8 +9383,8 @@
       "handler:mining.sellall_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.skill_respec_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.skill_respec_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.skill_route": {
         "module": "sb.domain.mining.service"
@@ -11513,6 +11513,9 @@
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.craft": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.delete_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -11570,6 +11573,9 @@
       "workflow:mining.record_buy": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_craft": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_delete_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -11598,6 +11604,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_reset_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_respec": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_save_loadout": {
@@ -11634,6 +11643,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.reset_inventory": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.respec": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.save_loadout": {
@@ -12595,7 +12607,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:cfdc5124150ff5f9a49b318688544ab85f18ea8fa39f0ad0cb4716f6130c81d0",
+  "stable_hash": "sha256:03450129081c4972dec6d57f6e07dd98649f5207cf0ee45fc5f6b30e87aa4105",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -41026,7 +41038,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.skill_respec_pending"
+                "$ref": "handler:mining.skill_respec_route"
               },
               "label": "♻ Respec",
               "modal": null,
