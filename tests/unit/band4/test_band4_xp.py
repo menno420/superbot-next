@@ -418,3 +418,180 @@ def test_inv_g_spec_shape():
     assert spec.severity is Severity.REPAIRABLE
     assert spec.repair_ref is not None and spec.bears_value is True
     assert spec.stores == ("xp",)
+
+
+# --- the xp.config mutation legs (2026-07-13 curation rework, backlog slice 1) --------
+
+import dataclasses as _dc
+
+
+@_dc.dataclass
+class _FakeReq:
+    """ResolveRequest twin (dataclass — the handlers `dataclasses.replace`
+    it, the real request's shape) carrying only the fields they touch."""
+
+    actor: object
+    guild_id: int
+    channel_id: int
+    args: dict
+    request_id: str = "r-xpcfg"
+    confirmed: bool = True
+
+
+def _req(args: dict, *, uid: int = 42, gid: int = 1, channel: int = 555):
+    return _FakeReq(
+        actor=SimpleNamespace(user_id=uid, actor_type="user"), guild_id=gid,
+        channel_id=channel, args=args)
+
+
+def _record_engine(monkeypatch, outcome=None, user_message=""):
+    """Monkeypatch the K7 engine with a recorder returning success (or a
+    forced outcome) — the submit handlers import the module and call
+    `engine.run`, so patching the module attr intercepts every write."""
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import SUCCESS
+
+    calls = []
+
+    async def fake_run(ref, ctx):
+        calls.append((ref.name, dict(ctx.params)))
+        return SimpleNamespace(outcome=outcome or SUCCESS,
+                               user_message=user_message, after={})
+
+    monkeypatch.setattr(engine, "run", fake_run)
+    return calls
+
+
+def test_config_buttons_are_modal_ingress_over_live_lanes():
+    """The curation rework (backlog slice 1): all four xp.config buttons
+    open G-10 modals whose submits land on registered live handlers —
+    the cleanup-words / moderation.hub.warn modal-ingress precedent."""
+    import sb.manifest.xp  # noqa: F401 — handlers register at import
+    from sb.domain.xp.panels import xp_config_spec
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.refs import HandlerRef, is_registered
+
+    by_id = {a.action_id: a for a in xp_config_spec().actions}
+    expected = {
+        "xp_range": ("xp.range_form", ["xp_min", "xp_max"],
+                     "xp.config_range_submit"),
+        "xp_cooldown": ("xp.cooldown_form", ["seconds"],
+                        "xp.config_cooldown_submit"),
+        "xp_levelup_channel": ("xp.channel_form", ["channel_id"],
+                               "xp.config_channel_submit"),
+        "xp_import": ("xp.import_form", ["source", "channel", "limit"],
+                      "xp.import_setup_submit"),
+    }
+    for aid, (modal_id, fields, submit) in expected.items():
+        action = by_id[aid]
+        assert action.defer_mode is DeferMode.MODAL, aid
+        assert action.modal is not None and action.modal.modal_id == modal_id
+        assert [f.field_id for f in action.modal.fields] == fields, aid
+        assert action.modal.on_submit == HandlerRef(submit), aid
+        assert action.handler == HandlerRef(submit), aid
+        assert is_registered(HandlerRef(submit)), aid
+
+
+def test_retired_config_pendings_are_gone():
+    """The four retired pending terminals must not linger — a stale
+    pending handler hides a regression of the same name (the cleanup
+    burn-down posture)."""
+    from sb.domain.xp import handlers, panels
+    from sb.spec.refs import HandlerRef, is_registered
+
+    panels.ensure_panel_refs()
+    handlers.ensure_handler_refs()
+    for name in ("xp.config_range_pending", "xp.config_cooldown_pending",
+                 "xp.config_channel_pending", "xp.import_setup_pending"):
+        assert not is_registered(HandlerRef(name)), name
+
+
+def _submit(name: str, args: dict):
+    from sb.domain.xp import handlers  # noqa: F401 — registers at import
+    from sb.spec.refs import HandlerRef, resolve
+
+    handlers.ensure_handler_refs()
+    fn = resolve(HandlerRef(name))
+    return run(fn(_req(args)))
+
+
+def test_range_submit_oracle_validation_copy(monkeypatch):
+    from sb.spec.outcomes import BLOCKED
+
+    calls = _record_engine(monkeypatch)
+    r = _submit("xp.config_range_submit", {"xp_min": "a", "xp_max": "5"})
+    assert (r.outcome, r.user_message) == (
+        BLOCKED, "❌ Both values must be integers.")
+    r = _submit("xp.config_range_submit", {"xp_min": "30", "xp_max": "10"})
+    assert (r.outcome, r.user_message) == (BLOCKED, "❌ Max must be ≥ min.")
+    r = _submit("xp.config_range_submit", {"xp_min": "0", "xp_max": "10"})
+    assert r.outcome == BLOCKED and "between 1 and 10000" in r.user_message
+    assert calls == []          # every refusal short-circuits the write
+
+
+def test_range_submit_writes_both_scalars(monkeypatch):
+    import sb.manifest.xp as mxp
+    from sb.kernel import settings as ksettings
+    from sb.spec.outcomes import SUCCESS
+
+    ksettings.register_manifest_settings(mxp.MANIFEST)
+    calls = _record_engine(monkeypatch)
+    r = _submit("xp.config_range_submit", {"xp_min": "10", "xp_max": "20"})
+    assert r.outcome == SUCCESS and "10–20" in r.user_message
+    assert [(name, p["key"], p["value"]) for name, p in calls] == [
+        ("settings.set_scalar", "xp_min", "10"),
+        ("settings.set_scalar", "xp_max", "20"),
+    ]
+
+
+def test_cooldown_submit_validates_and_writes(monkeypatch):
+    import sb.manifest.xp as mxp
+    from sb.kernel import settings as ksettings
+    from sb.spec.outcomes import BLOCKED, SUCCESS
+
+    ksettings.register_manifest_settings(mxp.MANIFEST)
+    calls = _record_engine(monkeypatch)
+    r = _submit("xp.config_cooldown_submit", {"seconds": "abc"})
+    assert (r.outcome, r.user_message) == (
+        BLOCKED, "❌ Cooldown must be an integer.")
+    r = _submit("xp.config_cooldown_submit", {"seconds": "90"})
+    assert r.outcome == SUCCESS and "90s" in r.user_message
+    assert calls == [("settings.set_scalar",
+                      {"key": "xp_cooldown", "value": "90",
+                       "subsystem": "xp", "name": "xp_cooldown"})]
+
+
+def test_channel_submit_binding_lane(monkeypatch):
+    """P0-3 verbatim: empty clears the binding, a numeric ID sets it,
+    anything else is the shipped refusal copy."""
+    from sb.spec.outcomes import BLOCKED, SUCCESS
+
+    calls = _record_engine(monkeypatch)
+    r = _submit("xp.config_channel_submit", {"channel_id": "general"})
+    assert (r.outcome, r.user_message) == (
+        BLOCKED, "❌ Channel must be empty (to clear) or a numeric "
+                 "Discord channel ID.")
+    assert calls == []
+
+    r = _submit("xp.config_channel_submit", {"channel_id": ""})
+    assert r.outcome == SUCCESS
+    assert calls[-1] == ("settings.unbind",
+                         {"subsystem": "xp", "name": "announce_channel"})
+
+    r = _submit("xp.config_channel_submit", {"channel_id": "123456789"})
+    assert r.outcome == SUCCESS and "<#123456789>" in r.user_message
+    assert calls[-1] == ("settings.bind",
+                         {"subsystem": "xp", "name": "announce_channel",
+                          "kind": "channel", "resource_id": 123456789})
+
+
+def test_import_submit_delegates_to_the_live_walk():
+    """The modal ingress rides the SAME front-door walk `!xpimport`
+    runs — with no history-scanner port armed the reply is the walk's
+    honest BLOCKED, byte-identical to the command's."""
+    from sb.spec.outcomes import BLOCKED
+
+    r = _submit("xp.import_setup_submit",
+                {"source": "arcane", "channel": "", "limit": ""})
+    assert r.outcome == BLOCKED
+    assert "message-history access" in r.user_message

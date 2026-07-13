@@ -115,9 +115,11 @@ is not the CI shape (ci.yml:34 runs `python3 -m pytest tests/ -q`).
 | 6 | `python3 -m pytest tests/integration -q` | golden-parity.yml:72-73 | green (needs full tier + live DB — skips are an ENV signal here, not a pass) |
 
 The `report` leg (`run_golden_parity.py --report`,
-golden-parity.yml:100-101) is red-by-design until the owner-parked
-`_unmapped` set lands — red there is NOT a local-environment problem
-(`docs/status/README-first.md`).
+golden-parity.yml:100-101) reached full-corpus parity on 2026-07-13
+(484/484 goldens, 51/51 subsystems; run 29238825392) and is now live
+green — a red there is a REAL regression signal, no longer expected
+(`docs/status/README-first.md`). Rule out the §3 local-environment
+drift causes first when it reds only locally.
 
 ## 3. Drift recovery
 

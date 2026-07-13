@@ -2736,7 +2736,11 @@
   "utility.remind_form",
   "utility:open:four_twenty",
   "utility:open:general",
+  "xp.channel_form",
+  "xp.cooldown_form",
   "xp.givexp_form",
+  "xp.import_form",
+  "xp.range_form",
   "xp.resetxp_form"
  ],
  "schema_version": 1,
