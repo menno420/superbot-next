@@ -518,7 +518,7 @@ async def set_world_seed(conn: Any, *, guild_id: int, seed: int) -> None:
 # mining_grid.py @ 9c16365). pos_x/pos_y are the shipped columns verbatim;
 # the fog-of-war visited-cell set DEVIATES from the oracle's dedicated
 # mining_discovered table — it rides a JSONB column ({"z:x:y": 1} keys) on
-# the SAME mining_player_state row (migration 0054 header carries the full
+# the SAME mining_player_state row (migration 0056 header carries the full
 # rationale: a new declared store table needs a parity.yml depth-exemption
 # row owned by the wp-stack lane tonight; columns on a covered store ride
 # free — the 0052 energy precedent). mining.erase_subject_state covers the

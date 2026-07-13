@@ -1,4 +1,4 @@
--- 0054: mining grid — lateral position + fog of war for the grid Mine
+-- 0056: mining grid — lateral position + fog of war for the grid Mine
 -- navigator (curation rework rows 45/59; oracle disbot/migrations/
 -- 085_mining_grid.sql semantics @ 9c16365).
 --

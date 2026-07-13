@@ -1,7 +1,7 @@
 """The grid Mine port (curation rework rows 45/59) — the pure grid module
 (oracle ``disbot/utils/mining/grid.py`` @ 9c16365, verbatim), the
 position/fog-of-war store accessors on ``mining_player_state`` (migration
-0054 — pos_x/pos_y oracle columns + the FLAGGED ``discovered`` JSONB
+0056 — pos_x/pos_y oracle columns + the FLAGGED ``discovered`` JSONB
 deviation), and the ``mining.record_dig`` leg's write set.
 
 DB-free: the ``_RecordingConn`` SQL-shape pin (the 0052 energy-store test
@@ -19,7 +19,7 @@ run = asyncio.run
 GID, P1 = 1, 42
 
 MIGRATION = (Path(__file__).resolve().parents[3] / "migrations"
-             / "0054_mining_grid.sql")
+             / "0056_mining_grid.sql")
 
 
 class _RecordingConn:
@@ -146,7 +146,7 @@ def test_mine_multiplier_equipped_tool_wins_legacy_matched():
                                    {}) == 1.5
 
 
-# --- the store accessors (migration 0054 shapes) --------------------------------
+# --- the store accessors (migration 0056 shapes) --------------------------------
 
 
 def test_get_position_missing_row_reads_origin():
@@ -172,7 +172,7 @@ def test_set_position_upserts_without_now_touch():
 
 
 def test_mark_discovered_is_a_single_jsonb_merge():
-    """The flagged 0054 deviation: one idempotent `discovered || $patch`
+    """The flagged 0056 deviation: one idempotent `discovered || $patch`
     statement (the oracle's ON CONFLICT DO NOTHING posture) — no
     read-modify-write."""
     from sb.domain.mining import store
@@ -199,7 +199,7 @@ def test_get_discovered_window_filters_depth_and_box():
         P1, GID, 0, -2, 2, -2, 2, conn=_RecordingConn(row=None))) == set()
 
 
-def test_migration_0054_shape_and_checksum_row():
+def test_migration_0056_shape_and_checksum_row():
     ddl = MIGRATION.read_text()
     for frag in (
         "ALTER TABLE mining_player_state ADD COLUMN IF NOT EXISTS pos_x "
@@ -215,7 +215,7 @@ def test_migration_0054_shape_and_checksum_row():
     assert "CREATE TABLE" not in ddl
     checksums = json.loads(
         (MIGRATION.parent / "checksums.json").read_text())
-    assert "0054_mining_grid.sql" in checksums
+    assert "0056_mining_grid.sql" in checksums
 
 
 def test_no_new_store_spec_for_the_grid():
