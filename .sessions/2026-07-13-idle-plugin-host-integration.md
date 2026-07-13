@@ -1,6 +1,6 @@
 # 2026-07-13 — idle-plugin host integration: hello + idle boot together, zero violations
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** neutral builder-agent · high · host-side plugin coexistence proof (Q-0194)
 
