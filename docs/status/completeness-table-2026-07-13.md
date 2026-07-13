@@ -97,7 +97,7 @@
 | settings | ✅ hub + explorer + per-group mutation pages (band-7 settings-mutation slice) | ⚑ 9 actions + 2 selectors pending: hub `needs_setup/invalid/missing_bindings/audit/command_access` + access panel explain/reset/paging + subsystem/scope selects (`operator_spine`) | ✅ K7 declare/read/bind proven live |
 | setup | ✅ wizard interior live (wizard-lifecycle slice, ORDER 017): the 10 counted actions + the `essential_kind` selector armed — depth choice persists + lands on the ported sections hub, essential Step-1 applies the starter set through K7 `settings.set_scalar`, the suggestions review/walkthrough/stage lanes mutate state + write the K9 draft; `/setup-skip`+`/setup-unskip` session writes + `/setup-reset` clearing branch live (`sb/domain/setup/wizard.py`) | ✅ | ⚑ named successors (declared-honest terminals, `wizard.py` docstring): essential steps 2–8, the 10 per-section flows + linear wizard steps (`setup.open_section_*` / `setup.back_to_wizard`), the suggestion Edit lane, the final-review apply lane |
 | starboard | ✅ config command family + ignore writes | ✅ | ⚑ threshold modal pending (`starboard.panel_threshold`, `sb/domain/starboard/panels.py:296-303`; workaround `!starboard #channel <n>` live) |
-| ticket | ✅ 12 cmds live (RoleSelect wiring live, `handlers.py:597`) | ✅ | ⚑ ticket.setup panel: 3 actions + 2 selectors pending (`ticket.setup_pending`, `sb/domain/ticket/handlers.py:289`) |
+| ticket | ✅ 12 cmds live (RoleSelect wiring live) | ✅ | ✅ ticket.setup panel armed: 3 actions + 2 selectors live over the audited config/channel ops (`ticket.setup_pending` retired — `sb/domain/ticket/setup_panel.py`, ORDER 017 slice B; the ticket-OPEN provisioning flow stays a named successor, stamped in that module) |
 | treasury | ✅ contribute modal + K7 round-trip + overdraw refusals | ✅ | ✅ |
 | utility | ✅ 14 cmds | ⚑ 1 of 4 panel actions pending: 🔗 Invite (in-flight peer PR #332 wires it to the live `utility.invite_view`); Poll/Remind = G-10 modal ingresses over the live twin lanes + 420 forwards to the ported `four_twenty.overview` (ORDER 017 operator-hub edits A) | ✅ |
 | welcome | ✅ templates over real census | ✅ | ✅ 10 settings |
@@ -166,8 +166,9 @@ unregistered refs, no empty-string error paths).
 7. **btd6 paragon calculator** — ✅ DONE (ORDER 017 night-run slice A):
    the 3 actions + 4 selectors armed as the pure-compute port
    (`sb/domain/btd6/paragon_panel.py`); `btd6.paragon_pending` retired.
-8. **ticket setup panel** — 3 actions + 2 selectors pending
-   (`ticket.setup_pending`); command twins (`!ticketsetup` family) live. Free.
+8. **ticket setup panel** — ✅ DONE (ORDER 017 night-run slice B): the
+   3 actions + 2 selectors armed over the audited config/channel ops
+   (`sb/domain/ticket/setup_panel.py`); `ticket.setup_pending` retired.
 9. **rps bot-match deep flow** — `!rpsbot` pending
    (`sb/domain/rps/handlers.py:613`); interactive match orchestration. Free.
 10. **hermes egress adapter** — work-order send unarmed
