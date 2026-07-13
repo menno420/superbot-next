@@ -1,6 +1,6 @@
 # 2026-07-13 — setup wizard successors slice 7 (FINAL): cog_routing + ticket + lane closure
 
-> **Status:** in-progress
+> **Status:** complete
 
 - **📊 Model:** Fable · setup-wizard successor lane, slice 7 (closes the lane)
 
