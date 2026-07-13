@@ -32,6 +32,8 @@
 - `docs/status/testing-report-2026-07-09.md` — the live-testing ledger (what has
   actually been driven in a real guild, band by band).
 - `parity/parity.yml` — the port dashboard (49 subsystem rows).
+- `docs/status/completeness-table-2026-07-13.md` — per-subsystem completeness
+  inventory (core/admin/setup × every subsystem, ORDER 017 item 1).
 - `docs/decisions.md` — append-only decision ledger (D-entries).
 
 Do not "fix" the report leg to green, and do not treat its red as a stop signal
