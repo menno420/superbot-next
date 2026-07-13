@@ -79,9 +79,10 @@ same copy, same labels, same flow; only the seams differ):
   architecture — the wizard.py gate doctrine) with the shipped
   refusal copy;
 * the oracle's on-ready revive sweep (``revive_essential_flows`` — the
-  bot-lifecycle edit of interrupted flow messages) needs an app-boot
-  seam this build does not carry; the resume panel + handler are armed
-  and the sweep is the flagged follow-up.
+  bot-lifecycle edit of interrupted flow messages) is PORTED: the
+  app-boot seam is the kernel boot-hook registry
+  (sb/kernel/lifecycle/boot_hooks.py) and the sweep lives in
+  sb/domain/setup/resume.py (ORDER 019 item 5a).
 
 NO GOLDEN drives any of these components (the panels.py module pin);
 the oracle SOURCES pin the copy, and every golden-pinned OPEN render
