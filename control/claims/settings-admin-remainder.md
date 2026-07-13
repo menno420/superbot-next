@@ -10,3 +10,6 @@
   audit; slice 3 = command_access) · area: `sb/domain/settings/`,
   `sb/manifest/settings.py`, `manifest.snapshot.json`,
   `tests/unit/settings_band/` · 2026-07-13
+- `claude/settings-admin-2` · **scope** — slice 2: the hub `audit`
+  action (🕒 Recent changes → the K7 audit-spine read panel), stacked on
+  `claude/settings-admin-1` · same area · 2026-07-13
