@@ -1,6 +1,6 @@
 # 2026-07-13 — parity: golden flavor conformance + dead-ref/orphan hygiene
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** fable-5 · parity-hygiene lane (claim
   `control/claims/parity-hygiene-flavor-orphans.md`, PR #417; branch
@@ -46,4 +46,60 @@ provenance PRs #415/#416:
 
 ## Verification
 
-(fills as items land)
+Shipped as PR #420 (`claude/parity-hygiene` off main @ d085a67):
+
+- Item 1: both re-mints dry-run first, then `--write --force` via the
+  #416 tool (Postgres provisioned by `tools/setup_local_env.py`). Diffs
+  are PURE DELETIONS (0 added lines): only `audit_log`/`event_outbox`
+  db_delta tables + `command.dispatched` step events drop (cleanup also
+  pops one now-empty `events` list). Corpus stays 494 on disk; zero
+  diff to parity/parity.yml + both pin test files.
+  `python3 tools/run_golden_parity.py --gate`: **GREEN — all 494
+  golden(s) across 50 ported subsystem(s) replay clean** (run again
+  post-Item-3, same line).
+- Item 3: `python3 tools/check_orphan_pendings.py`: **OK — 15
+  registered *_pending handler(s) (14 referenced, 1 on the burn-down
+  baseline); 882 handler ref(s) walked, 0 dangling, 0 new orphans**.
+  `manifest.snapshot.json` recompiled (`tools/manifest_compile.py
+  --write`); its diff is exactly the 8 dead handler registration rows.
+- `python3 -m pytest tests/ -q` (Postgres DOWN — the unit-env posture):
+  **2856 passed, 15 skipped, 1 warning in 64.54s**.
+- `python3 bootstrap.py check --strict`: green modulo this card's
+  designed born-red hold (flips with this commit) + three pre-existing
+  claims advisories (never exit-affecting; the claims-duplicate pair —
+  completeness-remainders.md vs parity-hygiene-flavor-orphans.md both
+  claiming `tests/` — was on main before this branch).
+- Found en route (NOT fixed — out of scope): `tests/unit/parity_gate/
+  test_check_parity_depth.py::TestGateDriver::
+  test_report_leg_prints_full_corpus_banner` asserts
+  `run_report() == 1` on the assumption that no replay binding exists
+  in the unit env — with a LIVE local Postgres the binding probe
+  succeeds, the full corpus replays green, `run_report()` returns 0
+  and the test reds. Pre-existing (byte-identical on main), purely
+  env-sensitive; the Postgres-DOWN full-suite run above is green.
+
+## 💡 Session idea
+
+`test_report_leg_prints_full_corpus_banner` pins the ENVIRONMENT, not
+the behavior: it needs `_replay_binding()` to fail, so any session with
+a live local Postgres (increasingly the norm now that
+`tools/setup_local_env.py` makes provisioning one-command) reds the
+unit suite for a non-defect. Monkeypatching
+`tools.run_golden_parity._replay_binding` to return `(None, reason)`
+inside the test — the exact seam its sibling
+`test_gate_leg_reds_on_silently_dropped_ported_golden` already
+monkeypatches in the other direction — would make the banner assertion
+env-independent and retire the Postgres-up/Postgres-down verification
+split this session had to route around.
+
+## ⟲ Previous-session review
+
+(Covers `.sessions/2026-07-13-port-tooling-mint.md`, PR #416.) The
+single most useful handoff in this lane's history: its found-and-fixed
+note WAS Item 2's spec (dead ref, exact sites, the loadability-pin
+recipe followed verbatim), its 💡 flavor-drift idea WAS Item 1, and the
+tool it shipped executed both re-mints with every count pin as a
+machine-verified no-op — the only friction was its Verification
+claim of a full-suite green WITH Postgres up, which this session could
+not reproduce (the report-leg banner test reds when the binding
+succeeds; see the found-en-route note above).
