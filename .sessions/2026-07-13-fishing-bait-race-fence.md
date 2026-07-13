@@ -1,6 +1,6 @@
 # 2026-07-13 — fishing: cast bait-consume race fence + secondary ledger notes
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · verify-and-fix lane: the suspected
   cast-vs-buy bait-slot lost update (third-party review lead), plus
