@@ -175,9 +175,9 @@ def utility_panel_spec() -> PanelSpec:
                 handler=HandlerRef("utility.avatar_view")),
             # row 1 — the shipped grey tool trio. Poll/Remind open the
             # shipped modals (G-10 ingress over the live command-twin
-            # lanes — 2026-07-13 operator-hub edits A); Invite created a
-            # one-use channel invite in the shipped cog — its mint port is
-            # a sibling lane's (#332), so the pending terminal stays.
+            # lanes — 2026-07-13 operator-hub edits A); Invite routes to
+            # the live `!invite` handler (D-0077 channel-ops port; the
+            # curation rework 2026-07-13 retired its pending terminal).
             PanelActionSpec(
                 action_id="poll", label="📊 Poll",
                 audience_tier="user",
@@ -191,7 +191,7 @@ def utility_panel_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="invite", label="🔗 Invite",
                 audience_tier="user",
-                handler=HandlerRef("utility.invite_pending")),
+                handler=HandlerRef("utility.invite_view")),
             # row 2 — the shipped grey re-render Overview.
             PanelActionSpec(
                 action_id="utility_overview", label="↩ Overview",

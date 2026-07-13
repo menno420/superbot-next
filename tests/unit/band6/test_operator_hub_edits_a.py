@@ -160,9 +160,10 @@ def test_remind_form_submit_guards_and_ack():
     assert ok.user_message == "⏳ Reminder set for **30** minute(s): drink water"
 
 
-def test_utility_retired_pendings_are_gone_invite_stays():
-    """The poll/remind/420 pending terminals are retired; Invite's stays
-    (peer PR #332 wires it — this slice must not touch it)."""
+def test_utility_retired_pendings_are_gone():
+    """The poll/remind/420 pending terminals are retired (this slice);
+    Invite's retired with the peer nav-wiring lane (#332 routes the
+    button to the live `utility.invite_view`)."""
     import importlib
 
     import sb.domain.utility.handlers as h
@@ -170,13 +171,14 @@ def test_utility_retired_pendings_are_gone_invite_stays():
     importlib.reload(h)
     from sb.spec.refs import HandlerRef, is_registered
 
-    assert is_registered(HandlerRef("utility.invite_pending"))
+    assert not is_registered(HandlerRef("utility.invite_pending"))
     assert is_registered(HandlerRef("utility.poll_form_submit"))
     assert is_registered(HandlerRef("utility.remind_form_submit"))
     src = open(h.__file__, encoding="utf-8").read()
     assert 'pending_handler("utility.poll_pending"' not in src
     assert 'pending_handler("utility.remind_pending"' not in src
     assert 'pending_handler("utility.four_twenty_pending"' not in src
+    assert 'pending_handler("utility.invite_pending"' not in src
 
 
 # --- role.hub: the Create modal over the live createrole lane ---------------------

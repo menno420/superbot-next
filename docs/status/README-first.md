@@ -4,19 +4,26 @@
 > its E4 prevention (`docs/retro/self-review-2026-07-09.md` §E4): a fresh
 > no-history session's first misread is THE RED REPLAY NUMBERS.
 
-## Red ≠ broken
+## The report leg is GREEN now (2026-07-13) — red there is a real signal
 
-- **`golden-parity` / `report` is BORN RED BY DESIGN.** It is the owner's
-  red-until-parity dashboard over the full 465-golden corpus
-  (`tools/run_golden_parity.py --report`), deliberately exits 1 while any
-  subsystem is unported, and must **never** be marked a required check
-  (`docs/decisions.md` — the parity-workflow entry and its "never required"
-  clause). The **`gate` job is the required leg and is green**: ported
-  subsystems must replay green; pending ones are reported, not failing.
-- **"0/465 green, 0/49 ported" is the ledgered starting state**, not a
-  regression. Every replay red is *classified* into a named red-class
+- **`golden-parity` / `report` reached FULL-CORPUS PARITY on 2026-07-13**:
+  484/484 goldens green across 51/51 ported subsystems, zero `_unmapped`
+  (run 29238825392 on main; first green: run 29222893993, the fishing
+  port slice 4, #350). The leg was born red-by-design — the owner's
+  red-until-parity dashboard (`tools/run_golden_parity.py --report`),
+  deliberately exiting 1 while any subsystem was unported — and stayed
+  red from repo birth until that flip. **That doctrine is retired: a red
+  `report` on main is now a REAL regression signal — investigate it like
+  any other red.** The job remains non-required (`docs/decisions.md` —
+  the parity-workflow entry's "never required" clause still stands); the
+  **`gate` job stays the required leg**: ported subsystems must replay
+  green; pending ones would be reported, not failing.
+- **"0/465 green, 0/49 ported" was the ledgered starting state** (not a
+  regression — historical context for old cards/retros citing it). Every
+  replay red was *classified* into a named red-class
   (`docs/status/testing-report-2026-07-09.md`, red-class table); an
-  unclassified red is the thing that would actually be a bug.
+  unclassified red was — and now every report red is — an actual bug
+  signal.
 - **`ported` flips are a one-way door (A-16).** A subsystem row in
   `parity/parity.yml` flips `pending → ported` only with its depth roster
   satisfied (`tools/check_parity_depth.py`), and never flips back. The first
@@ -36,5 +43,7 @@
   inventory (core/admin/setup × every subsystem, ORDER 017 item 1).
 - `docs/decisions.md` — append-only decision ledger (D-entries).
 
-Do not "fix" the report leg to green, and do not treat its red as a stop signal
-for unrelated merges — merges gate on `ci.yml` + the `gate` leg only.
+The report leg is green (2026-07-13, run 29238825392) — a red there is no
+longer expected: stop and root-cause the offending change before landing it.
+Merges still gate on `ci.yml` + the `gate` leg (`report` stays non-required),
+but never wave off a report red as "by design" again.
