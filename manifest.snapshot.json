@@ -319,7 +319,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 48,
+  "manifest_count": 49,
   "projections": {
     "events": {
       "ai.orchestration.category_changed": {
@@ -8922,6 +8922,11 @@
           "value": "ai"
         },
         {
+          "source": "sb/manifest/automation.py",
+          "subsystem": "automation",
+          "value": "automation"
+        },
+        {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod"
@@ -9182,6 +9187,11 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai_instruction_profile"
+        },
+        {
+          "source": "sb/manifest/automation.py",
+          "subsystem": "automation",
+          "value": "automation_rules"
         },
         {
           "source": "sb/manifest/btd6.py",
@@ -9459,6 +9469,11 @@
           "value": "rps_players"
         },
         {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "command_routing_policy"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -9516,6 +9531,9 @@
       },
       "engine:ai.store": {
         "module": "sb.domain.ai.store"
+      },
+      "engine:automation.store": {
+        "module": "sb.domain.automation.store"
       },
       "engine:btd6.store": {
         "module": "sb.domain.btd6.store"
@@ -9579,6 +9597,9 @@
       },
       "engine:rps.stats_store": {
         "module": "sb.domain.rps.stats"
+      },
+      "engine:server_management.routing_store": {
+        "module": "sb.domain.server_management.routing"
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
@@ -13879,6 +13900,15 @@
       "workflow:ai.set_role_policy": {
         "module": "sb.domain.ai.policy_ops"
       },
+      "workflow:automation.add_rule": {
+        "module": "sb.domain.automation.ops"
+      },
+      "workflow:automation.record_add_rule": {
+        "module": "sb.domain.automation.ops"
+      },
+      "workflow:automation.tombstone_rule_creator": {
+        "module": "sb.domain.automation.ops"
+      },
       "workflow:blackjack.pvp_accept": {
         "module": "sb.domain.blackjack.ops"
       },
@@ -14716,6 +14746,15 @@
       "workflow:role.update_menu": {
         "module": "sb.domain.role.ops"
       },
+      "workflow:routing.record_set_policy": {
+        "module": "sb.domain.server_management.ops"
+      },
+      "workflow:routing.set_policy": {
+        "module": "sb.domain.server_management.ops"
+      },
+      "workflow:routing.tombstone_policy_actor": {
+        "module": "sb.domain.server_management.ops"
+      },
       "workflow:rps.bot_round": {
         "module": "sb.domain.rps.ops"
       },
@@ -15042,6 +15081,14 @@
         },
         "subsystem": "ai"
       },
+      "automation_rules": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "automation_rules",
+        "sole_writer": {
+          "$ref": "engine:automation.store"
+        },
+        "subsystem": "automation"
+      },
       "binding_audit_log": {
         "checkpoint_class": "ledger",
         "invariant_tag": "binding_audit_log",
@@ -15097,6 +15144,14 @@
           "$ref": "engine:governance.store"
         },
         "subsystem": "governance"
+      },
+      "command_routing_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "command_routing_policy",
+        "sole_writer": {
+          "$ref": "engine:server_management.routing_store"
+        },
+        "subsystem": "server_management"
       },
       "counting_state": {
         "checkpoint_class": "aggregate",
@@ -20704,6 +20759,46 @@
             "$ref": "engine:ai.policy_store"
           },
           "table": "ai_instruction_profile",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "automation": {
+      "capabilities": [],
+      "commands": [],
+      "data_invariants": [],
+      "events": [],
+      "key": "automation",
+      "panels": [],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:automation.tombstone_rule_creator"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "automation_rules",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:automation.store"
+          },
+          "table": "automation_rules",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
@@ -55502,7 +55597,36 @@
         }
       ],
       "settings": [],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:routing.tombstone_policy_actor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "command_routing_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "server_management",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:server_management.routing_store"
+          },
+          "table": "command_routing_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },

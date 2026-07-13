@@ -1050,9 +1050,15 @@ def test_set_setting_op_kind_binds_the_scalar_seam():
     binding = OP_KINDS.get("set_setting")
     assert binding is not None
     assert binding.workflow_ref.name == "settings.set_scalar"
-    # add_automation_rule stays fail-closed (un-registered) — the
-    # automation seam is a named successor.
-    assert OP_KINDS.get("add_automation_rule") is None
+    # add_automation_rule binds the K7 automation seam (the compound-ops
+    # slice landed the former named successor — the fail-closed pin
+    # flipped to a binding pin).
+    from sb.domain.setup import preset_select
+
+    preset_select._register_add_automation_rule_op_kind()
+    rule_binding = OP_KINDS.get("add_automation_rule")
+    assert rule_binding is not None
+    assert rule_binding.workflow_ref.name == "automation.add_rule"
 
 
 def test_every_section_flow_route_resolves():

@@ -32,10 +32,11 @@ Kernel-idiom divergences, ledgered (the section_card.py doctrine):
   lane, the oracle's own behavior); ``set_setting`` → a NEW
   ``set_setting`` op-kind registered onto the audited K7
   ``settings.set_scalar`` op; ``add_rule`` → ``add_automation_rule``
-  rows staged UN-REGISTERED (fail-closed): apply surfaces them as
-  skipped "(not yet implemented)" — the oracle dispatcher's
-  ``not_yet_implemented`` partition, the automation-rule seam is a
-  named successor;
+  rows registered onto the audited K7 ``automation.add_rule`` op (the
+  compound-ops slice landed the automation write seam —
+  sb/domain/automation/: rules insert DISABLED, template slug resolved
+  against the carried catalogue, unknown slug refused; the runtime
+  consumer stays the named successor per that package's ledger);
 * preset rows carry NO section-provenance prefix (the oracle
   ``_stage_preset`` appended with ``section_slug=None`` — status
   matching falls back to ``op_kinds``, its own shipped quirk);
@@ -352,6 +353,29 @@ def staged_ops_for_preset(preset: ServerPreset) -> list[tuple[str, str, dict, st
 
 
 _SET_SETTING_OP_KIND = "set_setting"
+_ADD_AUTOMATION_RULE_OP_KIND = "add_automation_rule"
+
+
+def _register_add_automation_rule_op_kind() -> None:
+    """Bind the ``add_automation_rule`` op kind onto the audited K7
+    ``automation.add_rule`` op (the module docstring's former named
+    successor, landed by the compound-ops slice): template slug →
+    disabled rule row — the oracle AutomationMutationPipeline.create_rule
+    route (setup_operations.py:1136 → _apply_automation_create:1387)."""
+    from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
+    from sb.spec.events import FieldSpec
+    from sb.spec.refs import WorkflowRef
+
+    binding = OpKindBinding(
+        op_kind=_ADD_AUTOMATION_RULE_OP_KIND,
+        workflow_ref=WorkflowRef("automation.add_rule"),
+        payload_schema=(FieldSpec("template_slug", "str"),),
+        is_resource_create=False)
+    try:
+        OP_KINDS.register(binding)
+    except ValueError as exc:
+        if "bound twice" not in str(exc):
+            raise
 
 
 def _register_set_setting_op_kind() -> None:
@@ -609,6 +633,7 @@ def _register() -> None:
             # shipped copy, verbatim (_stage_preset's unknown branch).
             return Reply(BLOCKED, f"Unknown preset `{slug}`.")
         _register_set_setting_op_kind()
+        _register_add_automation_rule_op_kind()
         guild_id = int(req.guild_id or 0)
         rows = staged_ops_for_preset(preset)
         staged = 0
@@ -675,6 +700,7 @@ _ensure_providers()
 _register()
 _register_panels()
 _register_set_setting_op_kind()
+_register_add_automation_rule_op_kind()
 
 
 def ensure_preset_select_refs() -> None:
@@ -682,3 +708,4 @@ def ensure_preset_select_refs() -> None:
     _register()
     _register_panels()
     _register_set_setting_op_kind()
+    _register_add_automation_rule_op_kind()
