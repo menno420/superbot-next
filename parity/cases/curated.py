@@ -612,4 +612,102 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "row(s) named 'combat' and replies `<@u> deleted the **combat** "
             "loadout.` — the remove face of mining_loadout_presets"),
     ),
+    # ------------------------------------------- mining ENERGY (slice 2)
+    # Argful !use / !cook writes over the energy lane (docs/scoping/
+    # energy-system-scope.md slice 2; oracle copy: disbot/services/
+    # mining_workflow.py use_item/cook @ 87bbe1d). Same conventions as the
+    # WP-1 block above: fixture rows seed BEFORE the before-snapshot;
+    # member persona = 900000000000000102, guild = 700000000000000001;
+    # success replies carry the shipped `<@u> ` mention, refusals are
+    # PLAIN (the cog's ok=False ctx.send(result.message) branch). The
+    # restore capture is the first golden whose db_delta carries a
+    # mining_player_state row (retires that guard-only-capture exemption).
+    GoldenCase(
+        id="mining.use_ration_restore_write",
+        subsystem="mining",
+        # own a ration + hold a below-cap energy row. energy_updated_at is
+        # pinned FUTURE-of-the-logical-clock (2100-01-01 epoch) so settle()
+        # clamps elapsed to 0 and the pre-use bar is exactly 10 regardless
+        # of the case's logical-time base — deterministic by construction
+        # (the same math both bots run; a past stamp would regen to full).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'ration', 1)",
+            "INSERT INTO mining_player_state (user_id, guild_id, energy, "
+            "energy_updated_at) VALUES "
+            "('900000000000000102', 700000000000000001, 10, 4102444800)",
+        ),
+        steps=(
+            Step(kind="command", content="!use ration", persona="member"),
+        ),
+        notes=(
+            "argful !use ration drives mining.use → record_use_item: ONE "
+            "txn debits the ration and raises settled energy 10→35 "
+            "(RESTORE_VALUES['ration']=25), replying `<@u> You consume "
+            "**ration** and recover energy (⚡ 35/60 [▰▰▰▰▰▰▱▱▱▱]).` — the "
+            "first mining_player_state row-bearing golden (retires the "
+            "guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="mining.use_ration_full_refusal",
+        subsystem="mining",
+        # own a ration but NO energy row: the (0,0) missing-row default
+        # settles to a FULL bar (huge elapsed clamps to MAX_ENERGY), so the
+        # full-energy refusal fires and the txn aborts row-less — the
+        # ration is NOT consumed (the oracle's pre-txn ok=False twin).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'ration', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!use ration", persona="member"),
+        ),
+        notes=(
+            "!use ration at a full bar refuses PLAIN (`Your energy is "
+            "already full — save it for later.`) with NO mining db_delta — "
+            "the item survives (mining_workflow.use_item's pre-write "
+            "refusal, ported as a txn-aborting ValidatorError)"),
+    ),
+    GoldenCase(
+        id="mining.cook_campfire_write",
+        subsystem="mining",
+        # a built campfire (cooking_unlocked ⇔ level ≥ 1; mining_structures
+        # user_id is BIGINT, unlike the TEXT inventory ids) + one raw fish.
+        fixture_sql=(
+            "INSERT INTO mining_structures (user_id, guild_id, structure, "
+            "level) VALUES "
+            "(900000000000000102, 700000000000000001, 'campfire', 1)",
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'minnow', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!cook minnow", persona="member"),
+        ),
+        notes=(
+            "argful !cook minnow behind a built campfire drives mining.cook "
+            "→ record_cook: ONE txn debits the minnow and grants 1× cooked "
+            "fish, replying `<@u> 🔥 You cook **1× minnow** into **1× "
+            "cooked fish** (+30 ⚡ each when eaten — `!use cooked fish`).` — "
+            "the fish→meal trade the campfire gate guards"),
+    ),
+    GoldenCase(
+        id="mining.use_torch_flavour",
+        subsystem="mining",
+        # a non-food consumable: the flavour-only debit branch.
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'torch', 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!use torch", persona="member"),
+        ),
+        notes=(
+            "argful !use torch drives the flavour branch: debits the torch "
+            "and replies `<@u> You light a torch and peer into the "
+            "darkness...` — no energy movement, no mining_player_state row"),
+    ),
 )

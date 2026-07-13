@@ -12778,6 +12778,9 @@
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.cook": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.delete_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -12832,6 +12835,9 @@
       "workflow:mining.record_buy": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_cook": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_delete_loadout": {
         "module": "sb.domain.mining.ops"
       },
@@ -12883,6 +12889,9 @@
       "workflow:mining.record_unstash": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_use_item": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_vault_upgrade": {
         "module": "sb.domain.mining.ops"
       },
@@ -12914,6 +12923,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.unstash": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.use": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.vault_upgrade": {
@@ -13913,7 +13925,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:0395dfb9ec4919e60924e102f71093f8377fe7471f9ee581d3fc475608d2290e",
+  "stable_hash": "sha256:a4f886cb335a1d54a55ec812536bed32cdcf03926875d522a999cbec08fa0b98",
   "subsystems": {
     "admin": {
       "capabilities": [],

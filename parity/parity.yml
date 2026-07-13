@@ -129,10 +129,25 @@ source:
   # resolved outcome card now carries the live 🔄 Rematch button (the
   # CreatureRematchView affordance) — a deliberate render change re-minted
   # in-PR, not a regression.
-  minted_goldens: 22
+  # +4 minted the mining ENERGY-LANE cook/use goldens (energy slice 2,
+  # 2026-07-13, same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_{use_ration_restore_write,use_ration_full_refusal,
+  # cook_campfire_write,use_torch_flavour}.json — the argful !use / !cook
+  # writes the slice-2 port took LIVE (docs/scoping/energy-system-scope.md).
+  # use_ration_restore_write is the first golden whose db_delta carries a
+  # mining_player_state row (energy 10→35 over the slice-1
+  # get_energy/set_energy pair — retires that guard-only-capture row);
+  # cook_campfire_write pins the fish→cooked-fish one-txn trade behind a
+  # fixture_sql-built campfire (the structure row is a read pre-req, outside
+  # db_delta, so table:mining_structures stays guard-only for the BUILD
+  # write); use_ration_full_refusal pins the PLAIN full-bar refusal with NO
+  # mining delta (the pre-txn pure-read guard); use_torch_flavour pins the
+  # flavour-only debit. Oracle copy verbatim from
+  # disbot/services/mining_workflow.py use_item/cook @ 87bbe1d.
+  minted_goldens: 26
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 482). The first retirement (2026-07-12
+  # imported + minted − retired = 488). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -836,26 +851,14 @@ depth:
       # systems (equipment/wear/energy/grid/vault/structures/skills/
       # forge/workshop/titles/loadouts/descend-ascend/character) ride
       # the D-0043 named successor port.
-      - surface: "table:mining_player_state"
-        reason: "guard-only-capture: the depth writers ARE
-          corpus-expressible (!descend / !ascend) but the imported sweep
-          drove only their bare fresh-player invocations, and both pin
-          the shipped GUARD bytes with no row —
-          goldens/mining/sweep_descend.json (\"can't descend any
-          deeper. Equip a brighter light to descend to Cavern (needs
-          depth access 1).\" — the light-gated depth_access refusal) and
-          goldens/mining/sweep_ascend.json (\"is already at the
-          Surface.\") — so every captured case pins the refusal byte and
-          the row-bearing GEARED descent exists in no imported golden
-          (D-0069; the class's own record: a future geared capture
-          deletes it). The read side IS golden-pinned row-less
-          (sweep_fastmine / sweep_explore / sweep_minemenu render the
-          depth-0 \"🌳 Surface (depth 0/3)\" byte off the store's no-row
-          default); descend/ascend are LIVE this slice (slice 2 —
-          descend_route / ascend_route in sb/domain/mining/service.py),
-          their sweeps re-homed into the gated mining row, but the
-          not-moved refusal path they pin is a pure read (no write, no
-          audit row), so the store stays declared-but-guard-only"
+      # The table:mining_player_state guard-only-capture row (depth writers
+      # pinned only as bare-guard refusals) was RETIRED by energy slice 2
+      # (2026-07-13): goldens/mining/mining_use_ration_restore_write.json
+      # now drives a row-bearing db_delta on the table (the !use ration
+      # energy 10→35 upsert over the slice-1 get_energy/set_energy pair) —
+      # the D-0069 class's own exit ("a future … capture deletes it").
+      # The depth-writer lanes (!descend / !ascend geared moves) remain
+      # pinned only at their refusal bytes, but the TABLE is covered.
       # Slice-1 equipment/wear/loadout/skills port declared four write-store
       # tables as mining surfaces, pinned only by bare/guard sweeps. WP-1
       # mining WRITE-PARITY (this PR) RETIRED the mining_equipment +
@@ -1147,7 +1150,7 @@ depth:
     kernel: {events: 4, tables: 5, settings: 0}
     leaderboard: {events: 1, tables: 2, settings: 0}
     logging: {events: 1, tables: 2, settings: 0}
-    mining: {events: 3, tables: 9, settings: 0}
+    mining: {events: 3, tables: 10, settings: 0}
     moderation: {events: 3, tables: 5, settings: 0}
     project_moon: {events: 1, tables: 2, settings: 0}
     projectmoon: {events: 0, tables: 0, settings: 0}
