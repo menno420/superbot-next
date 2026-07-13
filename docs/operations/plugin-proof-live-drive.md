@@ -141,3 +141,84 @@ dist to be actually INSTALLED in the container the bot runs in.
 - What an agent session CAN and DID prove is the headless half (§0): the real
   plugin boots against the committed pin and its panel registers, deterministically,
   in CI. The live drive above is the last mile a connected gateway alone can close.
+
+---
+
+## 6. The idle exemplar — coexistence + the three LIVE-ONLY seams
+
+`examples/superbot-idle-plugin` (vendored from `superbot-idle`, see its
+`README.md`) is the SECOND in-tree exemplar. Everything in §0's headless half
+now proves it TOO, jointly with hello:
+
+- `tests/unit/app/test_plugin_boot_real_exemplar.py::test_hello_and_idle_coexist`
+  boots BOTH plugins in one `load_plugins` call against the committed pins
+  (both rows of `plugins.lock.json`) and asserts `violations == ()`, both
+  `hello` and `idle` admitted, and both panels (`hello.home`, `idle.status`)
+  resolve after `register_manifest_panels`.
+- `tools/check_runtime_smoke.py` (`plugin_boot_problems`) boots both exemplars
+  together as the headless boot-and-wire gate.
+
+That headless half proves **discovery + pin + facet-fence + joint compile +
+panel register** for the two-plugin set. What it CANNOT prove — because idle,
+unlike hello, forwards a live render layer, binds settings, and emits events —
+are the three seams below. **All of §6 is owner/operator-gated: it needs the
+test bot's gateway token + a reachable Postgres store + the test guild. Do NOT
+attempt them from an agent session (no gateway token, no live store).** They
+extend §1-§4 (install the `superbot-idle-plugin` dist, connect, guild-sync the
+`/idle` command tree) — do those first for idle, then:
+
+### 6a. Render forwarding — the host-built `IdleRenderState`
+
+9. The idle view commands (`/idle status`, `/idle shop`, `/idle prestige`)
+   route at `@handler` refs whose callables are the pure forwarders in
+   `superbot_idle_plugin/render_forward.py`. Each takes an `IdleRenderState`
+   the HOST must construct — the `(game_state, theme, now)` handle at
+   `render_forward.py:19-25`: the idle instance's `GameState` read off the
+   host store, the resolved `Theme` pack, and the caller's unix `now`. Dispatch
+   `/idle status` in the test guild and confirm the panel renders the live
+   status embed (balances, generator counts + rates, offline gains since
+   `last_seen`). This exercises the host-side state-injection signature that
+   idle's own sb-free CI explicitly does NOT validate (it proves only that the
+   forwarder is byte-identical to `idle_engine.render`). A live render here is
+   the missing half.
+
+10. Repeat for `/idle shop` and `/idle prestige`. Confirm each renders the
+    engine's real view, or renders the documented empty-state when the loaded
+    pack declares no `upgrades` / `prestige` block (the forwarder returns
+    `None` — the host must handle that, not the plugin).
+
+### 6b. Settings live binding + persistence — the host store
+
+11. The manifest declares four settings bound by `settings_key`:
+    `idle.pack` (str theme-id) and the three ON-by-default bool toggles
+    `idle.offline_progress` / `idle.upgrades` / `idle.prestige`. Live-set one
+    (e.g. toggle `idle.upgrades` off) through the host's settings lane, then
+    confirm it PERSISTS across a bot restart by reading it back. Persistence is
+    HOST-OWNED — the plugin declares no `stores`/`data_invariants` (v1 facet
+    fence), so this proves the host store binds and round-trips the plugin's
+    setting keys. No headless test can prove round-trip through a live store.
+
+### 6c. Event emission — the idle lifecycle
+
+12. The manifest declares two observability-only events: `idle.tick` (payload
+    `subsystem_key` / `now` / `elapsed_s`) and `idle.offline_return`
+    (`subsystem_key` / `last_seen` / `now` / `gains`). With a live runtime
+    driving the idle loop, confirm an `idle.tick` is emitted on a tick and an
+    `idle.offline_return` on a returning player's offline-credit event, and
+    that a subscriber on the live bus observes each with the declared payload
+    shape. Emission requires the running idle loop + the live event bus —
+    neither exists headless.
+
+13. Record the outcome (guild id, the three seams' results, restart-persistence
+    check) in a session card, as §4 step 8 does for hello.
+
+### 6d. Honest scope (idle)
+
+- §6a-§6c are the idle-specific live seams; like §1-§4 they need a gateway
+  token + a reachable store + the test guild, none of which exist in CI. An
+  agent session must not attempt them.
+- What an agent session CAN and DID prove for idle is the coexistence headless
+  half: idle boots against its committed pin ALONGSIDE hello with zero
+  violations, and `idle.status` registers. The render-forward signature, the
+  settings store round-trip, and the event emission are the last mile a
+  connected gateway + live store alone can close.
