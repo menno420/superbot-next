@@ -1,24 +1,34 @@
 # superbot-next · status
-updated: 2026-07-13T18:03:41Z
-phase: coordinator seat OPEN — SuperBot 2.0 coordinator (project seat, booted 12:33Z); work loop running.
-health: main at `ecb31989ba00ee1c95afb3b9d0715258645ccd00` — landed today: energy slices 0–2 (#320/#384/#385), curation remainder (#333/#352/#373), churn fixes (#386 + superbot #2072), hygiene (#393), fishing bait race fence (#394), setup-wizard slices 1–3 (#395/#397/#398), settings-admin slice 1 (#399). golden-parity report leg green. A red report = REAL regression.
+updated: 2026-07-13T22:28:36Z
+phase: EAP FINAL NIGHT — coordinator seat OPEN, night ORDER 019 ACKED and being worked top-down (owner kickoff live 22:2xZ).
+health: main at `605db5a88e553f6f4317ba4bf40293d143ac8168` — today landed: energy lane, curation remainder, churn fixes, hygiene, fence #394, setup wizard complete (7 slices), settings-admin complete, completeness remainders complete, tooling #415/#416, compound-ops slice 1 #419. golden-parity report leg green.
 kit: v1.15.0
-orders: acked=001–018 done=002–018; ORDER 001 still open owner-side (Discord-token live-drive; pointer: PR #298 body).
+orders: acked=001–019 done=002–018; ORDER 001 open owner-side; ORDER 019 IN PROGRESS (night worklist, per-item log below).
+
+## ORDER 019 night log (top-down)
+1. WP-stack conflict reconcile — DISPATCHED 22:30Z (lane).
+2. Curation REWORK backlog bundle (~17 rows) — DISPATCHED 22:30Z (lane).
+3. check_money_race mis-classification fix — DISPATCHED 22:30Z (small-items lane).
+4. Fishing cast-leg profile wiring — QUEUED wave 2 (verify-first: cast-leg depth wiring landed as #373/#387 today; residual to be confirmed).
+5. Setup follow-ups unclaimed subset — QUEUED wave 2 (compound-ops+routing+automation-rule subset CLAIMED, PR #414 lane active — slice 1 #419 merged, slice 2 building).
+6. plugins.lock.json pin for idle adapter — QUEUED wave 2 (cross-repo).
+7. Windowed-select grammar successor — QUEUED wave 2.
+8. Doc-only band-binding doctrine PR — DISPATCHED 22:30Z (small-items lane).
+ORDER 031 (relayed, primary owner accepted): mining/fishing/idle review+finalize reports + casino inventory/spec — DISPATCHED 22:30Z (analysis-first lane); casino spec's SBW dependency stays flagged (⚑5); build follow-ups spawn from its report.
 
 ## ROUTINES
-- FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v (cron 0 1-23/2 * * *) armed, bound to this seat; predecessor failsafe deleted at cutover 12:44Z.
-- pacemaker send_later chain live (~15 min links).
+- FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v (0 1-23/2 * * *) armed, bound to this seat. Pacemaker chain live (~15 min links).
 - business crons unchanged: kit-lab trig_01Jm57GAjNCFrYJn1oLMiYGE (fresh-session — NEVER rebind); docs-recon trig_018wP6XTPmf9DLnxrG4RpGVh (poke-only).
 
-## LANES (this seat)
-- setup-wizard successors (claim on branch; lane active): slices 1–3 MERGED (#395 final-review apply, #397 essential steps 2–8, #398 suggestion Edit); slice 4 = the 10 per-section flows, being sub-sliced into PR-sized pieces.
-- settings-admin remainder (claim on branch; lane active): verified residual = 5 hub actions (table was stale post-#375). Slice 1 #399 (diagnostics trio) MERGED; slice 2 #400 (audit view) green/armed; slice 3 #401 (command-access write panel) in CI; #402 opened.
-- COMPLETE today: curation remainder · generated-file churn mitigation (both repos) · hygiene (#393: 17 stale claims removed, banners retired) · energy lane (slice 3 #392 parked green on WP-3, auto-lands after the WP sweep — expect a brief parity red on main between the WP sweep and #392 landing; it re-mints 4 goldens invalidated by migration 0052) · fishing bait race fence (#394).
-- superbot mineverse: #2058/#2061 DRAFT deploy-holds, flip-ready with the ~2h dashboard-churn caveat (see ⚑ item 1).
+## ACTIVE LANES
+- setup compound-ops (claim #414): slice 1 #419 MERGED; slice 2 (routing resolver + automation-rule seam) building.
+- parity hygiene (claim #417): flavor re-mints + dead harness ref + 9-orphan triage — in progress.
+- night wave-1 lanes per ORDER 019 log above.
 
 ## OPEN PRs
-- WP stack #312→#317→#335→#344→#371 — gate-green, owner-click ordered sweep (unswept).
-- #392 (parked on wp3) · #400/#401/#402 (settings/setup lanes, landing via enabler) · superbot #2058/#2061 (draft deploy-holds).
+- WP stack #312→#317→#335→#344→#371 — gate-green but now 4-file conflicted vs main; reconcile lane dispatched; merge stays owner-click.
+- #392 parked green on wp3 (auto-lands after WP sweep; re-mints the 0052-invalidated goldens — coordinate with reconcile lane).
+- superbot #2058/#2061 — draft deploy-holds, flip-ready with ~2h churn caveat.
 
 ## ⚑ needs-owner (the standing eight)
 
@@ -32,7 +42,5 @@ orders: acked=001–018 done=002–018; ORDER 001 still open owner-side (Discord
 8. Confirm the origin/main history rewrite on superbot-next (history now roots at whole-tree snapshot 2cb4d91, ~104 commits; old per-PR squash SHAs like #319's no longer resolve locally though GitHub confirms the merges). If deliberate (e.g. repo squash), reply and the coordinator records it; if not, it needs investigation.
 
 next-2-tasks:
-1. Lanes finish settings-admin slices 2–3 and setup-wizard slice 4; then remaining completeness rows (server_management trio, cleanup residue, fishing howtofish).
-2. Owner sweep — mineverse flips (churn window), WP stack, DROP list, D-0083, SBW answer, history-rewrite confirm.
-
-Pointers: previous heartbeats = PRs #383/#388/#391/#396; backlog scan = this seat 15:22Z.
+1. Work ORDER 019 top-down through the night; heartbeat per item.
+2. Morning: full night report → outbox; owner sweep list unchanged.
