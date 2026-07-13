@@ -31,10 +31,14 @@ from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
     Audience,
+    DeferMode,
     EmbedFrameSpec,
     FieldsBlock,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalFieldStyle,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -85,6 +89,50 @@ _LEGEND = (
 #: the shipped footer literal (utility_cog `set_footer(text=...)`) — outside
 #: FooterMode's vocabulary, hence the renderer_override below.
 _FOOTER = "Click an action below."
+
+# --- the Poll / Remind ingress modals (G-10 declarative form bodies — the
+# moderation prompt-modal / general 8-ball precedent; curation rework
+# 2026-07-13). The shipped cog opened modals for both tools; each submit
+# normalizes the form fields into the SAME outcome lane the prefix twin
+# runs (`!poll` → utility.poll_view, `!remind` → utility.remind_view —
+# sb/domain/utility/handlers.py's shared `_poll_outcome`/`_remind_outcome`
+# helpers), so the modal produces exactly the command's bytes: the poll
+# guards + the honest reaction-egress refusal (goldens/utility/sweep_poll
+# pins the two-options red envelope), the remind guards + the pinned ack
+# (goldens/utility/sweep_remind). No new egress capability rides in.
+POLL_MODAL = ModalSpec(
+    modal_id="utility.poll_form",
+    title="📊 Create Poll",
+    fields=(
+        ModalFieldSpec(
+            field_id="question", label="Question",
+            placeholder="What should we vote on?", required=True,
+            max_length=200),
+        ModalFieldSpec(
+            field_id="options", label="Options (one per line, 2–10)",
+            style=ModalFieldStyle.PARAGRAPH,
+            placeholder="Yes\nNo\nMaybe", required=True,
+            max_length=400),
+    ),
+    on_submit=HandlerRef("utility.poll_submit"),
+)
+
+REMIND_MODAL = ModalSpec(
+    modal_id="utility.remind_form",
+    title="🔔 Remind Me",
+    fields=(
+        # the moderation TIMEOUT_MODAL "minutes" family — the submit feeds
+        # the same int-parse lane as `!remind <minutes>`.
+        ModalFieldSpec(
+            field_id="minutes", label="Duration (minutes)",
+            placeholder="e.g. 30", required=True, max_length=10),
+        ModalFieldSpec(
+            field_id="message", label="Reminder message",
+            style=ModalFieldStyle.PARAGRAPH, required=True,
+            max_length=200),
+    ),
+    on_submit=HandlerRef("utility.remind_submit"),
+)
 
 
 async def _children_field(ctx) -> tuple[tuple[str, str], ...]:
@@ -142,13 +190,20 @@ def utility_panel_spec() -> PanelSpec:
             # delivery, invite mint) are not armed yet — the polite pending
             # terminal (the role-band precedent), never a silent stub.
             PanelActionSpec(
+                # curation rework 2026-07-13: the shipped modal restored —
+                # G-10 ingress onto the live `!poll` lane (byte-neutral:
+                # label/style stay pinned; session panels mint <cid:N> ids).
                 action_id="poll", label="📊 Poll",
                 audience_tier="user",
-                handler=HandlerRef("utility.poll_pending")),
+                defer_mode=DeferMode.MODAL, modal=POLL_MODAL,
+                handler=HandlerRef("utility.poll_submit")),
             PanelActionSpec(
+                # curation rework 2026-07-13: G-10 ingress onto the live
+                # `!remind` lane (same byte-neutral posture).
                 action_id="remind", label="🔔 Remind Me",
                 audience_tier="user",
-                handler=HandlerRef("utility.remind_pending")),
+                defer_mode=DeferMode.MODAL, modal=REMIND_MODAL,
+                handler=HandlerRef("utility.remind_submit")),
             PanelActionSpec(
                 action_id="invite", label="🔗 Invite",
                 audience_tier="user",

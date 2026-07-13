@@ -10299,8 +10299,8 @@
       "handler:utility.ping_view": {
         "module": "sb.domain.utility.handlers"
       },
-      "handler:utility.poll_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:utility.poll_submit": {
+        "module": "sb.domain.utility.handlers"
       },
       "handler:utility.poll_view": {
         "module": "sb.domain.utility.handlers"
@@ -10311,8 +10311,8 @@
       "handler:utility.profile_card_render": {
         "module": "sb.domain.utility.panels"
       },
-      "handler:utility.remind_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:utility.remind_submit": {
+        "module": "sb.domain.utility.handlers"
       },
       "handler:utility.remind_view": {
         "module": "sb.domain.utility.handlers"
@@ -13187,7 +13187,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:78a9be5b838750b7c5b90db4c0146e39106ae33c279df8a19c78bfc6f82cd8ac",
+  "stable_hash": "sha256:8f2e40dda5ed20ab8a93d1f08fa55b40364e6ae9ace77c4e2ea805709309ad82",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -52943,15 +52943,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.poll_pending"
+                "$ref": "handler:utility.poll_submit"
               },
               "label": "📊 Poll",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "question",
+                    "label": "Question",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "What should we vote on?",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "options",
+                    "label": "Options (one per line, 2–10)",
+                    "max_length": 400,
+                    "min_length": null,
+                    "placeholder": "Yes\nNo\nMaybe",
+                    "required": true,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "utility.poll_form",
+                "on_submit": {
+                  "$ref": "handler:utility.poll_submit"
+                },
+                "title": "📊 Create Poll"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -52968,15 +52996,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.remind_pending"
+                "$ref": "handler:utility.remind_submit"
               },
               "label": "🔔 Remind Me",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "minutes",
+                    "label": "Duration (minutes)",
+                    "max_length": 10,
+                    "min_length": null,
+                    "placeholder": "e.g. 30",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "message",
+                    "label": "Reminder message",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "paragraph"
+                  }
+                ],
+                "modal_id": "utility.remind_form",
+                "on_submit": {
+                  "$ref": "handler:utility.remind_submit"
+                },
+                "title": "🔔 Remind Me"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",

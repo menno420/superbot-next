@@ -33,12 +33,12 @@ _DIRECTORY_DOWN = ("ℹ️ Server/member info needs the live guild view "
 _GENERIC_ERROR = "⚠️ An unexpected error occurred. Please try again."
 
 #: the shipped unarmed-effect refusals (the role-band honest-refusal
-#: precedent) — ONE copy per tool, shared by the panel button's pending
-#: handler and the prefix command's success lane.
+#: precedent) — ONE copy per tool. Poll's is shared by the prefix command
+#: and the panel modal's submit (both ride `_poll_outcome`; the pending
+#: terminals retired with the 2026-07-13 curation rework — modal ingress
+#: now collects the args, the refusal moved to the shared outcome lane).
 _POLL_DOWN = ("📊 Poll creation needs the reaction egress port "
               "(arms with the live adapter).")
-_REMIND_DOWN = ("🔔 Reminders need the timed-delivery port "
-                "(arms with the live adapter).")
 _INVITE_DOWN = ("🔗 Invite creation needs the live invite port "
                 "(arms with the live adapter).")
 _CLEAR_DOWN = ("🧹 Purging needs the live message view "
@@ -351,19 +351,19 @@ def _register() -> None:
                 req, member_id or int(req.actor.user_id))
         return await _open_server_card(req)
 
-    @handler("utility.poll_view")
-    async def poll_view(req):
-        """!poll <question> <options...> — the shipped argument guards
-        (utility_cog.poll; goldens/utility/sweep_poll pins the
-        two-options red envelope for `!poll test test`). The success
-        lane (poll embed + numbered reactions) needs the reaction
-        egress port — the panel button's honest-refusal posture, never
-        a silent stub."""
-        argv = tuple(req.args.get("argv", ()) or ())
-        if not argv:
+    # --- the poll/remind SHARED outcome lanes (curation rework 2026-07-13:
+    # the prefix twins and the panel buttons' G-10 modal submits normalize
+    # into the SAME helpers — one copy of every guard + reply byte; the
+    # goldens keep pinning the command trajectories). ----------------------
+
+    async def _poll_outcome(req, question: str, options: tuple[str, ...]):
+        """The shipped `!poll` guards + honest refusal (utility_cog.poll;
+        goldens/utility/sweep_poll pins the two-options red envelope). The
+        success lane (poll embed + numbered reactions) needs the reaction
+        egress port — the honest-refusal posture, never a silent stub."""
+        if not question:
             # the shipped MissingRequiredArgument raise (question).
             return Reply(BLOCKED, _GENERIC_ERROR)
-        options = argv[1:]
         if len(options) < 2:
             return await _open_error_card(
                 req, "You need at least two options for a poll.")
@@ -372,30 +372,65 @@ def _register() -> None:
                 req, "You can only provide up to 10 options.")
         return Reply(BLOCKED, _POLL_DOWN)
 
-    @handler("utility.remind_view")
-    async def remind_view(req):
-        """!remind <minutes> <message> — the shipped ack
-        (utility_cog.remind; goldens/utility/sweep_remind pins the byte).
-        The shipped flow then armed a `tasks.spawn` timer that sent the
-        reminder after `time` minutes — the timed-delivery port is a
+    async def _remind_outcome(req, minutes_raw: str, message: str):
+        """The shipped `!remind` guards + ack (utility_cog.remind;
+        goldens/utility/sweep_remind pins the ack byte). The shipped flow
+        then armed a `tasks.spawn` timer — the timed-delivery port is a
         named successor (the golden's capture window closed before any
         delivery; only the ack is pinned)."""
-        argv = tuple(req.args.get("argv", ()) or ())
         try:
-            minutes = int(str(argv[0]))
-        except (IndexError, ValueError):
+            minutes = int(minutes_raw)
+        except ValueError:
             # the shipped int-converter/MissingRequiredArgument raise.
             return Reply(BLOCKED, _GENERIC_ERROR)
         if minutes <= 0:
             return await _open_error_card(
                 req, "Please specify a time greater than 0 minutes.")
-        message = " ".join(str(a) for a in argv[1:])
         if not message:
             # the shipped keyword-only `*, message: str` raise.
             return Reply(BLOCKED, _GENERIC_ERROR)
         return Reply(
             SUCCESS,
             f"⏳ Reminder set for **{minutes}** minute(s): {message}")
+
+    @handler("utility.poll_view")
+    async def poll_view(req):
+        """!poll <question> <options...> — the shipped argv shape
+        (question = first token, options = the rest) into the shared
+        lane."""
+        argv = tuple(req.args.get("argv", ()) or ())
+        question = str(argv[0]) if argv else ""
+        return await _poll_outcome(
+            req, question, tuple(str(a) for a in argv[1:]))
+
+    @handler("utility.poll_submit")
+    async def poll_submit(req):
+        """The 📊 Poll modal submit (G-10 field_ids `question`/`options`)
+        — one option per PARAGRAPH line, normalized into the same lane as
+        `!poll`."""
+        question = str(req.args.get("question", "") or "").strip()
+        raw = str(req.args.get("options", "") or "")
+        options = tuple(line.strip() for line in raw.splitlines()
+                        if line.strip())
+        return await _poll_outcome(req, question, options)
+
+    @handler("utility.remind_view")
+    async def remind_view(req):
+        """!remind <minutes> <message> — the shipped argv shape (first
+        token the int minutes, the rest the message) into the shared
+        lane."""
+        argv = tuple(req.args.get("argv", ()) or ())
+        minutes_raw = str(argv[0]) if argv else ""
+        return await _remind_outcome(
+            req, minutes_raw, " ".join(str(a) for a in argv[1:]))
+
+    @handler("utility.remind_submit")
+    async def remind_submit(req):
+        """The 🔔 Remind Me modal submit (G-10 field_ids `minutes`/
+        `message`) — normalized into the same lane as `!remind`."""
+        minutes_raw = str(req.args.get("minutes", "") or "").strip()
+        message = str(req.args.get("message", "") or "").strip()
+        return await _remind_outcome(req, minutes_raw, message)
 
     @handler("utility.invite_view")
     async def invite_view(req):
@@ -455,14 +490,16 @@ def _register() -> None:
 
 
 def _register_pending() -> None:
-    """The shipped Poll/Remind/Invite tools and the 420 child panel need
-    Discord effect ports that have not armed (reaction egress, timed
-    delivery, invite mint) or bands that have not ported (four_twenty) —
-    declared + honest refusal, never silent (the role-band precedent)."""
+    """The shipped Invite tool and the 420 child panel need a Discord
+    effect port that has not armed (invite mint) or a band that has not
+    ported (four_twenty) — declared + honest refusal, never silent (the
+    role-band precedent). Poll/Remind left this list with the 2026-07-13
+    curation rework: their buttons open modals onto the live lanes."""
     from sb.domain.operator_spine import pending_handler
 
-    pending_handler("utility.poll_pending", _POLL_DOWN)
-    pending_handler("utility.remind_pending", _REMIND_DOWN)
+    # utility.poll_pending / utility.remind_pending retired (2026-07-13
+    # curation rework): the panel buttons open G-10 modals whose submits
+    # ride the live poll_view/remind_view outcome lanes.
     pending_handler("utility.invite_pending", _INVITE_DOWN)
     pending_handler("utility.four_twenty_pending",
                     "🍃 The 420 panel ports with its own band.")
