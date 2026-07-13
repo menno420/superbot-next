@@ -514,11 +514,16 @@ class FakeReq:
         self.actor = SimpleNamespace(user_id=uid, actor_type="user")
 
 
-def test_pending_terminals_registered_at_module_import():
+def test_handlers_registered_at_module_import():
     """Live bug 1 (ledger row 7): the live root imports the handlers module
     and dispatches — it never calls ENSURE_REFS when zero plugins are
-    admitted, so the four polite pending terminals must register at IMPORT
-    (declaring IS reserving), not only inside ensure_handler_refs()."""
+    admitted, so the handlers must register at IMPORT (declaring IS
+    reserving), not only inside ensure_handler_refs(). The polite pending
+    terminals this test originally pinned are all retired (role.create at
+    ORDER 017 edits A; roleinfo/assignroles/debugroles at the 2026-07-13
+    orphan-refs true-up — live handlers landed via #358); the import-time
+    doctrine is now pinned on the live refs, including the three that
+    replaced the pendings."""
     import importlib
     import sys
 
@@ -531,8 +536,8 @@ def test_pending_terminals_registered_at_module_import():
     sys.modules.pop("sb.domain.role.handlers", None)
     try:
         importlib.import_module("sb.domain.role.handlers")
-        for name in ("role.create_form_submit", "role.roleinfo_pending",
-                     "role.assignroles_pending", "role.debug_pending",
+        for name in ("role.create_form_submit", "role.roleinfo",
+                     "role.assignroles", "role.debugroles",
                      "role.time_roles_view", "role.setrole"):
             assert is_registered(HandlerRef(name)), name
     finally:
