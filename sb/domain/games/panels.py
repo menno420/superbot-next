@@ -43,9 +43,29 @@ REAL ported surface (blackjack.hub / casino.hub / deathmatch.hub /
 rps_tournament.hub / mining.hub / fishing.hub / creature.hub / farm.hub /
 counting.hub / chain.hub), the world buttons to mining/fishing/farm and
 the world card panel.
+
+Per-guild enablement (D-0082 slice 3, docs/design/game-sections.md §6):
+both hubs render the ENABLED set — the ``games.hub_fields`` provider
+filters through the slice-1 ``enabled_games(guild_id)`` read seam (a
+section whose games are all disabled DROPS), the ``games.world_fields``
+provider filters its per-game "Where to go" lines the same way, and
+every game button carries a ``visible_when`` enablement predicate
+(``games.enabled_<key>``) so a disabled game's button drops at render
+AND its stale click (an already-rendered message) is denied by
+resolve.py's dispatch-time ``visible_when`` re-evaluation (02 §3.0 —
+"This control is no longer available."). Fail-open posture throughout
+(the governance ``subsystem_enabled`` posture): an unreadable enablement
+(no DB / seam failure) or an unpopulated sections registry renders
+TODAY'S full static roster byte-for-byte, so the ported games goldens
+(fully-default guilds — no overrides) replay unchanged. Update contract
+= NEXT-INTERACTION consistency: every open/nav/refresh re-resolves at
+click time (engine §6.1); the anchor refresh sweep is a named successor
+(design §6.3), not this slice.
 """
 
 from __future__ import annotations
+
+import logging
 
 from dataclasses import replace as _dc_replace
 
@@ -66,11 +86,15 @@ from sb.spec.panels import (
 from sb.spec.refs import (
     HandlerRef,
     PanelRef,
+    PredicateRef,
     ProviderRef,
     is_registered,
     panel,
+    predicate,
     provider,
 )
+
+logger = logging.getLogger("sb.domain.games.panels")
 
 __all__ = [
     "ensure_panel_refs",
@@ -137,14 +161,99 @@ def _catalog_lines(entries) -> str:
                      for _k, emoji, display, desc, _r in entries)
 
 
+#: game key → the shipped hub blurb (the roster is the ONE place the
+#: descriptions live — GameEntry deliberately carries no blurb, slice 1).
+_GAME_DESCRIPTIONS: dict[str, str] = {
+    key: desc
+    for roster in (GAMES_COMPETITIVE, GAMES_ACTIVITIES)
+    for key, _emoji, _display, desc, _ref in roster
+}
+
+#: the fully-default render, byte-for-byte (the goldens' bytes) — also the
+#: fail-open degradation when enablement cannot be read (D-0082 §6: a
+#: broken read renders today's hub, never a blank one).
+_STATIC_HUB_FIELDS = (
+    ("🏆 Competitive", _catalog_lines(GAMES_COMPETITIVE)),
+    ("🎲 Activities", _catalog_lines(GAMES_ACTIVITIES)),
+)
+
+
+async def _game_enabled_fail_open(guild_id: int, key: str) -> bool:
+    """Per-game enablement through governance ``subsystem_enabled`` (the
+    slice-1 seam shape: lazy domain→governance import, PL-001). FAIL-OPEN
+    on a read failure — enforcement lives at dispatch (resolve.py's
+    visibility gate + the component ``visible_when`` re-evaluation); a
+    render-time read outage must not hide the hub (and the ported goldens
+    replay the default all-enabled bytes)."""
+    try:
+        from sb.domain.governance import service as governance
+
+        return await governance.subsystem_enabled(guild_id, key)
+    except Exception:  # noqa: BLE001 — render-side read, fail-open by design
+        logger.debug("game enablement read failed for %r — fail-open",
+                     key, exc_info=True)
+        return True
+
+
+def _entry_line(entry) -> str:
+    """One catalog line from a GameSectionView entry — the shipped
+    ``f"{emoji} **{display}** — {desc}"`` builder over the roster blurb
+    (byte-identical to ``_catalog_lines`` for the default inventory; a
+    future SBW entry without a roster blurb renders without the dash)."""
+    desc = _GAME_DESCRIPTIONS.get(entry.key, "")
+    if desc:
+        return f"{entry.emoji} **{entry.label}** — {desc}"
+    return f"{entry.emoji} **{entry.label}**"
+
+
 def _ensure_hub_fields() -> ProviderRef:
     ref = ProviderRef(_HUB_FIELDS)
     if not is_registered(ref):
         @provider(_HUB_FIELDS)
         async def hub_fields(ctx: object):
-            return (("🏆 Competitive", _catalog_lines(GAMES_COMPETITIVE)),
-                    ("🎲 Activities", _catalog_lines(GAMES_ACTIVITIES)))
+            """D-0082 §6: the catalog fields are the ENABLED set — one
+            field per ``enabled_games`` section view (a fully-disabled
+            section drops; all games disabled ⇒ no catalog fields). An
+            unpopulated sections registry (boot never declared the
+            inventory) or a failed read renders the full static roster —
+            fail-open, byte-identical to the goldens."""
+            from sb.spec.sections import all_sections
+
+            if not all_sections():
+                return _STATIC_HUB_FIELDS
+            guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+            try:
+                from sb.domain.games.sections import enabled_games
+
+                views = await enabled_games(guild_id)
+            except Exception:  # noqa: BLE001 — fail-open (see _game_enabled_fail_open)
+                logger.warning("enabled_games read failed — rendering the "
+                               "full static roster (fail-open)", exc_info=True)
+                return _STATIC_HUB_FIELDS
+            return tuple(
+                (f"{view.emoji} {view.title}",
+                 "\n".join(_entry_line(e) for e in view.games))
+                for view in views)
     return ref
+
+
+def _predicate_name(key: str) -> str:
+    return f"games.enabled_{key}"
+
+
+def _ensure_enabled_predicate(key: str) -> str:
+    """Register (idempotently) the per-game enablement predicate and
+    return its REGISTERED PredicateRef string form for ``visible_when``.
+    The ONE predicate serves both gates: render-time component drop
+    (render.py ``_visible``) and resolve.py's dispatch-time stale-click
+    re-evaluation (02 §3.0)."""
+    name = _predicate_name(key)
+    if not is_registered(PredicateRef(name)):
+        @predicate(name)
+        async def game_enabled(ctx: object, _key: str = key) -> bool:
+            return await _game_enabled_fail_open(
+                int(getattr(ctx, "guild_id", 0) or 0), _key)
+    return name
 
 
 # views/explore/world_hub.py, verbatim (sweep_world pins every byte).
@@ -153,13 +262,19 @@ _WORLD_DESCRIPTION = (
     "game — your progress in one carries its own ladder, and a shared "
     "world ties them together."
 )
-_WORLD_PLACES = (
-    "⛏️ **Mine** — Dig for ores, craft gear, and grow your character.\n"
-    "🎣 **Fish** — Cast a line in lakes and rivers and build your "
-    "collection.\n"
-    "🐔 **Farm** — Raise hens that lay eggs around the clock — an idle "
-    "game."
+# (game key, the shipped line) — keyed so the enablement filter (D-0082
+# §6, same treatment as the hub) can drop a disabled game's line.
+_WORLD_PLACE_LINES: tuple[tuple[str, str], ...] = (
+    ("mining",
+     "⛏️ **Mine** — Dig for ores, craft gear, and grow your character."),
+    ("fishing",
+     "🎣 **Fish** — Cast a line in lakes and rivers and build your "
+     "collection."),
+    ("farm",
+     "🐔 **Farm** — Raise hens that lay eggs around the clock — an idle "
+     "game."),
 )
+_WORLD_PLACES = "\n".join(line for _key, line in _WORLD_PLACE_LINES)
 
 
 def _ensure_world_fields() -> ProviderRef:
@@ -167,7 +282,16 @@ def _ensure_world_fields() -> ProviderRef:
     if not is_registered(ref):
         @provider(_WORLD_FIELDS)
         async def world_fields(ctx: object):
-            return (("Where to go", _WORLD_PLACES),)
+            """D-0082 §6 (same treatment as the hub): a disabled game's
+            line drops from "Where to go"; all three disabled ⇒ the field
+            drops. Fail-open per game — the default all-enabled render is
+            byte-identical to ``_WORLD_PLACES`` (the golden's bytes)."""
+            guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+            lines = [line for key, line in _WORLD_PLACE_LINES
+                     if await _game_enabled_fail_open(guild_id, key)]
+            if not lines:
+                return ()
+            return (("Where to go", "\n".join(lines)),)
     return ref
 
 
@@ -181,6 +305,9 @@ def _hub_action(key: str, emoji: str, display: str, route: object, *,
         style=style, audience_tier="user",
         handler=route,
         custom_id_override=f"games:open:{key}",  # the shipped persistent id
+        # D-0082 §6: render-time drop when the game is disabled per guild
+        # + resolve.py's dispatch-time stale-click deny (the SAME predicate).
+        visible_when=_ensure_enabled_predicate(key),
     )
 
 
@@ -247,17 +374,21 @@ def world_hub_spec() -> PanelSpec:
                 action_id="world_mine", label="⛏️ Mine",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=PanelRef("mining.hub"),
-                custom_id_override="explore:open:mining"),
+                custom_id_override="explore:open:mining",
+                visible_when=_ensure_enabled_predicate("mining")),
             PanelActionSpec(
                 action_id="world_fish", label="🎣 Fish",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=PanelRef("fishing.hub"),
-                custom_id_override="explore:open:fishing"),
+                custom_id_override="explore:open:fishing",
+                visible_when=_ensure_enabled_predicate("fishing")),
             PanelActionSpec(
                 action_id="world_farm", label="🐔 Farm",
                 style=ActionStyle.PRIMARY, audience_tier="user",
                 handler=PanelRef("farm.hub"),
-                custom_id_override="explore:open:farm"),
+                custom_id_override="explore:open:farm",
+                visible_when=_ensure_enabled_predicate("farm")),
+            # the world card is NOT a game — never enablement-gated.
             PanelActionSpec(
                 action_id="world_card", label="🪪 World Card",
                 style=ActionStyle.SECONDARY, audience_tier="user",
@@ -390,6 +521,9 @@ def _register_refs() -> None:
 
     _ensure_hub_fields()
     _ensure_world_fields()
+    for roster in (GAMES_COMPETITIVE, GAMES_ACTIVITIES):
+        for key, _emoji, _display, _desc, _ref in roster:
+            _ensure_enabled_predicate(key)
     for pid, factory in _SPECS.items():
         if not is_registered(PanelRef(pid)):
             panel(pid)(factory)

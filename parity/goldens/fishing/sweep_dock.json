@@ -1,5 +1,5 @@
 {
- "case_id": "sweep.curios",
+ "case_id": "sweep.dock",
  "db_delta": {
   "ai_decision_audit": {
    "added": [
@@ -28,7 +28,7 @@
     {
      "coins": 0,
      "guild_id": "<guild>",
-     "last_xp": 2046387238,
+     "last_xp": 1924056245,
      "level": 0,
      "messages": 1,
      "user_id": "<@admin>",
@@ -49,39 +49,73 @@
      },
      "method": "send_message",
      "payload": {
-      "components": [],
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "⚓ Build",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "label": "↩ Structures",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
       "content": null,
       "embeds": [
        {
-        "color": 3447003,
-        "description": "You have **0** 🪸 coral · collection **0/4** carved.\nCoral drops rarely on a **deepwater** reel (`!sail` to the boat).",
+        "color": 1146986,
+        "description": "Build a dock with **coral** and **wood** so the fish bite sooner — the cheap, early counterpart to the Tide Pool. Coral drops on a **deepwater** reel (`!sail`); wood you already mine. Faster bites vs. the Tide Pool's rarer fish — spend your coral where you like.",
         "fields": [
          {
           "inline": false,
-          "name": "🔒 🐚 Carved Coral Shell",
-          "value": "2 🪸 coral · Uncommon"
+          "name": "Level",
+          "value": "**(not built)** (0/2)"
          },
          {
           "inline": false,
-          "name": "🔒 🌊 Coral Seahorse",
-          "value": "4 🪸 coral · Rare"
+          "name": "Current bonus",
+          "value": "no bonus yet"
          },
          {
           "inline": false,
-          "name": "🔒 🗿 Coral Idol",
-          "value": "8 🪸 coral · Epic"
-         },
-         {
-          "inline": false,
-          "name": "🔒 🐉 Coral Leviathan",
-          "value": "16 🪸 coral · Legendary"
+          "name": "Next: Fishing Dock → 6% faster bites",
+          "value": "2× coral, 15× wood + **1200** 🪙"
          }
         ],
         "flags": 0,
         "footer": {
-         "text": "Carve with !craftcurio <name>"
+         "text": "⚓ Build  •  ↩ Structures"
         },
-        "title": "🪸 Coral Curios",
+        "title": "⚓ Dock",
         "type": "rich"
        }
       ],
@@ -111,11 +145,11 @@
     }
    ],
    "input": {
-    "content": "!curios",
+    "content": "!dock",
     "kind": "command",
     "persona": "admin"
    }
   }
  ],
- "subsystem": "_unmapped"
+ "subsystem": "fishing"
 }
