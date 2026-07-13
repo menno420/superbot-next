@@ -1,13 +1,15 @@
 """Fishing handlers (band 6) — the shipped cast-open lane (energy gate →
 spend → the waiting-for-a-bite panel), the Reel commit route,
-dex/leaderboard/trophy reads + the slice-1 weather/venue surfaces
-(``!forecast`` / ``!sail``); rod/bait/craft/structure surfaces are
+dex/leaderboard/trophy reads, the slice-1 weather/venue surfaces
+(``!forecast`` / ``!sail``) + the slice-2 rod-ladder surfaces (``!rod``
+/ ``!rodrecipes`` / ``!craftrod``); bait/craft/structure surfaces are
 honest pending terminals until the gear systems port (D-0043 successor
 work). ``goldens/fishing/sweep_fish.json`` pins the cast-open bytes
 (the spent ``fishing_energy`` row + the panel), sweep_forecast the Rain
 forecast embed, sweep_sail the deepwater toggle + its ``fishing_venue``
-row; the dex embed lives on ``fishing.log``
-(sb/domain/fishing/panels.py)."""
+row, sweep_rod / sweep_rodrecipes the fresh tier-0 rod panels,
+sweep_craftrod the not-enough-fish guard; the dex embed lives on
+``fishing.log`` (sb/domain/fishing/panels.py)."""
 
 from __future__ import annotations
 
@@ -164,6 +166,126 @@ def _register() -> None:
                 "`!fish`.")
         return Reply(SUCCESS, message)
 
+    async def _op_after(req, op_key: str):
+        """Run a one-leg fishing op; (outcome-reply, after) — reply is
+        None on SUCCESS so the caller composes the shipped copy from
+        `after` (the mining service `_op_after` shape)."""
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        result = await engine.run(WorkflowRef(op_key),
+                                  _ctx_from_req(req, {}))
+        if result.outcome != SUCCESS:
+            return (Reply(result.outcome,
+                          result.user_message or "Couldn't do that."), {})
+        return (None, next(iter((result.after or {}).values()), {}))
+
+    @handler("fishing.rod_shop")
+    async def rod_shop(req) -> Reply:
+        """!rod — open the rod shop panel (fishing_cog.py ``rod``:
+        build_rod_embed + RodShopView). A pure read — the open renders
+        the live tier/balance and writes nothing;
+        goldens/fishing/sweep_rod pins the fresh tier-0 bytes."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import ROD_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(ROD_PANEL_ID),
+                         dataclasses.replace(req, args=dict(req.args)))
+        return Reply(SUCCESS, None)
+
+    @handler("fishing.rodrecipes_view")
+    async def rodrecipes_view(req) -> Reply:
+        """!rodrecipes — open the rod recipe browser (fishing_cog.py
+        ``rodrecipes``: build_recipe_panel). A pure read;
+        goldens/fishing/sweep_rodrecipes pins the fresh tier-0 bytes."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import ROD_RECIPES_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(ROD_RECIPES_PANEL_ID),
+                         dataclasses.replace(req, args=dict(req.args)))
+        return Reply(SUCCESS, None)
+
+    @handler("fishing.craftrod_route")
+    async def craftrod_route(req) -> Reply:
+        """!craftrod / the rod panels' craft buttons — craft the next rod
+        up the ladder from caught fish (fishing_cog.py ``craftrod`` →
+        services/fishing_workflow.py ``craft_rod``). The maxed /
+        not-enough-fish refusals are computed as PURE READS (tier +
+        inventory + the smallest-first spend plan) so the failed attempt
+        writes no row, exactly as the oracle's txn never opens —
+        goldens/fishing/sweep_craftrod pins the fresh-player
+        \"need **10** fish of size ≤ **6**\" guard byte. Only a stocked
+        craft runs the audited fish-debit + tier-raise op
+        (depth.exemptions.fishing guard-only-capture: fishing_rod)."""
+        from sb.domain.fishing import crafting, rods as rods_mod, store
+        from sb.domain.mining.store import get_mining_inventory
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        tier = await store.get_rod_tier(uid, gid)
+        nxt = rods_mod.next_rod(tier)
+        if nxt is None:
+            top = rods_mod.rod_for_tier(tier)
+            return Reply(BLOCKED,
+                         f"You already wield the **{top.name}** "
+                         f"{top.emoji} — the finest rod there is!")
+        recipe = rods_mod.rod_recipe(nxt.tier)
+        if recipe is None:  # defensive — every non-starter tier has one
+            return Reply(BLOCKED,
+                         f"The **{nxt.name}** {nxt.emoji} can't be "
+                         "crafted from fish — buy it with `!rod`.")
+        inventory = await get_mining_inventory(uid, gid)
+        if crafting.plan_fish_spend(inventory, recipe) is None:
+            return Reply(BLOCKED,
+                         f"You need **{recipe.fish_count}** fish of size "
+                         f"≤ **{recipe.max_size_rank}** to craft the "
+                         f"**{nxt.name}** {nxt.emoji} — catch more fish "
+                         "with `!fish` (or buy it with `!rod`).")
+        blocked, after = await _op_after(req, "fishing.craft_rod")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, after.get("message", ""))
+
+    @handler("fishing.rod_upgrade_route")
+    async def rod_upgrade_route(req) -> Reply:
+        """The rod shop's ⬆️ Upgrade rod button — buy the next rod up the
+        ladder (views/fishing/rod_shop.py ``upgrade_btn`` →
+        services/fishing_workflow.py ``buy_rod``). The maxed /
+        insufficient-funds refusals are computed as PURE READS (tier +
+        balance) so the failed attempt writes no coin ledger / audit
+        row, exactly as the oracle's txn rolls back. Only a funded
+        upgrade runs the audited debit-and-bump op (#217 advisory-fenced
+        locking read; economy.balance_changed emits after commit). No
+        golden drives the click — copy oracle-source-verbatim."""
+        from sb.domain.economy.store import get_coins
+        from sb.domain.fishing import rods as rods_mod, store
+
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        gid = int(req.guild_id or 0)
+        tier = await store.get_rod_tier(uid, gid)
+        nxt = rods_mod.next_rod(tier)
+        if nxt is None:
+            top = rods_mod.rod_for_tier(tier)
+            return Reply(BLOCKED,
+                         f"You already wield the **{top.name}** "
+                         f"{top.emoji} — the finest rod there is!")
+        balance = await get_coins(uid, gid)
+        if balance < nxt.price:
+            return Reply(BLOCKED,
+                         f"The **{nxt.name}** {nxt.emoji} costs "
+                         f"**{nxt.price}** 🪙 — you only have "
+                         f"**{balance}** 🪙.")
+        blocked, after = await _op_after(req, "fishing.buy_rod")
+        if blocked is not None:
+            return blocked
+        return Reply(SUCCESS, after.get("message", ""))
+
     @handler("fishing.menu_view")
     async def menu_view(req) -> Reply:
         from sb.domain.fishing import catalog
@@ -217,15 +339,15 @@ def _register() -> None:
         return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 
-#: Gear/craft/structure surfaces awaiting the fishing depth port
+#: Bait/craft/structure surfaces awaiting the fishing depth port
 #: (D-0043). forecast/sail left this dict in slice 1 (weather + venue);
-#: the cast LEG still runs the starter shore profile — the venue→cast
-#: wiring (deepwater species pool, coral drop, minigame difficulty)
-#: rides the rod/bait/minigame rung with the rest of the gear knobs.
+#: rod/rodrecipes/craftrod in slice 2 (the rod ladder). The cast LEG
+#: still runs the starter shore profile — the venue/rod→cast wiring
+#: (deepwater species pool, coral drop, rarity_pull, minigame
+#: difficulty) rides the bait/minigame rung with the rest of the knobs.
 PENDING = {
-    "rod": "rod ladder", "bait": "bait system",
+    "bait": "bait system",
     "craftbait": "bait crafting", "craftcharm": "charm crafting",
-    "craftrod": "rod crafting", "rodrecipes": "rod crafting",
     "craftpearl": "pearl bait crafting", "curios": "curio collection",
     "craftcurio": "curio crafting", "tidepool": "tide pool structure",
     "dock": "dock structure", "boathouse": "boathouse structure",

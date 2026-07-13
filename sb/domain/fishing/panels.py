@@ -49,6 +49,12 @@ Under-port ledger (no golden pins these corners):
   golden-pinned shore bytes verbatim); the cast LEG still rolls the
   starter shore profile — the venue→cast wiring (deepwater species pool,
   coral drop, minigame difficulty) rides the rod/bait/minigame rung.
+* the rod (slice 2): the 🎒 Rod hub button, the rod shop and the recipe
+  browser now read/write the LIVE stored rod tier (``fishing_rod``, no
+  row → tier 0 — a fresh player renders the golden-pinned Bare-Rod
+  bytes verbatim); the cast LEG still rolls the starter knobs
+  (rarity_pull 1.0) — the rod→cast wiring rides the same
+  rod/bait/minigame rung as the venue.
 
 MONEY-RACE NOTE (#217 / coordinator ruling 2026-07-12): this module and
 the cast-open handler touch NO money primitive — fishing_energy is game
@@ -84,18 +90,24 @@ __all__ = [
     "CAST_PANEL_ID",
     "HUB_PANEL_ID",
     "LOG_PANEL_ID",
+    "ROD_PANEL_ID",
+    "ROD_RECIPES_PANEL_ID",
     "cast_spec",
     "ensure_panel_refs",
     "fishing_card_spec",
     "fishing_hub_spec",
     "install_fishing_panels",
     "log_spec",
+    "rod_recipes_spec",
+    "rod_shop_spec",
 ]
 
 CAST_PANEL_ID = "fishing.cast_panel"
 LOG_PANEL_ID = "fishing.log"
 HUB_PANEL_ID = "fishing.hub"
 CARD_PANEL_ID = "fishing.card"
+ROD_PANEL_ID = "fishing.rod_panel"
+ROD_RECIPES_PANEL_ID = "fishing.rod_recipes_panel"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
@@ -171,7 +183,7 @@ def fishing_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="fishing_rod", label="Rod", emoji="🎒",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("fishing.rod_pending")),
+                handler=PanelRef(ROD_PANEL_ID)),
             PanelActionSpec(
                 action_id="fishing_bait", label="Bait", emoji="🪱",
                 style=ActionStyle.SECONDARY, audience_tier="user",
@@ -304,6 +316,135 @@ def log_spec() -> PanelSpec:
             "catalog — all outside the static grammar vocabulary. Zero "
             "components; the renderer only composes the embed."),
         session_lifecycle=True,
+    )
+
+
+def _knob_summary(rod) -> str:
+    """A friendly one-liner of what a rod's knobs buy (vs. the bare
+    starter) — views/fishing/rod_shop.py ``_knob_summary`` verbatim
+    (goldens/fishing/sweep_rod pins the starter + Bronze bytes)."""
+    if rod.tier == 0:
+        return "the trusty starter — catches everything, just no bonuses"
+    bits = [
+        f"+{rod.window_bonus:.1f}s reaction time",
+        f"bites {round((1 - rod.bite_speed) * 100)}% faster",
+        "better catches in your band",
+        f"{round(rod.escape_resist * 100)}% less escape in fights",
+        f"{round(rod.premature_grace * 100)}% chance to forgive an early reel",
+    ]
+    return " · ".join(bits)
+
+
+def rod_shop_spec() -> PanelSpec:
+    """The shipped rod shop (views/fishing/rod_shop.py ``RodShopView`` +
+    ``build_rod_embed``): the 🎣 Your Fishing Rod ECONOMY_COLOR gold
+    embed (current rod + the ladder + the next upgrade with live
+    balance) over the shipped FOUR buttons (⬆️ Upgrade rod success ·
+    🎣 Craft from fish primary · 📋 Recipes secondary on row one;
+    ↩ Fishing menu secondary on row two — emoji-in-label, trap 15a's
+    other flavor). No help/home nav row (the shipped author-restricted
+    BaseView). ``goldens/fishing/sweep_rod.json`` pins every byte of the
+    fresh tier-0 open: run-minted ``<cid:N>`` button ids (timeout
+    session view ⇒ ``session_lifecycle=True``, no ``panel_anchors``
+    row), all four buttons enabled, and the Bare-Rod/Bronze-next
+    embed."""
+    return PanelSpec(
+        panel_id=ROD_PANEL_ID,
+        subsystem="fishing",
+        title="🎣 Your Fishing Rod",
+        audience=Audience.INVOKER,
+        # ECONOMY_COLOR gold (15844367, utils/ui_constants.py); the live
+        # description + fields ride the override (see justification).
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="rs_upgrade", label="⬆️ Upgrade rod",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("fishing.rod_upgrade_route")),
+            PanelActionSpec(
+                action_id="rs_craft", label="🎣 Craft from fish",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("fishing.craftrod_route")),
+            PanelActionSpec(
+                action_id="rs_recipes", label="📋 Recipes",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(ROD_RECIPES_PANEL_ID)),
+            PanelActionSpec(
+                action_id="rs_menu", label="↩ Fishing menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_rod_shop"),
+        justification=(
+            "the shipped `!rod` reply is a fully live-state-parameterized "
+            "embed built in the view (views/fishing/rod_shop.py "
+            "build_rod_embed: the current-rod description + knob summary, "
+            "the ✅/▶/🔒 ladder field, and the next-upgrade field with the "
+            "live `Your balance: {n} 🪙` line + the craft-recipe pointer — "
+            "goldens/fishing/sweep_rod.json pins the fresh tier-0 bytes), "
+            "read-parameterized state outside the static TextBlock/"
+            "FieldsBlock vocabulary (the mining workshop/home precedent). "
+            "The renderer patches only the embed and the at-max disabled "
+            "flags on ⬆️ Upgrade rod / 🎣 Craft from fish (the shipped "
+            "RodShopView gating); every component stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("rs_upgrade", "rs_craft", "rs_recipes"),
+            ("rs_menu",),)),)),
+    )
+
+
+def rod_recipes_spec() -> PanelSpec:
+    """The shipped rod recipe browser (views/fishing/rod_recipe_browser.py
+    ``RodRecipeBrowserView`` + ``build_rod_recipe_embed``): the
+    📋 Rod Recipes ECONOMY_COLOR gold embed (every fish→rod recipe with
+    the player's live eligible-fish progress) over the shipped TWO
+    buttons (🎣 Craft next primary on row one; ↩ Rod shop secondary on
+    row two). No help/home nav row. ``goldens/fishing/
+    sweep_rodrecipes.json`` pins every byte of the fresh tier-0 open."""
+    return PanelSpec(
+        panel_id=ROD_RECIPES_PANEL_ID,
+        subsystem="fishing",
+        title="📋 Rod Recipes",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        # the shipped static description (build_rod_recipe_embed, verbatim
+        # — the golden pins the bytes); the ladder field rides the override.
+        body=(TextBlock(
+            "Craft your way up the ladder from caught fish — smallest "
+            "catches spend first, so your trophies are always safe. Coins "
+            "remain the fast alternative (`!rod`)."),),
+        actions=(
+            PanelActionSpec(
+                action_id="rr_craft", label="🎣 Craft next",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("fishing.craftrod_route")),
+            PanelActionSpec(
+                action_id="rr_back", label="↩ Rod shop",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(ROD_PANEL_ID)),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_rod_recipes"),
+        justification=(
+            "the shipped `!rodrecipes` ladder field is live-state-"
+            "parameterized end to end (views/fishing/rod_recipe_browser.py "
+            "_recipe_line: every craftable tier renders the player's "
+            "current eligible-fish count against the requirement — "
+            "`0/10 eligible fish (size ≤ 6)` — with the ✅ owned / ▶ next / "
+            "🔒 locked marks and the ready-to-craft tail; goldens/fishing/"
+            "sweep_rodrecipes.json pins the fresh tier-0 bytes), outside "
+            "the static TextBlock/FieldsBlock vocabulary (the rod-shop / "
+            "mining-workshop precedent). The renderer patches only the "
+            "embed field and the at-max disabled flag on 🎣 Craft next; "
+            "every component stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("rr_craft",),
+            ("rr_back",),)),)),
     )
 
 
@@ -487,6 +628,121 @@ def _venue_log_lines(log: dict[str, int], venue: str, cap: int,
     return lines
 
 
+async def _render_rod_shop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — rod_shop.py's ``build_rod_embed`` verbatim
+    (see justification): grammar render + the live current-rod
+    description, the ladder field and the next-upgrade field (live coin
+    balance + craft-recipe pointer), plus the shipped at-max button
+    gating. A fresh player reads tier 0 / balance 0 → the bytes
+    goldens/fishing/sweep_rod.json pins."""
+    from sb.domain.economy.store import get_coins
+    from sb.domain.fishing import rods as rods_mod
+    from sb.domain.fishing import store
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    tier = await store.get_rod_tier(uid, gid)
+    current = rods_mod.rod_for_tier(tier)
+    nxt = rods_mod.next_rod(tier)
+    balance = await get_coins(uid, gid)
+
+    ladder_lines = []
+    for rod in rods_mod.ROD_LADDER:
+        if rod.tier < current.tier:
+            mark = "✅"
+        elif rod.tier == current.tier:
+            mark = "**▶**"
+        else:
+            mark = "🔒"
+        price = "—" if rod.price == 0 else f"{rod.price} 🪙"
+        ladder_lines.append(f"{mark} {rod.emoji} **{rod.name}** ({price})")
+    fields: list[tuple[str, str]] = [
+        ("The ladder", "\n".join(ladder_lines))]
+    if nxt is None:
+        fields.append(("Next upgrade",
+                       "You wield the finest rod there is. 💎"))
+    else:
+        recipe = rods_mod.rod_recipe(nxt.tier)
+        craft_line = (
+            f"\n🎣 _or craft from {rods_mod.rod_recipe_text(recipe)}_"
+            " (📋 Recipes shows your live progress)"
+            if recipe is not None
+            else ""
+        )
+        fields.append((
+            f"Next: {nxt.emoji} {nxt.name} — {nxt.price} 🪙",
+            f"_{_knob_summary(nxt)}_\nYour balance: **{balance}** 🪙"
+            f"{craft_line}"))
+    embed = _dc_replace(
+        rendered.embed,
+        description=(f"You're wielding the **{current.name}** "
+                     f"{current.emoji}\n*{_knob_summary(current)}*"),
+        fields=tuple(fields))
+    at_max = nxt is None
+    components = tuple(
+        _dc_replace(c, disabled=True)
+        if (at_max and (getattr(c, "custom_id", "").endswith(".rs_upgrade")
+                        or getattr(c, "custom_id", "").endswith(".rs_craft")))
+        else c
+        for c in rendered.components)
+    return _dc_replace(rendered, embed=embed, components=components)
+
+
+async def _render_rod_recipes(spec: PanelSpec, ctx) -> object:
+    """renderer_override — rod_recipe_browser.py's
+    ``build_rod_recipe_embed`` verbatim (see justification): grammar
+    render + the live-progress ladder field, plus the shipped at-max
+    gating on 🎣 Craft next. A fresh player reads tier 0 / an empty pack
+    → the bytes goldens/fishing/sweep_rodrecipes.json pins."""
+    from sb.domain.fishing import crafting, rods as rods_mod
+    from sb.domain.fishing import store
+    from sb.domain.mining.store import get_mining_inventory
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    tier = await store.get_rod_tier(uid, gid)
+    inventory = await get_mining_inventory(uid, gid)
+    nxt = rods_mod.next_rod(tier)
+    lines = []
+    for rod in rods_mod.ROD_LADDER:
+        recipe = rods_mod.rod_recipe(rod.tier)
+        if recipe is None:  # the starter tier has no recipe
+            continue
+        lines.append(_recipe_line(
+            rod, recipe,
+            crafting.eligible_fish_total(inventory, recipe),
+            owned=rod.tier <= tier,
+            is_next=nxt is not None and rod.tier == nxt.tier))
+    embed = _dc_replace(rendered.embed,
+                        fields=(("The ladder", "\n".join(lines)),))
+    at_max = nxt is None
+    components = tuple(
+        _dc_replace(c, disabled=True)
+        if (at_max and getattr(c, "custom_id", "").endswith(".rr_craft"))
+        else c
+        for c in rendered.components)
+    return _dc_replace(rendered, embed=embed, components=components)
+
+
+def _recipe_line(rod, recipe, eligible: int, *, owned: bool,
+                 is_next: bool) -> str:
+    """views/fishing/rod_recipe_browser.py ``_recipe_line`` verbatim —
+    one ladder line: owned (✅), the live-progress next tier (▶), or
+    locked (🔒)."""
+    if owned:
+        return f"✅ {rod.emoji} **{rod.name}** — already wielded"
+    target = recipe.fish_count
+    progress = f"{min(eligible, target)}/{target} eligible fish"
+    cutoff = f"size ≤ {recipe.max_size_rank}"
+    mark = "**▶**" if is_next else "🔒"
+    ready = " — ready to craft!" if is_next and eligible >= target else ""
+    return f"{mark} {rod.emoji} **{rod.name}** — {progress} ({cutoff}){ready}"
+
+
 @panel(CAST_PANEL_ID)
 def _cast_factory() -> PanelSpec:
     return cast_spec()
@@ -507,11 +763,23 @@ def _card_factory() -> PanelSpec:
     return fishing_card_spec()
 
 
+@panel(ROD_PANEL_ID)
+def _rod_factory() -> PanelSpec:
+    return rod_shop_spec()
+
+
+@panel(ROD_RECIPES_PANEL_ID)
+def _rod_recipes_factory() -> PanelSpec:
+    return rod_recipes_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
     (HUB_PANEL_ID, _hub_factory),
     (CARD_PANEL_ID, _card_factory),
+    (ROD_PANEL_ID, _rod_factory),
+    (ROD_RECIPES_PANEL_ID, _rod_recipes_factory),
 )
 
 _RENDERS = (
@@ -519,12 +787,15 @@ _RENDERS = (
     ("fishing.render_log", _render_log),
     ("fishing.render_hub", _render_hub),
     ("fishing.render_card", _render_card),
+    ("fishing.render_rod_shop", _render_rod_shop),
+    ("fishing.render_rod_recipes", _render_rod_recipes),
 )
 
 
 def install_fishing_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec):
+    for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
+                  rod_shop_spec, rod_recipes_spec):
         spec = build()
         try:
             out.append(register_panel(spec))

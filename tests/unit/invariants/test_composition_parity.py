@@ -39,13 +39,13 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     "handler:fishing.craftcharm_pending",
     "handler:fishing.craftcurio_pending",
     "handler:fishing.craftpearl_pending",
-    "handler:fishing.craftrod_pending",
     "handler:fishing.curios_pending",
     "handler:fishing.dock_pending",
     "handler:fishing.fishery_pending",
-    "handler:fishing.rod_pending",
-    "handler:fishing.rodrecipes_pending",
     "handler:fishing.tidepool_pending",
+    # rod/rodrecipes/craftrod pruned by the fishing slice-2 port — their
+    # real rod_shop / rodrecipes_view / craftrod_route handlers register
+    # at module import.
     # build/buildlist/buildable pruned by the slice-6 port — their real
     # build_route / buildlist_route / buildable_view handlers register at
     # module import.
