@@ -32,6 +32,7 @@ __all__ = [
     "FISHING_ROD_STORE",
     "FISHING_VENUE_STORE",
     "clear_active_bait",
+    "consume_bait_charge",
     "get_active_bait",
     "get_catch_log",
     "get_fishing_energy",
@@ -300,9 +301,42 @@ async def set_active_bait(user_id: int, guild_id: int, bait_key: str,
 async def clear_active_bait(user_id: int, guild_id: int,
                             conn: Any = None) -> None:
     """Drop the player's loaded bait (charges spent) → back to bait-less
-    fishing (the shipped ``clear_active_bait`` — the per-cast consume's
-    empty-pack leg, which rides the bait/minigame rung)."""
+    fishing (the shipped ``clear_active_bait`` shape; the per-cast
+    consume's empty-pack clear now happens inside
+    :func:`consume_bait_charge`'s single statement)."""
     await set_active_bait(user_id, guild_id, "", 0, conn=conn)
+
+
+async def consume_bait_charge(user_id: int, guild_id: int, bait_key: str,
+                              conn: Any = None) -> int | None:
+    """Spend ONE charge of *bait_key* — the cast's per-attempt consume
+    (``begin_cast``), as a single CONDITIONAL RELATIVE decrement so it
+    can never clobber a concurrent buy/craft: the bait legs stack or
+    replace ABSOLUTE loadouts behind :func:`lock_bait_slot` in their own
+    txn, and the cast leg runs lockless outside any txn — an absolute
+    ``charges - 1`` write-back here would lose a purchase committing
+    between the cast's read and its consume (the #213/#217
+    read-then-settle lost update; bait is coin-purchased, so the eaten
+    charges are paid coins). The decrement is relative
+    (``charges = charges - 1``) and keyed on the loadout the cast
+    actually rolled with (``bait_key`` must still match,
+    ``charges >= 1``), so a raced stack keeps its bought charges (the
+    cast eats one charge of the NEW count) and a raced replace is left
+    untouched. The last charge clears the pack in the SAME statement
+    (``bait_key = ''``, charges 0 — the exact
+    :func:`clear_active_bait` end state). Returns the remaining charges,
+    or ``None`` when nothing matched — the loadout was swapped or
+    emptied concurrently; the caller treats that as the shipped
+    "no bait" posture (nothing to spend, nothing clobbered)."""
+    row = await fetchone(
+        "UPDATE fishing_bait SET "
+        "charges = fishing_bait.charges - 1, "
+        "bait_key = CASE WHEN fishing_bait.charges - 1 <= 0 THEN '' "
+        "ELSE fishing_bait.bait_key END "
+        "WHERE user_id=$1 AND guild_id=$2 AND bait_key=$3 "
+        "AND charges >= 1 RETURNING charges",
+        (user_id, guild_id, bait_key), conn=conn)
+    return int(row["charges"]) if row else None
 
 
 async def lock_bait_slot(conn: Any, *, user_id: int,
