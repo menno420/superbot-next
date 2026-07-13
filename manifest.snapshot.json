@@ -11124,6 +11124,36 @@
       "panel:xp.rank_card": {
         "module": "sb.domain.xp.panels"
       },
+      "predicate:games.enabled_blackjack": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_casino": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_chain": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_counting": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_creature": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_deathmatch": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_farm": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_fishing": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_mining": {
+        "module": "sb.domain.games.panels"
+      },
+      "predicate:games.enabled_rps_tournament": {
+        "module": "sb.domain.games.panels"
+      },
       "provider:admin.cogmgr_options": {
         "module": "sb.domain.admin.cogmgr"
       },
@@ -13157,7 +13187,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:5bd2d8b0376a8d2066bb37a2fa0c06d3c19d161ed1894b9ecee4c4c3cbd52773",
+  "stable_hash": "sha256:78a9be5b838750b7c5b90db4c0146e39106ae33c279df8a19c78bfc6f82cd8ac",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -33459,7 +33489,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_blackjack"
             },
             {
               "action_id": "ga_casino",
@@ -33484,7 +33514,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_casino"
             },
             {
               "action_id": "ga_deathmatch",
@@ -33509,7 +33539,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_deathmatch"
             },
             {
               "action_id": "ga_rps_tournament",
@@ -33534,7 +33564,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_rps_tournament"
             },
             {
               "action_id": "ga_mining",
@@ -33559,7 +33589,7 @@
               "slash_common": false,
               "style": "success",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_mining"
             },
             {
               "action_id": "ga_fishing",
@@ -33584,7 +33614,7 @@
               "slash_common": false,
               "style": "success",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_fishing"
             },
             {
               "action_id": "ga_creature",
@@ -33609,7 +33639,7 @@
               "slash_common": false,
               "style": "success",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_creature"
             },
             {
               "action_id": "ga_farm",
@@ -33634,7 +33664,7 @@
               "slash_common": false,
               "style": "success",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_farm"
             },
             {
               "action_id": "ga_counting",
@@ -33659,7 +33689,7 @@
               "slash_common": false,
               "style": "success",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_counting"
             },
             {
               "action_id": "ga_chain",
@@ -33684,7 +33714,7 @@
               "slash_common": false,
               "style": "success",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_chain"
             }
           ],
           "anchor_policy": "reply",
@@ -33778,7 +33808,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_mining"
             },
             {
               "action_id": "world_fish",
@@ -33803,7 +33833,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_fishing"
             },
             {
               "action_id": "world_farm",
@@ -33828,7 +33858,7 @@
               "slash_common": false,
               "style": "primary",
               "usage_weight": 1.0,
-              "visible_when": ""
+              "visible_when": "games.enabled_farm"
             },
             {
               "action_id": "world_card",

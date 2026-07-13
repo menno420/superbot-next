@@ -160,7 +160,6 @@ register_event_specs(list(_EVENTS))
 register_ops()
 install_games_dispatcher()
 register_game_providers()
-_register_sections()
 
 
 def _ensure_refs() -> None:
