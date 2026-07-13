@@ -63,9 +63,11 @@ def test_full_corpus_reconstructs():
     # writes, 2026-07-13)
     # + 4 (energy-slice-2 mining cook/use: ration restore / full refusal /
     # cook campfire / torch flavour, 2026-07-13)
+    # + 1 (cleanup anti-evasion toggle write — the completeness-remainders
+    # residue port, 2026-07-13)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 491
+    assert golden_count == 492
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 

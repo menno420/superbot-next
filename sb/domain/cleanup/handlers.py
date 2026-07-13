@@ -1,13 +1,15 @@
-"""Cleanup-surface handlers — the ``!cleanuphistory`` scan front door
-plus the declared + honest pending terminals for the panel clicks whose
-target is its own port slice (the settings/servermanagement precedent,
-never a silent stub): the Settings / Cleanup Policies sub-views and the
-anti-evasion toggle. The word add/remove modals, the word-menu refresh,
-the Scan History button and the hub's Logging Status nav route to their
-LIVE targets in sb/domain/cleanup/panels.py (the 2026-07-13 curation
-rework — their terminals are retired). Refs register at MODULE IMPORT
-(the composition-parity invariant — the live root never runs
-ENSURE_REFS).
+"""Cleanup-surface handlers — the ``!cleanuphistory`` scan front door,
+the LIVE 🛡️ Anti-evasion toggle (the 2026-07-13 residue port: the
+shipped ``btn_strict`` flow onto the audited
+``cleanup.wordfilter_strict_op``), plus ONE declared + honest pending
+terminal (the settings/servermanagement precedent, never a silent
+stub): the Cleanup Policies sub-view — its own slice (the multi-view
+diagnostics + presets-builder flow). The word add/remove modals, the
+word-menu refresh, the Scan History button, the hub's Logging Status
+nav AND the ⚙️ Settings page route to their LIVE targets in
+sb/domain/cleanup/panels.py (the settings/anti-evasion terminals
+retired with the residue port). Refs register at MODULE IMPORT (the
+composition-parity invariant — the live root never runs ENSURE_REFS).
 
 The scan (``cleanup.history_scan``) ports disbot/cogs/cleanup_cog.py
 ``cleanup_history``: ``!cleanuphistory [limit=100] [keyword]`` reads the
@@ -41,7 +43,22 @@ MAX_HISTORY_LIMIT = 1000
 _MODES = frozenset(
     {"commands", "prohibited", "spam", "embeds", "links", "attachments"})
 
-_SLICE = " ports with the word-mutation panel slice."
+async def _refresh_words_panel(req) -> bool:
+    """Best-effort in-place re-render of the words manager after the
+    toggle's write settled (the shipped edit_message flow; the settings
+    ca_mode / ai `_refresh_settings_page` posture)."""
+    try:
+        from sb.kernel.panels.engine import refresh_session_view
+
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        if not message_key:
+            return False
+        await refresh_session_view(req, message_key=message_key,
+                                   params=dict(req.args or {}))
+        return True
+    except Exception:  # noqa: BLE001 — the text confirm degrade follows
+        return False
 
 
 def _parse_scan_args(argv: tuple) -> tuple[int, str]:
@@ -72,14 +89,50 @@ def _register() -> None:
     from sb.spec.outcomes import BLOCKED, SUCCESS
     from sb.spec.refs import HandlerRef, handler, is_registered
 
-    pending_handler("cleanup.settings_pending",
-                    "⚙️ The cleanup settings view ports with the "
-                    "settings-mutation slice.")
     pending_handler("cleanup.policies_pending",
                     "🧹 The Cleanup Policies panel (diagnostics + presets "
                     "builder) ports with the cleanup-policy slice.")
-    pending_handler("cleanup.anti_evasion_pending",
-                    f"🛡️ The anti-evasion toggle{_SLICE}")
+
+    if not is_registered(HandlerRef("cleanup.anti_evasion_toggle")):
+
+        @handler("cleanup.anti_evasion_toggle")
+        async def anti_evasion_toggle(req) -> Reply | None:
+            """🛡️ Anti-evasion (the words manager) — the shipped
+            ``_WordMenuView.btn_strict`` flow: read the current strict
+            flag, write the INVERSE on the audited
+            ``cleanup.wordfilter_strict_op`` (the shipped
+            ``prohibited_words_service.set_wordfilter_strict`` posture:
+            one write + one audit row), then re-render the panel in
+            place — the shipped view answered with the refreshed embed
+            and NO ack text, so a successful refresh returns None; the
+            text confirm is the degrade when the session view cannot be
+            re-rendered (the settings ca_mode posture)."""
+            from sb.domain.cleanup import store
+            from sb.kernel.interaction.handler_kit import ctx_from_request
+            from sb.kernel.workflow import engine
+            from sb.spec.refs import WorkflowRef
+
+            if not req.guild_id:
+                return Reply(BLOCKED,
+                             "❌ Anti-evasion matching can only be "
+                             "configured inside a server.")
+            try:
+                current = await store.get_wordfilter_strict(int(req.guild_id))
+            except Exception:  # noqa: BLE001 — no row/no DB = shipped off
+                current = False
+            new_value = not current
+            result = await engine.run(
+                WorkflowRef("cleanup.wordfilter_strict_op"),
+                ctx_from_request(req, {"strict": new_value}))
+            if result.outcome != SUCCESS:
+                return Reply(result.outcome,
+                             "❌ Couldn't update anti-evasion matching: "
+                             f"{result.user_message or 'write failed'}")
+            if await _refresh_words_panel(req):
+                return None
+            return Reply(SUCCESS,
+                         "🛡️ Anti-evasion matching → "
+                         f"{'🟢 **On**' if new_value else '⚫ **Off**'}.")
 
     if is_registered(HandlerRef("cleanup.history_scan")):
         return
