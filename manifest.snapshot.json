@@ -9314,8 +9314,8 @@
       "handler:mining.fastmine_route": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.forge_build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.forge_build_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.gear_view": {
         "module": "sb.domain.mining.service"
@@ -9323,8 +9323,8 @@
       "handler:mining.grid_view_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.home_build_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.home_build_route": {
+        "module": "sb.domain.mining.service"
       },
       "handler:mining.how_to_pending": {
         "module": "sb.domain.operator_spine"
@@ -11507,6 +11507,9 @@
       "workflow:mining.ascend": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.build": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.buy": {
         "module": "sb.domain.mining.ops"
       },
@@ -11559,6 +11562,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_ascend": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_build": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_buy": {
@@ -12589,7 +12595,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:c5cdeeeb706e75113bf5f3ce313de3c899f2506522d41dc506057889e31c7d76",
+  "stable_hash": "sha256:cfdc5124150ff5f9a49b318688544ab85f18ea8fa39f0ad0cb4716f6130c81d0",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -40822,7 +40828,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.forge_build_pending"
+                "$ref": "handler:mining.forge_build_route"
               },
               "label": "🔥 Build",
               "modal": null,
@@ -41344,7 +41350,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.home_build_pending"
+                "$ref": "handler:mining.home_build_route"
               },
               "label": "🏠 Build",
               "modal": null,
