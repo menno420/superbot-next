@@ -81,6 +81,8 @@ from sb.spec.refs import (
 __all__ = [
     "CARD_PANEL_ID",
     "HUB_PANEL_ID",
+    "GRID_PANEL_ID",
+    "HOWTO_PANEL_ID",
     "VAULT_PANEL_ID",
     "FORGE_PANEL_ID",
     "SKILLS_PANEL_ID",
@@ -92,6 +94,8 @@ __all__ = [
     "install_mining_panels",
     "mining_card_spec",
     "mining_hub_spec",
+    "mining_grid_spec",
+    "mining_howto_spec",
     "mining_vault_spec",
     "mining_forge_spec",
     "mining_skills_spec",
@@ -101,6 +105,8 @@ __all__ = [
 ]
 
 HUB_PANEL_ID = "mining.hub"
+GRID_PANEL_ID = "mining.grid"
+HOWTO_PANEL_ID = "mining.howto"
 CARD_PANEL_ID = "mining.card"
 VAULT_PANEL_ID = "mining.vault"
 FORGE_PANEL_ID = "mining.forge"
@@ -139,22 +145,157 @@ _GEAR_EMPTY = "—"
 _D0043_TAIL = ("the deep mining port is named successor work (D-0043); "
                "the core loop (mine/chop/explore/sell/buy) is live.")
 
+#: The hub's two D-0043 pending terminals are RETIRED (curation rework
+#: rows 59/60, PR #434): ⛏️ Mine routes to the live grid navigator panel
+#: (``mining.grid`` — the ported (x, y, z) world) and 📖 How-to to the
+#: static guide panel (``mining.howto``). The retired refs
+#: ``mining.grid_view_pending`` / ``mining.how_to_pending`` no longer
+#: register (trap 12a).
 
-def _pending_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminals for the hub's D-0043 sub-surfaces — registered
-    at IMPORT (module bottom), never ensure-only (#111 doctrine)."""
-    from sb.domain.operator_spine import pending_handler
+#: the shipped navigator footer literal (views/mining/grid_mine_view.py
+#: ``set_footer``, verbatim).
+_GRID_FOOTER = ("Each ⛏️ dig moves you one cell and mines it · "
+                "only you can use this.")
 
-    return {
-        "grid": pending_handler(
-            "mining.grid_view_pending",
-            "⛏️ The grid Mine navigator needs the mining world-grid "
-            "system — " + _D0043_TAIL),
-        "how_to": pending_handler(
-            "mining.how_to_pending",
-            "📖 The mining How-to guide rides the deep-system hub port — "
-            + _D0043_TAIL),
-    }
+#: views/mining/how_to_panel.py ``_HOW_TO``, verbatim (the one-screen
+#: "how mining works" onboarding guide — completion-cert punch-list #1).
+_HOW_TO = (
+    "New to mining? Here's the whole loop in one screen.\n\n"
+    "**1. ⛏️ Mine** — open the grid and roam the underground with the "
+    "movement buttons, then **Mine here** to dig the ore under you. Deeper "
+    "depths hold richer ore (and need a better 💡 light to see — grab a "
+    "torch, then a lantern).\n"
+    "**2. 🌲 Harvest** — chop wood, the basic crafting material. No tools "
+    "needed.\n"
+    "**3. 🧰 Gear** — equip your best tool, light, and combat gear. "
+    "**Equip Best** does it in one click; matching set pieces give a "
+    "bonus.\n"
+    "**4. 🔨 Workshop** — turn raw resources into better gear and "
+    "structures: **Craft** (build it), **Repair** (worn tools), "
+    "**🔥 Forge** (gates the top gear tiers), **🛒 Market** (buy/sell).\n"
+    "**5. 🧍 Character** — everything about you: **Inventory** · "
+    "**Stats** · **🌳 Skills** (spend points to specialize) · **🏦 Vault** "
+    "(stash loot safely, off your pack) · **🏠 Home**.\n\n"
+    "**Watch your 🎒 pack** — it holds a limited number of *item types*; "
+    "sell or vault what you don't need. **Watch durability** — tools wear "
+    "down and break; repair or re-craft them at the Workshop. Level up by "
+    "mining and harvesting to unlock deeper ladders and skill points."
+)
+
+#: dig-button action_id → the grid direction token it digs (the oracle
+#: D-pad: N row 0 · W/E row 1 · S row 2 · Deeper/Up row 3).
+_GRID_DIRECTIONS = {
+    "gr_north": "north",
+    "gr_west": "west",
+    "gr_east": "east",
+    "gr_south": "south",
+    "gr_down": "down",
+    "gr_up": "up",
+}
+
+
+def _message_key(req) -> str:
+    """The clicked panel message's engine session key (the settings
+    access-explorer recipe — engine keys sessions by str(message_ref))."""
+    message = getattr(req.origin, "message", None)
+    return str(getattr(message, "id", "") or "")
+
+
+async def _grid_note(req, note: str, tone: str):
+    """Re-render the navigator IN PLACE with *note* (the oracle
+    ``safe_edit`` loop via ``refresh_session_view``); a refresh miss
+    (restart/eviction) degrades to an honest text reply (the settings
+    access-explorer posture). ``tone`` maps to the shipped colors:
+    success=green, error=red, else MINING_COLOR dark grey."""
+    from sb.kernel.interaction.handler_kit import Reply
+    from sb.kernel.panels.engine import refresh_session_view
+    from sb.spec.outcomes import SUCCESS
+
+    key = _message_key(req)
+    if key:
+        try:
+            if await refresh_session_view(
+                    req, message_key=key,
+                    params={"grid_note": note, "grid_tone": tone}):
+                return Reply(SUCCESS, None)  # the edit IS the ack
+        except Exception:  # noqa: BLE001 — degrade to the text reply
+            pass
+    return Reply(SUCCESS, note)
+
+
+async def _grid_dig(req, direction: str):
+    """One directional dig click — pure-read gates first (shipped hint
+    copy; a blocked dig writes nothing and audits nothing — the
+    record_descend guard posture), then the audited ``mining.dig`` op,
+    then the in-place re-render with the oracle note composition."""
+    import time as _time
+
+    from sb.domain.mining import character, energy, grid, store, world
+    from sb.kernel.interaction.handler_kit import ctx_from_request
+    from sb.kernel.workflow import engine
+    from sb.spec.outcomes import SUCCESS
+    from sb.spec.refs import WorkflowRef
+
+    uid = int(getattr(req.actor, "user_id", 0) or 0)
+    gid = int(getattr(req, "guild_id", 0) or 0)
+
+    now = int(_time.time())
+    e_state = energy.EnergyState(*await store.get_energy(uid, gid))
+    if not energy.can_dig(e_state, now):
+        wait = energy.seconds_until(e_state, now, energy.DIG_COST)
+        return await _grid_note(
+            req,
+            "⚡ You're out of energy — rest a moment "
+            f"(~{wait}s until your next dig) or eat a **ration** / "
+            "**energy drink** (`!use ration`).",
+            "error")
+    if direction in grid.VERTICAL:
+        depth = await store.get_depth(uid, gid)
+        if direction == grid.DOWN:
+            equipped = await store.get_equipment(uid, gid)
+            alloc = await store.get_skills(uid, gid)
+            stats = character.character_stats(equipped, alloc)
+            if world.descend(depth, stats) == depth:
+                return await _grid_note(req, world.descend_hint(stats),
+                                        "error")
+        elif world.ascend(depth) == depth:
+            return await _grid_note(
+                req, "You're already at the Surface — nowhere up to dig.",
+                "error")
+
+    result = await engine.run(
+        WorkflowRef("mining.dig"),
+        ctx_from_request(req, {"direction": direction}))
+    if result.outcome != SUCCESS:
+        return await _grid_note(
+            req, result.user_message or "You can't dig that way.", "error")
+    after = next(iter((result.after or {}).values()), {})
+    parts = [f"You dig **{grid.move_phrase(direction)}** and mine "
+             f"**{after.get('amount', 0)}× {after.get('found', '')}**!"]
+    if after.get("cell_note"):
+        parts.append(str(after["cell_note"]))
+    parts.extend(str(n) for n in (after.get("wear_notes") or ()))
+    if after.get("xp_note"):
+        parts.append(str(after["xp_note"]))
+    if after.get("pack_warning"):
+        parts.append(str(after["pack_warning"]))
+    return await _grid_note(req, "\n".join(parts), "success")
+
+
+def _grid_button_handlers() -> None:
+    """The navigator's six dig handlers — registered at IMPORT (module
+    bottom), never ensure-only (#111 doctrine)."""
+    from sb.spec.refs import handler as _handler
+
+    def _dig_handler(direction: str):
+        async def _route(req):
+            return await _grid_dig(req, direction)
+        return _route
+
+    for action_id, direction in _GRID_DIRECTIONS.items():
+        ref = HandlerRef(f"mining.{action_id}")
+        if not is_registered(ref):
+            _handler(ref.name)(_dig_handler(direction))
 
 
 def mining_hub_spec() -> PanelSpec:
@@ -175,7 +316,9 @@ def mining_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="mi_mine", label="⛏️ Mine",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("mining.grid_view_pending"),
+                # rework row 59: the live grid navigator (label/style/
+                # custom_id untouched — byte-neutral vs sweep_minemenu).
+                handler=PanelRef(GRID_PANEL_ID),
                 custom_id_override="mining:mine"),
             PanelActionSpec(
                 action_id="mi_harvest", label="🌲 Harvest",
@@ -208,7 +351,9 @@ def mining_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="mi_how_to", label="📖 How-to",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("mining.how_to_pending"),
+                # rework row 60: the live static How-to guide (label/
+                # style/custom_id untouched — byte-neutral).
+                handler=PanelRef(HOWTO_PANEL_ID),
                 custom_id_override="mining:how_to"),
         ),
         # the shipped standard nav row: 📚 Help + "↩ Games"
@@ -237,6 +382,128 @@ def mining_hub_spec() -> PanelSpec:
             ("mi_mine", "mi_harvest", "mi_explore_hub"),
             ("mi_character", "mi_gear", "mi_workshop"),
             ("mi_how_to",),
+        )),)),
+    )
+
+
+def mining_grid_spec() -> PanelSpec:
+    """The grid Mine navigator (views/mining/grid_mine_view.py
+    ``MineGridView`` + ``build_grid_embed``, curation rework rows 45/59) —
+    an ephemeral (session) child of the mining hub: the oracle D-pad
+    verbatim (⛏️ North row 0 · ⛏️ West/⛏️ East row 1 · ⛏️ South row 2 ·
+    ⛏️ Deeper/⛏️ Up row 3 · ↩ Mining Menu + 📚 Help row 4; primary
+    laterals, success verticals, the shipped 120s timeout), the live
+    position/energy/map embed on a renderer override. Every dig button
+    routes to its ``mining.gr_*`` handler → the audited ``mining.dig`` op
+    → an IN-PLACE re-render (``refresh_session_view`` — the shipped
+    ``safe_edit`` loop). No golden drives the navigator (the capture-world
+    open RAISED — goldens/mining/sweep_mine pins the artifact byte on the
+    prefix lane, still carried by ``mining.mine_route``)."""
+    return PanelSpec(
+        panel_id=GRID_PANEL_ID,
+        subsystem="mining",
+        title="⛏️ Mine",
+        audience=Audience.INVOKER,
+        # MINING_COLOR dark grey; the shipped footer literal + the live
+        # description/fields ride the renderer override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock("Roam the underground — every ⛏️ dig moves you "
+                        "one cell and mines it."),),
+        session_lifecycle=True,
+        timeout_s=120,
+        actions=(
+            PanelActionSpec(
+                action_id="gr_north", label="⛏️ North",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.gr_north")),
+            PanelActionSpec(
+                action_id="gr_west", label="⛏️ West",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.gr_west")),
+            PanelActionSpec(
+                action_id="gr_east", label="⛏️ East",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.gr_east")),
+            PanelActionSpec(
+                action_id="gr_south", label="⛏️ South",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("mining.gr_south")),
+            PanelActionSpec(
+                action_id="gr_down", label="⛏️ Deeper",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("mining.gr_down")),
+            PanelActionSpec(
+                action_id="gr_up", label="⛏️ Up",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef("mining.gr_up")),
+            PanelActionSpec(
+                action_id="gr_menu", label="↩ Mining Menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the shipped row 4: ↩ Mining Menu (the gr_menu action above) +
+        # 📚 Help (the engine nav:help slot); no ↩ Games home — the oracle
+        # navigator carried none.
+        navigation=NavigationSpec(show_help=True, show_home=False),
+        renderer_override=HandlerRef("mining.render_grid"),
+        justification=(
+            "the shipped navigator embed is fully live-state-parameterized "
+            "(views/mining/grid_mine_view.py build_grid_embed): the "
+            "note+describe_cell DESCRIPTION, the 📍 Depth / 🧭 Position / "
+            "⚡ Energy / 🌐 World seed inline FIELDS, the fog-of-war 🗺️ Map "
+            "code block + legend, the dig-note COLOR swap (MINING/SUCCESS/"
+            "ERROR — the shipped _rerender color parameter, rendered as the "
+            "green/red style tokens), and the shipped footer literal — all "
+            "read-parameterized state outside the static TextBlock/"
+            "FieldsBlock vocabulary (the mining hub/home live-overview "
+            "precedent). Every component stays grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("gr_north",),
+            ("gr_west", "gr_east"),
+            ("gr_south",),
+            ("gr_down", "gr_up"),
+            ("gr_menu",),
+        )),)),
+    )
+
+
+def mining_howto_spec() -> PanelSpec:
+    """The 📖 How-to guide (views/mining/how_to_panel.py
+    ``MiningHowToView`` + ``build_how_to_embed``, curation rework row 60)
+    — a STATIC one-screen onboarding card (the ``_HOW_TO`` copy verbatim)
+    with the shipped ↩ Mining Hub back button; an ephemeral (session)
+    child of the hub (the mining.home lifecycle). Only the shipped
+    invoker-lock footer literal rides the renderer override."""
+    return PanelSpec(
+        panel_id=HOWTO_PANEL_ID,
+        subsystem="mining",
+        title="📖 How mining works",
+        audience=Audience.INVOKER,
+        # MINING_COLOR dark grey; the footer literal rides the override.
+        frame=EmbedFrameSpec(style_token="dark_grey",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_HOW_TO),),
+        session_lifecycle=True,
+        actions=(
+            PanelActionSpec(
+                action_id="hw_hub", label="↩ Mining Hub",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        # the oracle How-to carried ONLY its back button (HubView added no
+        # nav slots to this child) — no help, no home.
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("mining.render_howto"),
+        justification=(
+            "one shipped surface sits outside the grammar's vocabulary: the "
+            "FOOTER is the shared invoker-lock literal 'Only you can "
+            "interact with this panel.' (build_how_to_embed set_footer) — "
+            "outside FooterMode's vocabulary (the mining-hub/games/"
+            "community precedent). Title, description, color and the back "
+            "button stay grammar-rendered."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("hw_hub",),
         )),)),
     )
 
@@ -1107,6 +1374,75 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
     return _dc_replace(rendered, embed=embed)
 
 
+async def _render_grid(spec: PanelSpec, ctx) -> object:
+    """renderer_override — the navigator embed (build_grid_embed verbatim
+    over the ported reads): position · current cell · fog-of-war map ·
+    energy bar; a dig re-render carries its note + color in the params
+    (``grid_note``/``grid_tone`` — the refresh_session_view lane)."""
+    import time as _time
+
+    from sb.domain.mining import character, energy, grid, store, world
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(getattr(ctx, "guild_id", 0) or 0)
+    note = str(ctx.params.get("grid_note", "") or "")
+    tone = str(ctx.params.get("grid_tone", "") or "")
+
+    depth = await store.get_depth(uid, gid)
+    x, y = await store.get_position(uid, gid)
+    seed = await store.get_world_seed(gid)
+    # A brighter equipped light widens the fog-of-war window (the shipped
+    # BUG-0026 wiring): the same radius feeds the discovered-cell read and
+    # the render so they stay in lock-step; light_radius 0-1 keeps the
+    # default 2.
+    equipped = await store.get_equipment(uid, gid)
+    alloc = await store.get_skills(uid, gid)
+    radius = grid.reveal_radius(
+        character.character_stats(equipped, alloc).light_radius)
+    discovered = await store.get_discovered_window(
+        uid, gid, depth, x - radius, x + radius, y - radius, y + radius)
+    cell = grid.cell_at(seed, x, y, depth)
+    body = grid.render_local_map(seed, x, y, depth, discovered,
+                                 radius=radius)
+    description = grid.describe_cell(cell)
+    if note:
+        description = f"{note}\n\n{description}"
+
+    e_cur, e_ts = await store.get_energy(uid, gid)
+    e_now = energy.settle(energy.EnergyState(e_cur, e_ts),
+                          int(_time.time())).current
+    embed = _dc_replace(
+        rendered.embed,
+        title="⛏️ Mine",
+        description=description,
+        fields=(
+            ("📍 Depth", world.describe_position(depth), True),
+            ("🧭 Position", f"({x}, {y})", True),
+            ("⚡ Energy", energy.bar(e_now), True),
+            ("🌐 World seed", str(seed), True),
+            ("🗺️ Map", f"```\n{body}\n```\n{grid.MAP_LEGEND}", False),
+        ),
+        footer=_GRID_FOOTER,
+        # the shipped _rerender color parameter: SUCCESS green on a dig,
+        # ERROR red on a blocked one, MINING dark grey on the open.
+        style_token={"success": "green",
+                     "error": "red"}.get(tone, "dark_grey"))
+    return _dc_replace(rendered, embed=embed)
+
+
+async def _render_howto(spec: PanelSpec, ctx) -> object:
+    """renderer_override — grammar render + the shipped invoker-lock
+    footer literal (build_how_to_embed set_footer; see justification)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed,
+                                         footer=_PANEL_FOOTER))
+
+
 async def _display_name(user_id: int, guild_id: int) -> str:
     """Invoker display name through the guild-directory read port (the
     games world-card recipe); degrades to "" — the shipped no-name title
@@ -1123,6 +1459,16 @@ async def _display_name(user_id: int, guild_id: int) -> str:
 @panel(HUB_PANEL_ID)
 def _hub_factory() -> PanelSpec:
     return mining_hub_spec()
+
+
+@panel(GRID_PANEL_ID)
+def _grid_factory() -> PanelSpec:
+    return mining_grid_spec()
+
+
+@panel(HOWTO_PANEL_ID)
+def _howto_factory() -> PanelSpec:
+    return mining_howto_spec()
 
 
 @panel(CARD_PANEL_ID)
@@ -1163,7 +1509,7 @@ def _home_factory() -> PanelSpec:
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
-    _pending_button_handlers()
+    _grid_button_handlers()
     _vault_modal_handlers()
     _forge_button_handlers()
     _skills_button_handlers()
@@ -1172,6 +1518,10 @@ def _register_refs() -> None:
     _ensure_workshop_craft_provider()
     if not is_registered(HandlerRef("mining.render_hub")):
         handler("mining.render_hub")(_render_hub)
+    if not is_registered(HandlerRef("mining.render_grid")):
+        handler("mining.render_grid")(_render_grid)
+    if not is_registered(HandlerRef("mining.render_howto")):
+        handler("mining.render_howto")(_render_howto)
     if not is_registered(HandlerRef("mining.render_card")):
         handler("mining.render_card")(_render_card)
     if not is_registered(HandlerRef("mining.render_vault")):
@@ -1188,6 +1538,10 @@ def _register_refs() -> None:
         handler("mining.render_home")(_render_home)
     if not is_registered(PanelRef(HUB_PANEL_ID)):
         panel(HUB_PANEL_ID)(_hub_factory)
+    if not is_registered(PanelRef(GRID_PANEL_ID)):
+        panel(GRID_PANEL_ID)(_grid_factory)
+    if not is_registered(PanelRef(HOWTO_PANEL_ID)):
+        panel(HOWTO_PANEL_ID)(_howto_factory)
     if not is_registered(PanelRef(CARD_PANEL_ID)):
         panel(CARD_PANEL_ID)(_card_factory)
     if not is_registered(PanelRef(VAULT_PANEL_ID)):
@@ -1206,7 +1560,8 @@ def _register_refs() -> None:
 
 def install_mining_panels() -> tuple[PanelSpec, ...]:
     out = []
-    for spec in (mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
+    for spec in (mining_hub_spec(), mining_grid_spec(), mining_howto_spec(),
+                 mining_card_spec(), mining_vault_spec(),
                  mining_forge_spec(), mining_skills_spec(),
                  mining_titles_spec(), mining_workshop_spec(),
                  mining_home_spec()):

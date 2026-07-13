@@ -2,14 +2,19 @@
 the FULL shipped command surface verbatim (37 commands): the core loop
 (fastmine/chop/explore/sell/sellall/buy + reads + the admin reset) AND
 the ported deep-system lanes (equip/loadouts, descend/ascend, vault,
-workshop repair/quickcraft, the energy-lane cook/use consumables) are
-live over the audited K7 lanes with the shipped reply bytes
-(goldens/mining/ pin them — see sb/domain/mining/service.py); `!mine`
-carries the capture-pinned grid-navigator artifact copy; the remaining
-deep-system writes (wear ticks, grid dig, structure builds, skill
-spends, the slice-3 fastmine energy spend) ride their named successor
-slices as honest pending terminals. The hub panel is the shipped
-MiningHubView byte-for-byte (sb/domain/mining/panels.py)."""
+workshop repair/quickcraft, the energy-lane cook/use consumables, and
+the grid Mine navigator + How-to guide — curation rework rows 45/59/60:
+the hub ⛏️ Mine / 📖 How-to buttons open the live ``mining.grid`` /
+``mining.howto`` panels over the audited ``mining.dig`` op, wear ticks
+included) are live over the audited K7 lanes with the shipped reply
+bytes (goldens/mining/ pin them — see sb/domain/mining/service.py);
+`!mine` still carries the capture-pinned grid-navigator artifact copy
+(goldens/mining/sweep_mine — the byte flip rides the golden's
+retirement, a parity.yml/count-pin operation owned by the wp-stack
+lane). Remaining deep-system writes (structure builds, skill spends,
+the slice-3 fastmine energy spend) ride their named successor slices as
+honest pending terminals. The hub panel is the shipped MiningHubView
+byte-for-byte (sb/domain/mining/panels.py)."""
 
 from __future__ import annotations
 
@@ -18,7 +23,9 @@ from sb.domain.mining.ops import register_ops
 from sb.domain.mining.panels import (
     mining_card_spec,
     mining_forge_spec,
+    mining_grid_spec,
     mining_home_spec,
+    mining_howto_spec,
     mining_hub_spec,
     mining_skills_spec,
     mining_titles_spec,
@@ -135,7 +142,8 @@ MANIFEST = SubsystemManifest(
     key="mining",
     version=1,
     commands=_COMMANDS,
-    panels=(mining_hub_spec(), mining_card_spec(), mining_vault_spec(),
+    panels=(mining_hub_spec(), mining_grid_spec(), mining_howto_spec(),
+            mining_card_spec(), mining_vault_spec(),
             mining_forge_spec(), mining_skills_spec(), mining_titles_spec(),
             mining_workshop_spec(), mining_home_spec()),
     settings=(),
