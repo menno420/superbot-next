@@ -94,6 +94,14 @@
     "FieldSpec.required": "S",
     "FieldSpec.type": "S",
     "FieldsBlock.provider": "S",
+    "GameEntry.emoji": "S",
+    "GameEntry.hub": "S",
+    "GameEntry.key": "S",
+    "GameEntry.label": "S",
+    "GameSectionSpec.emoji": "S",
+    "GameSectionSpec.games": "S",
+    "GameSectionSpec.key": "S",
+    "GameSectionSpec.title": "S",
     "Interval.seconds": "S",
     "InvariantSpec.baseline_ref": "S",
     "InvariantSpec.bears_value": "S",
@@ -4936,6 +4944,16 @@
           "value": "world_card"
         },
         {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "enable_all_competitive"
+        },
+        {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "enable_all_activities"
+        },
+        {
           "source": "sb/manifest/general.py",
           "subsystem": "general",
           "value": "fact"
@@ -5569,6 +5587,91 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "stage_final_review"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_preset_select"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_channels"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_logging_presets"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_roles"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_role_templates"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_cleanup"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_moderation"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_cog_routing"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_ticket"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "section_final_review"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "change_depth"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "back_to_wizard"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "item_accept"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "item_deny"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "item_edit"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "item_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "item_back"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -6390,6 +6493,11 @@
           "value": "games.world_card"
         },
         {
+          "source": "sb/manifest/games.py",
+          "subsystem": "games",
+          "value": "games.sections"
+        },
+        {
           "source": "sb/manifest/general.py",
           "subsystem": "general",
           "value": "general.menu"
@@ -6938,6 +7046,16 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.suggestions_card"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.sections_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.review_item"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -9344,6 +9462,18 @@
       "handler:games.render_world_card": {
         "module": "sb.domain.games.panels"
       },
+      "handler:games.sections_enable_all_activities": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_enable_all_competitive": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_pick_activities": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "handler:games.sections_pick_competitive": {
+        "module": "sb.domain.games.sections_panel"
+      },
       "handler:games.session_gc_fire": {
         "module": "sb.domain.games.service"
       },
@@ -9911,6 +10041,21 @@
       "handler:setup.advanced_open": {
         "module": "sb.domain.setup.handlers"
       },
+      "handler:setup.back_to_wizard": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.change_depth": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.depth_pick_advanced": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.depth_pick_quick": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.depth_pick_standard": {
+        "module": "sb.domain.setup.wizard"
+      },
       "handler:setup.depth_render": {
         "module": "sb.domain.setup.panels"
       },
@@ -9920,14 +10065,89 @@
       "handler:setup.essential_open": {
         "module": "sb.domain.setup.handlers"
       },
+      "handler:setup.essential_pick": {
+        "module": "sb.domain.setup.wizard"
+      },
       "handler:setup.essential_render": {
         "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.essential_save": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.essential_skip": {
+        "module": "sb.domain.setup.wizard"
       },
       "handler:setup.hub_open": {
         "module": "sb.domain.setup.handlers"
       },
+      "handler:setup.open_section_channels": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_cleanup": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_cog_routing": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_final_review": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_logging_presets": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_moderation": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_preset_select": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_role_templates": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_roles": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.open_section_ticket": {
+        "module": "sb.domain.setup.wizard"
+      },
       "handler:setup.reset_view": {
         "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.review_accept_high": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_item_accept": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_item_back": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_item_deny": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_item_edit_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:setup.review_item_render": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.review_item_skip": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_one_by_one": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_reject_ai": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_rerun": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.review_stage": {
+        "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.sections_hub_render": {
+        "module": "sb.domain.setup.panels"
       },
       "handler:setup.skip_section": {
         "module": "sb.domain.setup.handlers"
@@ -9943,9 +10163,6 @@
       },
       "handler:setup.unskip_section": {
         "module": "sb.domain.setup.handlers"
-      },
-      "handler:setup.wizard_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
@@ -10496,6 +10713,9 @@
       "panel:games.hub": {
         "module": "sb.domain.games.panels"
       },
+      "panel:games.sections": {
+        "module": "sb.domain.games.sections_panel"
+      },
       "panel:games.world": {
         "module": "sb.domain.games.panels"
       },
@@ -10826,6 +11046,12 @@
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
       },
+      "panel:setup.review_item": {
+        "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.sections_hub": {
+        "module": "sb.domain.setup.panels"
+      },
       "panel:setup.status_card": {
         "module": "sb.domain.setup.panels"
       },
@@ -10999,6 +11225,15 @@
       },
       "provider:games.hub_fields": {
         "module": "sb.domain.games.panels"
+      },
+      "provider:games.sections_fields": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "provider:games.sections_options_activities": {
+        "module": "sb.domain.games.sections_panel"
+      },
+      "provider:games.sections_options_competitive": {
+        "module": "sb.domain.games.sections_panel"
       },
       "provider:games.world_fields": {
         "module": "sb.domain.games.panels"
@@ -12242,10 +12477,22 @@
       "workflow:setup.open_workspace": {
         "module": "sb.domain.setup.ops"
       },
+      "workflow:setup.record_depth": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_section_skip": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.record_session_started": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.record_workspace_open": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.set_depth": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.set_section_skip": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.start_session": {
@@ -12910,7 +13157,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:9b77d755047a133aa1651bc7352ff8ff83706bf8fab60e0c0d387abd6fc0221e",
+  "stable_hash": "sha256:5bd2d8b0376a8d2066bb37a2fa0c06d3c19d161ed1894b9ecee4c4c3cbd52773",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -33704,6 +33951,160 @@
           "timeout_s": 180,
           "title": "🪪 world card",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "enable_all_competitive",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏆",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.sections_enable_all_competitive"
+              },
+              "label": "Enable all — Competitive",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "enable_all_activities",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎲",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:games.sections_enable_all_activities"
+              },
+              "label": "Enable all — Activities",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Enable whole game sections or pick a few games for this server. **Enable all** clears every override in a section (back to default-enabled); the dropdowns show what is enabled right now — change the selection to toggle individual games. Disabled games drop off the Games hub and their commands are refused."
+            },
+            {
+              "provider": {
+                "$ref": "provider:games.sections_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "subsystem",
+            "max_fields": 25,
+            "style_token": "",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "pick_competitive"
+                  ],
+                  [
+                    "pick_activities"
+                  ],
+                  [
+                    "enable_all_competitive",
+                    "enable_all_activities"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:settings.hub"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "games.sections",
+          "renderer_override": null,
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 4,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:games.sections_pick_competitive"
+              },
+              "options_source": {
+                "$ref": "provider:games.sections_options_competitive"
+              },
+              "page_size": 25,
+              "placeholder": "🏆 Competitive — pick the enabled games…",
+              "selector_id": "pick_competitive",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 6,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:games.sections_pick_activities"
+              },
+              "options_source": {
+                "$ref": "provider:games.sections_options_activities"
+              },
+              "page_size": 25,
+              "placeholder": "🎲 Activities — pick the enabled games…",
+              "selector_id": "pick_activities",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "games",
+          "timeout_s": 180,
+          "title": "🎮 Game sections",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -48757,6 +49158,12 @@
                   "emoji": "✂️",
                   "label": "Rock Paper Scissors",
                   "value": "rps_tournament"
+                },
+                {
+                  "description": "Competitive games and channel activities",
+                  "emoji": "🎮",
+                  "label": "Games",
+                  "value": "games"
                 }
               ],
               "page_size": 25,
@@ -49499,7 +49906,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.depth_pick_quick"
               },
               "label": "⚡ Quick",
               "modal": null,
@@ -49524,7 +49931,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.depth_pick_standard"
               },
               "label": "🛠 Standard",
               "modal": null,
@@ -49549,7 +49956,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.depth_pick_advanced"
               },
               "label": "🔬 Advanced",
               "modal": null,
@@ -49632,7 +50039,7 @@
               "emoji": "✨",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.essential_save"
               },
               "label": "Save & continue",
               "modal": null,
@@ -49657,7 +50064,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.essential_skip"
               },
               "label": "Skip — set things up myself",
               "modal": null,
@@ -49727,7 +50134,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.essential_pick"
               },
               "options_source": {
                 "$ref": "provider:setup.essential_kind_options"
@@ -49802,7 +50209,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.review_accept_high"
               },
               "label": "Accept all high-confidence",
               "modal": null,
@@ -49827,7 +50234,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.review_one_by_one"
               },
               "label": "Review one-by-one",
               "modal": null,
@@ -49852,7 +50259,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.review_reject_ai"
               },
               "label": "Reject all AI suggestions",
               "modal": null,
@@ -49877,7 +50284,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.review_rerun"
               },
               "label": "Rerun deterministic-only",
               "modal": null,
@@ -49902,7 +50309,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.wizard_pending"
+                "$ref": "handler:setup.review_stage"
               },
               "label": "Stage & open Final review",
               "modal": null,
@@ -49957,6 +50364,546 @@
           "panel_id": "setup.suggestions_card",
           "renderer_override": {
             "$ref": "handler:setup.suggestions_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🤖 Smart suggestions",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "section_preset_select",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:preset_select",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎛",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_preset_select"
+              },
+              "label": "Load preset",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_channels",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:channels",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📡",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_channels"
+              },
+              "label": "Channels & log routing",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_logging_presets",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:logging_presets",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📜",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_logging_presets"
+              },
+              "label": "Logging presets",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_roles",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:roles",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎖️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_roles"
+              },
+              "label": "Auto roles (time & XP)",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_role_templates",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:role_templates",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧩",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_role_templates"
+              },
+              "label": "Role templates",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_cleanup",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:cleanup",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧹",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_cleanup"
+              },
+              "label": "Cleanup inheritance",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_moderation",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:moderation",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🛡️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_moderation"
+              },
+              "label": "Moderation",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_cog_routing",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:cog_routing",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧭",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_cog_routing"
+              },
+              "label": "Cog routing",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_ticket",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:ticket",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎫",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_ticket"
+              },
+              "label": "Support Tickets",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "section_final_review",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_section:final_review",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_final_review"
+              },
+              "label": "Final review",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "change_depth",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_hub:change_depth",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.change_depth"
+              },
+              "label": "Change depth",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "back_to_wizard",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_hub:back_to_wizard",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.back_to_wizard"
+              },
+              "label": "↩ Back to wizard",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped hub embed is state-parameterized end to end (the Status/depth/current-step/readiness description line, the badge-prefixed Sections list, the Next-step hint — hub.build_hub_embed) and its BUTTON SET is depth-filtered at render (SetupHubView.__init__ REGISTRY.for_depth) — both outside the static grammar vocabulary; the override renders through the grammar then composes the embed and filters/repacks the section rows (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "section_preset_select",
+                    "section_channels",
+                    "section_logging_presets",
+                    "section_roles",
+                    "section_role_templates"
+                  ],
+                  [
+                    "section_cleanup",
+                    "section_moderation",
+                    "section_cog_routing",
+                    "section_ticket",
+                    "section_final_review"
+                  ],
+                  [
+                    "change_depth",
+                    "back_to_wizard"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.sections_hub",
+          "renderer_override": {
+            "$ref": "handler:setup.sections_hub_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 SuperBot setup wizard",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "item_accept",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.review_item_accept"
+              },
+              "label": "Accept",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "item_deny",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.review_item_deny"
+              },
+              "label": "Deny",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "item_edit",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.review_item_edit_pending"
+              },
+              "label": "Edit",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "item_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.review_item_skip"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "item_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.review_item_back"
+              },
+              "label": "Back to overview",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped walkthrough card is index-parameterized in title (Suggestion i/N · accepted/pending), description (the per-recommendation lines), footer (the accepted count) and COLOR (the per-confidence accent — per_recommendation._CONFIDENCE_COLOR); all outside the static grammar vocabulary, so the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "item_accept",
+                    "item_deny",
+                    "item_edit"
+                  ],
+                  [
+                    "item_skip",
+                    "item_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.review_item",
+          "renderer_override": {
+            "$ref": "handler:setup.review_item_render"
           },
           "selectors": [],
           "session_lifecycle": true,
