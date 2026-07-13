@@ -1,6 +1,6 @@
 # 2026-07-13 — starboard threshold modal port (ORDER 017 night-run fix slice C)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN fix slice C · mandate: ORDER 017
   (PR #323), gap row 11 of `docs/status/completeness-table-2026-07-13.md`
