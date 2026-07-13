@@ -6054,6 +6054,166 @@
           "value": "complete_keep"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "greet_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "greet_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "greet_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "mods_dm_toggle"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "mods_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "mods_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "mods_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "spam_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "spam_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "spam_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "log_names"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "log_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "log_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "log_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_next"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_type_name"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_role_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "reward_role_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "helpdesk_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "helpdesk_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "helpdesk_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cmd_save"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cmd_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cmd_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "summary_done"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "summary_extras"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "summary_check"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "extras_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "resume"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -7531,6 +7691,61 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.complete_card"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_greet"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_mods"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_spam"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_log"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_reward"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_reward_role"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_helpdesk"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_commands"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_summary"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_extras"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.essential_resume"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -10737,6 +10952,96 @@
       "handler:setup.describe_entry": {
         "module": "sb.domain.setup.handlers"
       },
+      "handler:setup.essential_back": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_commands_channels": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_commands_mode": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_commands_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_commands_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_commands_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_extras_back": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_extras_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_greet_channel": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_greet_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_greet_role": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_greet_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_greet_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_helpdesk_log": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_helpdesk_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_helpdesk_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_helpdesk_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_helpdesk_staff": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_activity": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_activity_pick": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_mod_pick": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_names": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_log_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_mods_dm_toggle": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_mods_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_mods_role": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_mods_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_mods_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
       "handler:setup.essential_open": {
         "module": "sb.domain.setup.handlers"
       },
@@ -10746,11 +11051,77 @@
       "handler:setup.essential_render": {
         "module": "sb.domain.setup.panels"
       },
+      "handler:setup.essential_resume_click": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_resume_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_back": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_existing": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_name": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_next": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_rate": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_role_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_source": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_typed_name": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_reward_types": {
+        "module": "sb.domain.setup.essential_steps"
+      },
       "handler:setup.essential_save": {
         "module": "sb.domain.setup.wizard"
       },
       "handler:setup.essential_skip": {
         "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.essential_spam_pick": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_spam_render": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_spam_save": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_spam_skip": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_summary_check": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_summary_done": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_summary_extras": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "handler:setup.essential_summary_render": {
+        "module": "sb.domain.setup.essential_steps"
       },
       "handler:setup.final_ai_review": {
         "module": "sb.domain.setup.final_review"
@@ -11805,6 +12176,39 @@
       "panel:setup.essential_card": {
         "module": "sb.domain.setup.panels"
       },
+      "panel:setup.essential_commands": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_extras": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_greet": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_helpdesk": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_log": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_mods": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_resume": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_reward": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_reward_role": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_spam": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "panel:setup.essential_summary": {
+        "module": "sb.domain.setup.essential_steps"
+      },
       "panel:setup.final_review": {
         "module": "sb.domain.setup.final_review"
       },
@@ -12339,8 +12743,29 @@
       "provider:setup.depth_fields": {
         "module": "sb.domain.setup.panels"
       },
+      "provider:setup.essential_activity_options": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "provider:setup.essential_cmd_mode_options": {
+        "module": "sb.domain.setup.essential_steps"
+      },
       "provider:setup.essential_kind_options": {
         "module": "sb.domain.setup.panels"
+      },
+      "provider:setup.essential_reward_type_options": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "provider:setup.essential_role_name_options": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "provider:setup.essential_role_source_options": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "provider:setup.essential_spam_options": {
+        "module": "sb.domain.setup.essential_steps"
+      },
+      "provider:setup.essential_xp_rate_options": {
+        "module": "sb.domain.setup.essential_steps"
       },
       "provider:treasury.baseline_pool_ledger": {
         "module": "sb.domain.treasury.invariants"
@@ -13359,6 +13784,9 @@
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
       },
+      "workflow:setup.clear_essential_anchor": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.clear_workspace_pointer": {
         "module": "sb.domain.setup.ops"
       },
@@ -13377,6 +13805,12 @@
       "workflow:setup.record_depth": {
         "module": "sb.domain.setup.ops"
       },
+      "workflow:setup.record_essential_anchor_clear": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_essential_step": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.record_section_skip": {
         "module": "sb.domain.setup.ops"
       },
@@ -13393,6 +13827,9 @@
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.set_depth": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.set_essential_step": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.set_section_skip": {
@@ -55412,6 +55849,1768 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🛰 Setup complete",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "greet_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "👋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_greet_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "greet_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "greet_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_greet_skip"
+              },
+              "label": "Skip greetings",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "greet_channel"
+                  ],
+                  [
+                    "greet_role"
+                  ],
+                  [
+                    "greet_save"
+                  ],
+                  [
+                    "greet_back",
+                    "greet_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_greet",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_greet_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_greet_channel"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Where should the welcome message appear?",
+              "selector_id": "greet_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_greet_role"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Give newcomers a role (optional)…",
+              "selector_id": "greet_role",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "👋 Greet new members",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "mods_dm_toggle",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_mods_dm_toggle"
+              },
+              "label": "Tell members why: ON",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mods_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🛡️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_mods_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mods_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "mods_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_mods_skip"
+              },
+              "label": "Skip moderators",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "mods_role"
+                  ],
+                  [
+                    "mods_dm_toggle"
+                  ],
+                  [
+                    "mods_save"
+                  ],
+                  [
+                    "mods_back",
+                    "mods_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_mods",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_mods_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_mods_role"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Which role can warn and remove people?",
+              "selector_id": "mods_role",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛡️ Set your moderators",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "spam_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🧹",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_spam_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "spam_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "spam_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_spam_skip"
+              },
+              "label": "Skip spam protection",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "spam_filters"
+                  ],
+                  [
+                    "spam_save"
+                  ],
+                  [
+                    "spam_back",
+                    "spam_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_spam",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_spam_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 4,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_spam_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_spam_options"
+              },
+              "page_size": 25,
+              "placeholder": "What should I clean up? (all on by default)",
+              "selector_id": "spam_filters",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧹 Block spam and bad links",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "log_names",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_log_names"
+              },
+              "label": "✏️ Name the new channel(s)",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "mod_name",
+                    "label": "Moderation log channel name",
+                    "max_length": 90,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "activity_name",
+                    "label": "Activity log channel name",
+                    "max_length": 90,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "setup.essential_log_names_form",
+                "on_submit": {
+                  "$ref": "handler:setup.essential_log_names"
+                },
+                "title": "Name the new channels"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "log_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📋",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_log_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "log_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "log_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_log_skip"
+              },
+              "label": "Skip logging",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "log_activity"
+                  ],
+                  [
+                    "log_mod_channel"
+                  ],
+                  [
+                    "log_activity_channel"
+                  ],
+                  [
+                    "log_names",
+                    "log_save"
+                  ],
+                  [
+                    "log_back",
+                    "log_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_log",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_log_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 3,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_log_activity"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_activity_options"
+              },
+              "page_size": 25,
+              "placeholder": "What should the activity channel log?",
+              "selector_id": "log_activity",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_log_mod_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Moderation log channel (or leave empty)…",
+              "selector_id": "log_mod_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_log_activity_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Activity log channel (or leave empty)…",
+              "selector_id": "log_activity_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "📋 Choose a log channel",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "reward_next",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_reward_next"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reward_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reward_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_reward_skip"
+              },
+              "label": "Skip rewards",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "reward_rate"
+                  ],
+                  [
+                    "reward_types"
+                  ],
+                  [
+                    "reward_next"
+                  ],
+                  [
+                    "reward_back",
+                    "reward_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_reward",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_reward_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_reward_rate"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_xp_rate_options"
+              },
+              "page_size": 25,
+              "placeholder": "How fast should members earn XP?",
+              "selector_id": "reward_rate",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 2,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_reward_types"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_reward_type_options"
+              },
+              "page_size": 25,
+              "placeholder": "Give a role as a reward for… (optional)",
+              "selector_id": "reward_types",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🏅 Reward active members",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "reward_type_name",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_reward_typed_name"
+              },
+              "label": "✏️ Type a name",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "role_name",
+                    "label": "Role name",
+                    "max_length": 90,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "setup.essential_reward_name_form",
+                "on_submit": {
+                  "$ref": "handler:setup.essential_reward_typed_name"
+                },
+                "title": "Name the reward role"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reward_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🏅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_reward_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reward_role_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_reward_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "reward_role_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_reward_skip"
+              },
+              "label": "Skip rewards",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "reward_source"
+                  ],
+                  [
+                    "reward_name"
+                  ],
+                  [
+                    "reward_existing"
+                  ],
+                  [
+                    "reward_type_name",
+                    "reward_save"
+                  ],
+                  [
+                    "reward_role_back",
+                    "reward_role_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_reward_role",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_reward_role_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_reward_source"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_role_source_options"
+              },
+              "page_size": 25,
+              "placeholder": "Where should the reward role come from?",
+              "selector_id": "reward_source",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_reward_name"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_role_name_options"
+              },
+              "page_size": 25,
+              "placeholder": "Name for the new role…",
+              "selector_id": "reward_name",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_reward_existing"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick the role to grant…",
+              "selector_id": "reward_existing",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🏅 Choose the reward role",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "helpdesk_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🎫",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_helpdesk_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "helpdesk_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "helpdesk_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_helpdesk_skip"
+              },
+              "label": "Skip help desk",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "helpdesk_staff"
+                  ],
+                  [
+                    "helpdesk_log"
+                  ],
+                  [
+                    "helpdesk_save"
+                  ],
+                  [
+                    "helpdesk_back",
+                    "helpdesk_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_helpdesk",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_helpdesk_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "role",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_helpdesk_staff"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Who answers support requests? (staff role)",
+              "selector_id": "helpdesk_staff",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_helpdesk_log"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Where to save closed-request logs? (optional)",
+              "selector_id": "helpdesk_log",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🎫 Set up a help desk",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cmd_save",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🚪",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_commands_save"
+              },
+              "label": "Save & continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cmd_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cmd_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_commands_skip"
+              },
+              "label": "Skip — leave as is",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped step card is flow-state-parameterized end to end (the picked-value fields, the 'Step X of N' footer literal — essential_setup.py render()) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cmd_mode"
+                  ],
+                  [
+                    "cmd_channels"
+                  ],
+                  [
+                    "cmd_save"
+                  ],
+                  [
+                    "cmd_back",
+                    "cmd_skip"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_commands",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_commands_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.essential_commands_mode"
+              },
+              "options_source": {
+                "$ref": "provider:setup.essential_cmd_mode_options"
+              },
+              "page_size": 25,
+              "placeholder": "Where can people use commands?",
+              "selector_id": "cmd_mode",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 25,
+              "min_values": 0,
+              "on_select": {
+                "$ref": "handler:setup.essential_commands_channels"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick the channels where commands should work…",
+              "selector_id": "cmd_channels",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🚪 Where can people use commands?",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "summary_done",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✅",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_summary_done"
+              },
+              "label": "All done",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "summary_extras",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "✨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_summary_extras"
+              },
+              "label": "More to set up",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "summary_check",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "🔎",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_summary_check"
+              },
+              "label": "Check my setup",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped summary card is flow-state-parameterized (the Turned on / Skipped recap fields, the skipped-everything description branch — EssentialSummaryView.render) — outside the static grammar vocabulary; the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "summary_done"
+                  ],
+                  [
+                    "summary_extras",
+                    "summary_check"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_summary",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_summary_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "✅ Setup complete",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "extras_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "◀",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_extras_back"
+              },
+              "label": "Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped extras menu carries seven static feature fields (build_extras_embed) — grammar FieldsBlocks are provider-fed; the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "extras_back"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_extras",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_extras_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "✨ More you can set up",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "resume",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "essential_setup:resume",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "▶",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.essential_resume_click"
+              },
+              "label": "Resume setup",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped resume prompt is session-parameterized (the 'pick up where you left off (step N)' description over the persisted essential_step — build_resume_message) — outside the static grammar vocabulary; the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "resume"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.essential_resume",
+          "renderer_override": {
+            "$ref": "handler:setup.essential_resume_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "⏸️ Setup paused",
           "usage_weight": 1.0
         }
       ],

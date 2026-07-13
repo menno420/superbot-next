@@ -341,33 +341,39 @@ def test_essential_save_without_pick_answers_the_shipped_guard():
 
 
 def test_essential_save_applies_the_starter_set(monkeypatch):
-    from sb.domain.setup import wizard
-    from sb.kernel.panels import engine as panels_engine
+    from sb.domain.setup import essential_steps, wizard
 
     writes = []
+    shown = []
 
     async def fake_write(req, subsystem, name, value):
         writes.append((subsystem, name, value))
         return SimpleNamespace(outcome=SUCCESS)
 
-    async def fake_refresh(req, *, message_key, params, expire=False):
-        return True
+    async def fake_show(req, state):
+        shown.append(state.index)
 
     monkeypatch.setattr(wizard, "_write_setting", fake_write)
-    monkeypatch.setattr(panels_engine, "refresh_session_view", fake_refresh)
+    monkeypatch.setattr(essential_steps, "_show_current", fake_show)
 
     wizard.set_essential_pick(99, 42, "support")
     reply = run(_resolve("setup.essential_save")(_req()))
-    assert reply.outcome == SUCCESS
+    # the essential-steps slice: Save advances the flow onto the Step-2
+    # card (the shipped complete() — no text confirmation, the card moves).
+    assert reply is None
     # the shipped starter bundle, applied verbatim + the relaxed XP rate.
     assert ("automod", "caps_enabled", True) in writes
     assert ("moderation", "dm_on_action", True) in writes
     assert ("xp", "xp_min", 10) in writes
     assert ("xp", "xp_cooldown", 120) in writes
     assert len(writes) == 9
-    # the shipped applied-summary line rides the confirmation.
-    assert reply.user_message.startswith(
-        "✨ 🛟 Support / Help desk starter set on · strict protection")
+    # the shipped applied-summary line lands in the flow recap + advance.
+    state = essential_steps.flow_state(99, 42)
+    assert state.applied == ["🛟 Support / Help desk starter set on · "
+                             "strict protection on everything, members "
+                             "told why, relaxed XP"]
+    assert state.index == 1
+    assert shown == [1]
 
 
 def test_essential_save_failure_answers_the_shipped_copy(monkeypatch):
@@ -385,10 +391,24 @@ def test_essential_save_failure_answers_the_shipped_copy(monkeypatch):
                                   "starter set — please try again.")
 
 
-def test_essential_skip_changes_nothing():
+def test_essential_skip_records_and_advances(monkeypatch):
+    from sb.domain.setup import essential_steps
+
+    shown = []
+
+    async def fake_show(req, state):
+        shown.append(state.index)
+
+    monkeypatch.setattr(essential_steps, "_show_current", fake_show)
     reply = run(_resolve("setup.essential_skip")(_req()))
-    assert reply.outcome == SUCCESS
-    assert "nothing was changed" in reply.user_message
+    assert reply is None
+    state = essential_steps.flow_state(99, 42)
+    # the shipped skip: record the step title, move to Step 2 — nothing
+    # was written.
+    assert state.applied == []
+    assert state.skipped == ["What kind of server is this?"]
+    assert state.index == 1
+    assert shown == [1]
 
 
 def test_essential_render_shows_the_picked_starter_set():
@@ -795,7 +815,14 @@ def test_interior_panels_ride_the_manifest():
     assert panel_ids == [
         "setup.hub", "setup.essential_card", "setup.status_card",
         "setup.suggestions_card", "setup.sections_hub", "setup.review_item",
-        "setup.final_review", "setup.apply_recovery", "setup.complete_card"]
+        "setup.final_review", "setup.apply_recovery", "setup.complete_card",
+        # the essential-steps slice: steps 2–8 + summary/extras + resume.
+        "setup.essential_greet", "setup.essential_mods",
+        "setup.essential_spam", "setup.essential_log",
+        "setup.essential_reward", "setup.essential_reward_role",
+        "setup.essential_helpdesk", "setup.essential_commands",
+        "setup.essential_summary", "setup.essential_extras",
+        "setup.essential_resume"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {
