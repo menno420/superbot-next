@@ -56,8 +56,8 @@ Wired **both directions**: games hub `ga_mining` → `PanelRef("mining.hub")` (s
 
 | # | Item | Effort | Collision |
 |---|---|---|---|
-| 1 | **`!minestats` Deepest → max_depth fix (G1)** — read `store.get_max_depth` in `stats_view` (service.py:381) per oracle mining_cog.py:157; golden-neutral | **S** | **NONE — UNBLOCKED, TOP PICK 1** |
-| 2 | **How-to panel port (G3)** — flip `mining.how_to_pending` to the one-screen guide card (oracle how_to_panel.py, 76 lines); exact fishing `howtofish` precedent (#410) | **S** | **NONE — UNBLOCKED, TOP PICK 2** |
+| 1 | **`!minestats` Deepest → max_depth fix (G1)** — read `store.get_max_depth` in `stats_view` (service.py:381) per oracle mining_cog.py:157; golden-neutral | **S** | **EXECUTED → PR #442** (`claude/mining-minestats-howto` @ `03d0406`) |
+| 2 | **How-to panel port (G3)** — flip `mining.how_to_pending` to the one-screen guide card (oracle how_to_panel.py, 76 lines); exact fishing `howtofish` precedent (#410) | **S** | **BLOCKED-BY-CLAIM → curation-rework-night-bundle (#426, row 60), claimed post-review** |
 | 3 | Character sub-hub port (G7) — render-only PanelSpec routing to already-live surfaces | M | LOW |
 | 4 | Workshop sub-hub port (G7) — reverses the 2026-07-13 curation repoint of `↩ Workshop`; coordinate first | S/M | LOW |
 | 5 | ORDER 019 item 3 — `check_money_race` mis-classification | S/M | **LANDED since review sweep — PR #425 @ `9634e81`** (see dispositions below) |
