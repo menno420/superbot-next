@@ -522,9 +522,11 @@ async def _record_craft_charm(conn, ctx: WorkflowContext) -> LegOutcome:
 # pins the 0-coral shelf read, sweep_craftcurio the not-carvable guard, and
 # the four structure sweeps pin the not-built panel renders — all pure
 # reads), so the guard bytes in service.py are the only parity surface. The
-# curio carve is advisory-fenced (store.lock_curio_slot) against a
-# double-craft over the same coral; the build is money-bearing and fenced
-# (mining.store.lock_structure_build_slot) per #217. mining_structures is
+# curio carve and the build share ONE coral fence (store.lock_coral_slot)
+# so a racing carve × Build over the same floor-at-zero coral row
+# serializes (PR #350 codex finding); the build is money-bearing and
+# additionally fenced first (mining.store.lock_structure_build_slot,
+# stable order) per #217. mining_structures is
 # written ONLY through sb.domain.mining.store.set_structure_level (the
 # sole-writer seam; the fishing/ops lazy-import precedent, L124) -------------
 
@@ -539,7 +541,11 @@ async def _record_craft_curio(conn, ctx: WorkflowContext) -> LegOutcome:
     order). Carving a curio you already own simply adds another copy
     (harmless; the collection tally counts distinct curios). Not
     money-bearing, but the coral spend is advisory-fenced against a
-    concurrent double-carve (the charm-craft posture). The handler
+    concurrent double-spend — the SHARED coral fence
+    (store.lock_coral_slot) the structure-build leg also takes, so a
+    racing carve × Build over one coral stack serializes (the
+    floor-at-zero inventory decrement would otherwise let both spenders
+    pass their pre-spend guards — PR #350 codex finding). The handler
     answers the not-carvable / not-enough-coral cases as pure reads
     before this leg runs."""
     from sb.domain.fishing import curios as curios_mod
@@ -552,7 +558,7 @@ async def _record_craft_curio(conn, ctx: WorkflowContext) -> LegOutcome:
         raise ValidatorError(
             "That isn't a carvable curio — see `!curios` for the "
             "collection.")
-    await store.lock_curio_slot(conn, user_id=uid, guild_id=gid)
+    await store.lock_coral_slot(conn, user_id=uid, guild_id=gid)
     inventory = await get_mining_inventory(uid, gid, conn=conn)
     have = inventory.get(CORAL_ITEM, 0)
     if have < curio.coral_cost:
@@ -613,10 +619,13 @@ async def _record_build_structure(conn, ctx: WorkflowContext) -> LegOutcome:
     the shipped ``mining:{structure}_build`` reason; the balance event
     emits after commit). #217 posture: the (guild, user) build slot is
     advisory-fenced BEFORE the level/inventory reads so two racing
-    builds serialize. The handler gates the maxed / short-on-materials /
-    insufficient-funds cases out as pure reads before this leg runs (no
-    write, no audit row — the oracle's rollback posture), so the raises
-    here are defensive."""
+    builds serialize, and the SHARED coral fence (store.lock_coral_slot,
+    taken second — a stable order, the carve leg holds only that one
+    key) serializes a build racing a `!craftcurio` over the same
+    floor-at-zero coral row (PR #350 codex finding). The handler gates
+    the maxed / short-on-materials / insufficient-funds cases out as
+    pure reads before this leg runs (no write, no audit row — the
+    oracle's rollback posture), so the raises here are defensive."""
     from sb.domain.economy.service import InsufficientFundsError
     from sb.domain.games import wager
     from sb.domain.mining import market, structures, workshop
@@ -635,6 +644,12 @@ async def _record_build_structure(conn, ctx: WorkflowContext) -> LegOutcome:
             f"**{structure or '(blank)'}** isn't a buildable structure.")
     display = structures.display_name(structure)
     await lock_structure_build_slot(conn, user_id=uid, guild_id=gid)
+    # the shared coral-spend fence, AFTER the build fence (stable order;
+    # the curio leg holds only the coral key — no deadlock cycle): a
+    # racing carve now blocks until this txn commits and re-reads the
+    # decremented coral instead of double-granting off the pre-spend
+    # count (the GREATEST(0, …) floor — PR #350 codex finding).
+    await store.lock_coral_slot(conn, user_id=uid, guild_id=gid)
     built = await get_structures(uid, gid, conn=conn)
     level = built.get(structure, 0)
     cost = structures.build_cost(structure, level)

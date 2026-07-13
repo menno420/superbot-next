@@ -39,7 +39,8 @@ slice; the fishing structures ride the EXISTING generic
   mult/bonus fns (pull 0.04 · bite 0.06 · regen 0.12 · bonus 0.05).
 - **Ops**: `fishing.craft_curio` (coral −cost, +1 curio item, one txn —
   the oracle craft_curio inventory-only conversion, fenced by the new
-  `fishing.store.lock_curio_slot`) and `fishing.build_structure` (the
+  `fishing.store.lock_coral_slot` — SHARED with the build leg, see
+  below) and `fishing.build_structure` (the
   decide-and-flag fork, resolved PORT THE WRITE: the oracle
   `mining_workflow.build_structure` L705 one-txn coin debit + material
   consume + level raise; #217 advisory-fenced locking read via the new
@@ -105,10 +106,13 @@ slice; the fishing structures ride the EXISTING generic
 - **check_sim_gate: OK — 1378 [A] assignment(s), 558 auto-exempt
   below-floor** (after the 3 sub-hub overlay rows + baseline regen).
 - **check_money_race: OK — 0 violations under sb/domain (2 allowlisted
-  site(s), 0 ledgered known-risk site(s))** — the build leg fences
-  (lock_structure_build_slot) BEFORE the level/inventory reads → debit
-  → consume → raise; the curio leg fences (lock_curio_slot) before the
-  coral read (materials-only, the charm posture).
+  site(s), 0 ledgered known-risk site(s))** — the build leg takes BOTH
+  fences BEFORE the level/inventory reads (lock_structure_build_slot
+  then the shared lock_coral_slot — a stable order, the carve leg holds
+  only the coral key) → debit → consume → raise; the curio leg fences
+  on the SAME lock_coral_slot before the coral read (materials-only) —
+  the shared key serializes a racing carve × Build over one
+  floor-at-zero coral row (PR #350 codex P1, fixed in-flight).
 - **check_verified_live: OK — 51 subsystems (0 verified), 0 records**
   (roster re-mirrored after the `_unmapped` retirement).
 - **check_namespace / check_symbol_shadowing / check_escape_hatches /
