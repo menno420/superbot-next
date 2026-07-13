@@ -363,20 +363,10 @@ async def ops_pending(req) -> Reply:
     return _ok(_INGESTION_PENDING)
 
 
-async def paragon_pending(req) -> Reply:
-    """Session-action terminal for the paragon calculator's compute buttons.
-
-    The landing panel (roster / players / difficulty / extra-T5 selectors +
-    the 🌐 Web calculator link) renders now; the degree solver, the reverse
-    requirements solver, and the live web-calc reconciliation are a named
-    successor port riding the deep-BTD6-tools lane (D-0046). The golden
-    (goldens/btd6/sweep_paragon) exercises the initial open only."""
-    return _ok(
-        "**🔮 Paragon Calculator** — the degree solver + reverse "
-        "requirements solver are a named successor port (D-0046). The "
-        "roster / players / difficulty / extra-T5 selectors and the 🌐 Web "
-        "calculator link work now; Calculate / Requirements / Stats arrive "
-        "with the deep BTD6 tools lane.")
+# The `btd6.paragon_pending` session terminal RETIRED (ORDER 017 night-run
+# fix slice A): the calculator's selectors + Calculate / Requirements /
+# Stats are armed in sb/domain/btd6/paragon_panel.py (pure-compute port;
+# the live web-calc reconciliation stays the D-0046 successor).
 
 
 # --- ref table ----------------------------------------------------------------------
@@ -405,7 +395,6 @@ _HANDLERS = (
     ("btd6.events_grounding_view", events_grounding_view),
     ("btd6.ops_usage_view", ops_usage_view),
     ("btd6.ops_pending", ops_pending),
-    ("btd6.paragon_pending", paragon_pending),
 )
 
 

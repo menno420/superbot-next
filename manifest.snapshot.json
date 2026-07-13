@@ -4219,6 +4219,16 @@
           "value": "back"
         },
         {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "enter_target"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "back_calc"
+        },
+        {
           "source": "sb/manifest/casino.py",
           "subsystem": "casino",
           "value": "casino_new_poker"
@@ -6371,6 +6381,11 @@
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6.paragon"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6.paragon_requirements"
         },
         {
           "source": "sb/manifest/casino.py",
@@ -8941,8 +8956,26 @@
       "handler:btd6.ops_usage_view": {
         "module": "sb.domain.btd6.service"
       },
-      "handler:btd6.paragon_pending": {
-        "module": "sb.domain.btd6.service"
+      "handler:btd6.paragon_back_to_calc": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_calc_submit": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_req_select": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_requirements_open": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_select": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_stats_view": {
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.paragon_target_submit": {
+        "module": "sb.domain.btd6.paragon_panel"
       },
       "handler:btd6.ref_ct_pending": {
         "module": "sb.domain.btd6.service"
@@ -8978,7 +9011,10 @@
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_paragon": {
-        "module": "sb.domain.btd6.panels"
+        "module": "sb.domain.btd6.paragon_panel"
+      },
+      "handler:btd6.render_paragon_requirements": {
+        "module": "sb.domain.btd6.paragon_panel"
       },
       "handler:btd6.strat_audit_view": {
         "module": "sb.domain.btd6.service"
@@ -10856,6 +10892,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.paragon": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "panel:btd6.paragon_requirements": {
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.strategy_submit": {
@@ -13548,7 +13587,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:553cf3ed0a83a197b0f6f0ae63192caec1a090f5abac677ddc967acaf24b6ac3",
+  "stable_hash": "sha256:13fda95a2b7db5e6192b89f4b766fa96abd1b677ffc4dbdceac5039b2e3a1c59",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -22260,16 +22299,74 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_calc_submit"
               },
               "label": "🧮 Calculate degree",
-              "modal": null,
-              "reply_visibility": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "pops",
+                    "label": "Pops (total damage)",
+                    "max_length": 15,
+                    "min_length": null,
+                    "placeholder": "e.g. 8000000",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "cash_spent",
+                    "label": "Cash spent (non-T5 towers)",
+                    "max_length": 12,
+                    "min_length": null,
+                    "placeholder": "e.g. 150000",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "slider_cash",
+                    "label": "Slider cash",
+                    "max_length": 12,
+                    "min_length": null,
+                    "placeholder": "e.g. 0",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "upgrade_count",
+                    "label": "Upgrade tiers (a 0-2-4 tower = 6)",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "e.g. 60",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "geraldo_totems",
+                    "label": "Geraldo totems",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "e.g. 0",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.paragon_calc_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.paragon_calc_submit"
+                },
+                "title": "Paragon — enter your numbers"
+              },
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -22290,11 +22387,11 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_requirements_open"
               },
               "label": "🎯 Requirements",
               "modal": null,
-              "reply_visibility": null,
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -22315,11 +22412,11 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_stats_view"
               },
               "label": "📊 Stats",
               "modal": null,
-              "reply_visibility": null,
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -22365,7 +22462,7 @@
             "style_token": "green",
             "thumbnail_ref": ""
           },
-          "justification": "the shipped paragon landing embed carries an arbitrary footer ('Solo: 1 extra T5 (Dart only) · Co-op: up to 9 · totems are uncapped') and three STATIC fields — both outside FooterMode and the block grammar's provider-fed field vocabulary — and the component row mixes a LINK button (🌐 Web calculator, no custom_id) with the session's minted dispatch ids. The override delegates the roster/players/difficulty/extra-T5 selectors + the four dispatch buttons to the grammar renderer, replaces ONLY the embed, and injects the link button (goldens/btd6/sweep_paragon pins every byte).",
+          "justification": "the shipped paragon landing embed carries an arbitrary footer ('Solo: 1 extra T5 (Dart only) · Co-op: up to 9 · totems are uncapped') and three STATIC fields — both outside FooterMode and the block grammar's provider-fed field vocabulary — and the component row mixes a LINK button (🌐 Web calculator, no custom_id) with the session's minted dispatch ids. The override delegates the roster/players/difficulty/extra-T5 selectors + the four dispatch buttons to the grammar renderer, replaces ONLY the embed (re-bounding the select rosters from the live per-message state — the shipped rebuild()), and injects the link button (goldens/btd6/sweep_paragon pins every default-state byte).",
           "layout": {
             "pages": [
               {
@@ -22415,7 +22512,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
               "options_source": [
                 {
@@ -22512,7 +22609,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
               "options_source": [
                 {
@@ -22551,7 +22648,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
               "options_source": [
                 {
@@ -22590,7 +22687,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:btd6.paragon_pending"
+                "$ref": "handler:btd6.paragon_select"
               },
               "options_source": [
                 {
@@ -22615,6 +22712,165 @@
           "subsystem": "btd6",
           "timeout_s": 180,
           "title": "🔮 Paragon Calculator",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "enter_target",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_target_submit"
+              },
+              "label": "🎯 Enter target degree",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "target",
+                    "label": "Target degree (1-100)",
+                    "max_length": 3,
+                    "min_length": null,
+                    "placeholder": "e.g. 90",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.paragon_target_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.paragon_target_submit"
+                },
+                "title": "Paragon — target degree"
+              },
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "back_calc",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.paragon_back_to_calc"
+              },
+              "label": "↩ Calculator",
+              "modal": null,
+              "reply_visibility": "ephemeral",
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped requirements config embed is state-parameterized on every description line (strategy/players/difficulty) with an arbitrary footer ('Least-X maxes the other inputs…') — outside FooterMode and the static TextBlock grammar — and the button row mixes the 🌐 Web calculator LINK button (no custom_id) with the session's minted dispatch ids. The override delegates the strategy select + two buttons to the grammar renderer, replaces ONLY the embed, and injects the link button (the shipped ParagonRequirementsView shape; no golden pins this click route).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "solve_strategy"
+                  ],
+                  [
+                    "enter_target",
+                    "back_calc"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "btd6.paragon_requirements",
+          "renderer_override": {
+            "$ref": "handler:btd6.render_paragon_requirements"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:btd6.paragon_req_select"
+              },
+              "options_source": [
+                {
+                  "default": true,
+                  "label": "Balanced (even split)",
+                  "value": "balanced"
+                },
+                {
+                  "default": false,
+                  "label": "Least cash",
+                  "value": "least_cash"
+                },
+                {
+                  "default": false,
+                  "label": "Least tiers",
+                  "value": "least_tiers"
+                },
+                {
+                  "default": false,
+                  "label": "Least pops",
+                  "value": "least_pops"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Strategy…",
+              "selector_id": "solve_strategy",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "btd6",
+          "timeout_s": 180,
+          "title": "🎯 Requirements",
           "usage_weight": 1.0
         }
       ],
