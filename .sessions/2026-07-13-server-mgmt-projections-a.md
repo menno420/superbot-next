@@ -1,6 +1,6 @@
 # 2026-07-13 — server-management Access Map (ORDER 017 night-run follow-up, slice A)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN follow-up slice (ORDER 017
   item 1) · mandate: the last big free gap in
