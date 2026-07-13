@@ -153,3 +153,34 @@ the registry):
 BAKED THIS SHIFT (already durable in-repo, no registry action needed): #316 telemetry
 union driver + runbook; #361 session-card mtime-lottery gate defuse; #369 doctrine
 docs sweep (red-by-design retired); CAPABILITIES.md appends; flip-playbook trap 10(e).
+
+## 2026-07-13T13:46Z · fishing cast-leg lane (worker seat) — FISHING CAST-LEG DEPTH WIRING COMPLETE
+
+Delivered via outbox because the coordinator session is inactive; this is the lane's
+completion report, manager-addressed.
+
+DONE: FISHING CAST-LEG DEPTH WIRING COMPLETE (2026-07-13), verified at main HEAD
+2485bd70ff0f519a99e5c6b98a263174faae3b73, all workflows green.
+
+SHIPPED: PR #373 (cast wiring — venue/rod/bait/structure/weather/gear modifiers drive
+cast outcomes, oracle-faithful from fishing_workflow.py:384-518 + commit_catch
+L174-278 @ oracle cdb26804) and PR #387 (3 capture-minted reel write goldens
+starter/deepwater/bait-clear; fishing_catch_log + fishing_bait exemptions retired;
+corpus 484→487). Claim lifecycle #367 → close #389, both merged.
+
+CODEX ROUND on #373: 5 fixed + 1 partial/scope-doc'd + 1 refuted (trophy-at-level_after
+IS oracle semantics, cast_view.py:413 + commit_catch L262-266), fix commit 328efe0
+(squashed via d7b18b2). Port now stricter than oracle on the cast double-spend TOCTOU.
+
+PARKED with evidence: D-0043 minigame timing rung (live bite/fake-out/reel-fight
+asyncio). fishing_rod = sole remaining fishing guard-only exemption.
+
+EARLIER SAME-NIGHT: fishing port completion (slices #330/#342/#350 atop sibling #313)
+— already reported to the coordinator at ~04:05Z.
+
+NOTE: #387's first CI run had 3 gates red on a GitHub Actions infra flake ("Failed to
+resolve action download info. Error: Service Unavailable") — one re-run, green. Not a
+code failure.
+
+NOTE for the manager: ORDER 018 (night report, executor: live seat) remains unserved
+by the live seat as far as this lane can see; this lane's contribution is the above.
