@@ -687,6 +687,85 @@ async def _record_quick_craft(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"item": last, "message": message})
 
 
+# --- structures write leg (slice 6 PORT): the shipped services/
+# mining_workflow.py ``build_structure`` verbatim, re-homed onto the audited
+# one-leg one-txn seam. The forge/home 🔥 Build panel terminals were live D-0043
+# pendings (no leg); this ports the registry-driven (material-agnostic) build —
+# coin debit + material consume + mining_structures level raise in ONE txn (the
+# vault_upgrade precedent extended with a material leg). Money-bearing
+# (wager.debit_in_txn), a read-then-settle over the built level → coins +
+# materials, so it is advisory-fenced first (lock_structure_slot). The handler
+# gates the maxed / insufficient-materials / insufficient-funds refusals out as
+# pure reads before this leg runs (the vaultupgrade guard-byte parity path), so
+# the raises here are defensive. goldens/mining/mining_build_forge_write drives
+# the funded 🔥 Build (retires the mining_structures guard-only-capture
+# exemption — the LAST mining exemption); mining_build_forge_insufficient pins
+# the short-on-materials refusal (a pure read). ------------------------------
+
+
+@workflow("mining.record_build")
+async def _record_build(conn, ctx: WorkflowContext) -> LegOutcome:
+    """🔥 Build / 🏠 Build — build/upgrade *structure* one level (the shipped
+    ``mining_workflow.build_structure`` verbatim: registry-driven, so it is
+    material-agnostic). Reads the current built level to size the
+    ``structures.build_cost`` (coins + materials), then debits the coins via
+    ``wager.debit_in_txn``, consumes the materials, and raises the level by one —
+    all in ONE txn. Money-bearing, so the level read is advisory-fenced first
+    (lock_structure_slot) against a concurrent double-build (double-charge /
+    skipped level). Business refusals raise ValidatorError with the oracle's
+    verbatim copy — the handler prefixes the invoker mention on the reply."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.mining import market, structures, workshop
+
+    uid, gid, _ = _ids(ctx)
+    structure = str(ctx.params.get("structure", structures.FORGE)).strip().lower()
+    display = structures.display_name(structure)
+    # Fence concurrent builds for this player BEFORE the level read → the debit +
+    # consume + level bump serialize (no double-charge / skipped level — #217).
+    await store.lock_structure_slot(conn, user_id=uid, guild_id=gid)
+    built = await store.get_structures(uid, gid, conn=conn)
+    level = built.get(structure, 0)
+    cost = structures.build_cost(structure, level)
+    if cost is None:
+        name = structures.level_name(structure, level)
+        raise ValidatorError(
+            f"Your {display} is already at its maximum level (**{name}**).")
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    for mat, qty in cost.materials.items():
+        if inventory.get(mat, 0) < qty:
+            raise ValidatorError(
+                f"Building the {display} needs "
+                f"{workshop.describe_materials(cost.materials)} "
+                f"plus {cost.coins} 🪙 — you're short on materials.")
+    reason = market.structure_build_reason(structure)
+    try:
+        balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=cost.coins,
+            reason=reason, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        held = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"Building the {display} costs **{cost.coins}** 🪙 — you only have "
+            f"**{held}** 🪙.") from None
+    for mat, qty in cost.materials.items():
+        await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                       item=mat, delta=-qty)
+    await store.set_structure_level(conn, user_id=uid, guild_id=gid,
+                                    structure=structure, level=level + 1)
+    new_name = structures.level_name(structure, level + 1)
+    suffix = structures.build_success_suffix(structure, level + 1)
+    ctx.params["_balance_changes"] = [(uid, -cost.coins, balance, reason)]
+    return LegOutcome(
+        step=StepResult(uid, "build", True), before={},
+        after={"structure": structure, "cost": cost.coins, "balance": balance,
+               "message": f"{display} built to **{new_name}** for "
+                          f"{workshop.describe_materials(cost.materials)} "
+                          f"+ {cost.coins} 🪙.{suffix} Balance: "
+                          f"**{balance}** 🪙."})
+
+
 # --- skills write leg (slice 5 PORT): the shipped services/skill_service.py
 # ``allocate`` verbatim, re-homed onto the audited one-leg one-txn seam. The
 # argful `!skill <branch>` spend was a live D-0043 pending terminal (no leg); the
@@ -908,12 +987,14 @@ QUICK_CRAFT = _op("mining.quick_craft", "mining_quick_crafted",
                   "mining.record_quick_craft", ())
 SKILL = _op("mining.skill", "mining_skill_allocated", "mining.record_skill",
             ())
+BUILD = _op("mining.build", "mining_structure_built", "mining.record_build",
+            _BALANCE_EMITS)
 
 _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
-        REPAIR, QUICK_CRAFT, SKILL)
+        REPAIR, QUICK_CRAFT, SKILL, BUILD)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -938,6 +1019,7 @@ _REF_TABLE = (
     ("mining.record_repair", _record_repair),
     ("mining.record_quick_craft", _record_quick_craft),
     ("mining.record_skill", _record_skill),
+    ("mining.record_build", _record_build),
     ("mining.erase_subject_structures", _erase_structures),
     ("mining.erase_subject_vault", _erase_vault),
     ("mining.erase_subject_inventory", _erase_inventory),

@@ -606,6 +606,26 @@ async def lock_workshop_slot(conn: Any, *, user_id: int,
         (f"mining:workshop:{guild_id}:{user_id}",), conn=conn)
 
 
+async def lock_structure_slot(conn: Any, *, user_id: int,
+                              guild_id: int) -> None:
+    """Fence concurrent structure BUILD settles (🔥 Build / 🏠 Build) for one
+    (user, guild) against a read-then-settle double-charge / skipped-level (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). ``build_structure``
+    reads the current built level (to size the coin + material cost) then debits +
+    consumes + raises the level — a read-then-settle over a natural-key row that
+    may not exist yet (a fresh player has no ``mining_structures`` row), so FOR
+    UPDATE alone can lock nothing. Two racing builds both read level L, both pass
+    the affordability check, and both debit + bump, so the player is
+    double-charged for one net level (or a level is skipped). A
+    transaction-scoped advisory lock keyed on the (guild, user) pair serializes
+    two racing builds: the loser blocks here until the winner's txn commits, then
+    re-reads the winner's committed level and its cost/affordability check is
+    sized against the raised level. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:structure:{guild_id}:{user_id}",), conn=conn)
+
+
 async def get_last_broken(user_id: int, guild_id: int,
                           conn: Any = None) -> str | None:
     """The name of the last gear item that broke for the player (the

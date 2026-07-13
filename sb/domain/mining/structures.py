@@ -177,6 +177,22 @@ def build_cost(structure: str, level: int) -> BuildCost | None:
 # --------------------------------------------------------------------------- #
 
 
+def build_success_suffix(structure: str, new_level: int) -> str:
+    """The structure-specific reward line appended to a successful build —
+    shipped ``services/mining_workflow._build_success_suffix`` verbatim. Forge
+    advertises the gear tier it just unlocked; Home advertises the
+    Character-card backdrop it just unlocked. Generic structures get nothing
+    (an empty suffix). The oracle's TIDE_POOL/DOCK/FISHERY/BOATHOUSE branches
+    are coral-fishing structures declared in no bounded mining port, so they
+    have no counterpart here."""
+    if structure == FORGE:
+        unlocked = tiers_unlocked_at(new_level)
+        return f" Now crafts **{unlocked[-1]}-tier** gear." if unlocked else ""
+    if structure == HOME:
+        return " It now frames your Character card."
+    return ""
+
+
 def forge_level_name(level: int) -> str:
     """A short display name for a forge at *level* (clamped to the ladder)."""
     return level_name(FORGE, level)
@@ -234,6 +250,7 @@ __all__ = [
     "StructureDef",
     "is_structure",
     "cooking_unlocked",
+    "build_success_suffix",
     "display_name",
     "max_level",
     "level_name",
