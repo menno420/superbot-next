@@ -1,6 +1,6 @@
 # 2026-07-13 — docs sweep: the parity report leg is live green — retire the red-by-design doctrine
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude (Fable family) · docs sweep · mandate: golden-parity
   `report` flipped REAL GREEN on main — every repo guidance line still
@@ -51,3 +51,33 @@ Left alone (history / other writers' files / code):
   DESIGN until full parity"), `parity/run.py`, `parity/harness/runner.py`
   — code/docstrings, out of this docs-sweep's write scope → follow-up
 - `.claude/CLAUDE.md` — no hit (render-managed; nothing for the kit)
+
+## Verification
+
+- `python3 bootstrap.py check --strict` — green once this card flipped
+  complete (the only red mid-sweep was the designed born-red hold; the
+  one claims-format advisory on `mining-write-parity-lane.md` is
+  pre-existing and never exit-affecting).
+- `python3 -m pytest tests/ -q` — **2389 passed, 13 skipped** (42s).
+- Workflow diffs proven comment-only: `git diff` filtered to non-comment
+  `+/-` lines returned nothing.
+
+## 💡 Session idea
+
+Three code-comment stragglers still teach the retired doctrine and sat
+outside this docs-sweep's write scope: `tools/run_golden_parity.py`
+(the `--report` banner literally prints "RED BY DESIGN until full
+parity" above a GREEN verdict, plus the `--report` help string),
+`parity/run.py:10`, `parity/harness/runner.py:5`, and the report step's
+display name in golden-parity.yml ("EXPECTED RED" — a `name:` field,
+not a comment). One tiny follow-up PR retires all four; the banner is
+the user-visible one.
+
+## ⟲ Previous-session review
+
+The fishing-port lane (slices 1–4, #313/#330/#342/#350, closed by #353)
+delivered exactly what its claim scoped: slice 4 (`eae2e61`, #350) was
+the commit that flipped the report leg green — verified here against
+the run ledger (run 777 red at 02:44Z, run 790 green at 04:00Z), not
+assumed. Its lane claim was cleanly deleted at close (#353); no residue
+collided with this sweep.
