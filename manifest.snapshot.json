@@ -10055,20 +10055,20 @@
       "handler:welcome.status_render": {
         "module": "sb.domain.welcome.panels"
       },
-      "handler:xp.config_channel_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.config_channel_submit": {
+        "module": "sb.domain.xp.handlers"
       },
-      "handler:xp.config_cooldown_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.config_cooldown_submit": {
+        "module": "sb.domain.xp.handlers"
       },
-      "handler:xp.config_range_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.config_range_submit": {
+        "module": "sb.domain.xp.handlers"
       },
       "handler:xp.givexp": {
         "module": "sb.domain.xp.handlers"
       },
-      "handler:xp.import_setup_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:xp.import_setup_submit": {
+        "module": "sb.domain.xp.handlers"
       },
       "handler:xp.rank_card_render": {
         "module": "sb.domain.xp.panels"
@@ -12781,7 +12781,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:6535a818978d452815caddec1f6d5a576ad74253611976485fe504c550606adb",
+  "stable_hash": "sha256:e7fbf134c4c127bbe17095a941a6ab8a4499976006bd81777e39b21c27270ab9",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -53138,15 +53138,43 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.config_range_pending"
+                "$ref": "handler:xp.config_range_submit"
               },
               "label": "XP Range",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "xp_min",
+                    "label": "Min XP per message",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "15",
+                    "required": true,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "xp_max",
+                    "label": "Max XP per message",
+                    "max_length": 4,
+                    "min_length": null,
+                    "placeholder": "25",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.range_form",
+                "on_submit": {
+                  "$ref": "handler:xp.config_range_submit"
+                },
+                "title": "Set XP Range"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -53163,15 +53191,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.config_cooldown_pending"
+                "$ref": "handler:xp.config_cooldown_submit"
               },
               "label": "Cooldown",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "seconds",
+                    "label": "Cooldown in seconds",
+                    "max_length": 5,
+                    "min_length": null,
+                    "placeholder": "60",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.cooldown_form",
+                "on_submit": {
+                  "$ref": "handler:xp.config_cooldown_submit"
+                },
+                "title": "Set XP Cooldown"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -53188,15 +53234,33 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.config_channel_pending"
+                "$ref": "handler:xp.config_channel_submit"
               },
               "label": "Level-up Channel",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "channel_id",
+                    "label": "Channel ID (leave blank = same channel)",
+                    "max_length": 25,
+                    "min_length": null,
+                    "placeholder": "",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.channel_form",
+                "on_submit": {
+                  "$ref": "handler:xp.config_channel_submit"
+                },
+                "title": "Level-up Announcement Channel"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
@@ -53213,15 +53277,53 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:xp.import_setup_pending"
+                "$ref": "handler:xp.import_setup_submit"
               },
               "label": "📥 Import from another bot",
-              "modal": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "source",
+                    "label": "Which bot posted them? (default: arcane)",
+                    "max_length": 20,
+                    "min_length": null,
+                    "placeholder": "arcane",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "channel",
+                    "label": "Level-up channel (ID; blank = here)",
+                    "max_length": 25,
+                    "min_length": null,
+                    "placeholder": "123456789",
+                    "required": false,
+                    "style": "short"
+                  },
+                  {
+                    "default": "",
+                    "field_id": "limit",
+                    "label": "Max messages to scan (blank = all)",
+                    "max_length": 6,
+                    "min_length": null,
+                    "placeholder": "1000",
+                    "required": false,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "xp.import_form",
+                "on_submit": {
+                  "$ref": "handler:xp.import_setup_submit"
+                },
+                "title": "📥 Import XP from another bot"
+              },
               "reply_visibility": null,
               "result_card": null,
               "result_render": "result_card",
