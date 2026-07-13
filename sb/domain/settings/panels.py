@@ -158,6 +158,12 @@ _HUB_GROUPS: tuple[tuple[str, str, str, str], ...] = (
      "1v1 duel battles"),
     ("rps_tournament", "Rock Paper Scissors", "✂️",
      "Rock Paper Scissors: quick play, PvP, bot matches, tournaments"),
+    # --- post-flip growth (NOT a shipped-roster byte): the D-0082 game
+    # sections group (design §5) — routes to the games.sections settings
+    # panel via settings.open_group; appended so the 19 shipped options
+    # keep their golden order (goldens re-cut with the 20th option).
+    ("games", "Games", "🎮",
+     "Competitive games and channel activities"),
 )
 
 # --- the shipped explorer copy (views/access/explorer.py — the golden pins

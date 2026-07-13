@@ -170,6 +170,36 @@ async def _record_workspace_open(conn, ctx: WorkflowContext) -> LegOutcome:
         before=None, after="pending")
 
 
+@workflow("setup.record_depth")
+async def _record_depth(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The depth-chooser click's session write — the shipped
+    ``setup_session.set_depth`` (views/setup/depth_panel.py ``_select``):
+    a value-checked UPDATE keyed on the guild; no row is a silent no-op
+    (the shipped semantics — the chooser also serves sessionless
+    presentations)."""
+    from sb.domain.setup import store
+
+    depth = str(ctx.params.get("depth", "") or "") or None
+    await store.set_depth(conn, guild_id=int(ctx.guild_id or 0), depth=depth)
+    return LegOutcome(step=StepResult(0, "record_depth", True),
+                      before=None, after=depth)
+
+
+@workflow("setup.record_section_skip")
+async def _record_section_skip(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The ``/setup-skip`` / ``/setup-unskip`` session write — the shipped
+    ``mark_section_skipped`` / ``unmark_section_skipped`` set-semantics
+    UPDATE pair (cogs/setup_cog.py ``_toggle_skip``)."""
+    from sb.domain.setup import store
+
+    slug = str(ctx.params["section"])
+    skipped = bool(ctx.params.get("skipped", True))
+    await store.set_section_skip(conn, guild_id=int(ctx.guild_id or 0),
+                                 slug=slug, skipped=skipped)
+    return LegOutcome(step=StepResult(0, "record_section_skip", True),
+                      before=None, after={"section": slug, "skipped": skipped})
+
+
 # --- privacy erasure body (the store-declared ref; flag-18 discipline) --------------
 
 @workflow("setup.erase_subject_session")
@@ -207,12 +237,37 @@ OPEN_WORKSPACE = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="setup.session.started")
 
-_OPS = (START_SESSION, OPEN_WORKSPACE)
+#: the wizard-interior session writes (this slice). The oracle wrote both
+#: through bare service functions with NO audit row (services/
+#: setup_session.py emitted session audits only for started/completed/
+#: dismissed); here the writes ride the K7 discipline, so each carries
+#: the ONE central audit row the engine mandates — a ledgered divergence
+#: (audit is additive; the DB shape stays the shipped UPDATE).
+SET_DEPTH = CompoundOpSpec(
+    op_key="setup.set_depth", domain="setup", lane=WorkflowLane.DOMAIN,
+    authority_ref="",
+    legs=(LegSpec("record", LegKind.DB, WorkflowRef("setup.record_depth"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.depth_set")
+
+SET_SECTION_SKIP = CompoundOpSpec(
+    op_key="setup.set_section_skip", domain="setup",
+    lane=WorkflowLane.DOMAIN, authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_section_skip"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.section_skip")
+
+_OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP)
 
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
     ("setup.record_session_started", _record_session_started),
     ("setup.record_workspace_open", _record_workspace_open),
+    ("setup.record_depth", _record_depth),
+    ("setup.record_section_skip", _record_section_skip),
     ("setup.erase_subject_session", _erase_subject_session),
 )
 

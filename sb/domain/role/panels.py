@@ -2,8 +2,9 @@
 RoleHubPanelView (role_cog.py) as declared grammar: the 7-action
 anchored hub with the persistent custom_ids pinned VERBATIM
 (role:create … role:exemptions). Sub-surfaces render as RESULT_CARD
-text views over the DB truth; Create stays a pending terminal until the
-role-provisioning port arms (the band-2 honest-wait precedent).
+text views over the DB truth; 📝 Create opens the shipped
+`RoleCreateModal` (G-10 ingress) over the live `!createrole` lane
+(2026-07-13 operator-hub edits A — the pending terminal is retired).
 
 Parity-flip shape (``parity/goldens/role/sweep_rolemenu.json`` pins
 every byte): the teal embed carries NO description and SEVEN static
@@ -40,9 +41,12 @@ from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
     Audience,
+    DeferMode,
     EmbedFrameSpec,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -80,6 +84,25 @@ def _ensure_hub_provider() -> ProviderRef:
     return ref
 
 
+# --- the shipped create modal (views/roles/creation_panel.py
+# `RoleCreateModal`, the "✏️ Custom…" free-text form) — G-10 ingress over
+# the LIVE `!createrole` lane (the moderation.hub.warn precedent). The
+# name/colour fields are oracle-verbatim; the shipped hoist/mentionable
+# fields ride the provisioning-port extension (the port's create verb
+# carries name+color today — a named successor), and the preset-picker
+# creation menu + 📦 Role Packs + the XP-automation follow-up stay the
+# creation-menu slice's.
+ROLE_CREATE_MODAL = ModalSpec(
+    modal_id="role.create_form", title="Create Role",
+    fields=(
+        ModalFieldSpec(field_id="name", label="Role name",
+                       required=True, max_length=100),
+        ModalFieldSpec(field_id="color", label="Color (hex, e.g. #3498db)",
+                       placeholder="#000000", required=False, max_length=7),
+    ),
+    on_submit=HandlerRef("role.create_form_submit"))
+
+
 #: the shipped hub blurb fields (role_cog.py's literal (name, value,
 #: inline=True) list, verbatim — the golden pins every byte).
 _HUB_FIELDS: tuple[tuple[str, str, bool], ...] = (
@@ -109,7 +132,8 @@ def role_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="role_create", label="📝 Create",
                 style=ActionStyle.SUCCESS, audience_tier="administrator",
-                handler=HandlerRef("role.create_pending"),
+                defer_mode=DeferMode.MODAL, modal=ROLE_CREATE_MODAL,
+                handler=HandlerRef("role.create_form_submit"),
                 custom_id_override="role:create"),
             PanelActionSpec(
                 action_id="role_manage", label="🗂️ Manage",

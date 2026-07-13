@@ -2,8 +2,9 @@
 as a declarative panel): the golden-pinned spec bytes, the compile
 fences, the manifest surface (both front doors; the direct-answer slash
 twin), the footer renderer_override, the verbatim persistent custom_ids,
-and the remaining pending display/editor terminals (the manager trio
-forwards to its ported hubs since the 2026-07-13 curation rework).
+and the retirement of every pending terminal (the manager trio and the
+display/editor surfaces all forward to ported panels since the
+2026-07-13 curation rework + projections slice A).
 
 Oracle: menno420/superbot disbot/cogs/server_management_cog.py +
 disbot/views/server_management/hub.py (build_server_management_hub) +
@@ -94,25 +95,28 @@ def test_hub_spec_shape_matches_the_golden():
     )
 
 
-def test_ported_forwards_and_pending_terminals():
+def test_ported_forwards():
     from sb.domain.server_management.panels import server_management_hub_spec
-    from sb.spec.refs import HandlerRef, PanelRef
+    from sb.spec.refs import PanelRef
 
     by_id = {a.action_id: a for a in server_management_hub_spec().actions}
-    # the shipped hub routed into the managers — every manager hub is
-    # PORTED now (curation rework 2026-07-13): Moderation → moderation.hub;
-    # Channels → channel.hub (#131); Roles → role.hub; Cleanup →
-    # cleanup.hub; Setup → the band-1 setup hub; Refresh → self.
+    # the shipped hub routed into the managers — every hub surface is
+    # PORTED now (curation rework 2026-07-13 + projections slice A):
+    # Moderation → moderation.hub; Channels → channel.hub (#131); Roles →
+    # role.hub; Cleanup → cleanup.hub; Setup → the band-1 setup hub;
+    # Refresh → self; Access Map / Help Preview → the P1C subpanels;
+    # Help editor → the overlay-editor home.
     assert by_id["moderation"].handler == PanelRef("moderation.hub")
     assert by_id["channels"].handler == PanelRef("channel.hub")
     assert by_id["roles"].handler == PanelRef("role.hub")
     assert by_id["cleanup"].handler == PanelRef("cleanup.hub")
     assert by_id["setup"].handler == PanelRef("setup.hub")
     assert by_id["sm_refresh"].handler == PanelRef("server_management.hub")
-    # unported display/editor surfaces land on declared pending terminals.
-    for aid in ("access_map", "help_preview", "help_editor"):
-        assert by_id[aid].handler == HandlerRef(
-            f"server_management.{aid}_pending"), aid
+    assert by_id["access_map"].handler == PanelRef(
+        "server_management.access_map")
+    assert by_id["help_preview"].handler == PanelRef(
+        "server_management.help_preview")
+    assert by_id["help_editor"].handler == PanelRef("help.editor_home")
 
 
 def test_hub_spec_passes_the_compile_fences():
@@ -206,14 +210,11 @@ def test_panel_and_handler_refs_registered():
     handlers.ensure_handler_refs()
     assert is_registered(PanelRef("server_management.hub"))
     assert is_registered(ProviderRef("server_management.hub_health"))
-    # the manager-trio pending refs (moderation/roles/cleanup) retired
-    # with the 2026-07-13 curation rework — nav forwards to the ported
-    # hubs; only the display/editor terminals remain.
-    for name in ("server_management.render_hub",
-                 "server_management.access_map_pending",
-                 "server_management.help_preview_pending",
-                 "server_management.help_editor_pending"):
-        assert is_registered(HandlerRef(name)), name
+    # every hub pending ref retired (the manager trio with the
+    # 2026-07-13 curation rework; the display/editor terminals with
+    # projections slice A + the overlay editor) — nav forwards to the
+    # ported panels; only the renderer remains.
+    assert is_registered(HandlerRef("server_management.render_hub"))
 
 
 def test_manifest_declares_both_front_doors():
@@ -236,23 +237,24 @@ def test_manifest_declares_both_front_doors():
     assert slash.route == PanelRef("server_management.hub")
     assert slash.defer_mode is DeferMode.NONE
     assert slash.audience_tier == "administrator"
-    (spec,) = MANIFEST.panels
+    (spec, access_map, help_preview) = MANIFEST.panels
     assert spec.panel_id == "server_management.hub"
+    assert access_map.panel_id == "server_management.access_map"
+    assert help_preview.panel_id == "server_management.help_preview"
     # R2 stays vacuous: no declared stores/events/settings.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()
 
 
-def test_unported_clicks_land_on_the_polite_pending_terminal():
-    """The manager trio forwards to its ported hubs now (curation rework
-    2026-07-13); the display/editor surfaces still refuse politely."""
-    from types import SimpleNamespace
+def test_no_pending_terminals_remain():
+    """Every hub surface is ported (curation rework 2026-07-13 +
+    projections slice A) — none of the six shipped pending terminals
+    may re-register."""
+    from sb.domain.server_management import handlers
+    from sb.spec.refs import HandlerRef, is_registered
 
-    from sb.domain.server_management import handlers  # noqa: F401
-    from sb.spec.outcomes import BLOCKED
-    from sb.spec.refs import HandlerRef, resolve
-
-    reply = run(resolve(HandlerRef("server_management.access_map_pending"))(
-        SimpleNamespace(args={}, guild_id=1)))
-    assert reply.outcome == BLOCKED
-    assert "Access Map display" in reply.user_message
+    handlers.ensure_handler_refs()
+    for aid in ("moderation", "roles", "cleanup",
+                "access_map", "help_preview", "help_editor"):
+        assert not is_registered(
+            HandlerRef(f"server_management.{aid}_pending")), aid

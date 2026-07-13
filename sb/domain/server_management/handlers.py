@@ -1,13 +1,13 @@
-"""Server-management hub action terminals — the display-only Access
-Map / Help Preview surfaces and the Help editor
-(disbot/views/server_management/) are their own port slices; every hub
-click on an unported surface lands on the declared + honest refusal
-terminal (the role/utility-band precedent), never a silent stub. The
-manager trio (Moderation / Roles / Cleanup — retired here by the
-2026-07-13 curation rework) plus Channels and Setup forward to their
-PORTED hub panels and live in panels.py. Refs register at MODULE
-IMPORT (the composition-parity invariant — the live root never runs
-ENSURE_REFS)."""
+"""Server-management hub action terminals — every shipped hub surface
+is PORTED now: the manager trio (Moderation / Roles / Cleanup — retired
+by the 2026-07-13 curation rework) plus Channels and Setup forward to
+their hub panels in panels.py, and the display-only Access Map / Help
+Preview surfaces and the Help editor forward to real panels
+(access_map.py / help_preview.py / sb/domain/help/editor.py). No
+pending terminals remain — a re-registration means a regression
+re-parked a live surface (the nav-wiring retirement sweep pins their
+absence). Refs register at MODULE IMPORT (the composition-parity
+invariant — the live root never runs ENSURE_REFS)."""
 
 from __future__ import annotations
 
@@ -15,22 +15,7 @@ from sb.kernel.interaction.handler_kit import Reply
 
 __all__ = ["Reply", "ensure_handler_refs"]
 
-_PENDING = " ports with its own manager slice."
-
-
-def _register_pending() -> None:
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler("server_management.access_map_pending",
-                    f"🔓 The Access Map display{_PENDING}")
-    pending_handler("server_management.help_preview_pending",
-                    f"👁 The Help Preview display{_PENDING}")
-    pending_handler("server_management.help_editor_pending",
-                    f"✏️ The Help editor{_PENDING}")
-
-
-_register_pending()
-
 
 def ensure_handler_refs() -> None:
-    _register_pending()
+    """Every hub surface forwards to a ported panel — nothing pending
+    left to register (kept for the composition-parity call sites)."""

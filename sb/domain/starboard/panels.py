@@ -23,9 +23,17 @@ embed, never drops components.
 Deliberate under-port notes (no golden drives any click): the shipped
 view EDITED itself in place on every mutation (`_rerender`); the port
 re-opens a fresh send (the projmoon edit-in-place deviation class,
-ledgered). The ✏️ Threshold button opened a ``discord.ui.Modal`` — the
-modal-driven ingress (D-0063's class); it lands as an honest pending
-terminal until that slice ships.
+ledgered). The ✏️ Threshold button opens the shipped ``_ThresholdModal``
+as a G-10 form (``starboard.threshold_form`` — ORDER 017 night-run fix
+slice C, D-0085): submit parses the whole number (error copy verbatim)
+and runs the existing audited ``starboard.configure`` op preserving
+channel/emoji/self-star. Two ledgered static-grammar deviations: the
+shipped modal PRE-FILLED the current threshold (placeholder + default =
+``str(settings["threshold"])``) — ModalFieldSpec copy is static, so the
+form ships an example placeholder instead; and the shipped click GUARDED
+settings-first before opening the modal — a G-10 click opens the form
+without dispatching, so the guard answers on SUBMIT with the shipped
+copy ("Set a hall-of-fame channel first (pick one below).").
 """
 
 from __future__ import annotations
@@ -33,12 +41,15 @@ from __future__ import annotations
 from dataclasses import replace as _dc_replace
 
 from sb.kernel.panels.registry import register_panel
+from sb.spec.outcomes import DeferMode, ReplyVisibility
 from sb.spec.panels import (
     ActionStyle,
     Audience,
     EmbedFrameSpec,
     FooterMode,
     LayoutSpec,
+    ModalFieldSpec,
+    ModalSpec,
     NavigationSpec,
     PageSpec,
     PanelActionSpec,
@@ -68,6 +79,24 @@ _FOOTER = "Pick a channel below to toggle its ignore state."
 _DESC_OFF = ("Starboard is **off**. Pick a hall-of-fame channel below to "
              "turn it on (default threshold **3**, then tap "
              "**✏️ Threshold** to change).")
+
+#: The shipped ``_ThresholdModal``, field for field (ORACLE disbot
+#: views/starboard/config_panel.py): title + the one required numeric
+#: input (min 1 / max 4 chars). The shipped dynamic pre-fill
+#: (placeholder/default = the CURRENT threshold) is outside the static
+#: ModalFieldSpec copy vocabulary — an example placeholder rides instead
+#: (module-doc deviation note, D-0085).
+THRESHOLD_MODAL = ModalSpec(
+    modal_id="starboard.threshold_form",
+    title="Starboard threshold",
+    fields=(
+        ModalFieldSpec(field_id="threshold",
+                       label="Stars needed to enter the board",
+                       placeholder="e.g. 3",
+                       required=True, min_length=1, max_length=4),
+    ),
+    on_submit=HandlerRef("starboard.panel_threshold"),
+)
 
 
 def config_panel_spec() -> PanelSpec:
@@ -107,6 +136,8 @@ def config_panel_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="starboard_threshold", label="✏️ Threshold",
                 style=ActionStyle.PRIMARY, audience_tier="staff",
+                defer_mode=DeferMode.MODAL, modal=THRESHOLD_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 handler=HandlerRef("starboard.panel_threshold")),
             PanelActionSpec(
                 action_id="starboard_selfstar", label="⭐ Self-star",
@@ -294,13 +325,35 @@ def _register_handlers() -> None:
 
     @handler("starboard.panel_threshold")
     async def panel_threshold(req) -> Reply:
-        """✏️ Threshold — the shipped button opened a discord.ui.Modal
-        (config_panel.threshold_btn): the modal-driven ingress (D-0063's
-        class). Honest pending terminal until that slice ships; the
-        threshold is settable today via `!starboard #channel <n>`."""
-        return Reply(BLOCKED, "ℹ️ This starboard control is not ported "
-                              "yet — set the threshold with "
-                              "`!starboard #channel <n>` meanwhile.")
+        """✏️ Threshold — the shipped ``_ThresholdModal.on_submit``
+        (config_panel.py, copy verbatim): parse the whole number, run
+        ``starboard_service.configure`` preserving channel + emoji (+ the
+        self-star policy — the op's own preserve rule), re-render. The
+        shipped PRE-modal unconfigured guard answers on submit instead
+        (module-doc deviation note): "Set a hall-of-fame channel first
+        (pick one below)." The op's ``max(1, threshold)`` clamp is the
+        shipped configure semantics."""
+        from sb.domain.starboard import service
+
+        settings = await service.get_settings(int(req.guild_id or 0))
+        if settings is None:
+            # the shipped threshold_btn guard copy, verbatim.
+            return Reply(BLOCKED, "Set a hall-of-fame channel first "
+                                  "(pick one below).")
+        raw = str(req.args.get("threshold") or "").strip()
+        try:
+            threshold = int(raw)
+        except ValueError:
+            # the shipped on_submit error copy, verbatim.
+            return Reply(BLOCKED, "❌ Threshold must be a whole number.")
+        failed = await _run_op(req, "starboard.configure", {
+            "channel_id": int(settings["channel_id"]),
+            "threshold": threshold,
+            "emoji": str(settings["emoji"]),
+        })
+        if failed is not None:
+            return failed
+        return await _reopen(req)
 
 
 @panel(CONFIG_PANEL_ID)

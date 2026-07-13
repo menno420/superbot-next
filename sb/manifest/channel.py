@@ -94,7 +94,12 @@ MANIFEST = SubsystemManifest(
     version=1,
     commands=tuple(_cmd(n, a) for n, a in _OPS),
     panels=(_panels.channel_hub_spec(), _panels.info_card_spec(),
-            _panels.list_card_spec()),
+            _panels.list_card_spec(),
+            # the five shipped sub-panels + the visibility toggle grid
+            # (operator-hub edits B — the D-0030 named successor).
+            _panels.create_spec(), _panels.delete_spec(),
+            _panels.restrict_spec(), _panels.move_spec(),
+            _panels.visibility_spec(), _panels.visibility_grid_spec()),
     settings=(), stores=(), events=(CHANNEL_LIFECYCLE_EVENT,),
     capabilities=(),
 )

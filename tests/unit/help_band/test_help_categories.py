@@ -141,14 +141,21 @@ class TestHomePanel:
         assert "admin" not in member_values
 
     def test_category_select_options_round_trip_to_subsystem_panels(self):
+        # options are PROVIDER-fed since the overlay slice (the guild
+        # overlay's display-only hide/rename applies per render); an
+        # empty overlay produces the identical default display strings.
+        from sb.spec.refs import ProviderRef, resolve
+
         panels = {p.panel_id: p for p in service.build_help_panels()}
         inventory_keys = service.command_inventory().keys()
         for pid, spec in panels.items():
             if not pid.startswith("help.cat_"):
                 continue
             (selector,) = spec.selectors
-            assert 0 < len(selector.options_source) <= 25, pid
-            for option in selector.options_source:
+            assert isinstance(selector.options_source, ProviderRef), pid
+            options = run(resolve(selector.options_source)(_ctx()))
+            assert 0 < len(options) <= 25, pid
+            for option in options:
                 sub = cats.subsystem_for_option(option, inventory_keys)
                 assert sub is not None, (pid, option)
                 assert f"help.sub_{sub}" in panels

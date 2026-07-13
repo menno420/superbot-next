@@ -6,7 +6,10 @@ point + the projected panel."""
 from __future__ import annotations
 
 from sb.domain.help import ai_tasks as _ai_tasks
+from sb.domain.help import editor as _editor
+from sb.domain.help import overlay_ops as _overlay_ops
 from sb.domain.help import service as _service
+from sb.domain.help.overlay import HELP_OVERLAY_STORE
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.refs import PanelRef
@@ -26,7 +29,10 @@ MANIFEST = SubsystemManifest(
             slash_common=True,               # D-5: discovery is essential
         ),
     ),
-    panels=_service.build_help_panels(),
+    # the projected help family + the D-0026 overlay-editor family
+    # (sb/domain/help/editor.py — the ✏️ Help editor flow).
+    panels=_service.build_help_panels() + _editor.editor_panel_specs(),
+    stores=(HELP_OVERLAY_STORE,),
 )
 
 _ai_tasks.register_ai_tasks()
@@ -40,6 +46,8 @@ def _ensure_refs() -> None:
     if not is_registered(_P("help.home")):
         _panel("help.home")(_service._help_home_factory)
     _ai_tasks.register_ai_tasks()
+    _editor.ensure_editor_refs()
+    _overlay_ops.ensure_refs()
 
 
 # The P1 re-arm hook is a module ATTRIBUTE by convention (like MANIFEST):
