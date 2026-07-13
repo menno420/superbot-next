@@ -1074,11 +1074,29 @@ def test_every_section_flow_route_resolves():
         assert resolve(HandlerRef(name)) is not None
 
 
-def test_remaining_two_sections_stay_honest_terminals(monkeypatch):
-    from sb.domain.setup import wizard
+def test_no_section_holds_an_honest_terminal_any_more(monkeypatch):
+    """The routing-ticket slice closed the lane: every
+    ``setup.open_section_*`` route resolves to a live flow — none
+    answers the wizard.py honest-terminal copy."""
+    from sb.domain.setup import section_card, wizard
+    from sb.domain.setup.sections import SECTIONS
 
     monkeypatch.setattr(wizard, "can_apply_setup", _Gate(True))
-    for slug in ("cog_routing", "ticket"):
-        reply = run(_resolve(f"setup.open_section_{slug}")(_req()))
-        assert reply.outcome == BLOCKED
-        assert "section-flows slice" in reply.user_message
+    monkeypatch.setattr(section_card, "_gated_card", _Gate(True))
+
+    opened = []
+
+    async def fake_open(req, panel_id, args=None):
+        opened.append(panel_id)
+
+    monkeypatch.setattr(wizard, "_open", fake_open)
+
+    async def fake_mark(req, step):
+        return None
+
+    monkeypatch.setattr(section_card, "mark_step_in_progress", fake_mark)
+    for section in SECTIONS:
+        reply = run(_resolve(f"setup.open_section_{section.slug}")(_req()))
+        if reply is not None:
+            assert "section-flows slice" not in str(
+                reply.user_message or "")

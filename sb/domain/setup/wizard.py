@@ -88,9 +88,29 @@ permission-free bundle catalogue (pick → preview → stage), each
 missing role staging a ``create_managed_role`` row (fail-closed op
 kind, the logging_presets ``create_channel`` precedent).
 
-Named successors kept honest (each a declared BLOCKED terminal, never
-silent): the remaining TWO per-section flows — cog_routing · ticket
-(the final section-flow slice closes the lane).
+The COG-ROUTING + TICKET section flows are LIVE (the routing-ticket
+slice — the FINAL section-flow slice): sb/domain/setup/cog_routing.py
+flips ``setup.open_section_cog_routing`` — the scope → target → cog →
+Enable/Disable walker + the four-profile batch picker staging
+``set_cog_routing`` rows (fail-closed op kind — no live routing
+resolver exists in this build, its module-docstring ledger);
+sb/domain/setup/ticket.py flips ``setup.open_section_ticket`` — the
+thin wizard adapter opening the ALREADY-SHIPPED ``ticket.setup``
+panel (no staged op, the oracle posture; writes ride the audited K7
+``ticket.update_config`` / ``ticket.create_log_channel`` lanes).
+
+The named-successor lane this docstring declared is CLOSED: every one
+of the wizard's 10 sections walks its full flow — NO section slug
+holds a BLOCKED terminal any more. The follow-ups that survive the
+lane ride the completeness table's setup row
+(docs/status/completeness-table-2026-07-13.md): the role/channel-
+create K9→K7 compound ops (``create_managed_role`` /
+``create_channel`` / ``set_cog_routing`` / ``add_rule`` rows apply
+fail-closed as skipped until their seams exist), the on-ready resume
+sweep (app-boot seam), the automation-rule apply seam, the
+SectionRecoveryView + workspace-notice rides, the native
+channel-recommender port, and the windowed-select grammar successor
+(the >25-option cog picker windows at 25 meanwhile).
 """
 
 from __future__ import annotations
@@ -629,10 +649,14 @@ def _register() -> None:
     #: section-flows slice's preset_select.py + channels.py · the
     #: settings-write slice's logging_presets.py + moderation.py +
     #: cleanup.py · the roles-family slice's roles.py +
-    #: role_templates.py).
+    #: role_templates.py · the routing-ticket slice's cog_routing.py +
+    #: ticket.py). ALL 10 sections are live — the loop below is the
+    #: honest-terminal fallback for any FUTURE registrant whose flow
+    #: hasn't ported yet, and currently registers nothing.
     _LIVE_SECTIONS = frozenset({"final_review", "preset_select", "channels",
                                 "logging_presets", "moderation", "cleanup",
-                                "roles", "role_templates"})
+                                "roles", "role_templates", "cog_routing",
+                                "ticket"})
 
     for _section in SECTIONS:
         if _section.slug in _LIVE_SECTIONS:

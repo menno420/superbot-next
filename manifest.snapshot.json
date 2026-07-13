@@ -6494,6 +6494,41 @@
           "value": "tmpl_back_step"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cog_routing_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cog_routing_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cog_routing_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "cog_routing_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "routing_enable"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "routing_disable"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "routing_back_step"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -8126,6 +8161,16 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.role_templates_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_cog_routing"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.cog_routing_detail"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -11335,6 +11380,27 @@
       "handler:setup.cleanup_target_pick": {
         "module": "sb.domain.setup.cleanup"
       },
+      "handler:setup.cog_routing_cog_pick": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "handler:setup.cog_routing_detail_render": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "handler:setup.cog_routing_disable": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "handler:setup.cog_routing_enable": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "handler:setup.cog_routing_profile_pick": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "handler:setup.cog_routing_scope_pick": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "handler:setup.cog_routing_target_pick": {
+        "module": "sb.domain.setup.cog_routing"
+      },
       "handler:setup.complete_delete": {
         "module": "sb.domain.setup.final_review"
       },
@@ -11591,7 +11657,7 @@
         "module": "sb.domain.setup.cleanup"
       },
       "handler:setup.open_section_cog_routing": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.cog_routing"
       },
       "handler:setup.open_section_final_review": {
         "module": "sb.domain.setup.final_review"
@@ -11612,7 +11678,7 @@
         "module": "sb.domain.setup.roles"
       },
       "handler:setup.open_section_ticket": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.ticket"
       },
       "handler:setup.preset_cancel": {
         "module": "sb.domain.setup.preset_select"
@@ -11710,6 +11776,9 @@
       "handler:setup.section_apply_cleanup": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_apply_cog_routing": {
+        "module": "sb.domain.setup.section_card"
+      },
       "handler:setup.section_apply_logging_presets": {
         "module": "sb.domain.setup.section_card"
       },
@@ -11726,6 +11795,9 @@
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.section_card_render_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_card_render_cog_routing": {
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.section_card_render_logging_presets": {
@@ -11746,6 +11818,9 @@
       "handler:setup.section_customize_cleanup": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_customize_cog_routing": {
+        "module": "sb.domain.setup.section_card"
+      },
       "handler:setup.section_customize_logging_presets": {
         "module": "sb.domain.setup.section_card"
       },
@@ -11764,6 +11839,9 @@
       "handler:setup.section_hub_cleanup": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_hub_cog_routing": {
+        "module": "sb.domain.setup.section_card"
+      },
       "handler:setup.section_hub_logging_presets": {
         "module": "sb.domain.setup.section_card"
       },
@@ -11780,6 +11858,9 @@
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.section_skip_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_cog_routing": {
         "module": "sb.domain.setup.section_card"
       },
       "handler:setup.section_skip_logging_presets": {
@@ -12793,6 +12874,9 @@
       "panel:setup.cleanup_detail": {
         "module": "sb.domain.setup.cleanup"
       },
+      "panel:setup.cog_routing_detail": {
+        "module": "sb.domain.setup.cog_routing"
+      },
       "panel:setup.complete_card": {
         "module": "sb.domain.setup.final_review"
       },
@@ -12863,6 +12947,9 @@
         "module": "sb.domain.setup.section_card"
       },
       "panel:setup.section_cleanup": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "panel:setup.section_cog_routing": {
         "module": "sb.domain.setup.section_card"
       },
       "panel:setup.section_logging_presets": {
@@ -13428,6 +13515,15 @@
       },
       "provider:setup.cleanup_scope_options": {
         "module": "sb.domain.setup.cleanup"
+      },
+      "provider:setup.cog_routing_cog_options": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "provider:setup.cog_routing_profile_options": {
+        "module": "sb.domain.setup.cog_routing"
+      },
+      "provider:setup.cog_routing_scope_options": {
+        "module": "sb.domain.setup.cog_routing"
       },
       "provider:setup.depth_fields": {
         "module": "sb.domain.setup.panels"
@@ -61182,6 +61278,371 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🧩 Role templates",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "cog_routing_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cog_routing:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_cog_routing"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cog_routing_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cog_routing:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_cog_routing"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cog_routing_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cog_routing:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_cog_routing"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cog_routing_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:cog_routing:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_cog_routing"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "cog_routing_apply_recommended",
+                    "cog_routing_customize",
+                    "cog_routing_skip",
+                    "cog_routing_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_cog_routing",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_cog_routing"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧭 Cog routing",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "routing_enable",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.cog_routing_enable"
+              },
+              "label": "Enable",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "routing_disable",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.cog_routing_disable"
+              },
+              "label": "Disable",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "routing_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped cog-routing detail reveals its pickers stepwise (the oracle opened the target, cog and Enable/Disable picks as successive ephemeral views — cog_routing._ScopeSelect / _build_cog_pick_view / _EnableDisableSelect), the target/cog selects exist only after the prior pick and carry per-pick dynamic placeholders (the shipped f-string placeholders), the Enable/Disable pair reveals only after the cog pick (the oracle's third ephemeral view — declared button faces, module docstring ledger) and its ↩ Back to step button rides only the wizard-native path — all outside the static grammar vocabulary; the override composes the embed and filters/patches the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "routing_scope"
+                  ],
+                  [
+                    "routing_profile"
+                  ],
+                  [
+                    "routing_target"
+                  ],
+                  [
+                    "routing_cog"
+                  ],
+                  [
+                    "routing_enable",
+                    "routing_disable",
+                    "routing_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.cog_routing_detail",
+          "renderer_override": {
+            "$ref": "handler:setup.cog_routing_detail_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cog_routing_scope_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.cog_routing_scope_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a scope…",
+              "selector_id": "routing_scope",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "cog_routing_section_profile",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cog_routing_profile_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.cog_routing_profile_options"
+              },
+              "page_size": 25,
+              "placeholder": "Apply a routing profile (batch action)…",
+              "selector_id": "routing_profile",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cog_routing_target_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel…",
+              "selector_id": "routing_target",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.cog_routing_cog_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.cog_routing_cog_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a cog…",
+              "selector_id": "routing_cog",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🧭 Cog routing",
           "usage_weight": 1.0
         }
       ],

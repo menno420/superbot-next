@@ -6828,6 +6828,88 @@
     ]
    }
   },
+  "setup:setup.cog_routing_detail:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the routing-ticket slice carries the shipped cog-routing detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cog_routing.py CogRoutingSectionView: the scope select + the routing-profile batch picker; the oracle's target/cog/Enable-Disable picks opened as successive ephemeral views \u2014 folded here as the state-dependent rows 2\u20134, the cleanup-detail precedent; the oracle _EnableDisableSelect rides as the declared Enable/Disable button pair sharing row 4 \u2014 a fifth select would need a sixth action row past the compiler's five-row page cap; the \u21a9 Back to step button rides the wizard_nav injection convention); no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "routing_scope"
+      ],
+      [
+       "routing_profile"
+      ],
+      [
+       "routing_target"
+      ],
+      [
+       "routing_cog"
+      ],
+      [
+       "routing_enable",
+       "routing_disable",
+       "routing_back_step"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.cog_routing_detail:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the routing-ticket slice carries the shipped cog-routing detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cog_routing.py CogRoutingSectionView: the scope select + the routing-profile batch picker; the oracle's target/cog/Enable-Disable picks opened as successive ephemeral views \u2014 folded here as the state-dependent rows 2\u20134, the cleanup-detail precedent; the oracle _EnableDisableSelect rides as the declared Enable/Disable button pair sharing row 4 \u2014 a fifth select would need a sixth action row past the compiler's five-row page cap; the \u21a9 Back to step button rides the wizard_nav injection convention); no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": [
+    [
+     "routing_scope"
+    ],
+    [
+     "routing_profile"
+    ],
+    [
+     "routing_target"
+    ],
+    [
+     "routing_cog"
+    ],
+    [
+     "routing_enable",
+     "routing_disable",
+     "routing_back_step"
+    ]
+   ]
+  },
+  "setup:setup.cog_routing_detail:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the routing-ticket slice carries the shipped cog-routing detail arrangement as the seed (oracle menno420/superbot views/setup/sections/cog_routing.py CogRoutingSectionView: the scope select + the routing-profile batch picker; the oracle's target/cog/Enable-Disable picks opened as successive ephemeral views \u2014 folded here as the state-dependent rows 2\u20134, the cleanup-detail precedent; the oracle _EnableDisableSelect rides as the declared Enable/Disable button pair sharing row 4 \u2014 a fifth select would need a sixth action row past the compiler's five-row page cap; the \u21a9 Back to step button rides the wizard_nav injection convention); no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "routing_scope"
+       ],
+       [
+        "routing_profile"
+       ],
+       [
+        "routing_target"
+       ],
+       [
+        "routing_cog"
+       ],
+       [
+        "routing_enable",
+        "routing_disable",
+        "routing_back_step"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "setup:setup.essential_commands:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: the essential-steps slice carries the shipped step-card ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/essential_setup.py: each step packs its pickers on rows 0-2, the primary Save button on row 3 and the Back/Skip nav pair on the bottom row \u2014 the _StepView.__init__ row convention; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

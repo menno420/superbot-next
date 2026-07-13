@@ -216,6 +216,16 @@ def _short_label(op: Any) -> str:
         if spec.get("xp_level"):
             label += f" +L{spec['xp_level']}"
         return label
+    if kind == "set_cog_routing":
+        # the shipped stored-label bytes (cog_routing._stage_cog_routing's
+        # ``cog_routing.{scope}({name}).{cog} = {enabled|disabled}``)
+        # re-derived from the payload's set_policy params + target_name
+        # ride (the routing-ticket slice).
+        scope = str(payload.get("scope_type") or "?")
+        target = str(payload.get("target_name") or "?")
+        cog = str(payload.get("cog_name") or "?")
+        state = "enabled" if payload.get("enabled") else "disabled"
+        return f"cog_routing.{scope}({target}).{cog} = {state}"
     if kind.startswith("bind_") and name:
         target_id = payload.get("resource_id")
         target = (str(payload.get("target_name") or "")

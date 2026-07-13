@@ -38,6 +38,7 @@ from __future__ import annotations
 from sb.domain.setup import ai_tasks as _ai_tasks
 from sb.domain.setup import channels as _channels
 from sb.domain.setup import cleanup as _cleanup
+from sb.domain.setup import cog_routing as _cog_routing
 from sb.domain.setup import essential_steps as _essential_steps
 from sb.domain.setup import final_review as _final_review
 from sb.domain.setup import handlers as _handlers
@@ -50,6 +51,7 @@ from sb.domain.setup import role_templates as _role_templates
 from sb.domain.setup import roles as _roles
 from sb.domain.setup import section_card as _section_card
 from sb.domain.setup import store as _store
+from sb.domain.setup import ticket as _ticket
 from sb.domain.setup import wizard as _wizard
 from sb.domain.setup import wizard_nav as _wizard_nav
 from sb.domain.setup.sections import SECTIONS
@@ -200,7 +202,9 @@ MANIFEST = SubsystemManifest(
             _section_card.card_spec_for("roles"),
             _roles.roles_detail_spec(),
             _section_card.card_spec_for("role_templates"),
-            _role_templates.role_templates_detail_spec()),
+            _role_templates.role_templates_detail_spec(),
+            _section_card.card_spec_for("cog_routing"),
+            _cog_routing.cog_routing_detail_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -223,6 +227,8 @@ def _ensure_refs() -> None:
     _cleanup.ensure_setup_cleanup_refs()
     _roles.ensure_setup_roles_refs()
     _role_templates.ensure_setup_role_templates_refs()
+    _cog_routing.ensure_setup_cog_routing_refs()
+    _ticket.ensure_setup_ticket_refs()
     _section_card.ensure_section_card_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()

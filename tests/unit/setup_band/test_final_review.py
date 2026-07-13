@@ -114,9 +114,21 @@ def test_short_label_branches_carry_the_oracle_shapes():
                              payload={"subsystem": "logging",
                                       "resource_name": "mod-log"})
     assert _short_label(create) == "create channel 'mod-log'"
-    other = SimpleNamespace(op_kind="set_cog_routing", subsystem="admin",
-                            payload={"subsystem": "admin"})
-    assert _short_label(other) == "set_cog_routing (admin)"
+    routing = SimpleNamespace(op_kind="set_cog_routing",
+                              subsystem="cog_routing",
+                              payload={"name": "channel:1234:games",
+                                       "scope_type": "channel",
+                                       "scope_id": 1234,
+                                       "cog_name": "games",
+                                       "enabled": True,
+                                       "target_name": "arcade"})
+    # the routing-ticket slice: the shipped stored-label bytes
+    # (cog_routing._stage_cog_routing) re-derived from the payload.
+    assert _short_label(routing) == "cog_routing.channel(arcade).games = enabled"
+    other = SimpleNamespace(op_kind="add_automation_rule",
+                            subsystem="automation",
+                            payload={"subsystem": "automation"})
+    assert _short_label(other) == "add_automation_rule (automation)"
 
 
 # --- build_final_review_embed (the oracle three states, bytes verbatim) ----------------

@@ -182,14 +182,28 @@ def test_depth_click_failure_answers_the_shipped_copy(monkeypatch):
 # --- the sections hub -------------------------------------------------------------------
 
 
-def test_section_click_holds_the_named_successor_terminal(monkeypatch):
-    from sb.domain.setup import wizard
+def test_section_click_lands_on_the_live_flow(monkeypatch):
+    """The routing-ticket slice retired the LAST honest terminals —
+    the hub click now gates then lands on the cog_routing section card
+    (the cleanup-flow open shape)."""
+    from sb.domain.setup import section_card, wizard
 
     monkeypatch.setattr(wizard, "can_apply_setup", _Gate(True))
+
+    opened = []
+
+    async def fake_open(req, panel_id, args=None):
+        opened.append(panel_id)
+
+    monkeypatch.setattr(wizard, "_open", fake_open)
+
+    async def fake_mark(req, step):
+        return None
+
+    monkeypatch.setattr(section_card, "mark_step_in_progress", fake_mark)
     reply = run(_resolve("setup.open_section_cog_routing")(_req()))
-    assert reply.outcome == BLOCKED
-    assert "section-flows slice" in reply.user_message
-    assert "`cog_routing`" in reply.user_message
+    assert reply is None
+    assert opened == ["setup.section_cog_routing"]
 
 
 def test_hub_gate_refusal_is_the_shipped_copy(monkeypatch):
@@ -997,7 +1011,11 @@ def test_interior_panels_ride_the_manifest():
         # the roles-family slice: the roles / role_templates
         # card+detail pairs.
         "setup.section_roles", "setup.roles_detail",
-        "setup.section_role_templates", "setup.role_templates_detail"]
+        "setup.section_role_templates", "setup.role_templates_detail",
+        # the routing-ticket slice (FINAL): the cog_routing card+detail
+        # pair — ticket adds NO setup panel (its flow opens the shipped
+        # ticket.setup panel, declared by the ticket manifest).
+        "setup.section_cog_routing", "setup.cog_routing_detail"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {
