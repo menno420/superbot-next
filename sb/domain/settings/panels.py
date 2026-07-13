@@ -45,11 +45,11 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   on the honest pending terminal for every other group; the per-group
   scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
   settings-mutation slice's port;
-* the hub's remaining pending clicks (🕒 Recent changes, 🚪 Command
-  access) land on a declared + honest pending terminal
-  (sb/domain/settings/handlers.py) — the audit view and the Command
-  Access panel (``settings_command_access.*`` family) are later slices'
-  ports, as is the per-group mutation page (``settings_subsystem.*``).
+* the hub's remaining pending click (🚪 Command access) lands on a
+  declared + honest pending terminal (sb/domain/settings/handlers.py) —
+  the Command Access panel (``settings_command_access.*`` family) is a
+  later slice's port, as is the per-group mutation page
+  (``settings_subsystem.*``).
   The EXPLORER'S six controls are ARMED (curation rows 82-87):
   subsystem/scope selects, Explain, Reset and the page-turn pair drive
   the governance diagnostic read seam
@@ -60,7 +60,10 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   (disbot/views/settings/{needs_setup,invalid_settings,missing_bindings}
   .py, copy verbatim) as declared PanelRef open-child terminals — the
   channel sub-panel precedent; the wire ``settings_hub.*`` custom_ids
-  never move.
+  never move. The 🕒 Recent-changes AUDIT view is ARMED (settings-admin
+  slice 2): the shipped audit_view.py last-10 read, ported over the K7
+  central audit spine (``audit_log`` rows with ``subsystem='settings'``
+  — the shipped ``settings_mutation_audit`` table's successor here).
 """
 
 from __future__ import annotations
@@ -96,6 +99,7 @@ __all__ = [
     "ensure_panel_refs",
     "install_settings_panels",
     "settings_access_spec",
+    "settings_audit_spec",
     "settings_hub_spec",
     "settings_invalid_spec",
     "settings_missing_bindings_spec",
@@ -319,16 +323,18 @@ def settings_hub_spec() -> PanelSpec:
                 custom_id_override="settings_hub.subsystem_select"),
         ),
         actions=(
-            # row 1 — the shipped grey diagnostic quartet. The three
-            # read-only diagnostics are ARMED (settings-admin slice 1) as
-            # open-child PanelRef terminals; the audit view is slice 2.
+            # row 1 — the shipped grey diagnostic quartet, all four ARMED
+            # as open-child PanelRef terminals (the three read-only
+            # diagnostics: settings-admin slice 1; the audit view:
+            # slice 2).
             _hub_button("needs_setup", "Needs setup", "📋",
                         PanelRef("settings.needs_setup")),
             _hub_button("invalid", "Invalid settings", "⚠️",
                         PanelRef("settings.invalid")),
             _hub_button("missing_bindings", "Missing bindings", "🔗",
                         PanelRef("settings.missing_bindings")),
-            _hub_button("audit", "Recent changes", "🕒"),
+            _hub_button("audit", "Recent changes", "🕒",
+                        PanelRef("settings.audit")),
             # row 2 — the Command access door (PR-6's panel is the
             # command-access slice's port; pending terminal).
             _hub_button("command_access", "Command access", "🚪"),
@@ -705,6 +711,172 @@ async def _render_invalid(spec: PanelSpec, ctx) -> object:
         rendered, embed=_dc_replace(rendered.embed, footer=_INVALID_FOOTER))
 
 
+# --- the armed audit sub-panel (settings-admin slice 2) ------------------------------
+#
+# Oracle-verbatim port of the shipped 🕒 Recent-changes view
+# (disbot/views/settings/audit_view.py — the last 10 rows of the
+# settings-mutation audit trail, DM guard + missing-table + empty-table
+# degrades, copy verbatim where the machinery names allow). The shipped
+# `settings_mutation_audit` table (SettingsMutationPipeline.set_value's
+# write) maps onto the K7 central audit spine here: `audit_log` rows with
+# `subsystem='settings'` — the workflow engine writes ONE row per settings
+# compound op (set_scalar/clear_scalar/bind/unbind; sb/kernel/workflow/
+# audit.py emit_central_audit), so the trail this panel reads covers the
+# shipped scalar edits + resets AND the binding set/clear lane. Read via
+# the K3 pool seam (the btd6 oracle_cards audit-spine read — the D-0046
+# re-home precedent; diagnostics never write).
+
+_AUDIT_DESCRIPTION = (
+    "Most recent rows from `audit_log` (`subsystem = settings`).  "
+    "Populated by every scalar edit + reset and binding set/clear "
+    "routed through the K7 settings mutation ops "
+    "(`settings.set_scalar` / `clear_scalar` / `bind` / `unbind` — "
+    "the shipped `SettingsMutationPipeline.set_value` lane's "
+    "successor)."
+)
+
+#: the shipped DM guard, verbatim (audit_view.py).
+_AUDIT_DM = "*Run this from within a guild — DM has no audit history.*"
+
+#: the shipped empty state, verbatim.
+_AUDIT_EMPTY = "*No audit rows for this guild yet.*"
+
+#: the shipped row cap (audit_view.py _RECENT_LIMIT), verbatim.
+_AUDIT_RECENT_LIMIT = 10
+
+
+def _audit_leg(text: object) -> dict | None:
+    """One side of the engine's prev/new rollup (`{leg_name: before/after}`
+    JSON text — sb/kernel/workflow/engine.py _rollup): the single leg's
+    payload dict, or None when the text isn't that shape."""
+    import json
+
+    try:
+        payload = json.loads(text) if text else None
+    except (TypeError, ValueError):
+        return None
+    if isinstance(payload, dict) and payload:
+        first = next(iter(payload.values()))
+        if isinstance(first, dict):
+            return first
+    return None
+
+
+def _audit_change(row: dict) -> tuple[str, str, str]:
+    """(label, new, prev) for one audit_log row — the shipped line's
+    `subsystem.name = new (was prev)` slots. Scalar legs carry
+    ``{"key", "value"}`` (the persisted `subsystem.name` key, the shipped
+    label verbatim); binding legs carry ``{"resource_id"}`` (label = the
+    op target — the binding name lives in binding_audit_log, not the
+    spine rollup: an honest under-render, not a second table read)."""
+    new_leg = _audit_leg(row.get("new_value"))
+    prev_leg = _audit_leg(row.get("prev_value"))
+    label = str(row.get("target") or "?")
+    for leg in (new_leg, prev_leg):
+        if leg is not None and "key" in leg:
+            label = str(leg["key"])
+            break
+
+    def _value(leg: dict | None, raw: object) -> str:
+        if leg is not None:
+            if "key" in leg:
+                return repr(leg.get("value"))
+            if "resource_id" in leg:
+                return repr(leg.get("resource_id"))
+        return repr(raw)[:60]
+
+    return (label, _value(new_leg, row.get("new_value")),
+            _value(prev_leg, row.get("prev_value")))
+
+
+async def _audit_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Recent-changes body (audit_view.py build_audit_embed):
+    DM guard → soft-fail store read → empty state → the last-10 lines,
+    shape verbatim over the audit_log column mapping (occurred_at→at,
+    mutation rollup→prev/new raw, actor_id/actor_type verbatim)."""
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Result", _AUDIT_DM),)
+
+    try:
+        from sb.kernel.db.pool import fetchall
+
+        rows = await fetchall(
+            "SELECT mutation_type, target, prev_value, new_value, "
+            "actor_id, actor_type, occurred_at FROM audit_log "
+            "WHERE subsystem = 'settings' AND guild_id = $1 "
+            "ORDER BY occurred_at DESC LIMIT "
+            f"{_AUDIT_RECENT_LIMIT}", (guild_id,))
+    except Exception as exc:  # noqa: BLE001 — soft-fail; usually missing table
+        return (("Audit table",
+                 f"*Could not read `audit_log` — "
+                 f"`{type(exc).__name__}: {exc!s:.100}`.  "
+                 "Migration 0003 may not have been applied yet.*"),)
+
+    if not rows:
+        return (("Result", _AUDIT_EMPTY),)
+
+    lines: list[str] = []
+    for row in rows:
+        ts = row.get("occurred_at")
+        ts_str = ts.strftime("%Y-%m-%d %H:%M:%SZ") if ts is not None else "—"
+        label, new, prev = _audit_change(row)
+        actor = row.get("actor_id")
+        actor_type = row.get("actor_type") or "user"
+        lines.append(
+            f"`{ts_str}` `{label}` = `{new}` (was `{prev}`) "
+            f"by `{actor_type}` `{actor}`")
+    return ((f"Last {len(lines)} change(s)", "\n".join(lines)[:1024]),)
+
+
+def settings_audit_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.audit",
+        subsystem="settings",
+        title="🕒 Recent settings changes",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple().
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_AUDIT_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("settings.audit_fields"))),
+        actions=(_diag_back_action("audit_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_audit"),
+        justification=(
+            "the shipped Recent-changes footer is the DYNAMIC "
+            "'settings_mutation_audit · guild_id=<id>' provenance stamp "
+            "(views/settings/audit_view.py set_footer), rendered only on "
+            "the rows path (DM/error/empty states return early) — "
+            "guild-keyed copy outside FooterMode's none/subsystem/"
+            "provenance vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, actions and "
+            "layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("audit_back",),)),)),
+    )
+
+
+async def _render_audit(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped guild-keyed footer (see justification):
+    present exactly when the rows field rendered — derived from the
+    rendered field name, so the spine read runs ONCE (in the fields
+    provider), never twice. The table name maps honestly onto the spine
+    (`audit_log · subsystem=settings`)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    if not any(name.startswith("Last ")
+               for name, *_ in rendered.embed.fields):
+        return rendered
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    footer = f"audit_log · subsystem=settings · guild_id={guild_id}"
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed, footer=footer))
+
+
 # --- the access-explorer spec --------------------------------------------------------
 
 #: the explorer's scope labels (the _ACCESS_SCOPES roster, keyed).
@@ -991,6 +1163,8 @@ def _register_refs() -> None:
         panel("settings.invalid")(settings_invalid_spec)
     if not is_registered(PanelRef("settings.missing_bindings")):
         panel("settings.missing_bindings")(settings_missing_bindings_spec)
+    if not is_registered(PanelRef("settings.audit")):
+        panel("settings.audit")(settings_audit_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
@@ -999,6 +1173,8 @@ def _register_refs() -> None:
         handler("settings.render_needs_setup")(_render_needs_setup)
     if not is_registered(HandlerRef("settings.render_invalid")):
         handler("settings.render_invalid")(_render_invalid)
+    if not is_registered(HandlerRef("settings.render_audit")):
+        handler("settings.render_audit")(_render_audit)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
@@ -1009,19 +1185,22 @@ def _register_refs() -> None:
         provider("settings.invalid_fields")(_invalid_fields)
     if not is_registered(ProviderRef("settings.missing_bindings_fields")):
         provider("settings.missing_bindings_fields")(_missing_bindings_fields)
+    if not is_registered(ProviderRef("settings.audit_fields")):
+        provider("settings.audit_fields")(_audit_fields)
 
 
 _register_refs()
 
 
 def install_settings_panels() -> PanelSpec:
-    """Register the hub + explorer + the three armed diagnostics with the
+    """Register the hub + explorer + the four armed diagnostics with the
     panels registry (fences run here); composition-root/boot call.
     Idempotent for identical specs. Returns the hub spec (the band-1
     contract shape)."""
     hub = settings_hub_spec()
     for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
-                 settings_invalid_spec(), settings_missing_bindings_spec()):
+                 settings_invalid_spec(), settings_missing_bindings_spec(),
+                 settings_audit_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:
