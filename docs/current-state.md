@@ -35,6 +35,9 @@ runbook [`docs/operations/plugin-proof-live-drive.md`](operations/plugin-proof-l
 its headless half (a REAL external plugin boots against the committed pin and
 its panel registers) IS proven in CI —
 `tests/unit/app/test_plugin_boot_real_exemplar.py` + `tools/check_runtime_smoke.py`.
+Local verification (Postgres roles/DBs + env, CI-derived) is one command —
+[`docs/operations/local-verification.md`](operations/local-verification.md)
++ `tools/setup_local_env.py`.
 The flag-13 ruling landed (ORDER 009): the corpus-red dispositions are
 applied at replay-diff time per `docs/parity/flag-13-disposition-2026-07-10.md`.
 
