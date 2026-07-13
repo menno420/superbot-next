@@ -1,8 +1,9 @@
 """FISHING subsystem manifest (band 6, checkpoint family) — the FULL
 shipped command surface verbatim (20 commands): the core cast + dex/
-trophy/leaderboard reads, the slice-1 weather/venue surfaces and the
-slice-2 rod ladder are live; bait/craft/structure surfaces are honest
-pending terminals riding the D-0043 named successor port."""
+trophy/leaderboard reads, the slice-1 weather/venue surfaces, the
+slice-2 rod ladder and the slice-3 bait shelf are live; curio/structure
+surfaces are honest pending terminals riding the D-0043 named successor
+port."""
 
 from __future__ import annotations
 
@@ -11,6 +12,7 @@ from sb.domain.fishing import service as _service
 from sb.domain.fishing.ops import register_ops
 from sb.domain.fishing.panels import fishing_hub_spec
 from sb.domain.fishing.store import (
+    FISHING_BAIT_STORE,
     FISHING_CATCH_LOG_STORE,
     FISHING_ENERGY_STORE,
     FISHING_ROD_STORE,
@@ -60,11 +62,16 @@ _COMMANDS = (
          "Craft a rod.", ("rodcraft",)),
     _cmd("rodrecipes", HandlerRef("fishing.rodrecipes_view"),
          "Rod crafting recipes.", ("rodrecipe", "rrecipes")),
-    # --- bait/craft/structure systems (the D-0043 named successor port) ---
-    _pending("bait", "The bait shop.", ("baitshop", "buybait")),
-    _pending("craftbait", "Craft bait from fish.", ("baitcraft",)),
-    _pending("craftcharm", "Craft a fishing charm.", ("charmcraft",)),
-    _pending("craftpearl", "Craft pearl bait.", ("pearlcraft",)),
+    # --- the bait shelf (fishing depth slice 3 — LIVE) ---------------------
+    _cmd("bait", HandlerRef("fishing.bait_shop"),
+         "The bait shop.", ("baitshop", "buybait")),
+    _cmd("craftbait", HandlerRef("fishing.craftbait_route"),
+         "Craft bait from fish.", ("baitcraft",)),
+    _cmd("craftcharm", HandlerRef("fishing.craftcharm_route"),
+         "Craft a fishing charm.", ("charmcraft",)),
+    _cmd("craftpearl", HandlerRef("fishing.craftpearl_route"),
+         "Craft pearl bait.", ("pearlcraft",)),
+    # --- curio/structure systems (the D-0043 named successor port) --------
     _pending("curios", "Your curio collection.", ("curio", "carvings")),
     _pending("craftcurio", "Carve a curio from coral.",
              ("carve", "curiocraft")),
@@ -83,10 +90,10 @@ MANIFEST = SubsystemManifest(
     commands=_COMMANDS,
     panels=(fishing_hub_spec(), _panels.cast_spec(), _panels.log_spec(),
             _panels.fishing_card_spec(), _panels.rod_shop_spec(),
-            _panels.rod_recipes_spec()),
+            _panels.rod_recipes_spec(), _panels.bait_shop_spec()),
     settings=(),
     stores=(FISHING_CATCH_LOG_STORE, FISHING_ENERGY_STORE,
-            FISHING_VENUE_STORE, FISHING_ROD_STORE),
+            FISHING_VENUE_STORE, FISHING_ROD_STORE, FISHING_BAIT_STORE),
     events=(),
     capabilities=(),
 )

@@ -4781,6 +4781,11 @@
           "value": "rr_back"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "bs_menu"
+        },
+        {
           "source": "sb/manifest/four_twenty.py",
           "subsystem": "four_twenty",
           "value": "wisdom"
@@ -6268,6 +6273,11 @@
           "source": "sb/manifest/fishing.py",
           "subsystem": "fishing",
           "value": "fishing.rod_recipes_panel"
+        },
+        {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing.bait_panel"
         },
         {
           "source": "sb/manifest/four_twenty.py",
@@ -7831,6 +7841,11 @@
           "value": "fishing_rod"
         },
         {
+          "source": "sb/manifest/fishing.py",
+          "subsystem": "fishing",
+          "value": "fishing_bait"
+        },
+        {
           "source": "sb/manifest/games.py",
           "subsystem": "games",
           "value": "game_state"
@@ -9092,8 +9107,11 @@
       "handler:farm.render_shop": {
         "module": "sb.domain.farm.panels"
       },
-      "handler:fishing.bait_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.bait_buy_route": {
+        "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.bait_shop": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.boathouse_pending": {
         "module": "sb.domain.operator_spine"
@@ -9101,17 +9119,17 @@
       "handler:fishing.cast_open": {
         "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.craftbait_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftbait_route": {
+        "module": "sb.domain.fishing.service"
       },
-      "handler:fishing.craftcharm_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftcharm_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.craftcurio_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:fishing.craftpearl_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:fishing.craftpearl_route": {
+        "module": "sb.domain.fishing.service"
       },
       "handler:fishing.craftrod_route": {
         "module": "sb.domain.fishing.service"
@@ -9136,6 +9154,9 @@
       },
       "handler:fishing.menu_view": {
         "module": "sb.domain.fishing.service"
+      },
+      "handler:fishing.render_bait_shop": {
+        "module": "sb.domain.fishing.panels"
       },
       "handler:fishing.render_card": {
         "module": "sb.domain.fishing.panels"
@@ -10306,6 +10327,9 @@
       },
       "panel:farm.shop": {
         "module": "sb.domain.farm.panels"
+      },
+      "panel:fishing.bait_panel": {
+        "module": "sb.domain.fishing.panels"
       },
       "panel:fishing.card": {
         "module": "sb.domain.fishing.panels"
@@ -11495,13 +11519,28 @@
       "workflow:farm.upgrade_coop": {
         "module": "sb.domain.farm.ops"
       },
+      "workflow:fishing.buy_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.buy_rod": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.cast": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.craft_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_charm": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.craft_pearl_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.craft_rod": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.erase_subject_bait": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.erase_subject_catch_log": {
@@ -11516,10 +11555,22 @@
       "workflow:fishing.erase_subject_venue": {
         "module": "sb.domain.fishing.ops"
       },
+      "workflow:fishing.record_buy_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
       "workflow:fishing.record_buy_rod": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.record_cast": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_bait": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_charm": {
+        "module": "sb.domain.fishing.ops"
+      },
+      "workflow:fishing.record_craft_pearl_bait": {
         "module": "sb.domain.fishing.ops"
       },
       "workflow:fishing.record_craft_rod": {
@@ -12311,6 +12362,14 @@
         },
         "subsystem": "economy"
       },
+      "fishing_bait": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "fishing_bait",
+        "sole_writer": {
+          "$ref": "engine:fishing.store"
+        },
+        "subsystem": "fishing"
+      },
       "fishing_catch_log": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "fishing_catch_log",
@@ -12698,7 +12757,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:1a2009b057f8f35a32ec1ffe3a2dbbe23475cf645cf71d10535ed13fb51a5db4",
+  "stable_hash": "sha256:f630938672d01599efb6922ce8518b0bcece276332d43176a61f579ae4d1cc96",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -30771,7 +30830,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.bait_pending"
+            "$ref": "handler:fishing.bait_shop"
           },
           "slash_common": false,
           "summary": "The bait shop.",
@@ -30797,7 +30856,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.craftbait_pending"
+            "$ref": "handler:fishing.craftbait_route"
           },
           "slash_common": false,
           "summary": "Craft bait from fish.",
@@ -30823,7 +30882,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.craftcharm_pending"
+            "$ref": "handler:fishing.craftcharm_route"
           },
           "slash_common": false,
           "summary": "Craft a fishing charm.",
@@ -30849,7 +30908,7 @@
           "quota_ref": "",
           "reply_visibility": null,
           "route": {
-            "$ref": "handler:fishing.craftpearl_pending"
+            "$ref": "handler:fishing.craftpearl_route"
           },
           "slash_common": false,
           "summary": "Craft pearl bait.",
@@ -31113,7 +31172,7 @@
               "emoji": "🪱",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:fishing.bait_pending"
+                "$ref": "panel:fishing.bait_panel"
               },
               "label": "Bait",
               "modal": null,
@@ -31668,6 +31727,217 @@
           "timeout_s": 180,
           "title": "📋 Rod Recipes",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "bs_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:fishing.hub"
+              },
+              "label": "↩ Fishing menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped `!bait` reply is a fully live-state-parameterized embed built in the view (views/fishing/bait_shop.py build_bait_embed: the loaded-bait/charges description, the shelf + craft-from-fish fields, the craft-from-pearls field whose NAME interpolates the live pearl count, and the live `Your balance` field — goldens/fishing/sweep_bait.json pins the fresh bait-less bytes), read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the rod-shop / mining-workshop precedent). The renderer patches only the embed; every component (the three static-option selects + the menu button) stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bs_buy"
+                  ],
+                  [
+                    "bs_craft"
+                  ],
+                  [
+                    "bs_pearl"
+                  ],
+                  [
+                    "bs_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "fishing.bait_panel",
+          "renderer_override": {
+            "$ref": "handler:fishing.render_bait_shop"
+          },
+          "selectors": [
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.bait_buy_route"
+              },
+              "options_source": [
+                {
+                  "description": "×10 casts · ×1.25 rarity",
+                  "emoji": "🪱",
+                  "label": "Worm Bait — 150 coins",
+                  "value": "worm"
+                },
+                {
+                  "description": "×10 casts · ×1.5 rarity",
+                  "emoji": "🐛",
+                  "label": "Glow Grub — 400 coins",
+                  "value": "grub"
+                },
+                {
+                  "description": "×10 casts · ×2 rarity",
+                  "emoji": "✨",
+                  "label": "Shimmer Lure — 1000 coins",
+                  "value": "lure"
+                },
+                {
+                  "description": "×10 casts · −20% wait",
+                  "emoji": "🐟",
+                  "label": "Live Minnow — 200 coins",
+                  "value": "minnow"
+                },
+                {
+                  "description": "×10 casts · −40% wait",
+                  "emoji": "🌀",
+                  "label": "Flash Spinner — 600 coins",
+                  "value": "spinner"
+                },
+                {
+                  "description": "×10 casts · ×1.75 rarity · −30% wait",
+                  "emoji": "👑",
+                  "label": "Royal Feast — 1800 coins",
+                  "value": "feast"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Buy a pack of bait…",
+              "selector_id": "bs_buy",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.craftbait_route"
+              },
+              "options_source": [
+                {
+                  "description": "×10 casts · ×1.25 rarity",
+                  "emoji": "🪱",
+                  "label": "Worm Bait — 3 fish (size ≤ 3)",
+                  "value": "worm"
+                },
+                {
+                  "description": "×10 casts · ×1.5 rarity",
+                  "emoji": "🐛",
+                  "label": "Glow Grub — 5 fish (size ≤ 6)",
+                  "value": "grub"
+                },
+                {
+                  "description": "×10 casts · ×2 rarity",
+                  "emoji": "✨",
+                  "label": "Shimmer Lure — 6 fish (size ≤ 9)",
+                  "value": "lure"
+                },
+                {
+                  "description": "×10 casts · −20% wait",
+                  "emoji": "🐟",
+                  "label": "Live Minnow — 3 fish (size ≤ 3)",
+                  "value": "minnow"
+                },
+                {
+                  "description": "×10 casts · −40% wait",
+                  "emoji": "🌀",
+                  "label": "Flash Spinner — 5 fish (size ≤ 6)",
+                  "value": "spinner"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Craft a pack from caught fish…",
+              "selector_id": "bs_craft",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "user",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:fishing.craftpearl_route"
+              },
+              "options_source": [
+                {
+                  "description": "×10 casts · ×1.75 rarity · −30% wait",
+                  "emoji": "🦪",
+                  "label": "Royal Feast — 4 🦪 pearls",
+                  "value": "feast"
+                }
+              ],
+              "page_size": 25,
+              "placeholder": "Craft a pack from pearls…",
+              "selector_id": "bs_pearl",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "fishing",
+          "timeout_s": 180,
+          "title": "🪱 Bait Shop",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
@@ -31782,6 +32052,34 @@
             "$ref": "engine:fishing.store"
           },
           "table": "fishing_rod",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        },
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:fishing.erase_subject_bait"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "fishing_bait",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics",
+            "games"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:fishing.store"
+          },
+          "table": "fishing_bait",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }

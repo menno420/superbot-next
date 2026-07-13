@@ -33,12 +33,8 @@ from pathlib import Path
 # a live RefUnresolved waiting to fire (see the ideas ledger). Burn down to
 # empty; never grow.
 _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
-    "handler:fishing.bait_pending",
     "handler:fishing.boathouse_pending",
-    "handler:fishing.craftbait_pending",
-    "handler:fishing.craftcharm_pending",
     "handler:fishing.craftcurio_pending",
-    "handler:fishing.craftpearl_pending",
     "handler:fishing.curios_pending",
     "handler:fishing.dock_pending",
     "handler:fishing.fishery_pending",
@@ -46,6 +42,9 @@ _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
     # rod/rodrecipes/craftrod pruned by the fishing slice-2 port — their
     # real rod_shop / rodrecipes_view / craftrod_route handlers register
     # at module import.
+    # bait/craftbait/craftpearl/craftcharm pruned by the fishing slice-3
+    # port — their real bait_shop / craftbait_route / craftpearl_route /
+    # craftcharm_route handlers register at module import.
     # build/buildlist/buildable pruned by the slice-6 port — their real
     # build_route / buildlist_route / buildable_view handlers register at
     # module import.
