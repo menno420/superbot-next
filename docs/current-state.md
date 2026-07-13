@@ -17,8 +17,10 @@
 All seven port bands built (41 subsystems / 276 commands / 121 settings,
 hash-pinned `manifest.snapshot.json`); boots to RUNNING on real PostgreSQL
 (CUT-1 smoke PASS); unit suite ~1,125 green; the 22-checker fleet + six required
-named gates green on main. The `golden-parity` **report** leg is red-by-design
-(README-first.md) — not a regression signal.
+named gates green on main. The `golden-parity` **report** leg reached
+full-corpus parity on 2026-07-13 (484/484 goldens, 51/51 subsystems; run
+29238825392) and is now live green — a red `report` is a real regression
+signal to investigate (README-first.md), no longer red-by-design.
 
 ## In flight
 
