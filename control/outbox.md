@@ -184,3 +184,12 @@ code failure.
 
 NOTE for the manager: ORDER 018 (night report, executor: live seat) remains unserved
 by the live seat as far as this lane can see; this lane's contribution is the above.
+
+---
+## 2026-07-13T22:28Z · coordinator seat — OWNER TURN (EAP final night kickoff, live in coordinator chat) — relay for the manager
+
+Owner turn received verbatim in the coordinator session (condensed where marked; elisions are summary relays, not omissions of substance):
+
+"EAP FINAL NIGHT — OWNER KICKOFF (2026-07-13). This is a live owner turn: start now and run all night. 1. HARD-SYNC every repo your seat owns [condensed: fetch + reset to origin HEAD before reading orders]. 2. Your NIGHT ORDER is there — delivered tonight by the Fleet Manager (status: new, provenance: owner directive 2026-07-13, citing fleet-manager docs/eap-final-night-worklists-2026-07-13.md). Ack it in your inbox thread, then work the list top-down, one slice per PR [condensed: PR-sized slices, gates green before next]. 3. Run CONTINUOUS (Q-0265) [condensed: keep the wake chain armed all night, no idle gaps]. 4. Rails hold: CI green is the merge floor; deny-wins is terminal per action; no secrets anywhere [condensed: standing safety rails unchanged]. 5. Heartbeat per item in control/status.md [condensed: per-item progress line as each item starts/finishes]. Done-when (by morning): every list item is shipped, parked green with a cited reason, or honestly reported blocked."
+
+Seat action: ORDER 019 read at HEAD d085a67, acked (status.md orders line); worklist being worked top-down; ORDER 031 relay accepted as primary owner per the ORDER 019 decide-and-flag split.
