@@ -9925,8 +9925,17 @@
       "handler:ticket.render_setup": {
         "module": "sb.domain.ticket.handlers"
       },
-      "handler:ticket.setup_pending": {
-        "module": "sb.domain.ticket.handlers"
+      "handler:ticket.setup_autocreate": {
+        "module": "sb.domain.ticket.setup_panel"
+      },
+      "handler:ticket.setup_enable": {
+        "module": "sb.domain.ticket.setup_panel"
+      },
+      "handler:ticket.setup_post_panel": {
+        "module": "sb.domain.ticket.setup_panel"
+      },
+      "handler:ticket.setup_select": {
+        "module": "sb.domain.ticket.setup_panel"
       },
       "handler:ticket.ticketblacklist": {
         "module": "sb.domain.ticket.handlers"
@@ -12166,6 +12175,9 @@
       "workflow:ticket.blacklist_remove": {
         "module": "sb.domain.ticket.ops"
       },
+      "workflow:ticket.create_log_channel": {
+        "module": "sb.domain.ticket.ops"
+      },
       "workflow:ticket.erase_subject_blacklist": {
         "module": "sb.domain.ticket.ops"
       },
@@ -12175,10 +12187,19 @@
       "workflow:ticket.record_blacklist_remove": {
         "module": "sb.domain.ticket.ops"
       },
+      "workflow:ticket.record_create_log_channel": {
+        "module": "sb.domain.ticket.ops"
+      },
       "workflow:ticket.record_set_limit": {
         "module": "sb.domain.ticket.ops"
       },
+      "workflow:ticket.record_update_config": {
+        "module": "sb.domain.ticket.ops"
+      },
       "workflow:ticket.set_limit": {
+        "module": "sb.domain.ticket.ops"
+      },
+      "workflow:ticket.update_config": {
         "module": "sb.domain.ticket.ops"
       },
       "workflow:treasury.balance_payload": {
@@ -12789,7 +12810,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:0cd0dbad21b503766b32b1c8c20754748ade79090bf2bd36b622c7dfc870a0d2",
+  "stable_hash": "sha256:fc0332eb619f745a34cbbc1737697128853ce614f471da11985634e93c605a96",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -50326,7 +50347,7 @@
               "emoji": "🪄",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ticket.setup_pending"
+                "$ref": "handler:ticket.setup_autocreate"
               },
               "label": "Auto-create log channel",
               "modal": null,
@@ -50351,7 +50372,7 @@
               "emoji": "✅",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ticket.setup_pending"
+                "$ref": "handler:ticket.setup_enable"
               },
               "label": "Enable tickets",
               "modal": null,
@@ -50376,7 +50397,7 @@
               "emoji": "📋",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:ticket.setup_pending"
+                "$ref": "handler:ticket.setup_post_panel"
               },
               "label": "Post open-ticket panel here",
               "modal": null,
@@ -50450,7 +50471,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:ticket.setup_pending"
+                "$ref": "handler:ticket.setup_select"
               },
               "options_source": [],
               "page_size": 25,
@@ -50468,7 +50489,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:ticket.setup_pending"
+                "$ref": "handler:ticket.setup_select"
               },
               "options_source": [],
               "page_size": 25,
