@@ -3,27 +3,47 @@
 pearl/coral materials + the fish as a tangible mining_inventory item +
 game-XP award) in ONE leg txn.
 
-DEVIATION (D-0043): casts run at the STARTER profile — starter rod
-(rarity_pull 1.0), no bait, shore venue, neutral weather, base
-double-catch chance — until the rod/bait/energy/minigame/structure
-systems port (named successor work). At the starter profile the roll is
-byte-identical to a fresh shipped player's. Slice 1 made the VENUE STATE
-live (!sail persists ``fishing_venue``; the hub/cast renders read it)
-but the cast LEG still rolls the shore pool — the venue→cast wiring
-(deepwater species pool, coral drop, minigame difficulty) rides the
-rod/bait/minigame rung, where the oracle's rolled knobs (rarity_pull,
-bite speed, escape) land together. Slice 2 made the ROD STATE live the
-same way (!rod / !craftrod persist ``fishing_rod``; the rod panels read
-it) — the rod→cast wiring (rarity_pull on the roll) rides the same
-rung. Slice 3 made the BAIT STATE live the same way (!bait / !craftbait
-/ !craftpearl persist ``fishing_bait``; the bait panel reads it) — the
-bait→cast wiring (loaded knobs on the roll + the per-cast charge spend)
-rides the same rung. Slice 4 (FINAL) made the CURIO shelf + the four
-coral STRUCTURES live the same way (!craftcurio carves coral into
-``mining_inventory`` curios; the panels' Build buttons persist
-``mining_structures`` rows through the audited build op) — the
-structure→cast wiring (pull/bite/regen/double-catch mults on the roll)
-rides the same minigame rung."""
+DEVIATION (D-0043) — updated by the cast-leg depth wiring: the cast
+now runs the FULL oracle knob compound. ``cast_open``
+(service.py) is the shipped ``begin_cast``
+(services/fishing_workflow.py:384-518 @cdb26804): one structures read
+drives the Boathouse regen interval + the Tide Pool/Dock/Fishery
+knobs; rod/venue/weather/bait/gear are read live and compounded —
+``effective_pull = rod × bait × weather × gear × tide_pool`` — the
+catch is ROLLED AT CAST TIME (the oracle ``roll_cast`` timing), energy
+is spent only post-roll, and one bait charge is spent per cast
+(clear-at-0). The rolled cast waits in the in-memory pending-cast
+registry (service.py — the oracle ``active_casts``/view-state,
+ADR-002-accepted) until Reel commits it through this module's
+``_record_cast`` = the shipped ``commit_catch``
+(fishing_workflow.py:174-278): draws bonus → pearl → coral (pinned
+order), writes record_catch → pearl → coral → fish (×2 on bonus) → xp
+in ONE leg txn, and answers the oracle ``_finish_caught`` result copy
+(views/fishing/cast_view.py:398-456). Every knob defaults exactly
+neutral (no row ⇒ ×1.0 / +0.0), so a fresh player's cast is
+byte-identical to the pre-wiring goldens.
+
+STILL PARKED (the D-0043 minigame rung — real-time asyncio message
+edits the headless panel engine doesn't model): the live bite-delay
+sleep / fake-out edit / reaction windows / premature-grace / trophy
+reel-fight taps + escape rolls (so the rod ``window_bonus`` /
+``escape_resist`` / ``premature_grace``, the venue ``bite_delay_*`` /
+``reaction_window`` / ``base_escape`` and the compounded
+``effective_bite_speed`` are computed + surfaced but never gate a
+catch — the port's Reel commits instantly), the ``_VIEW_TIMEOUT``-timed
+view lifecycle (the registry keeps the 45 s guard window without a
+timer), and the ``_FishingDoneView`` Cast-again continuation (the
+RESULT_CARD reply stands in). The pure math for all of it is ported
+(sb/domain/fishing/minigame.py) so the rung is wiring-only.
+
+RNG POSTURE: the module ``_rng`` stays PRIVATE and unseeded in prod
+(the oracle's fresh-``random.Random()`` posture) — NEVER bind it to
+the global ``random`` module: the passive chat-XP award draws from the
+GLOBAL stream (sb/domain/xp/service.py) and goldens/fishing/sweep_fish
+pins ``xp: 25`` — a cast roll on that stream would shift the pinned
+byte. The parity runner arms it per case
+(``set_rng_for_tests(random.Random(case.seed))``) so cast-write
+goldens replay deterministically."""
 
 from __future__ import annotations
 
@@ -52,8 +72,13 @@ __all__ = [
     "CORAL_ITEM",
     "PEARL_ITEM",
     "ROD_PURCHASE_REASON",
+    "cast_rng",
+    "coral_drop_chance",
     "register_ops",
+    "roll_bonus_catch",
     "roll_catch",
+    "roll_coral_drop",
+    "roll_pearl_drop",
     "set_rng_for_tests",
 ]
 
@@ -74,12 +99,23 @@ PEARL_DROP_MAX_CHANCE = 0.15
 CORAL_ITEM = "coral"
 CORAL_DROP_CHANCE = 0.06
 
+#: The module's private cast RNG — unseeded in prod (the oracle's
+#: fresh-``random.Random()`` posture, rewards.py takes ``rng or
+#: random.Random()``). PRIVATE on purpose — see the module docstring's
+#: RNG POSTURE note (never the mining global-bind shape).
 _rng: random.Random = random.Random()
 
 
 def set_rng_for_tests(rng: random.Random) -> None:
     global _rng
     _rng = rng
+
+
+def cast_rng() -> random.Random:
+    """The armed cast RNG (for the cast-time roll in ``cast_open`` — the
+    same stream the commit draws land on, so a runner-armed seed pins
+    the whole species → weight → bonus → pearl → coral trajectory)."""
+    return _rng
 
 
 def roll_catch(fishing_level: int, rng: random.Random | None = None, *,
@@ -105,62 +141,196 @@ def pearl_drop_chance(size_rank: int) -> float:
     return min(chance, PEARL_DROP_MAX_CHANCE)
 
 
+def roll_bonus_catch(rng: random.Random | None = None, *,
+                     chance: float | None = None) -> bool:
+    """Roll the lucky-double-catch bonus (shipped verbatim —
+    utils/fishing/rewards.py ``roll_bonus_catch``). *chance* defaults to
+    :data:`BONUS_CATCH_CHANCE`; a built Fishery raises it (``begin_cast``
+    fixes it onto the pending cast) and it is clamped to ``[0, 1]``."""
+    effective = BONUS_CATCH_CHANCE if chance is None else chance
+    effective = min(1.0, max(0.0, effective))
+    r = rng or random.Random()
+    return r.random() < effective
+
+
+def roll_pearl_drop(size_rank: int,
+                    rng: random.Random | None = None) -> bool:
+    """Roll a pearl drop for a landed fish of *size_rank* (shipped
+    verbatim — utils/fishing/rewards.py ``roll_pearl_drop``)."""
+    r = rng or random.Random()
+    return r.random() < pearl_drop_chance(size_rank)
+
+
+def coral_drop_chance(venue: str) -> float:
+    """The coral-drop probability for a landed catch made in *venue*
+    (shipped verbatim — utils/fishing/rewards.py ``coral_drop_chance``):
+    :data:`CORAL_DROP_CHANCE` in deepwater, ``0.0`` everywhere else —
+    coral is a reef find, exclusive to the boat venue."""
+    from sb.domain.fishing import venue as venue_mod
+
+    return (CORAL_DROP_CHANCE
+            if venue_mod.normalize(venue) == venue_mod.DEEPWATER else 0.0)
+
+
+def roll_coral_drop(venue: str, rng: random.Random | None = None) -> bool:
+    """Roll a coral drop for a landed catch made in *venue* (shipped
+    verbatim — utils/fishing/rewards.py ``roll_coral_drop``). Always
+    ``False`` outside deepwater — and, load-bearing for the pinned draw
+    order: a zero-chance venue returns WITHOUT consuming a draw, exactly
+    as shipped, so a shore commit's RNG trajectory is untouched."""
+    chance = coral_drop_chance(venue)
+    if chance <= 0.0:
+        return False
+    r = rng or random.Random()
+    return r.random() < chance
+
+
 @workflow("fishing.record_cast")
 async def _record_cast(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The Reel commit — the shipped ``commit_catch``
+    (services/fishing_workflow.py:174-278 @cdb26804) on the audited
+    one-leg one-txn seam: draws **bonus → pearl → coral** in the pinned
+    order (fishing_workflow.py:207-224 — "the rolls are drawn
+    (bonus → pearl → coral) before the transaction so the write set is
+    deterministic under an injected rng"), then writes
+    record_catch → pearl grant → coral grant → fish grant (2 on a lucky
+    double) → xp award, all on this leg's conn. The result message is
+    the shipped ``_finish_caught`` copy
+    (views/fishing/cast_view.py:398-456) verbatim.
+
+    The pending cast rolled at cast time (``cast_open`` = the shipped
+    ``begin_cast`` timing) arrives in ``ctx.params`` — species / weight /
+    venue / double_catch_chance / level_before. A Reel with NO pending
+    cast (a direct op invocation) keeps the roll-at-commit STARTER
+    fallback = the shipped legacy ``fish()`` seam
+    (fishing_workflow.py:281-289: ``roll_cast`` defaults — starter rod,
+    shore, base double-catch chance)."""
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(ctx.guild_id or 0)
     now = int(ctx.clock().timestamp())
-    from sb.domain.games.store import game_xp_rows
 
-    xp_rows = {str(r["game"]): int(r["xp"])
-               for r in await game_xp_rows(uid, gid, conn=conn)}
-    level_before = catalog.fishing_level_from_xp(
-        xp_rows.get(game_xp.GAME_FISHING, 0))
-    catch = roll_catch(level_before, _rng)
-    if catch is None:
-        raise ValidatorError("🎣 The waters are quiet — the fish catalog "
-                             "is empty.")
-    # bonus → pearl (coral is deepwater-only; shore casts never roll it)
-    bonus = _rng.random() < BONUS_CATCH_CHANCE
-    pearl = _rng.random() < pearl_drop_chance(catch.species.size_rank)
+    species = catalog.species_by_name(str(ctx.params.get("species", "")))
+    if species is not None:
+        # the pending cast, rolled at cast time (begin_cast → roll_cast).
+        weight = float(ctx.params.get("weight", 0.0))
+        venue = str(ctx.params.get("venue", catalog.SHORE_VENUE))
+        double_catch_chance = float(
+            ctx.params.get("double_catch_chance", BONUS_CATCH_CHANCE))
+        level_before = int(ctx.params.get("level_before", 1))
+        catch = catalog.Catch(species=species, weight=weight)
+    else:
+        # legacy fallback — the shipped ``fish()`` seam: roll now at the
+        # starter profile (rod pull 1.0, shore pool, base double chance).
+        from sb.domain.games.store import game_xp_rows
+
+        xp_rows = {str(r["game"]): int(r["xp"])
+                   for r in await game_xp_rows(uid, gid, conn=conn)}
+        level_before = catalog.fishing_level_from_xp(
+            xp_rows.get(game_xp.GAME_FISHING, 0))
+        venue = catalog.SHORE_VENUE
+        double_catch_chance = BONUS_CATCH_CHANCE
+        catch = roll_catch(level_before, _rng)
+        if catch is None:
+            raise ValidatorError("🎣 The waters are quiet — the fish "
+                                 "catalog is empty.")
+
+    # the pinned draw order: bonus → pearl → coral (commit_catch
+    # L207-210; a shore venue's coral roll consumes NO draw — see
+    # roll_coral_drop).
+    bonus = roll_bonus_catch(_rng, chance=double_catch_chance)
+    grant = 2 if bonus else 1
+    pearl = roll_pearl_drop(catch.species.size_rank, _rng)
+    coral = roll_coral_drop(venue, _rng)
     prior_best = await store.record_catch(
         conn, user_id=uid, guild_id=gid, species=catch.species.name,
         weight=catch.weight, now=now)
     from sb.domain.mining.store import update_mining_item
 
+    # The rare-material drops (pearl, coral) are granted before the fish
+    # so the fish grant stays the last inventory write (the shipped
+    # stable seam, commit_catch L221-224).
     if pearl:
         await update_mining_item(conn, user_id=uid, guild_id=gid,
                                  item=PEARL_ITEM, delta=1)
+    if coral:
+        await update_mining_item(conn, user_id=uid, guild_id=gid,
+                                 item=CORAL_ITEM, delta=1)
     await update_mining_item(conn, user_id=uid, guild_id=gid,
-                             item=catch.species.name,
-                             delta=2 if bonus else 1)
+                             item=catch.species.name, delta=grant)
     award = await game_xp.award_in_txn(
         conn, user_id=uid, guild_id=gid, game=game_xp.GAME_FISHING,
         action="fish", now=now)
-    level_after = catalog.fishing_level_from_xp(
-        xp_rows.get(game_xp.GAME_FISHING, 0) + award.amount)
+    # level_after from the award's post-write game total (the shipped
+    # ``fishing_level_from_xp(award.game_total)``, commit_catch L264).
+    level_after = catalog.fishing_level_from_xp(award.new_game_xp)
+    unlocked_bigger = level_after > level_before
+    # the shipped GameXpAward.note, rendered only on a shared-level
+    # boundary (game_xp_service.py: "🎉 Game level up — …").
+    xp_note = (f"🎉 Game level up — you reached "
+               f"**Level {award.new_level}**!"
+               if award.leveled_up else None)
     new_best = catch.weight > 0 and (prior_best is None
                                      or catch.weight > prior_best)
     ctx.params["_balance_changes"] = []
     ctx.params["_gxp"] = award
-    parts = [f"{catch.species.emoji} Caught a **{catch.species.name}** "
-             f"({catch.weight:.2f} kg)!"]
+
+    # --- the result copy: views/fishing/cast_view.py _finish_caught
+    # (L398-456) verbatim — title + description lines, byte-for-byte.
+    from sb.domain.fishing import minigame
+    from sb.domain.fishing import venue as venue_mod
+
+    # at level_AFTER, deliberately: the shipped result card judges the
+    # trophy title at ``result.fishing_level`` — the POST-award level
+    # (cast_view.py:413; FishResult.fishing_level = level_after,
+    # commit_catch L262-266). The level_BEFORE check at cast_view.py:333
+    # is a different branch — the BITE-phase reel-fight decision, which
+    # rides the parked timing rung. Codex #373 flagged the level-up
+    # suppression; it is the oracle's own shipped result-title semantics.
+    trophy = minigame.is_trophy(catch.species, level_after)
+    pool_size = len(catalog.species_for_venue(catch.species.venue))
+    profile = venue_mod.profile_for(venue)
+    title = "🏆 Trophy landed!" if trophy else "🎣 Caught it!"
+    desc = (
+        f"You reeled in {catch.species.emoji} a "
+        f"**{catch.species.name.title()}**!  "
+        f"(size #{catch.species.size_rank} of {pool_size} "
+        f"{profile.name.lower()})"
+    )
+    if catch.weight > 0:
+        desc += f"\n⚖️ It weighs **{catch.weight:g} kg**."
+        if new_best:
+            desc += " 🏅 **New personal best!**"
     if bonus:
-        parts.append("🎣 Lucky double catch — 2 landed!")
+        desc += (
+            f"\n🍀 **Lucky double catch!** A second {catch.species.emoji} "
+            f"**{catch.species.name.title()}** for the craft bin."
+        )
     if pearl:
-        parts.append("🦪 A pearl washed up with it!")
-    if new_best:
-        parts.append("🏆 New personal best!")
-    if level_after > level_before:
-        parts.append(f"⬆️ Fishing level {level_after} — bigger fish "
-                     "unlocked!")
+        desc += (
+            "\n🦪 **A pearl!** A rare crafting material — save them up to "
+            "craft the premium **Royal Feast** bait (`!craftpearl`)."
+        )
+    if coral:
+        desc += (
+            "\n🪸 **A piece of coral!** A rare deepwater find — carve it "
+            "into cosmetic curios for your collection (`!curios`)."
+        )
+    if unlocked_bigger:
+        cap = catalog.max_size_rank_for_level(level_after,
+                                              catch.species.venue)
+        desc += (
+            f"\n\n🌟 **Fishing level {level_after}!** "
+            f"You can now catch fish up to size #{cap}."
+        )
+    if xp_note:
+        desc += f"\n{xp_note}"
     return LegOutcome(
         step=StepResult(uid, "cast", True), before={},
         after={"species": catch.species.name, "weight": catch.weight,
-               "bonus_catch": bonus, "pearl_found": pearl,
-               "new_personal_best": new_best,
+               "venue": venue, "bonus_catch": bonus, "pearl_found": pearl,
+               "coral_found": coral, "new_personal_best": new_best,
                "fishing_level": level_after,
-               "message": "\n".join(parts)})
+               "message": f"{title}\n{desc}"})
 
 
 @workflow("fishing.erase_subject_catch_log")

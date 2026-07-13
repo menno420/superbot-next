@@ -326,6 +326,17 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
 
     seed_weather_for_replay(CAPTURE_WORLD_WEATHER.get(case.id))
 
+    # the fishing cast RNG — RE-ARMED at every case head (trap 20:
+    # runner-seeded, never accumulated) so a cast-write golden pins the
+    # seed's species → weight → bonus → pearl → coral trajectory. The
+    # module stream is PRIVATE on purpose: the passive chat-XP award
+    # draws from the GLOBAL `random.seed(case.seed)` stream above
+    # (sweep_fish pins `xp: 25`) — a cast roll on that stream would
+    # shift the pinned byte (fishing/ops.py RNG POSTURE note).
+    from sb.domain.fishing.ops import set_rng_for_tests as _arm_fishing_rng
+
+    _arm_fishing_rng(random.Random(case.seed))
+
     before: dict[str, Any] = {}
     pool = None
     if harness.db_ready:
