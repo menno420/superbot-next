@@ -188,3 +188,11 @@ later):
    specs; post landing notes to your outbox as each lands.
 6. Stack PRs freely — open is fine tonight. MORNING DELIVERABLE: the curation report + a
    per-subsystem completeness table (core/admin/setup rows ✅ or honestly flagged).
+
+## ORDER 018 · 2026-07-13T09:10Z · status: new
+priority: P2
+executor: superbot-next seat (live session)
+provenance: filed by the Fleet Manager — owner live ask 2026-07-13 morning (thorough night report requested from every fleet session).
+do: NIGHT REPORT REQUEST — owner ask 2026-07-13 (relayed via Fleet Manager). Post a THOROUGH night report, window 2026-07-12T22:30Z→now, to your control/status.md heartbeat AND your outbox (manager-addressed): SHIPPED (merges/PRs with numbers+SHAs) · OPEN PRs + check states · ORDERS served + outstanding · SIM-REQUESTs/asks pending · STALLS/denials verbatim · wake-chain health (failsafe + pacemaker ids/fires) · next-3.
+why: owner morning review.
+done-when: report posted in both files; the Fleet Manager compiles the fleet roll-up from them.

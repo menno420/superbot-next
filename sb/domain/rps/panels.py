@@ -38,6 +38,7 @@ from sb.spec.panels import (
 from sb.spec.refs import HandlerRef, WorkflowRef, handler, is_registered, panel
 
 __all__ = [
+    "BOTMATCH_PANEL_ID",
     "MATCH_PANEL_ID",
     "PVP_PANEL_ID",
     "QUICKPLAY_PANEL_ID",
@@ -45,6 +46,7 @@ __all__ = [
     "ensure_panel_refs",
     "install_rps_panels",
     "register_rps_sessions",
+    "rps_botmatch_spec",
     "rps_hub_spec",
     "rps_match_spec",
     "rps_pvp_spec",
@@ -56,6 +58,7 @@ QUICKPLAY_PANEL_ID = "rps_tournament.quickplay"
 PVP_PANEL_ID = "rps_tournament.pvp"
 REGISTRATION_PANEL_ID = "rps_tournament.registration"
 MATCH_PANEL_ID = "rps_tournament.match"
+BOTMATCH_PANEL_ID = "rps_tournament.botmatch"
 
 #: shipped button emoji (views/rps/solo_play.py — Rock 🪨 / Paper 📄 /
 #: Scissors ✂️, grey style) + the mode families' first emoji alias
@@ -395,6 +398,112 @@ def rps_match_spec() -> PanelSpec:
     )
 
 
+def rps_botmatch_spec() -> PanelSpec:
+    """One ``!rpsbot`` match as a BUTTON view in the invoking channel —
+    the tournament-match panel's DELIBERATE deviation carried to the bot
+    lane (the shipped flow was a private per-player channel + no-prefix
+    message parsing; channel provisioning rides the resource-provision
+    port, ledgered in sb/domain/rps/bot_match.py). Copy keeps the shipped
+    ``_bot_matches.py`` channel sends verbatim. CHANNEL_ANCHOR: `!rpsbot
+    @a @b` opens one fresh channel message per player."""
+    return PanelSpec(
+        panel_id=BOTMATCH_PANEL_ID,
+        subsystem="rps_tournament",
+        title="✂️ RPS Bot Match",
+        audience=Audience.PUBLIC,
+        anchor_policy=AnchorPolicy.CHANNEL_ANCHOR,
+        timeout_s=600,
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        actions=tuple(
+            PanelActionSpec(
+                # `bot_move_` (not `move_`): custom_id claims are
+                # SUBSYSTEM-scoped and the tournament match panel owns
+                # `move_*` (manifest_compile namespace collision).
+                action_id=f"bot_move_{move}", label=move.title(),
+                emoji=_QP_EMOJI[move], style=ActionStyle.SECONDARY,
+                audience_tier="user", defer_mode=DeferMode.NONE,
+                handler=HandlerRef("rps.botmatch_move"))
+            for move in _ALL_MOVES),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            tuple(f"bot_move_{m}" for m in _ALL_MOVES[:5]),
+            tuple(f"bot_move_{m}" for m in _ALL_MOVES[5:8]),
+            tuple(f"bot_move_{m}" for m in _ALL_MOVES[8:]),)),)),
+        renderer_override=HandlerRef("rps.render_botmatch"),
+        justification=(
+            "every line of the bot-match view is match-parameterized copy "
+            "(player mention, mode/best-of, the per-round `Bot played:` "
+            "reveal + result line — the shipped _bot_matches.py channel "
+            "sends); grammar TextBlocks are static. The mode decides "
+            "WHICH declared move buttons render (classic 3 / lizard_spock "
+            "5 / chess 3 / elemental 3) — declared actions and authority "
+            "stay on the spec; the renderer only composes the staged "
+            "embed + the mode's declared subset."),
+        session_lifecycle=True,
+    )
+
+
+async def _render_botmatch(spec: PanelSpec, ctx) -> object:
+    """renderer_override — one bot match, staged: open (the shipped
+    match-channel announce lines) → per-round reveal (`Bot played: …` +
+    the shipped result line + `Please enter your next move.`) → terminal
+    (win/lose the match, buttons disabled). Shipped copy verbatim
+    (oracle ``disbot/cogs/rps_tournament/_bot_matches.py``); the running
+    score line is the home-channel deviation's addition (one edited
+    embed carries no channel history)."""
+    from sb.kernel.panels.render import (
+        RenderedComponent,
+        RenderedEmbed,
+        RenderedPanel,
+    )
+
+    params = getattr(ctx, "params", {}) or {}
+    stage = str(params.get("stage") or "open")
+    player = int(params.get("player") or 0)
+    mode = str(params.get("mode") or "classic")
+    best_of = int(params.get("best_of") or 1)
+    done = stage in ("match_won", "match_lost")
+    # the shipped bot-match channel announce, verbatim lines
+    lines = [f"<@{player}> vs **Bot**",
+             f"Game mode: {mode.capitalize()}, Best of {best_of}",
+             "Please enter your move."]
+    score_line = (f"Score: <@{player}> **{int(params.get('wins') or 0)}** "
+                  f"— **{int(params.get('bot_wins') or 0)}** Bot")
+    if stage != "open":
+        bot_move = str(params.get("bot_move") or "")
+        result = str(params.get("result") or "")
+        lines = lines[:2] + [f"Bot played: {bot_move.capitalize()}."]
+        if result == "tie":
+            lines.append("It's a tie!")                     # shipped
+        elif result == "win":
+            lines.append(f"<@{player}> wins this round!")   # shipped
+        else:
+            lines.append("Bot wins this round!")            # shipped
+        if stage == "match_won":
+            lines.append(f"<@{player}> wins the match against the bot!")
+        elif stage == "match_lost":
+            lines.append("Bot wins the match!")             # shipped
+        else:
+            lines.append("Please enter your next move.")    # shipped
+        lines.append(score_line)
+    embed = RenderedEmbed(
+        title=spec.title,
+        description="\n".join(lines),
+        style_token="green" if stage == "match_won"
+        else "red" if stage == "match_lost" else "purple")
+    components = tuple(
+        RenderedComponent(
+            kind="button", custom_id=f"{spec.panel_id}.bot_move_{move}",
+            label=move.title(), row=0 if i < 5 else 1,
+            style="secondary", emoji=_QP_EMOJI[move], disabled=done)
+        for i, move in enumerate(GAME_MODES.get(mode, GAME_MODES["classic"])))
+    return RenderedPanel(
+        panel_id=spec.panel_id, embed=embed, components=components,
+        invoker_lock=None, timeout_s=spec.timeout_s,
+        audience=spec.audience.value, anchor_policy=spec.anchor_policy.value)
+
+
 async def _render_registration(spec: PanelSpec, ctx) -> object:
     """renderer_override — the golden-pinned registration embed verbatim:
     INFO_COLOR, `React ✅ or click **Join** to sign up!` + the window line,
@@ -520,16 +629,23 @@ def _match_factory() -> PanelSpec:
     return rps_match_spec()
 
 
+@panel(BOTMATCH_PANEL_ID)
+def _botmatch_factory() -> PanelSpec:
+    return rps_botmatch_spec()
+
+
 handler("rps.render_quickplay")(_render_quickplay)
 handler("rps.render_pvp")(_render_pvp)
 handler("rps.render_registration")(_render_registration)
 handler("rps.render_match")(_render_match)
+handler("rps.render_botmatch")(_render_botmatch)
 
 
 def install_rps_panels() -> PanelSpec:
     spec = rps_hub_spec()
     for candidate in (spec, rps_quickplay_spec(), rps_pvp_spec(),
-                      rps_registration_spec(), rps_match_spec()):
+                      rps_registration_spec(), rps_match_spec(),
+                      rps_botmatch_spec()):
         try:
             register_panel(candidate)
         except ValueError as exc:
@@ -552,6 +668,8 @@ def ensure_panel_refs() -> None:
         _panel(REGISTRATION_PANEL_ID)(_registration_factory)
     if not is_registered(_P(MATCH_PANEL_ID)):
         _panel(MATCH_PANEL_ID)(_match_factory)
+    if not is_registered(_P(BOTMATCH_PANEL_ID)):
+        _panel(BOTMATCH_PANEL_ID)(_botmatch_factory)
     if not is_registered(_H("rps.render_quickplay")):
         handler("rps.render_quickplay")(_render_quickplay)
     if not is_registered(_H("rps.render_pvp")):
@@ -560,4 +678,6 @@ def ensure_panel_refs() -> None:
         handler("rps.render_registration")(_render_registration)
     if not is_registered(_H("rps.render_match")):
         handler("rps.render_match")(_render_match)
+    if not is_registered(_H("rps.render_botmatch")):
+        handler("rps.render_botmatch")(_render_botmatch)
     register_rps_sessions()

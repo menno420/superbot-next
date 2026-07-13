@@ -6,20 +6,24 @@ game-XP award) in ONE leg txn.
 DEVIATION (D-0043): casts run at the STARTER profile — starter rod
 (rarity_pull 1.0), no bait, shore venue, neutral weather, base
 double-catch chance — until the rod/bait/energy/minigame/structure
-systems port (named successor work; their commands are honest pending
-terminals). At the starter profile the roll is byte-identical to a fresh
-shipped player's. Slice 1 made the VENUE STATE live (!sail persists
-``fishing_venue``; the hub/cast renders read it) but the cast LEG still
-rolls the shore pool — the venue→cast wiring (deepwater species pool,
-coral drop, minigame difficulty) rides the rod/bait/minigame rung, where
-the oracle's rolled knobs (rarity_pull, bite speed, escape) land
-together. Slice 2 made the ROD STATE live the same way (!rod / !craftrod
-persist ``fishing_rod``; the rod panels read it) — the rod→cast wiring
-(rarity_pull on the roll) rides the same rung. Slice 3 made the BAIT
-STATE live the same way (!bait / !craftbait / !craftpearl persist
-``fishing_bait``; the bait panel reads it) — the bait→cast wiring
-(loaded knobs on the roll + the per-cast charge spend) rides the same
-rung."""
+systems port (named successor work). At the starter profile the roll is
+byte-identical to a fresh shipped player's. Slice 1 made the VENUE STATE
+live (!sail persists ``fishing_venue``; the hub/cast renders read it)
+but the cast LEG still rolls the shore pool — the venue→cast wiring
+(deepwater species pool, coral drop, minigame difficulty) rides the
+rod/bait/minigame rung, where the oracle's rolled knobs (rarity_pull,
+bite speed, escape) land together. Slice 2 made the ROD STATE live the
+same way (!rod / !craftrod persist ``fishing_rod``; the rod panels read
+it) — the rod→cast wiring (rarity_pull on the roll) rides the same
+rung. Slice 3 made the BAIT STATE live the same way (!bait / !craftbait
+/ !craftpearl persist ``fishing_bait``; the bait panel reads it) — the
+bait→cast wiring (loaded knobs on the roll + the per-cast charge spend)
+rides the same rung. Slice 4 (FINAL) made the CURIO shelf + the four
+coral STRUCTURES live the same way (!craftcurio carves coral into
+``mining_inventory`` curios; the panels' Build buttons persist
+``mining_structures`` rows through the audited build op) — the
+structure→cast wiring (pull/bite/regen/double-catch mults on the roll)
+rides the same minigame rung."""
 
 from __future__ import annotations
 
@@ -45,6 +49,7 @@ from sb.spec.refs import WorkflowRef, workflow
 __all__ = [
     "BAIT_PURCHASE_REASON",
     "BONUS_CATCH_CHANCE",
+    "CORAL_ITEM",
     "PEARL_ITEM",
     "ROD_PURCHASE_REASON",
     "register_ops",
@@ -509,6 +514,192 @@ async def _record_craft_charm(conn, ctx: WorkflowContext) -> LegOutcome:
                           "(`!gear`) to fish better."})
 
 
+# --- the coral sinks + structure builds (slice 4, FINAL): the shipped
+# services/fishing_workflow.py craft_curio and services/mining_workflow.py
+# build_structure verbatim, re-homed onto the audited one-leg one-txn seam.
+# NO golden drives a stocked carve or a funded build — the imported sweeps
+# drove only the bare fresh-player invocations (goldens/fishing/sweep_curios
+# pins the 0-coral shelf read, sweep_craftcurio the not-carvable guard, and
+# the four structure sweeps pin the not-built panel renders — all pure
+# reads), so the guard bytes in service.py are the only parity surface. The
+# curio carve and the build share ONE coral fence (store.lock_coral_slot)
+# so a racing carve × Build over the same floor-at-zero coral row
+# serializes (PR #350 codex finding); the build is money-bearing and
+# additionally fenced first (mining.store.lock_structure_build_slot,
+# stable order) per #217. mining_structures is
+# written ONLY through sb.domain.mining.store.set_structure_level (the
+# sole-writer seam; the fishing/ops lazy-import precedent, L124) -------------
+
+
+@workflow("fishing.record_craft_curio")
+async def _record_craft_curio(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!craftcurio <curio>` — carve one cosmetic curio from **coral**
+    (the shipped ``craft_curio``, coral's analogue of
+    ``craft_pearl_bait`` with a cosmetic TREASURE target): an
+    inventory-only conversion (no coins, never sellable) — debit the
+    coral and grant the curio item in ONE txn (the shipped Q-0071
+    order). Carving a curio you already own simply adds another copy
+    (harmless; the collection tally counts distinct curios). Not
+    money-bearing, but the coral spend is advisory-fenced against a
+    concurrent double-spend — the SHARED coral fence
+    (store.lock_coral_slot) the structure-build leg also takes, so a
+    racing carve × Build over one coral stack serializes (the
+    floor-at-zero inventory decrement would otherwise let both spenders
+    pass their pre-spend guards — PR #350 codex finding). The handler
+    answers the not-carvable / not-enough-coral cases as pure reads
+    before this leg runs."""
+    from sb.domain.fishing import curios as curios_mod
+    from sb.domain.mining.store import get_mining_inventory, update_mining_item
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    curio = curios_mod.curio_by_key(str(ctx.params.get("curio_key", "")))
+    if curio is None:  # defensive — the handler validated the key
+        raise ValidatorError(
+            "That isn't a carvable curio — see `!curios` for the "
+            "collection.")
+    await store.lock_coral_slot(conn, user_id=uid, guild_id=gid)
+    inventory = await get_mining_inventory(uid, gid, conn=conn)
+    have = inventory.get(CORAL_ITEM, 0)
+    if have < curio.coral_cost:
+        raise ValidatorError(
+            f"You need **{curio.coral_cost}** 🪸 coral to carve "
+            f"**{curio.name}** {curio.emoji} — you have **{have}**. "
+            "Coral drops rarely when you reel in a fish out in "
+            "**deepwater** (`!sail` to the boat first).")
+    await update_mining_item(conn, user_id=uid, guild_id=gid,
+                             item=CORAL_ITEM, delta=-curio.coral_cost)
+    await update_mining_item(conn, user_id=uid, guild_id=gid,
+                             item=curio.item, delta=1)
+    owned, total = curios_mod.collection_progress(
+        {**inventory, curio.item: inventory.get(curio.item, 0) + 1})
+    return LegOutcome(
+        step=StepResult(uid, "craft_curio", True), before={},
+        after={"curio": curio.key, "owned": owned, "total": total,
+               "message": f"Carved **{curio.name}** {curio.emoji} from "
+                          f"**{curio.coral_cost}** 🪸 coral — a cosmetic "
+                          "collectible for your shelf. Collection: "
+                          f"**{owned}/{total}** curios."})
+
+
+def _build_success_suffix(structure: str, new_level: int) -> str:
+    """The structure-specific reward line appended to a successful build
+    (the shipped ``mining_workflow._build_success_suffix``, the four
+    fishing branches verbatim — the forge/home branches ride the mining
+    build lane's own deferred port; this op only ever builds the fishing
+    structures)."""
+    from sb.domain.mining import structures
+
+    if structure == structures.TIDE_POOL:
+        mult = structures.tide_pool_pull_mult(new_level)
+        pct = round((mult - 1.0) * 100)
+        return f" Your casts now pull **+{pct}%** toward rarer fish."
+    if structure == structures.DOCK:
+        mult = structures.dock_bite_speed_mult(new_level)
+        pct = round((1.0 - mult) * 100)
+        return f" Fish now bite **{pct}%** faster."
+    if structure == structures.BOATHOUSE:
+        mult = structures.boathouse_regen_mult(new_level)
+        pct = round((1.0 - mult) * 100)
+        return f" Your fishing energy now refills **{pct}%** faster."
+    if structure == structures.FISHERY:
+        pct = round(structures.fishery_bonus_chance(new_level) * 100)
+        return f" Your reels now have **+{pct}%** chance of a double catch."
+    return ""
+
+
+@workflow("fishing.record_build_structure")
+async def _record_build_structure(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The structure panels' Build buttons — build/upgrade one coral
+    structure one level (the shipped ``mining_workflow.build_structure``,
+    the §7.5 coin + material sink): debit the coins, consume the build
+    materials, and raise the structure level by one in ONE txn (the
+    vault_upgrade precedent extended with a material leg — every part
+    commits together or not at all; the debit is economy-audited with
+    the shipped ``mining:{structure}_build`` reason; the balance event
+    emits after commit). #217 posture: the (guild, user) build slot is
+    advisory-fenced BEFORE the level/inventory reads so two racing
+    builds serialize, and the SHARED coral fence (store.lock_coral_slot,
+    taken second — a stable order, the carve leg holds only that one
+    key) serializes a build racing a `!craftcurio` over the same
+    floor-at-zero coral row (PR #350 codex finding). The handler gates
+    the maxed / short-on-materials / insufficient-funds cases out as
+    pure reads before this leg runs (no write, no audit row — the
+    oracle's rollback posture), so the raises here are defensive."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.games import wager
+    from sb.domain.mining import market, structures, workshop
+    from sb.domain.mining.store import (
+        get_mining_inventory,
+        get_structures,
+        lock_structure_build_slot,
+        update_mining_item,
+    )
+
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    structure = str(ctx.params.get("structure", "")).strip().lower()
+    if not structures.is_structure(structure):
+        raise ValidatorError(
+            f"**{structure or '(blank)'}** isn't a buildable structure.")
+    display = structures.display_name(structure)
+    await lock_structure_build_slot(conn, user_id=uid, guild_id=gid)
+    # the shared coral-spend fence, AFTER the build fence (stable order;
+    # the curio leg holds only the coral key — no deadlock cycle): a
+    # racing carve now blocks until this txn commits and re-reads the
+    # decremented coral instead of double-granting off the pre-spend
+    # count (the GREATEST(0, …) floor — PR #350 codex finding).
+    await store.lock_coral_slot(conn, user_id=uid, guild_id=gid)
+    built = await get_structures(uid, gid, conn=conn)
+    level = built.get(structure, 0)
+    cost = structures.build_cost(structure, level)
+    if cost is None:
+        name = structures.level_name(structure, level)
+        raise ValidatorError(
+            f"Your {display} is already at its maximum level "
+            f"(**{name}**).")
+    # Material check first, for a clean message (the shipped craft
+    # precedent) — the coin debit below handles the affordability failure.
+    inventory = await get_mining_inventory(uid, gid, conn=conn)
+    if any(inventory.get(mat, 0) < qty
+           for mat, qty in cost.materials.items()):
+        raise ValidatorError(
+            f"Building the {display} needs "
+            f"{workshop.describe_materials(cost.materials)} "
+            f"plus {cost.coins} 🪙 — you're short on materials.")
+    reason = market.structure_build_reason(structure)
+    try:
+        new_balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=cost.coins,
+            reason=reason, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        balance = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            f"Building the {display} costs **{cost.coins}** 🪙 — you "
+            f"only have **{balance}** 🪙.") from None
+    for mat, qty in cost.materials.items():
+        await update_mining_item(conn, user_id=uid, guild_id=gid,
+                                 item=mat, delta=-qty)
+    from sb.domain.mining.store import set_structure_level
+
+    await set_structure_level(conn, user_id=uid, guild_id=gid,
+                              structure=structure, level=level + 1)
+    ctx.params["_balance_changes"] = [
+        (uid, -cost.coins, new_balance, reason)]
+    new_name = structures.level_name(structure, level + 1)
+    suffix = _build_success_suffix(structure, level + 1)
+    return LegOutcome(
+        step=StepResult(uid, "build_structure", True), before={},
+        after={"structure": structure, "level": level + 1,
+               "balance": new_balance,
+               "message": f"{display} built to **{new_name}** for "
+                          f"{workshop.describe_materials(cost.materials)} "
+                          f"+ {cost.coins} 🪙.{suffix} "
+                          f"Balance: **{new_balance}** 🪙."})
+
+
 _XP_EMITS = (
     EventEmitSpec("game_xp.awarded",
                   WorkflowRef("games.game_xp_awarded_payload"),
@@ -582,8 +773,26 @@ CRAFT_CHARM = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="fishing_charm_crafted", emits=())
 
+CRAFT_CURIO = CompoundOpSpec(
+    op_key="fishing.craft_curio", domain="fishing",
+    lane=WorkflowLane.DOMAIN, authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_craft_curio"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_curio_carved", emits=())
+
+BUILD_STRUCTURE = CompoundOpSpec(
+    op_key="fishing.build_structure", domain="fishing",
+    lane=WorkflowLane.DOMAIN, authority_ref="user",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("fishing.record_build_structure"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="fishing_structure_built", emits=_BALANCE_EMITS)
+
 _OPS = (CAST, BUY_ROD, CRAFT_ROD, BUY_BAIT, CRAFT_BAIT, CRAFT_PEARL_BAIT,
-        CRAFT_CHARM)
+        CRAFT_CHARM, CRAFT_CURIO, BUILD_STRUCTURE)
 
 _REF_TABLE = (
     ("fishing.record_cast", _record_cast),
@@ -593,6 +802,8 @@ _REF_TABLE = (
     ("fishing.record_craft_bait", _record_craft_bait),
     ("fishing.record_craft_pearl_bait", _record_craft_pearl_bait),
     ("fishing.record_craft_charm", _record_craft_charm),
+    ("fishing.record_craft_curio", _record_craft_curio),
+    ("fishing.record_build_structure", _record_build_structure),
     ("fishing.erase_subject_catch_log", _erase_catch_log),
     ("fishing.erase_subject_energy", _erase_energy),
     ("fishing.erase_subject_venue", _erase_venue),
