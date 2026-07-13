@@ -1,6 +1,6 @@
 # 2026-07-13 — ticket setup panel port (ORDER 017 night-run fix slice B)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN fix slice B · mandate: ORDER 017
   (PR #323), gap row 8 of `docs/status/completeness-table-2026-07-13.md`
