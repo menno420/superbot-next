@@ -15,8 +15,12 @@ model the oracle validated field-by-field against the live endpoint):
 * 🎯 **Requirements** opens the shipped ``ParagonRequirementsView`` twin
   (strategy select + 🎯 Enter target degree modal + ↩ Calculator) and
   answers with the ``build_requirement_embed`` card;
-* 📊 **Stats** answers with the paragon's base combat-stats card from the
-  ported stats layer, or the shipped module-less copy verbatim.
+* 📊 **Stats** opens the shipped ``ParagonStatsView`` twin — the
+  ``btd6.paragon_stats`` degree view (milestone select + 🔢 Enter-degree
+  modal + ↩ Calculator) over the PORTED
+  :func:`sb.domain.btd6.stats.paragon_stats_at_degree` +
+  :mod:`sb.domain.btd6.paragon_degrees` formulas — or answers with the
+  shipped module-less copy verbatim.
 
 Ledgered deviations (engine-shape, the D-0054 intermediating posture —
 no golden pins any of these click routes, #151's drop rule):
@@ -32,9 +36,10 @@ no golden pins any of these click routes, #151's drop rule):
   unreachable" warning (nothing was attempted — that copy would lie);
   the requirement card keeps the shipped "Not live-confirmed — computed
   locally." line (true here by construction);
-* the Stats drill-down (degree select + Enter-degree modal over the full
-  per-degree ROW table) rides the deep-BTD6-stats successor (D-0046) —
-  the card serves the base (degree-1) combat stats now.
+* the stats page opens at Degree 1 — the shipped degree-independent BASE
+  infobox view (``_stat_node_embed`` over ``stats.base``) rides the
+  deep-stats successor (D-0046); scaled == base at degree 1 by the wiki
+  formulas, so no number changes.
 
 Handlers register at MODULE IMPORT (the BUG A rule)."""
 
@@ -48,17 +53,21 @@ from sb.spec.outcomes import BLOCKED, SUCCESS
 
 __all__ = [
     "DEFAULT_PARAGON",
+    "DEGREE_MILESTONES",
     "PARAGON_CALC_AUTHOR",
     "PARAGON_CALC_URL",
     "PARAGON_DIFFICULTIES",
     "calc_state",
     "calculator_card",
+    "degree_options",
     "difficulty_options",
     "ensure_paragon_refs",
     "paragon_options",
     "player_options",
     "req_state",
     "requirements_card",
+    "stats_degree_card",
+    "stats_state",
     "strategy_options",
     "tier5_options",
 ]
@@ -101,6 +110,11 @@ _STRATEGY_LABEL = {
 
 CALC_PANEL_ID = "btd6.paragon"
 REQ_PANEL_ID = "btd6.paragon_requirements"
+STATS_PANEL_ID = "btd6.paragon_stats"
+
+#: the shipped stats-view degree-select milestones
+#: (views/btd6/paragon_stats_view.py @7f7628e1).
+DEGREE_MILESTONES = (1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
 
 #: polite copy for the (rare) evicted-session refresh miss.
 _EXPIRED = "This session has expired — open a fresh calculator with `!paragon`."
@@ -168,6 +182,18 @@ def req_state(params: dict | None) -> dict:
     return state
 
 
+def stats_state(params: dict | None) -> dict:
+    """Stats-page state (the shipped ParagonStatsView attributes: the
+    calculator state + the viewed degree, clamped 1..100)."""
+    state = calc_state(params)
+    try:
+        degree = int((params or {}).get("degree") or 1)
+    except (TypeError, ValueError):
+        degree = 1
+    state["degree"] = min(100, max(1, degree))
+    return state
+
+
 # --- select option rosters (shipped, state-parameterized) ---------------------
 
 
@@ -219,6 +245,16 @@ def strategy_options(state: dict) -> tuple[dict, ...]:
         {"label": _STRATEGY_LABEL[s], "value": s.value,
          "default": s.value == state["strategy"]}
         for s in pm.SolveStrategy
+    )
+
+
+def degree_options(state: dict) -> tuple[dict, ...]:
+    """The shipped ``_DegreeSelect`` milestone roster (a non-milestone
+    degree — reached via the modal — simply carries no default)."""
+    return tuple(
+        {"label": f"Degree {d}", "value": str(d),
+         "default": d == state["degree"]}
+        for d in DEGREE_MILESTONES
     )
 
 
@@ -372,10 +408,11 @@ def requirement_card(paragon: pm.Paragon, solution: pm.RequirementSolution):
 
 
 def stats_card(paragon_id: str):
-    """📊 Stats — the base combat-stats card from the ported stats layer,
-    or the shipped module-less copy (views/btd6/paragon_view.py
-    ``_StatsButton.callback``, verbatim). The per-degree drill-down rides
-    the D-0046 deep-stats successor (module doc)."""
+    """The base combat-stats card from the ported stats layer, or the
+    shipped module-less copy (views/btd6/paragon_view.py
+    ``_StatsButton.callback``, verbatim). The 📊 Stats click serves only
+    the module-less branch here — combat-stats paragons route to the
+    ``btd6.paragon_stats`` degree view (:func:`stats_degree_card`)."""
     from sb.domain.btd6 import stats as stats_mod
     from sb.kernel.panels.render import RenderedEmbed
 
@@ -414,6 +451,58 @@ def stats_card(paragon_id: str):
         footer=f"BTD6 stats v{stats.game_version}",
         style_token="gold",
     )
+
+
+def stats_degree_card(paragon_id: str, degree: int):
+    """The paragon degree view over the PORTED per-attack math
+    (:func:`stats.paragon_stats_at_degree`): the shipped
+    ``build_paragon_degree_embed`` headline lines verbatim (power / boss
+    multiplier / elite multiplier), then one field per attack from the
+    ported projectile breakdown (the shipped full cell-group table rides
+    ``paragon_degrees.degree_row`` — the deep-stats successor)."""
+    from sb.domain.btd6 import paragon_degrees
+    from sb.domain.btd6 import stats as stats_mod
+    from sb.kernel.panels.render import RenderedEmbed
+
+    row = stats_mod.paragon_stats_at_degree(paragon_id, degree)
+    pstats = stats_mod.get_paragon_stats(paragon_id)
+    version = pstats.game_version if pstats else ""
+    if row is None:
+        deg = min(100, max(1, int(degree)))
+        canonical = pstats.canonical if pstats else paragon_id
+        return RenderedEmbed(
+            title=f"👑 {canonical} — Degree {deg}",
+            description=(
+                f"**Power required:** "
+                f"{paragon_degrees.power_for_degree(deg):,}\n"
+                f"**Boss-damage multiplier:** "
+                f"×{paragon_degrees.boss_multiplier(deg)}\n"
+                f"**Elite-boss multiplier:** "
+                f"×{paragon_degrees.elite_boss_multiplier(deg):g} "
+                "(paragons deal ×2 vs Elite Bosses)"),
+            fields=(("—", "No degree-dependent stats."),),
+            footer=f"BTD6 stats v{version}",
+            style_token="gold")
+    fmt = paragon_degrees.format_value
+    fields = []
+    for attack in row.attacks:
+        bits = [
+            f"{name} **{fmt(damage)} dmg** · {fmt(pierce)} pierce"
+            for name, damage, pierce in attack.projectiles
+        ]
+        bits.append(f"cooldown **{fmt(attack.cooldown)}s**")
+        fields.append((attack.name, " · ".join(bits)[:1024]))
+    return RenderedEmbed(
+        title=f"👑 {row.canonical} — Degree {row.degree}",
+        description=(
+            f"**Power required:** {row.power:,}\n"
+            f"**Boss-damage multiplier:** ×{row.boss_multiplier}\n"
+            f"**Elite-boss multiplier:** "
+            f"×{paragon_degrees.elite_boss_multiplier(row.degree):g} "
+            "(paragons deal ×2 vs Elite Bosses)"),
+        fields=tuple(fields),
+        footer=f"BTD6 stats v{version}",
+        style_token="gold")
 
 
 # --- modal input parsing (paragon_modals._parse_int, verbatim) ----------------
@@ -582,10 +671,64 @@ async def paragon_target_submit(req) -> Reply:
 
 
 async def paragon_stats_view(req) -> Reply:
-    """📊 Stats — the selected paragon's base combat-stats card (or the
-    shipped module-less copy)."""
+    """📊 Stats — the shipped ``_StatsButton``: the module-less branch
+    answers the shipped orange card; otherwise open the
+    ``btd6.paragon_stats`` degree view at Degree 1 (scaled == base at
+    degree 1, module doc)."""
+    from sb.domain.btd6 import stats as stats_mod
+
     state = calc_state(_STATE.get(_message_key(req)) or req.args)
-    await _card(req, stats_card(state["paragon_id"]))
+    pstats = stats_mod.get_paragon_stats(state["paragon_id"])
+    if pstats is None or not pstats.has_combat_stats:
+        await _card(req, stats_card(state["paragon_id"]))
+        return Reply(SUCCESS, None)
+    await _open_with_state(req, STATS_PANEL_ID,
+                           stats_state({**state, "degree": "1"}))
+    return Reply(SUCCESS, None)
+
+
+async def paragon_degree_select(req) -> Reply:
+    """The stats page's milestone pick (the shipped ``_DegreeSelect``
+    callback) — update and re-render in place."""
+    values = tuple(req.args.get("values", ()) or ())
+    if not values:
+        return Reply(SUCCESS, None)
+    key = _message_key(req)
+    state = stats_state(_STATE.get(key) or req.args)
+    picked = str(values[0])
+    if picked.isdigit():
+        state["degree"] = min(100, max(1, int(picked)))
+    _store_state(key, state)
+    if not await _refresh(req, key, state):
+        return Reply(BLOCKED, _EXPIRED)
+    return Reply(SUCCESS, None)
+
+
+async def paragon_degree_submit(req) -> Reply:
+    """🔢 Enter degree — the shipped ``_DegreeModal.on_submit`` (a
+    non-numeric entry falls to degree 1, the shipped ``ValueError``
+    posture; :func:`stats_state` clamps 1..100) — re-render in place."""
+    raw = str(req.args.get("degree") or "").strip()
+    try:
+        degree = int(raw)
+    except ValueError:
+        degree = 1
+    key = _message_key(req)
+    state = stats_state(_STATE.get(key) or req.args)
+    state["degree"] = min(100, max(1, degree))
+    _store_state(key, state)
+    if not await _refresh(req, key, state):
+        return Reply(BLOCKED, _EXPIRED)
+    return Reply(SUCCESS, None)
+
+
+async def paragon_stats_back(req) -> Reply:
+    """↩ Calculator on the stats page — a fresh landing panel carrying the
+    full calculator state (the shipped ``_BackToCalculatorButton``;
+    extra-T5 kept — the stats page never edits it)."""
+    state = stats_state(_STATE.get(_message_key(req)) or req.args)
+    state.pop("degree", None)
+    await _open_with_state(req, CALC_PANEL_ID, calc_state(state))
     return Reply(SUCCESS, None)
 
 
@@ -662,6 +805,22 @@ async def render_paragon_requirements(spec, ctx) -> object:
         components=rendered.components + (link,))
 
 
+async def render_paragon_stats(spec, ctx) -> object:
+    """The stats degree view (shipped ParagonStatsView shape: milestone
+    select · 🔢 Enter degree · ↩ Calculator) over the ported per-degree
+    stats embed (:func:`stats_degree_card`), state-parameterized."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    state = stats_state(ctx.params)
+    rendered = _with_selector_options(rendered, spec, {
+        f"{spec.panel_id}.degree_pick": (degree_options(state), False),
+    })
+    return dataclasses.replace(
+        rendered,
+        embed=stats_degree_card(state["paragon_id"], state["degree"]))
+
+
 # --- registration — MODULE IMPORT (BUG A rule) -----------------------------------
 
 _HANDLERS = (
@@ -671,9 +830,13 @@ _HANDLERS = (
     ("btd6.paragon_req_select", paragon_req_select),
     ("btd6.paragon_target_submit", paragon_target_submit),
     ("btd6.paragon_stats_view", paragon_stats_view),
+    ("btd6.paragon_degree_select", paragon_degree_select),
+    ("btd6.paragon_degree_submit", paragon_degree_submit),
+    ("btd6.paragon_stats_back", paragon_stats_back),
     ("btd6.paragon_back_to_calc", paragon_back_to_calc),
     ("btd6.render_paragon", render_paragon),
     ("btd6.render_paragon_requirements", render_paragon_requirements),
+    ("btd6.render_paragon_stats", render_paragon_stats),
 )
 
 
