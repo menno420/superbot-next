@@ -147,9 +147,9 @@ def test_hub_routes_the_armed_diagnostics_and_keeps_the_frozen_ids():
     assert by_id["missing_bindings"].handler == PanelRef(
         "settings.missing_bindings")
     assert by_id["audit"].handler == PanelRef("settings.audit")
-    # slice 3 keeps its honest pending terminal.
-    assert by_id["command_access"].handler == HandlerRef(
-        "settings.command_access_pending")
+    # slice 3 armed the write panel — the door is a PanelRef too.
+    assert by_id["command_access"].handler == PanelRef(
+        "settings.command_access")
     # the compat-frozen wire ids never move.
     for action_id in ("needs_setup", "invalid", "missing_bindings",
                       "audit", "command_access"):
@@ -165,10 +165,10 @@ def test_the_retired_pending_refs_stay_gone_and_the_kept_ones_stay():
     for name in ("settings.needs_setup_pending",
                  "settings.invalid_pending",
                  "settings.missing_bindings_pending",
-                 "settings.audit_pending"):        # slice 2 retired it
+                 "settings.audit_pending",         # slice 2 retired it
+                 "settings.command_access_pending"):  # slice 3 retired it
         assert not is_registered(HandlerRef(name)), name
-    for name in ("settings.command_access_pending",
-                 "settings.group_pending"):
+    for name in ("settings.group_pending",):
         assert is_registered(HandlerRef(name)), name
 
 
