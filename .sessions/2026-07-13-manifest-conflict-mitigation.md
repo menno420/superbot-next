@@ -1,6 +1,6 @@
 # 2026-07-13 — manifest.snapshot.json stable_hash merge-conflict mitigation
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · lane-worker slice · mandate: land a durable
   mitigation for the recurring merge-conflict class where the volatile
@@ -52,4 +52,38 @@ class but did not claim the fix.
 
 ## Close-out
 
-(to be written at session end)
+Delivered on PR #386 (branch `claude/manifest-conflict-mitigation`, base
+main @ `d7b18b2`):
+
+- `tools/manifest_compile.py` — `full_snapshot` no longer carries
+  `stable_hash`; P9 recomputes the committed BODY's hash via
+  `compute_stable_hash(committed)` (ignores a legacy field — old branches
+  verify unchanged). Recompiled digest identical before/after
+  (`sha256:93022897…`), proving the pure-cache claim.
+- `sb/domain/platform/consistency.py::_collect_manifests` — recomputes the
+  fingerprint from the body (tools/ not importable from sb/domain; inline
+  mirrors `compute_stable_hash`, MUST stay in sync).
+- Tests — drift tests tamper the body (`schema_version`), new pins:
+  no-field-in-snapshot, legacy-field-tolerated, hash-ignores-injected-field.
+- `manifest.snapshot.json` recompiled — the diff is exactly the one
+  removed line.
+- Runbook `docs/operations/manifest-snapshot-conflicts.md` + trap 10(e) +
+  telemetry-runbook cross-refs.
+
+Verification: `python3 -m pytest tests/ -q` → 2464 passed, 13 skipped;
+`python3 tools/manifest_compile.py` verify green; check_namespace /
+check_symbol_shadowing / check_no_skip / check_config_usage /
+check_doc_cites / check_escape_hatches / check_schema_growth /
+check_amendments / check_runtime_smoke all clean. Scratch-repo three-way
+merge demo: old file + disjoint hunks → CONFLICT; new file → clean merge.
+
+Guard recipe: if a future consumer needs the snapshot's hash at runtime,
+compute it (`compute_stable_hash` in `tools/manifest_compile.py`, or the
+inline mirror in `sb/domain/platform/consistency.py::_collect_manifests`)
+— never re-add a cached hash line to the tracked file
+(`tests/unit/app/test_main_wiring.py::TestSnapshot` pins its absence).
+
+CI note: first run's `sim-gate` + `manifest-validate` jobs died on a
+GitHub Actions infra error ("Failed to resolve action download info.
+Error: Service Unavailable" — zero workflow steps executed); a
+rerun-failed-jobs pass turned both green with all steps real.
