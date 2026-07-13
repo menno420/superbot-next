@@ -7,6 +7,7 @@ game_xp event vocabulary."""
 from __future__ import annotations
 
 from sb.domain.games import panels as _panels
+from sb.domain.games import sections_panel as _sections_panel
 from sb.domain.games import service as _service
 from sb.domain.games.ops import register_ops
 from sb.domain.games.providers import register_game_providers
@@ -106,6 +107,11 @@ def _register_sections() -> None:
         register_section(_section)
 
 
+# Sections register BEFORE the manifest constructs: the D-0082 §5 settings
+# panel (games.sections, slice 2) is registry-driven, so its install below
+# needs the inventory in the table.
+_register_sections()
+
 MANIFEST = SubsystemManifest(
     key="games",
     version=1,
@@ -142,7 +148,8 @@ MANIFEST = SubsystemManifest(
                             "level + per-game standing.",
                     usage="!worldcard"),
     ),
-    panels=_panels.install_games_panels(),
+    panels=(_panels.install_games_panels()
+            + (_sections_panel.install_sections_panel(),)),
     settings=(),
     stores=(GAME_STATE_STORE, GAME_XP_STORE, TOURNAMENT_FLAG_STORE),
     events=_EVENTS,
@@ -153,7 +160,6 @@ register_event_specs(list(_EVENTS))
 register_ops()
 install_games_dispatcher()
 register_game_providers()
-_register_sections()
 
 
 def _ensure_refs() -> None:
@@ -171,6 +177,7 @@ def _ensure_refs() -> None:
     install_games_dispatcher()
     register_game_providers()
     _register_sections()
+    _sections_panel.ensure_sections_panel_refs()
 
 
 ENSURE_REFS = _ensure_refs
