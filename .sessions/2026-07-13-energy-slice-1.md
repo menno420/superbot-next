@@ -1,6 +1,6 @@
 # 2026-07-13 — mining energy slice 1: persistence + migration
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · energy-lane slice 1 (persistence) · stacked on
   #320 `mining/energy-domain-core` per ORDER 017 rule 2 (branch from an
@@ -38,12 +38,49 @@ change.
 
 ## What shipped
 
-(filled at close-out)
+All three scope items, PR #384 (base `mining/energy-domain-core`, stacked
+on #320; contains the main catch-up merge @ e3d3768 — slice-1 delta =
+the card, the claim, and ca740ca):
+
+- `migrations/0052_mining_energy.sql` + `checksums.json` entry — the
+  ALTER lands both columns `IF NOT EXISTS`, NOT NULL DEFAULT 0/0.
+- `sb/domain/mining/store.py` `get_energy`/`set_energy` — oracle
+  signatures/semantics verbatim (`disbot/utils/db/games/
+  mining_player_state.py` @ `87bbe1d`), minus the oracle's
+  `updated_at=now()` touch (the target's `updated_at` is a BIGINT epoch
+  — the `set_depth` precedent). Exported in `__all__`; no new StoreSpec.
+- `tests/unit/mining/test_mining_energy_store.py` — 9 DB-free tests:
+  missing-row `(0,0)`, int coercion, plain unlocked TEXT-id read, upsert
+  SQL shape, the no-`now()` pin, a spend→set→get round-trip, the 0052
+  DDL pin, and the no-new-store-row pin.
+- Verify: `pytest tests/ -q` → 2478 passed, 13 skipped; all local gate
+  mirrors OK (shadowing / namespace / no-skip / config-usage /
+  migrations / money-race / parity-depth / runtime-smoke /
+  compat-frozen). CI @ ca740ca: all six named gates green (required
+  `gate` leg green; the non-required `report` leg also green).
+
+Decide-and-flag: PR base = `mining/energy-domain-core` directly, no
+frozen copy — the auto-merge enabler refuses to arm on a base with zero
+required status-check contexts, so arming can never merge into the
+parked #320 branch (evidence: e0adeb6 reached that branch by plain
+push). The PR stays OPEN per ORDER 017 rule 2.
 
 ## 💡 Session idea
 
-(filled at close-out)
+The stacked-PR catch-up merge needs an unshallow first: this container's
+clone is SHALLOW, so `git merge origin/main` into a branch cut from
+another PR's head fails with "refusing to merge unrelated histories"
+until `git fetch --unshallow origin`. Worth a one-liner in
+`docs/AGENT_ORIENTATION.md` § "Start every session" next to the
+preflight reset — the error message sends you toward
+`--allow-unrelated-histories` (WRONG — that would duplicate history)
+when the real fix is deepening the clone.
 
 ## ⟲ Previous-session review
 
-(filled at close-out)
+Previous card (`2026-07-13-curation-rework-cleanup-words.md`, PR #327):
+exemplary evidence discipline — the per-item "verified still-pending at
+HEAD" sweep and the explicit deliberate-leave-behinds section made its
+boundary with the word-mutation slice unambiguous; its 💡
+(worktree-first for parallel lanes) is exactly the collision class a
+stacked lane like this one risks and is still unplanted in orientation.
