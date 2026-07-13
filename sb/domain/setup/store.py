@@ -31,11 +31,13 @@ from sb.spec.versioning import (
 __all__ = [
     "KNOWN_DEPTHS",
     "SETUP_SESSION_STORE",
+    "clear_essential_anchor",
     "clear_workspace_pointers",
     "ensure_refs",
     "get_session_row",
     "scrub_subject_session",
     "set_depth",
+    "set_essential_step",
     "set_section_skip",
     "set_session_status",
     "upsert_session",
@@ -164,6 +166,27 @@ async def set_session_status(conn: Any, *, guild_id: int,
     await execute(
         "UPDATE setup_session SET setup_status = $2, updated_at = NOW() "
         "WHERE guild_id = $1", (guild_id, status), conn=conn)
+
+
+async def set_essential_step(conn: Any, *, guild_id: int, step: int) -> None:
+    """The shipped ``setup_session.set_essential_step`` UPDATE shape
+    (the migration-099 essential-flow anchor: the 0-based step index the
+    resume lane rebuilds at). A bare keyed UPDATE — no row means a
+    silent no-op, the set_depth semantics twin (the ``!setup`` entry
+    mints no session row; the golden-pinned empty delta stands)."""
+    await execute(
+        "UPDATE setup_session SET essential_step = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, int(step)), conn=conn)
+
+
+async def clear_essential_anchor(conn: Any, *, guild_id: int) -> None:
+    """The shipped ``setup_session.clear_essential_anchor`` UPDATE shape
+    (the flow reached the summary — null the anchor pair so the on-ready
+    resume sweep stops trying to revive a done flow)."""
+    await execute(
+        "UPDATE setup_session SET essential_message_id = NULL, "
+        "essential_step = NULL, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id,), conn=conn)
 
 
 async def clear_workspace_pointers(conn: Any, *, guild_id: int) -> None:

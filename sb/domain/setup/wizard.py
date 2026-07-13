@@ -13,7 +13,10 @@ the oracle (menno420/superbot):
   ``ServerTypeStep``): the five-kind select records the pick, Save &
   continue applies the shipped starter-set bundle FOR REAL through the
   audited K7 ``settings.set_scalar`` lane (the oracle's
-  SettingsMutationPipeline twin), Skip leaves everything untouched;
+  SettingsMutationPipeline twin) and advances into the guided spine,
+  Skip records the step and moves on — steps 2–8, the summary and the
+  restart-resume lane are LIVE (the essential-steps slice —
+  sb/domain/setup/essential_steps.py);
 * the SMART-SUGGESTIONS review lanes (views/setup/ai_review/
   main_panel.py + per_recommendation.py): accept-all / reject-AI /
   rerun mutate the in-memory review state exactly like the oracle's
@@ -40,10 +43,9 @@ ops through the K9 DraftPipeline over the audited K7 seams, and the
 apply-summary / partial-recovery / setup-complete views ride along.
 
 Named successors kept honest (each a declared BLOCKED terminal, never
-silent): the essential flow's steps 2–8 (essential-steps slice), the
-remaining NINE per-section flows + the linear wizard steps behind
-↩ Back to wizard (section-flows slice), and the per-suggestion Edit
-modal/re-pick flow (suggestion-edit slice).
+silent): the remaining NINE per-section flows + the linear wizard steps
+behind ↩ Back to wizard (section-flows slice), and the per-suggestion
+Edit modal/re-pick flow (suggestion-edit slice).
 """
 
 from __future__ import annotations
@@ -287,6 +289,14 @@ async def review_state(guild_id: int, user_id: int) -> ReviewState:
 def reset_wizard_state_for_tests() -> None:
     _ESSENTIAL_PICKS.clear()
     _REVIEW.clear()
+    try:
+        from sb.domain.setup.essential_steps import (
+            reset_essential_state_for_tests,
+        )
+
+        reset_essential_state_for_tests()
+    except ImportError:  # pragma: no cover — module always ships alongside
+        pass
 
 
 # --- the apply-authority gate (setup_access.can_apply_setup, ported) ------------------
@@ -617,13 +627,13 @@ def _register() -> None:
         return None
 
     @handler("setup.essential_save")
-    async def essential_save(req) -> Reply:
+    async def essential_save(req) -> Reply | None:
         """✨ Save & continue: apply the picked starter set IMMEDIATELY
         through the audited settings lane (the oracle's direct-apply
-        doctrine — "save each step instantly"), then confirm with the
-        shipped summary line. Steps 2–8 of the essential flow are the
-        essential-steps slice's port — the card stays on Step 1 and the
-        confirmation says so."""
+        doctrine — "save each step instantly"), record the shipped
+        applied-summary line, and advance to Step 2 (the essential-steps
+        slice's spine — ``_StepView.complete``'s record + advance +
+        show-current, the open_panel navigation lane)."""
         guild_id = int(req.guild_id or 0)
         user_id = int(getattr(req.actor, "user_id", 0) or 0)
         kind = essential_pick(guild_id, user_id)
@@ -659,28 +669,31 @@ def _register() -> None:
             return Reply(BLOCKED,
                          "Something went wrong applying the starter set — "
                          "please try again.")
-        await _refresh_own_panel(req, {**dict(req.args or {}),
-                                       "essential_kind": kind})
-        # the shipped applied-summary line (ServerTypeStep.complete's
-        # record_applied byte) + the honest successor note.
-        return Reply(SUCCESS,
-                     f"✨ {preset.emoji} {preset.label} starter set on · "
-                     f"{preset.blurb}. Every change is live — the guided "
-                     "steps after this one land with the essential-steps "
-                     "slice; adjust anything meanwhile from `!settings`.")
+        # the shipped complete(): record the applied line (byte verbatim),
+        # advance, land on the Step-2 card (essential_steps._show_current).
+        from sb.domain.setup import essential_steps
+
+        state = essential_steps.flow_state(guild_id, user_id)
+        state.record_applied(
+            f"{preset.emoji} {preset.label} starter set on · {preset.blurb}")
+        state.index = 1
+        await essential_steps._show_current(req, state)
+        return None
 
     @handler("setup.essential_skip")
-    async def essential_skip(req) -> Reply:
-        """Skip — set things up myself: nothing changes (the shipped
-        skip records the step and moves on; with the later steps still
-        the essential-steps slice's port, the shipped all-skipped
-        summary copy answers)."""
-        # shipped summary copy (EssentialSummaryView.render, the
-        # skipped-everything branch) + the honest successor note.
-        return Reply(SUCCESS,
-                     "You skipped this step — nothing was changed. Run "
-                     "`/setup` again any time; the guided steps after "
-                     "this one land with the essential-steps slice.")
+    async def essential_skip(req) -> Reply | None:
+        """Skip — set things up myself: nothing changes; the shipped
+        skip records the step and moves on to Step 2
+        (``_StepView.skip`` — the essential-steps slice's spine)."""
+        from sb.domain.setup import essential_steps
+
+        state = essential_steps.flow_state(
+            int(req.guild_id or 0),
+            int(getattr(req.actor, "user_id", 0) or 0))
+        state.record_skipped(essential_steps.STEP_TITLES[0])
+        state.index = 1
+        await essential_steps._show_current(req, state)
+        return None
 
     # ---- the smart-suggestions review lanes (ai_review/main_panel) ----
 

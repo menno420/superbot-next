@@ -214,6 +214,35 @@ async def _record_session_complete(conn, ctx: WorkflowContext) -> LegOutcome:
                       before=None, after="complete")
 
 
+@workflow("setup.record_essential_step")
+async def _record_essential_step(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The essential flow's position write (the essential-steps slice —
+    the oracle ``persist_progress``'s ``set_essential_step`` leg): a
+    bare keyed UPDATE; no session row is a silent no-op (the shipped
+    semantics — the ``!setup`` entry mints no row, goldens pin it)."""
+    from sb.domain.setup import store
+
+    step = int(ctx.params.get("step", 0) or 0)
+    await store.set_essential_step(conn, guild_id=int(ctx.guild_id or 0),
+                                   step=step)
+    return LegOutcome(step=StepResult(0, "record_essential_step", True),
+                      before=None, after=step)
+
+
+@workflow("setup.record_essential_anchor_clear")
+async def _record_essential_anchor_clear(conn,
+                                         ctx: WorkflowContext) -> LegOutcome:
+    """The essential flow's done-write (``persist_progress``'s
+    ``clear_essential_anchor`` leg — the summary reached; the companion
+    ``setup.mark_complete`` op carries the status flip)."""
+    from sb.domain.setup import store
+
+    await store.clear_essential_anchor(conn, guild_id=int(ctx.guild_id or 0))
+    return LegOutcome(
+        step=StepResult(0, "record_essential_anchor_clear", True),
+        before=None, after="cleared")
+
+
 @workflow("setup.record_workspace_pointer_clear")
 async def _record_workspace_pointer_clear(conn,
                                           ctx: WorkflowContext) -> LegOutcome:
@@ -312,8 +341,31 @@ CLEAR_WORKSPACE_POINTER = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="setup.session.workspace_cleared")
 
+#: the essential-steps slice's session writes. The oracle wrote both
+#: through bare service functions with NO audit row (services/
+#: setup_session.py) — the K7 central audit row is additive, the
+#: SET_DEPTH ledger note's class.
+SET_ESSENTIAL_STEP = CompoundOpSpec(
+    op_key="setup.set_essential_step", domain="setup",
+    lane=WorkflowLane.DOMAIN, authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_essential_step"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.essential_step_set")
+
+CLEAR_ESSENTIAL_ANCHOR = CompoundOpSpec(
+    op_key="setup.clear_essential_anchor", domain="setup",
+    lane=WorkflowLane.DOMAIN, authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_essential_anchor_clear"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.essential_anchor_cleared")
+
 _OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP,
-        MARK_COMPLETE, CLEAR_WORKSPACE_POINTER)
+        MARK_COMPLETE, CLEAR_WORKSPACE_POINTER, SET_ESSENTIAL_STEP,
+        CLEAR_ESSENTIAL_ANCHOR)
 
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
@@ -322,6 +374,8 @@ _REF_TABLE = (
     ("setup.record_depth", _record_depth),
     ("setup.record_section_skip", _record_section_skip),
     ("setup.record_session_complete", _record_session_complete),
+    ("setup.record_essential_step", _record_essential_step),
+    ("setup.record_essential_anchor_clear", _record_essential_anchor_clear),
     ("setup.record_workspace_pointer_clear", _record_workspace_pointer_clear),
     ("setup.erase_subject_session", _erase_subject_session),
 )
