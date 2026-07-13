@@ -33,3 +33,15 @@
   stays untouched) · area: `sb/domain/setup/`, `sb/manifest/setup.py`,
   `manifest.snapshot.json`, `manifest/layout/setup.lock.json`,
   `sim/sim-gate-baseline.json`, `tests/unit/setup_band/` · 2026-07-13
+- `claude/setup-wizard-4` · scope: setup-wizard successors, slice 4 =
+  the section-flow spine + the first two per-section flows (the
+  shared section-card frame ported from section_card.py; the linear
+  wizard steps behind ↩ Back to wizard — wizard_nav.py +
+  LinearWizardView, flipping `setup.back_to_wizard`; the
+  preset_select flow — pick → preview → stage into the K9 draft; the
+  channels flow — declared-binding walk, channel pick →  staged
+  bind_channel, Apply-Recommended builder; the other seven section
+  slugs stay honest terminals) · area: `sb/domain/setup/`,
+  `sb/manifest/setup.py`, `manifest.snapshot.json`,
+  `manifest/layout/setup.lock.json`, `sim/sim-gate-baseline.json`,
+  `compat/`, `tests/unit/setup_band/` · 2026-07-13
