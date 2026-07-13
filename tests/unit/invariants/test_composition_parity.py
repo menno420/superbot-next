@@ -149,5 +149,5 @@ def test_the_sweep_sees_the_live_roster():
     assert len(import_root) >= 550
     for ref in ("handler:blackjack.tournament_open_pending",
                 "handler:rps.register_pending",
-                "handler:role.create_pending"):
+                "handler:role.create_form_submit"):
         assert ref in import_root, ref
