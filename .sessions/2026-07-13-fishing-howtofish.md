@@ -1,6 +1,6 @@
 # 2026-07-13 — fishing: the 🎣 how-to-fish hub guide port
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Claude (Fable family) · high · feature build
   (branch `claude/fishing-howtofish` — the #405 completeness-remainders
@@ -51,13 +51,62 @@ Planned shape (the creature `rules_card` precedent, mirrored exactly —
 
 ## Verification
 
-(filled at completion — the strict gate holds this card red until the
-branch lands green)
+Shipped as PR #410 (`claude/fishing-howtofish`), post-merge of
+origin/main @ `347dfba` (#408 — the sibling completeness-remainders
+cleanup slice; its concurrent golden mint moved the same corpus pins,
+reconciled at merge: on-disk 493 = 465 + 31 − 3, `minted_goldens`
+30→31, the three count-pin call sites re-summed by hand):
+
+- `python3 -m pytest tests/ -q` (local Postgres DOWN — the banner-test
+  posture): **2779 passed, 15 skipped**.
+- `python3 tools/run_golden_parity.py --gate` (local Postgres up):
+  **GREEN — all 493 golden(s) across 50 ported subsystem(s) replay
+  clean**, including the new `fishing_howtofish_rules_card` (minted via
+  the canonical capture path only, double-captured across fresh harness
+  boots — byte-identical ×2; pins the ephemeral defer flags-64 + the
+  verbatim rules embed, NO components, no fishing db_delta — a pure
+  read, only the message-driven xp.award pair).
+- `tools/check_parity_depth.py` OK (493 goldens; fishing ratchet
+  untouched — a pure read moves no covered floor);
+  `manifest_compile` green; `check_compat_frozen` OK against the
+  EXISTING pin (no custom_id_override, no modal — no regen needed);
+  namespace / shadowing / no-skip / config-usage clean.
+- `bootstrap.py check --strict`: exit 0 (the born-red hold flips with
+  this landing commit; one pre-existing claims-format advisory on
+  another lane's claim file).
+- `sweep_fishing` byte-neutral (label/emoji/style untouched — the
+  repoint rides the Dex-button precedent); the retired
+  `fishing.howtofish_pending` no longer registers (trap 12a, pinned by
+  tests/unit/band6/test_band6_fishing_howtofish.py).
 
 ## 💡 Session idea
 
-(filled at completion)
+The corpus count pins are a concurrent-mint collision magnet: this
+slice and #408 each minted ONE golden and each bumped the SAME four
+call sites (491→492 / 29→30 in parity.yml,
+test_replay_adapter.py, test_check_parity_depth.py ×2), so the merge
+had to re-sum every site by hand to 493/31 — and nothing but reviewer
+arithmetic catches a miss. Derive, don't pin: keep the single
+authoritative triple (imported/minted/retired) in parity.yml and have
+the tests assert `on-disk == imported + minted − retired` against IT,
+plus one test asserting the parity.yml enumeration paragraph count
+matches `minted_goldens`. Concurrent mints then conflict on exactly
+one integer in one file, and the prose ledgers stop being load-bearing
+arithmetic.
 
 ## ⟲ Previous-session review
 
-(filled at completion)
+(Covers `.sessions/2026-07-13-cleanup-pending-actions.md` @ `347dfba` —
+the lane's item-2 slice, PR #408.) Load-bearing and accurate: its
+re-derive-at-HEAD posture ("the completeness table has been stale in
+both directions") is why this slice re-traced
+`fishing.howtofish_pending` to the live hub button before building —
+the row proved REAL, unlike the role trio false positives it flagged.
+Its parity.yml mint-ledger paragraph was the direct template for this
+card's golden entry, and its 💡 (`tools/mint_golden.py --case <id>`)
+was proven right within hours: this session re-invented exactly that
+scratch script (boot Harness → capture ×2 → compare → write
+golden_path) — third re-invention on this corpus; build the tool. One
+gap: its card didn't flag that a concurrent sibling mint would collide
+on the shared count pins — this slice's merge hit exactly that, and
+the 💡 above is the structural fix.
