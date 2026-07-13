@@ -1,4 +1,4 @@
-# Casino / minigame section spec — inventory, taxonomy, enablement (D-0082 §7)
+# Casino / minigame section spec — inventory, taxonomy, enablement (game-sections §7)
 
 > **Status:** `plan` — ORDER 031 phase 1 publication of the
 > inventory+consolidation spec that
@@ -14,8 +14,8 @@
 
 ## 0. Ground truth — the machinery is already built
 
-`docs/design/game-sections.md` still reads `plan`, but all three D-0082
-slices are live at HEAD:
+`docs/design/game-sections.md` still reads `plan`, but all three of its
+design slices (§8 a/b/c) are live at HEAD:
 
 - **slice a — spec leaf + registry**: `sb/spec/sections.py:36-58`
   (`GameEntry` / `GameSectionSpec`), collision-fenced `register_section`
@@ -244,7 +244,7 @@ this is what a build order must budget):
   (`sb/domain/casino/service.py:95-97`). **Granularity flag (PL-001):**
   section enablement is per SUBSYSTEM key, so poker vs roulette are not
   individually toggleable via governance rows. **Recommendation: accept
-  subsystem granularity** — it is the one-truth invariant D-0082 §4 bought;
+  subsystem granularity** — it is the one-truth invariant game-sections.md §4 bought;
   per-table-game toggles, if ever wanted, are a casino-subsystem setting,
   not a section concern.
 - **A fourth section**: allowed by the leaf but crosses the settings
@@ -269,9 +269,9 @@ this is what a build order must budget):
 Keeping them out matches the oracle's own hub roster, so the shipped
 `!games` goldens stay honest.
 
-## 7. Slice fit (D-0082 §8 continuation)
+## 7. Slice fit (game-sections.md §8 continuation)
 
-D-0082 slices a-c are shipped; this spec lands as the §7 replacement in one
+Design slices a-c are shipped; this spec lands as the §7 replacement in one
 further slice: swap `GAME_SECTIONS` (§2 code block) + regroup
 `_STATIC_HUB_FIELDS` + re-pin the two hub goldens + rewrite the drift-guard
 pin table + (optional, cosmetic) re-derive button styles. One PR, unit

@@ -14,7 +14,7 @@
 | Game | Verdict |
 |---|---|
 | **Mining** | **Command-surface complete and parity-green** (all 37 oracle commands declared, `parity/parity.yml:263` `mining: ported`, 46 goldens) but the **interactive layer is roughly half-ported**: grid Mine navigator, 3 sub-hubs, ~12 panel-write buttons + workshop craft selector, 3 argful writes pending — and nearly every remaining write face is claimed by the in-flight WP stack (#312/#317/#335/#344) or the energy lane. Safely workable now: render/read-side slices only. |
-| **Fishing** | **The most complete game port in the repo**: all 20 oracle commands live and golden-pinned (24 goldens incl. 3 row-bearing Reel writes); the cast leg already runs the FULL oracle knob compound — ORDER 019 item 4's premise is STALE (retired by #373 + #394). The one real behavioral residue is the D-0043 minigame TIMING rung (instant Reel commit ⇒ deepwater strictly dominant); secondary: populated `!fishtop`/`!trophies` body copy deviates. |
+| **Fishing** | **The most complete game port in the repo**: all 20 oracle commands live and golden-pinned (24 goldens incl. 3 row-bearing Reel writes); the cast leg already runs the FULL oracle knob compound — ORDER 019 item 4's premise is STALE (retired by #373 + #394). The one real behavioral residue is the deferred minigame TIMING rung (deep-systems successor scope, docs/decisions.md checkpoint-games entry; instant Reel commit ⇒ deepwater strictly dominant); secondary: populated `!fishtop`/`!trophies` body copy deviates. |
 | **Idle (farm)** | **Faithful, essentially complete port**: accrual core verbatim, 3 coin lanes as audited K7 ops with a *stronger-than-oracle* concurrency fence, panels byte-identical to the oracle golden. Residue is small and mostly ledgered: idle-summary/in-place-edit redraw lane under-ported, no row-bearing `chicken_farm` golden yet, two tiny unpinned byte drifts (leaderboard provider strings, `top_farmers` SQL filter). ORDER 019 item 6 (idle plugin pin) already executed. |
 
 ---
@@ -26,7 +26,7 @@ Oracle: `disbot/cogs/mining_cog.py` (37 commands, :43-771), `services/mining_wor
 ### What's ported
 
 - **Live command surface**: hub (`!minemenu`, byte-pinned `sweep_minemenu`), fastmine/chop/explore, inventory/stats/gear/character views, buildlist/buildable, market + sell/sellall/buy (FOR-UPDATE fenced K7 legs), descend/ascend/mineworld, stash/unstash/vaultupgrade, equip/unequip/loadouts (WP-1 write goldens, PR #306), repair/quickcraft, cook/use (energy-lane slice 2 goldens), reset_inventory (admin). The deep-system PENDING roster is **empty** (`sb/domain/mining/service.py:1055-1091` — "all 26 original deep-system commands are ported").
-- **Partial**: `!minestats` (Deepest field wrong — G1 below), `!build`/`!craft` argful (WP-6 pending terminal), `!skill <branch>` argful (WP-5 pending terminal), `!mine` (absent-by-parity: golden `sweep_mine` pins the capture-world generic-error byte; grid system is D-0043).
+- **Partial**: `!minestats` (Deepest field wrong — G1 below), `!build`/`!craft` argful (WP-6 pending terminal), `!skill <branch>` argful (WP-5 pending terminal), `!mine` (absent-by-parity: golden `sweep_mine` pins the capture-world generic-error byte; grid system is deep-systems-successor scope).
 - **Panels**: 8 PanelSpecs render live; pending writes = vault 📥/📤 modals, forge 🔥/home 🏠 Build, 4 skill spends + ♻ Respec, workshop craft selector, grid, how-to (panels.py:143-157, 297-332, 432-451, 699-715, 860-873). Sub-hub navigation (Character/Workshop/Gear interactive) is flattened to result cards / direct opens — deviation ledgered (panels.py:41-43).
 
 ### Parity state
@@ -88,7 +88,7 @@ All 20 commands **PORTED** (18 fully; `!fishtop`/`!trophies` PARTIAL — populat
 
 ### Gaps vs oracle
 
-- **Real residue #1 — the minigame timing rung** (the only big gap; ledgered at ops.py:26–37 + service.py:1036–1044). Reel commits instantly, so bite-delay/fake-out (`effective_bite_speed` computed then discarded, service.py:335), reaction window/too-early spook/premature grace, trophy reel-fight + escape rolls, and the unprompted got-away edit do not exist ⇒ rod `window_bonus`/`premature_grace`/`escape_resist` and bait/Dock/weather bite-speed are outcome-inert, and **deepwater is strictly dominant in next** (rarer fish + coral, zero extra risk; oracle balanced by difficulty, venue.py:69–82). The pure math is already ported with no runtime caller (sb/domain/fishing/minigame.py:12–22) — the rung is wiring + kernel real-time timing support (D-0043).
+- **Real residue #1 — the minigame timing rung** (the only big gap; ledgered at ops.py:26–37 + service.py:1036–1044). Reel commits instantly, so bite-delay/fake-out (`effective_bite_speed` computed then discarded, service.py:335), reaction window/too-early spook/premature grace, trophy reel-fight + escape rolls, and the unprompted got-away edit do not exist ⇒ rod `window_bonus`/`premature_grace`/`escape_resist` and bait/Dock/weather bite-speed are outcome-inert, and **deepwater is strictly dominant in next** (rarer fish + coral, zero extra risk; oracle balanced by difficulty, venue.py:69–82). The pure math is already ported with no runtime caller (sb/domain/fishing/minigame.py:12–22) — the rung is wiring + kernel real-time timing support (the named deep-systems successor, docs/decisions.md).
 - **Real residue #2 — populated `!fishtop`/`!trophies` bodies**: oracle medals 🥇🥈🥉 + resolved display names + species count (fishing_cog.py:154–192) vs next's raw `1. <@id> — N fish` (service.py:994–996, 1015–1018). Self-ledgered under-port; `_member_display_name` seam already exists (panels.py:916) — cheap to close.
 - Checked and NOT gaps: weather (wired into roll + surfaces), curios/crafting (all five lanes), gear effects (pull live; bite-speed half inert per residue #1), venue unlocks (oracle has none by design), structures, fishlog dex verbatim, energy incl. Boathouse-adjusted settle.
 
@@ -103,7 +103,7 @@ All 20 commands **PORTED** (18 fully; `!fishtop`/`!trophies` PARTIAL — populat
 | 1 | **ORDER 019 item 4 disposition + completeness-row true-up** — item 4 is ALREADY DONE (#373+#394); fix the stale "starter shore profile" sentence at completeness-table :76 to name the actual residue (timing rung) | **S** | mild collision: `completeness-remainders` claim lists the table (its fishing slice landed #410) — **UNBLOCKED in practice**, note in PR |
 | 2 | **fishtop/trophies populated-body fidelity** — port medals/display-names/species-count/weight copy into `top_view`/`trophies_view` (service.py:979–1019) | **S** | service.py file-level overlap with the bait-race claim but disjoint functions — **UNBLOCKED** |
 | 3 | Cast-again continuation on the result card | M | needs a RESULT_CARD-with-actions seam — check precedent |
-| 4 | D-0043 minigame timing rung (restores deepwater risk balance) | **L** | needs kernel real-time panel-edit support; oracle truth = cast_view.py:202–382 |
+| 4 | Deferred minigame timing rung (restores deepwater risk balance) | **L** | needs kernel real-time panel-edit support; oracle truth = cast_view.py:202–382 |
 | 5 | Retire the stale `fishing-bait-race-fence` claim file | S | **BLOCKED-BY-CLAIM by definition** — claim owner/coordinator retires it, not a worker |
 | 6 | First row-bearing `fishing_rod` golden (retires the last fishing exemption, parity.yml:730–741) | M | parity-harness lane; check parity-hygiene claim first |
 | 7 | Anything on the bait-consume leg (service.py:295–315 / store.py:310–378) | — | **BLOCKED-BY-CLAIM** (`fishing-bait-race-fence`) — and already shipped #394 |
@@ -138,7 +138,7 @@ Accrual math: **none**. Remaining: (1) idle-summary blurb absent; (2) in-place e
 
 ### World-hub integration
 
-At parity: `world_farm` third in the world row with the oracle description VERBATIM (sb/domain/games/panels.py:273-275, 386-390), games-hub roster + `GAME_SECTIONS` activities entry (sb/manifest/games.py:96-97), enablement-gated per D-0082; nav-home pins `nav:hub:games`. The sections seam is a next-side improvement over the oracle's flat registry.
+At parity: `world_farm` third in the world row with the oracle description VERBATIM (sb/domain/games/panels.py:273-275, 386-390), games-hub roster + `GAME_SECTIONS` activities entry (sb/manifest/games.py:96-97), enablement-gated per the game-sections design ([game-sections.md](../design/game-sections.md)); nav-home pins `nav:hub:games`. The sections seam is a next-side improvement over the oracle's flat registry.
 
 ### Ranked extend/improve
 
