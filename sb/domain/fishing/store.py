@@ -39,6 +39,7 @@ __all__ = [
     "get_rod_tier",
     "lock_bait_slot",
     "lock_charm_slot",
+    "lock_curio_slot",
     "lock_rod_slot",
     "record_catch",
     "set_active_bait",
@@ -333,6 +334,20 @@ async def lock_charm_slot(conn: Any, *, user_id: int,
     await execute(
         "SELECT pg_advisory_xact_lock(hashtext($1))",
         (f"fishing:charm:{guild_id}:{user_id}",), conn=conn)
+
+
+async def lock_curio_slot(conn: Any, *, user_id: int,
+                          guild_id: int) -> None:
+    """Fence concurrent curio-carve attempts for one (user, guild)
+    against a double-craft over the same coral (the ``lock_charm_slot``
+    posture — materials, not coins, so this lock is the only guard).
+    The curio leg reads the coral count, then debits + grants — a
+    read-then-settle over shared ``mining_inventory`` rows; the advisory
+    lock serializes two racing carves. Auto-released at
+    commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:curio:{guild_id}:{user_id}",), conn=conn)
 
 
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
