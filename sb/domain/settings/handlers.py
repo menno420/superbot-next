@@ -19,6 +19,14 @@ __all__ = ["Reply", "ensure_handler_refs"]
 
 _PENDING = " ports with the settings-mutation panel slice."
 
+#: settings groups whose page is a REAL dedicated panel that is NOT the
+#: operator-spine ``<group>.hub`` shape — ``games.hub`` is the PLAYER games
+#: hub (band 6 parity flip), so the D-0082 §5 sections settings surface
+#: lives at its own id and the group select routes here first.
+_GROUP_PANELS: dict[str, str] = {
+    "games": "games.sections",
+}
+
 
 def _display_name(req) -> str:
     """The invoking member's display name (the shipped ``ctx.author``
@@ -71,10 +79,13 @@ def _register() -> None:
         mutation) to each group's page. Restore that navigation as a
         faithful READ SUBSET: open the group's read-only operator-spine hub
         when one is ensured (welcome/counters/security/automod/
-        image_moderation); every other group keeps the honest pending
-        terminal until the settings-mutation panel slice ports the full
-        edit page. Read-only by construction — open_panel or BLOCKED, no
-        write seam (mirrors ``help.open_category``)."""
+        image_moderation) or the group's dedicated settings panel
+        (``_GROUP_PANELS`` — the D-0082 games sections surface); every
+        other group keeps the honest pending terminal until the
+        settings-mutation panel slice ports the full edit page. This
+        handler only NAVIGATES — open_panel or BLOCKED, never a write
+        seam (mirrors ``help.open_category``); the games sections panel's
+        own components carry the mutations."""
         from sb.domain.operator_spine import has_operator_hub
         from sb.kernel.panels.engine import open_panel
         from sb.spec.outcomes import BLOCKED
@@ -82,6 +93,9 @@ def _register() -> None:
 
         values = tuple(req.args.get("values", ()) or ())
         group = str(values[0]) if values else ""
+        if group in _GROUP_PANELS:
+            await open_panel(PanelRef(_GROUP_PANELS[group]), req)
+            return None
         if group and has_operator_hub(group):
             await open_panel(PanelRef(f"{group}.hub"), req)
             return None

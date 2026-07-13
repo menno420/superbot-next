@@ -212,6 +212,16 @@
              },
              "label": "Rock Paper Scissors",
              "value": "rps_tournament"
+            },
+            {
+             "default": false,
+             "description": "Competitive games and channel activities",
+             "emoji": {
+              "id": null,
+              "name": "🎮"
+             },
+             "label": "Games",
+             "value": "games"
             }
            ],
            "placeholder": "Open a settings group…",

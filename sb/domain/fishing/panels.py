@@ -55,6 +55,23 @@ Under-port ledger (no golden pins these corners):
   bytes verbatim); the cast LEG still rolls the starter knobs
   (rarity_pull 1.0) — the rod→cast wiring rides the same
   rod/bait/minigame rung as the venue.
+* the bait (slice 3): the 🪱 Bait hub button and the bait shop now
+  read/write the LIVE stored loadout (``fishing_bait``, no row / 0
+  charges → bait-less — a fresh player renders the golden-pinned
+  "No bait loaded" bytes verbatim); the cast LEG still rolls the
+  starter knobs (no loaded rarity/speed multiplier, no charge spend) —
+  the bait→cast wiring rides the same rod/bait/minigame rung.
+* the structures (slice 4, FINAL): the 🏗 Structures hub button, the
+  structures sub-hub and the four coral structure panels now read/write
+  the LIVE built levels (``mining_structures`` via the mining.store
+  sole-writer seam; no row → not built — a fresh player renders the
+  golden-pinned not-built bytes verbatim) and the Build buttons run the
+  audited ``fishing.build_structure`` write; the cast LEG still rolls
+  the starter knobs (pull/bite/regen/double-catch mults ×1.0/+0.0) —
+  the structure→cast wiring rides the same rung. The shipped
+  Build-click in-place panel edit (safe_edit with the ✅/❌ note +
+  SUCCESS/ERROR recolor) opens as a fresh result card instead — the
+  farm in-place-edit under-port precedent.
 
 MONEY-RACE NOTE (#217 / coordinator ruling 2026-07-12): this module and
 the cast-open handler touch NO money primitive — fishing_energy is game
@@ -81,25 +98,39 @@ from sb.spec.panels import (
     PanelActionSpec,
     PanelSpec,
     ResultRender,
+    SelectorKind,
+    SelectorSpec,
     TextBlock,
 )
 from sb.spec.refs import HandlerRef, PanelRef, handler, is_registered, panel
 
 __all__ = [
+    "BAIT_PANEL_ID",
+    "BOATHOUSE_PANEL_ID",
     "CARD_PANEL_ID",
     "CAST_PANEL_ID",
+    "DOCK_PANEL_ID",
+    "FISHERY_PANEL_ID",
     "HUB_PANEL_ID",
     "LOG_PANEL_ID",
     "ROD_PANEL_ID",
     "ROD_RECIPES_PANEL_ID",
+    "STRUCTURES_PANEL_ID",
+    "TIDE_POOL_PANEL_ID",
+    "bait_shop_spec",
+    "boathouse_spec",
     "cast_spec",
+    "dock_spec",
     "ensure_panel_refs",
+    "fishery_spec",
     "fishing_card_spec",
     "fishing_hub_spec",
     "install_fishing_panels",
     "log_spec",
     "rod_recipes_spec",
     "rod_shop_spec",
+    "structures_hub_spec",
+    "tide_pool_spec",
 ]
 
 CAST_PANEL_ID = "fishing.cast_panel"
@@ -108,6 +139,12 @@ HUB_PANEL_ID = "fishing.hub"
 CARD_PANEL_ID = "fishing.card"
 ROD_PANEL_ID = "fishing.rod_panel"
 ROD_RECIPES_PANEL_ID = "fishing.rod_recipes_panel"
+BAIT_PANEL_ID = "fishing.bait_panel"
+STRUCTURES_PANEL_ID = "fishing.structures_panel"
+TIDE_POOL_PANEL_ID = "fishing.tide_pool_panel"
+DOCK_PANEL_ID = "fishing.dock_panel"
+BOATHOUSE_PANEL_ID = "fishing.boathouse_panel"
+FISHERY_PANEL_ID = "fishing.fishery_panel"
 
 
 #: views/fishing/cast_view.py, verbatim (the golden pins the rendered
@@ -187,12 +224,12 @@ def fishing_hub_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="fishing_bait", label="Bait", emoji="🪱",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("fishing.bait_pending")),
+                handler=PanelRef(BAIT_PANEL_ID)),
             PanelActionSpec(
                 action_id="fishing_structures", label="Structures",
                 emoji="🏗", style=ActionStyle.SECONDARY,
                 audience_tier="user",
-                handler=HandlerRef("fishing.structures_pending")),
+                handler=PanelRef(STRUCTURES_PANEL_ID)),
             PanelActionSpec(
                 action_id="fishing_log", label="Fishdex", emoji="📖",
                 style=ActionStyle.SECONDARY, audience_tier="user",
@@ -446,6 +483,210 @@ def rod_recipes_spec() -> PanelSpec:
             ("rr_craft",),
             ("rr_back",),)),)),
     )
+
+
+def _bait_buy_options() -> tuple[dict, ...]:
+    """views/fishing/bait_shop.py ``_BaitSelect`` options verbatim — one
+    per shelf entry (goldens/fishing/sweep_bait pins every option
+    byte)."""
+    from sb.domain.fishing import bait as bait_mod
+
+    return tuple(
+        {"label": f"{bait.name} — {bait.price} coins", "value": bait.key,
+         "emoji": bait.emoji,
+         "description": f"×{bait.charges} casts · "
+                        f"{bait_mod.bait_effect_text(bait)}"}
+        for bait in bait_mod.BAIT_CATALOG)
+
+
+def _bait_craft_options() -> tuple[dict, ...]:
+    """views/fishing/bait_shop.py ``_BaitCraftSelect`` options verbatim —
+    one per fish-craftable bait."""
+    from sb.domain.fishing import bait as bait_mod
+
+    options = []
+    for key in bait_mod.CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        recipe = bait_mod.craft_recipe(key)
+        if bait is None or recipe is None:
+            continue
+        options.append(
+            {"label": f"{bait.name} — {bait_mod.recipe_text(recipe)}",
+             "value": bait.key, "emoji": bait.emoji,
+             "description": f"×{bait.charges} casts · "
+                            f"{bait_mod.bait_effect_text(bait)}"})
+    return tuple(options)
+
+
+def _bait_pearl_options() -> tuple[dict, ...]:
+    """views/fishing/bait_shop.py ``_PearlCraftSelect`` options verbatim
+    — one per pearl-craftable bait (the 🦪 option emoji is the shipped
+    literal, not the bait's own)."""
+    from sb.domain.fishing import bait as bait_mod
+
+    options = []
+    for key in bait_mod.PEARL_CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        pearl_cost = bait_mod.pearl_recipe(key)
+        if bait is None or pearl_cost is None:
+            continue
+        options.append(
+            {"label": f"{bait.name} — "
+                      f"{bait_mod.pearl_recipe_text(pearl_cost)}",
+             "value": bait.key, "emoji": "🦪",
+             "description": f"×{bait.charges} casts · "
+                            f"{bait_mod.bait_effect_text(bait)}"})
+    return tuple(options)
+
+
+def bait_shop_spec() -> PanelSpec:
+    """The shipped bait shop (views/fishing/bait_shop.py ``BaitShopView``
+    + ``build_bait_embed``): the 🪱 Bait Shop ECONOMY_COLOR gold embed
+    (loaded bait / the shelf / craft-from-fish / craft-from-pearls with
+    the live pearl count / your balance) over the shipped THREE selects
+    (buy a pack · craft from caught fish · craft from pearls) + the
+    ↩ Fishing menu button on its own row. No help/home nav row (the
+    shipped author-restricted BaseView). ``goldens/fishing/
+    sweep_bait.json`` (and the byte-identical no-arg ``!craftbait`` open,
+    sweep_craftbait) pins every byte of the fresh bait-less open:
+    run-minted ``<cid:N>`` ids (timeout session view ⇒
+    ``session_lifecycle=True``, no ``panel_anchors`` row), every select
+    option label/emoji/description, and the No-bait-loaded embed."""
+    return PanelSpec(
+        panel_id=BAIT_PANEL_ID,
+        subsystem="fishing",
+        title="🪱 Bait Shop",
+        audience=Audience.INVOKER,
+        # ECONOMY_COLOR gold (15844367, utils/ui_constants.py); the live
+        # description + fields ride the override (see justification).
+        frame=EmbedFrameSpec(style_token="gold",
+                             footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="bs_buy", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("fishing.bait_buy_route"),
+                options_source=_bait_buy_options(),
+                placeholder="Buy a pack of bait…", audience_tier="user"),
+            SelectorSpec(
+                selector_id="bs_craft", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("fishing.craftbait_route"),
+                options_source=_bait_craft_options(),
+                placeholder="Craft a pack from caught fish…",
+                audience_tier="user"),
+            SelectorSpec(
+                selector_id="bs_pearl", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("fishing.craftpearl_route"),
+                options_source=_bait_pearl_options(),
+                placeholder="Craft a pack from pearls…",
+                audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="bs_menu", label="↩ Fishing menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        renderer_override=HandlerRef("fishing.render_bait_shop"),
+        justification=(
+            "the shipped `!bait` reply is a fully live-state-parameterized "
+            "embed built in the view (views/fishing/bait_shop.py "
+            "build_bait_embed: the loaded-bait/charges description, the "
+            "shelf + craft-from-fish fields, the craft-from-pearls field "
+            "whose NAME interpolates the live pearl count, and the live "
+            "`Your balance` field — goldens/fishing/sweep_bait.json pins "
+            "the fresh bait-less bytes), read-parameterized state outside "
+            "the static TextBlock/FieldsBlock vocabulary (the rod-shop / "
+            "mining-workshop precedent). The renderer patches only the "
+            "embed; every component (the three static-option selects + the "
+            "menu button) stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("bs_buy",),
+            ("bs_craft",),
+            ("bs_pearl",),
+            ("bs_menu",),)),)),
+    )
+
+
+async def _render_bait_shop(spec: PanelSpec, ctx) -> object:
+    """renderer_override — bait_shop.py's ``build_bait_embed`` verbatim
+    (see justification): grammar render + the live loaded-bait
+    description, the shelf / craft-from-fish / craft-from-pearls (live
+    pearl count) / balance fields. A fresh player reads no loadout /
+    0 pearls / balance 0 → the bytes goldens/fishing/sweep_bait.json
+    (and sweep_craftbait) pin."""
+    from sb.domain.economy.store import get_coins
+    from sb.domain.fishing import bait as bait_mod
+    from sb.domain.fishing import store
+    from sb.domain.fishing.ops import PEARL_ITEM
+    from sb.domain.mining.store import get_mining_inventory
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    cur_key, charges = await store.get_active_bait(uid, gid)
+    active = bait_mod.bait_by_key(cur_key)
+    if active is None or charges <= 0:
+        active, charges = None, 0
+    balance = await get_coins(uid, gid)
+    inventory = await get_mining_inventory(uid, gid)
+    pearls = inventory.get(PEARL_ITEM, 0)
+
+    if active is not None and charges > 0:
+        description = (
+            f"Loaded: **{active.name}** {active.emoji} — "
+            f"**{charges}** casts left "
+            f"({bait_mod.bait_effect_text(active)}).\n"
+            "*Each cast spends one charge and applies these on top of "
+            "your rod.*")
+    else:
+        description = (
+            "No bait loaded — you're fishing bare (which catches "
+            "fine!).\n"
+            "*Load a pack for rarer, bigger fish or quicker bites.*")
+
+    shelf = [
+        f"{bait.emoji} **{bait.name}** — {bait.price} 🪙 "
+        f"(×{bait.charges} casts, {bait_mod.bait_effect_text(bait)})"
+        for bait in bait_mod.BAIT_CATALOG]
+    fields: list[tuple[str, str]] = [("The shelf", "\n".join(shelf))]
+
+    craftable = []
+    for key in bait_mod.CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        recipe = bait_mod.craft_recipe(key)
+        if bait is None or recipe is None:
+            continue
+        craftable.append(
+            f"{bait.emoji} **{bait.name}** — {bait_mod.recipe_text(recipe)}")
+    if craftable:
+        fields.append((
+            "Craft from fish",
+            "\n".join(craftable)
+            + "\n*Turn small catches into bait — no coins needed.*"))
+
+    pearl_craftable = []
+    for key in bait_mod.PEARL_CRAFTABLE_KEYS:
+        bait = bait_mod.bait_by_key(key)
+        pearl_cost = bait_mod.pearl_recipe(key)
+        if bait is None or pearl_cost is None:
+            continue
+        pearl_craftable.append(
+            f"{bait.emoji} **{bait.name}** — "
+            f"{bait_mod.pearl_recipe_text(pearl_cost)}")
+    if pearl_craftable:
+        fields.append((
+            f"Craft from pearls (you have {pearls} 🦪)",
+            "\n".join(pearl_craftable)
+            + "\n*Pearls drop rarely when you reel in a fish — bigger "
+            "fish, better odds.*"))
+
+    fields.append(("Your balance", f"**{balance}** 🪙"))
+    embed = _dc_replace(rendered.embed, description=description,
+                        fields=tuple(fields))
+    return _dc_replace(rendered, embed=embed)
 
 
 async def _member_display_name(user_id: int, guild_id: int) -> str:
@@ -743,6 +984,383 @@ def _recipe_line(rod, recipe, eligible: int, *, owned: bool,
     return f"{mark} {rod.emoji} **{rod.name}** — {progress} ({cutoff}){ready}"
 
 
+# --- the coral structures (slice 4, FINAL): the shipped structures sub-hub
+# (views/fishing/structures_hub.py) + the four per-structure build panels
+# (views/fishing/{tide_pool,dock,boathouse,fishery}.py), verbatim. The four
+# panel goldens (sweep_tidepool / sweep_dock / sweep_boathouse /
+# sweep_fishery) pin every byte of the fresh not-built opens: the
+# emoji-in-label Build buttons (style 3) + ↩ Structures, the standard nav
+# row (📚 Help + ↩ Games — the shipped HubView, unlike the author-locked
+# rod/bait BaseViews), and the teal / dark-teal embeds with the live
+# Level / Current bonus / Next fields + the Build footer. No golden pins
+# the sub-hub itself (the shipped capture only ever reached it by button).
+
+
+def _tide_pool_bonus_text(level: int) -> str:
+    """views/fishing/tide_pool.py ``_bonus_text`` verbatim."""
+    from sb.domain.mining import structures
+
+    pct = round((structures.tide_pool_pull_mult(level) - 1.0) * 100)
+    return f"+{pct}% pull toward rarer fish" if pct else "no bonus yet"
+
+
+def _dock_bonus_text(level: int) -> str:
+    """views/fishing/dock.py ``_bonus_text`` verbatim."""
+    from sb.domain.mining import structures
+
+    pct = round((1.0 - structures.dock_bite_speed_mult(level)) * 100)
+    return f"{pct}% faster bites" if pct else "no bonus yet"
+
+
+def _boathouse_bonus_text(level: int) -> str:
+    """views/fishing/boathouse.py ``_bonus_text`` verbatim."""
+    from sb.domain.mining import structures
+
+    pct = round((1.0 - structures.boathouse_regen_mult(level)) * 100)
+    return f"{pct}% faster energy regen" if pct else "no bonus yet"
+
+
+def _fishery_bonus_text(level: int) -> str:
+    """views/fishing/fishery.py ``_bonus_text`` verbatim."""
+    from sb.domain.mining import structures
+
+    pct = round(structures.fishery_bonus_chance(level) * 100)
+    return f"+{pct}% double-catch chance" if pct else "no bonus yet"
+
+
+#: One row per structure panel: (panel-id, structure key, title,
+#: style token, Build emoji, action prefix, static description, maxed
+#: line, bonus-text fn) — the four shipped view modules, verbatim copy.
+def _structure_panel_rows() -> tuple[tuple, ...]:
+    from sb.domain.mining import structures
+
+    return (
+        (TIDE_POOL_PANEL_ID, structures.TIDE_POOL, "🪸 Tide Pool", "teal",
+         "🪸", "tp",
+         "Stock a reef pool with **coral** to nudge your casts toward "
+         "rarer fish. Coral drops on a **deepwater** reel (`!sail`) — "
+         "the same coral you can carve into curios, now with a second, "
+         "*useful* home.",
+         "Your Tide Pool is at its highest level — casts pull their "
+         "best.",
+         _tide_pool_bonus_text),
+        (DOCK_PANEL_ID, structures.DOCK, "⚓ Dock", "dark_teal", "⚓",
+         "dk",
+         "Build a dock with **coral** and **wood** so the fish bite "
+         "sooner — the cheap, early counterpart to the Tide Pool. Coral "
+         "drops on a **deepwater** reel (`!sail`); wood you already "
+         "mine. Faster bites vs. the Tide Pool's rarer fish — spend "
+         "your coral where you like.",
+         "Your Dock is at its highest level — the bite is as quick as "
+         "it gets.",
+         _dock_bonus_text),
+        (BOATHOUSE_PANEL_ID, structures.BOATHOUSE, "🛖 Boathouse",
+         "dark_teal", "🛖", "bh",
+         "Build a boathouse with **coral** and **wood** so your fishing "
+         "energy refills faster — less waiting when the line needs to "
+         "rest. Coral drops on a **deepwater** reel (`!sail`); wood you "
+         "already mine. More fishing (Boathouse) vs. rarer fish (Tide "
+         "Pool) vs. faster bites (Dock) — spend your coral where you "
+         "like.",
+         "Your Boathouse is at its highest level — energy refills as "
+         "fast as it gets.",
+         _boathouse_bonus_text),
+        (FISHERY_PANEL_ID, structures.FISHERY, "🐟 Fishery", "dark_teal",
+         "🐟", "fy",
+         "Build a fishery with **coral** and **wood** to keep the "
+         "waters well-stocked — a landed reel is more likely to hook a "
+         "**second** fish (extra craft fodder). Coral drops on a "
+         "**deepwater** reel (`!sail`); wood you already mine. More "
+         "fish per catch (Fishery) vs. rarer fish (Tide Pool) vs. "
+         "faster bites (Dock) vs. faster energy (Boathouse) — spend "
+         "your coral where you like.",
+         "Your Fishery is at its highest level — double catches as "
+         "often as it gets.",
+         _fishery_bonus_text),
+    )
+
+
+_STRUCTURE_BUILD_ROUTES = {
+    "tp": "fishing.tidepool_build_route",
+    "dk": "fishing.dock_build_route",
+    "bh": "fishing.boathouse_build_route",
+    "fy": "fishing.fishery_build_route",
+}
+
+
+def _structure_spec(panel_id: str, title: str, style_token: str,
+                    emoji: str, prefix: str, description: str) -> PanelSpec:
+    """One shipped structure panel (views/fishing/*.py: the build embed
+    over the {emoji} Build success button + ↩ Structures, on the shipped
+    HubView nav frame). The matching golden pins every byte of the fresh
+    not-built open: run-minted ``<cid:N>`` button ids (timeout session
+    view ⇒ ``session_lifecycle=True``, no ``panel_anchors`` row), the
+    emoji-in-label Build form (trap 15a's other flavor), style 3, the
+    nav:help / nav:hub:games slots, and the not-built embed."""
+    return PanelSpec(
+        panel_id=panel_id,
+        subsystem="fishing",
+        title=title,
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token=style_token,
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(description),),
+        actions=(
+            PanelActionSpec(
+                action_id=f"{prefix}_build", label=f"{emoji} Build",
+                style=ActionStyle.SUCCESS, audience_tier="user",
+                handler=HandlerRef(_STRUCTURE_BUILD_ROUTES[prefix]),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id=f"{prefix}_back", label="↩ Structures",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(STRUCTURES_PANEL_ID)),
+        ),
+        # the shipped structure panels are HubView children — they carry
+        # the standard nav row (📚 Help + ↩ Games; the goldens pin both
+        # slots), unlike the author-locked rod/bait BaseViews.
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef(f"fishing.render_{prefix}_structure"),
+        justification=(
+            "the shipped structure panel embed is live-state-"
+            "parameterized (views/fishing/ build_*_embed: the Level "
+            "field reads the player's built mining_structures level, "
+            "Current bonus renders the level's mult, and the Next field "
+            "interpolates the ladder cost — the matching "
+            "goldens/fishing sweep pins the fresh not-built bytes), and "
+            "the FOOTER switches between the Build hint and the maxed "
+            "form — read-parameterized state outside the static "
+            "TextBlock/FieldsBlock + FooterMode vocabulary (the "
+            "rod-shop / mining-forge precedent). The renderer patches "
+            "only the embed fields + footer; every component stays "
+            "grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            (f"{prefix}_build", f"{prefix}_back"),)),)),
+    )
+
+
+def tide_pool_spec() -> PanelSpec:
+    rows = _structure_panel_rows()[0]
+    return _structure_spec(rows[0], rows[2], rows[3], rows[4], rows[5],
+                           rows[6])
+
+
+def dock_spec() -> PanelSpec:
+    rows = _structure_panel_rows()[1]
+    return _structure_spec(rows[0], rows[2], rows[3], rows[4], rows[5],
+                           rows[6])
+
+
+def boathouse_spec() -> PanelSpec:
+    rows = _structure_panel_rows()[2]
+    return _structure_spec(rows[0], rows[2], rows[3], rows[4], rows[5],
+                           rows[6])
+
+
+def fishery_spec() -> PanelSpec:
+    rows = _structure_panel_rows()[3]
+    return _structure_spec(rows[0], rows[2], rows[3], rows[4], rows[5],
+                           rows[6])
+
+
+def structures_hub_spec() -> PanelSpec:
+    """The shipped fishing structures sub-hub (views/fishing/
+    structures_hub.py ``StructuresView`` + ``build_structures_embed``):
+    the 🏗 Fishing structures GAME_COLOR embed (every coral structure's
+    status at a glance) over the shipped FIVE buttons (Tide Pool 🪸 ·
+    Dock ⚓ · Boathouse 🛖 · Fishery 🐟 secondary on row one; ↩ Fishing
+    menu on row two — emoji as SEPARATE wire fields, trap 15a) and the
+    standard nav row. The fishing hub's 🏗 Structures button routes
+    here; each per-structure panel's ↩ Structures button routes back.
+    No golden pins this open (the shipped capture never clicked through)
+    — copy oracle-source-verbatim."""
+    return PanelSpec(
+        panel_id=STRUCTURES_PANEL_ID,
+        subsystem="fishing",
+        title="🏗 Fishing structures",
+        audience=Audience.INVOKER,
+        # GAME_COLOR purple (10181046) — structures_hub.py passes
+        # color=GAME_COLOR (its _STRUCTURES_COLOR constant is unused).
+        frame=EmbedFrameSpec(style_token="purple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(
+            "Spend the **coral** you reel in out on the **deepwater** "
+            "(`!sail`) on structures that make every cast better. Pick "
+            "one to build or upgrade."),),
+        actions=(
+            PanelActionSpec(
+                action_id="st_tidepool", label="Tide Pool", emoji="🪸",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(TIDE_POOL_PANEL_ID)),
+            PanelActionSpec(
+                action_id="st_dock", label="Dock", emoji="⚓",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(DOCK_PANEL_ID)),
+            PanelActionSpec(
+                action_id="st_boathouse", label="Boathouse", emoji="🛖",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(BOATHOUSE_PANEL_ID)),
+            PanelActionSpec(
+                action_id="st_fishery", label="Fishery", emoji="🐟",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(FISHERY_PANEL_ID)),
+            PanelActionSpec(
+                action_id="st_menu", label="↩ Fishing menu",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=PanelRef(HUB_PANEL_ID)),
+        ),
+        navigation=NavigationSpec(show_help=True, show_home=True,
+                                  home_hub="games"),
+        renderer_override=HandlerRef("fishing.render_structures_hub"),
+        justification=(
+            "the shipped sub-hub embed renders every coral structure's "
+            "LIVE status at a glance (views/fishing/structures_hub.py "
+            "build_structures_embed: one field per structure whose value "
+            "interpolates the player's built level, its max and the "
+            "level's bonus — `**Reef Pool** (1/3) — +4% pull toward "
+            "rarer fish`), read-parameterized state outside the static "
+            "TextBlock/FieldsBlock vocabulary, plus the shipped literal "
+            "footer outside FooterMode's vocabulary. The renderer "
+            "patches only the embed fields + footer; every component "
+            "stays grammar-rendered."),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("st_tidepool", "st_dock", "st_boathouse", "st_fishery"),
+            ("st_menu",),)),)),
+    )
+
+
+async def _render_structure(spec: PanelSpec, ctx, structure_key: str,
+                            emoji: str, maxed_line: str,
+                            bonus_text) -> object:
+    """renderer_override body shared by the four structure panels —
+    views/fishing/*.py ``build_*_embed`` verbatim (note="" — the open
+    path; the Build click replies a result card instead of editing in
+    place, the farm in-place-edit under-port precedent): grammar render
+    + the live Level / Current bonus / Next-or-Maxed fields + the
+    Build/Structures footer. A fresh player reads no row → level 0 →
+    the bytes the matching golden pins."""
+    from sb.domain.mining import structures, workshop
+    from sb.domain.mining.store import get_structures
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    built = await get_structures(uid, gid)
+    level = built.get(structure_key, 0)
+    fields: list[tuple[str, str]] = [
+        ("Level",
+         f"**{structures.level_name(structure_key, level)}** "
+         f"({level}/{structures.max_level(structure_key)})"),
+        ("Current bonus", bonus_text(level)),
+    ]
+    cost = structures.build_cost(structure_key, level)
+    if cost is None:
+        fields.append(("Maxed", maxed_line))
+        footer = "↩ Structures"
+    else:
+        nxt = structures.level_name(structure_key, level + 1)
+        fields.append((
+            f"Next: {nxt} → {bonus_text(level + 1)}",
+            f"{workshop.describe_materials(cost.materials)} + "
+            f"**{cost.coins}** 🪙"))
+        footer = f"{emoji} Build  •  ↩ Structures"
+    embed = _dc_replace(rendered.embed, fields=tuple(fields),
+                        footer=footer)
+    return _dc_replace(rendered, embed=embed)
+
+
+async def _render_tide_pool(spec: PanelSpec, ctx) -> object:
+    from sb.domain.mining import structures
+
+    return await _render_structure(
+        spec, ctx, structures.TIDE_POOL, "🪸",
+        "Your Tide Pool is at its highest level — casts pull their "
+        "best.", _tide_pool_bonus_text)
+
+
+async def _render_dock(spec: PanelSpec, ctx) -> object:
+    from sb.domain.mining import structures
+
+    return await _render_structure(
+        spec, ctx, structures.DOCK, "⚓",
+        "Your Dock is at its highest level — the bite is as quick as "
+        "it gets.", _dock_bonus_text)
+
+
+async def _render_boathouse(spec: PanelSpec, ctx) -> object:
+    from sb.domain.mining import structures
+
+    return await _render_structure(
+        spec, ctx, structures.BOATHOUSE, "🛖",
+        "Your Boathouse is at its highest level — energy refills as "
+        "fast as it gets.", _boathouse_bonus_text)
+
+
+async def _render_fishery(spec: PanelSpec, ctx) -> object:
+    from sb.domain.mining import structures
+
+    return await _render_structure(
+        spec, ctx, structures.FISHERY, "🐟",
+        "Your Fishery is at its highest level — double catches as "
+        "often as it gets.", _fishery_bonus_text)
+
+
+def _structure_status_line(structure_key: str, level: int,
+                           bonus_text) -> str:
+    """views/fishing/structures_hub.py ``_*_line`` verbatim — one status
+    line per structure: bold built name, (level/max), the bonus (or
+    "not built yet" at level 0)."""
+    from sb.domain.mining import structures
+
+    bonus = bonus_text(level)
+    if bonus == "no bonus yet":
+        bonus = "not built yet"
+    name = structures.level_name(structure_key, level)
+    return (f"**{name}** ({level}/{structures.max_level(structure_key)})"
+            f" — {bonus}")
+
+
+async def _render_structures_hub(spec: PanelSpec, ctx) -> object:
+    """renderer_override — structures_hub.py's ``build_structures_embed``
+    verbatim (see justification): grammar render + the four live status
+    fields + the shipped literal footer."""
+    from sb.domain.mining import structures
+    from sb.domain.mining.store import get_structures
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    uid = int(getattr(ctx.actor, "user_id", 0) or 0)
+    gid = int(ctx.guild_id or 0)
+    built = await get_structures(uid, gid)
+    fields = (
+        ("🪸 Tide Pool",
+         _structure_status_line(structures.TIDE_POOL,
+                                built.get(structures.TIDE_POOL, 0),
+                                _tide_pool_bonus_text)),
+        ("⚓ Dock",
+         _structure_status_line(structures.DOCK,
+                                built.get(structures.DOCK, 0),
+                                _dock_bonus_text)),
+        ("🛖 Boathouse",
+         _structure_status_line(structures.BOATHOUSE,
+                                built.get(structures.BOATHOUSE, 0),
+                                _boathouse_bonus_text)),
+        ("🐟 Fishery",
+         _structure_status_line(structures.FISHERY,
+                                built.get(structures.FISHERY, 0),
+                                _fishery_bonus_text)),
+    )
+    embed = _dc_replace(
+        rendered.embed, fields=fields,
+        footer=("🪸 Tide Pool  •  ⚓ Dock  •  🛖 Boathouse  •  "
+                "🐟 Fishery  •  ↩ Fishing menu"))
+    return _dc_replace(rendered, embed=embed)
+
+
 @panel(CAST_PANEL_ID)
 def _cast_factory() -> PanelSpec:
     return cast_spec()
@@ -773,6 +1391,36 @@ def _rod_recipes_factory() -> PanelSpec:
     return rod_recipes_spec()
 
 
+@panel(BAIT_PANEL_ID)
+def _bait_factory() -> PanelSpec:
+    return bait_shop_spec()
+
+
+@panel(STRUCTURES_PANEL_ID)
+def _structures_hub_factory() -> PanelSpec:
+    return structures_hub_spec()
+
+
+@panel(TIDE_POOL_PANEL_ID)
+def _tide_pool_factory() -> PanelSpec:
+    return tide_pool_spec()
+
+
+@panel(DOCK_PANEL_ID)
+def _dock_factory() -> PanelSpec:
+    return dock_spec()
+
+
+@panel(BOATHOUSE_PANEL_ID)
+def _boathouse_factory() -> PanelSpec:
+    return boathouse_spec()
+
+
+@panel(FISHERY_PANEL_ID)
+def _fishery_factory() -> PanelSpec:
+    return fishery_spec()
+
+
 _FACTORIES = (
     (CAST_PANEL_ID, _cast_factory),
     (LOG_PANEL_ID, _log_factory),
@@ -780,6 +1428,12 @@ _FACTORIES = (
     (CARD_PANEL_ID, _card_factory),
     (ROD_PANEL_ID, _rod_factory),
     (ROD_RECIPES_PANEL_ID, _rod_recipes_factory),
+    (BAIT_PANEL_ID, _bait_factory),
+    (STRUCTURES_PANEL_ID, _structures_hub_factory),
+    (TIDE_POOL_PANEL_ID, _tide_pool_factory),
+    (DOCK_PANEL_ID, _dock_factory),
+    (BOATHOUSE_PANEL_ID, _boathouse_factory),
+    (FISHERY_PANEL_ID, _fishery_factory),
 )
 
 _RENDERS = (
@@ -789,13 +1443,21 @@ _RENDERS = (
     ("fishing.render_card", _render_card),
     ("fishing.render_rod_shop", _render_rod_shop),
     ("fishing.render_rod_recipes", _render_rod_recipes),
+    ("fishing.render_bait_shop", _render_bait_shop),
+    ("fishing.render_structures_hub", _render_structures_hub),
+    ("fishing.render_tp_structure", _render_tide_pool),
+    ("fishing.render_dk_structure", _render_dock),
+    ("fishing.render_bh_structure", _render_boathouse),
+    ("fishing.render_fy_structure", _render_fishery),
 )
 
 
 def install_fishing_panels() -> tuple[PanelSpec, ...]:
     out = []
     for build in (cast_spec, log_spec, fishing_hub_spec, fishing_card_spec,
-                  rod_shop_spec, rod_recipes_spec):
+                  rod_shop_spec, rod_recipes_spec, bait_shop_spec,
+                  structures_hub_spec, tide_pool_spec, dock_spec,
+                  boathouse_spec, fishery_spec):
         spec = build()
         try:
             out.append(register_panel(spec))
