@@ -1,6 +1,6 @@
 # 2026-07-13 — session-card completeness fix (defuse the mtime-lottery gate trips)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · contained docs slice
 
@@ -28,6 +28,16 @@ EVERY card whose status reads `complete` in the diff, not just the
 newest-by-mtime card — a card that flips to `complete` while missing
 `💡`/review sections would then fail its OWN PR instead of a future
 innocent one, which is where both of these regressions slipped through.
+
+## Close-out
+
+PR #361. Verification: `python3 -m pytest tests/` — 2328 passed,
+2 skipped (full local suite); `python3 bootstrap.py check --strict` —
+green except this card's own designed born-red hold (flipped by this
+commit) and the pre-existing peer advisory on
+`control/claims/mining-write-parity-lane.md` (claims-format,
+untouched). All 14 PR checks green on the first run, including
+`checkers` and `gate`.
 
 ## ⟲ Previous-session review
 
