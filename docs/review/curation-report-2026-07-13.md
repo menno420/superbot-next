@@ -1474,7 +1474,7 @@ folds imply are owner-ratifiable. Grouped where the rationale is shared.
 ### (a) Shipping tonight — curation-rework PRs
 
 Contained wiring fixes with the target already live in-tree; each bundle is
-one PR (branch named, PR # pending — coordinator fills numbers on merge).
+one PR (branch + PR number below).
 
 1. **nav-wiring bundle** — branch `claude/curation-rework-nav-wiring`,
    PR #332: `server_management.hub.moderation` / `.roles` / `.cleanup` →
@@ -1484,14 +1484,14 @@ one PR (branch named, PR # pending — coordinator fills numbers on merge).
    `utility.panel.invite` → point at the live argless utility.invite_view
    handler (one-liner, sb/domain/utility/panels.py:153).
 2. **cleanup-words bundle** — branch `claude/curation-rework-cleanup-words`,
-   PR # pending: `cleanup.words.word_add` / `.word_remove` → button→modal→
+   PR #333: `cleanup.words.word_add` / `.word_remove` → button→modal→
    live workflow twins (moderation warn precedent,
    sb/domain/moderation/panels.py:132-138); `cleanup.words.scan_history` →
    handler:cleanup.history_scan; `cleanup.words.word_refresh` →
    REFRESH_PANEL one-liner; `cleanup.hub.logging` → nav PanelRef
    logging.hub (subsystem landed).
 3. **btd6-paragon bundle** — branch `claude/curation-rework-btd6-paragon`,
-   PR # pending: wire `btd6.paragon.calc` / `.requirements` / `.stats` +
+   PR #336: wire `btd6.paragon.calc` / `.requirements` / `.stats` +
    the 4 selectors (`paragon`/`players`/`difficulty`/`tier5`) to the
    already-ported math (sb/domain/btd6/paragon_math.py +
    paragon_degrees.py), replacing paragon_pending refs in
