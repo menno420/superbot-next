@@ -960,6 +960,22 @@ def _register() -> None:
                      "`!fishlog` your dex · `!fishtop` top anglers · "
                      "`!trophies` biggest catches")
 
+    @handler("fishing.rules_view")
+    async def rules_view(req) -> Reply:
+        """The hub's 📖 How-to-fish affordance — the shipped static
+        rules card (views/fishing/menu.py ``_rules_embed`` sent
+        ephemeral by ``rules_btn``; fishing.rules_card,
+        grammar-rendered — the creature.rules_view precedent)."""
+        import dataclasses
+
+        from sb.domain.fishing.panels import RULES_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        await open_panel(PanelRef(RULES_PANEL_ID),
+                         dataclasses.replace(req, args=dict(req.args)))
+        return Reply(SUCCESS, None)
+
     @handler("fishing.top_view")
     async def top_view(req) -> Reply:
         """!fishtop — the shipped 🎣 Top Anglers embed (fishing_cog.py
@@ -1029,24 +1045,16 @@ def _register() -> None:
 PENDING: dict[str, str] = {}
 
 
-def _register_hub_pending() -> None:
-    """Hub-button-only pending surfaces (no command form — the shipped
-    menu routed these to the rules embed view). Registered at module
-    IMPORT (the role/handlers.py pattern — declaring IS reserving;
-    never ensure-only). The 🏗 Structures button left this set in
-    slice 4 — it now routes to the live structures sub-hub PanelSpec."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler(
-        "fishing.howtofish_pending",
-        "🎣 The how-to-fish guide rides the fishing depth port — named "
-        "successor work (D-0043); cast with `!fish` and hit Reel when "
-        "it bites.")
+#: The hub-button-only pending set is EMPTY too: the 📖 How-to-fish
+#: button (the last `_register_hub_pending` occupant —
+#: fishing.howtofish_pending) now routes to the live static rules card
+#: (fishing.rules_view → fishing.rules_card, the oracle _rules_embed
+#: verbatim); the 🏗 Structures button left in slice 4. The retired
+#: pending ref no longer registers (trap 12a).
 
 
 def ensure_handler_refs() -> None:
     _register()
-    _register_hub_pending()
     from sb.domain.operator_spine import pending_handler
 
     for name, system in PENDING.items():
@@ -1058,4 +1066,3 @@ def ensure_handler_refs() -> None:
 
 
 _register()
-_register_hub_pending()

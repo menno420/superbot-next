@@ -171,10 +171,17 @@ source:
   # cleanup.wordfilter_strict_op (strict=true upsert + audit row) and the
   # session view re-renders in place with the shipped 🟢 On field literal
   # (oracle disbot/cogs/cleanup_cog.py _WordMenuView.btn_strict @ 9776401).
-  minted_goldens: 30
+  # +1 minted the fishing HOWTOFISH rules-card golden (2026-07-13, the
+  # completeness-remainders fishing row, same D-0073 procedure):
+  # goldens/fishing/fishing_howtofish_rules_card.json — `!fishing` → the
+  # hub's 📖 How-to-fish button by component_index (the first golden that
+  # drives the fishing_rules button): the shipped ephemeral _rules_embed
+  # quick-reference (views/fishing/menu.py rules_btn @ 9776401), a pure
+  # read whose only db_delta is the message-driven xp.award pair.
+  minted_goldens: 31
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 492). The first retirement (2026-07-12
+  # imported + minted − retired = 493). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030

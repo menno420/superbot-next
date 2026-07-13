@@ -802,6 +802,27 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "panel footer still shows the spent-from pack (`🪱 Worm Bait (0 "
             "left)`) exactly as the oracle CastStart carried it"),
     ),
+    GoldenCase(
+        id="fishing.howtofish_rules_card",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fishing", persona="member"),
+            # …the hub's 📖 How to fish button (row two, after Fishdex —
+            # flattened index 6 over the 5+2 layout rows) opens the
+            # static rules card as an ephemeral reply.
+            Step(kind="click", target_message=1, component_index=6,
+                 persona="member"),
+        ),
+        notes=(
+            "the hub 📖 How-to-fish affordance: the shipped rules_btn sent "
+            "_rules_embed as an ephemeral component reply (views/fishing/"
+            "menu.py) — a fully static purple quick-reference card with no "
+            "fields, footer or components and an EMPTY db_delta (a pure "
+            "read; the creature rules-card posture). Pins the "
+            "oracle-verbatim loop/get-better-catches copy the "
+            "fishing.howtofish_pending terminal answered with a stub "
+            "until 2026-07-13"),
+    ),
     # ------------------------------------------- cleanup anti-evasion WRITE
     # The first golden that CLICKS the words manager's 🛡️ Anti-evasion
     # button (the 2026-07-13 residue port armed it — the imported sweep only
