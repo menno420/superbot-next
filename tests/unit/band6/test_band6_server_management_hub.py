@@ -106,9 +106,10 @@ def test_ported_forwards_and_pending_terminals():
     assert by_id["sm_refresh"].handler == PanelRef("server_management.hub")
     assert by_id["access_map"].handler == PanelRef(
         "server_management.access_map")
+    assert by_id["help_preview"].handler == PanelRef(
+        "server_management.help_preview")
     # unported managers land on declared pending terminals.
-    for aid in ("moderation", "roles", "cleanup",
-                "help_preview", "help_editor"):
+    for aid in ("moderation", "roles", "cleanup", "help_editor"):
         assert by_id[aid].handler == HandlerRef(
             f"server_management.{aid}_pending"), aid
 
@@ -208,7 +209,6 @@ def test_panel_and_handler_refs_registered():
                  "server_management.moderation_pending",
                  "server_management.roles_pending",
                  "server_management.cleanup_pending",
-                 "server_management.help_preview_pending",
                  "server_management.help_editor_pending"):
         assert is_registered(HandlerRef(name)), name
 
@@ -233,9 +233,10 @@ def test_manifest_declares_both_front_doors():
     assert slash.route == PanelRef("server_management.hub")
     assert slash.defer_mode is DeferMode.NONE
     assert slash.audience_tier == "administrator"
-    (spec, access_map) = MANIFEST.panels
+    (spec, access_map, help_preview) = MANIFEST.panels
     assert spec.panel_id == "server_management.hub"
     assert access_map.panel_id == "server_management.access_map"
+    assert help_preview.panel_id == "server_management.help_preview"
     # R2 stays vacuous: no declared stores/events/settings.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()

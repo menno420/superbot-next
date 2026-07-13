@@ -570,4 +570,5 @@ def test_manifest_declares_the_access_map_panel():
     from sb.manifest.server_management import MANIFEST
 
     ids = [p.panel_id for p in MANIFEST.panels]
-    assert ids == ["server_management.hub", "server_management.access_map"]
+    assert "server_management.hub" in ids
+    assert "server_management.access_map" in ids
