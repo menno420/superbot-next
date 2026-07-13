@@ -5184,6 +5184,86 @@
           "value": "trivia_reveal"
         },
         {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eh_hubs"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eh_subsystems"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eh_home_msg"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eh_reset_all"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eph_prev"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eph_next"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eps_prev"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "eps_next"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "ee_hide"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "ee_rename"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "ee_redescribe"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "ee_reset_name"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "ee_reset_desc"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "ee_reset_entity"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "erc_confirm"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "erc_cancel"
+        },
+        {
           "source": "sb/manifest/inventory.py",
           "subsystem": "inventory",
           "value": "open_mining_materials"
@@ -7088,6 +7168,31 @@
           "value": "help.home"
         },
         {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.editor_home"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.editor_pick_hub"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.editor_pick_sub"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.editor_entity"
+        },
+        {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help.editor_reset_confirm"
+        },
+        {
           "source": "sb/manifest/hermes.py",
           "subsystem": "hermes",
           "value": "hermes.bridge_unconfigured"
@@ -8384,6 +8489,11 @@
           "value": "governance_templates"
         },
         {
+          "source": "sb/manifest/help.py",
+          "subsystem": "help",
+          "value": "help_overlay"
+        },
+        {
           "source": "sb/manifest/karma.py",
           "subsystem": "karma",
           "value": "karma"
@@ -8605,6 +8715,9 @@
       },
       "engine:governance.store": {
         "module": "sb.domain.governance.store"
+      },
+      "engine:help.overlay_store": {
+        "module": "sb.domain.help.overlay"
       },
       "engine:karma.store": {
         "module": "sb.domain.karma.store"
@@ -9950,11 +10063,71 @@
       "handler:general.trivia_view": {
         "module": "sb.domain.general.handlers"
       },
+      "handler:help.editor_home_message_pending": {
+        "module": "sb.domain.operator_spine"
+      },
+      "handler:help.editor_hub_next": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_hub_prev": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_open_hubs": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_open_subs": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_pick_hub": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_pick_subsystem": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_redescribe": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_rename": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_reset_all": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_reset_desc": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_reset_entity": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_reset_name": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_subsystem_next": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_subsystem_prev": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.editor_toggle_hide": {
+        "module": "sb.domain.help.editor"
+      },
       "handler:help.open_category": {
         "module": "sb.domain.help.service"
       },
       "handler:help.open_subsystem": {
         "module": "sb.domain.help.service"
+      },
+      "handler:help.render_editor_entity": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.render_editor_home": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.render_editor_pick_hub": {
+        "module": "sb.domain.help.editor"
+      },
+      "handler:help.render_editor_pick_subsystem": {
+        "module": "sb.domain.help.editor"
       },
       "handler:hermes.bugreport": {
         "module": "sb.domain.hermes.handlers"
@@ -10401,9 +10574,6 @@
         "module": "sb.domain.server_management.access_map"
       },
       "handler:server_management.cleanup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
-      "handler:server_management.help_editor_pending": {
         "module": "sb.domain.operator_spine"
       },
       "handler:server_management.help_preview_tier": {
@@ -11216,6 +11386,21 @@
       "panel:help.cat_utility": {
         "module": "sb.domain.help.service"
       },
+      "panel:help.editor_entity": {
+        "module": "sb.domain.help.editor"
+      },
+      "panel:help.editor_home": {
+        "module": "sb.domain.help.editor"
+      },
+      "panel:help.editor_pick_hub": {
+        "module": "sb.domain.help.editor"
+      },
+      "panel:help.editor_pick_sub": {
+        "module": "sb.domain.help.editor"
+      },
+      "panel:help.editor_reset_confirm": {
+        "module": "sb.domain.help.editor"
+      },
       "panel:help.home": {
         "module": "sb.domain.help.service"
       },
@@ -11747,6 +11932,18 @@
       "provider:games.world_fields": {
         "module": "sb.domain.games.panels"
       },
+      "provider:help.editor_entity_fields": {
+        "module": "sb.domain.help.editor"
+      },
+      "provider:help.editor_home_fields": {
+        "module": "sb.domain.help.editor"
+      },
+      "provider:help.editor_hub_options": {
+        "module": "sb.domain.help.editor"
+      },
+      "provider:help.editor_subsystem_options": {
+        "module": "sb.domain.help.editor"
+      },
       "provider:image_moderation.hub_settings": {
         "module": "sb.domain.operator_spine"
       },
@@ -11805,6 +12002,33 @@
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cat_moderation": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_admin": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_btd6": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_community": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_economy": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_games": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_moderation": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_other": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_project_moon": {
+        "module": "sb.domain.help.service"
+      },
+      "provider:sb.panels.help_cat_opts_utility": {
         "module": "sb.domain.help.service"
       },
       "provider:sb.panels.help_cat_other": {
@@ -12547,6 +12771,18 @@
       },
       "workflow:governance.visibility_payload": {
         "module": "sb.domain.governance.ops"
+      },
+      "workflow:help.record_reset_overlay": {
+        "module": "sb.domain.help.overlay_ops"
+      },
+      "workflow:help.record_set_overlay_fields": {
+        "module": "sb.domain.help.overlay_ops"
+      },
+      "workflow:help.reset_overlay": {
+        "module": "sb.domain.help.overlay_ops"
+      },
+      "workflow:help.set_overlay_fields": {
+        "module": "sb.domain.help.overlay_ops"
       },
       "workflow:karma.erase_subject_karma": {
         "module": "sb.domain.karma.ops"
@@ -13408,6 +13644,14 @@
         },
         "subsystem": "treasury"
       },
+      "help_overlay": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "help_overlay",
+        "sole_writer": {
+          "$ref": "engine:help.overlay_store"
+        },
+        "subsystem": "help"
+      },
       "inventory": {
         "checkpoint_class": "aggregate",
         "invariant_tag": "inventory",
@@ -13699,7 +13943,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:fad0d09c68c37f25bde4f75da1b8c40c90103029b99537f0b9f86d43414aa6ae",
+  "stable_hash": "sha256:dcc38f23a901c20ef66fe2e047d705b0b5c3e999b5edaee831c2bc251fe32e3a",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -38067,19 +38311,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🎮 Games",
-                "🃏 Blackjack",
-                "🎰 Casino",
-                "⚔️ Deathmatch",
-                "✂️ Rock Paper Scissors",
-                "⛏️ Mining",
-                "🔢 Counting",
-                "🔗 Word Chain",
-                "🎣 Fishing",
-                "🐾 Creatures",
-                "🐔 Chicken Farm"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_games"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -38373,9 +38607,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🐵 BTD6 Assistant"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_btd6"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -38496,9 +38730,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🌑 Project Moon"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_project_moon"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -38760,12 +38994,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "💰 Economy",
-                "🎒 Inventory",
-                "🏆 Leaderboard",
-                "🏛️ Treasury"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_economy"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -39168,15 +39399,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🔨 Moderation",
-                "🛡️ Automod",
-                "🖼️ Image moderation",
-                "🧹 Cleanup",
-                "📝 Server Logging",
-                "📋 Proof Channel",
-                "🛡️ Server Security"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_moderation"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -39626,16 +39851,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🌱 Community",
-                "⭐ XP & Levels",
-                "✨ Karma",
-                "🌟 Community Spotlight",
-                "🎭 Roles",
-                "👋 Welcome",
-                "📊 Server Counters",
-                "🎫 Support Tickets"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_community"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -39850,11 +40068,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🔧 Utility",
-                "💬 General",
-                "🍃 420"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_utility"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -40367,16 +40583,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "⚙️ Administration",
-                "🧪 UX Lab",
-                "📐 Channels",
-                "🧭 Server Management",
-                "🤖 AI Platform",
-                "⚙️ Settings Manager",
-                "🩺 Diagnostics",
-                "🧰 Setup"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_admin"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -40544,10 +40753,9 @@
               "on_select": {
                 "$ref": "handler:help.open_subsystem"
               },
-              "options_source": [
-                "🔹 hermes",
-                "🔹 starboard"
-              ],
+              "options_source": {
+                "$ref": "provider:sb.panels.help_cat_opts_other"
+              },
               "page_size": 25,
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
@@ -40634,10 +40842,809 @@
           "timeout_s": 180,
           "title": "📚 Help Menu",
           "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "eh_hubs",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_open_hubs"
+              },
+              "label": "🏛 Hubs",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "eh_subsystems",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_open_subs"
+              },
+              "label": "🧩 Subsystems",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "eh_home_msg",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_home_message_pending"
+              },
+              "label": "🏠 Home message",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "eh_reset_all",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:help.editor_reset_confirm"
+              },
+              "label": "🗑 Reset all…",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Customize what **Help** shows in this server: hide entries (hidden from Help but still executable), rename them, or re-describe them. Changes apply to Help only — never to permissions or execution."
+            },
+            {
+              "provider": {
+                "$ref": "provider:help.editor_home_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped editor footer is the literal 'Changes are live in Help immediately — verify with 👁 Help Preview' (views/help/editor.py _FOOTER) — outside FooterMode's none/subsystem/provenance vocabulary (the hub-footer precedent). The override delegates to the grammar renderer and sets only the footer byte; body, fields, actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "eh_hubs",
+                    "eh_subsystems",
+                    "eh_home_msg"
+                  ],
+                  [
+                    "eh_reset_all"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.home"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "help.editor_home",
+          "renderer_override": {
+            "$ref": "handler:help.render_editor_home"
+          },
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "✏️ Help appearance editor",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "eph_prev",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_hub_prev"
+              },
+              "label": "◀ Prev",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "eph_next",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_hub_next"
+              },
+              "label": "Next ▶",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a hub to hide, rename, or re-describe. 🙈 marks entries currently hidden from Help."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped picker placeholder is PAGE-keyed state copy ('Pick a … to edit… (page N/M)' past one page), the shipped ◀ Prev / Next ▶ pair renders edge-DISABLED (actions carry no disabled state in the grammar), and the shipped editor footer literal rides every editor surface (the cogmgr window + hub-footer precedents). The override delegates to the grammar renderer and adjusts only those surfaces; the select options stay provider-declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "eph_select"
+                  ],
+                  [
+                    "eph_prev",
+                    "eph_next"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.editor_home"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "help.editor_pick_hub",
+          "renderer_override": {
+            "$ref": "handler:help.render_editor_pick_hub"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "(nothing to edit)",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.editor_pick_hub"
+              },
+              "options_source": {
+                "$ref": "provider:help.editor_hub_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a hub to edit…",
+              "selector_id": "eph_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "✏️ Help editor — hubs",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "eps_prev",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_subsystem_prev"
+              },
+              "label": "◀ Prev",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "eps_next",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_subsystem_next"
+              },
+              "label": "Next ▶",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a subsystem to hide, rename, or re-describe. 🙈 marks entries currently hidden from Help."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped picker placeholder is PAGE-keyed state copy ('Pick a … to edit… (page N/M)' past one page), the shipped ◀ Prev / Next ▶ pair renders edge-DISABLED (actions carry no disabled state in the grammar), and the shipped editor footer literal rides every editor surface (the cogmgr window + hub-footer precedents). The override delegates to the grammar renderer and adjusts only those surfaces; the select options stay provider-declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "eps_select"
+                  ],
+                  [
+                    "eps_prev",
+                    "eps_next"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.editor_home"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "help.editor_pick_sub",
+          "renderer_override": {
+            "$ref": "handler:help.render_editor_pick_subsystem"
+          },
+          "selectors": [
+            {
+              "audience_tier": "administrator",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "(nothing to edit)",
+              "kind": "entity",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:help.editor_pick_subsystem"
+              },
+              "options_source": {
+                "$ref": "provider:help.editor_subsystem_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a subsystem to edit…",
+              "selector_id": "eps_select",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "✏️ Help editor — subsystems",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "ee_hide",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_toggle_hide"
+              },
+              "label": "🙈 Hide",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ee_rename",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_rename"
+              },
+              "label": "✏️ Rename…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "name",
+                    "label": "Custom display name (Help only)",
+                    "max_length": 100,
+                    "min_length": 1,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "help.editor_rename_form",
+                "on_submit": {
+                  "$ref": "handler:help.editor_rename"
+                },
+                "title": "Rename in Help"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ee_redescribe",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "modal",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_redescribe"
+              },
+              "label": "📝 Re-describe…",
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "description",
+                    "label": "Custom description (Help only)",
+                    "max_length": 100,
+                    "min_length": 1,
+                    "placeholder": "",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "help.editor_redescribe_form",
+                "on_submit": {
+                  "$ref": "handler:help.editor_redescribe"
+                },
+                "title": "Re-describe in Help"
+              },
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ee_reset_name",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_reset_name"
+              },
+              "label": "♻️ Reset name",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ee_reset_desc",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_reset_desc"
+              },
+              "label": "♻️ Reset description",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "ee_reset_entity",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_reset_entity"
+              },
+              "label": "🗑 Reset entity",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Pick a hub or subsystem from the editor first."
+            },
+            {
+              "provider": {
+                "$ref": "provider:help.editor_entity_fields"
+              }
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped entity card's TITLE ('✏️ <custom or default name>'), DESCRIPTION ('Editing the **<kind>** `<key>` …') and FOOTER ('… · stable key: <key>') are entity-keyed state copy, and the shipped Hide button RELABELS to '👁 Unhide' (+ green style) while the entity is hidden — state-keyed component copy outside the static grammar (the cogmgr selection-footer precedent). The override delegates to the grammar renderer and adjusts only those four surfaces; fields, the remaining actions and layout stay declared.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "ee_hide",
+                    "ee_rename",
+                    "ee_redescribe"
+                  ],
+                  [
+                    "ee_reset_name",
+                    "ee_reset_desc",
+                    "ee_reset_entity"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.editor_home"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "help.editor_entity",
+          "renderer_override": {
+            "$ref": "handler:help.render_editor_entity"
+          },
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "✏️ Help entity editor",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "erc_confirm",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:help.editor_reset_all"
+              },
+              "label": "🗑 Yes, reset everything",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "erc_cancel",
+              "audience_tier": "administrator",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:help.editor_home"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Every hide, rename, and re-description in this server will be removed and Help returns to its defaults. This cannot be undone (the audit log keeps the history)."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "red",
+            "thumbnail_ref": ""
+          },
+          "justification": "",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "erc_confirm",
+                    "erc_cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": {
+              "$ref": "panel:help.editor_home"
+            },
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "help.editor_reset_confirm",
+          "renderer_override": null,
+          "selectors": [],
+          "session_lifecycle": false,
+          "subsystem": "help",
+          "timeout_s": 180,
+          "title": "Reset ALL Help customizations?",
+          "usage_weight": 1.0
         }
       ],
       "settings": [],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "none",
+          "erasure_ref": null,
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "help_overlay",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "interaction",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:help.overlay_store"
+          },
+          "table": "help_overlay",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },
@@ -51118,7 +52125,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.help_editor_pending"
+                "$ref": "panel:help.editor_home"
               },
               "label": "✏️ Help editor",
               "modal": null,

@@ -93,7 +93,7 @@
 | role | ✅ 17 cmds incl. temprole compensator; reaction-roles K7 lanes | ✅ hub 📝 Create = the shipped `RoleCreateModal` over the live `!createrole` lane (`role.create_form_submit`; ORDER 017 operator-hub edits A — hoist/mentionable ride the provisioning-port extension, the preset creation menu is a named successor) | ✅ |
 | rps_tournament | ✅ `!rpsbot` deep bot-match flow armed (ORDER 017 fix slice, the PR that updates this row): per-player button views on the ledgered home-channel deviation, per-round stats through the audited `rps.bot_round` lane (`rps.bot_route`/`rps.botmatch_move` → `sb/domain/rps/bot_match.py`; zero rps pending routes remain); tournament core + cross-game guard (#277) live | ✅ | ✅ |
 | security | ✅ raid window + age gate cores live-proven | ✅ | ✅ 9 settings |
-| server_management | ✅ hub renders; channels forwards to ported channel ops | ⚑ 6 hub actions pending (moderation/roles/cleanup/access_map/help_preview/help_editor → `operator_spine`) | ✅ |
+| server_management | ✅ hub renders; channels forwards to ported channel ops | ⚑ 3 hub actions pending (moderation/roles/cleanup → `operator_spine`); access_map/help_preview/help_editor PORTED (ORDER 017 projections slices A/B/C — #362 Access Map = the P1A projection + P1C subpanel, D-0087 `sb/domain/server_management/access_projection.py`+`access_map.py`; Help Preview = the compiled-honest projection consumer, D-0088 `help_preview.py`; Help editor = the named-successor overlay store + audited K7 lanes + editor family, D-0089 `sb/domain/help/{overlay,overlay_ops,editor}.py`, live-Help overlay wiring incl. hide/rename on index+category surfaces) | ✅ |
 | settings | ✅ hub + explorer + per-group mutation pages (band-7 settings-mutation slice) | ⚑ 9 actions + 2 selectors pending: hub `needs_setup/invalid/missing_bindings/audit/command_access` + access panel explain/reset/paging + subsystem/scope selects (`operator_spine`) | ✅ K7 declare/read/bind proven live |
 | setup | ✅ wizard interior live (wizard-lifecycle slice, ORDER 017): the 10 counted actions + the `essential_kind` selector armed — depth choice persists + lands on the ported sections hub, essential Step-1 applies the starter set through K7 `settings.set_scalar`, the suggestions review/walkthrough/stage lanes mutate state + write the K9 draft; `/setup-skip`+`/setup-unskip` session writes + `/setup-reset` clearing branch live (`sb/domain/setup/wizard.py`) | ✅ | ⚑ named successors (declared-honest terminals, `wizard.py` docstring): essential steps 2–8, the 10 per-section flows + linear wizard steps (`setup.open_section_*` / `setup.back_to_wizard`), the suggestion Edit lane, the final-review apply lane |
 | starboard | ✅ config command family + ignore writes | ✅ | ✅ threshold modal armed (the shipped `_ThresholdModal` G-10 form over the audited `starboard.configure` op — `sb/domain/starboard/panels.py`, ORDER 017 slice C) |
@@ -172,8 +172,11 @@ unregistered refs, no empty-string error paths).
    merged) armed the cogmgr select + windowing and reclassified the
    deploy trio by-design; peers own xp config (#345), cleanup words
    (#333), server_management nav trio + utility Invite (#332).
-   Remaining free: server_management access_map/help_preview/
-   help_editor (a 2.3k-line oracle projection pair — its own slice).**
+   Remaining free: ~~server_management access_map/help_preview/
+   help_editor~~ — ✅ DONE (ORDER 017 night-run follow-up, projections
+   slices A/B/C: #362 + the help-preview + help-editor PRs; D-0087/
+   D-0088/D-0089). The hub's remaining pending trio is
+   moderation/roles/cleanup (each its own manager port slice).**
 7. **btd6 paragon calculator** — ✅ DONE (ORDER 017 night-run slice A):
    the 3 actions + 4 selectors armed as the pure-compute port
    (`sb/domain/btd6/paragon_panel.py`); `btd6.paragon_pending` retired.
