@@ -28,7 +28,9 @@ from __future__ import annotations
 from sb.domain.server_management import access_map as _access_map
 from sb.domain.server_management import handlers as _handlers
 from sb.domain.server_management import help_preview as _help_preview
+from sb.domain.server_management import ops as _ops
 from sb.domain.server_management import panels as _panels
+from sb.domain.server_management import routing as _routing
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
 from sb.spec.outcomes import DeferMode
@@ -60,8 +62,15 @@ MANIFEST = SubsystemManifest(
             # over the P1A projection — access_map.py / help_preview.py).
             _access_map.access_map_spec(),
             _help_preview.help_preview_spec()),
-    settings=(), stores=(), events=(), capabilities=(),
+    settings=(),
+    # the routing port (compound-ops slice 2): command_routing_policy —
+    # axis 3 of the access projection reads it; the K7 routing.set_policy
+    # op (ops.py) is its sole writer.
+    stores=(_routing.COMMAND_ROUTING_STORE,),
+    events=(), capabilities=(),
 )
+
+_ops.register_ops()
 
 
 def _ensure_refs() -> None:
@@ -69,6 +78,8 @@ def _ensure_refs() -> None:
     _handlers.ensure_handler_refs()
     _access_map.ensure_access_map_refs()
     _help_preview.ensure_help_preview_refs()
+    _routing.ensure_refs()
+    _ops.ensure_ops_refs()
 
 
 ENSURE_REFS = _ensure_refs
