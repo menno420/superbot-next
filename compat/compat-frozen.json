@@ -2724,6 +2724,7 @@
   "setup_section:role_templates",
   "setup_section:roles",
   "setup_section:ticket",
+  "starboard.threshold_form",
   "ticket.launcher_open_form",
   "ticket.open_form",
   "ticket:launcher:open",
