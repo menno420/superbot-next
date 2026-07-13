@@ -1,6 +1,6 @@
 # 2026-07-13 — btd6 paragon calculator port (ORDER 017 night-run fix slice A)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · NIGHT-RUN fix slice A · mandate: ORDER 017
   (PR #323), gap row 7 of `docs/status/completeness-table-2026-07-13.md`
