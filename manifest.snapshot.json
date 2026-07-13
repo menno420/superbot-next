@@ -243,6 +243,7 @@
     "SelectorSpec.selector_id": "S",
     "SelectorSpec.slash_common": "S",
     "SelectorSpec.usage_weight": "O",
+    "SelectorSpec.windowed": "S",
     "SettingGroupSpec.description": "S",
     "SettingGroupSpec.group_id": "S",
     "SettingGroupSpec.label": "S",
@@ -16545,7 +16546,8 @@
               "placeholder": "Choose a cog… — page 1/3",
               "selector_id": "cogmgr_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -17701,7 +17703,8 @@
               "placeholder": "Edit a setting…",
               "selector_id": "edit_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -17770,7 +17773,8 @@
               "placeholder": "Reset a setting to its default…",
               "selector_id": "reset_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -18744,7 +18748,8 @@
               "placeholder": "Pick a new value…",
               "selector_id": "enum_value",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -18917,7 +18922,8 @@
               "placeholder": "Pick a channel to configure…",
               "selector_id": "policy_channel_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -18996,7 +19002,8 @@
               "placeholder": "Pick a category to configure…",
               "selector_id": "policy_category_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19075,7 +19082,8 @@
               "placeholder": "Pick a role to configure…",
               "selector_id": "policy_role_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19152,7 +19160,8 @@
               "placeholder": "Pick a channel to preview…",
               "selector_id": "policy_preview_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19567,7 +19576,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "behavior_channel_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19646,7 +19656,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "behavior_category_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19723,7 +19734,8 @@
               "placeholder": "Pick a channel to preview…",
               "selector_id": "behavior_preview_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19802,7 +19814,8 @@
               "placeholder": "Pick a preset…",
               "selector_id": "behavior_preset_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19879,7 +19892,8 @@
               "placeholder": "Pick a channel to preview routing for…",
               "selector_id": "behavior_matrix_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19958,7 +19972,8 @@
               "placeholder": "Pick an orchestration profile…",
               "selector_id": "tools_guild_profile_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20035,7 +20050,8 @@
               "placeholder": "Pick a channel to configure…",
               "selector_id": "tools_channel_scope_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20114,7 +20130,8 @@
               "placeholder": "Pick a category to configure…",
               "selector_id": "tools_category_scope_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20189,7 +20206,8 @@
               "placeholder": "Pick an orchestration profile…",
               "selector_id": "tools_profile_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20266,7 +20284,8 @@
               "placeholder": "Pick a channel to preview…",
               "selector_id": "tools_preview_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -24819,7 +24838,8 @@
               "placeholder": "Choose a paragon…",
               "selector_id": "paragon",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -24858,7 +24878,8 @@
               "placeholder": "Players…",
               "selector_id": "players",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -24897,7 +24918,8 @@
               "placeholder": "Difficulty…",
               "selector_id": "difficulty",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -24926,7 +24948,8 @@
               "placeholder": "Extra T5s…",
               "selector_id": "tier5",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -25085,7 +25108,8 @@
               "placeholder": "Strategy…",
               "selector_id": "solve_strategy",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -25284,7 +25308,8 @@
               "placeholder": "Pick a degree…",
               "selector_id": "degree_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27310,7 +27335,8 @@
               "placeholder": "Pick one or more channel names…",
               "selector_id": "create_names",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -27330,7 +27356,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "create_category",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27464,7 +27491,8 @@
               "placeholder": "Select one or more channels to delete…",
               "selector_id": "delete_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27620,7 +27648,8 @@
               "placeholder": "Select one or more channels to manage…",
               "selector_id": "restrict_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27805,7 +27834,8 @@
               "placeholder": "Select channels to move / reorder…",
               "selector_id": "move_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -27825,7 +27855,8 @@
               "placeholder": "Destination category (for Move)…",
               "selector_id": "move_category",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27953,7 +27984,8 @@
               "placeholder": "Select one or more channels to configure…",
               "selector_id": "visibility_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29286,7 +29318,8 @@
               "placeholder": "Edit a setting…",
               "selector_id": "edit_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -29310,7 +29343,8 @@
               "placeholder": "Reset a setting to its default…",
               "selector_id": "reset_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29721,7 +29755,8 @@
               "placeholder": "Pick a scope to set cleanup for…",
               "selector_id": "cl_pol_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29796,7 +29831,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "cl_pol_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29873,7 +29909,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "cl_pol_category",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29948,7 +29985,8 @@
               "placeholder": "Pick a cleanup level…",
               "selector_id": "cl_pol_level",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -30058,7 +30096,8 @@
               "placeholder": "Delete after…",
               "selector_id": "cl_pol_after",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -30078,7 +30117,8 @@
               "placeholder": "Delete invalid commands?",
               "selector_id": "cl_pol_invalid",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -30098,7 +30138,8 @@
               "placeholder": "Delete failed commands?",
               "selector_id": "cl_pol_failed",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -30281,7 +30322,8 @@
               "placeholder": "Pick a policy to remove…",
               "selector_id": "cl_pol_remove_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -31010,7 +31052,8 @@
               "placeholder": "Choose a game leaderboard…",
               "selector_id": "game_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -31836,7 +31879,8 @@
               "placeholder": "Select a channel to manage…",
               "selector_id": "counting_pick_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -31856,7 +31900,8 @@
               "placeholder": "Enable counting here — pick a mode…",
               "selector_id": "counting_enable_mode",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -32735,7 +32780,8 @@
               "placeholder": "Choose a trainer to battle…",
               "selector_id": "challenge_opponent",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -34824,7 +34870,8 @@
               "placeholder": "Runtime / status…",
               "selector_id": "pf_runtime",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -34844,7 +34891,8 @@
               "placeholder": "Catalogues…",
               "selector_id": "pf_catalogues",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -34864,7 +34912,8 @@
               "placeholder": "Resources / rollout…",
               "selector_id": "pf_resources",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -34884,7 +34933,8 @@
               "placeholder": "Validation…",
               "selector_id": "pf_validation",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35060,7 +35110,8 @@
               "placeholder": "Choose a flag…",
               "selector_id": "pf_flag_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35234,7 +35285,8 @@
               "placeholder": "Pick a rule…",
               "selector_id": "pf_auto_rule",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35919,7 +35971,8 @@
               "placeholder": "Choose a job to work…",
               "selector_id": "job_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35995,7 +36048,8 @@
               "placeholder": "Select an item to buy…",
               "selector_id": "item_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -37946,7 +38000,8 @@
               "placeholder": "Buy a pack of bait…",
               "selector_id": "bs_buy",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -37995,7 +38050,8 @@
               "placeholder": "Craft a pack from caught fish…",
               "selector_id": "bs_craft",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -38020,7 +38076,8 @@
               "placeholder": "Craft a pack from pearls…",
               "selector_id": "bs_pearl",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -39811,7 +39868,8 @@
               "placeholder": "🏆 Competitive — pick the enabled games…",
               "selector_id": "pick_competitive",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -39831,7 +39889,8 @@
               "placeholder": "🎲 Activities — pick the enabled games…",
               "selector_id": "pick_activities",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -41625,7 +41684,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -41921,7 +41981,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -42044,7 +42105,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -42308,7 +42370,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -42713,7 +42776,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43165,7 +43229,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43382,7 +43447,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43897,7 +43963,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -44067,7 +44134,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -44141,7 +44209,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "category_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -44432,7 +44501,8 @@
               "placeholder": "Pick a hub to edit…",
               "selector_id": "eph_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -44560,7 +44630,8 @@
               "placeholder": "Pick a subsystem to edit…",
               "selector_id": "eps_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -46672,7 +46743,8 @@
               "placeholder": "Choose a leaderboard category…",
               "selector_id": "category_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -47328,7 +47400,8 @@
               "placeholder": "Choose a route…",
               "selector_id": "select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -47426,7 +47499,8 @@
               "placeholder": "Pick the log channel…",
               "selector_id": "pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -49777,7 +49851,8 @@
               "placeholder": "Craft gear from resources…",
               "selector_id": "ws_craft",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -53724,7 +53799,8 @@
               "placeholder": "Quick play — choose your move",
               "selector_id": "rps_quick_move",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -55637,7 +55713,8 @@
               "placeholder": "Simulate audience…",
               "selector_id": "am_tier",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -55657,7 +55734,8 @@
               "placeholder": "Inspect a feature's source chain…",
               "selector_id": "am_feature",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -55735,7 +55813,8 @@
               "placeholder": "Simulate audience…",
               "selector_id": "hp_tier",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -56239,7 +56318,8 @@
               "placeholder": "Open a settings group…",
               "selector_id": "subsystem_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -56576,7 +56656,8 @@
               "placeholder": "Choose a subsystem… — page 1/2",
               "selector_id": "subsystem",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -56611,7 +56692,8 @@
               "placeholder": "Choose a scope…",
               "selector_id": "select_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -57126,7 +57208,8 @@
               "placeholder": "Set allowed channels (selected_channels mode)…",
               "selector_id": "ca_channels",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -57727,7 +57810,8 @@
               "placeholder": "What kind of server is this?",
               "selector_id": "essential_kind",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59080,7 +59164,8 @@
               "placeholder": "Where should the welcome message appear?",
               "selector_id": "greet_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59098,7 +59183,8 @@
               "placeholder": "Give newcomers a role (optional)…",
               "selector_id": "greet_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59274,7 +59360,8 @@
               "placeholder": "Which role can warn and remove people?",
               "selector_id": "mods_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59424,7 +59511,8 @@
               "placeholder": "What should I clean up? (all on by default)",
               "selector_id": "spam_filters",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59634,7 +59722,8 @@
               "placeholder": "What should the activity channel log?",
               "selector_id": "log_activity",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59652,7 +59741,8 @@
               "placeholder": "Moderation log channel (or leave empty)…",
               "selector_id": "log_mod_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59670,7 +59760,8 @@
               "placeholder": "Activity log channel (or leave empty)…",
               "selector_id": "log_activity_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59823,7 +59914,8 @@
               "placeholder": "How fast should members earn XP?",
               "selector_id": "reward_rate",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59843,7 +59935,8 @@
               "placeholder": "Give a role as a reward for… (optional)",
               "selector_id": "reward_types",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60043,7 +60136,8 @@
               "placeholder": "Where should the reward role come from?",
               "selector_id": "reward_source",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60063,7 +60157,8 @@
               "placeholder": "Name for the new role…",
               "selector_id": "reward_name",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60081,7 +60176,8 @@
               "placeholder": "Pick the role to grant…",
               "selector_id": "reward_existing",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60232,7 +60328,8 @@
               "placeholder": "Who answers support requests? (staff role)",
               "selector_id": "helpdesk_staff",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60250,7 +60347,8 @@
               "placeholder": "Where to save closed-request logs? (optional)",
               "selector_id": "helpdesk_log",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60403,7 +60501,8 @@
               "placeholder": "Where can people use commands?",
               "selector_id": "cmd_mode",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60421,7 +60520,8 @@
               "placeholder": "Pick the channels where commands should work…",
               "selector_id": "cmd_channels",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60947,7 +61047,8 @@
               "placeholder": "Jump to section…",
               "selector_id": "wiz_jump",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -61196,7 +61297,8 @@
               "placeholder": "Pick a binding to set…",
               "selector_id": "channels_binding",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -61214,7 +61316,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "channels_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -61281,7 +61384,8 @@
               "placeholder": "Pick a preset…",
               "selector_id": "preset_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -61990,7 +62094,8 @@
               "placeholder": "DM the member on action…",
               "selector_id": "mod_dm",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62010,7 +62115,8 @@
               "placeholder": "Require a reason for warn / kick / ban…",
               "selector_id": "mod_reason",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62030,7 +62136,8 @@
               "placeholder": "Warn escalation action…",
               "selector_id": "mod_escalation",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62048,7 +62155,8 @@
               "placeholder": "Moderator role (optional — grants moderation access)…",
               "selector_id": "mod_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -62303,7 +62411,8 @@
               "placeholder": "Pick a scope to set cleanup for…",
               "selector_id": "cleanup_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62323,7 +62432,8 @@
               "placeholder": "Apply a cleanup profile (batch action)…",
               "selector_id": "cleanup_profile",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62341,7 +62451,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "cleanup_target",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62361,7 +62472,8 @@
               "placeholder": "Pick the server-wide level…",
               "selector_id": "cleanup_level",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -62698,7 +62810,8 @@
               "placeholder": "Time tier: pick a role to grant after N days…",
               "selector_id": "roles_time_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62716,7 +62829,8 @@
               "placeholder": "XP tier: pick a role to grant at a level…",
               "selector_id": "roles_xp_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -62990,7 +63104,8 @@
               "placeholder": "Pick a role template to preview…",
               "selector_id": "tmpl_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -63297,7 +63412,8 @@
               "placeholder": "Pick a scope…",
               "selector_id": "routing_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -63317,7 +63433,8 @@
               "placeholder": "Apply a routing profile (batch action)…",
               "selector_id": "routing_profile",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -63335,7 +63452,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "routing_target",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -63355,7 +63473,8 @@
               "placeholder": "Pick a cog…",
               "selector_id": "routing_cog",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": true
             }
           ],
           "session_lifecycle": true,
@@ -63824,7 +63943,8 @@
               "placeholder": "Set the hall-of-fame channel…",
               "selector_id": "starboard_pick_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -63842,7 +63962,8 @@
               "placeholder": "Toggle an ignored channel…",
               "selector_id": "starboard_toggle_ignore",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -64585,7 +64706,8 @@
               "placeholder": "Staff role (required) — who handles tickets…",
               "selector_id": "setup_staff_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -64603,7 +64725,8 @@
               "placeholder": "Transcript log channel (optional)…",
               "selector_id": "setup_log_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,

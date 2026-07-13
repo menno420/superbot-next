@@ -527,6 +527,10 @@ entries:
     consumers: [tools/manifest_compile.py, tests/unit/compiler/test_arrangement_invariance.py]
     rejected_alternative: "seven bespoke selector modules (views/selectors/) re-ported as classes"
     minted: 2026-07-08
+  SelectorSpec.windowed:
+    consumers: [sb/kernel/panels/render.py, sb/kernel/panels/selectwindow.py]
+    rejected_alternative: "per-surface ad-hoc option windowing (the access_map first-25 slice + the cogmgr select re-port — the #1040 truncation class, one copy per surface)"
+    minted: 2026-07-13
   TableBlock.provider:
     consumers: [sb/kernel/panels/render.py, tools/manifest_compile.py]
     rejected_alternative: "per-panel table rendering code"

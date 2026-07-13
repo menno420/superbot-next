@@ -37,12 +37,14 @@ Kernel-idiom divergences, ledgered (the section_card.py doctrine):
   through the fail-closed K9 registry. The staged payload carries the
   full ``services.command_routing.set_policy`` param shape and the
   dispatcher reads it back unchanged (the design held);
-* the COG PICKER windows at the grammar ENUM select's 25-option cap
-  (the access_map first-25 window precedent): the oracle paginated the
-  operator-visible list past 25 via ``PaginatedSelectView`` (its
-  docstring names the #1040 truncation class this re-ships) — the
-  windowed-select grammar successor is the named follow-up; the list
-  is the shipped 43-row subsystem harvest
+* the COG PICKER rides the windowed-select grammar successor
+  (``SelectorSpec(windowed=True)`` → the kernel selectwindow engine):
+  the full 43-row harvest pages at Discord's 25-option cap with
+  engine-injected ◀ Prev / Next ▶ nav (``nav:selwin:`` ids) — the
+  oracle's ``PaginatedSelectView`` posture restored; the ad-hoc
+  first-25 window this module shipped with (the access_map precedent,
+  the #1040 truncation class) is retired. The list is the shipped
+  43-row subsystem harvest
   (sb/domain/governance/registry.SUBSYSTEM_META — all rows
   visibility-normal, the oracle ``visibility_mode != "internal"``
   filter passes everything), sorted, presented with the shipped
@@ -115,8 +117,8 @@ _DETECTED_STATE = (
     "or set a per-scope override.")
 
 #: Discord's single-select option cap — the oracle paginated past it
-#: (``_COG_PAGE_SIZE = 25``); the grammar ENUM select windows at it
-#: (module docstring ledger).
+#: (``_COG_PAGE_SIZE = 25``); the declared ``windowed`` ENUM select pages
+#: at it through the kernel selectwindow engine (module docstring ledger).
 _COG_PAGE_SIZE = 25
 
 
@@ -445,7 +447,12 @@ def cog_routing_detail_spec():
                 selector_id="routing_cog", kind=SelectorKind.ENUM,
                 on_select=HandlerRef("setup.cog_routing_cog_pick"),
                 options_source=ProviderRef(_COG_OPTIONS_PROVIDER),
-                placeholder="Pick a cog…"),
+                placeholder="Pick a cog…",
+                # the windowed-select grammar successor: the full 43-row
+                # harvest pages at Discord's 25-option cap with engine
+                # ◀ Prev / Next ▶ nav (the oracle's PaginatedSelectView
+                # posture) — no front-truncation (module docstring ledger).
+                page_size=_COG_PAGE_SIZE, windowed=True),
         ),
         actions=(
             PanelActionSpec(
@@ -519,13 +526,15 @@ def _ensure_providers() -> None:
 
     @provider(_COG_OPTIONS_PROVIDER)
     async def cog_options(ctx):
-        """_cog_options over the operator-visible list — windowed at
-        the grammar's 25-option cap (module docstring ledger; the
-        oracle paginated instead)."""
+        """_cog_options over the operator-visible list — the FULL 43-row
+        harvest: the declared ``windowed`` cog select pages it at the
+        25-option cap through the kernel selectwindow engine (the
+        windowed-select grammar successor; the oracle paginated via
+        ``PaginatedSelectView`` — no row is ever front-truncated)."""
         picked = _PICKED_COG.get(_key(ctx), "")
         return tuple(
             _cog_option(name, default=name == picked)
-            for name in operator_visible_cogs()[:_COG_PAGE_SIZE])
+            for name in operator_visible_cogs())
 
 
 async def _render_cog_routing_detail(spec, ctx):
@@ -546,6 +555,14 @@ async def _render_cog_routing_detail(spec, ctx):
     components = []
     for c in base.components:
         leaf = c.custom_id.removeprefix(f"{spec.panel_id}.")
+        if c.custom_id.startswith("nav:selwin:"):
+            # the cog select's engine-injected ◀ Prev / Next ▶ window nav
+            # (the only windowed selector on this panel) follows the
+            # select's stepwise reveal — hidden until the cog pick opens.
+            if not scope or (scope != "guild" and target is None):
+                continue
+            components.append(c)
+            continue
         if leaf == "routing_target":
             if scope not in ("category", "channel"):
                 continue    # the picker opens after a scope pick
@@ -559,9 +576,14 @@ async def _render_cog_routing_detail(spec, ctx):
                 continue    # the cog pick opens after a scope pick
             if scope != "guild" and target is None:
                 continue    # override scopes need their target first
-            # shipped placeholder, verbatim (_build_cog_pick_view).
+            # shipped placeholder, verbatim (_build_cog_pick_view) — the
+            # windowed engine's " — page p/n" suffix (the shipped
+            # SelectWindow byte shape) survives the per-scope patch.
+            placeholder = c.placeholder or ""
+            suffix = (placeholder[placeholder.rindex(" — page "):]
+                      if " — page " in placeholder else "")
             c = dataclasses.replace(
-                c, placeholder=f"Pick a cog for {scope} scope…")
+                c, placeholder=f"Pick a cog for {scope} scope…{suffix}")
         elif leaf in ("routing_enable", "routing_disable"):
             if not cog:
                 continue    # Enable/Disable opens after the cog pick
