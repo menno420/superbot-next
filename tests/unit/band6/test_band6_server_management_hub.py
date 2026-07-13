@@ -99,12 +99,15 @@ def test_ported_forwards_and_pending_terminals():
 
     by_id = {a.action_id: a for a in server_management_hub_spec().actions}
     # the shipped hub routed into the managers: Channels → the PORTED
-    # channel.hub (#131); Setup → the band-1 setup hub; Refresh → self.
+    # channel.hub (#131); Setup → the band-1 setup hub; Refresh → self;
+    # Access Map → the PORTED P1C subpanel (projections slice A).
     assert by_id["channels"].handler == PanelRef("channel.hub")
     assert by_id["setup"].handler == PanelRef("setup.hub")
     assert by_id["sm_refresh"].handler == PanelRef("server_management.hub")
+    assert by_id["access_map"].handler == PanelRef(
+        "server_management.access_map")
     # unported managers land on declared pending terminals.
-    for aid in ("moderation", "roles", "cleanup", "access_map",
+    for aid in ("moderation", "roles", "cleanup",
                 "help_preview", "help_editor"):
         assert by_id[aid].handler == HandlerRef(
             f"server_management.{aid}_pending"), aid
@@ -205,7 +208,6 @@ def test_panel_and_handler_refs_registered():
                  "server_management.moderation_pending",
                  "server_management.roles_pending",
                  "server_management.cleanup_pending",
-                 "server_management.access_map_pending",
                  "server_management.help_preview_pending",
                  "server_management.help_editor_pending"):
         assert is_registered(HandlerRef(name)), name
@@ -231,8 +233,9 @@ def test_manifest_declares_both_front_doors():
     assert slash.route == PanelRef("server_management.hub")
     assert slash.defer_mode is DeferMode.NONE
     assert slash.audience_tier == "administrator"
-    (spec,) = MANIFEST.panels
+    (spec, access_map) = MANIFEST.panels
     assert spec.panel_id == "server_management.hub"
+    assert access_map.panel_id == "server_management.access_map"
     # R2 stays vacuous: no declared stores/events/settings.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()
