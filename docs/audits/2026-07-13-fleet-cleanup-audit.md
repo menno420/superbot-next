@@ -1,6 +1,6 @@
 # superbot-next — fleet cleanup audit (2026-07-13, EAP final night)
 
-> **Status:** `reference` — one-off external audit, not part of the repo's own doc rotation.
+> **Status:** `historical` — one-off external audit (point-in-time record), not part of the repo's own doc rotation.
 > Author: a read-only fleet-cleanup audit pass, run in parallel with a live coordinator
 > session and the owner's ORDER 045 fleet dispatch. **No PR in this repo was merged, closed,
 > or edited by this audit** — see "Why nothing was touched" below.
@@ -73,7 +73,8 @@ Three workflows carry the required gates (`.github/workflows/named-gates.yml`,
 `check_compat_frozen`), `golden-parity`'s `report` job green, but **`ci.yml`'s `checkers`
 job is currently RED** (job `86957651283`, run `29292077172`) — non-blocking since it isn't
 in the required set. Root cause (see "Inconsistencies" below): a `bootstrap.py check
---strict` `[stamp]` finding, D-0046 cited from two docs.
+--strict` `[stamp]` finding — one decision id cited from two docs (naming the id here
+would make this audit a third citer; see "Inconsistencies" item 1).
 
 **Push-trigger gap.** `list_workflow_runs` for `ci.yml` / `named-gates.yml` /
 `golden-parity.yml` filtered to `event: push, branch: main` shows **no runs newer than
@@ -163,7 +164,9 @@ DROP-list ratification, and the mineverse flag flips in the sibling `superbot` r
 
 1. **`ci.yml`'s `checkers` job is red on current `main`** (non-blocking, since it isn't a
    required named-gate). Cause: `bootstrap.py check --strict`'s `[stamp]` rule fires because
-   decision `D-0046` is now cited from **two** docs —
+   the btd6 band-7 slice-1 decision stamp (its home entry lives in the
+   `docs/decisions.md` ledger; the id is deliberately not repeated here — a literal
+   citation would make this audit doc itself a second citer) is cited from **two** docs —
    `docs/status/completeness-table-2026-07-13.md:62` (added by PR #428, merged `7fdd682`,
    23:10Z) and `docs/status/rebuild-completion-report-2026-07-09.md:222` (pre-existing). The
    tool's own rule ("stamp each decision at one home") is violated by the newest merge. Small,

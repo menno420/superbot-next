@@ -46,6 +46,17 @@ designed born-red hold; the claims-duplicate `tests/` warnings are
 pre-existing and advisory). No golden files changed. Item B dropped
 (claimed by #426 — see Scope).
 
+Post-flip addendum (coordinator-directed): PR CI's `checkers` job redded
+on the merge ref — not this slice's diff, but main-side doc hygiene from
+PR #440's `docs/audits/2026-07-13-fleet-cleanup-audit.md` ([reachable]
+orphan + a second literal btd6-decision-id citation re-tripping the
+[stamp] rule #439 had just fixed; the audit doc reported that exact red
+and became a citer by naming the id). Fixed on this branch after merging
+origin/main: badge → `historical` (the docs/retro precedent,
+`_EXEMPT_BADGES`) and both literal id tokens reworded to point at the
+`docs/decisions.md` home. Re-ran the ladder on the merged tree: pytest
+**2924 passed, 2 skipped**; gate **GREEN 494/494**; strict check exit 0.
+
 ## 💡 Session idea
 
 The G1 bug survived because the fresh-player golden can't distinguish
