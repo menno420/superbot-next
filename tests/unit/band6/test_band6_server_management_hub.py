@@ -2,14 +2,17 @@
 as a declarative panel): the golden-pinned spec bytes, the compile
 fences, the manifest surface (both front doors; the direct-answer slash
 twin), the footer renderer_override, the verbatim persistent custom_ids,
-and the pending manager terminals.
+and the retirement of every pending terminal (the manager trio and the
+display/editor surfaces all forward to ported panels since the
+2026-07-13 curation rework + projections slice A).
 
 Oracle: menno420/superbot disbot/cogs/server_management_cog.py +
 disbot/views/server_management/hub.py (build_server_management_hub) +
 disbot/services/server_management_hub.py (the read-only badge composer);
-parity/goldens/servermanagement/sweep_slash_server-management.json pins
-the slash wire bytes (the sibling server_management row's prefix golden
-pins the message surface and flips separately).
+parity/goldens/server_management/sweep_slash_server-management.json pins
+the slash wire bytes and sweep_servermanagement.json the message surface
+(one dir since the row-73 name-pair rework retired the split
+servermanagement/ dir onto the ported server_management row).
 """
 
 from __future__ import annotations
@@ -93,21 +96,28 @@ def test_hub_spec_shape_matches_the_golden():
     )
 
 
-def test_ported_forwards_and_pending_terminals():
+def test_ported_forwards():
     from sb.domain.server_management.panels import server_management_hub_spec
-    from sb.spec.refs import HandlerRef, PanelRef
+    from sb.spec.refs import PanelRef
 
     by_id = {a.action_id: a for a in server_management_hub_spec().actions}
-    # the shipped hub routed into the managers: Channels → the PORTED
-    # channel.hub (#131); Setup → the band-1 setup hub; Refresh → self.
+    # the shipped hub routed into the managers — every hub surface is
+    # PORTED now (curation rework 2026-07-13 + projections slice A):
+    # Moderation → moderation.hub; Channels → channel.hub (#131); Roles →
+    # role.hub; Cleanup → cleanup.hub; Setup → the band-1 setup hub;
+    # Refresh → self; Access Map / Help Preview → the P1C subpanels;
+    # Help editor → the overlay-editor home.
+    assert by_id["moderation"].handler == PanelRef("moderation.hub")
     assert by_id["channels"].handler == PanelRef("channel.hub")
+    assert by_id["roles"].handler == PanelRef("role.hub")
+    assert by_id["cleanup"].handler == PanelRef("cleanup.hub")
     assert by_id["setup"].handler == PanelRef("setup.hub")
     assert by_id["sm_refresh"].handler == PanelRef("server_management.hub")
-    # unported managers land on declared pending terminals.
-    for aid in ("moderation", "roles", "cleanup", "access_map",
-                "help_preview", "help_editor"):
-        assert by_id[aid].handler == HandlerRef(
-            f"server_management.{aid}_pending"), aid
+    assert by_id["access_map"].handler == PanelRef(
+        "server_management.access_map")
+    assert by_id["help_preview"].handler == PanelRef(
+        "server_management.help_preview")
+    assert by_id["help_editor"].handler == PanelRef("help.editor_home")
 
 
 def test_hub_spec_passes_the_compile_fences():
@@ -168,7 +178,7 @@ def test_render_carries_the_footer_and_the_two_health_fields():
 
 def test_render_drops_the_back_to_help_button_on_the_slash_surface():
     """The shipped slash twin never passed through the panel manager —
-    goldens/servermanagement pins exactly three component rows."""
+    the slash sweep golden pins exactly three component rows."""
     from sb.domain.server_management.panels import (
         _render_hub,
         server_management_hub_spec,
@@ -201,14 +211,11 @@ def test_panel_and_handler_refs_registered():
     handlers.ensure_handler_refs()
     assert is_registered(PanelRef("server_management.hub"))
     assert is_registered(ProviderRef("server_management.hub_health"))
-    for name in ("server_management.render_hub",
-                 "server_management.moderation_pending",
-                 "server_management.roles_pending",
-                 "server_management.cleanup_pending",
-                 "server_management.access_map_pending",
-                 "server_management.help_preview_pending",
-                 "server_management.help_editor_pending"):
-        assert is_registered(HandlerRef(name)), name
+    # every hub pending ref retired (the manager trio with the
+    # 2026-07-13 curation rework; the display/editor terminals with
+    # projections slice A + the overlay editor) — nav forwards to the
+    # ported panels; only the renderer remains.
+    assert is_registered(HandlerRef("server_management.render_hub"))
 
 
 def test_manifest_declares_both_front_doors():
@@ -231,21 +238,75 @@ def test_manifest_declares_both_front_doors():
     assert slash.route == PanelRef("server_management.hub")
     assert slash.defer_mode is DeferMode.NONE
     assert slash.audience_tier == "administrator"
-    (spec,) = MANIFEST.panels
+    (spec, access_map, help_preview) = MANIFEST.panels
     assert spec.panel_id == "server_management.hub"
+    assert access_map.panel_id == "server_management.access_map"
+    assert help_preview.panel_id == "server_management.help_preview"
     # R2 stays vacuous: no declared stores/events/settings.
     assert MANIFEST.stores == () and MANIFEST.events == ()
     assert MANIFEST.settings == ()
 
 
-def test_manager_clicks_land_on_the_polite_pending_terminal():
-    from types import SimpleNamespace
+def test_name_pair_goldens_share_one_directory():
+    """Row-73 name-pair regularization: the prefix + slash sweeps for the
+    differently-named front-door pair live in ONE golden dir attributed
+    to the manifest subsystem, the split oracle-cog-named dir is retired,
+    and every mapping surface agrees (golden `subsystem` field, dir name,
+    parity.yml roster, verified_live.yml mirror)."""
+    import json
+    from pathlib import Path
 
-    from sb.domain.server_management import handlers  # noqa: F401
-    from sb.spec.outcomes import BLOCKED
-    from sb.spec.refs import HandlerRef, resolve
+    repo = Path(__file__).resolve().parents[3]
+    goldens = repo / "parity" / "goldens"
+    unified = goldens / "server_management"
+    prefix_golden = unified / "sweep_servermanagement.json"
+    slash_golden = unified / "sweep_slash_server-management.json"
+    assert prefix_golden.is_file()
+    assert slash_golden.is_file()
+    # the retired split dir stays retired (R1 pairs rows with dirs).
+    assert not (goldens / "servermanagement").exists()
+    # both docs attribute themselves to the manifest subsystem — the
+    # replay adapter reconstructs the case dir FROM this field
+    # (sb/adapters/parity/cases.py), so field and dir must agree.
+    for path in (prefix_golden, slash_golden):
+        assert json.loads(path.read_text())["subsystem"] == \
+            "server_management", path
+    parity_text = (repo / "parity" / "parity.yml").read_text()
+    assert "\n  server_management: ported" in parity_text
+    assert "\n  servermanagement:" not in parity_text
+    verified_text = (repo / "verification" / "verified_live.yml").read_text()
+    assert "\n  servermanagement:" not in verified_text
 
-    reply = run(resolve(HandlerRef("server_management.moderation_pending"))(
-        SimpleNamespace(args={}, guild_id=1)))
-    assert reply.outcome == BLOCKED
-    assert "Moderation manager" in reply.user_message
+
+def test_name_pair_is_ledgered_deliberate():
+    """The two-spec declaration for the differently-named pair carries
+    the deliberate-pair ledger (the setup.py DELIBERATELY-NOT-DECLARED
+    precedent): the module docstring must say WHY two specs is the
+    regular shape, so the pair never reads as an accidental duplicate."""
+    import sb.manifest.server_management as manifest_mod
+    from sb.spec.commands import CommandKind
+
+    doc = manifest_mod.__doc__ or ""
+    assert "DELIBERATE NAME PAIR" in doc
+    # the ledger's load-bearing claims stay true in code: exactly one
+    # spec per kind, different names, one shared route.
+    commands = manifest_mod.MANIFEST.commands
+    assert len(commands) == 2
+    by_kind = {c.kind: c for c in commands}
+    assert set(by_kind) == {CommandKind.PREFIX, CommandKind.SLASH}
+    assert by_kind[CommandKind.PREFIX].name != by_kind[CommandKind.SLASH].name
+    assert by_kind[CommandKind.PREFIX].route == by_kind[CommandKind.SLASH].route
+
+
+def test_no_pending_terminals_remain():
+    """Every hub surface is ported (curation rework 2026-07-13 +
+    projections slice A) — none of the six shipped pending terminals
+    may re-register."""
+    from sb.domain.server_management import handlers
+    from sb.spec.refs import HandlerRef, is_registered
+
+    handlers.ensure_handler_refs()
+    for aid in ("moderation", "roles", "cleanup",
+                "access_map", "help_preview", "help_editor"):
+        assert not is_registered(
+            HandlerRef(f"server_management.{aid}_pending")), aid

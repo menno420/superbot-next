@@ -181,6 +181,11 @@ class _WorldGuildDirectory:
                 f"https://cdn.discordapp.com/embed/avatars/{index}.png"),
             created_at=self._snowflake_time(int(user_id)),
             joined_at=datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            # the capture world's one bot member is the bot user itself
+            # (boot.py _member: the personas are humans, bot=False; the
+            # GalaxyBotParity member alone carries bot=True) — the
+            # opponent.bot guard's read.
+            is_bot=(int(user_id) == World.BOT_USER_ID),
         )
 
 

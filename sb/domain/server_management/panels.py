@@ -9,10 +9,12 @@ Cleanup (grey) / Setup (green) + the row-2 utility quartet (Access Map /
 Help Preview / Help editor / Refresh, grey) — every button carrying its
 emoji INSIDE the label and its shipped PERSISTENT custom_id verbatim
 (``server_management:<key>`` via ``custom_id_override``; the economy-hub
-precedent). ``parity/goldens/servermanagement/
+precedent). ``parity/goldens/server_management/
 sweep_slash_server-management.json`` pins every byte of the slash twin
-(the ephemeral type-4, flags 64); the sibling ``server_management`` row's
-prefix golden pins the same panel on the message surface.
+(the ephemeral type-4, flags 64); the sibling prefix golden
+(``sweep_servermanagement.json``, same dir since the row-73 name-pair
+rework unified the split ``servermanagement/`` dir) pins the same panel
+on the message surface.
 
 ANCHORED-PANEL SEMANTICS (the sibling prefix row's flip, PR after #178):
 ``session_lifecycle=False`` — the shipped hub was a panel-MANAGER panel
@@ -20,7 +22,7 @@ ANCHORED-PANEL SEMANTICS (the sibling prefix row's flip, PR after #178):
 channel message and records a ``panel_anchors`` row
 (goldens/server_management/sweep_servermanagement pins it), while the
 slash twin's ephemeral type-4 records none (the engine's
-``_record_anchor`` skips interaction surfaces — goldens/servermanagement
+``_record_anchor`` skips interaction surfaces — the slash sweep golden
 pins the empty delta). Every component stays override-pinned (overrides
 render verbatim on non-session panels too — the moderation modmenu
 precedent).
@@ -58,10 +60,12 @@ Deliberate under-port notes (parity beyond the golden):
   slices, so the golden-pinned badge literal ships here (the ux_lab
   Exhibits-line precedent) and re-derivation lands as each manager
   ports;
-* Moderation/Roles/Cleanup/Access Map/Help Preview/Help editor clicks
-  land on declared pending terminals; Channels forwards to the PORTED
-  ``channel.hub`` panel and Setup to the band-1 ``setup.hub`` (the
-  shipped hub routed into those managers).
+* Moderation/Roles/Cleanup clicks land on declared pending terminals;
+  Channels forwards to the PORTED ``channel.hub`` panel, Setup to the
+  band-1 ``setup.hub``, Access Map / Help Preview to the PORTED
+  ``server_management.access_map`` / ``.help_preview`` subpanels, and
+  Help editor to the PORTED ``help.editor_home`` overlay-editor flow
+  (the shipped hub routed into those managers).
 """
 
 from __future__ import annotations
@@ -133,18 +137,6 @@ async def _hub_health(ctx) -> tuple[tuple[str, str], ...]:
             ("Overall configuration health", _OVERALL))
 
 
-def _pending(key: str, label: str, *,
-             style: ActionStyle = ActionStyle.PRIMARY) -> PanelActionSpec:
-    """One shipped manager button whose target is its own port slice —
-    the click lands on the polite pending terminal (role/utility-band
-    precedent); the shipped persistent custom_id survives verbatim."""
-    return PanelActionSpec(
-        action_id=key, label=label, style=style,
-        audience_tier="administrator",       # the shipped admin floor
-        handler=HandlerRef(f"server_management.{key}_pending"),
-        custom_id_override=f"server_management:{key}")
-
-
 def server_management_hub_spec() -> PanelSpec:
     return PanelSpec(
         panel_id="server_management.hub",
@@ -159,8 +151,16 @@ def server_management_hub_spec() -> PanelSpec:
         body=(TextBlock(_DESCRIPTION),
               FieldsBlock(provider=ProviderRef("server_management.hub_health"))),
         actions=(
-            # row 0 — the shipped blurple manager trio.
-            _pending("moderation", "🛡️ Moderation"),
+            # row 0 — the shipped blurple manager trio. All three managers
+            # are PORTED hubs now — forward straight to them (the
+            # channel.hub pattern; curation rework 2026-07-13).
+            PanelActionSpec(
+                action_id="moderation", label="🛡️ Moderation",
+                style=ActionStyle.PRIMARY, audience_tier="administrator",
+                # the shipped hub routed into the moderation manager view —
+                # the PORTED moderation.hub panel.
+                handler=PanelRef("moderation.hub"),
+                custom_id_override="server_management:moderation"),
             PanelActionSpec(
                 action_id="channels", label="📺 Channels",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
@@ -168,22 +168,49 @@ def server_management_hub_spec() -> PanelSpec:
                 # the PORTED channel.hub panel (#131).
                 handler=PanelRef("channel.hub"),
                 custom_id_override="server_management:channels"),
-            _pending("roles", "🎭 Roles"),
+            PanelActionSpec(
+                action_id="roles", label="🎭 Roles",
+                style=ActionStyle.PRIMARY, audience_tier="administrator",
+                # the shipped hub routed into the roles manager view —
+                # the PORTED role.hub panel.
+                handler=PanelRef("role.hub"),
+                custom_id_override="server_management:roles"),
             # row 1 — grey Cleanup + the green Setup wizard entry.
-            _pending("cleanup", "🧹 Cleanup", style=ActionStyle.SECONDARY),
+            PanelActionSpec(
+                action_id="cleanup", label="🧹 Cleanup",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                # the shipped hub routed into the cleanup manager view —
+                # the PORTED cleanup.hub panel.
+                handler=PanelRef("cleanup.hub"),
+                custom_id_override="server_management:cleanup"),
             PanelActionSpec(
                 action_id="setup", label="🧩 Setup",
                 style=ActionStyle.SUCCESS, audience_tier="administrator",
                 # the shipped hub's own wizard entry — the band-1 setup hub.
                 handler=PanelRef("setup.hub"),
                 custom_id_override="server_management:setup"),
-            # row 2 — the shipped grey utility quartet.
-            _pending("access_map", "🔓 Access Map",
-                     style=ActionStyle.SECONDARY),
-            _pending("help_preview", "👁 Help Preview",
-                     style=ActionStyle.SECONDARY),
-            _pending("help_editor", "✏️ Help editor",
-                     style=ActionStyle.SECONDARY),
+            # row 2 — the shipped grey utility quartet. Access Map is
+            # PORTED (the P1C subpanel over the P1A projection —
+            # access_map.py); the shipped wire id survives verbatim.
+            PanelActionSpec(
+                action_id="access_map", label="🔓 Access Map",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                handler=PanelRef("server_management.access_map"),
+                custom_id_override="server_management:access_map"),
+            PanelActionSpec(
+                action_id="help_preview", label="👁 Help Preview",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                # PORTED (the P1C Help Preview over the P1A projection —
+                # help_preview.py); the shipped wire id survives verbatim.
+                handler=PanelRef("server_management.help_preview"),
+                custom_id_override="server_management:help_preview"),
+            PanelActionSpec(
+                action_id="help_editor", label="✏️ Help editor",
+                style=ActionStyle.SECONDARY, audience_tier="administrator",
+                # PORTED (the overlay-editor flow — sb/domain/help/
+                # editor.py); the shipped wire id survives verbatim.
+                handler=PanelRef("help.editor_home"),
+                custom_id_override="server_management:help_editor"),
             PanelActionSpec(
                 # K1 custom_id claims are repo-global on action_id —
                 # treasury owns bare "refresh" (the general_overview
@@ -216,7 +243,7 @@ def server_management_hub_spec() -> PanelSpec:
             "the shipped hub footer is the literal 'Read-only summary · "
             "click a manager to open it' (hub.py set_footer) — outside "
             "FooterMode's none/subsystem/provenance vocabulary "
-            "(goldens/servermanagement + goldens/server_management pin "
+            "(both goldens/server_management sweeps pin "
             "the byte; the utility/ux_lab/channel precedent). The "
             "override additionally adjusts TWO named component surfaces "
             "(the 12c lane): (1) it DROPS the grammar's injected "
@@ -225,8 +252,8 @@ def server_management_hub_spec() -> PanelSpec:
             "rows; (2) it DROPS the declared help_back action on the "
             "slash surface — the shipped back-to-help hook appended the "
             "button on the panel-manager MESSAGE path only "
-            "(goldens/server_management pins the 4-row prefix shape, "
-            "goldens/servermanagement pins the 3-row slash shape). "
+            "(sweep_servermanagement pins the 4-row prefix shape, "
+            "sweep_slash_server-management pins the 3-row slash shape). "
             "Body, fields, and every other action stay declared."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("moderation", "channels", "roles"),

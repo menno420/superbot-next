@@ -1,8 +1,15 @@
-"""fishing_catch_log + fishing_energy CRUD (band 6) — the dex/trophy
-record (shipped 075/095 shape) and the per-(user, guild) cast-energy bar
-(shipped 088 shape); both NAME_STABLE, MEMBER_ID delete erasure. Plain
-CRUD only — the energy regen math and the cast cost live in
-sb/domain/fishing/energy.py (the shipped layering, verbatim)."""
+"""fishing_catch_log + fishing_energy + fishing_venue + fishing_rod +
+fishing_bait CRUD (band 6) — the dex/trophy record (shipped 075/095
+shape), the per-(user, guild) cast-energy bar (shipped 088 shape), the
+per-(user, guild) current venue (shipped 094 shape), the
+per-(user, guild) owned rod tier (shipped 087 shape) and the
+per-(user, guild) loaded bait + remaining charges (shipped 091 shape);
+all NAME_STABLE, MEMBER_ID delete erasure. Plain CRUD only — the energy
+regen math and the cast cost live in sb/domain/fishing/energy.py, the
+venue keys + per-venue tuning in sb/domain/fishing/venue.py, the rod
+ladder knobs + recipes in sb/domain/fishing/rods.py, the bait catalog +
+craft shelves in sb/domain/fishing/bait.py (the shipped layering,
+verbatim)."""
 
 from __future__ import annotations
 
@@ -19,12 +26,26 @@ from sb.spec.versioning import (
 )
 
 __all__ = [
+    "FISHING_BAIT_STORE",
     "FISHING_CATCH_LOG_STORE",
     "FISHING_ENERGY_STORE",
+    "FISHING_ROD_STORE",
+    "FISHING_VENUE_STORE",
+    "clear_active_bait",
+    "get_active_bait",
     "get_catch_log",
     "get_fishing_energy",
+    "get_fishing_venue",
+    "get_rod_tier",
+    "lock_bait_slot",
+    "lock_charm_slot",
+    "lock_coral_slot",
+    "lock_rod_slot",
     "record_catch",
+    "set_active_bait",
     "set_fishing_energy",
+    "set_fishing_venue",
+    "set_rod_tier",
     "top_fishers",
     "top_trophies",
 ]
@@ -54,6 +75,48 @@ FISHING_ENERGY_STORE = register_store(StoreSpec(
     bears_value=False,
     data_class=DataClass.MEMBER_ID,
     erasure_ref=WorkflowRef("fishing.erase_subject_energy"),
+))
+
+
+FISHING_VENUE_STORE = register_store(StoreSpec(
+    table="fishing_venue",
+    sole_writer=EngineRef("fishing.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="fishing_venue",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("fishing.erase_subject_venue"),
+))
+
+
+FISHING_ROD_STORE = register_store(StoreSpec(
+    table="fishing_rod",
+    sole_writer=EngineRef("fishing.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="fishing_rod",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("fishing.erase_subject_rod"),
+))
+
+
+FISHING_BAIT_STORE = register_store(StoreSpec(
+    table="fishing_bait",
+    sole_writer=EngineRef("fishing.store"),
+    retention="permanent",
+    checkpoint_class=CheckpointClass.AGGREGATE,
+    invariant_tag="fishing_bait",
+    forward_map_kind=ForwardMapKind.NAME_STABLE,
+    reader_domains=("diagnostics", "games"),
+    bears_value=False,
+    data_class=DataClass.MEMBER_ID,
+    erasure_ref=WorkflowRef("fishing.erase_subject_bait"),
 ))
 
 
@@ -140,6 +203,159 @@ async def top_trophies(guild_id: int, known_species: list[str],
     return [dict(r) for r in rows]
 
 
+async def get_fishing_venue(user_id: int, guild_id: int,
+                            conn: Any = None) -> str:
+    """The player's current venue (``'shore'`` when no row exists yet —
+    the shipped ``utils/db/games/fishing_venue.py`` default posture). A
+    PLAIN read (venue is game state, never coins)."""
+    row = await fetchone(
+        "SELECT venue FROM fishing_venue WHERE user_id=$1 AND guild_id=$2",
+        (user_id, guild_id), conn=conn)
+    return str(row["venue"]) if row else "shore"
+
+
+async def set_fishing_venue(user_id: int, guild_id: int, venue: str,
+                            conn: Any = None) -> None:
+    """Set the player's current venue (insert the row or flip it — the
+    shipped ``_SET_VENUE_SQL`` upsert shape)."""
+    await execute(
+        "INSERT INTO fishing_venue (user_id, guild_id, venue) "
+        "VALUES ($1,$2,$3) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET venue = $3",
+        (user_id, guild_id, venue), conn=conn)
+
+
+async def get_rod_tier(user_id: int, guild_id: int,
+                       conn: Any = None) -> int:
+    """The player's owned rod tier (0 = starter when no row exists yet —
+    the shipped ``utils/db/games/fishing_rod.py`` default posture). A
+    PLAIN read on the read surfaces; the buy/craft legs re-read it
+    behind :func:`lock_rod_slot` inside their own txn."""
+    row = await fetchone(
+        "SELECT tier FROM fishing_rod WHERE user_id=$1 AND guild_id=$2",
+        (user_id, guild_id), conn=conn)
+    return int(row["tier"]) if row else 0
+
+
+async def set_rod_tier(user_id: int, guild_id: int, tier: int,
+                       conn: Any = None) -> None:
+    """Set the player's owned rod tier (insert the first row or raise it
+    — the shipped ``_SET_ROD_TIER_SQL`` upsert shape). Transaction-aware:
+    the buy/craft workflows debit coins / fish and bump the tier in ONE
+    workflow-owned txn (the shipped Q-0071 posture)."""
+    await execute(
+        "INSERT INTO fishing_rod (user_id, guild_id, tier) "
+        "VALUES ($1,$2,$3) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET tier = $3",
+        (user_id, guild_id, tier), conn=conn)
+
+
+async def lock_rod_slot(conn: Any, *, user_id: int,
+                        guild_id: int) -> None:
+    """Fence concurrent rod buy/craft attempts for one (user, guild)
+    against a first-insert / read-then-settle double-charge (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). Both rod
+    legs read the current tier (to size the coin/fish cost), debit, then
+    bump the tier — a read-then-settle over a natural-key row that may
+    not exist yet (a fresh player has no fishing_rod row), so FOR UPDATE
+    alone can lock nothing. A transaction-scoped advisory lock keyed on
+    the SAME (guild, user) pair serializes two racing upgrades: the loser
+    blocks here until the winner's txn commits, then re-reads the
+    winner's committed tier. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:rod:{guild_id}:{user_id}",), conn=conn)
+
+
+async def get_active_bait(user_id: int, guild_id: int,
+                          conn: Any = None) -> tuple[str, int]:
+    """The player's loaded ``(bait_key, charges)`` (``("", 0)`` when none
+    — the shipped ``utils/db/games/fishing_bait.py`` default posture).
+    An empty key or non-positive charge count both mean "no bait"; the
+    caller resolves the key to a :class:`sb.domain.fishing.bait.Bait`. A
+    PLAIN read on the read surfaces; the buy/craft legs re-read it
+    behind :func:`lock_bait_slot` inside their own txn."""
+    row = await fetchone(
+        "SELECT bait_key, charges FROM fishing_bait WHERE user_id=$1 "
+        "AND guild_id=$2", (user_id, guild_id), conn=conn)
+    if row is None:
+        return "", 0
+    return str(row["bait_key"]), int(row["charges"])
+
+
+async def set_active_bait(user_id: int, guild_id: int, bait_key: str,
+                          charges: int, conn: Any = None) -> None:
+    """Load *bait_key* with *charges* for the player (insert the row or
+    replace — the shipped ``_SET_BAIT_SQL`` upsert shape).
+    Transaction-aware: the buy workflow debits coins and loads the bait
+    in ONE workflow-owned txn (the shipped Q-0071 posture)."""
+    await execute(
+        "INSERT INTO fishing_bait (user_id, guild_id, bait_key, charges) "
+        "VALUES ($1,$2,$3,$4) "
+        "ON CONFLICT (user_id, guild_id) DO UPDATE SET "
+        "bait_key = $3, charges = $4",
+        (user_id, guild_id, bait_key, charges), conn=conn)
+
+
+async def clear_active_bait(user_id: int, guild_id: int,
+                            conn: Any = None) -> None:
+    """Drop the player's loaded bait (charges spent) → back to bait-less
+    fishing (the shipped ``clear_active_bait`` — the per-cast consume's
+    empty-pack leg, which rides the bait/minigame rung)."""
+    await set_active_bait(user_id, guild_id, "", 0, conn=conn)
+
+
+async def lock_bait_slot(conn: Any, *, user_id: int,
+                         guild_id: int) -> None:
+    """Fence concurrent bait buy/craft attempts for one (user, guild)
+    against a first-insert / read-then-settle double-charge (the
+    #213/#217 doctrine; ``lock_rod_slot`` precedent). All three bait
+    legs read the current loadout (to stack or replace charges), debit
+    coins / fish / pearls, then write the loadout — a read-then-settle
+    over a natural-key row that may not exist yet (a fresh player has no
+    fishing_bait row), so FOR UPDATE alone can lock nothing. A
+    transaction-scoped advisory lock keyed on the SAME (guild, user)
+    pair serializes two racing loads: the loser blocks here until the
+    winner's txn commits, then re-reads the winner's committed loadout.
+    Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:bait:{guild_id}:{user_id}",), conn=conn)
+
+
+async def lock_charm_slot(conn: Any, *, user_id: int,
+                          guild_id: int) -> None:
+    """Fence concurrent charm-craft attempts for one (user, guild)
+    against a double-craft over the same fish (the mining quick_craft
+    posture — materials, not coins, so this lock is the only guard).
+    The charm leg reads the fish inventory, plans the spend, then
+    debits + grants — a read-then-settle; the advisory lock serializes
+    two racing crafts. Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:charm:{guild_id}:{user_id}",), conn=conn)
+
+
+async def lock_coral_slot(conn: Any, *, user_id: int,
+                          guild_id: int) -> None:
+    """Fence EVERY fishing-side coral spend for one (user, guild) — the
+    curio carve AND the structure build take this SAME key, so a racing
+    `!craftcurio` × Build pair serializes (PR #350 codex finding): the
+    shared ``mining_inventory`` decrement floors at zero
+    (``GREATEST(0, quantity + delta)``), so two unserialized spenders
+    could both pass their pre-spend guards and both be granted from one
+    coral stack — the lock makes the loser re-read the winner's
+    committed count and refuse honestly. Materials, not coins, so for
+    the carve this lock is the only guard (the ``lock_charm_slot``
+    posture); the build additionally holds ``mining.store.
+    lock_structure_build_slot`` (taken FIRST, a stable order — no
+    deadlock: the carve holds only this key). Auto-released at
+    commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"fishing:coral:{guild_id}:{user_id}",), conn=conn)
+
+
 async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_catch_log WHERE user_id=$1", (user_id,),
@@ -153,6 +369,36 @@ async def erase_subject_catch_log(conn: Any, *, user_id: int) -> int:
 async def erase_subject_energy(conn: Any, *, user_id: int) -> int:
     result = await execute(
         "DELETE FROM fishing_energy WHERE user_id=$1", (user_id,),
+        conn=conn)
+    try:
+        return int(str(result).rsplit(" ", 1)[-1])
+    except (ValueError, AttributeError):
+        return 0
+
+
+async def erase_subject_venue(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM fishing_venue WHERE user_id=$1", (user_id,),
+        conn=conn)
+    try:
+        return int(str(result).rsplit(" ", 1)[-1])
+    except (ValueError, AttributeError):
+        return 0
+
+
+async def erase_subject_rod(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM fishing_rod WHERE user_id=$1", (user_id,),
+        conn=conn)
+    try:
+        return int(str(result).rsplit(" ", 1)[-1])
+    except (ValueError, AttributeError):
+        return 0
+
+
+async def erase_subject_bait(conn: Any, *, user_id: int) -> int:
+    result = await execute(
+        "DELETE FROM fishing_bait WHERE user_id=$1", (user_id,),
         conn=conn)
     try:
         return int(str(result).rsplit(" ", 1)[-1])

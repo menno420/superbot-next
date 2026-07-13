@@ -119,6 +119,15 @@ def build_view(rendered: RenderedPanel):
                         placeholder=comp.placeholder or None,
                         min_values=comp.min_values, max_values=comp.max_values,
                         row=comp.row)
+                elif comp.kind == "selector" and getattr(comp, "native_picker",
+                                                         "") == "user":
+                    # Discord-native member picker (wire type 5) — the
+                    # shipped creature-battle opponent picker shape.
+                    item = discord_ui.UserSelect(
+                        custom_id=comp.custom_id,
+                        placeholder=comp.placeholder or None,
+                        min_values=comp.min_values, max_values=comp.max_values,
+                        row=comp.row)
                 elif comp.kind == "selector" and getattr(comp, "channel_types",
                                                          None):
                     # Discord-native channel picker (wire type 8) — the

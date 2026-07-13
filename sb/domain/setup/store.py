@@ -29,12 +29,19 @@ from sb.spec.versioning import (
 )
 
 __all__ = [
+    "KNOWN_DEPTHS",
     "SETUP_SESSION_STORE",
     "ensure_refs",
     "get_session_row",
     "scrub_subject_session",
+    "set_depth",
+    "set_section_skip",
     "upsert_session",
 ]
+
+#: shipped value set, verbatim (disbot utils/db/setup_session.py
+#: ``KNOWN_DEPTHS`` — the migration-038 CHECK constraint's Python twin).
+KNOWN_DEPTHS: frozenset[str] = frozenset({"quick", "standard", "advanced"})
 
 SETUP_SESSION_STORE = register_store(StoreSpec(
     table="setup_session",
@@ -109,6 +116,41 @@ async def upsert_session(conn: Any, *, guild_id: int, guild_name: str,
         "    updated_at       = NOW()",
         (guild_id, guild_name, owner_id, setup_status,
          setup_channel_id, setup_message_id, current_step), conn=conn)
+
+
+async def set_depth(conn: Any, *, guild_id: int, depth: str | None) -> None:
+    """The shipped ``set_depth`` UPDATE verbatim shape (disbot
+    utils/db/setup_session.py: value-checked against ``KNOWN_DEPTHS``, a
+    bare UPDATE keyed on the guild — no row means a silent no-op, the
+    shipped semantics)."""
+    if depth is not None and depth not in KNOWN_DEPTHS:
+        raise ValueError(
+            f"depth must be one of {sorted(KNOWN_DEPTHS)} or None, got {depth!r}")
+    await execute(
+        "UPDATE setup_session SET depth = $2, updated_at = NOW() "
+        "WHERE guild_id = $1", (guild_id, depth), conn=conn)
+
+
+async def set_section_skip(conn: Any, *, guild_id: int, slug: str,
+                           skipped: bool) -> None:
+    """The shipped ``add_skipped_section`` / ``remove_skipped_section``
+    UPDATE pair verbatim shape (idempotent set semantics: append via
+    DISTINCT UNNEST, drop via ARRAY_REMOVE; no row = silent no-op)."""
+    if skipped:
+        await execute(
+            "UPDATE setup_session "
+            "   SET skipped_sections = ("
+            "           SELECT ARRAY(SELECT DISTINCT UNNEST(skipped_sections || $2::TEXT)) "
+            "           FROM setup_session WHERE guild_id = $1"
+            "       ), "
+            "       updated_at = NOW() "
+            " WHERE guild_id = $1", (guild_id, slug), conn=conn)
+    else:
+        await execute(
+            "UPDATE setup_session "
+            "   SET skipped_sections = ARRAY_REMOVE(skipped_sections, $2::TEXT), "
+            "       updated_at = NOW() "
+            " WHERE guild_id = $1", (guild_id, slug), conn=conn)
 
 
 # --- privacy erasure row helper (flag-18 discipline) --------------------------------

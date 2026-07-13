@@ -1,0 +1,887 @@
+"""The setup wizard INTERIOR (the wizard-lifecycle slice, ORDER 017) —
+the click lanes behind the four golden-pinned setup cards, ported from
+the oracle (menno420/superbot):
+
+* the DEPTH CHOOSER's three buttons (views/setup/depth_panel.py
+  ``DepthPanelView._select``): persist the choice through the K7
+  ``setup.set_depth`` op, then land on the sections hub at that depth;
+* the SECTIONS HUB (views/setup/hub.py ``SetupHubView`` +
+  ``build_hub_embed``) — the depth click's shipped destination — with
+  its Change-depth navigation live and each section button an honest
+  named-successor terminal (the section-flows slice);
+* the ESSENTIAL Step-1 card's interior (views/setup/essential_setup.py
+  ``ServerTypeStep``): the five-kind select records the pick, Save &
+  continue applies the shipped starter-set bundle FOR REAL through the
+  audited K7 ``settings.set_scalar`` lane (the oracle's
+  SettingsMutationPipeline twin), Skip leaves everything untouched;
+* the SMART-SUGGESTIONS review lanes (views/setup/ai_review/
+  main_panel.py + per_recommendation.py): accept-all / reject-AI /
+  rerun mutate the in-memory review state exactly like the oracle's
+  ``AcceptedSet`` (its own docstring: "No DB writes … only mutates the
+  in-memory AcceptedSet"), Review-one-by-one walks the per-suggestion
+  card, and Stage writes the accepted set into the K9 draft lane
+  (producer ``human_setup``) — the oracle's
+  ``setup_draft.replace_recommended_for_section`` sole-writer twin.
+
+NO GOLDEN drives a click on any of these components (panels.py module
+pin), so the oracle SOURCES pin the copy; every golden-pinned OPEN
+render stays byte-identical.
+
+Presentation divergence, ledgered: the oracle swapped views in place
+via ``edit_message``; this architecture's navigation lane opens the
+destination panel through ``open_panel`` (the #295 settings-hub
+precedent) and refreshes a panel's OWN card in place via
+``refresh_session_view``.
+
+Named successors kept honest (each a declared BLOCKED terminal, never
+silent): the essential flow's steps 2–8 (essential-steps slice), the
+ten per-section flows + the linear wizard steps behind ↩ Back to
+wizard (section-flows slice), the per-suggestion Edit modal/re-pick
+flow (suggestion-edit slice), and the final-review apply lane
+(final-review slice — staged ops apply nowhere yet; ``/setup-reset``
+clears them).
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass, field, replace
+
+from sb.kernel.interaction.handler_kit import Reply, ctx_from_request
+from sb.spec.outcomes import BLOCKED, SUCCESS
+
+__all__ = [
+    "SECTION_DEPTHS",
+    "SERVER_TYPES",
+    "XP_RATES",
+    "ReviewState",
+    "can_apply_setup",
+    "ensure_wizard_refs",
+    "essential_pick",
+    "review_state",
+    "reset_wizard_state_for_tests",
+    "sections_for_depth",
+    "staged_ops_count",
+]
+
+logger = logging.getLogger("sb.domain.setup")
+
+
+# --- shipped data, verbatim ----------------------------------------------------------
+
+#: XP rate presets (essential_setup.py ``_XP_RATES``): key → (label,
+#: xp_min, xp_max, cooldown_seconds). "standard" mirrors the schema
+#: defaults (15/25/60).
+XP_RATES: dict[str, tuple[str, int, int, int]] = {
+    "relaxed": ("Relaxed — slower leveling", 10, 15, 120),
+    "standard": ("Standard — balanced", 15, 25, 60),
+    "active": ("Active — faster leveling", 20, 40, 30),
+}
+
+
+@dataclass(frozen=True)
+class _ServerTypePreset:
+    """One server-type starter set (essential_setup.py
+    ``_ServerTypePreset``) — a bundle of safe, reversible settings."""
+
+    key: str
+    label: str
+    emoji: str
+    blurb: str
+    settings: tuple[tuple[str, str, object], ...]
+    xp_rate: str | None = None
+
+
+#: the five starter sets (essential_setup.py ``_SERVER_TYPES``,
+#: verbatim — every value a channel-independent boolean/scalar; picking
+#: a type never creates or binds anything).
+SERVER_TYPES: tuple[_ServerTypePreset, ...] = (
+    _ServerTypePreset(
+        key="community", label="Community", emoji="💬",
+        blurb="balanced spam protection, members told why they're "
+              "actioned, steady XP",
+        settings=(
+            ("automod", "enabled", True),
+            ("automod", "spam_enabled", True),
+            ("automod", "invites_enabled", True),
+            ("automod", "caps_enabled", False),
+            ("automod", "mentions_enabled", True),
+            ("moderation", "dm_on_action", True),
+        ),
+        xp_rate="standard"),
+    _ServerTypePreset(
+        key="gaming", label="Gaming", emoji="🎮",
+        blurb="spam & mass-ping protection (invite links allowed), "
+              "faster XP",
+        settings=(
+            ("automod", "enabled", True),
+            ("automod", "spam_enabled", True),
+            ("automod", "invites_enabled", False),
+            ("automod", "caps_enabled", False),
+            ("automod", "mentions_enabled", True),
+            ("moderation", "dm_on_action", True),
+        ),
+        xp_rate="active"),
+    _ServerTypePreset(
+        key="support", label="Support / Help desk", emoji="🛟",
+        blurb="strict protection on everything, members told why, "
+              "relaxed XP",
+        settings=(
+            ("automod", "enabled", True),
+            ("automod", "spam_enabled", True),
+            ("automod", "invites_enabled", True),
+            ("automod", "caps_enabled", True),
+            ("automod", "mentions_enabled", True),
+            ("moderation", "dm_on_action", True),
+        ),
+        xp_rate="relaxed"),
+    _ServerTypePreset(
+        key="creator", label="Creator / Content", emoji="🎨",
+        blurb="balanced spam protection, members told why, steady XP",
+        settings=(
+            ("automod", "enabled", True),
+            ("automod", "spam_enabled", True),
+            ("automod", "invites_enabled", True),
+            ("automod", "caps_enabled", False),
+            ("automod", "mentions_enabled", True),
+            ("moderation", "dm_on_action", True),
+        ),
+        xp_rate="standard"),
+    _ServerTypePreset(
+        key="exploring", label="Just exploring", emoji="🧭",
+        blurb="just basic spam protection — set everything else up "
+              "yourself",
+        settings=(
+            ("automod", "enabled", True),
+            ("automod", "spam_enabled", True),
+        ),
+        xp_rate=None),
+)
+
+
+def server_type(key: str) -> _ServerTypePreset | None:
+    for preset in SERVER_TYPES:
+        if preset.key == key:
+            return preset
+    return None
+
+
+#: per-section depth participation (the oracle ``SetupSection.depths``
+#: values, verbatim per views/setup/sections/*.py; the default —
+#: preset_select, channels, logging_presets, final_review — is all
+#: three). Carried as data because the ported ``WizardSectionSpec``
+#: deliberately has no depths facet (band 1 kept slug/label/emoji/
+#: order/op_kinds).
+SECTION_DEPTHS: dict[str, frozenset[str]] = {
+    "preset_select": frozenset({"quick", "standard", "advanced"}),
+    "channels": frozenset({"quick", "standard", "advanced"}),
+    "logging_presets": frozenset({"quick", "standard", "advanced"}),
+    "roles": frozenset({"standard", "advanced"}),
+    "role_templates": frozenset({"standard", "advanced"}),
+    "cleanup": frozenset({"advanced"}),
+    "moderation": frozenset({"standard", "advanced"}),
+    "cog_routing": frozenset({"advanced"}),
+    "ticket": frozenset({"standard", "advanced"}),
+    "final_review": frozenset({"quick", "standard", "advanced"}),
+}
+
+
+def sections_for_depth(depth: str | None):
+    """The shipped ``REGISTRY.for_depth`` filter: ``None`` (no choice
+    persisted yet) returns every section so the hub is never empty."""
+    from sb.domain.setup.sections import REGISTRY, register_shipped_sections
+
+    register_shipped_sections()
+    ordered = REGISTRY.ordered()
+    if depth is None:
+        return ordered
+    return tuple(s for s in ordered
+                 if depth in SECTION_DEPTHS.get(s.slug, frozenset()))
+
+
+# --- in-memory interior state (the oracle's view-held state, ported) ------------------
+
+#: the essential Step-1 pick (the oracle held it on ``ServerTypeStep``;
+#: author-bound, per guild — restart forgets it exactly like the
+#: oracle's in-memory view did).
+_ESSENTIAL_PICKS: dict[str, str] = {}
+
+
+@dataclass
+class ReviewState:
+    """The oracle ``AIReviewPanelView`` state: the active draft + the
+    ``AcceptedSet`` + the last-action footer + the walkthrough index."""
+
+    draft: object
+    accepted: list = field(default_factory=list)
+    last_status: str | None = None
+    index: int = 0
+
+    # -- the AcceptedSet port (main_panel.AcceptedSet, verbatim keys) --
+    def add(self, rec) -> bool:
+        key = (rec.subsystem, rec.binding_name)
+        if any((r.subsystem, r.binding_name) == key for r in self.accepted):
+            return False
+        self.accepted.append(rec)
+        return True
+
+    def add_many(self, recs) -> int:
+        return sum(1 for rec in recs if self.add(rec))
+
+    def remove(self, subsystem: str, binding_name: str) -> bool:
+        for i, rec in enumerate(self.accepted):
+            if rec.subsystem == subsystem and rec.binding_name == binding_name:
+                del self.accepted[i]
+                return True
+        return False
+
+    def contains(self, rec) -> bool:
+        return any((r.subsystem, r.binding_name)
+                   == (rec.subsystem, rec.binding_name)
+                   for r in self.accepted)
+
+    @property
+    def count(self) -> int:
+        return len(self.accepted)
+
+
+_REVIEW: dict[str, ReviewState] = {}
+
+
+def _state_key(guild_id: int, user_id: int) -> str:
+    return f"{int(guild_id)}:{int(user_id)}"
+
+
+def essential_pick(guild_id: int, user_id: int) -> str | None:
+    return _ESSENTIAL_PICKS.get(_state_key(guild_id, user_id))
+
+
+def set_essential_pick(guild_id: int, user_id: int, kind: str) -> None:
+    _ESSENTIAL_PICKS[_state_key(guild_id, user_id)] = kind
+
+
+def seed_review_state(guild_id: int, user_id: int, draft) -> ReviewState:
+    state = ReviewState(draft=draft)
+    _REVIEW[_state_key(guild_id, user_id)] = state
+    return state
+
+
+async def review_state(guild_id: int, user_id: int) -> ReviewState:
+    """The click lanes' state read; a missing entry (process restart)
+    re-derives the draft through the DETERMINISTIC advisor — the same
+    reproducible run ``/setup-describe`` took (the AI lane is key-gated
+    off in this build, the shipped build_advisor fallback)."""
+    state = _REVIEW.get(_state_key(guild_id, user_id))
+    if state is None:
+        from sb.domain.setup import plan
+
+        draft = await plan.suggest(int(guild_id))
+        state = seed_review_state(guild_id, user_id, draft)
+    return state
+
+
+def reset_wizard_state_for_tests() -> None:
+    _ESSENTIAL_PICKS.clear()
+    _REVIEW.clear()
+
+
+# --- the apply-authority gate (setup_access.can_apply_setup, ported) ------------------
+
+async def can_apply_setup(req) -> bool:
+    """The shipped ``setup_access.can_apply_setup`` ladder over raw ids
+    (its ``can_apply_setup_by_id`` twin): platform owner OR server owner
+    OR delegated setup admin — administrators without delegation stay
+    read-only (the owner keeps control of capability-significant
+    changes). Owner id comes from the session row when one exists, else
+    the guild directory (the same read the entries use)."""
+    from sb.kernel.authority.owner import is_platform_owner
+
+    user_id = int(getattr(req.actor, "user_id", 0) or 0)
+    if is_platform_owner(user_id):
+        return True
+    from sb.domain.setup import store
+
+    guild_id = int(req.guild_id or 0)
+    try:
+        session = await store.get_session_row(guild_id)
+    except Exception:  # noqa: BLE001 — FAIL CLOSED: an unreadable session
+        logger.exception("setup wizard: session read failed in gate")
+        session = None  # never widens access — the owner ladder still runs
+    delegated = tuple(session.get("delegated_admins") or ()) if session else ()
+    if user_id in {int(d) for d in delegated}:
+        return True
+    owner_id = int(session["owner_id"]) if session and session.get("owner_id") else 0
+    if not owner_id:
+        try:
+            from sb.domain.utility.service import guild_directory
+
+            info = await guild_directory().guild_info(guild_id)
+            owner_id = int(info.owner_id)
+        except Exception:  # noqa: BLE001 — headless directory ⇒ no owner read
+            owner_id = 0
+    return bool(owner_id) and user_id == owner_id
+
+
+#: shipped gate refusals, verbatim (hub.SetupHubView._gate_apply ·
+#: main_panel._stage_final · cogs/setup_cog._toggle_skip / reset).
+GATE_MSG_WIZARD = ("Only the server owner or a delegated setup admin can run "
+                   "the wizard. Ask the server owner to grant you "
+                   "`/setup-delegate`.")
+GATE_MSG_STAGE = ("Only the server owner or a delegated setup admin can stage "
+                  "setup operations. Ask the owner to grant you "
+                  "`/setup-delegate`.")
+GATE_MSG_SKIP = ("Only the server owner or a delegated setup admin can "
+                 "change a section's skipped state.")
+GATE_MSG_RESET = ("Only the server owner or a delegated setup admin can "
+                  "reset staged setup operations.")
+
+
+# --- the K9 staging lane (setup_draft.replace_recommended_for_section, ported) --------
+
+#: the staged-suggestion label prefix (main_panel._stage_final's
+#: ``f"[suggestions] {op.subsystem}.{op.kind}"`` labels — the section
+#: provenance the replace matcher keys on).
+_SUGGESTIONS_LABEL_PREFIX = "[suggestions] "
+
+_BIND_CHANNEL_OP_KIND = "bind_channel"
+
+
+def _register_op_kind() -> None:
+    """Bind the ONE op kind the deterministic advisor's recommendations
+    stage (``bind_channel`` — the G-19 section vocabulary's channel-bind
+    entry) onto the audited K7 ``settings.bind`` op, so the K9 pipeline's
+    fail-closed registry accepts the staged rows. The APPLY lane stays
+    the final-review slice's port — staging only ever writes draft rows."""
+    from sb.kernel.draft.registry import OP_KINDS, OpKindBinding
+    from sb.spec.events import FieldSpec
+    from sb.spec.refs import WorkflowRef
+
+    binding = OpKindBinding(
+        op_kind=_BIND_CHANNEL_OP_KIND,
+        workflow_ref=WorkflowRef("settings.bind"),
+        payload_schema=(FieldSpec("subsystem", "str"),
+                        FieldSpec("name", "str"),
+                        FieldSpec("kind", "str"),
+                        FieldSpec("resource_id", "int")),
+        is_resource_create=False)
+    try:
+        OP_KINDS.register(binding)
+    except ValueError as exc:
+        if "bound twice" not in str(exc):
+            raise
+
+
+def _guild_scope(guild_id: int):
+    """The per-GUILD draft scope — the oracle setup draft was keyed on
+    the guild alone (``setup_draft.list_ops(guild_id)``); actor
+    accountability rides the audit rows + op labels, not the scope."""
+    from sb.spec.draft import OwnerScope
+
+    return OwnerScope(guild_id=int(guild_id), actor_id=None)
+
+
+async def _open_guild_drafts(guild_id: int):
+    from sb.kernel.draft.store import DraftStore
+
+    return await DraftStore().list_open(_guild_scope(guild_id))
+
+
+async def staged_ops_count(guild_id: int) -> int:
+    """The oracle ``setup_draft.count`` read (the ``/setup-reset`` and
+    hub pending-ops feed)."""
+    drafts = await _open_guild_drafts(int(guild_id))
+    return sum(len(d.operations) for d in drafts)
+
+
+async def stage_accepted(guild_id: int, accepted: list) -> int:
+    """The oracle ``replace_recommended_for_section(guild_id,
+    "suggestions", ops, …)`` semantics over the K9 store: drop the
+    previously staged ``[suggestions]`` rows, append the accepted set as
+    ``bind_channel`` operations. Returns the staged count."""
+    from sb.kernel.draft.store import DraftStore
+    from sb.spec.draft import DraftOperation, Producer
+
+    _register_op_kind()
+    store = DraftStore()
+    drafts = await _open_guild_drafts(guild_id)
+    if drafts:
+        draft = drafts[0]
+        for op in draft.operations:
+            if op.label.startswith(_SUGGESTIONS_LABEL_PREFIX):
+                await store.remove(draft.draft_id, op.op_seq)
+    else:
+        draft = await store.create(producer=Producer.HUMAN_SETUP,
+                                   owner_scope=_guild_scope(guild_id))
+    staged = 0
+    for rec in accepted:
+        await store.add(draft.draft_id, DraftOperation(
+            op_seq=0,   # append_operation assigns the real sequence
+            op_kind=_BIND_CHANNEL_OP_KIND,
+            subsystem=rec.subsystem,
+            authority_ref="",          # the ADMIN floor (settings.bind's own)
+            payload={"subsystem": rec.subsystem, "name": rec.binding_name,
+                     "kind": rec.target_kind, "resource_id": rec.target_id},
+            label=(f"{_SUGGESTIONS_LABEL_PREFIX}{rec.subsystem}."
+                   f"{_BIND_CHANNEL_OP_KIND}")))
+        staged += 1
+    return staged
+
+
+async def clear_guild_drafts(guild_id: int) -> int:
+    """The oracle ``setup_draft.clear`` (the ``/setup-reset`` clearing
+    branch): discard every open guild draft; returns the op count that
+    was pending before."""
+    from sb.kernel.draft.store import DraftStore
+
+    store = DraftStore()
+    drafts = await _open_guild_drafts(guild_id)
+    cleared = sum(len(d.operations) for d in drafts)
+    for draft in drafts:
+        await store.discard(draft.draft_id)
+    return cleared
+
+
+# --- shared handler plumbing -----------------------------------------------------------
+
+async def _refresh_own_panel(req, params: dict) -> bool:
+    """Refresh the clicked panel's card in place (the shipped
+    ``edit_message`` re-render; best-effort — a missing live session
+    degrades to the caller's text reply)."""
+    try:
+        from sb.kernel.panels.engine import refresh_session_view
+
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        if not message_key:
+            return False
+        return await refresh_session_view(req, message_key=message_key,
+                                          params=params)
+    except Exception:  # noqa: BLE001 — the reply below still lands
+        logger.debug("setup wizard: panel refresh failed", exc_info=True)
+        return False
+
+
+async def _open(req, panel_id: str, args: dict | None = None) -> None:
+    import dataclasses as _dc
+    from types import SimpleNamespace
+
+    from sb.kernel.panels.engine import open_panel
+    from sb.spec.refs import PanelRef
+
+    if args:
+        merged = {**dict(req.args or {}), **args}
+        try:
+            req = _dc.replace(req, args=merged)
+        except TypeError:   # duck-typed request (headless drives)
+            req = SimpleNamespace(**{**vars(req), "args": merged})
+    await open_panel(PanelRef(panel_id), req)
+
+
+async def _write_setting(req, subsystem: str, name: str, value: object):
+    """One audited write through the K7 ``settings.set_scalar`` op — the
+    oracle ``_StepView._set`` (SettingsMutationPipeline.set_value) twin;
+    booleans serialize to the legacy-KV "true"/"false" spellings."""
+    from sb.kernel import settings as ksettings
+    from sb.kernel.workflow import engine
+    from sb.spec.refs import WorkflowRef
+
+    serialized = ("true" if value else "false") if isinstance(value, bool) \
+        else str(value)
+    return await engine.run(
+        WorkflowRef("settings.set_scalar"),
+        ctx_from_request(req, {
+            "key": ksettings.persisted_key(subsystem, name),
+            "value": serialized,
+            "subsystem": subsystem,
+            "name": name,
+        }))
+
+
+# --- handlers --------------------------------------------------------------------------
+
+def _register() -> None:
+    from sb.spec.refs import HandlerRef, handler, is_registered
+
+    if is_registered(HandlerRef("setup.depth_pick_quick")):
+        return
+
+    # ---- the depth chooser's three buttons (depth_panel._select) ----
+
+    def _depth_handler(depth: str):
+        async def _pick(req) -> Reply | None:
+            """Persist the choice (setup.set_depth — no session row is a
+            silent no-op, the shipped UPDATE semantics), then land on the
+            sections hub at that depth (the shipped ``after="hub"``
+            default destination; the ``after="wizard"`` step-0 render is
+            the section-flows slice's port and lands on the SAME hub
+            until then, ledgered)."""
+            from sb.kernel.workflow import engine
+            from sb.spec.refs import WorkflowRef
+
+            try:
+                result = await engine.run(WorkflowRef("setup.set_depth"),
+                                          ctx_from_request(req, {"depth": depth}))
+            except Exception:  # noqa: BLE001 — the shipped error copy answers
+                logger.exception("setup wizard: set_depth failed (depth=%s)",
+                                 depth)
+                result = None
+            if result is None or result.outcome != SUCCESS:
+                # shipped copy, verbatim (depth_panel._select).
+                return Reply(BLOCKED,
+                             "Could not save your depth choice. See logs.")
+            await _open(req, "setup.sections_hub")
+            return None
+        return _pick
+
+    for _slug in ("quick", "standard", "advanced"):
+        handler(f"setup.depth_pick_{_slug}")(_depth_handler(_slug))
+
+    # ---- the sections hub (hub.SetupHubView) ----
+
+    def _section_handler(slug: str):
+        async def _open_section(req) -> Reply:
+            """Gate exactly like the shipped hub button, then hold the
+            honest named-successor terminal — the per-section flow is
+            the section-flows slice's port."""
+            if not await can_apply_setup(req):
+                return Reply(BLOCKED, GATE_MSG_WIZARD)
+            return Reply(BLOCKED,
+                         f"🚧 The `{slug}` section's flow isn't armed in "
+                         "this build yet — it lands with the "
+                         "section-flows slice. `/setup-skip "
+                         f"section:{slug}` marks it skipped meanwhile.")
+        return _open_section
+
+    from sb.domain.setup.sections import SECTIONS
+
+    for _section in SECTIONS:
+        handler(f"setup.open_section_{_section.slug}")(
+            _section_handler(_section.slug))
+
+    @handler("setup.change_depth")
+    async def change_depth(req) -> Reply | None:
+        """The hub's Change-depth button: re-enter the depth chooser
+        (the shipped DepthPanelView re-open, gate first)."""
+        if not await can_apply_setup(req):
+            return Reply(BLOCKED, GATE_MSG_WIZARD)
+        await _open(req, "setup.hub")
+        return None
+
+    @handler("setup.back_to_wizard")
+    async def back_to_wizard(req) -> Reply:
+        """The hub's ↩ Back to wizard button — the linear wizard step
+        render (wizard_nav.render_wizard_step) is the section-flows
+        slice's port; honest terminal until then."""
+        if not await can_apply_setup(req):
+            return Reply(BLOCKED, GATE_MSG_WIZARD)
+        return Reply(BLOCKED,
+                     "🚧 The linear wizard steps aren't armed in this "
+                     "build yet — they land with the section-flows "
+                     "slice. Open a section from the hub instead once "
+                     "the flows port; the depth chooser and "
+                     "`/setup-status` stay live meanwhile.")
+
+    # ---- the essential Step-1 interior (essential_setup.ServerTypeStep) ----
+
+    @handler("setup.essential_pick")
+    async def essential_pick_handler(req) -> Reply | None:
+        """The five-kind select: record the pick and re-render the card
+        with its Starter-set field (the shipped ``_ServerTypeSelect.
+        callback`` edit_message re-render)."""
+        values = tuple(req.args.get("values", ()) or ())
+        kind = str(values[0]) if values else ""
+        preset = server_type(kind)
+        if preset is None:
+            # shipped defensive copy, verbatim (ServerTypeStep.apply —
+            # the picker only offers known keys).
+            return Reply(BLOCKED,
+                         "That server type isn't available — please pick "
+                         "another.")
+        set_essential_pick(int(req.guild_id or 0),
+                           int(getattr(req.actor, "user_id", 0) or 0), kind)
+        refreshed = await _refresh_own_panel(
+            req, {**dict(req.args or {}), "essential_kind": kind})
+        if not refreshed:
+            return Reply(SUCCESS,
+                         f"Starter set selected: {preset.emoji} "
+                         f"**{preset.label}** — press **Save & continue**.")
+        return None
+
+    @handler("setup.essential_save")
+    async def essential_save(req) -> Reply:
+        """✨ Save & continue: apply the picked starter set IMMEDIATELY
+        through the audited settings lane (the oracle's direct-apply
+        doctrine — "save each step instantly"), then confirm with the
+        shipped summary line. Steps 2–8 of the essential flow are the
+        essential-steps slice's port — the card stays on Step 1 and the
+        confirmation says so."""
+        guild_id = int(req.guild_id or 0)
+        user_id = int(getattr(req.actor, "user_id", 0) or 0)
+        kind = essential_pick(guild_id, user_id)
+        if kind is None:
+            # shipped guard copy, verbatim (ServerTypeStep.apply).
+            return Reply(BLOCKED,
+                         "Pick the kind of server you run first — or press "
+                         "Skip.")
+        preset = server_type(kind)
+        if preset is None:
+            return Reply(BLOCKED,
+                         "That server type isn't available — please pick "
+                         "another.")
+        try:
+            for subsystem, name, value in preset.settings:
+                result = await _write_setting(req, subsystem, name, value)
+                if result.outcome != SUCCESS:
+                    raise RuntimeError(
+                        f"settings.set_scalar {subsystem}.{name} → "
+                        f"{result.outcome}")
+            if preset.xp_rate is not None:
+                _label, xp_min, xp_max, cooldown = XP_RATES[preset.xp_rate]
+                for name, value in (("xp_min", xp_min), ("xp_max", xp_max),
+                                    ("xp_cooldown", cooldown)):
+                    result = await _write_setting(req, "xp", name, value)
+                    if result.outcome != SUCCESS:
+                        raise RuntimeError(
+                            f"settings.set_scalar xp.{name} → "
+                            f"{result.outcome}")
+        except Exception:  # noqa: BLE001 — the shipped error copy answers
+            logger.exception("essential setup: server-type step apply failed")
+            # shipped copy, verbatim (ServerTypeStep.apply).
+            return Reply(BLOCKED,
+                         "Something went wrong applying the starter set — "
+                         "please try again.")
+        await _refresh_own_panel(req, {**dict(req.args or {}),
+                                       "essential_kind": kind})
+        # the shipped applied-summary line (ServerTypeStep.complete's
+        # record_applied byte) + the honest successor note.
+        return Reply(SUCCESS,
+                     f"✨ {preset.emoji} {preset.label} starter set on · "
+                     f"{preset.blurb}. Every change is live — the guided "
+                     "steps after this one land with the essential-steps "
+                     "slice; adjust anything meanwhile from `!settings`.")
+
+    @handler("setup.essential_skip")
+    async def essential_skip(req) -> Reply:
+        """Skip — set things up myself: nothing changes (the shipped
+        skip records the step and moves on; with the later steps still
+        the essential-steps slice's port, the shipped all-skipped
+        summary copy answers)."""
+        # shipped summary copy (EssentialSummaryView.render, the
+        # skipped-everything branch) + the honest successor note.
+        return Reply(SUCCESS,
+                     "You skipped this step — nothing was changed. Run "
+                     "`/setup` again any time; the guided steps after "
+                     "this one land with the essential-steps slice.")
+
+    # ---- the smart-suggestions review lanes (ai_review/main_panel) ----
+
+    async def _refresh_review(req, state: ReviewState) -> None:
+        await _refresh_own_panel(req, {
+            "setup_plan_draft": state.draft,
+            "review_status": state.last_status,
+            "advisor_note": (req.args or {}).get("advisor_note"),
+        })
+
+    @handler("setup.review_accept_high")
+    async def review_accept_high(req) -> Reply | None:
+        """Accept all high-confidence → the AcceptedSet (main_panel.
+        ``_accept_high``, verbatim status line)."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        high = tuple(r for r in state.draft.recommendations
+                     if r.confidence == "high")
+        added = state.add_many(high)
+        state.last_status = (
+            f"Accepted {added} high-confidence recommendation(s); "
+            f"total accepted: {state.count}.")
+        if not await _refresh_own_panel(req, {
+                "setup_plan_draft": state.draft,
+                "review_status": state.last_status}):
+            return Reply(SUCCESS, state.last_status)
+        return None
+
+    @handler("setup.review_one_by_one")
+    async def review_one_by_one(req) -> Reply | None:
+        """Review one-by-one → the per-suggestion walkthrough
+        (main_panel ``_review_each``: the empty-draft guard verbatim,
+        then the PerRecommendationView at index 0)."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        if not state.draft.recommendations:
+            # shipped copy, verbatim.
+            return Reply(BLOCKED, "Nothing to review — the draft is empty.")
+        state.index = 0
+        await _open(req, "setup.review_item")
+        return None
+
+    @handler("setup.review_reject_ai")
+    async def review_reject_ai(req) -> Reply | None:
+        """Reject all AI suggestions (main_panel ``_reject_ai``): strip
+        ``source == "openai"`` rows from draft + accepted set. The AI
+        advisor lane is key-gated OFF in this build (the shipped
+        build_advisor fallback), so the deterministic rows all survive —
+        the shipped count line reports the truth either way."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = tuple(state.draft.recommendations)
+        surviving = tuple(r for r in recs
+                          if getattr(r, "source", "deterministic") != "openai")
+        removed = len(recs) - len(surviving)
+        if removed:
+            state.draft = replace(
+                state.draft, recommendations=surviving,
+                source="deterministic")
+        state.accepted = [r for r in state.accepted
+                          if getattr(r, "source", "deterministic") != "openai"]
+        state.last_status = (
+            f"Rejected {removed} AI suggestion(s); accepted set "
+            f"refreshed to {state.count}.")
+        if not await _refresh_own_panel(req, {
+                "setup_plan_draft": state.draft,
+                "review_status": state.last_status}):
+            return Reply(SUCCESS, state.last_status)
+        return None
+
+    @handler("setup.review_rerun")
+    async def review_rerun(req) -> Reply | None:
+        """Rerun deterministic-only (main_panel ``_rerun_deterministic``):
+        re-run the deterministic advisor and replace the draft in place;
+        AI-sourced accepted rows drop so the set stays consistent."""
+        from sb.domain.setup import plan
+
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        try:
+            state.draft = await plan.suggest(int(req.guild_id or 0))
+        except Exception:  # noqa: BLE001 — the shipped error copy answers
+            logger.exception("setup wizard: deterministic rerun failed")
+            # shipped copy, verbatim.
+            return Reply(BLOCKED,
+                         "Deterministic rerun failed; the draft is "
+                         "unchanged.")
+        state.accepted = [r for r in state.accepted
+                          if getattr(r, "source", "deterministic") != "openai"]
+        state.last_status = (
+            f"Deterministic advisor rerun: "
+            f"{len(state.draft.recommendations)} recommendation(s); "
+            f"accepted set: {state.count}.")
+        if not await _refresh_own_panel(req, {
+                "setup_plan_draft": state.draft,
+                "review_status": state.last_status}):
+            return Reply(SUCCESS, state.last_status)
+        return None
+
+    @handler("setup.review_stage")
+    async def review_stage(req) -> Reply:
+        """Stage & open Final review (main_panel ``_stage_final``): the
+        shipped guards verbatim, then the accepted set lands in the K9
+        draft (the sole apply path's staging leg — "nothing has changed
+        yet"). The FinalReviewView render + apply lane is the
+        final-review slice's port; until then the confirmation carries
+        the staged truth and ``/setup-reset`` clears it."""
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        if not state.accepted:
+            # shipped copy, verbatim.
+            return Reply(BLOCKED,
+                         "Accept at least one suggestion first — use "
+                         "**Accept all high-confidence** or **Review "
+                         "one-by-one**.")
+        if not await can_apply_setup(req):
+            return Reply(BLOCKED, GATE_MSG_STAGE)
+        try:
+            staged = await stage_accepted(int(req.guild_id or 0),
+                                          list(state.accepted))
+        except Exception:  # noqa: BLE001 — the shipped error copy answers
+            logger.exception("setup wizard: staging failed")
+            # shipped copy, verbatim.
+            return Reply(BLOCKED,
+                         "Could not stage the accepted suggestions — see "
+                         "logs.")
+        word = "operation" if staged == 1 else "operations"
+        state.last_status = f"Staged {staged} {word} into the setup draft."
+        await _refresh_own_panel(req, {
+            "setup_plan_draft": state.draft,
+            "review_status": state.last_status})
+        return Reply(SUCCESS,
+                     f"✅ Staged **{staged}** {word} into the setup draft — "
+                     "nothing has changed yet. The Final-review apply lane "
+                     "lands with the final-review slice; `/setup-reset` "
+                     "clears the staged set.")
+
+    # ---- the per-suggestion walkthrough (ai_review/per_recommendation) ----
+
+    async def _return_to_overview(req, state: ReviewState) -> None:
+        # shipped status line, verbatim (_return_to_overview).
+        state.last_status = (
+            f"Per-recommendation review finished; accepted set: "
+            f"{state.count}.")
+        await _open(req, "setup.suggestions_card", {
+            "setup_plan_draft": state.draft,
+            "review_status": state.last_status})
+
+    async def _advance_or_return(req, state: ReviewState) -> None:
+        state.index += 1
+        if state.index >= len(state.draft.recommendations):
+            await _return_to_overview(req, state)
+            return
+        if not await _refresh_own_panel(req, {}):
+            await _open(req, "setup.review_item")
+
+    @handler("setup.review_item_accept")
+    async def review_item_accept(req) -> None:
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = state.draft.recommendations
+        if 0 <= state.index < len(recs):
+            state.add(recs[state.index])
+            await _advance_or_return(req, state)
+        else:
+            await _return_to_overview(req, state)
+        return None
+
+    @handler("setup.review_item_deny")
+    async def review_item_deny(req) -> None:
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        recs = state.draft.recommendations
+        if 0 <= state.index < len(recs):
+            rec = recs[state.index]
+            state.remove(rec.subsystem, rec.binding_name)
+            await _advance_or_return(req, state)
+        else:
+            await _return_to_overview(req, state)
+        return None
+
+    @handler("setup.review_item_skip")
+    async def review_item_skip(req) -> None:
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        await _advance_or_return(req, state)
+        return None
+
+    @handler("setup.review_item_back")
+    async def review_item_back(req) -> None:
+        state = await review_state(int(req.guild_id or 0),
+                                   int(getattr(req.actor, "user_id", 0) or 0))
+        await _return_to_overview(req, state)
+        return None
+
+    # the per-suggestion Edit lane (rename a `create` proposal / re-pick
+    # a `bind` target) — modal + native-picker successor, honest terminal.
+    from sb.domain.operator_spine import pending_handler
+
+    pending_handler(
+        "setup.review_item_edit_pending",
+        "The Edit lane (rename / re-pick) isn't armed in this build yet — "
+        "it lands with the suggestion-edit slice. **Deny** this suggestion "
+        "and bind a different one if it isn't right.")
+
+
+_register()
+_register_op_kind()
+
+
+def ensure_wizard_refs() -> None:
+    _register()
+    _register_op_kind()
