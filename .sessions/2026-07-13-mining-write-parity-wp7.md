@@ -1,15 +1,23 @@
 # 2026-07-13 — deep-mining WRITE-PARITY lane — WP-7 residual pending legs (respec / title-equip / craft) PORT + write goldens
 
-> **Status:** IN FLIGHT (born red) — PORT the residual non-energy pending legs
-> the write-parity lane left honest-pending: **respec** (skills-panel ♻ Respec
-> coin-sink → `player_skills` wipe), **title-equip** (equipped-title selection),
-> and the argful **`!craft <item>`** command (materials → `mining_inventory`
-> product). Each is replaced with a real handler routed through the audited
-> `@workflow("mining.record_*")` seam + goldens minted by the capture harness.
-> Adds a `pg_advisory_xact_lock` fence + a two-txn concurrency regression for the
-> read-then-settle money/material legs (respec coins, craft materials). Born red
-> by design; flips complete on the last commit. Stacked on WP-6
-> (#344, branch `mining-write-parity-wp6`).
+> **Status:** complete (WP-7 DELIVERED — the two residual non-energy pending
+> WRITE legs the write-parity lane left honest-pending are ported onto the
+> audited `@workflow("mining.record_*")` seam and driven by capture goldens:
+> **respec** (oracle `skill_service.respec` — level-scaled coin fee via
+> `wager.debit_in_txn` → every `player_skills` branch zeroed in ONE
+> `lock_skill_slot`-fenced txn; the skills-panel ♻ Respec button flipped from
+> `mining.skill_respec_pending` to the live `mining.skill_respec_route`) and the
+> argful **`!craft <item>`** / **`!build <item>`** (oracle `mining_workflow.craft`
+> — recipe materials consume + `+1` product into `mining_inventory` + crafting
+> game-XP in ONE `lock_workshop_slot`-fenced txn; `build_route`'s argful branch
+> flipped live). **title-equip stays DROPPED (honest D-0043 pending)** — no
+> command form, select-driven ingress, the target titles panel renders no
+> earned-title Select (see below). 4 goldens minted byte-identical (corpus
+> 494→498, gate 479→483 ported goldens); WP-7 retires NO exemption
+> (`player_skills` / `mining_player_state` / `mining_inventory` already covered)
+> so `check_parity_depth` stays green with no exemption change; two-txn
+> respec/craft concurrency regressions RED→GREEN; gate GREEN + all checkers
+> green. PR #371, stacked on WP-6 (#344, branch `mining-write-parity-wp6`).)
 
 - **📊 Model:** opus-4.8 · high · parity/golden-minting (Q-0194)
 
@@ -85,3 +93,38 @@ crafts → no double-consume). Two-txn Postgres regressions prove each serialize
 Stacked on WP-6 (#344, branch `mining-write-parity-wp6`) → #335 → #317 → #312 →
 main. Open + unmerged; the owner sweeps the stack in the morning. Merge order:
 `#312 → #317 → #335 → #344 → this (WP-7)`.
+
+## 💡 Session idea
+
+WP-7 is where "port the pending leg" and "build new UI" had to be told apart, and
+the honest move was to refuse the second. respec and `!craft` each had a real
+command/panel ingress the capture harness could already drive, so flipping them
+was a pending-flip: same audited seam, oracle copy verbatim, one txn, one fence,
+a golden that pins the mutation. title-equip did NOT — its only ingress is a
+state-derived earned-title Select the target panel doesn't even render, so
+porting it would mean *constructing* new dynamic PanelSpec Select UI with no
+target precedent, not flipping a terminal. The durable discipline: a residual
+"pending" is only a pending-flip when a drivable ingress already exists at the
+target; when the port requires minting new ingress UI, that is new construction
+and belongs to its own scoped slice, not smuggled into a coverage-deepening pass.
+A checker worth having would flag a route flipped from a `*_pending` terminal
+whose target view renders no component capable of reaching the new op — the
+mechanical shape of "I forced an ingress that wasn't there." The corollary that
+paid off again: a panel-only WRITE (the ♻ Respec button) is still golden-coverable
+through `component_index` without a command form (the WP-6 forge-button precedent).
+
+## ⟲ Previous-session review
+
+WP-6 (#344) ported `mining_workflow.build_structure` onto `mining.build ->
+record_build`, flipped the forge/home 🔥 Build panel terminals live, minted 2
+structure-build goldens, retired the LAST mining exemption (`mining_structures`,
+ratchet `{tables:16→17}`), added `lock_structure_slot` + a double-build regression
+(RED→GREEN); gate 479 — the write-parity lane's exemption work COMPLETE. Its 💡
+warned the exact trap WP-7 sits next to: the spec's assumed ingress can be wrong
+(it imagined `!build <structure>` → `build_structure`, but the command routes to
+`mining_workflow.craft`), so confirm the command→service EDGE against the oracle
+cog before trusting a slice plan. WP-7 honored that by verifying `!craft`/`!build`
+actually dispatch `mining_workflow.craft` (the `mining_inventory` product leg) —
+and by NOT forcing title-equip's absent Select ingress. Goldens minted via
+`sb/adapters/parity/runner.capture_case`; the manifest snapshot recompiled
+(`tools/manifest_compile.py --write`) because the new ops add workflow refs.
