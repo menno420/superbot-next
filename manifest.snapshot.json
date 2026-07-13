@@ -6640,6 +6640,31 @@
           "value": "routing_back_step"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_continue"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_retry_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_skip_section"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_cancel_view"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -8352,6 +8377,16 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.cog_routing_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_recovery"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.workspace_notice"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -12115,6 +12150,24 @@
       "handler:setup.section_hub_roles": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_recovery_cancel": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_continue": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_customize": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_render": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_retry": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_skip": {
+        "module": "sb.domain.setup.recovery"
+      },
       "handler:setup.section_skip_channels": {
         "module": "sb.domain.setup.section_card"
       },
@@ -12183,6 +12236,9 @@
       },
       "handler:setup.wizard_step_render": {
         "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.workspace_notice_render": {
+        "module": "sb.domain.setup.notices"
       },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
@@ -13261,6 +13317,9 @@
       "panel:setup.section_moderation": {
         "module": "sb.domain.setup.section_card"
       },
+      "panel:setup.section_recovery": {
+        "module": "sb.domain.setup.recovery"
+      },
       "panel:setup.section_role_templates": {
         "module": "sb.domain.setup.section_card"
       },
@@ -13278,6 +13337,9 @@
       },
       "panel:setup.wizard_step": {
         "module": "sb.domain.setup.wizard_nav"
+      },
+      "panel:setup.workspace_notice": {
+        "module": "sb.domain.setup.notices"
       },
       "panel:starboard.config": {
         "module": "sb.domain.starboard.panels"
@@ -63877,6 +63939,226 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🧭 Cog routing",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "recovery_continue",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:continue",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_continue"
+              },
+              "label": "Continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_retry_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:retry",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_retry"
+              },
+              "label": "Retry",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_skip_section",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_skip"
+              },
+              "label": "Skip section",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_customize"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_cancel_view",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:cancel",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped recovery card is context-parameterized end to end (the Step i/N title, the section-label description, the What happened / Why / Recommended / If skipped fields — recovery.build_recovery_embed) and its Customize button is section-dependent (disabled unless the section declares a recommended builder or op_kinds — SectionRecoveryView._populate_buttons); both outside the static grammar vocabulary. The override renders through the grammar, composes the embed and flips the Customize disable (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "recovery_continue",
+                    "recovery_retry_step",
+                    "recovery_skip_section"
+                  ],
+                  [
+                    "recovery_customize",
+                    "recovery_cancel_view"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_recovery",
+          "renderer_override": {
+            "$ref": "handler:setup.section_recovery_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "⚠️ Setup issue found",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped notices are per-event embeds built at the push site (wizard._on_apply_recommended's '✅ Recommended staged' record, hub's '⚠️ Section failed' record — views/setup/_anchor.push_setup_notice took a prebuilt discord.Embed); title, description and accent are post-parameterized, outside the static grammar vocabulary. Zero components; the renderer only composes the embed (no golden pins a notice — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.workspace_notice",
+          "renderer_override": {
+            "$ref": "handler:setup.workspace_notice_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 Setup notice",
           "usage_weight": 1.0
         }
       ],

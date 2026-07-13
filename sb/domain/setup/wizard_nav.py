@@ -41,9 +41,14 @@ Kernel-idiom divergences, ledgered (the section_card.py doctrine):
   ``refresh_session_view`` and opens destinations through
   ``open_panel`` (the #295 precedent);
 * the oracle's staged-notice ride (``push_setup_notice`` into the
-  workspace channel) + the SectionRecoveryView mount are follow-ups;
-  the confirmations/failures answer as text replies carrying the
-  notice copy verbatim;
+  workspace channel) + the SectionRecoveryView mount are LIVE (the
+  night-recovery-view slice: sb/domain/setup/notices.py +
+  recovery.py) — Apply Recommended / Apply-all post the durable
+  workspace notice AND keep the text reply as the click-level ack
+  (the oracle's aggressive-ephemeral policy answered with a bare
+  defer; this build's reply seam keeps the confirmation visible when
+  the workspace is unreachable — ledgered); a builder/staging failure
+  mounts the recovery panel instead of the flat error reply;
 * the ``↩ Back to step`` button the oracle injected into detail views
   (wizard_nav._build_back_to_step_button, custom_id
   ``setup_wizard:back_to_step:{i}``) rides the detail panels as a
@@ -514,7 +519,7 @@ def _register() -> None:
 
         if not await section_card._gated_card(req):
             return Reply(BLOCKED, section_card.GATE_MSG_CARD)
-        _session, _sections, _index, section = await _current(req)
+        _session, sections, index, section = await _current(req)
         if section is None:
             # shipped copy, verbatim.
             return Reply(BLOCKED, "No section selected.")
@@ -527,14 +532,16 @@ def _register() -> None:
         guild_id, _user_id = _ids(req)
         try:
             ops = list(await builder(guild_id))
-        except Exception:  # noqa: BLE001 — the recovery view is the
-            # flagged follow-up; the card's error copy answers.
+        except Exception as exc:  # noqa: BLE001 — the shipped recovery
+            # mount (wizard._on_apply_recommended's builder catch).
             logger.exception(
                 "wizard._on_apply_recommended: builder failed (%s)",
                 section.slug)
-            return Reply(BLOCKED,
-                         "Could not build the recommended defaults. See "
-                         "logs.")
+            from sb.domain.setup import recovery
+
+            return await recovery.mount_section_recovery(
+                req, section=section, exc=exc, origin="wizard",
+                step_index=index, total_steps=len(sections))
         if not ops:
             # shipped copy, verbatim.
             return Reply(BLOCKED,
@@ -543,12 +550,15 @@ def _register() -> None:
         try:
             result = await section_card.replace_recommended_for_section(
                 guild_id, section.slug, ops)
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 — the shipped recovery
+            # mount (the replace_recommended catch).
             logger.exception(
                 "wizard._on_apply_recommended: replace_recommended failed")
-            return Reply(BLOCKED,
-                         "Could not stage the recommended operations. See "
-                         "logs.")
+            from sb.domain.setup import recovery
+
+            return await recovery.mount_section_recovery(
+                req, section=section, exc=exc, origin="wizard",
+                step_index=index, total_steps=len(sections))
         if not await section_card.mark_section_skipped(
                 req, section.slug, skipped=False):
             logger.warning("wizard._on_apply_recommended: unmark skip "
@@ -563,8 +573,18 @@ def _register() -> None:
                 f"\n\n⚠️ Preserved **{cn} custom / preset {conflict_word}** "
                 "at conflicting slot(s); no overwrite.")
         await _refresh_own_panel(req, {})
-        # the shipped workspace-notice copy, carried as the text reply
-        # (push_setup_notice is the flagged follow-up).
+        # the shipped apply-recommended record, posted as a durable
+        # workspace notice (wizard._on_apply_recommended's
+        # push_setup_notice ride — the aggressive-ephemeral policy);
+        # failure only logs, the oracle posture.
+        from sb.domain.setup import notices
+
+        await notices.push_setup_notice(
+            req,
+            title=f"✅ Recommended staged · {section.label}",
+            description=f"Staged **{count} {noun}**.{conflict_text}")
+        # the same copy answers as the click-level text ack (the
+        # ledgered reply seam — module docstring).
         return Reply(SUCCESS,
                      f"✅ Recommended staged · {section.label} — "
                      f"Staged **{count} {noun}**.{conflict_text}")
@@ -620,6 +640,28 @@ def _register() -> None:
                          "server may already cover these, or no channels "
                          "matched the rules.")
         await _refresh_own_panel(req, {})
+        # the shipped apply-all record, posted as a durable workspace
+        # notice (wizard._on_apply_all_recommended's push_setup_notice
+        # ride) — per-section lines + the conflicts tail, verbatim.
+        lines = "\n".join(
+            f"• `{slug}`: **{count}** op(s)"
+            for slug, count in section_totals.items())
+        description = (
+            f"Staged **{total} {word}** across {len(section_totals)} "
+            "section(s). Continue to **Final Review** to apply.")
+        if lines:
+            description += f"\n\n{lines}"
+        if conflicts_total:
+            conflict_word = "row" if conflicts_total == 1 else "rows"
+            description += (
+                f"\n\n⚠️ Preserved **{conflicts_total} custom / preset "
+                f"{conflict_word}** at conflicting slot(s); no overwrite.")
+        from sb.domain.setup import notices
+
+        await notices.push_setup_notice(
+            req,
+            title=f"✅ Apply all recommended — {total} {word}",
+            description=description)
         # the shipped immediate click-level confirmation, verbatim.
         return Reply(SUCCESS,
                      f"✅ Staged **{total} {word}** across "
