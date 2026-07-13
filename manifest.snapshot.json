@@ -94,6 +94,14 @@
     "FieldSpec.required": "S",
     "FieldSpec.type": "S",
     "FieldsBlock.provider": "S",
+    "GameEntry.emoji": "S",
+    "GameEntry.hub": "S",
+    "GameEntry.key": "S",
+    "GameEntry.label": "S",
+    "GameSectionSpec.emoji": "S",
+    "GameSectionSpec.games": "S",
+    "GameSectionSpec.key": "S",
+    "GameSectionSpec.title": "S",
     "Interval.seconds": "S",
     "InvariantSpec.baseline_ref": "S",
     "InvariantSpec.bears_value": "S",
@@ -12615,7 +12623,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:07a3111c894ff15e99262047a64da42f88b6a735df93ac880ee09cfe7a22353b",
+  "stable_hash": "sha256:1ca8c9627546cfb7a6504032b2ac5e9ed0f6f14b88c4b9065c07465669f08312",
   "subsystems": {
     "admin": {
       "capabilities": [],

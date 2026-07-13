@@ -43,6 +43,18 @@ b/c (settings surface, provider subscription).
 - Flag (PL-001): a section whose games are ALL disabled is dropped from
   `enabled_games` (nothing to render); slice b's settings panel reads
   the registry directly, so it still sees every section.
+- Post-flip CI fix (PR #334 `checkers` + `manifest-validate` reds, one
+  root cause): registering GameEntry/GameSectionSpec field roles changed
+  the compiled grammar → `manifest.snapshot.json` recompile-parity DRIFT,
+  and the recompile then required the A-2 same-PR schema-growth ledger
+  entries for the 8 new fields
+  (`docs/planning/schema-growth-ledger.yml`). Recompiled via
+  `tools/manifest_compile.py --write` + minted the 8 entries; full
+  checker fleet + pytest + strict re-run green. Guard recipe: a new
+  `register_field_roles` type in sb/spec ALWAYS needs the snapshot
+  recompile AND ledger entries in the same PR — run
+  `python3 tools/manifest_compile.py && python3 tools/check_schema_growth.py`
+  before pushing any sb/spec leaf.
 - Flag (PL-001): drift-guard test lives at
   `tests/unit/band6/test_band6_game_sections.py` (band home of the games
   hub tests), not the card-suggested `tests/spec/` path (no such dir).
