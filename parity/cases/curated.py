@@ -757,4 +757,62 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "material-consume + craft + auto-equip write faces of "
             "mining_inventory / mining_equipment"),
     ),
+    # ---------------------------------------------- mining WRITE-PARITY (WP-5)
+    # The skill-spend PORT: the argful `!skill <branch>` point-spend was a live
+    # D-0043 pending terminal (skill_route returned the BLOCKED successor copy,
+    # NO write leg). WP-5 ports the oracle services/skill_service.py::allocate
+    # onto the audited one-leg one-txn seam (mining.skill -> record_skill), flips
+    # skill_route to run it (mention-prefixed on both faces, the shipped
+    # ctx.send(f"{mention} {result.message}") lane), and drives it here. Same
+    # personas as WP-1..3: member = 900000000000000102, guild =
+    # 700000000000000001. player_skills keys user_id as BIGINT (no quotes); the
+    # game_xp fixture (also BIGINT) seeds the level the available-points budget
+    # derives from (min(level, SOFT_TOTAL_CAP=20) − total_spent). The fixture row
+    # is seeded BEFORE the before-snapshot, so only the terminal's own write lands
+    # in db_delta. Success/refusal copy is byte-identical to the oracle
+    # (skill_service.allocate / mining_cog.py skill_cmd). The success capture is
+    # row-bearing on player_skills → retires its guard-only-capture exemption.
+    GoldenCase(
+        id="mining.skill_write",
+        subsystem="mining",
+        # Seed 300 game XP → level_progress(300) = level 2, so the available
+        # pool is min(2, 20) − 0 = 2 points; spending 1 into mining leaves 1.
+        # (game_xp.updated_at defaults now(); day is nullable — migration 0036.)
+        fixture_sql=(
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'mining', 300)",
+        ),
+        steps=(
+            Step(kind="command", content="!skill mining", persona="member"),
+        ),
+        notes=(
+            "argful !skill mining (game-XP fixture seeds level 2 → 2 available "
+            "points) drives mining.skill -> record_skill (the ported "
+            "skill_service.allocate): advisory-fenced (lock_skill_slot), it "
+            "validates the branch + the per-branch cap + the available-points "
+            "budget, then upserts the player_skills row (mining -> 1) in one txn, "
+            "and replies `<@u> Spent **1** point into **mining** (now 1/10). "
+            "**1** point left.` — the first row-bearing skill-spend capture "
+            "(retires the player_skills guard-only-capture exemption; "
+            "skill_service.allocate copy verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.skill_bad_branch",
+        subsystem="mining",
+        # No fixture: the bad-branch refusal is rejected inside the allocate leg
+        # (the oracle validates the branch first) BEFORE the budget read/write,
+        # so no player_skills row is touched — the audited seam records the
+        # denial (a normalized audit_log row), never a skill mutation.
+        steps=(
+            Step(kind="command", content="!skill cooking", persona="member"),
+        ),
+        notes=(
+            "argful !skill cooking (not a real branch) drives mining.skill -> "
+            "record_skill and is refused inside the ported allocate before any "
+            "player_skills write: replies `<@u> **cooking** isn't a skill "
+            "branch — pick one of: mining, combat, fortune, crafting.` — the "
+            "bad-branch error face (skill_service.allocate copy verbatim); the "
+            "denial records a normalized audit_log row, NO player_skills "
+            "db_delta"),
+    ),
 )
