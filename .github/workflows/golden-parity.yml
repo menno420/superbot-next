@@ -1,7 +1,7 @@
 # golden-parity.yml — design-spec §6 gate 5, the acceptance oracle. Its OWN
-# workflow, deliberately NOT folded into ci.yml: this workflow is BORN RED BY
-# DESIGN (the `report` job is red-until-parity from repo birth), and the
-# red-by-design state stays isolated from the green checker fleet.
+# workflow, deliberately NOT folded into ci.yml. The `report` job was born
+# red-by-design (red-until-parity from repo birth) and flipped LIVE GREEN on
+# 2026-07-13 (full-corpus parity; run 29238825392) — red there is now signal.
 #
 # Two jobs:
 #   gate    — the required-check semantics: check_parity_depth (A-16, inside
@@ -10,10 +10,10 @@
 #             GREEN today (zero ported). 👤 OWNER: designate THIS job as the
 #             required status check (repo Settings — build-brief §8.1); the
 #             report job must NOT be required or every merge blocks.
-#   report  — the full-corpus red-until-parity honesty leg: 0/465 replayable
-#             until the new-bot replay adapter exists. RED here is the
-#             expected state (the owner's parity dashboard), not a build
-#             break.
+#   report  — the full-corpus honesty leg (the owner's parity dashboard).
+#             Red-until-parity from birth; GREEN since 2026-07-13 (484/484
+#             goldens, 51/51 subsystems; run 29238825392). A red here is
+#             now a real regression signal — no longer the expected state.
 #
 # The Postgres service container is the §6 gate-5 requirement ("the parity/
 # harness against a real Postgres service container in CI") — provisioned
@@ -73,7 +73,7 @@ jobs:
         run: python3 -m pytest tests/integration -q
 
   report:
-    # BORN RED BY DESIGN — red-until-parity (never mark this job required).
+    # GREEN since 2026-07-13 (run 29238825392) — a red here is now a real regression signal (still never a required check).
     runs-on: ubuntu-latest
     services:
       postgres:

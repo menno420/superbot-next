@@ -37,8 +37,6 @@ _GENERIC_ERROR = "⚠️ An unexpected error occurred. Please try again."
 #: handler and the prefix command's success lane.
 _POLL_DOWN = ("📊 Poll creation needs the reaction egress port "
               "(arms with the live adapter).")
-_INVITE_DOWN = ("🔗 Invite creation needs the live invite port "
-                "(arms with the live adapter).")
 _CLEAR_DOWN = ("🧹 Purging needs the live message view "
                "(arms with the live adapter).")
 
@@ -492,22 +490,8 @@ def _register() -> None:
         return Reply(SUCCESS, f"Cleared {len(deleted)} messages.")
 
 
-def _register_pending() -> None:
-    """The shipped Invite tool still needs its mint port (a sibling
-    lane's — PR #332 wires the button to the live `utility.invite_view`)
-    — declared + honest refusal, never silent (the role-band precedent).
-    The Poll/Remind terminals are retired (G-10 modal ingress over the
-    live twin lanes) and the 420 child forwards to the ported
-    `four_twenty.overview` (2026-07-13 operator-hub edits A)."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler("utility.invite_pending", _INVITE_DOWN)
-
-
 _register()
-_register_pending()
 
 
 def ensure_handler_refs() -> None:
     _register()
-    _register_pending()
