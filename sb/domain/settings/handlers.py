@@ -1,18 +1,17 @@
 """Settings-surface handlers — the ``!settings access`` front door plus
 the declared + honest pending terminals for every hub click whose target
 is its own port slice (the role/utility/channel-band precedent, never a
-silent stub): the per-group settings pages (``settings_subsystem.*``),
-the audit view and the Command Access panel
-(``settings_command_access.*``, PR-6) stay pending with their own
-slices. The Access Policy Explorer's six controls are ARMED (curation
-rows 82-87) over the governance diagnostic read seam
+silent stub): the per-group settings pages (``settings_subsystem.*``)
+and the Command Access panel (``settings_command_access.*``, PR-6) stay
+pending with their own slices. The Access Policy Explorer's six controls
+are ARMED (curation rows 82-87) over the governance diagnostic read seam
 (``governance.resolve_subsystem_state``) and the K7 ``SET_VISIBILITY``
 clear lane (Reset); the hub's three READ-ONLY diagnostics (Needs setup /
-Invalid settings / Missing bindings — settings-admin slice 1) are ARMED
-as declared PanelRef open-child routes (sb/domain/settings/panels.py) —
-no handler here, the grammar owns the dispatch. Refs register at MODULE
-IMPORT (the composition-parity invariant — the live root never runs
-ENSURE_REFS)."""
+Invalid settings / Missing bindings — settings-admin slice 1) and the
+🕒 Recent-changes audit view (slice 2) are ARMED as declared PanelRef
+open-child routes (sb/domain/settings/panels.py) — no handler here, the
+grammar owns the dispatch. Refs register at MODULE IMPORT (the
+composition-parity invariant — the live root never runs ENSURE_REFS)."""
 
 from __future__ import annotations
 
@@ -200,12 +199,11 @@ def _register() -> None:
 
     # The three read-only diagnostics' pending refs are RETIRED
     # (settings-admin slice 1 armed them as PanelRef open-child routes —
-    # the retired-explorer-pending precedent); audit + command access
-    # keep their honest terminals until their own slices land.
+    # the retired-explorer-pending precedent), and slice 2 retired the
+    # audit view's the same way; command access keeps its honest
+    # terminal until slice 3 lands.
     pending_handler("settings.group_pending",
                     f"⚙️ The per-group settings page{_PENDING}")
-    pending_handler("settings.audit_pending",
-                    f"🕒 The Recent-changes audit view{_PENDING}")
     pending_handler("settings.command_access_pending",
                     f"🚪 The Command Access panel{_PENDING}")
 

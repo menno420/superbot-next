@@ -239,7 +239,6 @@ def test_panel_and_handler_refs_registered():
     for name in ("settings.render_hub", "settings.render_access",
                  "settings.access_view", "settings.open_group",
                  "settings.group_pending",
-                 "settings.audit_pending",
                  "settings.command_access_pending",
                  # the ARMED explorer controls (curation rows 82-87) —
                  # the five *_pending terminals they replaced must stay
@@ -260,7 +259,10 @@ def test_panel_and_handler_refs_registered():
                  # open-child routes need no handler at all.
                  "settings.needs_setup_pending",
                  "settings.invalid_pending",
-                 "settings.missing_bindings_pending"):
+                 "settings.missing_bindings_pending",
+                 # the audit view (settings-admin slice 2) retired its
+                 # pending terminal the same way.
+                 "settings.audit_pending"):
         assert not is_registered(HandlerRef(name)), name
 
 
@@ -286,14 +288,14 @@ def test_manifest_declares_the_front_doors():
     assert access_cmd.qualified_name == "settings access"
     assert access_cmd.kind is CommandKind.PREFIX
     assert access_cmd.route == HandlerRef("settings.access_view")
-    # the hub + explorer front doors, then the three armed diagnostic
-    # sub-panels (settings-admin slice 1).
+    # the hub + explorer front doors, then the armed diagnostic
+    # sub-panels (settings-admin slices 1-2).
     hub_spec, access_spec = MANIFEST.panels[:2]
     assert hub_spec.panel_id == "settings.hub"
     assert access_spec.panel_id == "settings.access"
     assert [p.panel_id for p in MANIFEST.panels[2:]] == [
         "settings.needs_setup", "settings.invalid",
-        "settings.missing_bindings"]
+        "settings.missing_bindings", "settings.audit"]
 
 
 def test_clicks_land_on_the_polite_pending_terminal():
