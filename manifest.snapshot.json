@@ -8563,14 +8563,17 @@
       "handler:admin.cogmgr_deploy_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:admin.cogmgr_page_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:admin.cogmgr_next": {
+        "module": "sb.domain.admin.cogmgr"
+      },
+      "handler:admin.cogmgr_prev": {
+        "module": "sb.domain.admin.cogmgr"
       },
       "handler:admin.cogmgr_render": {
         "module": "sb.domain.admin.cogmgr"
       },
-      "handler:admin.cogmgr_select_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:admin.cogmgr_select": {
+        "module": "sb.domain.admin.cogmgr"
       },
       "handler:admin.loglevel": {
         "module": "sb.domain.admin.handlers"
@@ -13530,7 +13533,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:ebcd4fecd4327b91851e254d3cb95ecb90c6aab6f1a12b8e2193d6cfa5476529",
+  "stable_hash": "sha256:3d51ec08f51819cfe2416a26b5e1bde4ab61edffa8af165af769c241df90ad42",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -14313,7 +14316,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:admin.cogmgr_page_pending"
+                "$ref": "handler:admin.cogmgr_prev"
               },
               "label": "◀ Prev",
               "modal": null,
@@ -14338,7 +14341,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:admin.cogmgr_page_pending"
+                "$ref": "handler:admin.cogmgr_next"
               },
               "label": "Next ▶",
               "modal": null,
@@ -14414,7 +14417,7 @@
               "max_values": 1,
               "min_values": 1,
               "on_select": {
-                "$ref": "handler:admin.cogmgr_select_pending"
+                "$ref": "handler:admin.cogmgr_select"
               },
               "options_source": {
                 "$ref": "provider:admin.cogmgr_options"
