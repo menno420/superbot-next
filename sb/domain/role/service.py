@@ -81,10 +81,16 @@ class RoleProvisioning(Protocol):
     !deleterole guild.create_role / role.delete lanes — fake_http captured
     the create as a `create_role` wire verb, goldens/role/sweep_createrole).
     Uninstalled ⇒ raise ⇒ the caller's honest BLOCKED refusal (the
-    moderation-actions posture)."""
+    moderation-actions posture).
+
+    ``hoist`` / ``mentionable`` joined at the setup compound-ops slice
+    (the role-template create lane carries the full cosmetic spec —
+    oracle RoleLifecycleService create kwargs); keyword-only with False
+    defaults so the shipped !createrole lane stays byte-identical."""
 
     async def create_guild_role(self, guild_id: int, *, name: str, color: int,
-                          reason: str | None) -> int: ...
+                          reason: str | None, hoist: bool = False,
+                          mentionable: bool = False) -> int: ...
     async def delete_role(self, guild_id: int, role_id: int, *,
                           reason: str | None) -> None: ...
 

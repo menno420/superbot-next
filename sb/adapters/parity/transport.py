@@ -667,12 +667,18 @@ class ParityRoleProvisioning:
         self._transport = transport
 
     async def create_guild_role(self, guild_id: int, *, name: str, color: int,
-                          reason: str | None) -> int:
+                          reason: str | None, hoist: bool = False,
+                          mentionable: bool = False) -> int:
+        # hoist/mentionable joined at the setup compound-ops slice (the
+        # role-template lane carries the cosmetic pair) — the False
+        # defaults keep every existing golden's recorded body
+        # byte-identical to the shipped !createrole capture.
         self._transport.record(
             "create_role",
             {"guild_id": int(guild_id), "reason": reason},
-            {"colors": {"primary_color": int(color)}, "hoist": False,
-             "mentionable": False, "name": str(name), "permissions": "0"})
+            {"colors": {"primary_color": int(color)}, "hoist": bool(hoist),
+             "mentionable": bool(mentionable), "name": str(name),
+             "permissions": "0"})
         # fake_http answered the POST with a role payload whose id came
         # off the SAME allocator as message ids (the golden's created
         # role normalizes as `<msg:2>` — sweep_createrole's audit target

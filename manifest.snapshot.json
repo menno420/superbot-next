@@ -14647,7 +14647,13 @@
       "workflow:proof_channel.record_unlock_row": {
         "module": "sb.domain.proof_channel.ops"
       },
+      "workflow:role.apply_create_managed": {
+        "module": "sb.domain.role.ops"
+      },
       "workflow:role.apply_grant_temp": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.apply_template_tier": {
         "module": "sb.domain.role.ops"
       },
       "workflow:role.bind_reaction": {
@@ -14656,7 +14662,13 @@
       "workflow:role.clear_message_mode": {
         "module": "sb.domain.role.ops"
       },
+      "workflow:role.compensate_create_managed": {
+        "module": "sb.domain.role.ops"
+      },
       "workflow:role.compensate_grant_temp": {
+        "module": "sb.domain.role.ops"
+      },
+      "workflow:role.create_managed_role": {
         "module": "sb.domain.role.ops"
       },
       "workflow:role.create_menu": {
@@ -14821,6 +14833,9 @@
       "workflow:settings.write_scalar": {
         "module": "sb.domain.settings.ops"
       },
+      "workflow:setup.bind_ensured_channel": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.clear_essential_anchor": {
         "module": "sb.domain.setup.ops"
       },
@@ -14828,6 +14843,12 @@
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.compensate_create_channel": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.ensure_channel": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.ensure_channel_resource": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.erase_subject_session": {
