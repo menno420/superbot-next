@@ -29,6 +29,7 @@ __all__ = [
     "MINING_STRUCTURES_STORE",
     "get_structures",
     "set_structure_level",
+    "lock_structure_build_slot",
     "lock_workshop_slot",
     "get_last_broken",
     "set_last_broken",
@@ -557,13 +558,36 @@ async def set_structure_level(conn: Any, *, user_id: int, guild_id: int,
                               structure: str, level: int) -> None:
     """Persist a structure's built *level* (upsert; clamped >= 0) — the shipped
     ``mining_structures.set_structure_level`` write (the `!build` / 🔥 Build
-    sink). The row-bearing build rides the deferred structures BUILD system
-    (slice 6); this writer exists for the erasure body + that future lane."""
+    sink). The MINING row-bearing build rides the deferred structures BUILD
+    system (slice 6); the FISHING structure panels' Build buttons (fishing
+    slice 4) write through THIS seam via the audited
+    ``fishing.build_structure`` op — mining_structures stays sole-writer
+    here."""
     await execute(
         "INSERT INTO mining_structures (user_id, guild_id, structure, level) "
         "VALUES ($1,$2,$3,GREATEST(0,$4)) ON CONFLICT "
         "(user_id, guild_id, structure) DO UPDATE SET level=GREATEST(0,$4)",
         (int(user_id), guild_id, structure, level), conn=conn)
+
+
+async def lock_structure_build_slot(conn: Any, *, user_id: int,
+                                    guild_id: int) -> None:
+    """Fence concurrent structure-build settles for one (user, guild)
+    against a read-then-settle double-charge / double-level-raise (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). A build
+    reads the current structure level (to size the coin + material cost),
+    debits, consumes materials, then bumps the level — a read-then-settle
+    over natural-key rows that may not exist yet (a fresh player has no
+    mining_structures row), so FOR UPDATE alone can lock nothing. A
+    transaction-scoped advisory lock keyed on the (guild, user) pair
+    serializes two racing builds: the loser blocks here until the
+    winner's txn commits, then re-reads the winner's committed level and
+    its debit is sized against the raised cost. One key for ALL
+    structures per player (a player can't race two different builds into
+    a double coin debit either). Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:structure_build:{guild_id}:{user_id}",), conn=conn)
 
 
 async def lock_workshop_slot(conn: Any, *, user_id: int,

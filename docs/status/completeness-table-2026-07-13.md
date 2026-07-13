@@ -55,14 +55,14 @@
 
 | Subsystem | core | admin | setup |
 |---|---|---|---|
-| admin | ✅ 7 cmds live (coglist/slashes/loglevel/serverstats/adminmenu) | ⚑ cogmgr deploy ops pending: 6 actions + 1 selector (`admin.cogmgr_*` → `sb/domain/operator_spine.py`; deploy-ops class, capture-skipped by design — see docs/decisions.md) + `admin.hub/reload_all` | ✅ honest-empty (declares no settings; explanatory empty state, PR #71) |
+| admin | ✅ 7 cmds live (coglist/slashes/loglevel/serverstats/adminmenu) | ✅ cogmgr select pick + ◀/▶ windowing live (ORDER 017 operator-hub edits C); the Load/Unload/Reload trio + `admin.hub/reload_all` are BY-DESIGN terminals, not gaps (docs/decisions.md — extension management has no compiled-architecture analog; final copy states it) | ✅ honest-empty (declares no settings; explanatory empty state, PR #71) |
 | ai | ⚑ env-gated only: NL answer path dormant without `ANTHROPIC_API_KEY` (`parity.yml:361` ai_review_log exemption); all 24 cmds / 36 actions / 17 selectors live | ✅ `!aireview` family live (preset + review-channel writes golden-covered) | ✅ policy/preset/orchestration mutation live — "No chooser pending terminals remain" (`sb/domain/ai/panels.py:39`) |
 | automod | ✅ decision core live-proven (band-2s2) | ✅ hub read-view | ✅ 15 settings resolve |
 | blackjack | ✅ solo + tournament full flow, paid-pot conservation golden | ✅ `!bjstart` launch | ✅ 1 setting |
 | btd6 | ⚑ paragon calculator panel pending: 3 actions + 4 selectors (`btd6.paragon_pending`, `sb/domain/btd6/service.py`); 74 cmds live incl. the wire-type-5 strategy modal (minted-golden procedure) | ⚑ `btd6.ctteam/set_team` pending (NK-bracket ingestion successor, `sb/domain/btd6/oracle_surface.py:623`); seed-data live | ✅ 1 setting |
 | casino | ⚑ roulette disabled = SHIPPED parity byte (`sb/domain/casino/service.py:99`); poker play layer golden-pinned; per-player ephemeral hands = owner-armed live step (ledgered decision) | ✅ | ✅ |
 | chain | ✅ 7 cmds + create modal live (`chain_channels` guard-only depth debt, `parity.yml:485` — coverage, not function) | ✅ | ✅ |
-| channel | ✅ 17 channel-op cmds implemented over the ChannelActions adapter with real failure copy (`sb/domain/channel/handlers.py`) | ⚑ hub 5 actions pending (create/delete/restrict/move/visibility → `operator_spine`) — command twins ARE live | ✅ |
+| channel | ✅ 17 channel-op cmds implemented over the ChannelActions adapter with real failure copy (`sb/domain/channel/handlers.py`) | ✅ hub 5 sub-panel flows live (create/delete/restrict/move/visibility + the toggle grid over the audited twin lanes — ORDER 017 operator-hub edits B; Send to Top/Bottom + create-new-category answer honest port-extension refusals) | ✅ |
 | cleanup | ⚑ `!cleanuphistory` runtime-gated (honest refusal when HistoryReader unarmed, `handlers.py:114-117`; non-prohibited scan modes refuse honestly `:125`) | ⚑ 8 hub/word-panel actions pending (`cleanup.{logging,settings,policies}_pending` + words `word_add/word_remove/word_refresh/scan_history/anti_evasion` → `operator_spine`) — the `!word` K7 command lane IS live | ✅ |
 | community | ✅ hub + 10 actions live | ✅ | ✅ |
 | community_spotlight | ✅ glance + clicks live | ✅ | ✅ |
@@ -95,7 +95,7 @@
 | security | ✅ raid window + age gate cores live-proven | ✅ | ✅ 9 settings |
 | server_management | ✅ hub renders; channels forwards to ported channel ops | ⚑ 6 hub actions pending (moderation/roles/cleanup/access_map/help_preview/help_editor → `operator_spine`) | ✅ |
 | settings | ✅ hub + explorer + per-group mutation pages (band-7 settings-mutation slice) | ⚑ 9 actions + 2 selectors pending: hub `needs_setup/invalid/missing_bindings/audit/command_access` + access panel explain/reset/paging + subsystem/scope selects (`operator_spine`) | ✅ K7 declare/read/bind proven live |
-| setup | ⚑ **wizard interior is a shell**: 10 actions + 1 selector → `setup.wizard_pending` (`sb/domain/setup/panels.py:125-128`) + `/setup-skip` mark-skipped pending (`handlers.py:207-209`); hub + section reads live | ✅ | ⚑ (same gap — setup IS the setup surface) |
+| setup | ✅ wizard interior live (wizard-lifecycle slice, ORDER 017): the 10 counted actions + the `essential_kind` selector armed — depth choice persists + lands on the ported sections hub, essential Step-1 applies the starter set through K7 `settings.set_scalar`, the suggestions review/walkthrough/stage lanes mutate state + write the K9 draft; `/setup-skip`+`/setup-unskip` session writes + `/setup-reset` clearing branch live (`sb/domain/setup/wizard.py`) | ✅ | ⚑ named successors (declared-honest terminals, `wizard.py` docstring): essential steps 2–8, the 10 per-section flows + linear wizard steps (`setup.open_section_*` / `setup.back_to_wizard`), the suggestion Edit lane, the final-review apply lane |
 | starboard | ✅ config command family + ignore writes | ✅ | ⚑ threshold modal pending (`starboard.panel_threshold`, `sb/domain/starboard/panels.py:296-303`; workaround `!starboard #channel <n>` live) |
 | ticket | ✅ 12 cmds live (RoleSelect wiring live) | ✅ | ✅ ticket.setup panel armed: 3 actions + 2 selectors live over the audited config/channel ops (`ticket.setup_pending` retired — `sb/domain/ticket/setup_panel.py`, ORDER 017 slice B; the ticket-OPEN provisioning flow stays a named successor, stamped in that module) |
 | treasury | ✅ contribute modal + K7 round-trip + overdraw refusals | ✅ | ✅ |
@@ -105,8 +105,10 @@
 | xp | ✅ chat award + level-up fan-out live-proven (band 4) | ✅ | ⚑ xp.config panel 4 actions pending (`xp.config_{range,cooldown,channel}_pending` + `xp.import_setup_pending` → `operator_spine`; K7 settings lanes ARE the live workaround) |
 | kernel (panels/engine) | ✅ render/browserview/engine golden-pinned (browse-interaction batch, kernel band `parity.yml:227` ported); `resolve.py:89` NotImplementedError = default port replaced at composition | ✅ | ✅ |
 
-**Headline counts (50 rows):** core **41 ✅ / 9 ⚑** · admin **43 ✅ / 7 ⚑** ·
-setup **47 ✅ / 3 ⚑**. Every flag is a *declared-honest* terminal or an
+**Headline counts (50 rows):** core **42 ✅ / 8 ⚑** · admin **43 ✅ / 7 ⚑** ·
+setup **47 ✅ / 3 ⚑** *(setup-row core flipped ✅ by the wizard-lifecycle
+slice, ORDER 017 night-run; its setup column stays ⚑ for the named
+successors)*. Every flag is a *declared-honest* terminal or an
 in-flight/owner-gated lane — the sweep found **zero silent gaps** (no
 unregistered refs, no empty-string error paths).
 
@@ -127,9 +129,11 @@ unregistered refs, no empty-string error paths).
    (`sb/manifest/fishing.py` → `operator_spine`); the single largest pending
    block in the fleet. **Owner-gated (#313, the deep-systems successor decision) — needs owner go, not a
    free slice.**
-2. **setup wizard interior** — the whole interactive wizard is pending
-   (10 actions + 1 selector + `/setup-skip`, `sb/domain/setup/panels.py:125`);
-   the first-run experience dead-ends after the hub. No peer claim — free.
+2. ~~**setup wizard interior**~~ — **DONE** (wizard-lifecycle slice, ORDER
+   017 night-run): the 10 counted actions + selector + `/setup-skip` armed
+   (`sb/domain/setup/wizard.py`). Remaining named successors (smaller, now
+   individually sliceable): essential steps 2–8 · the 10 per-section flows ·
+   the suggestion Edit lane · the final-review apply lane.
 3. **mining argful write faces** — `!skill` spend (WP-5), argful
    `!build`/`!craft` (WP-6), `!cook`/`!use` (energy, #320), 12 panel-button
    writes; **partially in-flight — only WP-5/WP-6 slices are free AFTER
@@ -149,7 +153,15 @@ unregistered refs, no empty-string error paths).
    wire-clicks-to-existing-ops family. Coordinate with the
    `operator-hubs-interactive` claim (read-only nav slice already claimed;
    the EDIT controls are explicitly deferred to a settings-mutation-style
-   slice).
+   slice). **PARTIALLY DONE (ORDER 017 night-run): operator-hub edits C
+   (this PR) arms the cogmgr select + windowing and reclassifies the
+   deploy trio by-design; edits B (#356, merged) delivered the channel
+   hub's five sub-panel flows; edits A (#358, in flight — supersedes
+   #355) covers utility Poll/Remind/420 + role Create + counter-preset
+   apply; peers own xp config (#345), cleanup words (#333),
+   server_management nav trio + utility Invite (#332). Remaining free:
+   server_management access_map/help_preview/help_editor (a 2.3k-line
+   oracle projection pair — its own slice).**
 7. **btd6 paragon calculator** — 3 actions + 4 selectors pending
    (`btd6.paragon_pending`); a self-contained pure-compute port
    (`sb/domain/btd6/service.py`). Free.

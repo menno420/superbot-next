@@ -1903,6 +1903,70 @@
    },
    "value": 0
   },
+  "channel:channel.create:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "create_names"
+      ],
+      [
+       "create_category"
+      ],
+      [
+       "create_custom",
+       "create_commit",
+       "create_cancel"
+      ]
+     ]
+    }
+   ]
+  },
+  "channel:channel.create:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": [
+    [
+     "create_names"
+    ],
+    [
+     "create_category"
+    ],
+    [
+     "create_custom",
+     "create_commit",
+     "create_cancel"
+    ]
+   ]
+  },
+  "channel:channel.create:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "create_names"
+       ],
+       [
+        "create_category"
+       ],
+       [
+        "create_custom",
+        "create_commit",
+        "create_cancel"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "channel:channel.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: band-6 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -1955,6 +2019,203 @@
        [
         "move",
         "visibility"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "channel:channel.move:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "move_pick"
+      ],
+      [
+       "move_category"
+      ],
+      [
+       "move_commit",
+       "move_top",
+       "move_bottom"
+      ],
+      [
+       "move_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "channel:channel.move:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": [
+    [
+     "move_pick"
+    ],
+    [
+     "move_category"
+    ],
+    [
+     "move_commit",
+     "move_top",
+     "move_bottom"
+    ],
+    [
+     "move_back"
+    ]
+   ]
+  },
+  "channel:channel.move:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "move_pick"
+       ],
+       [
+        "move_category"
+       ],
+       [
+        "move_commit",
+        "move_top",
+        "move_bottom"
+       ],
+       [
+        "move_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "channel:channel.visibility_grid:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "vis_help",
+       "vis_general",
+       "vis_four_twenty",
+       "vis_utility",
+       "vis_economy"
+      ],
+      [
+       "vis_inventory",
+       "vis_treasury",
+       "vis_ticket",
+       "vis_mining",
+       "vis_ux_lab"
+      ],
+      [
+       "vis_fishing",
+       "vis_creature",
+       "vis_farm",
+       "vis_xp",
+       "vis_karma"
+      ],
+      [
+       "vis_games",
+       "vis_community",
+       "vis_community_spotlight",
+       "vis_blackjack",
+       "vis_welcome"
+      ],
+      [
+       "vis_grid_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "channel:channel.visibility_grid:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": [
+    [
+     "vis_help",
+     "vis_general",
+     "vis_four_twenty",
+     "vis_utility",
+     "vis_economy"
+    ],
+    [
+     "vis_inventory",
+     "vis_treasury",
+     "vis_ticket",
+     "vis_mining",
+     "vis_ux_lab"
+    ],
+    [
+     "vis_fishing",
+     "vis_creature",
+     "vis_farm",
+     "vis_xp",
+     "vis_karma"
+    ],
+    [
+     "vis_games",
+     "vis_community",
+     "vis_community_spotlight",
+     "vis_blackjack",
+     "vis_welcome"
+    ],
+    [
+     "vis_grid_back"
+    ]
+   ]
+  },
+  "channel:channel.visibility_grid:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: operator-hub edits B carries the shipped disbot/views/channels sub-panel ordering/grouping as the seed arrangement (oracle create/move/visibility_panel.py add_item flow; no golden pins any sub-panel open \u2014 capture never opened one); the grouping/hub sims re-run post-telemetry (design-spec \u00a79.3 confidence rule)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "vis_help",
+        "vis_general",
+        "vis_four_twenty",
+        "vis_utility",
+        "vis_economy"
+       ],
+       [
+        "vis_inventory",
+        "vis_treasury",
+        "vis_ticket",
+        "vis_mining",
+        "vis_ux_lab"
+       ],
+       [
+        "vis_fishing",
+        "vis_creature",
+        "vis_farm",
+        "vis_xp",
+        "vis_karma"
+       ],
+       [
+        "vis_games",
+        "vis_community",
+        "vis_community_spotlight",
+        "vis_blackjack",
+        "vis_welcome"
+       ],
+       [
+        "vis_grid_back"
        ]
       ]
      }
@@ -3445,6 +3706,64 @@
        [
         "fishing_log",
         "fishing_rules"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "fishing:fishing.structures_panel:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: fishing slice-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "st_tidepool",
+       "st_dock",
+       "st_boathouse",
+       "st_fishery"
+      ],
+      [
+       "st_menu"
+      ]
+     ]
+    }
+   ]
+  },
+  "fishing:fishing.structures_panel:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: fishing slice-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "st_tidepool",
+     "st_dock",
+     "st_boathouse",
+     "st_fishery"
+    ],
+    [
+     "st_menu"
+    ]
+   ]
+  },
+  "fishing:fishing.structures_panel:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: fishing slice-4 port carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "st_tidepool",
+        "st_dock",
+        "st_boathouse",
+        "st_fishery"
+       ],
+       [
+        "st_menu"
        ]
       ]
      }
@@ -6225,6 +6544,149 @@
     "exempt": "legacy-seed: setup parity flip carries the shipped ordering as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping sim re-runs post-telemetry)"
    },
    "value": 0
+  },
+  "setup:setup.review_item:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "item_accept",
+       "item_deny",
+       "item_edit"
+      ],
+      [
+       "item_skip",
+       "item_back"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.review_item:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "item_accept",
+     "item_deny",
+     "item_edit"
+    ],
+    [
+     "item_skip",
+     "item_back"
+    ]
+   ]
+  },
+  "setup:setup.review_item:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped PerRecommendationView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/ai_review/per_recommendation.py: Accept/Deny/Edit on row 0, Skip/Back to overview on row 1; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "item_accept",
+        "item_deny",
+        "item_edit"
+       ],
+       [
+        "item_skip",
+        "item_back"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.sections_hub:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + \u21a9 Back to wizard on the nav row; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "section_preset_select",
+       "section_channels",
+       "section_logging_presets",
+       "section_roles",
+       "section_role_templates"
+      ],
+      [
+       "section_cleanup",
+       "section_moderation",
+       "section_cog_routing",
+       "section_ticket",
+       "section_final_review"
+      ],
+      [
+       "change_depth",
+       "back_to_wizard"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.sections_hub:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + \u21a9 Back to wizard on the nav row; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "section_preset_select",
+     "section_channels",
+     "section_logging_presets",
+     "section_roles",
+     "section_role_templates"
+    ],
+    [
+     "section_cleanup",
+     "section_moderation",
+     "section_cog_routing",
+     "section_ticket",
+     "section_final_review"
+    ],
+    [
+     "change_depth",
+     "back_to_wizard"
+    ]
+   ]
+  },
+  "setup:setup.sections_hub:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the wizard-lifecycle slice carries the shipped SetupHubView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/hub.py add_item flow: section buttons in registry order, Change depth + \u21a9 Back to wizard on the nav row; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "section_preset_select",
+        "section_channels",
+        "section_logging_presets",
+        "section_roles",
+        "section_role_templates"
+       ],
+       [
+        "section_cleanup",
+        "section_moderation",
+        "section_cog_routing",
+        "section_ticket",
+        "section_final_review"
+       ],
+       [
+        "change_depth",
+        "back_to_wizard"
+       ]
+      ]
+     }
+    ]
+   }
   },
   "setup:setup.suggestions_card:LayoutSpec.pages": {
    "provenance": {
