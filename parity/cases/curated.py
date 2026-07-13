@@ -823,4 +823,30 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "fishing.howtofish_pending terminal answered with a stub "
             "until 2026-07-13"),
     ),
+    # ------------------------------------------- cleanup anti-evasion WRITE
+    # The first golden that CLICKS the words manager's 🛡️ Anti-evasion
+    # button (the 2026-07-13 residue port armed it — the imported sweep only
+    # pinned the panel open): `!wordmenu` renders the session view (empty DB
+    # → the shipped empty-state description + the default-off anti-evasion
+    # field), then the component_index click drives the audited
+    # cleanup.wordfilter_strict_op — the FIRST row-bearing wordfilter_config
+    # capture (migration 0053) with the in-place re-render flipping the
+    # field to the shipped 🟢 On literal. admin persona (the words manager
+    # is an Administrator surface).
+    GoldenCase(
+        id="cleanup.anti_evasion_toggle_write",
+        subsystem="cleanup",
+        steps=(
+            Step(kind="command", content="!wordmenu", persona="admin"),
+            Step(kind="click", target_message=1, component_index=4,
+                 persona="admin"),
+        ),
+        notes=(
+            "the anti-evasion opt-in: the 🛡️ click writes strict=true "
+            "through the audited cleanup.wordfilter_strict_op (db_delta "
+            "pins the wordfilter_config upsert + the audit row) and the "
+            "session view re-renders in place — the anti-evasion field "
+            "flips to the shipped 🟢 On copy while the empty word list "
+            "keeps the shipped no-words description"),
+    ),
 )
