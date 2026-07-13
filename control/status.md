@@ -1,29 +1,26 @@
 # superbot-next · status
-updated: 2026-07-13T10:47Z
-phase: SEAT CLOSED — coordinator session_01KhzyfUk76YB9Bj2TPF6h5z ended per owner ender 2026-07-13. This file is the successor's boot surface. Landing mode unchanged: repo auto-merge enabler is canonical for non-draft claude/* PRs (#321, workflow at `e9f1cd5`).
-health: main at `51879c5` (#376, curation row-73 claim) at close sync — full-corpus parity holds: `report` job live green since 2026-07-13T04:00:14Z (run 29222893993); latest confirmation run 29238825392 (484/484 goldens, 51/51 subsystems, 0 `_unmapped`). A red report = REAL regression.
+updated: 2026-07-13T12:43Z
+phase: coordinator seat OPEN — SuperBot 2.0 coordinator (project seat) booted 2026-07-13T12:33Z on the v3.6 brief; work loop running, lanes dispatched.
+health: main at `441a1e7` at heartbeat sync (boot sync was `441a1e7`) — pytest tests/ -q local 2435 passed / 13 skipped (12:36Z); golden-parity report leg green (run 29238825392, 484/484 goldens, 51/51 subsystems). A red report = REAL regression.
 kit: v1.15.0
 orders: acked=001–018 done=002–018; ORDER 001 still open owner-side (Discord-token live-drive; pointer: PR #298 body).
 
-## ROUTINE DISPOSITION at close (as verified)
+## ROUTINES (verified via account-wide list_triggers scan, 1220 rows, 12:34–12:38Z)
+- FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v "SuperBot 2.0 failsafe wake" (cron 0 1-23/2 * * *, next 13:04Z) — armed, bound to this coordinator session.
+- pacemaker send_later chain live (one pending link ~15 min ahead at any time).
+- predecessor failsafe trig_01TuQrpMVpDCXB3K3VbjQUoA — DELETED at cutover ~12:44Z (server-confirmed), after the new failsafe was verified live.
+- business crons unchanged: kit-lab trig_01Jm57GAjNCFrYJn1oLMiYGE (fresh-session-per-fire — NEVER rebind; next 07-14T06:08Z); docs-recon trig_018wP6XTPmf9DLnxrG4RpGVh (poke-only, schedule-less).
 
-- pacemaker `trig_01SWUCCwC4JXaGhu2wAq7UQ5` — DELETED (verified absent; exhaustive 1202-trigger account scan).
-- FAILSAFE `trig_01TuQrpMVpDCXB3K3VbjQUoA` — left ARMED (cron `0 1-23/2 * * *`, next fire 11:07Z) as the successor's bridge. Successor boot: rebind-then-delete per docs/ROUTINES.md.
-- business crons unchanged: kit-lab `trig_01Jm57GAjNCFrYJn1oLMiYGE` (next 07-14 06:08Z, fresh-env — NEVER rebind); docs-recon `trig_018wP6XTPmf9DLnxrG4RpGVh` (poke-only).
-- trading `trig_015aNMg5ncoSE2Roe4MKjQnr` — NO LONGER EXISTS account-side (another seat's; recorded, untouched).
+## DISPATCHED SESSIONS (this seat, 12:38Z)
+- curation remainder lane: #333/#352 check-attach + #373 conflict resolve via merge-main-in.
+- energy lane slices 1–3 (claim: control/claims/energy-lane-slices-1-3.md; behind the WP stack).
+- earlier night sessions still active: mineverse FLAGs (superbot #2058/#2061), minigame consolidation scaffold, command/button curation report, PR #298 rescue (V010 checker), core/admin/setup sweep, AIP-07/08 adapter lane, curation-backlog slicing.
 
-## OPEN PRs at close (verified live at GitHub 2026-07-13T10:44Z — 9 open) + landing paths
-
-- WP stack #312→#317→#335→#344 + NEW #371 (WP-7 residual legs) — gate-green, owner-click ordered sweep (non-claude/* branches, outside enabler scope).
-- #320 energy domain core — gate-green, owner-click (review-merge classifier-denied earlier).
-- #333 + #352 (curation tail, claude/*) — enabler-on-green, but STILL event-starved: close/reopen tried and did not attach checks (zero check runs on both heads at 10:44Z). Next lever: merge main into the branch, else owner Actions poke.
-- #373 fishing cast wiring (claude/*) — enabler-on-green; `mergeable_state: dirty` (base `d546399`) ⇒ zero check runs — merge main in to attach checks.
-- superbot (prod bot): #2058 + #2061 mineverse FLAGs — deliberate DRAFT deploy-holds; owner flip = deploy.
-- Tail dispositions confirmed: #332 MERGED 10:01Z by github-actions[bot] (enabler); #354 CLOSED unmerged (superseded by #358); #345 #370 #376 landed.
-
-## ACTIVE DISPATCHED SESSIONS at close
-
-- curation-backlog session still slicing bottom-up — lands via enabler on green; reports ride the project channel. No coordinator action needed.
+## OPEN PRs (carry-over from the 10:47Z close list; owner sweep pending)
+- WP stack #312→#317→#335→#344 + #371 — gate-green, owner-click ordered sweep.
+- #320 energy domain core — gate-green, owner-click.
+- #333/#352/#373 — lane dispatched this seat (check-attach / conflict levers).
+- superbot #2058/#2061 mineverse FLAGs — deliberate DRAFT deploy-holds; owner flip = deploy (#2061 carries a conflict-guard red; its lane session is on the resolve).
 
 ## ⚑ needs-owner (the standing eight)
 
@@ -37,7 +34,7 @@ orders: acked=001–018 done=002–018; ORDER 001 still open owner-side (Discord
 8. Minor: cosmetic "RED BY DESIGN"/"EXPECTED RED" banner strings in run_golden_parity.py/harness + golden-parity.yml step name (report leg is live green).
 
 next-2-tasks:
-1. Owner sweep — mineverse flips, WP stack + #320, DROP list, D-0083, SBW answer.
-2. Successor boots per STARTUP, rebinds-then-deletes the failsafe, picks up the energy lane (slices 1–3, behind the WP stack) + the curation remainder (#333/#352/#373 to green).
+1. Verify dispatched lanes at HEAD (curation remainder to green/landed; energy slice 1 PR up) and keep the work loop slicing.
+2. Owner sweep — mineverse flips, WP stack + #320, DROP list, D-0083, SBW answer.
 
-Pointers: seat retro = this PR's session card (`.sessions/2026-07-13-coordinator-seat-close.md`); ORDER-018 full night report = outbox 09:25Z entry; prompt-delta proposal = outbox 10:45Z entry.
+Pointers: previous seat retro = .sessions/2026-07-13-coordinator-seat-close.md (PR #378); ORDER-018 night report = outbox 09:25Z entry.
