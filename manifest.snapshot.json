@@ -5629,6 +5629,61 @@
           "value": "move_grass"
         },
         {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_rock"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_paper"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_scissors"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_lizard"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_spock"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_pawn"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_knight"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_queen"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_fire"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_water"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "bot_move_grass"
+        },
+        {
           "source": "sb/manifest/server_management.py",
           "subsystem": "server_management",
           "value": "moderation"
@@ -7221,6 +7276,11 @@
           "source": "sb/manifest/rps_tournament.py",
           "subsystem": "rps_tournament",
           "value": "rps_tournament.match"
+        },
+        {
+          "source": "sb/manifest/rps_tournament.py",
+          "subsystem": "rps_tournament",
+          "value": "rps_tournament.botmatch"
         },
         {
           "source": "sb/manifest/security.py",
@@ -10264,10 +10324,10 @@
       "handler:role.xp_roles_view": {
         "module": "sb.domain.role.handlers"
       },
-      "handler:rps.bot_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:rps.bot_route": {
+        "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.botmatch_move": {
         "module": "sb.domain.rps.handlers"
       },
       "handler:rps.help_view": {
@@ -10290,6 +10350,9 @@
       },
       "handler:rps.register_route": {
         "module": "sb.domain.rps.handlers"
+      },
+      "handler:rps.render_botmatch": {
+        "module": "sb.domain.rps.panels"
       },
       "handler:rps.render_match": {
         "module": "sb.domain.rps.panels"
@@ -11385,6 +11448,9 @@
       },
       "panel:role.info_card": {
         "module": "sb.domain.role.panels"
+      },
+      "panel:rps_tournament.botmatch": {
+        "module": "sb.domain.rps.panels"
       },
       "panel:rps_tournament.hub": {
         "module": "sb.domain.rps.panels"
@@ -12799,6 +12865,9 @@
       "workflow:role.update_menu": {
         "module": "sb.domain.role.ops"
       },
+      "workflow:rps.bot_round": {
+        "module": "sb.domain.rps.ops"
+      },
       "workflow:rps.erase_subject_stats": {
         "module": "sb.domain.rps.ops"
       },
@@ -12812,6 +12881,9 @@
         "module": "sb.domain.rps.ops"
       },
       "workflow:rps.pvp_move": {
+        "module": "sb.domain.rps.ops"
+      },
+      "workflow:rps.record_bot_round": {
         "module": "sb.domain.rps.ops"
       },
       "workflow:rps.record_pvp_accept": {
@@ -13587,7 +13659,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:962d902c3e455c93ce0d5ceac03bac72891b93af0900a947c44f285ba5719067",
+  "stable_hash": "sha256:f814be001b5aa4da3963ad2d183cc14d9a35c6ab3598f37da5406b86d78ee872",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -49879,6 +49951,342 @@
           "subsystem": "rps_tournament",
           "timeout_s": 600,
           "title": "✂️ RPS Tournament Match",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "bot_move_rock",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🪨",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Rock",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_paper",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "📄",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Paper",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_scissors",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "✂️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Scissors",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_lizard",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🦎",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Lizard",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_spock",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🖖",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Spock",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_pawn",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "♟️",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Pawn",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_knight",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "♞",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Knight",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_queen",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "♛",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Queen",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_fire",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🔥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Fire",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_water",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "💧",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Water",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "bot_move_grass",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "none",
+              "destructive": false,
+              "emoji": "🌿",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:rps.botmatch_move"
+              },
+              "label": "Grass",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "channel_anchor",
+          "audience": "public",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "purple",
+            "thumbnail_ref": ""
+          },
+          "justification": "every line of the bot-match view is match-parameterized copy (player mention, mode/best-of, the per-round `Bot played:` reveal + result line — the shipped _bot_matches.py channel sends); grammar TextBlocks are static. The mode decides WHICH declared move buttons render (classic 3 / lizard_spock 5 / chess 3 / elemental 3) — declared actions and authority stay on the spec; the renderer only composes the staged embed + the mode's declared subset.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "bot_move_rock",
+                    "bot_move_paper",
+                    "bot_move_scissors",
+                    "bot_move_lizard",
+                    "bot_move_spock"
+                  ],
+                  [
+                    "bot_move_pawn",
+                    "bot_move_knight",
+                    "bot_move_queen"
+                  ],
+                  [
+                    "bot_move_fire",
+                    "bot_move_water",
+                    "bot_move_grass"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "rps_tournament.botmatch",
+          "renderer_override": {
+            "$ref": "handler:rps.render_botmatch"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "rps_tournament",
+          "timeout_s": 600,
+          "title": "✂️ RPS Bot Match",
           "usage_weight": 1.0
         }
       ],
