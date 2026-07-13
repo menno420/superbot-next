@@ -1,15 +1,13 @@
-"""Cleanup-surface handlers — the ``!cleanuphistory`` scan front door,
-the LIVE 🛡️ Anti-evasion toggle (the 2026-07-13 residue port: the
+"""Cleanup-surface handlers — the ``!cleanuphistory`` scan front door
+and the LIVE 🛡️ Anti-evasion toggle (the 2026-07-13 residue port: the
 shipped ``btn_strict`` flow onto the audited
-``cleanup.wordfilter_strict_op``), plus ONE declared + honest pending
-terminal (the settings/servermanagement precedent, never a silent
-stub): the Cleanup Policies sub-view — its own slice (the multi-view
-diagnostics + presets-builder flow). The word add/remove modals, the
-word-menu refresh, the Scan History button, the hub's Logging Status
-nav AND the ⚙️ Settings page route to their LIVE targets in
-sb/domain/cleanup/panels.py (the settings/anti-evasion terminals
-retired with the residue port). Refs register at MODULE IMPORT (the
-composition-parity invariant — the live root never runs ENSURE_REFS).
+``cleanup.wordfilter_strict_op``). NO pending terminals remain: the
+word add/remove modals, the word-menu refresh, the Scan History
+button, the hub's Logging Status nav, the ⚙️ Settings page AND the
+🧹 Cleanup Policies panel (the cleanup-policy slice —
+sb/domain/cleanup/policy_panels.py) all route to their LIVE targets.
+Refs register at MODULE IMPORT (the composition-parity invariant —
+the live root never runs ENSURE_REFS).
 
 The scan (``cleanup.history_scan``) ports disbot/cogs/cleanup_cog.py
 ``cleanup_history``: ``!cleanuphistory [limit=100] [keyword]`` reads the
@@ -85,13 +83,12 @@ def _parse_scan_args(argv: tuple) -> tuple[int, str]:
 
 
 def _register() -> None:
-    from sb.domain.operator_spine import pending_handler
     from sb.spec.outcomes import BLOCKED, SUCCESS
     from sb.spec.refs import HandlerRef, handler, is_registered
 
-    pending_handler("cleanup.policies_pending",
-                    "🧹 The Cleanup Policies panel (diagnostics + presets "
-                    "builder) ports with the cleanup-policy slice.")
+    # cleanup.policies_pending RETIRED (trap 12a): the 🧹 Cleanup
+    # Policies panel ported for real (sb/domain/cleanup/policy_panels.py
+    # — the 2026-07-13 cleanup-policy slice; the LAST cleanup pending).
 
     if not is_registered(HandlerRef("cleanup.anti_evasion_toggle")):
 
