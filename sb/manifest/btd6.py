@@ -331,7 +331,7 @@ MANIFEST = SubsystemManifest(
     ),
     panels=(_panels.btd6_hub_spec(), _panels.card_spec(),
             _panels.ctteam_spec(), _panels.strategy_submit_spec(),
-            _panels.paragon_spec()),
+            _panels.paragon_spec(), _panels.paragon_requirements_spec()),
     settings=_SETTINGS,
     stores=(BTD6_STRATEGIES_STORE, BTD6_DATA_BLOBS_STORE),
     events=(),

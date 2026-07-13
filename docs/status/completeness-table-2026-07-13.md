@@ -59,7 +59,7 @@
 | ai | ⚑ env-gated only: NL answer path dormant without `ANTHROPIC_API_KEY` (`parity.yml:361` ai_review_log exemption); all 24 cmds / 36 actions / 17 selectors live | ✅ `!aireview` family live (preset + review-channel writes golden-covered) | ✅ policy/preset/orchestration mutation live — "No chooser pending terminals remain" (`sb/domain/ai/panels.py:39`) |
 | automod | ✅ decision core live-proven (band-2s2) | ✅ hub read-view | ✅ 15 settings resolve |
 | blackjack | ✅ solo + tournament full flow, paid-pot conservation golden | ✅ `!bjstart` launch | ✅ 1 setting |
-| btd6 | ⚑ paragon calculator panel pending: 3 actions + 4 selectors (`btd6.paragon_pending`, `sb/domain/btd6/service.py`); 74 cmds live incl. the wire-type-5 strategy modal (minted-golden procedure) | ⚑ `btd6.ctteam/set_team` pending (NK-bracket ingestion successor, `sb/domain/btd6/oracle_surface.py:623`); seed-data live | ✅ 1 setting |
+| btd6 | ✅ paragon calculator armed (3 actions + 4 selectors live, `btd6.paragon_pending` retired — `sb/domain/btd6/paragon_panel.py`, ORDER 017 slice A; live-API reconciliation stays a named successor, stamped in that module) | ⚑ `btd6.ctteam/set_team` pending (NK-bracket ingestion successor, `sb/domain/btd6/oracle_surface.py:623`); seed-data live | ✅ 1 setting |
 | casino | ⚑ roulette disabled = SHIPPED parity byte (`sb/domain/casino/service.py:99`); poker play layer golden-pinned; per-player ephemeral hands = owner-armed live step (ledgered decision) | ✅ | ✅ |
 | chain | ✅ 7 cmds + create modal live (`chain_channels` guard-only depth debt, `parity.yml:485` — coverage, not function) | ✅ | ✅ |
 | channel | ✅ 17 channel-op cmds implemented over the ChannelActions adapter with real failure copy (`sb/domain/channel/handlers.py`) | ⚑ hub 5 actions pending (create/delete/restrict/move/visibility → `operator_spine`) — command twins ARE live | ✅ |
@@ -149,9 +149,9 @@ unregistered refs, no empty-string error paths).
    `operator-hubs-interactive` claim (read-only nav slice already claimed;
    the EDIT controls are explicitly deferred to a settings-mutation-style
    slice).
-7. **btd6 paragon calculator** — 3 actions + 4 selectors pending
-   (`btd6.paragon_pending`); a self-contained pure-compute port
-   (`sb/domain/btd6/service.py`). Free.
+7. **btd6 paragon calculator** — ✅ DONE (ORDER 017 night-run slice A):
+   the 3 actions + 4 selectors armed as the pure-compute port
+   (`sb/domain/btd6/paragon_panel.py`); `btd6.paragon_pending` retired.
 8. **ticket setup panel** — 3 actions + 2 selectors pending
    (`ticket.setup_pending`); command twins (`!ticketsetup` family) live. Free.
 9. **rps bot-match deep flow** — `!rpsbot` pending
