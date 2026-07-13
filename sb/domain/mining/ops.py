@@ -857,6 +857,143 @@ async def _record_skill(conn, ctx: WorkflowContext) -> LegOutcome:
                           f"point{'s' if remaining != 1 else ''} left."})
 
 
+# --- craft write leg (slice 7 PORT): the shipped services/mining_workflow.py
+# ``craft`` verbatim, re-homed onto the audited one-leg one-txn seam. The argful
+# `!craft <item>` / `!build <item>` was a live D-0043 pending terminal (no leg);
+# the oracle craft is self-service (no coins move ⇒ no economy leg — the allocate
+# precedent) — it resolves the recipe, forge-gates, checks materials, then
+# consumes the recipe materials + adds the product into mining_inventory and
+# awards crafting game-XP, all in ONE txn. It IS a read-then-settle over the
+# player's pack (the material spend), so the pack read is advisory-fenced
+# (lock_workshop_slot — the quick_craft precedent) against a concurrent
+# double-craft. goldens/mining/mining_craft_write drives the success craft;
+# mining_craft_no_recipe pins the no-recipe refusal (a pure read). mining_inventory
+# is already covered (mine/sell), so no exemption is retired. ------------------
+
+
+@workflow("mining.record_craft")
+async def _record_craft(conn, ctx: WorkflowContext) -> LegOutcome:
+    """`!craft <item>` / `!build <item>` — craft *item* from its recipe (the
+    shipped ``mining_workflow.craft`` verbatim: materials + product in ONE txn).
+    Resolves the recipe (no-recipe copy), forge-gates gold/diamond gear, checks
+    the pack has every material, then consumes the recipe materials, adds `+1` of
+    the product, and awards crafting game-XP. Self-service — no coins move, so no
+    economy/audit leg. The material read-then-settle is advisory-fenced first
+    (lock_workshop_slot) so two racing crafts cannot double-consume the pack.
+    Business refusals raise ValidatorError with the oracle's verbatim copy — the
+    route prefixes the invoker mention on both faces."""
+    from sb.domain.mining import equipment, recipes, structures, workshop
+
+    uid, gid, now = _ids(ctx)
+    item = _item_from(ctx)  # already stripped + lowercased
+    recipe = recipes.load_recipes().get(item)
+    if not recipe:
+        # No DB read before an unknown recipe (the pre-RS02 ordering) — the hint
+        # only consults the pure GEAR_SHOP table.
+        hint = (" You can buy one at the 🛒 Market instead."
+                if market.GEAR_SHOP.get(item) is not None
+                else " Use `!buildlist` to see available recipes.")
+        raise ValidatorError("item", f"No recipe for **{item}**.{hint}")
+    # Fence the material read-then-settle BEFORE the structures/pack reads → two
+    # racing crafts of the same recipe serialize (no double-consume — #217).
+    await store.lock_workshop_slot(conn, user_id=uid, guild_id=gid)
+    # Forge gate (Slice B): gold/diamond gear needs a built Forge; every other
+    # recipe returns immediately with no structures read (the oracle _forge_gate).
+    required = structures.forge_level_required(item)
+    if required > 0:
+        built = await store.get_structures(uid, gid, conn=conn)
+        if built.get(structures.FORGE, 0) < required:
+            tier = equipment.gear_tier(item)
+            needed = structures.forge_level_name(required)
+            raise ValidatorError(
+                "forge", f"Crafting **{item}** needs a **{needed}** 🔥 — "
+                f"build the Forge with `!forge` to unlock {tier}-tier gear.")
+    inventory = await store.get_mining_inventory(uid, gid, conn=conn)
+    for mat, qty in recipe.items():
+        if inventory.get(mat, 0) < qty:
+            raise ValidatorError(
+                "materials",
+                f"You don't have enough **{mat}** to craft **{item}** "
+                f"(needs {workshop.describe_materials(recipe)}).")
+    for mat, qty in recipe.items():
+        await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                       item=mat, delta=-qty)
+    await store.update_mining_item(conn, user_id=uid, guild_id=gid,
+                                   item=item, delta=1)
+    ctx.params["_gxp"] = await game_xp.award_in_txn(
+        conn, user_id=uid, guild_id=gid, game=game_xp.GAME_CRAFTING,
+        action="craft", now=now)
+    ctx.params["_balance_changes"] = []
+    return LegOutcome(
+        step=StepResult(uid, "craft", True), before={},
+        after={"item": item, "message": f"Crafted **{item}**!"})
+
+
+# --- respec write leg (slice 7 PORT): the shipped services/skill_service.py
+# ``respec`` verbatim, re-homed onto the audited one-leg one-txn seam. The
+# skills-panel ♻ Respec button was a live D-0043 pending terminal (no leg); the
+# oracle respec is money-bearing — it debits a level-scaled coin fee
+# (respec_cost) via wager.debit_in_txn and clears EVERY player_skills branch row
+# to 0 in ONE txn (the vault_upgrade precedent: the coin debit is economy-audited,
+# the balance event emits after commit). It reads the alloc + level to size the
+# fee (a read-then-settle over coins), so it is advisory-fenced first
+# (lock_skill_slot — the same player_skills fence as !skill) against a concurrent
+# double-respec. goldens/mining/mining_respec_write drives the funded respec;
+# mining_respec_insufficient pins the insufficient-funds refusal (a pure read).
+# player_skills is already covered (WP-5 !skill), so no exemption is retired. ---
+
+
+@workflow("mining.record_respec")
+async def _record_respec(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The ♻ Respec skills-panel button — clear every skill allocation for a
+    level-scaled coin fee (the shipped ``skill_service.respec`` verbatim: debit
+    ``respec_cost(level)`` coins then zero every allocated ``player_skills``
+    branch, both in ONE txn so a mid-respec failure never charges without
+    clearing). Money-bearing (wager.debit_in_txn), a read-then-settle over the
+    alloc + coins, so it is advisory-fenced first (lock_skill_slot). The
+    no-allocation / insufficient-funds refusals raise ValidatorError with the
+    oracle's verbatim copy — the route prefixes the invoker mention on both
+    faces."""
+    from sb.domain.economy.service import InsufficientFundsError
+    from sb.domain.games import store as games_store
+    from sb.domain.mining import skills
+    from sb.domain.xp.levels import level_progress
+
+    uid, gid, _ = _ids(ctx)
+    # Fence the coins+alloc read-then-settle BEFORE the alloc read → two racing
+    # respecs serialize: the loser blocks here, then re-reads the winner's
+    # committed (now empty) alloc and refuses with no second charge (#217).
+    await store.lock_skill_slot(conn, user_id=uid, guild_id=gid)
+    alloc = await store.get_skills(uid, gid, conn=conn)
+    if not alloc:
+        raise ValidatorError(
+            "respec", "You have no skill points allocated to refund.")
+    total = await games_store.total_game_xp(uid, gid, conn=conn)
+    level, _into, _needed = level_progress(total)
+    cost = skills.respec_cost(level)
+    try:
+        balance = await wager.debit_in_txn(
+            conn, guild_id=gid, user_id=uid, amount=cost,
+            reason=skills.RESPEC_REASON, actor_id=uid)
+    except InsufficientFundsError:
+        from sb.domain.economy.store import get_coins
+
+        held = await get_coins(uid, gid, conn=conn)
+        raise ValidatorError(
+            "respec", f"Respec costs **{cost}** 🪙 — you only have "
+            f"**{held}** 🪙.") from None
+    for branch in alloc:
+        await store.set_skill_points(conn, user_id=uid, guild_id=gid,
+                                     branch=branch, points=0)
+    ctx.params["_balance_changes"] = [
+        (uid, -cost, balance, skills.RESPEC_REASON)]
+    return LegOutcome(
+        step=StepResult(uid, "respec", True), before={},
+        after={"cost": cost, "balance": balance,
+               "message": f"Respec complete — all points refunded for "
+                          f"**{cost}** 🪙. Balance: **{balance}** 🪙."})
+
+
 @workflow("mining.erase_subject_structures")
 async def _erase_structures(conn, ctx: WorkflowContext) -> LegOutcome:
     subject = int(ctx.params["subject_user_id"])
@@ -989,12 +1126,15 @@ SKILL = _op("mining.skill", "mining_skill_allocated", "mining.record_skill",
             ())
 BUILD = _op("mining.build", "mining_structure_built", "mining.record_build",
             _BALANCE_EMITS)
+CRAFT = _op("mining.craft", "mining_crafted", "mining.record_craft", _XP_EMITS)
+RESPEC = _op("mining.respec", "mining_skill_respecced", "mining.record_respec",
+             _BALANCE_EMITS)
 
 _OPS = (MINE, HARVEST, EXPLORE, SELL, SELL_ALL, BUY, RESET_INVENTORY,
         EQUIP, UNEQUIP, SAVE_LOADOUT, APPLY_LOADOUT, DELETE_LOADOUT,
         DESCEND, ASCEND, RESEED_WORLD,
         STASH, UNSTASH, STASH_ALL, VAULT_UPGRADE,
-        REPAIR, QUICK_CRAFT, SKILL, BUILD)
+        REPAIR, QUICK_CRAFT, SKILL, BUILD, CRAFT, RESPEC)
 
 _REF_TABLE = (
     ("mining.record_mine", _record_mine),
@@ -1020,6 +1160,8 @@ _REF_TABLE = (
     ("mining.record_quick_craft", _record_quick_craft),
     ("mining.record_skill", _record_skill),
     ("mining.record_build", _record_build),
+    ("mining.record_craft", _record_craft),
+    ("mining.record_respec", _record_respec),
     ("mining.erase_subject_structures", _erase_structures),
     ("mining.erase_subject_vault", _erase_vault),
     ("mining.erase_subject_inventory", _erase_inventory),

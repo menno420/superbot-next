@@ -413,12 +413,13 @@ async def _render_forge(spec: PanelSpec, ctx) -> object:
 
 
 def _skills_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminals for the skill-tree panel's spend/respec buttons — the
-    per-branch point spend and the ♻ Respec (coin-bearing) refund ride the
-    deferred panel port (D-0043); the LIVE command lane `!skill <branch>` is the
-    named successor for the audited allocate. Registered at IMPORT (module
-    bottom), never ensure-only (#111 doctrine). No golden drives a skills-panel
-    click, so the terminal copy is unpinned."""
+    """Pending terminal for the skill-tree panel's per-branch spend button — the
+    point spend rides the deferred panel port (D-0043); the LIVE command lane
+    `!skill <branch>` is the named successor for the audited allocate. The ♻
+    Respec button is LIVE as of WP-7 (``mining.skill_respec_route`` ->
+    mining.respec -> record_respec, the ported skill_service.respec), so its
+    pending registration is retired (the forge/home 🔥 Build precedent).
+    Registered at IMPORT (module bottom), never ensure-only (#111 doctrine)."""
     from sb.domain.operator_spine import pending_handler
 
     return {
@@ -427,10 +428,6 @@ def _skills_button_handlers() -> dict[str, HandlerRef]:
             "🌳 Spending a skill point from the panel rides the deep-system "
             "panel port (D-0043) — spend now with `!skill <branch>` (mining, "
             "combat, fortune, crafting)."),
-        "respec": pending_handler(
-            "mining.skill_respec_pending",
-            "♻ Respec (the level-scaled coin refund) rides the deep-system "
-            "panel port (D-0043) — " + _D0043_TAIL),
     }
 
 
@@ -475,7 +472,7 @@ def mining_skills_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="sk_respec", label="♻ Respec",
                 style=ActionStyle.DANGER, audience_tier="user",
-                handler=HandlerRef("mining.skill_respec_pending")),
+                handler=HandlerRef("mining.skill_respec_route")),
             PanelActionSpec(
                 action_id="sk_titles", label="🏆 Titles",
                 style=ActionStyle.SUCCESS, audience_tier="user",
