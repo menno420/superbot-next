@@ -11603,6 +11603,9 @@
       "workflow:mining.record_sell_all": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.record_skill": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.record_stash": {
         "module": "sb.domain.mining.ops"
       },
@@ -11634,6 +11637,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.sell_all": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.skill": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.stash": {
@@ -12583,7 +12589,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:033f9c9f295802c601b723e6fcbb8b5b9d20847dfec1b4452eee7dea24f4fdd9",
+  "stable_hash": "sha256:c5cdeeeb706e75113bf5f3ce313de3c899f2506522d41dc506057889e31c7d76",
   "subsystems": {
     "admin": {
       "capabilities": [],
