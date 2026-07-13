@@ -107,18 +107,13 @@ class TestO2Orphans:
 
 class TestBaselineHygiene:
     def test_baseline_is_the_landing_snapshot_and_only_shrinks(self):
-        # the burn-down list captured on main @ 5dac6ce (post-#412).
-        # REMOVING an entry (with its pending retired) is the only legal
-        # edit; this pin makes an ADDITION a reviewed, deliberate act.
+        # the burn-down list captured on main @ 5dac6ce (post-#412),
+        # pruned to the single LIVE row 2026-07-13 (the 8 dead rows'
+        # pendings retired — blackjack/rps tournament + btd6 ingestion
+        # features landed under *_route / cmd_* refs). REMOVING an entry
+        # (with its pending retired) is the only legal edit; this pin
+        # makes an ADDITION a reviewed, deliberate act.
         assert _KNOWN_ORPHANS <= {
-            "blackjack.tournament_open_pending",
-            "blackjack.tournament_start_pending",
-            "btd6.events_pending",
-            "btd6.ops_pending",
-            "btd6.ref_ct_pending",
-            "rps.matchup_pending",
-            "rps.register_pending",
-            "rps.start_pending",
             "settings.group_pending",
         }
         assert all(name.endswith("_pending") for name in _KNOWN_ORPHANS)

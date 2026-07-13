@@ -68,25 +68,9 @@ PENDING_SUFFIX = "_pending"
 # NOT an exemption policy. PRUNE the row in the PR that retires the
 # pending; never add one.
 _KNOWN_ORPHANS: frozenset[str] = frozenset({
-    # knowingly kept unrouted — sb/domain/blackjack/handlers.py:508's own
-    # docstring: the composition-parity test pins tournament_open_pending
-    # in the import roster (retiring these means re-pointing that pin too).
-    "blackjack.tournament_open_pending",
-    "blackjack.tournament_start_pending",
-    # plain handlers in sb/domain/btd6/service.py's registration table;
-    # sb/manifest/btd6.py routes the ops/events groups to btd6.grp_bare
-    # (the shipped send_help silence), so nothing reaches these.
-    "btd6.events_pending",
-    "btd6.ops_pending",
-    "btd6.ref_ct_pending",
-    # stale docstring in sb/domain/rps/handlers.py:712 — !rpsregister /
-    # !rpsstart / !rpsmatchup all route to live handlers now
-    # (sb/manifest/rps_tournament.py), leaving the pendings unreachable.
-    "rps.matchup_pending",
-    "rps.register_pending",
-    "rps.start_pending",
     # registered in sb/domain/settings/handlers.py but open_group returns
     # its BLOCKED Reply directly instead of dispatching the ref.
+    # LIVE: per-group edit page (settings-mutation slice) — awaiting write-seam port
     "settings.group_pending",
 })
 

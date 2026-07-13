@@ -8,7 +8,6 @@ run against this repo, the current-bot regression net).
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import random
 from pathlib import Path
@@ -20,29 +19,13 @@ from parity.harness.cases import GoldenCase, Step
 from parity.harness.dbsnap import diff_snapshots, reset_database, snapshot
 from parity.harness.world import DEFAULT_PERSONAS
 
-__all__ = ["capture_case", "replay_case", "golden_path", "apply_isolation_resets"]
+__all__ = ["capture_case", "replay_case", "golden_path"]
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 HARNESS_VERSION = 1
 
 
 def golden_path(root: Path, case: GoldenCase) -> Path:
     return root / case.subsystem / f"{case.id.replace('.', '_')}.json"
-
-
-def apply_isolation_resets() -> None:
-    """Reset the bot's module-level singletons between cases.
-
-    Reuses the suite's canonical registry (``tests/_isolation.py``) so the
-    harness and the test suite share one definition of "process-global state".
-    """
-    iso_path = _REPO_ROOT / "tests" / "_isolation.py"
-    spec = importlib.util.spec_from_file_location("parity_isolation", iso_path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load isolation registry from {iso_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    module.apply_global_resets()
 
 
 def _flatten_components(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -119,7 +102,6 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
         raise RuntimeError("harness not started")
     random.seed(case.seed)
     harness.world.clock.set_case_base(case.id)
-    apply_isolation_resets()
     await reset_database(pool)
     for statement in case.fixture_sql:
         await pool.execute(statement)
