@@ -20,3 +20,22 @@ hall-of-fame channel first (pick one below).").
 Definition of done: implemented + tested + golden-parity
 (goldens/starboard/sweep_starboard_panel bytes unchanged) + real error
 copy + final user-facing copy.
+
+## 💡 Session idea
+
+Both D-0085 deviations trace to the same limit: static `ModalFieldSpec`
+copy cannot carry per-guild state (no current-threshold pre-fill, no
+pre-modal settings guard). A value-provider seam on modal fields —
+resolved at open-dispatch the way panel session state already is —
+would retire both deviations at once and unblock every future
+"edit the current value" modal port.
+
+## ⟲ Previous-session review
+
+The night-run slice discipline (one gap row, one PR, born-red card)
+held up well — but the closing commits were stranded by the Actions
+outage: green work sat unmerged overnight because the card flip could
+not observe green checks. Workflow improvement: the close-out
+procedure should treat a zero-check-run head as "outage, re-kick after
+recovery" (an empty-commit kick or re-push), not as a hold — the
+morning wrap-up had to re-derive that by hand.
