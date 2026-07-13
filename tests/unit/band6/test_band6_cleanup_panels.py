@@ -2,8 +2,11 @@
 as declarative panels): the golden-pinned spec bytes, the compile fences,
 the manifest surface, the renderer overrides (footer literals + the
 inline Prohibited Words count field), the verbatim persistent
-``cleanup:*`` custom_ids, the run-minted words-manager ids, the pending
-terminals, and the ``!cleanuphistory`` scan handler over the
+``cleanup:*`` custom_ids, the run-minted words-manager ids, the live
+button wiring (the 2026-07-13 curation rework: word add/remove G-10
+modals → the audited command twins, Scan History → the live scan,
+word-menu refresh → REFRESH_PANEL, hub Logging Status → the ported
+``logging.hub``), and the ``!cleanuphistory`` scan handler over the
 history-reader port.
 
 Oracle: menno420/superbot disbot/cogs/cleanup/panel.py
@@ -66,6 +69,15 @@ def test_hub_spec_shape_matches_the_golden():
         ("words", "logging", "settings", "policies"),
         ("cl_refresh",),
     )
+
+    # the curation rework: 📝 Logging Status routes to the PORTED
+    # logging.hub (its server-logging successor slice landed); ⚙️/🧹
+    # stay honest pending terminals (their slices are unported).
+    from sb.spec.refs import HandlerRef, PanelRef
+
+    assert by_id["logging"].handler == PanelRef("logging.hub")
+    assert by_id["settings"].handler == HandlerRef("cleanup.settings_pending")
+    assert by_id["policies"].handler == HandlerRef("cleanup.policies_pending")
 
 
 def test_hub_registers_and_renders_the_golden_bytes():
@@ -152,6 +164,65 @@ def test_words_spec_shape_matches_the_golden():
         ("word_add", "word_remove", "word_refresh"),
         ("scan_history", "anti_evasion"),
     )
+
+
+def test_words_buttons_route_to_their_live_targets():
+    """The curation rework (2026-07-13): ➕/➖ open G-10 word modals whose
+    submits run the audited command twins (goldens sweep_word_add /
+    sweep_word_remove pin the reply copy); 🔄 re-renders the panel in
+    place (the hub's cl_refresh pattern); 🔍 runs the live history scan
+    (`!cleanuphistory`'s handler). 🛡️ stays the honest pending terminal
+    (the word-mutation slice's toggle)."""
+    import sb.manifest.cleanup  # noqa: F401 — register_ops() runs at import
+    from sb.domain.cleanup.panels import cleanup_words_spec
+    from sb.spec.outcomes import DeferMode
+    from sb.spec.panels import ResultRender
+    from sb.spec.refs import HandlerRef, PanelRef, WorkflowRef, is_registered
+
+    by_id = {a.action_id: a for a in cleanup_words_spec().actions}
+
+    # ➕/➖ — the moderation.hub.warn modal-ingress precedent: button →
+    # declared ModalSpec → the K7 op (field_id "word" feeds ops._word_from).
+    for aid, modal_id, op in (
+            ("word_add", "cleanup.word_add_form", "cleanup.word_add_op"),
+            ("word_remove", "cleanup.word_remove_form",
+             "cleanup.word_remove_op")):
+        action = by_id[aid]
+        assert action.defer_mode is DeferMode.MODAL, aid
+        assert action.modal is not None, aid
+        assert action.modal.modal_id == modal_id, aid
+        assert [f.field_id for f in action.modal.fields] == ["word"], aid
+        assert action.modal.on_submit == WorkflowRef(op), aid
+        assert action.handler == WorkflowRef(op), aid
+        # the command twin is registered at import (the manifest routes
+        # `!word add` / `!word remove` through the same op).
+        assert is_registered(WorkflowRef(op)), aid
+
+    # 🔄 — the cl_refresh pattern: re-render the words panel in place.
+    assert by_id["word_refresh"].handler == PanelRef("cleanup.words")
+    assert by_id["word_refresh"].result_render is ResultRender.REFRESH_PANEL
+
+    # 🔍 — the live scan handler (`!cleanuphistory` is the front door).
+    assert by_id["scan_history"].handler == HandlerRef("cleanup.history_scan")
+    assert is_registered(HandlerRef("cleanup.history_scan"))
+
+    # 🛡️ — still the declared + honest pending terminal.
+    assert by_id["anti_evasion"].handler == HandlerRef(
+        "cleanup.anti_evasion_pending")
+    assert is_registered(HandlerRef("cleanup.anti_evasion_pending"))
+
+
+def test_retired_pending_terminals_are_gone():
+    """The five retired refs must not linger — a stale pending handler
+    hides a regression of the same name (the burn-down posture)."""
+    from sb.domain.cleanup import handlers
+    from sb.spec.refs import HandlerRef, is_registered
+
+    handlers.ensure_handler_refs()
+    for name in ("cleanup.word_add_pending", "cleanup.word_remove_pending",
+                 "cleanup.word_refresh_pending",
+                 "cleanup.scan_history_pending", "cleanup.logging_pending"):
+        assert not is_registered(HandlerRef(name)), name
 
 
 def test_words_renderer_override_stamps_the_footer_only():
