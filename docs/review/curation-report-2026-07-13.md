@@ -1,6 +1,6 @@
 # Command & component curation — 2026-07-13
 
-> **Status:** `final` — delivered ORDER 017 item 2 curation report: every
+> **Status:** `audit` — delivered ORDER 017 item 2 curation report: every
 > declared command and interactive component (1088 rows) measured and given
 > exactly one KEEP / REWORK / DROP verdict with a one-line evidence citation.
 > **Report-only: nothing was deleted, renamed, or rewired by this document.**
@@ -110,11 +110,11 @@ citation (golden path, test file, or handler `file:line`).
 | `coglist` | command | domain/admin | KEEP | golden parity/goldens/admin/sweep_coglist.json; tests: tests/unit/interaction/test_responder_chunking.py |
 | `slashes` | command | domain/admin | KEEP | golden parity/goldens/admin/sweep_slashes.json |
 | `loglevel` | command | domain/admin | KEEP | golden parity/goldens/admin/sweep_loglevel.json |
-| `restart` | command | domain/admin | KEEP | sb/manifest/admin.py:47-48 → handler admin.restart (K5 request_restart per D-0030); capture-skipped in parity/goldens/_sweep_skips.json (process lifecycle); tests hit 1 file |
+| `restart` | command | domain/admin | KEEP | sb/manifest/admin.py:47-48 → handler admin.restart (K5 request_restart per docs/decisions.md:223); capture-skipped in parity/goldens/_sweep_skips.json (process lifecycle); tests hit 1 file |
 | `admin.hub` | panel | domain/admin | KEEP | spec sb/domain/admin/panels.py:121; open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; tests: tests/unit/app/test_component_feed.py |
 | `admin.hub.server_stats` | button | domain/admin | KEEP | declared in sb/domain/admin/panels.py:121 (admin.hub spec); panel open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; live handler:admin.serverstats_view |
 | `admin.hub.cog_list` | button | domain/admin | KEEP | declared in sb/domain/admin/panels.py:121 (admin.hub spec); panel open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; nav -> panel:admin.cogmgr |
-| `admin.hub.reload_all` | button | domain/admin | DROP | docs/decisions.md D-0030 'NOT ported ... cog / loadall / unloadall / syncslash (deploy-ops)'; sb/domain/admin/panels.py:147; sb/domain/admin/cogmgr.py docstring cites 'the hub's Reload All precedent' |
+| `admin.hub.reload_all` | button | domain/admin | DROP | docs/decisions.md:223 'NOT ported ... cog / loadall / unloadall / syncslash (deploy-ops)'; sb/domain/admin/panels.py:147; sb/domain/admin/cogmgr.py docstring cites 'the hub's Reload All precedent' |
 | `admin.hub.log_level` | button | domain/admin | KEEP | declared in sb/domain/admin/panels.py:121 (admin.hub spec); panel open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; live handler:admin.loglevel |
 | `admin.hub.admin_settings` | button | domain/admin | KEEP | declared in sb/domain/admin/panels.py:121 (admin.hub spec); panel open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; nav -> panel:settings.hub |
 | `admin.hub.admin_sm` | button | domain/admin | KEEP | declared in sb/domain/admin/panels.py:121 (admin.hub spec); panel open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; nav -> panel:server_management.hub |
@@ -129,9 +129,9 @@ citation (golden path, test file, or handler `file:line`).
 | `admin.hub.admin_overview` | button | domain/admin | KEEP | declared in sb/domain/admin/panels.py:121 (admin.hub spec); panel open pinned by goldens/admin/sweep_adminmenu.json + admin/sweep_slash_admin.json; nav -> panel:admin.hub |
 | `admin.server_stats` | panel | domain/admin | KEEP | spec sb/domain/admin/panels.py:211; open pinned by goldens/admin/sweep_serverstats.json |
 | `admin.cogmgr` | panel | domain/admin | REWORK — with sibling lane: completeness-sweep sibling (core/admin/setup stubs) | sb/domain/admin/cogmgr.py:149 (spec) + docstring:29-36 — roster is a golden-pinned CAPTURE LITERAL of the oracle's 58 discord.py extensions; 'the manifest registry (admin.subsystems_view) is the honest successor read'; golden admin/sweep_coglist.json pins the open |
-| `admin.cogmgr.cogmgr_load` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:173 + under-port note 'Load/Unload/Reload reloaded discord.py extensions IN-PROCESS — deploy-ops'; docs/decisions.md D-0030 NOT-ported class |
-| `admin.cogmgr.cogmgr_unload` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:178 + under-port note 'Load/Unload/Reload reloaded discord.py extensions IN-PROCESS — deploy-ops'; docs/decisions.md D-0030 NOT-ported class |
-| `admin.cogmgr.cogmgr_reload` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:183 + under-port note 'Load/Unload/Reload reloaded discord.py extensions IN-PROCESS — deploy-ops'; docs/decisions.md D-0030 NOT-ported class |
+| `admin.cogmgr.cogmgr_load` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:173 + under-port note 'Load/Unload/Reload reloaded discord.py extensions IN-PROCESS — deploy-ops'; docs/decisions.md:223 NOT-ported class |
+| `admin.cogmgr.cogmgr_unload` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:178 + under-port note 'Load/Unload/Reload reloaded discord.py extensions IN-PROCESS — deploy-ops'; docs/decisions.md:223 NOT-ported class |
+| `admin.cogmgr.cogmgr_reload` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:183 + under-port note 'Load/Unload/Reload reloaded discord.py extensions IN-PROCESS — deploy-ops'; docs/decisions.md:223 NOT-ported class |
 | `admin.cogmgr.cogmgr_refresh` | button | domain/admin | KEEP | sb/domain/admin/cogmgr.py:190 — real REFRESH_PANEL nav; golden admin/sweep_coglist.json pins the id admin:cogmgr:refresh |
 | `admin.cogmgr.cogmgr_prev` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:199 + under-port note 'Prev/Next re-windowed the select in place' |
 | `admin.cogmgr.cogmgr_next` | button | domain/admin | DROP | sb/domain/admin/cogmgr.py:203 + under-port note 'Prev/Next re-windowed the select in place' |
@@ -379,14 +379,14 @@ citation (golden path, test file, or handler `file:line`).
 | `btd6.strategy_submit.open_strategy_form` | button | domain/btd6 | KEEP | handler sb/domain/btd6/oracle_surface.py |
 | `btd6.strategy_submit.open_strategy_form.btd6.strategy_form` | modal | domain/btd6 | KEEP | golden parity/goldens/btd6/btd6_strategy_form_submit.json; handler sb/domain/btd6/oracle_surface.py; test tests/unit/band7/test_band7_btd6_strategy_form.py |
 | `btd6.paragon` | panel | domain/btd6 | KEEP | register_panel spec sb/domain/btd6/panels.py |
-| `btd6.paragon.calc` | button | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
-| `btd6.paragon.requirements` | button | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
-| `btd6.paragon.stats` | button | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.calc` | button | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.requirements` | button | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.stats` | button | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
 | `btd6.paragon.back` | button | domain/btd6 | KEEP | test tests/integration/test_tournament_entry_race.py |
-| `btd6.paragon.paragon` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
-| `btd6.paragon.players` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
-| `btd6.paragon.difficulty` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
-| `btd6.paragon.tier5` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port D-0046); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.paragon` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.players` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.difficulty` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
+| `btd6.paragon.tier5` | select | domain/btd6 | REWORK | sb/domain/btd6/service.py:366 paragon_pending (named successor port, docs/decisions.md:347); sb/domain/btd6/panels.py:348-403 wire to it; math already ported: sb/domain/btd6/paragon_math.py + paragon_degrees.py |
 
 ### domain/casino (18 — KEEP 18)
 
@@ -731,19 +731,19 @@ citation (golden path, test file, or handler `file:line`).
 | `trophies` | command | domain/fishing | KEEP | golden parity/goldens/fishing/sweep_trophies.json; handler fishing.trophies_view |
 | `forecast` | command | domain/fishing | KEEP | golden parity/goldens/fishing/sweep_forecast.json; tests/unit/band6/test_band6_fishing_venue.py PASS (PR #313 merged) |
 | `sail` | command | domain/fishing | KEEP | golden parity/goldens/fishing/sweep_sail.json; tests/unit/band6/test_band6_fishing_venue.py PASS (PR #313 merged) |
-| `rod` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_rod.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `bait` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_bait.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `craftbait` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_craftbait.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `craftcharm` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_craftcharm.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `craftrod` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_craftrod.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `rodrecipes` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_rodrecipes.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `craftpearl` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_craftpearl.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `curios` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_curios.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `craftcurio` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_craftcurio.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `tidepool` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_tidepool.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `dock` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_dock.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `boathouse` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_boathouse.json; oracle-context: live-wired in prod (fishing_cog.py) |
-| `fishery` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (D-0043); oracle golden parked at parity/goldens/_unmapped/sweep_fishery.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `rod` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_rod.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `bait` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_bait.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `craftbait` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_craftbait.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `craftcharm` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_craftcharm.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `craftrod` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_craftrod.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `rodrecipes` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_rodrecipes.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `craftpearl` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_craftpearl.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `curios` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_curios.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `craftcurio` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_craftcurio.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `tidepool` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_tidepool.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `dock` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_dock.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `boathouse` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_boathouse.json; oracle-context: live-wired in prod (fishing_cog.py) |
+| `fishery` | command | domain/fishing | REWORK — with sibling lane: fishing-port lane (claim control/claims/fishing-port-remaining.md, slices 2-4) | pending terminal (deep-systems port, docs/decisions.md:326); oracle golden parked at parity/goldens/_unmapped/sweep_fishery.json; oracle-context: live-wired in prod (fishing_cog.py) |
 | `fishing.hub` | panel | domain/fishing | KEEP | spec sb/domain/fishing/panels.py:135 (fishing_hub_spec); opened by golden fishing/sweep_fishing.json |
 | `fishing.hub.fishing_cast` | button | domain/fishing | KEEP | sb/domain/fishing/panels.py:162; handler fishing.cast_open (same as live !fish); tests/unit/band6/test_band6_checkpoint_games.py |
 | `fishing.hub.fishing_sail` | button | domain/fishing | KEEP | sb/domain/fishing/panels.py:167; handler fishing.sail_route; tests/unit/band6/test_band6_fishing_venue.py PASS |
@@ -994,7 +994,7 @@ citation (golden path, test file, or handler `file:line`).
 | `market` | command | domain/mining | KEEP | golden parity/goldens/mining/sweep_market.json; handler mining.market_view |
 | `mineinv` | command | domain/mining | DROP | sb/domain/mining/service.py:304 inventory_view delegates verbatim to HandlerRef('inventory.view'); oracle-context: legacy-duplicate (oracle-marked), hidden=True (mining_cog.py mineinv) |
 | `minestats` | command | domain/mining | KEEP | golden parity/goldens/mining/sweep_minestats.json; handler mining.stats_view (service.py:314) |
-| `build` | command | domain/mining | REWORK — with sibling lane: mining-write-parity WP-6 (planned, claimed) | sb/domain/mining/service.py:412 — bare !build live (buildlist card, golden mining/sweep_build.json); argful craft write is a BLOCKED D-0043 terminal |
+| `build` | command | domain/mining | REWORK — with sibling lane: mining-write-parity WP-6 (planned, claimed) | sb/domain/mining/service.py:412 — bare !build live (buildlist card, golden mining/sweep_build.json); argful craft write is a BLOCKED deep-systems-port terminal (docs/decisions.md:326) |
 | `buildlist` | command | domain/mining | KEEP | golden parity/goldens/mining/sweep_buildlist.json; handler mining.buildlist_route (service.py:430) |
 | `buildable` | command | domain/mining | KEEP | golden parity/goldens/mining/sweep_buildable.json; handler mining.buildable_view |
 | `use` | command | domain/mining | REWORK — with sibling lane: energy lane (PR #320, docs/scoping/energy-system-scope.md) | sb/domain/mining/service.py:912 — bare usage copy live (golden mining/sweep_use.json); argful consume is a BLOCKED terminal on the un-ported energy/consumable system |
@@ -1062,7 +1062,7 @@ citation (golden path, test file, or handler `file:line`).
 |---|---|---|---|---|
 | `modmenu` | command | domain/moderation | DROP | sb/manifest/moderation.py:103-106 — `moderation` is CommandKind.BOTH routing the same panel:moderation.hub; golden moderation/sweep_modmenu.json |
 | `moderation` | command | domain/moderation | KEEP | golden parity/goldens/moderation/sweep_slash_moderation.json; tests: tests/unit/band2/test_band2_slice1.py (+5) |
-| `warn` | command | domain/moderation | KEEP | goldens moderation/moderation_warn_flow.json + sweep_warn; workflow:moderation.warn (D-0025 escalation ladder); the flow's step-2 `!warnings` is NOT a gap — oracle never shipped it, golden pins the did-you-mean reply (sb/manifest/moderation.py:122-125) |
+| `warn` | command | domain/moderation | KEEP | goldens moderation/moderation_warn_flow.json + sweep_warn; workflow:moderation.warn (escalation ladder, docs/decisions.md:182); the flow's step-2 `!warnings` is NOT a gap — oracle never shipped it, golden pins the did-you-mean reply (sb/manifest/moderation.py:122-125) |
 | `timeout` | command | domain/moderation | KEEP | golden parity/goldens/moderation/sweep_timeout.json; tests: tests/unit/band2/test_band2_slice1.py (+2) |
 | `kick` | command | domain/moderation | KEEP | golden parity/goldens/moderation/sweep_kick.json; tests: tests/unit/band2/test_band2_slice1.py (+5) |
 | `ban` | command | domain/moderation | KEEP | golden parity/goldens/moderation/sweep_ban.json; tests: tests/unit/band2/test_band2_slice1.py (+5) |
@@ -1174,7 +1174,7 @@ citation (golden path, test file, or handler `file:line`).
 | `rps_tournament.hub.rps_rules` | button | domain/rps_tournament | KEEP | tests/unit/band6/test_band6_blackjack_rps.py |
 | `rps_tournament.hub.rps_settings_view` | button | domain/rps_tournament | KEEP | shares handler:rps.settings_view with !rpssettings golden parity/goldens/rps_tournament/sweep_rpssettings.json + test_band6_rps_tournament.py::test_rpssettings_bare_shows_the_read_view |
 | `rps_tournament.hub.rps_quick_move` | select | domain/rps_tournament | KEEP | shares workflow:rps.solo_play with quickplay buttons, end-to-end tested tests/unit/band6/test_band6_rps_quickplay.py::test_walking_skeleton_rps_quickplay_end_to_end (spec sb/domain/rps/panels.py:128-134) |
-| `rps_tournament.quickplay` | panel | domain/rps_tournament | REWORK — with sibling lane: tournament-flow goldens lane (D-0073) | render + free-play flow tested tests/unit/band6/test_band6_rps_quickplay.py::test_walking_skeleton_rps_quickplay_end_to_end and money lanes test_band6_blackjack_rps.py::test_rps_solo_win_and_free_play/test_rps_solo_loss_floors, but the coin-bet click path has no golden (sweep_rps.json is the bare open) |
+| `rps_tournament.quickplay` | panel | domain/rps_tournament | REWORK — with sibling lane: tournament-flow goldens lane (docs/decisions.md:542) | render + free-play flow tested tests/unit/band6/test_band6_rps_quickplay.py::test_walking_skeleton_rps_quickplay_end_to_end and money lanes test_band6_blackjack_rps.py::test_rps_solo_win_and_free_play/test_rps_solo_loss_floors, but the coin-bet click path has no golden (sweep_rps.json is the bare open) |
 | `rps_tournament.quickplay.rock` | button | domain/rps_tournament | KEEP | tests/unit/band6/test_band6_blackjack_rps.py |
 | `rps_tournament.quickplay.paper` | button | domain/rps_tournament | KEEP | tests/unit/band6/test_band6_blackjack_rps.py |
 | `rps_tournament.quickplay.scissors` | button | domain/rps_tournament | KEEP | tests/unit/band6/test_band6_blackjack_rps.py |
@@ -1256,7 +1256,7 @@ citation (golden path, test file, or handler `file:line`).
 | `setup-skip` | command | domain/setup | KEEP | golden parity/goldens/setup/sweep_slash_setup-skip.json; oracle-context.md:442 live-wired |
 | `setup-unskip` | command | domain/setup | KEEP | golden parity/goldens/setup/sweep_slash_setup-unskip.json; oracle-context.md:443 live-wired |
 | `setup.hub` | panel | domain/setup | KEEP | spec sb/domain/setup/panels.py:162-186 (renderer setup.depth_render); tests tests/unit/setup_band/test_band1_setup.py; opened by setup-hub golden sweep_slash_setup-hub.json |
-| `setup.hub.depth_quick` | button | domain/setup | REWORK — with sibling lane: wizard-lifecycle slice (tonight's completeness-sweep sibling) | handler:setup.wizard_pending terminal, sb/domain/setup/panels.py:128-135 (D-0030 posture, wizard-lifecycle slice); docs/review/admin-surface-audit-2026-07-12.md:182-193 |
+| `setup.hub.depth_quick` | button | domain/setup | REWORK — with sibling lane: wizard-lifecycle slice (tonight's completeness-sweep sibling) | handler:setup.wizard_pending terminal, sb/domain/setup/panels.py:128-135 (docs/decisions.md:223 posture, wizard-lifecycle slice); docs/review/admin-surface-audit-2026-07-12.md:182-193 |
 | `setup.hub.depth_standard` | button | domain/setup | REWORK — with sibling lane: wizard-lifecycle slice (tonight's completeness-sweep sibling) | handler:setup.wizard_pending terminal, sb/domain/setup/panels.py:128-135 |
 | `setup.hub.depth_advanced` | button | domain/setup | REWORK — with sibling lane: wizard-lifecycle slice (tonight's completeness-sweep sibling) | handler:setup.wizard_pending terminal, sb/domain/setup/panels.py:128-135 |
 | `setup.essential_card` | panel | domain/setup | KEEP | spec sb/domain/setup/panels.py:204-229 (renderer setup.essential_render); rendered live by !setup (handler setup.essential_open), golden parity/goldens/setup/sweep_setup.json |
@@ -1436,12 +1436,12 @@ folds imply are owner-ratifiable. Grouped where the rationale is shared.
 - `uxlab`, `ux_lab.home` — Opener of a dead gallery — all 9 wings land on pending terminals; internal admin lab, not member-facing — park entire surface, revive a wing only when a concrete UX experiment needs it (report-only)
 - `ux_lab.home.buttons`, `ux_lab.home.selects`, `ux_lab.home.modals`, `ux_lab.home.embeds`, `ux_lab.home.components_v2`, `ux_lab.home.pil_cards`, `ux_lab.home.mock_studio`, `ux_lab.home.probe_bench`, `ux_lab.home.compare` — Wing button is a pending terminal (9/9 wings pending); internal admin lab surface with no member-facing value — park with the lab (report-only)
 
-### D-0030 deploy-ops terminals (admin cogmgr/reload_all) (7)
+### deploy-ops terminals (admin cogmgr/reload_all; ruled at docs/decisions.md:223) (7)
 
-- `admin.hub.reload_all` — deploy-op pending terminal whose command class is ruled unported (D-0030: subsystems are compiled manifests, not runtime-loadable cogs) — the button can never arm
-- `admin.cogmgr.cogmgr_load`, `admin.cogmgr.cogmgr_unload`, `admin.cogmgr.cogmgr_reload` — deploy-op ruled unported (D-0030) — no compiled-architecture analog; pending terminal can never arm
-- `admin.cogmgr.cogmgr_prev`, `admin.cogmgr.cogmgr_next` — pager windows the deploy-ops select; falls with the D-0030 drop (returns only if the manifest-registry re-home needs >1 page)
-- `admin.cogmgr.cogmgr_select` — exists only to arm the D-0030-dropped deploy trio; falls with it (a registry re-home may re-purpose it — see admin.cogmgr rework)
+- `admin.hub.reload_all` — deploy-op pending terminal whose command class is ruled unported (docs/decisions.md:223: subsystems are compiled manifests, not runtime-loadable cogs) — the button can never arm
+- `admin.cogmgr.cogmgr_load`, `admin.cogmgr.cogmgr_unload`, `admin.cogmgr.cogmgr_reload` — deploy-op ruled unported (docs/decisions.md:223) — no compiled-architecture analog; pending terminal can never arm
+- `admin.cogmgr.cogmgr_prev`, `admin.cogmgr.cogmgr_next` — pager windows the deploy-ops select; falls with the deploy-ops drop (docs/decisions.md:223) (returns only if the manifest-registry re-home needs >1 page)
+- `admin.cogmgr.cogmgr_select` — exists only to arm the deploy-ops-dropped trio (docs/decisions.md:223); falls with it (a registry re-home may re-purpose it — see admin.cogmgr rework)
 
 ### redundant prefix menu twins of BOTH-kind commands (2)
 
@@ -1476,8 +1476,8 @@ folds imply are owner-ratifiable. Grouped where the rationale is shared.
 Contained wiring fixes with the target already live in-tree; each bundle is
 one PR (branch named, PR # pending — coordinator fills numbers on merge).
 
-1. **nav-wiring bundle** — branch `claude/curation-rework-nav-wiring`, PR #
-   pending: `server_management.hub.moderation` / `.roles` / `.cleanup` →
+1. **nav-wiring bundle** — branch `claude/curation-rework-nav-wiring`,
+   PR #332: `server_management.hub.moderation` / `.roles` / `.cleanup` →
    nav to the live moderation/role/cleanup hubs (Channels-button pattern,
    sb/domain/server_management/panels.py:163-173); `mining.workshop.ws_back`
    → nav to panel:mining.hub (one-liner, sb/domain/mining/panels.py:759);
@@ -1495,7 +1495,7 @@ one PR (branch named, PR # pending — coordinator fills numbers on merge).
    the 4 selectors (`paragon`/`players`/`difficulty`/`tier5`) to the
    already-ported math (sb/domain/btd6/paragon_math.py +
    paragon_degrees.py), replacing paragon_pending refs in
-   sb/domain/btd6/panels.py:348-403 (D-0046 successor).
+   sb/domain/btd6/panels.py:348-403 (named successor per docs/decisions.md:347).
 
 ### (b) With sibling lane — coordinate, do not double-land
 
@@ -1543,8 +1543,8 @@ Each row is marked in the main table with its lane; the lanes:
 ### (c) Backlog — one line each
 
 - **`pay`** — mint the funded !pay transfer golden via parity/cases/curated.py + capture (only manifest command with neither golden nor skip ruling); sibling-flagged on the parity corpus count-pin — land after mining WP PRs #312/#317.
-- **farm goldens** — D-0073 click-golden batch for farm_collect / farm_buy_hen / farm_upgrade_coop money paths — rows reconciled KEEP on the split-verdict rule, the golden gap stays a real backlog item.
-- **`rps_tournament.quickplay`** — mint the bet-settle interaction golden (!rps 10 → move → escrow settle), extends the tournament-flow goldens lane (D-0073 procedure).
+- **farm goldens** — click-golden batch (mint procedure per docs/decisions.md:542) for farm_collect / farm_buy_hen / farm_upgrade_coop money paths — rows reconciled KEEP on the split-verdict rule, the golden gap stays a real backlog item.
+- **`rps_tournament.quickplay`** — mint the bet-settle interaction golden (!rps 10 → move → escrow settle), extends the tournament-flow goldens lane (procedure per docs/decisions.md:542).
 - **`leaderboard`** — report-only alias fold: trim the oracle-marked legacy_duplicate 11-alias tuple (sb/manifest/leaderboard.py:27-30); command itself KEEP.
 - **xp.config ×4** — port the xp config mutation legs (xp_range / xp_cooldown / xp_levelup_channel / xp_import) in sb/domain/xp — oracle xpconfig legs are live-wired; one contained slice.
 - **ticket.setup ×5** — implement the ticket setup panel actions (enable, staff-role, log-channel, autocreate-log, post-panel) in sb/domain/ticket/handlers.py replacing ticket_setup_pending; oracle ticketsetup is live-wired.
@@ -1552,7 +1552,7 @@ Each row is marked in the main table with its lane; the lanes:
 - **`counterpreset`** — port the preset-apply branch (the one `partial` row in the inventory) with the channel-ops slice, replacing counters.preset_pending.
 - **settings.access ×6 (access-map explorer)** — governance-diagnostic slice named by the pending copy itself (sb/domain/settings/handlers.py:46-61): explain/reset/prev/next buttons + subsystem/scope selects.
 - **`server-management`** — name-pair regularization with `server_management` (fold to one CommandSpec if the grammar grows a slash-name field, else ledger as deliberate) + unify the split golden directories.
-- **`mine` + `mining.hub.mi_mine`** — port the grid Mine navigator (D-0043 successor lane, NOT yet claimed); !mine currently returns the capture-pinned BLOCKED byte (sb/domain/mining/service.py:198); interim !fastmine carries the swing.
+- **`mine` + `mining.hub.mi_mine`** — port the grid Mine navigator (deep-systems successor lane per docs/decisions.md:326, NOT yet claimed); !mine currently returns the capture-pinned BLOCKED byte (sb/domain/mining/service.py:198); interim !fastmine carries the swing.
 - **`mining.hub.mi_how_to`** — static how-to copy port from the oracle mining hub (no DB, no golden dependency).
 - **utility.panel poll/remind ×2** — modal ingress collecting args, then delegate to the live utility.poll_view / utility.remind_view ops.
 - **`btd6.ctteam.set_team`** — modal feeding the existing typed ctteam set leg (sb/domain/btd6/oracle_surface.py cmd_ctteam).
