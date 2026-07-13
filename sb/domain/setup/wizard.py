@@ -52,9 +52,23 @@ native ChannelSelect/RoleSelect re-pick sub-view — oracle
 ``bind_channel`` payload carries ``target_name`` so the (possibly
 edited) name round-trips into the final-review pending line.
 
+The SECTION-FLOW SPINE + the first two per-section flows are LIVE (the
+section-flows slice — sb/domain/setup/section_card.py carries the
+shared card frame, the setup_progress status vocabulary and the
+replace-recommended/stage-custom/skip staging seams;
+sb/domain/setup/wizard_nav.py carries the LINEAR WIZARD STEPS behind
+↩ Back to wizard — ``setup.back_to_wizard`` is live there;
+sb/domain/setup/preset_select.py flips
+``setup.open_section_preset_select`` — pick → preview → stage-every-op
+into the K9 draft; sb/domain/setup/channels.py flips
+``setup.open_section_channels`` — the declared-binding walk, the
+channel pick staging ``bind_channel``, and the high-confidence
+Apply-Recommended builder).
+
 Named successors kept honest (each a declared BLOCKED terminal, never
-silent): the remaining NINE per-section flows + the linear wizard steps
-behind ↩ Back to wizard (section-flows slice).
+silent): the remaining SEVEN per-section flows — logging_presets ·
+roles · role_templates · cleanup · moderation · cog_routing · ticket
+(the next section-flow slices ride the armed spine).
 """
 
 from __future__ import annotations
@@ -545,8 +559,10 @@ def _register() -> None:
             silent no-op, the shipped UPDATE semantics), then land on the
             sections hub at that depth (the shipped ``after="hub"``
             default destination; the ``after="wizard"`` step-0 render is
-            the section-flows slice's port and lands on the SAME hub
-            until then, ledgered)."""
+            LIVE at the hub's ↩ Back to wizard — the chooser keeps the
+            ONE hub landing because the ported panel lane carries no
+            per-presentation ``after`` facet, ledgered: one click more
+            than the oracle's workspace-anchor path)."""
             from sb.kernel.workflow import engine
             from sb.spec.refs import WorkflowRef
 
@@ -586,11 +602,14 @@ def _register() -> None:
 
     from sb.domain.setup.sections import SECTIONS
 
+    #: slugs whose flows are LIVE — their own modules register the
+    #: ``setup.open_section_*`` route (final_review.py · the
+    #: section-flows slice's preset_select.py + channels.py).
+    _LIVE_SECTIONS = frozenset({"final_review", "preset_select", "channels"})
+
     for _section in SECTIONS:
-        if _section.slug == "final_review":
-            continue    # LIVE — the final-review slice's lane
-                        # (sb/domain/setup/final_review.py registers
-                        # setup.open_section_final_review).
+        if _section.slug in _LIVE_SECTIONS:
+            continue
         handler(f"setup.open_section_{_section.slug}")(
             _section_handler(_section.slug))
 
@@ -603,19 +622,8 @@ def _register() -> None:
         await _open(req, "setup.hub")
         return None
 
-    @handler("setup.back_to_wizard")
-    async def back_to_wizard(req) -> Reply:
-        """The hub's ↩ Back to wizard button — the linear wizard step
-        render (wizard_nav.render_wizard_step) is the section-flows
-        slice's port; honest terminal until then."""
-        if not await can_apply_setup(req):
-            return Reply(BLOCKED, GATE_MSG_WIZARD)
-        return Reply(BLOCKED,
-                     "🚧 The linear wizard steps aren't armed in this "
-                     "build yet — they land with the section-flows "
-                     "slice. Open a section from the hub instead once "
-                     "the flows port; the depth chooser and "
-                     "`/setup-status` stay live meanwhile.")
+    # ``setup.back_to_wizard`` is LIVE — the section-flows slice's
+    # linear wizard steps (sb/domain/setup/wizard_nav.py registers it).
 
     # ---- the essential Step-1 interior (essential_setup.ServerTypeStep) ----
 

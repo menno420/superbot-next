@@ -35,6 +35,7 @@ __all__ = [
     "clear_workspace_pointers",
     "ensure_refs",
     "get_session_row",
+    "mark_in_progress",
     "scrub_subject_session",
     "set_depth",
     "set_essential_step",
@@ -155,6 +156,25 @@ async def set_section_skip(conn: Any, *, guild_id: int, slug: str,
             "   SET skipped_sections = ARRAY_REMOVE(skipped_sections, $2::TEXT), "
             "       updated_at = NOW() "
             " WHERE guild_id = $1", (guild_id, slug), conn=conn)
+
+
+async def mark_in_progress(conn: Any, *, guild_id: int,
+                           step: str | None) -> None:
+    """The shipped ``setup_session.mark_in_progress`` write shape
+    (services/setup_session.py: ``set_status("in_progress")`` +
+    ``set_step(step)`` — two bare keyed UPDATEs, folded into one; no row
+    means a silent no-op, the set_depth semantics twin). Every section
+    open / staging lane records its step marker through this (the
+    section-flows slice)."""
+    if step is None:
+        await execute(
+            "UPDATE setup_session SET setup_status = 'in_progress', "
+            "updated_at = NOW() WHERE guild_id = $1", (guild_id,), conn=conn)
+    else:
+        await execute(
+            "UPDATE setup_session SET setup_status = 'in_progress', "
+            "current_step = $2, updated_at = NOW() "
+            "WHERE guild_id = $1", (guild_id, step), conn=conn)
 
 
 async def set_session_status(conn: Any, *, guild_id: int,

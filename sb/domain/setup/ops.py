@@ -200,6 +200,24 @@ async def _record_section_skip(conn, ctx: WorkflowContext) -> LegOutcome:
                       before=None, after={"section": slug, "skipped": skipped})
 
 
+@workflow("setup.record_in_progress")
+async def _record_in_progress(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The section-flows slice's step marker — the shipped
+    ``setup_session.mark_in_progress`` (status → ``in_progress`` +
+    ``current_step`` = the section's step marker; the oracle wrote it
+    on every section-card open / staging lane). A bare keyed UPDATE —
+    no session row is a silent no-op (the set_depth semantics)."""
+    from sb.domain.setup import store
+
+    step = ctx.params.get("step")
+    step = str(step) if step is not None else None
+    await store.mark_in_progress(conn, guild_id=int(ctx.guild_id or 0),
+                                 step=step)
+    return LegOutcome(step=StepResult(0, "record_in_progress", True),
+                      before=None, after={"status": "in_progress",
+                                          "step": step})
+
+
 @workflow("setup.record_session_complete")
 async def _record_session_complete(conn, ctx: WorkflowContext) -> LegOutcome:
     """The final-review apply lane's full-success session write — the
@@ -318,6 +336,19 @@ SET_SECTION_SKIP = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="setup.session.section_skip")
 
+#: the section-flows slice's step marker. The oracle wrote it through a
+#: bare service function with NO audit row (services/setup_session.py
+#: ``mark_in_progress``) — the K7 central audit row is additive, the
+#: SET_DEPTH ledger note's class.
+MARK_IN_PROGRESS = CompoundOpSpec(
+    op_key="setup.mark_in_progress", domain="setup",
+    lane=WorkflowLane.DOMAIN, authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_in_progress"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.step_marked")
+
 #: the final-review slice's session writes. ``setup.session.completed``
 #: is the shipped mutation vocabulary (services/setup_session.py
 #: ``_emit_session_audit`` — started/completed/dismissed); the pointer
@@ -364,8 +395,8 @@ CLEAR_ESSENTIAL_ANCHOR = CompoundOpSpec(
     audit_verb="setup.session.essential_anchor_cleared")
 
 _OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP,
-        MARK_COMPLETE, CLEAR_WORKSPACE_POINTER, SET_ESSENTIAL_STEP,
-        CLEAR_ESSENTIAL_ANCHOR)
+        MARK_IN_PROGRESS, MARK_COMPLETE, CLEAR_WORKSPACE_POINTER,
+        SET_ESSENTIAL_STEP, CLEAR_ESSENTIAL_ANCHOR)
 
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
@@ -373,6 +404,7 @@ _REF_TABLE = (
     ("setup.record_workspace_open", _record_workspace_open),
     ("setup.record_depth", _record_depth),
     ("setup.record_section_skip", _record_section_skip),
+    ("setup.record_in_progress", _record_in_progress),
     ("setup.record_session_complete", _record_session_complete),
     ("setup.record_essential_step", _record_essential_step),
     ("setup.record_essential_anchor_clear", _record_essential_anchor_clear),

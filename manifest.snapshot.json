@@ -6239,6 +6239,76 @@
           "value": "resume"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_back"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_continue"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_cancel"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "wiz_apply_all"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "channels_apply_recommended"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "channels_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "channels_skip"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "channels_hub"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "channels_back_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "preset_confirm"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "preset_cancel"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -7791,6 +7861,31 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.essential_resume"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.wizard_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_channels"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.channels_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.preset_card"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.preset_preview"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -10965,10 +11060,19 @@
         "module": "sb.domain.setup.handlers"
       },
       "handler:setup.back_to_wizard": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.wizard_nav"
       },
       "handler:setup.change_depth": {
         "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.channels_binding_pick": {
+        "module": "sb.domain.setup.channels"
+      },
+      "handler:setup.channels_channel_pick": {
+        "module": "sb.domain.setup.channels"
+      },
+      "handler:setup.channels_detail_render": {
+        "module": "sb.domain.setup.channels"
       },
       "handler:setup.complete_delete": {
         "module": "sb.domain.setup.final_review"
@@ -11187,7 +11291,7 @@
         "module": "sb.domain.setup.handlers"
       },
       "handler:setup.open_section_channels": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.channels"
       },
       "handler:setup.open_section_cleanup": {
         "module": "sb.domain.setup.wizard"
@@ -11205,7 +11309,7 @@
         "module": "sb.domain.setup.wizard"
       },
       "handler:setup.open_section_preset_select": {
-        "module": "sb.domain.setup.wizard"
+        "module": "sb.domain.setup.preset_select"
       },
       "handler:setup.open_section_role_templates": {
         "module": "sb.domain.setup.wizard"
@@ -11215,6 +11319,21 @@
       },
       "handler:setup.open_section_ticket": {
         "module": "sb.domain.setup.wizard"
+      },
+      "handler:setup.preset_cancel": {
+        "module": "sb.domain.setup.preset_select"
+      },
+      "handler:setup.preset_card_render": {
+        "module": "sb.domain.setup.preset_select"
+      },
+      "handler:setup.preset_confirm": {
+        "module": "sb.domain.setup.preset_select"
+      },
+      "handler:setup.preset_pick": {
+        "module": "sb.domain.setup.preset_select"
+      },
+      "handler:setup.preset_preview_render": {
+        "module": "sb.domain.setup.preset_select"
       },
       "handler:setup.recovery_cancel": {
         "module": "sb.domain.setup.final_review"
@@ -11267,6 +11386,21 @@
       "handler:setup.review_stage": {
         "module": "sb.domain.setup.wizard"
       },
+      "handler:setup.section_apply_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_card_render_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_customize_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_hub_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
+      "handler:setup.section_skip_channels": {
+        "module": "sb.domain.setup.section_card"
+      },
       "handler:setup.sections_hub_render": {
         "module": "sb.domain.setup.panels"
       },
@@ -11284,6 +11418,36 @@
       },
       "handler:setup.unskip_section": {
         "module": "sb.domain.setup.handlers"
+      },
+      "handler:setup.wizard_apply_all": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_apply_recommended": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_back": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_back_to_step": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_cancel": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_continue": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_customize": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_jump": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_skip": {
+        "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.wizard_step_render": {
+        "module": "sb.domain.setup.wizard_nav"
       },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
@@ -12227,6 +12391,9 @@
       "panel:setup.apply_recovery": {
         "module": "sb.domain.setup.final_review"
       },
+      "panel:setup.channels_detail": {
+        "module": "sb.domain.setup.channels"
+      },
       "panel:setup.complete_card": {
         "module": "sb.domain.setup.final_review"
       },
@@ -12272,8 +12439,17 @@
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
       },
+      "panel:setup.preset_card": {
+        "module": "sb.domain.setup.preset_select"
+      },
+      "panel:setup.preset_preview": {
+        "module": "sb.domain.setup.preset_select"
+      },
       "panel:setup.review_item": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.section_channels": {
+        "module": "sb.domain.setup.section_card"
       },
       "panel:setup.sections_hub": {
         "module": "sb.domain.setup.panels"
@@ -12283,6 +12459,9 @@
       },
       "panel:setup.suggestions_card": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.wizard_step": {
+        "module": "sb.domain.setup.wizard_nav"
       },
       "panel:starboard.config": {
         "module": "sb.domain.starboard.panels"
@@ -12809,6 +12988,9 @@
       "provider:settings.needs_setup_fields": {
         "module": "sb.domain.settings.panels"
       },
+      "provider:setup.channels_binding_options": {
+        "module": "sb.domain.setup.channels"
+      },
       "provider:setup.depth_fields": {
         "module": "sb.domain.setup.panels"
       },
@@ -12835,6 +13017,12 @@
       },
       "provider:setup.essential_xp_rate_options": {
         "module": "sb.domain.setup.essential_steps"
+      },
+      "provider:setup.preset_options": {
+        "module": "sb.domain.setup.preset_select"
+      },
+      "provider:setup.wizard_jump_options": {
+        "module": "sb.domain.setup.wizard_nav"
       },
       "provider:treasury.baseline_pool_ledger": {
         "module": "sb.domain.treasury.invariants"
@@ -13868,6 +14056,9 @@
       "workflow:setup.mark_complete": {
         "module": "sb.domain.setup.ops"
       },
+      "workflow:setup.mark_in_progress": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.open_workspace": {
         "module": "sb.domain.setup.ops"
       },
@@ -13878,6 +14069,9 @@
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.record_essential_step": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_in_progress": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.record_section_skip": {
@@ -58054,6 +58248,694 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "⏸️ Setup paused",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "wiz_back",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:back",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back"
+              },
+              "label": "◀ Back",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "wiz_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_apply_recommended"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "wiz_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_customize"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "wiz_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_skip"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "wiz_continue",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:continue",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_continue"
+              },
+              "label": "Continue ▶",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "wiz_cancel",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:cancel",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "wiz_apply_all",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_wizard:apply_all_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_apply_all"
+              },
+              "label": "Apply all recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped linear wizard anchor is session/draft/index-parameterized end to end (the Step i/N title, the badge + status line, the Current-state field, the per-status accent — wizard.build_wizard_step_embed), its Continue button flips label/style on the last step, its dead buttons render disabled and the Apply-all row drops when no depth section has a builder (LinearWizardView._rebuild_buttons) — all outside the static grammar vocabulary; the override renders through the grammar and composes embed + component patches (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "wiz_back",
+                    "wiz_apply_recommended",
+                    "wiz_customize",
+                    "wiz_skip"
+                  ],
+                  [
+                    "wiz_continue",
+                    "wiz_cancel"
+                  ],
+                  [
+                    "wiz_jump"
+                  ],
+                  [
+                    "wiz_apply_all"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.wizard_step",
+          "renderer_override": {
+            "$ref": "handler:setup.wizard_step_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "setup_wizard:jump",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.wizard_jump"
+              },
+              "options_source": {
+                "$ref": "provider:setup.wizard_jump_options"
+              },
+              "page_size": 25,
+              "placeholder": "Jump to section…",
+              "selector_id": "wiz_jump",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 SuperBot setup wizard",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "channels_apply_recommended",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:channels:apply_recommended",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_apply_channels"
+              },
+              "label": "Apply Recommended",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "channels_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:channels:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_customize_channels"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "channels_skip",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:channels:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_skip_channels"
+              },
+              "label": "Skip",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "channels_hub",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_card:channels:hub",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_hub_channels"
+              },
+              "label": "↩ Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped section card is session/draft-parameterized end to end (the Step-X-of-N + status-badge description, the Detected / Pending fields, the per-status accent — section_card.build_section_card) and its dead buttons render disabled (SectionCardView.__init__) — outside the static grammar vocabulary; the override renders through the grammar and composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "channels_apply_recommended",
+                    "channels_customize",
+                    "channels_skip",
+                    "channels_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_channels",
+          "renderer_override": {
+            "$ref": "handler:setup.section_card_render_channels"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "📡 Channels & log routing",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "channels_back_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.wizard_back_to_step"
+              },
+              "label": "↩ Back to step",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped channels detail is snapshot/draft-parameterized end to end (the grouped per-subsystem binding fields with likely-match hints — channels.build_channels_embed), its channel picker exists only after a binding pick (the oracle opened it as a second ephemeral view) and carries a per-binding dynamic placeholder, and its ↩ Back to step button rides only the wizard-native path (wizard_nav.render_step_detail's row-4 injection) — all outside the static grammar vocabulary; the override composes the embed and filters/patches the components (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "channels_binding"
+                  ],
+                  [
+                    "channels_channel"
+                  ],
+                  [
+                    "channels_back_step"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.channels_detail",
+          "renderer_override": {
+            "$ref": "handler:setup.channels_detail_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.channels_binding_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.channels_binding_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a binding to set…",
+              "selector_id": "channels_binding",
+              "slash_common": false,
+              "usage_weight": 1.0
+            },
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "channel",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.channels_channel_pick"
+              },
+              "options_source": [],
+              "page_size": 25,
+              "placeholder": "Pick a channel…",
+              "selector_id": "channels_channel",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "📡 Channels & log routing",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped preset card carries one field per bundled preset plus the footer literal 'Picking a preset opens a preview before staging.' (preset_select.build_preset_embed) — grammar FieldsBlocks are provider-fed and FooterMode has no literal lane; the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "preset_pick"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.preset_card",
+          "renderer_override": {
+            "$ref": "handler:setup.preset_card_render"
+          },
+          "selectors": [
+            {
+              "audience_tier": "",
+              "capability_required": "",
+              "custom_id_override": "",
+              "empty_state": "No options available.",
+              "kind": "enum",
+              "max_values": 1,
+              "min_values": 1,
+              "on_select": {
+                "$ref": "handler:setup.preset_pick"
+              },
+              "options_source": {
+                "$ref": "provider:setup.preset_options"
+              },
+              "page_size": 25,
+              "placeholder": "Pick a preset…",
+              "selector_id": "preset_pick",
+              "slash_common": false,
+              "usage_weight": 1.0
+            }
+          ],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🎛 Load a preset",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "preset_confirm",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "📥",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.preset_confirm"
+              },
+              "label": "Stage every op",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "preset_cancel",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.preset_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped preview embed is preset-parameterized end to end (the display-name title, the op-count description, the Operations list capped at 10, the Warnings field — preset_select.build_preview_embed) — outside the static grammar vocabulary; the override composes the embed (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "preset_confirm",
+                    "preset_cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.preset_preview",
+          "renderer_override": {
+            "$ref": "handler:setup.preset_preview_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🎛 Preset preview",
           "usage_weight": 1.0
         }
       ],

@@ -41,12 +41,15 @@ panels ride along: ``setup.sections_hub`` (views/setup/hub.py — the
 depth click's shipped destination) and ``setup.review_item``
 (views/setup/ai_review/per_recommendation.py — the one-at-a-time
 walkthrough). The FINAL-REVIEW APPLY LANE is live (final_review.py —
-its three panels ride the manifest), and the ESSENTIAL STEPS 2–8 are
+its three panels ride the manifest), the ESSENTIAL STEPS 2–8 are
 live (essential_steps.py — the seven step cards, the summary/extras
-pair and the restart-resume bridge ride the manifest). Named
-successors stay honest terminals: the remaining nine per-section
-flows + the linear wizard steps, and the per-suggestion Edit lane (the
-wizard.py module docstring routes them).
+pair and the restart-resume bridge ride the manifest), and the
+SECTION-FLOW SPINE + the first two flows are live (the section-flows
+slice: section_card.py + wizard_nav.py + preset_select.py +
+channels.py — the linear wizard steps, the channels section card /
+detail picker and the preset card / preview ride the manifest). Named
+successors stay honest terminals: the remaining seven per-section
+flows (the wizard.py module docstring routes them).
 """
 
 from __future__ import annotations

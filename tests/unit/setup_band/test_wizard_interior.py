@@ -983,7 +983,12 @@ def test_interior_panels_ride_the_manifest():
         "setup.essential_reward", "setup.essential_reward_role",
         "setup.essential_helpdesk", "setup.essential_commands",
         "setup.essential_summary", "setup.essential_extras",
-        "setup.essential_resume"]
+        "setup.essential_resume",
+        # the section-flows slice: the linear wizard steps + the
+        # channels card/detail pair + the preset card/preview pair.
+        "setup.wizard_step", "setup.section_channels",
+        "setup.channels_detail", "setup.preset_card",
+        "setup.preset_preview"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {
