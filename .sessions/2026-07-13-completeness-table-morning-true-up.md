@@ -1,6 +1,6 @@
 # 2026-07-13 — completeness table morning true-up (post night-run)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Claude Fable` · morning wrap-up lane · mandate: ORDER 017
   (PR #323) close-out — verify `docs/status/completeness-table-2026-07-13.md`
