@@ -21,6 +21,7 @@
 | `plugins.lock.json` + `sb/app/plugin_host.py` | the game-plugin contract's host side — out-of-tree game repos install as `sb.plugins` entry-point plugins, hash-pinned + jointly compiled ([game-plugin-contract.md](game-plugin-contract.md)) | a game plugin's pin lands (`tools/plugin_pin.py --write`) |
 | `manifest/layout/` | the sim-apply [A]-overlay locks (`<subsystem>.lock.json`, SimRef/Exempt provenance) | sim.apply writes a reviewed arrangement pin |
 | `tools/grammar_fit/` | the V-2 cumulative UNITS ledger (`measure.py` -> RESULTS.md; band rows append-only) | each band appends its classification rows |
+| `docs/design/` | pre-build design docs — one per designed surface, pinned to its decision entry (index: [design/README.md](design/README.md); first: [game sections](design/game-sections.md)) | an ORDER/decision needs a design PR before its build slices |
 | `docs/status/` | milestone status reports — start with the [Sequence C completion report (2026-07-09)](status/rebuild-completion-report-2026-07-09.md); the [old-vs-new diff overview (2026-07-09)](status/old-vs-new-diff-overview-2026-07-09.md) maps every old-bot subsystem, behavior change, and command to its fate in the rebuild; the [orchestration retrospective (2026-07-09)](status/rebuild-orchestration-retrospective-2026-07-09.md) records how the rebuild run was coordinated | a build phase completes and its report is compiled |
 
 ## Documentation roots

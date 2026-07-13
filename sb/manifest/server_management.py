@@ -11,7 +11,9 @@ no defer), hence ``DeferMode.NONE``."""
 
 from __future__ import annotations
 
+from sb.domain.server_management import access_map as _access_map
 from sb.domain.server_management import handlers as _handlers
+from sb.domain.server_management import help_preview as _help_preview
 from sb.domain.server_management import panels as _panels
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -37,7 +39,11 @@ MANIFEST = SubsystemManifest(
                     summary="Open the server-management menu.",
                     capability="server_management"),
     ),
-    panels=(_panels.server_management_hub_spec(),),
+    panels=(_panels.server_management_hub_spec(),
+            # the PORTED 🔓 Access Map + 👁 Help Preview subpanels (P1C
+            # over the P1A projection — access_map.py / help_preview.py).
+            _access_map.access_map_spec(),
+            _help_preview.help_preview_spec()),
     settings=(), stores=(), events=(), capabilities=(),
 )
 
@@ -45,6 +51,8 @@ MANIFEST = SubsystemManifest(
 def _ensure_refs() -> None:
     _panels.ensure_panel_refs()
     _handlers.ensure_handler_refs()
+    _access_map.ensure_access_map_refs()
+    _help_preview.ensure_help_preview_refs()
 
 
 ENSURE_REFS = _ensure_refs

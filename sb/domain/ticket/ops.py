@@ -92,6 +92,74 @@ async def _record_blacklist_remove(conn, ctx: WorkflowContext) -> LegOutcome:
                       after={"user_id": uid, "blacklisted": False})
 
 
+@workflow("ticket.record_update_config")
+async def _record_update_config(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The setup wizard's config write (ORACLE disbot/services/
+    ticket_mutation.py ``update_config``: one upsert of exactly the given
+    fields + updated_at, audit verb "config"). The wizard's ✅ Enable
+    click writes enabled=True + staff_role_id (+ log_channel_id when
+    picked); unset fields keep their defaults/prior values (the shipped
+    upsert semantics, store.upsert_config_fields)."""
+    gid = int(ctx.guild_id or 0)
+    fields = {k: ctx.params[k]
+              for k in ("enabled", "staff_role_id", "log_channel_id")
+              if ctx.params.get(k) is not None}
+    prior = await store.get_config_row(gid, conn=conn)
+    await store.upsert_config_fields(conn, guild_id=gid, now=_now_epoch(),
+                                     **fields)
+    return LegOutcome(
+        step=StepResult(gid, "update_config", True),
+        before={k: (prior or {}).get(k) for k in fields},
+        after=dict(fields))
+
+
+#: the shipped auto-created transcript channel name (disbot/services/
+#: ticket_mutation.py ``_LOG_CHANNEL_NAME``, verbatim).
+LOG_CHANNEL_NAME = "ticket-transcripts"
+
+#: discord permission bits for the log channel's privacy map. The shipped
+#: flow created the channel then ``channel.edit(overwrites=...)``; this
+#: port composes the map AT CREATE (the D-0077 port contract — no golden
+#: pins this click's wire shape, so the one-POST form is free).
+_VIEW_BIT = 1024
+_HISTORY_BIT = 65536
+STAFF_LOG_ALLOW = _VIEW_BIT | _HISTORY_BIT
+
+
+@workflow("ticket.record_create_log_channel")
+async def _record_create_log_channel(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The wizard's 🪄 Auto-create — the oracle sequencing (D-0065 shape,
+    create-BEFORE-DB): one create_text_channel POST through the
+    channel-state port with the privacy overwrites at creation (@everyone
+    denied view; the picked staff role allowed view+history — the shipped
+    map's BOT self-entry needs a bot-identity seam the ports don't carry
+    yet, ledgered degradation in D-0084), then the ``log_channel_id``
+    config upsert in the same txn. The shipped create reason, verbatim
+    (disbot/services/ticket_mutation.py create_log_channel)."""
+    from sb.domain.channel import service as channel_service
+    from sb.domain.channel.service import ChannelOverwrite
+
+    gid = int(ctx.guild_id or 0)
+    staff_role_id = ctx.params.get("staff_role_id")
+    overwrites = [ChannelOverwrite(target_id=gid, target_type=0,
+                                   allow=0, deny=_VIEW_BIT)]
+    if staff_role_id:
+        overwrites.append(ChannelOverwrite(
+            target_id=int(staff_role_id), target_type=0,
+            allow=STAFF_LOG_ALLOW, deny=0))
+    actions = channel_service.active_actions()
+    channel_id = await actions.create_text_channel(
+        gid, name=LOG_CHANNEL_NAME, overwrites=tuple(overwrites),
+        parent_id=None,
+        reason="Ticket transcript log (auto-created via setup)")
+    ctx.params["_created_channel_id"] = int(channel_id)
+    await store.upsert_config_fields(conn, guild_id=gid, now=_now_epoch(),
+                                     log_channel_id=int(channel_id))
+    return LegOutcome(
+        step=StepResult(gid, "create_log_channel", True),
+        before={}, after={"log_channel_id": int(channel_id)})
+
+
 # --- privacy erasure body ----------------------------------------------------------
 
 @workflow("ticket.erase_subject_blacklist")
@@ -119,13 +187,20 @@ BLACKLIST_ADD = _db_op("ticket.blacklist_add", "blacklist",
                        "ticket.record_blacklist_add")
 BLACKLIST_REMOVE = _db_op("ticket.blacklist_remove", "blacklist",
                           "ticket.record_blacklist_remove")
+UPDATE_CONFIG = _db_op("ticket.update_config", "config",
+                       "ticket.record_update_config")
+CREATE_LOG_CHANNEL = _db_op("ticket.create_log_channel", "config",
+                            "ticket.record_create_log_channel")
 
-_OPS = (SET_LIMIT, BLACKLIST_ADD, BLACKLIST_REMOVE)
+_OPS = (SET_LIMIT, BLACKLIST_ADD, BLACKLIST_REMOVE, UPDATE_CONFIG,
+        CREATE_LOG_CHANNEL)
 
 _REF_TABLE = (
     ("ticket.record_set_limit", _record_set_limit),
     ("ticket.record_blacklist_add", _record_blacklist_add),
     ("ticket.record_blacklist_remove", _record_blacklist_remove),
+    ("ticket.record_update_config", _record_update_config),
+    ("ticket.record_create_log_channel", _record_create_log_channel),
     ("ticket.erase_subject_blacklist", _erase_subject_blacklist),
 )
 

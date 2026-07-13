@@ -3,7 +3,9 @@ surface verbatim (ORACLE @befc6d0d: cogs/quicksetup_cog.py ``!setup`` /
 ``/setup``; cogs/setup_cog.py + cogs/setup/_wizard_entry.py the
 ``setup-*`` hyphen-namespaced slash family — discord.py forbids
 whitespace in slash names, so the oracle shipped multi-token setup
-commands as ``setup-*``), the four golden-pinned panels, the
+commands as ``setup-*``), the four golden-pinned panels + the two wizard-interior
+panels (sections hub + per-suggestion walkthrough — the wizard-lifecycle
+slice; no golden pins them, the oracle sources do), the
 ``setup_session`` store, the K7 session ops, and the G-19
 wizard_sections facet (all 10 shipped registrants, band-1 carried).
 
@@ -38,6 +40,7 @@ from sb.domain.setup import handlers as _handlers
 from sb.domain.setup import ops as _ops
 from sb.domain.setup import panels as _panels
 from sb.domain.setup import store as _store
+from sb.domain.setup import wizard as _wizard
 from sb.domain.setup.sections import SECTIONS
 from sb.spec.commands import CommandKind, CommandSpec
 from sb.spec.manifest import SubsystemManifest
@@ -160,7 +163,8 @@ MANIFEST = SubsystemManifest(
         ),
     ),
     panels=(_panels.setup_hub_spec(), _panels.essential_card_spec(),
-            _panels.status_card_spec(), _panels.suggestions_card_spec()),
+            _panels.status_card_spec(), _panels.suggestions_card_spec(),
+            _panels.sections_hub_spec(), _panels.review_item_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -172,6 +176,7 @@ _ops.register_ops()
 def _ensure_refs() -> None:
     _store.ensure_refs()
     _ops.ensure_ops_refs()
+    _wizard.ensure_wizard_refs()
     _panels.ensure_setup_refs()
     _handlers.ensure_handler_refs()
     _ai_tasks.register_ai_tasks()
