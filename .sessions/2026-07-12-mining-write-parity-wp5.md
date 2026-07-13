@@ -1,12 +1,12 @@
 # 2026-07-12 — deep-mining WRITE-PARITY lane — WP-5 skill-spend PORT + write golden
 
-> **Status:** born red (WP-5 IN FLIGHT). PORT-then-capture (harder than
-> WP-1..3's pure capture): the `!skill <branch>` argful spend is a live
-> D-0043 pending terminal with NO write leg — this slice ports
-> `skill_service.allocate` from the oracle onto the audited one-leg one-txn
-> seam, flips `skill_route`, then mints its write golden and retires the
-> `player_skills` guard-only-capture exemption. Flips complete on the last
-> commit.
+> **Status:** complete (WP-5 DELIVERED — the oracle `skill_service.allocate`
+> ported verbatim onto the audited `mining.skill -> record_skill` seam,
+> `skill_route` flipped, two skill-spend write goldens minted byte-identical,
+> `player_skills` exemption retired (ratchet mining `{events:4, tables:15->16}`),
+> a `lock_skill_slot` advisory fence + a two-txn over-allocation concurrency
+> regression added (RED→GREEN observed); gate GREEN (477 ported goldens) + all
+> checkers green. PR #335, stacked on #317.)
 
 - **📊 Model:** opus-4.8 · high · parity/golden-minting (Q-0194)
 
@@ -58,6 +58,23 @@ regression proving it serializes (RED without lock, GREEN with).
   (the added row covers the table), so respec is not needed for the exemption.
 - **title equip** — select-driven per scope PART C (session-minted select ids
   are not reconstructable). Stays honest D-0043 pending.
+
+## 💡 Session idea
+
+The PORT slices (WP-5/6) are where "constants/copy VERBATIM" earns its keep: the
+whole value of a write golden is that it freezes the handler as the oracle's own
+contract, so a single invented word in a refusal string silently forks the two
+bots while every gate stays green (the golden would just pin the fork). The
+durable discipline is **fetch the oracle function and diff every message byte
+before trusting a ported leg** — here `skill_service.allocate`'s four faces
+(bad-branch / non-positive / per-branch-cap / insufficient-points) plus the
+`mining_cog.py` mention-prefix shape were confirmed byte-identical against the
+oracle at `c65750e3` before the capture, and the two error faces the golden
+can't reach (cap + budget) got a dedicated leg test asserting the exact copy —
+so the contract is pinned end to end, not just on the one path a golden happens
+to drive. A follow-up worth a checker: a "verbatim-copy audit" that flags a
+ported leg whose user-facing strings have no matching oracle literal, so a port
+that paraphrases is caught at review, not by a play-tester months later.
 
 ## ⟲ Previous-session review
 
