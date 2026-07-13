@@ -242,12 +242,21 @@ def test_panel_and_handler_refs_registered():
                  "settings.needs_setup_pending", "settings.invalid_pending",
                  "settings.missing_bindings_pending", "settings.audit_pending",
                  "settings.command_access_pending",
-                 "settings.access_subsystem_pending",
+                 # the ARMED explorer controls (curation rows 82-87) —
+                 # the five *_pending terminals they replaced must stay
+                 # retired (the sweep below).
+                 "settings.access_subsystem",
+                 "settings.access_scope",
+                 "settings.access_explain",
+                 "settings.access_reset",
+                 "settings.access_page"):
+        assert is_registered(HandlerRef(name)), name
+    for name in ("settings.access_subsystem_pending",
                  "settings.access_scope_pending",
                  "settings.access_explain_pending",
                  "settings.access_reset_pending",
                  "settings.access_page_pending"):
-        assert is_registered(HandlerRef(name)), name
+        assert not is_registered(HandlerRef(name)), name
 
 
 def test_manifest_declares_the_front_doors():
