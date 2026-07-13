@@ -611,7 +611,7 @@
 - why: Governance visibility ALREADY gates every command dispatch per guild (sb/kernel/interaction/resolve.py `_visibility_reader`), so a second enablement store would fork the truth; sections-as-declaration keeps the grammar in the spec leaf per the layer map. The SBW inventory+spec was requested (SIM-REQUEST) but has not arrived — the DEFAULT inventory derives from the shipped games hub roster and is the single documented replacement point, so the design is spec-independent.
 - provenance: ORDER 017 item 4 + outbox SIM-REQUEST 2026-07-13T00:55Z (PR #325); sb/domain/games/panels.py (hub roster at HEAD 291361d); sb/domain/governance/service.py (set_subsystem_visibility / subsystem_enabled); docs/design/game-sections.md; the design PR (review thread)
 
-## [D-0083] The BTD6 paragon calculator arms as a self-contained pure-compute port — the `btd6.paragon_pending` terminal retires; the live-API reconciliation lane stays a named successor
+## [D-0086] The BTD6 paragon calculator arms as a self-contained pure-compute port — the `btd6.paragon_pending` terminal retires; the live-API reconciliation lane stays a named successor
 
 - status: decided
 - date: 2026-07-13
