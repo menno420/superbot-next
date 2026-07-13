@@ -107,6 +107,19 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-13 · wall · Dispatched-lane worker seats cannot LOCAL-CLONE the
+  port oracle: `add_repo menno420/superbot` succeeds, but the `git clone`
+  step it prescribes is DENIED by the auto-mode permission classifier in
+  dispatched-lane sessions — the 2026-07-12 clone route below is
+  venue-scoped, not universal (the "verify grants per venue" seed wall in
+  effect) · evidence: denied 3x on 2026-07-13 in the night-windowed-select
+  worker seat (terminal; verbatim classifier denial of the clone command) ·
+  workaround: read oracle files via GitHub MCP `get_file_contents` on
+  menno420/superbot PINNED at a commit SHA (this session read
+  `views/paginated_select.py` + `views/mining/titles_panel.py` at
+  `bbc524e4`) — pin the ref so reads are reproducible; never treat MCP
+  browsing as a substitute for the clone when a whole-tree grep is needed
+  (use `search_code` for that).
 - 2026-07-13 · wall · Hermes work-order transmit is OWNER-KEYED, not
   free-sliceable: the un-ported egress leg (`sb/domain/hermes/handlers.py:17`
   pending terminal; the oracle implementation exists at
