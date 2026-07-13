@@ -1,10 +1,15 @@
 # superbot-next · status
-updated: 2026-07-13T09:25Z
-phase: SEAT OPEN — coordinator session_01KhzyfUk76YB9Bj2TPF6h5z active; ORDER 017 complete incl. post-encore — 09:00Z refresh of the 05:09Z tally below. Landing mode unchanged: repo auto-merge enabler is canonical for non-draft claude/* PRs (#321).
-health: main at `eee9a69` (#364 help editor D-0089, merged 2026-07-13) at refresh sync; golden-parity gate job green at last landing, `report` leg red-by-design.
+updated: 2026-07-13T09:55Z
+phase: SEAT OPEN — coordinator session_01KhzyfUk76YB9Bj2TPF6h5z active; ORDERS 017+018 both served — delta section below refreshes the 09:25Z report. Landing mode unchanged: repo auto-merge enabler is canonical for non-draft claude/* PRs (#321).
+health: main at `e835443` (#369 doctrine sweep, merged 2026-07-13) at refresh sync — MILESTONE: full-corpus parity since 2026-07-13T04:00:14Z (run 29222893993, fishing slice 4/#350); the golden-parity `report` job is now a live green — a red report = REAL regression, not doctrine. Latest confirmation run 29238825392: 484/484 goldens, 51/51 subsystems, 0 `_unmapped`. Doctrine docs updated in #369.
 kit: v1.15.0
-orders: acked=001–018 done=002–016; 017 served (night mandate — tally 05:09Z, outbox); 018 served (thorough night report — compact section below, full manager-addressed report in outbox 09:25Z); ORDER 001 still open owner-side (band-1 live-drive needs an owner run with the Discord token; pointer: PR #298 body).
+orders: acked=001–018 done=002–018 (017 tally 05:09Z + 018 thorough night report both served; 018 done-when verified at HEAD — report present in status §ORDER-018 + outbox 09:25Z entry); ORDER 001 still open owner-side (band-1 live-drive needs an owner run with the Discord token; pointer: PR #298 body).
 routines: failsafe `trig_01TuQrpMVpDCXB3K3VbjQUoA` cron `0 1-23/2 * * *` + pacemaker send_later chain healthy. Night incidents, both recovered: scheduler wedge 01:07–02:44Z (failsafe slot + pacemaker fires stalled platform-side, flushed 02:44Z, chain re-armed); GitHub Actions check-run outage ~03:40Z (runs not spawning; cleared, queued CI now draining). Business crons unchanged: `trig_01Jm57GAjNCFrYJn1oLMiYGE` kit-lab (never-rebind); `trig_015aNMg5ncoSE2Roe4MKjQnr` trading (other seat); `trig_018wP6XTPmf9DLnxrG4RpGVh` docs-recon (poke-only).
+
+## DELTA since ORDER-018 report (2026-07-13T09:55Z; `d546399` → `e835443`, verified in origin/main log + GitHub open-PR list)
+
+- LANDED: #345 (`686c5d1`, curation backlog slice 1 — xp.config mutation legs onto live settings ops) and #369 (`e835443`, doctrine sweep — parity report leg live green, red-by-design retired). Only those two post-report; #367 (fishing cast-leg claim) merged 09:22Z, just pre-report.
+- OPEN PRs: 11 on superbot-next (verified at GitHub 09:55Z) — WP stack #312→#317→#335→#344 + #320 (all await the owner sweep) + NEW #371 (WP-7 residual parity legs); curation tail: #332 (kick in progress), #333/#352 (event-starved — close/reopen pending, else owner Actions poke), #354 (closing as superseded by #358); NEW #370 (idle plugin coexistence proof).
 
 ## ORDER 018 NIGHT REPORT (2026-07-13T09:25Z) — compact; full report in outbox 09:25Z
 
@@ -58,7 +63,8 @@ STALLED-with-error (verbatim quotes live in the PR bodies/comments; heartbeat ke
 5. SBW spec for sections (SIM-REQUEST outstanding).
 6. Standing: settings-prune ratification; OWNER-ACTION 3 (ruleset/merge-queue) + 5 (ANTHROPIC_API_KEY/AI_ENABLED); delete scratch/union-test-a,-b; ORDER 001 live-drive token run.
 7. Minor: #2061 dashboard-conflict durable fix — gitattributes merge driver for generated dashboard files on superbot.
+8. NEW minor: tiny cleanup PR wanted — `run_golden_parity.py`/harness banner strings + the golden-parity.yml step display name still say "RED BY DESIGN"/"EXPECTED RED" (cosmetic only, one micro-slice; the report leg is live green per the milestone above).
 
 next-2-tasks:
-1. Drive the curation tail #332 #333 #345 #352 #354 to green.
-2. Owner sweep then unblocks the WP/energy lane + mineverse deploys.
+1. Tail closure — dispositions for #332 (kick) / #333 #352 (close/reopen, else owner Actions poke) / #354 (close as superseded by #358).
+2. Owner sweep then unblocks the WP/energy lane + mineverse deploys + energy slices 1–3.
