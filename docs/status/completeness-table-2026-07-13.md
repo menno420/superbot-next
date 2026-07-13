@@ -166,7 +166,15 @@ unregistered refs, no empty-string error paths).
    home-channel deviation), best-of scoring, per-round stats on the
    audited `rps.bot_round` op (`sb/domain/rps/bot_match.py`).
 10. **hermes egress adapter** — work-order send unarmed
-    (`sb/domain/hermes/handlers.py:19`). Small; likely env/owner-keyed.
+    (`sb/domain/hermes/handlers.py:19`). **Probed 2026-07-13 (rps-bot-match
+    slice, evidence in docs/CAPABILITIES.md): env/owner-keyed, NOT a free
+    slice.** The transmit leg is a small un-ported code slice (the oracle's
+    ~40-line aiohttp POST, `disbot/cogs/hermes_cog.py:44-81`), but it sits
+    behind DORMANT owner credentials `CLAUDE_ROUTINE_FIRE_URL` +
+    `CLAUDE_ROUTINE_TOKEN` (`sb/spec/config.py:197-204`) — both absent in
+    the build env (`bridge_configured() == False`; one-shot attempt →
+    verbatim `RuntimeError: missing_config`). Unverifiable live until the
+    owner keys the env — sequence the port WITH the owner keying.
 11. **starboard threshold modal** — 1 action (`starboard/panels.py:296`);
     trivial G-10 modal port, workaround exists. Free.
 12. **ai NL live lane** — env-gated on `ANTHROPIC_API_KEY` (owner action, not
