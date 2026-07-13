@@ -10363,9 +10363,6 @@
       "handler:mining.workshop_craft_pending": {
         "module": "sb.domain.operator_spine"
       },
-      "handler:mining.workshop_hub_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:moderation.modlogs_view": {
         "module": "sb.domain.moderation.service"
       },
@@ -10573,14 +10570,8 @@
       "handler:server_management.access_map_tier": {
         "module": "sb.domain.server_management.access_map"
       },
-      "handler:server_management.cleanup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:server_management.help_preview_tier": {
         "module": "sb.domain.server_management.help_preview"
-      },
-      "handler:server_management.moderation_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:server_management.render_access_map": {
         "module": "sb.domain.server_management.access_map"
@@ -10590,9 +10581,6 @@
       },
       "handler:server_management.render_hub": {
         "module": "sb.domain.server_management.panels"
-      },
-      "handler:server_management.roles_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:settings.access_explain_pending": {
         "module": "sb.domain.operator_spine"
@@ -10884,9 +10872,6 @@
       },
       "handler:utility.info_view": {
         "module": "sb.domain.utility.handlers"
-      },
-      "handler:utility.invite_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:utility.invite_view": {
         "module": "sb.domain.utility.handlers"
@@ -13943,7 +13928,7 @@
     }
   },
   "schema_version": 1,
-  "stable_hash": "sha256:166121ceb94b4a44ad9d475db6c05f453e127463b6f12b4c425d14b9ffb64d3d",
+  "stable_hash": "sha256:d575cf11147e8bdbec7cf762b9cc93a515a4ed2cf5949fd21591bdfcff6eb5b3",
   "subsystems": {
     "admin": {
       "capabilities": [],
@@ -46397,7 +46382,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.workshop_hub_pending"
+                "$ref": "panel:mining.hub"
               },
               "label": "↩ Workshop",
               "modal": null,
@@ -51950,7 +51935,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.moderation_pending"
+                "$ref": "panel:moderation.hub"
               },
               "label": "🛡️ Moderation",
               "modal": null,
@@ -52000,7 +51985,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.roles_pending"
+                "$ref": "panel:role.hub"
               },
               "label": "🎭 Roles",
               "modal": null,
@@ -52025,7 +52010,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:server_management.cleanup_pending"
+                "$ref": "panel:cleanup.hub"
               },
               "label": "🧹 Cleanup",
               "modal": null,
@@ -56775,7 +56760,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:utility.invite_pending"
+                "$ref": "handler:utility.invite_view"
               },
               "label": "🔗 Invite",
               "modal": null,
