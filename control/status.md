@@ -1,5 +1,5 @@
 # superbot-next · status
-updated: 2026-07-14T10:18:10Z
+updated: 2026-07-14T12:02:47Z
 phase: post-EAP-night morning — dawn lanes complete (ORDER 020 executed + review-parked; D-0043 both slices merged, D-0090 ratified); owner sweep queued.
 health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
 kit: v1.15.0
@@ -15,6 +15,7 @@ EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
 - item (b) walkthrough doc QUEUED (lands after items resolve)
 - parked-by-design per the order: WP stack owner-click, #392, plugin-hello#2 ⚑0, ORDER 001 ⚑6, DROP/D-0083 ⚑3/⚑4.
 - Note: corpus-moving slices park green under the coordinator WP-stack freeze, flip after the owner sweep.
+- lifeboat: claude/lifeboat-fishing-minigame-timing @ 0c1e3bf audited fully SUPERSEDED (fishing lane verdict 2026-07-14T~12:00Z) — branch-delete walled (403, CAPABILITIES), branch parked to owner standing-tail cleanup.
 
 ## ORDER 019 night log
 All 8 items + relayed ORDER 031 closed out — full citations in the outbox 2026-07-14T04:48:20Z night report.
@@ -42,7 +43,7 @@ Dawn: D-0043 fishing minigame timing rung COMPLETE (#460 + #462; kernel timer + 
 7. Minor: cosmetic "RED BY DESIGN"/"EXPECTED RED" banner strings in run_golden_parity.py/harness + golden-parity.yml step name (report leg is live green).
 
 next-2-tasks:
-1. Owner sweep — WP stack + mineverse flips + DROP list.
-2. Casino section build = new order when ready; coordinator loop holds heartbeat until morning handoff.
+1. Awaiting owner WP sweep → send go-to-flip to the frozen lanes.
+2. Monitor inbox for ORDER 023+.
 
 Pointers: night ack = PR #421; ORDER 019 close-out = outbox 2026-07-14T04:48:20Z; ORDER 031 hook = docs/specs/casino-section-spec.md; incident detail = PRs #448/#449 bodies.
