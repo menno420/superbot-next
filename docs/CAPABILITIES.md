@@ -107,6 +107,43 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-13 · wall · `EnterWorktree` tool is unavailable to pinned-cwd
+  workers (`subagent` venue): a worker seat spawned with a cwd override
+  cannot use the tool in either isolation mode — hit independently by both
+  curation night-bundle workers tonight (the PR #428 and PR #434 seats) ·
+  evidence: verbatim tool error — "EnterWorktree cannot create a worktree
+  from a subagent with a cwd override (isolation: \"worktree\" or explicit
+  cwd) — it would mutate the parent session's process-wide working
+  directory. To work in a different directory (including a worktree),
+  spawn an Agent with `cwd` set to it." · workaround: create the worktree
+  manually — `git fetch origin main && git worktree add <path> origin/main`
+  (add `-b <branch>` for a new branch), then work inside it via absolute
+  paths; same isolation outcome (both bundle PRs shipped this way).
+- 2026-07-13 · capability · Local Postgres for `tools/mint_golden.py`
+  VERIFIED WORKING (`subagent` venue): Postgres 16.13 binaries exist at
+  `/usr/lib/postgresql/16/bin` (NOT on PATH); `initdb` refuses to run as
+  root; `DATABASE_URL=postgresql://superbot:superbot@localhost:5432/superbot`
+  is pre-set in the env but nothing is listening by default · evidence:
+  verified 2026-07-13 — working recipe is `runuser -u postgres -- initdb`
+  then `runuser -u postgres -- pg_ctl` with a data dir under `/tmp`,
+  `CREATE DATABASE superbot`, after which `psql "$DATABASE_URL" -c
+  "SELECT 1"` returns 1; `sb/` talks asyncpg, which is already installed ·
+  workaround: n/a — this IS the route; note `pytest` + `pytest-asyncio`
+  still need a pip-install before count-pin test runs (the 2026-07-12
+  pytest wall below still holds).
+- 2026-07-13 · wall · Dispatched-lane worker seats cannot LOCAL-CLONE the
+  port oracle: `add_repo menno420/superbot` succeeds, but the `git clone`
+  step it prescribes is DENIED by the auto-mode permission classifier in
+  dispatched-lane sessions — the 2026-07-12 clone route below is
+  venue-scoped, not universal (the "verify grants per venue" seed wall in
+  effect) · evidence: denied 3x on 2026-07-13 in the night-windowed-select
+  worker seat (terminal; verbatim classifier denial of the clone command) ·
+  workaround: read oracle files via GitHub MCP `get_file_contents` on
+  menno420/superbot PINNED at a commit SHA (this session read
+  `views/paginated_select.py` + `views/mining/titles_panel.py` at
+  `bbc524e4`) — pin the ref so reads are reproducible; never treat MCP
+  browsing as a substitute for the clone when a whole-tree grep is needed
+  (use `search_code` for that).
 - 2026-07-13 · wall · Hermes work-order transmit is OWNER-KEYED, not
   free-sliceable: the un-ported egress leg (`sb/domain/hermes/handlers.py:17`
   pending terminal; the oracle implementation exists at

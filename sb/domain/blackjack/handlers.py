@@ -505,29 +505,8 @@ def _register() -> None:
         return Reply(SUCCESS, None)
 
 
-def _register_pending() -> None:
-    """The (now unrouted) pending terminals. STILL registered at MODULE
-    IMPORT: tests/unit/invariants/test_composition_parity.py pins
-    ``handler:blackjack.tournament_open_pending`` in the import roster
-    (the rps precedent — #130 kept its 4 pending refs the same way);
-    the command table routes to the real tournament handlers now."""
-    from sb.domain.operator_spine import pending_handler
-
-    pending_handler(
-        "blackjack.tournament_open_pending",
-        "🃏 Tournament registration needs the live orchestration "
-        "(private round channels + reaction sign-up — arms with the "
-        "live adapter at CUT-1; entry/payout money lanes are live).")
-    pending_handler(
-        "blackjack.tournament_start_pending",
-        "🃏 Manual tournament start needs the live orchestration "
-        "(arms with the live adapter at CUT-1).")
-
-
 def ensure_handler_refs() -> None:
     _register()
-    _register_pending()
 
 
 _register()
-_register_pending()

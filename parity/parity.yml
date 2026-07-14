@@ -1036,6 +1036,23 @@ depth:
           audit lane) — a run-minted role select whose value the click
           schema does not carry (D-0064); no imported golden
           corpus-wide carries the table"
+    server_management:
+      # the routing port (setup compound-ops slice 2): the table's sole
+      # writer is the K7 routing.set_policy op behind the K9
+      # set_cog_routing kind — staged ONLY through the setup wizard's
+      # cog-routing section (scope → target → cog → Enable/Disable
+      # select/pick chain, then the Final-Review apply); the read side
+      # is the access projection's axis 3 (default-true on the empty
+      # table, the production default per migration 0054's header).
+      - surface: "table:command_routing_policy"
+        reason: "select-driven: routing rows are written through the
+          shipped cog-routing section's scope/cog pick chain
+          (views/setup/sections/cog_routing.py _ScopeSelect →
+          _build_cog_pick_view → _EnableDisableSelect) — run-minted
+          selects whose values the click schema does not carry (D-0064)
+          — and land only via the Final-Review draft apply; no imported
+          golden corpus-wide carries the table (the resolver's
+          default-true empty-table read IS the capture world's state)"
     settings:
       # settings owns the SHARED K7 config lane (band 1): its stores/event
       # are written through the four scalar/binding ops that OTHER

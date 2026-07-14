@@ -242,8 +242,10 @@ def test_manifest_declares_both_front_doors():
     assert spec.panel_id == "server_management.hub"
     assert access_map.panel_id == "server_management.access_map"
     assert help_preview.panel_id == "server_management.help_preview"
-    # R2 stays vacuous: no declared stores/events/settings.
-    assert MANIFEST.stores == () and MANIFEST.events == ()
+    # the routing port (compound-ops slice 2) declared its store; no
+    # events/settings.
+    assert [s.table for s in MANIFEST.stores] == ["command_routing_policy"]
+    assert MANIFEST.events == ()
     assert MANIFEST.settings == ()
 
 

@@ -119,6 +119,8 @@ commands are ALREADY denied by resolve.py governance gating (§4).
 
 ## 7. SBW integration slot
 
+> **Spec arrived (2026-07-13, ORDER 031 phase 1):** the requested inventory+consolidation spec was published first-party as [`../specs/casino-section-spec.md`](../specs/casino-section-spec.md) (the SBW SIM-REQUEST went unanswered); the build order consumes that document through this slot.
+
 The DEFAULT sections constant in `sb/manifest/games.py` is the **single
 replacement point**. Expected SBW spec shape (mirroring the SIM-REQUEST
 fields): inventory (game keys + labels), section grouping,
