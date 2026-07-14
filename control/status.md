@@ -1,9 +1,20 @@
 # superbot-next · status
-updated: 2026-07-14T07:33:51Z
+updated: 2026-07-14T10:06:08Z
 phase: post-EAP-night morning — dawn lanes complete (ORDER 020 executed + review-parked; D-0043 both slices merged, D-0090 ratified); owner sweep queued.
 health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
 kit: v1.15.0
-orders: acked=001–019 done=002–019 (019 full trail: outbox 2026-07-14 night report; ORDER 031 relay complete); ORDER 001 open owner-side.
+orders: acked=001–022 done=002–019,021 (020 executed, awaiting owner ratification ⚑0; 022 IN PROGRESS — per-item log below); ORDER 001 open owner-side.
+EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
+
+## ORDER 022 log
+- item 1 (021 completion verify) DISPATCHED
+- item 2 casino section build DISPATCHED
+- item 3 title-equip write DISPATCHED
+- item 4 row-72 stacked path DISPATCHED
+- item 5 ⚑7 verify DISPATCHED
+- item (b) walkthrough doc QUEUED (lands after items resolve)
+- parked-by-design per the order: WP stack owner-click, #392, plugin-hello#2 ⚑0, ORDER 001 ⚑6, DROP/D-0083 ⚑3/⚑4.
+- Note: corpus-moving slices park green under the coordinator WP-stack freeze, flip after the owner sweep.
 
 ## ORDER 019 night log
 All 8 items + relayed ORDER 031 closed out — full citations in the outbox 2026-07-14T04:48:20Z night report.
