@@ -9,7 +9,11 @@
 ## Index
 
 - [game-sections.md](game-sections.md) — per-guild minigame/casino
-  enablement over governance visibility (ORDER 017 item 4).
+  enablement over governance visibility (ORDER 017 item 4). Its §7
+  plug-in slot is now filled by
+  [`../specs/casino-section-spec.md`](../specs/casino-section-spec.md)
+  (ORDER 031 phase 1 — inventory, taxonomy, enablement semantics, panel
+  contract; the section BUILD stays a separate order).
 - [anchor-refresh-sweep.md](anchor-refresh-sweep.md) — PROPOSED
   (owner-reviewable, no D-entry yet): the game-sections successor
   sweep that would edit anchored channel panels on enablement change;

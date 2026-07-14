@@ -1,11 +1,12 @@
 """Mining handlers (band 6 / parity flip) — the SHIPPED core-loop reply
 bytes verbatim (goldens/mining pin them), the reads, the inventory merge
 source, the LIVE deep-system lanes (equipment/loadouts, depth traversal,
-vault, workshop repair/quickcraft, and the energy-lane cook/use
-consumables), and honest pending terminals for what still rides named
-successor work (wear ticks, grid dig, structure builds, skill spends —
-the D-0043 tail; the fastmine energy spend is energy-lane slice 3,
-owner-gated).
+vault, workshop repair/quickcraft, the energy-lane cook/use consumables,
+and — since the rows-45/59/60 rework — the grid Mine navigator + How-to
+guide, live behind the hub buttons over the audited ``mining.dig`` op
+with its wear ticks), and honest pending terminals for what still rides
+named successor work (structure builds, skill spends — the D-0043 tail;
+the fastmine energy spend is energy-lane slice 3, owner-gated).
 
 Shipped command mapping (disbot/cogs/mining_cog.py, oracle-verbatim):
 
@@ -224,11 +225,20 @@ def _register() -> None:
 
     @handler("mining.mine_route")
     async def mine_route(req) -> Reply:
-        """Shipped `!mine` opened the grid Mine navigator — a D-0043
-        deep-system surface whose capture-world open RAISED; the corpus
-        pins bot1.py's generic copy for every `!mine` (goldens/mining/
-        sweep_mine — no swing, no rows, no game XP). The quick swing the
-        old port answered here is the SHIPPED `!fastmine` lane (below)."""
+        """Shipped `!mine` opened the grid Mine navigator — a surface
+        whose capture-world open RAISED, so the corpus pins bot1.py's
+        generic copy for every `!mine` (goldens/mining/sweep_mine — no
+        swing, no rows, no game XP; trap 11b: the handler owns the
+        golden-pinned artifact literal). The navigator itself is LIVE
+        since the rows-45/59 rework (PR #434) behind the hub's ⛏️ Mine
+        button (panel `mining.grid` over the audited `mining.dig` op) —
+        this prefix byte flips to `open_panel(PanelRef("mining.grid"))`
+        the day sweep_mine is retired (a parity.yml
+        `source.retired_goldens` + count-pin + depth-ratchet operation,
+        owned by the wp-stack lane at rework time; the required
+        golden-parity gate replays ported subsystems green, so the byte
+        cannot move before the golden does). The quick swing the old
+        port answered here is the SHIPPED `!fastmine` lane (below)."""
         return Reply(BLOCKED, _GENERIC_ERROR)
 
     @handler("mining.fastmine_route")
@@ -345,14 +355,16 @@ def _register() -> None:
         ``{ctx.author.name}'s Mining Stats``, MINING_COLOR dark_grey,
         Location + 🎮 Game Level non-inline, the four inline counters —
         goldens/mining/sweep_minestats pins the bytes). Deepest reads the
-        current depth: the shipped ``max_depth`` record only diverges
-        through descend/ascend, which ride the D-0043 deep-system port.
+        shipped ``max_depth`` record (mining_cog.py ``get_max_depth`` —
+        0 for a fresh player), kept current by the live descend record
+        write (ops.py ``_record_descend`` → ``store.record_depth``).
         Net worth values resources/fish only (the hub Wealth field's
         ledgered D-0043 boundary — shipped ``items.total_value`` also
         valued tools/gear)."""
         from sb.domain.games import store as games_store
         from sb.domain.mining import market
-        from sb.domain.mining.store import get_depth, get_mining_inventory
+        from sb.domain.mining.store import (get_depth, get_max_depth,
+                                            get_mining_inventory)
         from sb.domain.mining.world import describe_position
         from sb.domain.xp.levels import level_progress
         from sb.kernel.panels.render import RenderedEmbed
@@ -361,6 +373,7 @@ def _register() -> None:
         gid = int(req.guild_id or 0)
         inventory = await get_mining_inventory(uid, gid)
         depth = await get_depth(uid, gid)
+        max_depth = await get_max_depth(uid, gid)
         level, into, needed = level_progress(
             await games_store.total_game_xp(uid, gid))
         worth = sum(qty * (market.sell_price(item) or 0)
@@ -378,7 +391,7 @@ def _register() -> None:
                  str(sum(inventory.values())), True),
                 ("Unique Items", str(len(inventory)), True),
                 ("Net Worth", str(worth), True),
-                ("Deepest", describe_position(depth), True),
+                ("Deepest", describe_position(max_depth), True),
             )))
 
     @handler("mining.market_view")

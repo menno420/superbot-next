@@ -27,7 +27,9 @@ __all__ = [
     "collect",
     "documented_field_names",
     "install_readiness_inspector",
+    "install_snapshot_source",
     "reset_snapshot_ports_for_tests",
+    "snapshot_for",
 ]
 
 
@@ -84,15 +86,40 @@ EXCLUDED_FIELD_TOKENS: frozenset[str] = frozenset({
 # installable readiness inspector: async (guild) -> tuple of findings
 _readiness_inspector: Callable[[Any], Awaitable[tuple]] | None = None
 
+# installable guild-id-keyed snapshot source (the channel-recommender
+# slice): async (guild_id) -> GuildSnapshot | None. The oracle consumers
+# called ``collect(guild)`` with a live discord.Guild in hand; handler-
+# side domain code here only carries guild_id, so the discord adapter's
+# setup_reads fill closes the gap (bot.get_guild → collect). Uninstalled
+# it degrades to None — consumers keep their pre-port fallback lanes.
+_snapshot_source: Callable[[int], Awaitable["GuildSnapshot | None"]] | None = None
+
 
 def install_readiness_inspector(inspector) -> None:
     global _readiness_inspector
     _readiness_inspector = inspector
 
 
+def install_snapshot_source(source) -> None:
+    """source: async (guild_id) -> GuildSnapshot | None — the live
+    gateway leg (sb/adapters/discord/setup_reads.py) or a test twin."""
+    global _snapshot_source
+    _snapshot_source = source
+
+
+async def snapshot_for(guild_id: int) -> "GuildSnapshot | None":
+    """The perms-bearing snapshot for ``guild_id`` through the installed
+    source, or ``None`` when the port is uninstalled / the guild is
+    unknown (consumers degrade — never a crash)."""
+    if _snapshot_source is None:
+        return None
+    return await _snapshot_source(int(guild_id))
+
+
 def reset_snapshot_ports_for_tests() -> None:
-    global _readiness_inspector
+    global _readiness_inspector, _snapshot_source
     _readiness_inspector = None
+    _snapshot_source = None
 
 
 async def collect(guild: Any) -> GuildSnapshot:
