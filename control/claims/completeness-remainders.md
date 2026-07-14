@@ -1,3 +1,0 @@
-# Claim — completeness-table 2026-07-13 remainders
-
-- `claude/claim-completeness-remainders` · **completeness-table 2026-07-13 remainders** — the three remaining flagged rows (docs/status/completeness-table-2026-07-13.md): (1) server_management hub pending trio — the moderation/roles/cleanup manager slices (`server_management` hub actions → `operator_spine`), (2) cleanup admin residue — the `cleanup.{logging,settings,policies}_pending` hub actions, (3) fishing how-to-fish hub guide (`fishing.howtofish_pending`); lane session, sequential slices, one PR each · `sb/domain/server_management/`, `sb/domain/cleanup/`, `sb/domain/fishing/`, `sb/manifest/`, `manifest.snapshot.json`, `parity/`, `tests/` · 2026-07-13

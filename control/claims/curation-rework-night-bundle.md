@@ -10,6 +10,11 @@
 tests that lane is un-conflicting. Bundles 1–2 are done; this claim stays
 ACTIVE for bundle 3 only.
 
+**Bundle-3 takeover (2026-07-14).** Row 72 + its farm goldens are now being
+executed under ORDER 022 (a)4 via the branch-from-#371-head path (see
+`order-022-titleequip-row72.md`), superseding the "after wp-stack-reconcile"
+sequencing above.
+
 **Bundle 1 residue (handed off, not claimed here).** Row 45's `!mine`
 prefix-byte flip (off the `sweep_mine.json` capture artifact) and durable
 grid position/fog state both remain `parity/parity.yml`-walled — handed to
