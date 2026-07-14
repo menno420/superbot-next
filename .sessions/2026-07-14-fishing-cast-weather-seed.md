@@ -1,6 +1,6 @@
 # 2026-07-14 — parity: seed capture-world weather for 4 fishing cast goldens (stop daily gate flap)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** Opus · high · cross-lane parity hygiene (Q-0194)
 
