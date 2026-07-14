@@ -193,6 +193,11 @@ def _describe_step(step: Step) -> dict[str, Any]:
             doc["target_message"] = step.target_message
     if step.channel != "general":
         doc["channel"] = step.channel
+    # the D-0043 clock-grammar growth: a non-default logical-clock advance
+    # round-trips; the default (None = the fixed 30.0 s) stays absent so
+    # every existing golden's input doc is byte-unchanged.
+    if step.advance_s is not None:
+        doc["advance_s"] = step.advance_s
     return doc
 
 

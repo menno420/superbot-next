@@ -30,15 +30,18 @@ doctrine — same semantics, only the seams differ):
   ONE roster read (``store.list_resumable_sessions``) replaces the
   guild walk — same per-guild isolation, same skip semantics;
 * the oracle's launcher leg rebuilt ``SetupLauncherView(status=...)`` +
-  ``_build_launcher_embed(session)``; the on-join launcher surface is
-  NOT ported in this build (no ``on_guild_join`` feed is armed), so the
-  target's ``setup_message_id`` points at the WORKSPACE ANCHOR the
-  advanced entry posts (``setup.hub``, the depth chooser —
-  ops.record_workspace_open) and the refresh re-renders THAT panel
-  fresh; its buttons rebind by static ``custom_id_override`` exactly
-  like the oracle's persistent view (labels are state-independent on
-  this card — the launcher panel's status-aware label set follows the
-  launcher port itself, the flagged follow-up);
+  ``_build_launcher_embed(session)``; the on-join launcher surface IS
+  ported now (night-tail-2 — sb/domain/setup/launcher.py, the
+  ``on_guild_join`` feed armed through the kernel guild-events seam),
+  and it writes the SAME ``setup_channel_id``/``setup_message_id`` pair
+  the advanced entry's workspace anchor writes (``setup.hub``, the
+  depth chooser — ops.record_workspace_open), so a row cannot say WHICH
+  panel its message carries; the refresh keeps re-rendering the HUB
+  panel fresh (its buttons rebind by static ``custom_id_override``
+  exactly like the oracle's persistent view). Branching the sweep to
+  the launcher's status-aware render for launcher-posted rows is the
+  flagged follow-up (the launcher.py session card's guard recipe: a
+  persisted landing-surface column);
 * Discord mechanics (``fetch_message`` → ``edit``) live behind the
   kernel panel engine's message-editor port
   (``edit_anchored_panel`` → the adapter's

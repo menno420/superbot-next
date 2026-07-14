@@ -122,18 +122,28 @@ async def _compensate_create_channel(conn, ctx: WorkflowContext) -> LegOutcome:
 
 @workflow("setup.record_session_started")
 async def _record_session_started(conn, ctx: WorkflowContext) -> LegOutcome:
-    """The ``/setup-hub`` entry's session mint — the shipped
-    ``start_session`` upsert (status ``pending``, no workspace pointers;
-    goldens/setup/sweep_slash_setup-hub pins the row)."""
+    """The ``start_session`` upsert (status ``pending``): the
+    ``/setup-hub`` entry mints it pointer-less (goldens/setup/
+    sweep_slash_setup-hub pins the row); the on-guild-join launcher lane
+    passes the minted workspace pointers through the optional
+    ``setup_channel_id`` / ``setup_message_id`` params — the oracle's
+    ONE ``setup_session.start_session(guild_id, guild_name, owner_id,
+    setup_channel_id=…, setup_message_id=…)`` service function served
+    both callers (cogs/setup_cog.py ``_handle_join`` /
+    ``setup_depth_slash``), so one leg serves both here."""
     from sb.domain.setup import store
 
     guild_id = int(ctx.guild_id or 0)
+    channel_id = ctx.params.get("setup_channel_id")
+    message_id = ctx.params.get("setup_message_id")
     await store.upsert_session(
         conn, guild_id=guild_id,
         guild_name=str(ctx.params.get("guild_name", "")),
         owner_id=int(ctx.params.get("owner_id", 0) or 0),
-        setup_status="pending", setup_channel_id=None,
-        setup_message_id=None, current_step=None)
+        setup_status="pending",
+        setup_channel_id=int(channel_id) if channel_id else None,
+        setup_message_id=int(message_id) if message_id else None,
+        current_step=None)
     return LegOutcome(
         step=StepResult(0, "record_session_started", True),
         before=None, after="pending")
@@ -242,6 +252,22 @@ async def _record_session_complete(conn, ctx: WorkflowContext) -> LegOutcome:
                                    status="complete")
     return LegOutcome(step=StepResult(0, "record_session_complete", True),
                       before=None, after="complete")
+
+
+@workflow("setup.record_session_dismissed")
+async def _record_session_dismissed(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The launcher Dismiss click's session write — the shipped
+    ``setup_session.dismiss`` (views/setup/launcher.py ``_dismiss``:
+    status → ``dismissed``; the oracle emitted the
+    ``setup.session.dismissed`` audit for exactly this transition). A
+    bare keyed UPDATE — no session row is a silent no-op (the set_depth
+    semantics twin)."""
+    from sb.domain.setup import store
+
+    await store.set_session_status(conn, guild_id=int(ctx.guild_id or 0),
+                                   status="dismissed")
+    return LegOutcome(step=StepResult(0, "record_session_dismissed", True),
+                      before=None, after="dismissed")
 
 
 @workflow("setup.record_essential_step")
@@ -478,6 +504,19 @@ MARK_COMPLETE = CompoundOpSpec(
     idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
     audit_verb="setup.session.completed")
 
+#: the launcher Dismiss lane (the on-guild-join launcher port).
+#: ``setup.session.dismissed`` is the shipped mutation vocabulary
+#: (services/setup_session.py ``_emit_session_audit`` —
+#: started/completed/dismissed).
+MARK_DISMISSED = CompoundOpSpec(
+    op_key="setup.mark_dismissed", domain="setup", lane=WorkflowLane.DOMAIN,
+    authority_ref="",
+    legs=(LegSpec("record", LegKind.DB,
+                  WorkflowRef("setup.record_session_dismissed"),
+                  "reversible"),),
+    idempotency=IdempotencyPosture.NATURAL_KEY, dedup_key=None,
+    audit_verb="setup.session.dismissed")
+
 CLEAR_WORKSPACE_POINTER = CompoundOpSpec(
     op_key="setup.clear_workspace_pointer", domain="setup",
     lane=WorkflowLane.DOMAIN, authority_ref="",
@@ -534,8 +573,9 @@ ENSURE_CHANNEL = CompoundOpSpec(
     audit_verb="setup.channel_provisioned")
 
 _OPS = (START_SESSION, OPEN_WORKSPACE, SET_DEPTH, SET_SECTION_SKIP,
-        MARK_IN_PROGRESS, MARK_COMPLETE, CLEAR_WORKSPACE_POINTER,
-        SET_ESSENTIAL_STEP, CLEAR_ESSENTIAL_ANCHOR, ENSURE_CHANNEL)
+        MARK_IN_PROGRESS, MARK_COMPLETE, MARK_DISMISSED,
+        CLEAR_WORKSPACE_POINTER, SET_ESSENTIAL_STEP,
+        CLEAR_ESSENTIAL_ANCHOR, ENSURE_CHANNEL)
 
 _REF_TABLE = (
     ("setup.compensate_create_channel", _compensate_create_channel),
@@ -545,6 +585,7 @@ _REF_TABLE = (
     ("setup.record_section_skip", _record_section_skip),
     ("setup.record_in_progress", _record_in_progress),
     ("setup.record_session_complete", _record_session_complete),
+    ("setup.record_session_dismissed", _record_session_dismissed),
     ("setup.record_essential_step", _record_essential_step),
     ("setup.record_essential_anchor_clear", _record_essential_anchor_clear),
     ("setup.record_workspace_pointer_clear", _record_workspace_pointer_clear),
