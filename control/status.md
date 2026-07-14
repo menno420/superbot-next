@@ -1,5 +1,5 @@
 # superbot-next · status
-updated: 2026-07-14T10:06:08Z
+updated: 2026-07-14T10:18:10Z
 phase: post-EAP-night morning — dawn lanes complete (ORDER 020 executed + review-parked; D-0043 both slices merged, D-0090 ratified); owner sweep queued.
 health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
 kit: v1.15.0
@@ -7,7 +7,7 @@ orders: acked=001–022 done=002–019,021 (020 executed, awaiting owner ratific
 EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
 
 ## ORDER 022 log
-- item 1 (021 completion verify) DISPATCHED
+1. ORDER 021 completion — #464 was an empty vehicle (order text only); real re-stamps landed via #472; ⚑8 withdrawn HERE per INC-58 ground truth (no rewrite occurred — shallow-clone artifact; #319's squash resolves at origin).
 - item 2 casino section build DISPATCHED
 - item 3 title-equip write DISPATCHED
 - item 4 row-72 stacked path DISPATCHED
@@ -40,10 +40,9 @@ Dawn: D-0043 fishing minigame timing rung COMPLETE (#460 + #462; kernel timer + 
 5. SBW inventory+spec for sections (SIM-REQUEST 00:55Z, unanswered).
 6. Standing: settings-prune ratification; OWNER-ACTION 3 (ruleset/merge-queue) + 5 (ANTHROPIC_API_KEY/AI_ENABLED); delete scratch/union-test-a,-b; ORDER 001 token run; hermes egress creds (CLAUDE_ROUTINE_FIRE_URL + token).
 7. Minor: cosmetic "RED BY DESIGN"/"EXPECTED RED" banner strings in run_golden_parity.py/harness + golden-parity.yml step name (report leg is live green).
-8. Confirm the origin/main history rewrite on superbot-next (history now roots at whole-tree snapshot 2cb4d91, ~104 commits; old per-PR squash SHAs like #319's no longer resolve locally though GitHub confirms the merges). If deliberate (e.g. repo squash), reply and the coordinator records it; if not, it needs investigation.
 
 next-2-tasks:
-1. Owner sweep — WP stack + mineverse flips + DROP list + history-rewrite confirm.
+1. Owner sweep — WP stack + mineverse flips + DROP list.
 2. Casino section build = new order when ready; coordinator loop holds heartbeat until morning handoff.
 
 Pointers: night ack = PR #421; ORDER 019 close-out = outbox 2026-07-14T04:48:20Z; ORDER 031 hook = docs/specs/casino-section-spec.md; incident detail = PRs #448/#449 bodies.
