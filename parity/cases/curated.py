@@ -1174,6 +1174,125 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "panel footer still shows the spent-from pack (`🪱 Worm Bait (0 "
             "left)`) exactly as the oracle CastStart carried it"),
     ),
+    # ------------------------------------- fishing minigame timing (D-0043 s1)
+    # The first goldens that drive the CLOCK grammar: each Reel click carries
+    # ``advance_s`` (None = the fixed 30 s the whole corpus rides), so the
+    # click lands at a chosen offset from the cast — before the rolled bite
+    # (premature), or inside the reaction window (hook/fight). Seeds were
+    # chosen so the runner-armed cast-RNG trajectory (species → weight →
+    # bite → fake-out → [grace|escape…] → commit draws) takes the intended
+    # branch; the capture-world weather is storm (CAPTURE_WORLD_WEATHER —
+    # registered before the mint), whose 1.12 bite-speed / 1.30 rarity mults
+    # are part of each pinned trajectory.
+    GoldenCase(
+        id="fishing.cast_premature_spook",
+        subsystem="fishing",
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # 0.5 s after the cast — always before the bite (shore floor
+            # 1.5 s), and the bare rod's grace 0 can never forgive (no
+            # rng draw — roll_premature_grace short-circuits at ≤ 0).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=0.5),
+        ),
+        notes=(
+            "fresh player, bare rod: reeling 0.5 s after the cast is "
+            "premature (seed-42 storm bite lands at ~4.28 s) and grace 0 "
+            "spooks deterministically — the oracle 🌀 reeled-too-early "
+            "terminal (verbatim; NO trophy clue — the oracle never wraps "
+            "the premature spook in _got_away), the paid cast is gone, "
+            "and db_delta pins the cast's own energy spend (60→58) plus "
+            "the passive chat-XP row every command golden carries: no "
+            "catch-log row, no fish grant, no game_xp"),
+    ),
+    GoldenCase(
+        id="fishing.cast_premature_grace",
+        subsystem="fishing",
+        # a Diamond Rod (tier 4, premature_grace 0.60) — the forgive knob.
+        fixture_sql=(
+            "INSERT INTO fishing_rod (user_id, guild_id, tier) VALUES "
+            "(900000000000000102, 700000000000000001, 4)",
+        ),
+        seed=4,
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=0.5),
+        ),
+        notes=(
+            "the one forgiven slip: seed-4's grace draw (0.067 < 0.60) "
+            "forgives the 0.5 s premature reel — the oracle 😅 'the "
+            "Diamond Rod steadies it' edit rides the in-place panel "
+            "refresh (the cast_prompt override), the cast STAYS parked "
+            "(grace spent), and db_delta still pins only the energy "
+            "spend — a forgiven slip neither lands nor loses the fish"),
+    ),
+    GoldenCase(
+        id="fishing.cast_trophy_fight_land",
+        subsystem="fishing",
+        # deepwater at fishing level 2 (cap 6): the seed-2 catch is the
+        # lancetfish (#6) — a trophy (threshold 4), a 3-tap fight.
+        fixture_sql=(
+            "INSERT INTO fishing_venue (user_id, guild_id, venue) VALUES "
+            "(900000000000000102, 700000000000000001, 'deepwater')",
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'fishing', 100)",
+        ),
+        seed=2,
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # the hook: seed-2's storm bite lands at ~7.10 s; 8.0 s sits
+            # inside the deepwater window (7.10 … 9.10 at window 2.0).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=8.0),
+            # three reel taps (rank 6 ⇒ 2 + round(12/21) = 3); every
+            # seed-2 escape draw holds (0.835/0.736/0.670 ≥ 0.195).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+        ),
+        notes=(
+            "the trophy reel-fight, landed: the in-window hook flips the "
+            "panel to the oracle 🎣 Hooked-a-big-one edit, taps 1-2 "
+            "advance the ▰▱ tension bar in place, and tap 3 commits the "
+            "audited fishing.cast leg — db_delta pins the lancetfish "
+            "catch-log row + fish grant + the game_xp bump off the "
+            "level-2 fixture row, with the 🏆 Trophy landed! result card"),
+    ),
+    GoldenCase(
+        id="fishing.cast_trophy_fight_escape",
+        subsystem="fishing",
+        fixture_sql=(
+            "INSERT INTO fishing_venue (user_id, guild_id, venue) VALUES "
+            "(900000000000000102, 700000000000000001, 'deepwater')",
+            "INSERT INTO game_xp (user_id, guild_id, game, xp) VALUES "
+            "(900000000000000102, 700000000000000001, 'fishing', 100)",
+        ),
+        seed=15,
+        steps=(
+            Step(kind="command", content="!fish", persona="member"),
+            # the hook: seed-15's bite lands at ~11.67 s; 12.5 s is
+            # inside the window (11.67 … 13.67).
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=12.5),
+            # tap 1 holds (0.986 ≥ 0.195)…
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+            # …tap 2's escape draw fires (0.017 < 0.195) — snapped.
+            Step(kind="click", target_message=1, component_index=0,
+                 persona="member", advance_s=1.0),
+        ),
+        notes=(
+            "the big one that got away: a lancetfish trophy hooks and "
+            "holds one tap, then the per-tap deepwater escape roll fires "
+            "— the oracle 💥 snapped-the-line terminal + the 💭 trophy "
+            "clue (a fight IS a trophy), the paid cast is gone, and "
+            "db_delta pins ONLY the energy spend — no catch-log row, no "
+            "fish, no xp movement on the fixture row"),
+    ),
     GoldenCase(
         id="fishing.howtofish_rules_card",
         subsystem="fishing",

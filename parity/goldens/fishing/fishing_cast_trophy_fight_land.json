@@ -1,0 +1,347 @@
+{
+ "case_id": "fishing.cast_trophy_fight_land",
+ "db_delta": {
+  "fishing_catch_log": {
+   "added": [
+    {
+     "best_weight": 5.199999809265137,
+     "count": 1,
+     "first_caught": 1811730841,
+     "guild_id": "<guild>",
+     "last_caught": 1811730841,
+     "species": "lancetfish",
+     "total_value": 0,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "fishing_energy": {
+   "added": [
+    {
+     "energy": 58,
+     "energy_updated_at": 1811730830,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "game_xp": {
+   "added": [
+    {
+     "day": "<ts>",
+     "day_xp": 5,
+     "game": "fishing",
+     "guild_id": "<guild>",
+     "updated_at": "<ts>",
+     "user_id": "<@member>",
+     "xp": 105
+    }
+   ],
+   "removed": [
+    {
+     "day": null,
+     "day_xp": 0,
+     "game": "fishing",
+     "guild_id": "<guild>",
+     "updated_at": "<ts>",
+     "user_id": "<@member>",
+     "xp": 100
+    }
+   ]
+  },
+  "mining_inventory": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "item_name": "lancetfish",
+     "quantity": 1,
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1811730830,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 15
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the trophy reel-fight, landed: the in-window hook flips the panel to the oracle 🎣 Hooked-a-big-one edit, taps 1-2 advance the ▰▱ tension bar in place, and tap 3 commits the audited fishing.cast leg — db_delta pins the lancetfish catch-log row + fish grant + the game_xp bump off the level-2 fixture row, with the 🏆 Trophy landed! result card",
+ "seed": 2,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "You cast a line from the boat, out over the deep water… ⛵\n*Watch the water — hit **Reel** the moment it bites, but not before!*",
+        "fields": [
+         {
+          "inline": false,
+          "name": "⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "⛵ Deepwater · ⚡ 58/60 [▰▰▰▰▰▰▰▰▰▰]"
+        },
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 15,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 15,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!fish",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "🎣 **Hooked a big one!** It dives deep — hang on…",
+        "flags": 0,
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 8.0,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:3>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "💪 Reeling it in… `▰▱▱`",
+        "flags": 0,
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 1.0,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:4>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "💪 Reeling it in… `▰▰▱`",
+        "flags": 0,
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 1.0,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:5>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "🏆 Trophy landed!\nYou reeled in 🐠 a **Lancetfish**!  (size #6 of 11 deepwater)\n⚖️ It weighs **5.2 kg**. 🏅 **New personal best!**"
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "game_xp.awarded",
+     "payload": {
+      "action": "fish",
+      "amount": 5,
+      "game": "fishing",
+      "guild_id": "<guild>",
+      "total": 105,
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 1.0,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "fishing"
+}

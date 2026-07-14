@@ -6665,6 +6665,41 @@
           "value": "recovery_cancel_view"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_start"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_readiness"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_suggestions"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_preset"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_summary"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_repost"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "launcher_dismiss"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -8387,6 +8422,11 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.workspace_notice"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.launcher"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -11943,6 +11983,27 @@
       "handler:setup.hub_open_section_ticket": {
         "module": "sb.domain.setup.panels"
       },
+      "handler:setup.launcher_dismiss": {
+        "module": "sb.domain.setup.launcher"
+      },
+      "handler:setup.launcher_readiness": {
+        "module": "sb.domain.setup.launcher"
+      },
+      "handler:setup.launcher_render": {
+        "module": "sb.domain.setup.launcher"
+      },
+      "handler:setup.launcher_repost": {
+        "module": "sb.domain.setup.launcher"
+      },
+      "handler:setup.launcher_start": {
+        "module": "sb.domain.setup.launcher"
+      },
+      "handler:setup.launcher_suggestions": {
+        "module": "sb.domain.setup.launcher"
+      },
+      "handler:setup.launcher_summary": {
+        "module": "sb.domain.setup.launcher"
+      },
       "handler:setup.logging_picker_render": {
         "module": "sb.domain.setup.logging_presets"
       },
@@ -13310,6 +13371,9 @@
       },
       "panel:setup.hub": {
         "module": "sb.domain.setup.panels"
+      },
+      "panel:setup.launcher": {
+        "module": "sb.domain.setup.launcher"
       },
       "panel:setup.logging_picker": {
         "module": "sb.domain.setup.logging_presets"
@@ -15090,6 +15154,9 @@
       "workflow:setup.mark_complete": {
         "module": "sb.domain.setup.ops"
       },
+      "workflow:setup.mark_dismissed": {
+        "module": "sb.domain.setup.ops"
+      },
       "workflow:setup.mark_in_progress": {
         "module": "sb.domain.setup.ops"
       },
@@ -15112,6 +15179,9 @@
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.record_session_complete": {
+        "module": "sb.domain.setup.ops"
+      },
+      "workflow:setup.record_session_dismissed": {
         "module": "sb.domain.setup.ops"
       },
       "workflow:setup.record_session_started": {
@@ -64201,6 +64271,240 @@
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🛰 Setup notice",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "launcher_start",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:start",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.launcher_start"
+              },
+              "label": "Start Setup",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "launcher_readiness",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:readiness",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.launcher_readiness"
+              },
+              "label": "Run Readiness Scan",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "launcher_suggestions",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:smart_suggestions",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.launcher_suggestions"
+              },
+              "label": "Smart Suggestions",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "launcher_preset",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:preset",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.open_section_preset_select"
+              },
+              "label": "Choose Preset",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "launcher_summary",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:summary",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.launcher_summary"
+              },
+              "label": "View Summary",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "launcher_repost",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:repost_launcher",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.launcher_repost"
+              },
+              "label": "Repost launcher",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "launcher_dismiss",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup:dismiss",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.launcher_dismiss"
+              },
+              "label": "Dismiss",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "persistent",
+          "body": [
+            {
+              "text": "Welcome! I'll help you set SuperBot up for this server.\n\nClick **Start Setup** for the quick guided setup — a few simple steps, each saved as you go. The other buttons are optional extras, or **Dismiss** to defer.\n\n**Quick commands:** `!setup` / `/setup` for the quick guided setup, `/setup-advanced` for the full editor, `/setup-status` for a read-only peek, `/setup-reset` to start over.\n\n🎫 Setup includes a **Support Tickets** step — enable private member↔staff tickets there, or run `!ticketsetup @StaffRole [#log]`."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "blurple",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped launcher embed is session-parameterized in its description ('**Status:** `{status}`' + readiness/step suffixes — launcher._build_launcher_embed), its COLOR (blurple / complete-green / dismissed-dark_grey) and its Start BUTTON LABEL (_START_LABELS_BY_STATUS — the on_ready rebind), and it carries the footer literal + the join content line — all outside the static grammar vocabulary; the override delegates the component render to the grammar and composes embed/labels/content (no golden pins it — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "launcher_start",
+                    "launcher_readiness",
+                    "launcher_suggestions",
+                    "launcher_preset"
+                  ],
+                  [
+                    "launcher_summary",
+                    "launcher_repost",
+                    "launcher_dismiss"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.launcher",
+          "renderer_override": {
+            "$ref": "handler:setup.launcher_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": null,
+          "title": "🛰 SuperBot setup",
           "usage_weight": 1.0
         }
       ],

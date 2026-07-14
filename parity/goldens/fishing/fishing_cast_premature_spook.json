@@ -1,0 +1,127 @@
+{
+ "case_id": "fishing.cast_premature_spook",
+ "db_delta": {
+  "fishing_energy": {
+   "added": [
+    {
+     "energy": 58,
+     "energy_updated_at": 1876004061,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1876004061,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "fresh player, bare rod: reeling 0.5 s after the cast is premature (seed-42 storm bite lands at ~4.28 s) and grace 0 spooks deterministically — the oracle 🌀 reeled-too-early terminal (verbatim; NO trophy clue — the oracle never wraps the premature spook in _got_away), the paid cast is gone, and db_delta pins the cast's own energy spend (60→58) plus the passive chat-XP row every command golden carries: no catch-log row, no fish grant, no game_xp",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "You cast a line from the shoreline… 🏖️\n*Watch the water — hit **Reel** the moment it bites, but not before!*",
+        "fields": [
+         {
+          "inline": false,
+          "name": "⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "🏖️ Shore · ⚡ 58/60 [▰▰▰▰▰▰▰▰▰▰]"
+        },
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!fish",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "🌀 You reeled too early — the fish darted off. *Hold your nerve!*"
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 0.5,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "fishing"
+}
