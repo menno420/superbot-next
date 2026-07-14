@@ -1,0 +1,1 @@
+- `claude/casino-section-1` · **Casino/minigame section build — spec §7 one-PR swap (ORDER 022 (a)2)** — GAME_SECTIONS 2→3 section swap per docs/specs/casino-section-spec.md · `sb/manifest/games.py`, `sb/domain/games/panels.py`, `tests/unit/band6/test_band6_game_sections.py`, `parity/goldens/games/sweep_games.json` + `sweep_slash_games.json` re-mint · 2026-07-14
