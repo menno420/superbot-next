@@ -63,7 +63,14 @@ jobs:
             echo "::endgroup::"
           done
       - name: Kit check --strict
-        run: python3 bootstrap.py check --strict
+        # Explicit nonexistent sentinel: card grading here is a
+        # deterministic advisory skip (bootstrap.py check docs — an
+        # explicit absent --session-log never falls back to another
+        # card). Without it the engine guesses newest-by-mtime, which
+        # a fresh CI checkout flattens, grading an arbitrary card.
+        # Session-card ENFORCEMENT is owned by substrate-gate.yml,
+        # which derives the card(s) from the PR diff.
+        run: python3 bootstrap.py check --strict --session-log .sessions/__no-card-in-diff__.md
 
   lockfile-fresh:
     # spec 12 §2.C: regenerating the lock from requirements.txt yields no
