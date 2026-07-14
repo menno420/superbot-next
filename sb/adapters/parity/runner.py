@@ -144,6 +144,20 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # the forecast command renders the same capture-day condition
     # (goldens/fishing/sweep_forecast pins the 🌧️ Rain embed — slice 1).
     "sweep.forecast": "rain",
+    # the fishing CAST-leg + howtofish write goldens (#387) were captured
+    # on 2026-07-13, a ⛈️ Storm day under the reconstructed table, and their
+    # curated cases were minted with NO capture-world weather seed — so the
+    # shipped `current_weather()` fell through to the LIVE wall clock, and
+    # the goldens only replayed green on days whose real date still picked
+    # Storm. That is capture-world world state exactly like the sweep rows
+    # above; pin the capture-day ⛈️ Storm so replay is date-independent (was
+    # a wall-clock time-bomb: green on 2026-07-13, red on 2026-07-14 when the
+    # live date picked 🌧️ Rain). Each golden's asserted bytes are the
+    # 07-13 Storm face — unchanged; only the seed is reconstructed.
+    "fishing.cast_reel_write": "storm",
+    "fishing.cast_deepwater_reel_write": "storm",
+    "fishing.cast_bait_spend_write": "storm",
+    "fishing.howtofish_rules_card": "storm",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
