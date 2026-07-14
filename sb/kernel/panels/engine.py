@@ -51,6 +51,7 @@ __all__ = [
     "may_interact",
     "open_panel",
     "post_anchored_panel",
+    "push_session_refresh",
     "refresh_session_view",
     "register_confirm_session",
     "reset_panel_engine_for_tests",
@@ -263,6 +264,11 @@ class PanelSession:
     # (a refresh re-renders onto the SAME wire ids — the shipped views kept
     # their auto-ids across edits).
     component_ids: dict = field(default_factory=dict)
+    # the channel the session message lives in — what an interaction-free
+    # push edit (``push_session_refresh``) hands the ``_message_editor``
+    # port; None for sessions minted outside a channel (confirm surfaces,
+    # request-id-keyed fallbacks).
+    channel_id: int | None = None
 
     @property
     def expired(self) -> bool:
@@ -455,7 +461,9 @@ async def _render_and_present(spec: PanelSpec, req: ResolveRequest, *,
     _store_session(key, PanelSession(
         panel_id=spec.panel_id, invoker_id=rendered.invoker_lock,
         audience=rendered.audience, page=page, timeout_s=rendered.timeout_s,
-        message_ref=message_ref, component_ids=minted_ids))
+        message_ref=message_ref, component_ids=minted_ids,
+        channel_id=(int(req.channel_id)
+                    if req.channel_id is not None else None)))
     if not spec.session_lifecycle:
         # session views are never anchored — no refreshable channel panel
         # exists (the shipped game views were not in panel_anchors).
@@ -493,6 +501,21 @@ async def refresh_session_view(req: ResolveRequest, *, message_key: str,
     ctx = _context_from_request(spec, req)
     ctx.params.clear()
     ctx.params.update(params)
+    rendered = await _render_session_panel(spec, session, ctx)
+    rendered = _dc_replace(rendered,
+                           edit_message_ref=session.message_ref)
+    await _presenter(rendered, req)
+    if expire:
+        _expire_session(message_key, session)
+    return True
+
+
+async def _render_session_panel(spec: PanelSpec, session: PanelSession,
+                                ctx: PanelContext) -> RenderedPanel:
+    """Re-render *spec* for a live session and rewrite the declared
+    components back onto the session's ORIGINAL minted ids (never re-mint
+    — the wire ids are stable across edits; the shipped views kept their
+    auto-ids). Shared by the interaction refresh and the push edit."""
     if spec.renderer_override is not None:
         rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
     else:
@@ -504,15 +527,61 @@ async def refresh_session_view(req: ResolveRequest, *, message_key: str,
                 component = _dc_replace(component, custom_id=minted)
                 break
         remapped.append(component)
-    rendered = _dc_replace(
-        rendered, components=tuple(remapped),
-        edit_message_ref=session.message_ref)
-    await _presenter(rendered, req)
+    return _dc_replace(rendered, components=tuple(remapped))
+
+
+def _expire_session(message_key: str, session: PanelSession) -> None:
+    """Tear a session down after a terminal edit (the shipped
+    ``view.stop()`` — later clicks fall to the polite-expiry terminal)."""
+    for minted in session.component_ids.values():
+        _ephemeral.pop(minted, None)
+    _sessions.pop(message_key, None)
+
+
+async def push_session_refresh(message_key: str, *, params: dict,
+                               actor, guild_id: int | None = None,
+                               expire: bool = False) -> str:
+    """Re-render a live session view IN PLACE with NO interaction — the
+    real-time twin of :func:`refresh_session_view` (docs/decisions.md
+    D-0090): same render-onto-the-ORIGINAL-minted-ids body, but the edit
+    rides the ``_message_editor`` port (the boot-sweep lane) instead of
+    the presenter, so a background task (the fishing bite timer) can
+    announce state onto the session message the way the oracle's
+    ``message.edit`` background edits did. Returns one of the ``EDIT_*``
+    outcomes: no editor installed ⇒ ``EDIT_UNAVAILABLE`` (headless/CI —
+    the sweep's degradation posture, never a crash); no live session /
+    no editable channel message ⇒ ``EDIT_MISSING`` (process restart or
+    eviction — the caller degrades exactly as the shipped game views'
+    message-gone edits did). Renderers see ``PanelOrigin.ANCHOR`` (no
+    live interaction origin — the ``edit_anchored_panel`` posture).
+    ``expire=True`` tears the session down after the edit (terminal
+    edits — the shipped ``view.stop()``)."""
+    if _message_editor is None:
+        return EDIT_UNAVAILABLE
+    session = _sessions.get(message_key)
+    if session is None or session.expired:
+        return EDIT_MISSING
+    if session.channel_id is None:
+        return EDIT_MISSING          # no editable channel message exists
+    try:
+        message_id = int(str(session.message_ref
+                             if session.message_ref is not None
+                             else message_key))
+    except (TypeError, ValueError):
+        return EDIT_MISSING          # opaque non-message handle
+    spec = get_panel(session.panel_id)
+    ctx = PanelContext(
+        bot=None, guild_id=guild_id, actor=actor,
+        channel_id=session.channel_id, origin=PanelOrigin.ANCHOR,
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(params or {}), surface=None)
+    rendered = await _render_session_panel(spec, session, ctx)
+    outcome = await _message_editor(rendered,
+                                    channel_id=int(session.channel_id),
+                                    message_id=message_id)
     if expire:
-        for minted in session.component_ids.values():
-            _ephemeral.pop(minted, None)
-        _sessions.pop(message_key, None)
-    return True
+        _expire_session(message_key, session)
+    return outcome
 
 
 async def handle_nav(binding: NavBinding, req: ResolveRequest) -> None:
