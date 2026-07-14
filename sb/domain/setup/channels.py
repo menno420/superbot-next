@@ -21,13 +21,15 @@ Kernel-idiom divergences, ledgered (the section_card.py doctrine):
 * the binding walk reads the MANIFEST BindingSpec facets (the
   guild_snapshot._collect_bindings_snapshot precedent) — this
   architecture's ``all_schemas()`` twin;
-* the recommendation source is the DETERMINISTIC ADVISOR
-  (sb/domain/setup/plan.py — the same reproducible run
-  ``/setup-describe`` takes) filtered to live-declared bindings: the
-  oracle's ``channel_recommender.top_pick`` rode a perms-bearing
-  GuildSnapshot no handler-side seam carries yet — the full
-  recommender port (intent catalogue + perms scoring) is the flagged
-  follow-up;
+* the recommendation source is the NATIVE RECOMMENDER
+  (sb/domain/setup/recommender.py — the oracle
+  ``channel_recommender.top_pick`` port: intent catalogue + perms
+  scoring over the perms-bearing guild snapshot,
+  sb/domain/platform/guild_snapshot.snapshot_for; the discord
+  adapter's setup_reads fill arms it live) with the DETERMINISTIC
+  ADVISOR (sb/domain/setup/plan.py — the same reproducible run
+  ``/setup-describe`` takes) as the snapshot-less fallback lane —
+  the formerly-flagged full-recommender follow-up, landed;
 * at 21 declared channel bindings the one select carries every option
   (page_size 25); the oracle's windowed ◀/▶ select guarded the >25
   case — the pagination rides the engine's page_size lane when the
@@ -119,13 +121,49 @@ def all_channel_bindings() -> list[tuple[str, str, bool, str]]:
     return out
 
 
-# --- the advisor-hint read ----------------------------------------------------------------
+# --- the recommendation read (recommender-first, advisor fallback) -------------------------
 
 async def _recommendations(guild_id: int) -> dict[tuple[str, str], object]:
-    """(subsystem, binding_name) → the deterministic advisor's
-    recommendation (the module-docstring adaptation of the oracle
-    recommender hints)."""
-    from sb.domain.setup import plan
+    """(subsystem, binding_name) → the top recommendation.
+
+    RECOMMENDER lane (the native port, this slice): when the
+    perms-bearing snapshot source is armed
+    (sb/adapters/discord/setup_reads.py → guild_snapshot.snapshot_for),
+    every declared binding with an intent mapping reads
+    ``recommender.top_pick`` — the oracle ``_recommendation_for``
+    consumer over ``channel_recommender.top_pick``; the pick is folded
+    onto the advisor's SetupRecommendation shape (reason =
+    ``reasons[0]``, the oracle embed's "strongest single reason for
+    compactness").
+
+    ADVISOR fallback (the pre-port lane, kept verbatim): a snapshot-less
+    runtime (parity harness, headless tests) reads the deterministic
+    advisor — hints degrade, never a crash."""
+    from sb.domain.setup import plan, recommender
+
+    snapshot = None
+    try:
+        from sb.domain.platform.guild_snapshot import snapshot_for
+
+        snapshot = await snapshot_for(int(guild_id))
+    except Exception:  # noqa: BLE001 — hints simply do not appear
+        logger.exception("channels: snapshot lookup raised")
+    if snapshot is not None:
+        recs: dict[tuple[str, str], object] = {}
+        for sub, name, _required, _hint in all_channel_bindings():
+            intent_slug = recommender.intent_for_binding(name)
+            if intent_slug is None:
+                continue
+            pick = recommender.top_pick(intent_slug, snapshot)
+            if pick is None:
+                continue
+            recs[(sub, name)] = plan.SetupRecommendation(
+                subsystem=sub, binding_name=name, target_kind="channel",
+                target_id=int(pick.channel_id),
+                target_name=str(pick.channel_name),
+                confidence=str(pick.confidence),
+                reason=(pick.reasons[0] if pick.reasons else ""))
+        return recs
 
     try:
         draft = await plan.suggest(int(guild_id))

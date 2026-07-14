@@ -27,7 +27,8 @@ except ImportError:  # noqa: SIM105
     discord = None          # type: ignore[assignment]
     discord_ui = None       # type: ignore[assignment]
 
-__all__ = ["DiscordPanelPresenter", "build_embed", "build_files", "build_view"]
+__all__ = ["DiscordPanelMessageEditor", "DiscordPanelPresenter",
+           "build_embed", "build_files", "build_view"]
 
 _STYLE_MAP = {
     "primary": "primary", "secondary": "secondary", "success": "success",
@@ -192,6 +193,60 @@ def build_view(rendered: RenderedPanel):
                     logger.debug("timeout-disable edit failed", exc_info=True)
 
     return PanelRuntimeView()
+
+
+class DiscordPanelMessageEditor:
+    """The engine's message-editor port, discord-side (the on-ready resume
+    sweep's edit lane): fetch the persisted channel message and edit the
+    rendered panel onto it — the oracle's ``channel.fetch_message`` →
+    ``message.edit`` pair (setup_cog._resume_one_launcher /
+    essential_setup.revive_one_essential_flow), with the SAME outcome
+    split: gone message → ``EDIT_MISSING`` (the caller may clear its
+    pointer), uncached channel / forbidden / HTTP error → ``EDIT_FAILED``
+    (log and skip, never a crash)."""
+
+    def __init__(self, bot) -> None:
+        self._bot = bot
+
+    async def __call__(self, rendered: RenderedPanel, *, channel_id: int,
+                       message_id: int) -> str:
+        from sb.kernel.panels.engine import (
+            EDIT_EDITED,
+            EDIT_FAILED,
+            EDIT_MISSING,
+        )
+
+        if discord is None:
+            raise RuntimeError("discord is not installed")
+        channel = self._bot.get_channel(int(channel_id))
+        if channel is None or not hasattr(channel, "fetch_message"):
+            # the oracle's not-in-cache / wrong-kind branch (debug + skip).
+            logger.debug("panel edit: channel %s not in cache", channel_id)
+            return EDIT_FAILED
+        try:
+            message = await channel.fetch_message(int(message_id))
+        except discord.NotFound:
+            logger.info("panel edit: message %s in channel %s is gone",
+                        message_id, channel_id)
+            return EDIT_MISSING
+        except discord.Forbidden:
+            logger.warning("panel edit: cannot fetch message %s in "
+                           "channel %s (forbidden)", message_id, channel_id)
+            return EDIT_FAILED
+        except discord.HTTPException as exc:
+            logger.warning("panel edit: HTTP error fetching message %s in "
+                           "channel %s: %s", message_id, channel_id, exc)
+            return EDIT_FAILED
+        embed = build_embed(rendered)
+        view = build_view(rendered)
+        try:
+            await message.edit(embed=embed, view=view)
+        except discord.HTTPException as exc:
+            logger.warning("panel edit: edit failed for message %s in "
+                           "channel %s: %s", message_id, channel_id, exc)
+            return EDIT_FAILED
+        view.message = message
+        return EDIT_EDITED
 
 
 class DiscordPanelPresenter:

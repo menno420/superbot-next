@@ -35,6 +35,7 @@ __all__ = [
     "clear_workspace_pointers",
     "ensure_refs",
     "get_session_row",
+    "list_resumable_sessions",
     "mark_in_progress",
     "scrub_subject_session",
     "set_depth",
@@ -92,6 +93,28 @@ async def get_session_row(guild_id: int, conn: Any = None) -> dict | None:
         "essential_step, created_at, updated_at "
         "FROM setup_session WHERE guild_id=$1", (guild_id,), conn=conn)
     return dict(row) if row else None
+
+
+async def list_resumable_sessions() -> list[dict]:
+    """The on-ready resume sweep's roster read: every session row still
+    carrying a persisted message pointer — a workspace anchor
+    (``setup_channel_id`` + ``setup_message_id``, the launcher-refresh
+    leg's input) and/or an interrupted essential flow
+    (``setup_channel_id`` + ``essential_message_id``, the revive leg's
+    input). The oracle iterated ``bot.guilds`` and read each row
+    (setup_cog._resume_launchers / essential_setup.revive_essential_flows);
+    the durable rows already know, so ONE query replaces the guild walk."""
+    from sb.kernel.db.pool import fetchall
+
+    rows = await fetchall(
+        "SELECT guild_id, setup_status, setup_channel_id, setup_message_id, "
+        "essential_message_id, essential_step "
+        "FROM setup_session "
+        "WHERE setup_channel_id IS NOT NULL "
+        "  AND (setup_message_id IS NOT NULL "
+        "       OR essential_message_id IS NOT NULL) "
+        "ORDER BY guild_id")
+    return [dict(row) for row in rows or ()]
 
 
 # --- write primitives (K7 leg only — conn REQUIRED) ---------------------------------

@@ -95,10 +95,11 @@ def register_game_providers() -> None:
         top=_fishing_top, member_rank=_simple("fishing")),
         aliases=("fishlb", "fishingleaderboard", "anglerlb"))
     register_provider(RankProvider(
-        name="farm", display_title="🐔 Farm Leaderboard",
+        name="farm", display_title="🐔 Chicken Farm Leaderboard",
         select_label="Farm", select_emoji="🐔",
-        empty_hint="No farmers yet — try `!farm`!",
-        top=_farm_top, member_rank=_simple("farm")),
+        empty_hint="No farms yet. Use `!farm` to start your coop.",
+        top=_farm_top, member_rank=_simple("farm"),
+        card_theme="harvest"),  # the sunlit-field / harvest skin
         aliases=("farmlb", "farming", "chickenlb"))
     register_provider(RankProvider(
         name="gamexp", display_title="🌍 World Level Leaderboard",

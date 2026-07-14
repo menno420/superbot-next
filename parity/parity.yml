@@ -1059,6 +1059,23 @@ depth:
           audit lane) — a run-minted role select whose value the click
           schema does not carry (D-0064); no imported golden
           corpus-wide carries the table"
+    server_management:
+      # the routing port (setup compound-ops slice 2): the table's sole
+      # writer is the K7 routing.set_policy op behind the K9
+      # set_cog_routing kind — staged ONLY through the setup wizard's
+      # cog-routing section (scope → target → cog → Enable/Disable
+      # select/pick chain, then the Final-Review apply); the read side
+      # is the access projection's axis 3 (default-true on the empty
+      # table, the production default per migration 0054's header).
+      - surface: "table:command_routing_policy"
+        reason: "select-driven: routing rows are written through the
+          shipped cog-routing section's scope/cog pick chain
+          (views/setup/sections/cog_routing.py _ScopeSelect →
+          _build_cog_pick_view → _EnableDisableSelect) — run-minted
+          selects whose values the click schema does not carry (D-0064)
+          — and land only via the Final-Review draft apply; no imported
+          golden corpus-wide carries the table (the resolver's
+          default-true empty-table read IS the capture world's state)"
     settings:
       # settings owns the SHARED K7 config lane (band 1): its stores/event
       # are written through the four scalar/binding ops that OTHER
@@ -1164,6 +1181,18 @@ depth:
   # Committed covered-surface floors — counts never decrease. A `ported`
   # subsystem MUST have a row; regenerate with
   #   python3 tools/check_parity_depth.py --write-ratchet
+  #
+  # fishing 3/10 → 2/8 — the ONE deliberate downward correction
+  # (2026-07-14 weather-golden hotfix): the 07-13 cast-leg/howtofish
+  # mints carried the kernel spine (audit_log/event_outbox tables + the
+  # command.dispatched event) that mint_golden's apply_dispositions
+  # strips from every non-kernel golden, so the 07-13 floor was minted
+  # from a non-canonical flavor; replay never diffed those bytes anyway
+  # (apply_dispositions runs on BOTH docs before every diff —
+  # sb/adapters/parity/runner.py replay_case). The re-mint (same
+  # captures, seam-seeded weather, canonical stripped D-0073 flavor)
+  # drops exactly those spine surfaces — which stay pinned in the
+  # `kernel` coverage home — not any fishing-owned surface.
   ratchet:
     admin: {events: 1, tables: 2, settings: 0}
     ai: {events: 2, tables: 4, settings: 1}
@@ -1183,7 +1212,7 @@ depth:
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
     farm: {events: 1, tables: 2, settings: 0}
-    fishing: {events: 3, tables: 10, settings: 0}
+    fishing: {events: 2, tables: 8, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}
     games: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}

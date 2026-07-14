@@ -934,16 +934,60 @@ def ct_browser_card() -> RenderedEmbed:
     return append_ctx(embed, "btd6_ct:browser")
 
 
-def ctteam_card() -> RenderedEmbed:
+#: the D-0046 live-bracket slot's byte — with no NK ingestion source the
+#: oracle's own no-active-event branch renders (get_ct_bracket →
+#: ct_id=None when no CT is live), which is also this build's true state.
+_NO_CT_EVENT = "No Contested Territory event is active right now."
+
+
+def ctteam_card(group_id: str = "") -> RenderedEmbed:
+    """`!btd6 ctteam` (no arg) — cogs/btd6/_builders.build_ct_team_embed:
+    the golden-pinned unset copy (sweep_btd6_ctteam), or the configured
+    pointer + the live-standing Status slot (D-0046 renders the shipped
+    no-active-event byte)."""
+    if not group_id:
+        embed = RenderedEmbed(
+            title="🛡️ BTD6 — Your CT Team",
+            description=(
+                "No CT team is set for this server.\n"
+                "An admin can set one with `!btd6 ctteam <bracket id or group "
+                "URL>` — copy your team's `…/leaderboard/group/<id>` link "
+                "from the CT team leaderboard."),
+            style_token="gold")
+        return append_ctx(embed, "btd6_ct:team")
     embed = RenderedEmbed(
         title="🛡️ BTD6 — Your CT Team",
-        description=(
-            "No CT team is set for this server.\n"
-            "An admin can set one with `!btd6 ctteam <bracket id or group "
-            "URL>` — copy your team's `…/leaderboard/group/<id>` link from "
-            "the CT team leaderboard."),
+        description=f"Configured bracket id: `{group_id}`",
+        fields=(("Status", _NO_CT_EVENT, False),),
         style_token="gold")
     return append_ctx(embed, "btd6_ct:team")
+
+
+def ctteam_notice_card(message: str) -> RenderedEmbed:
+    """cogs/btd6/_builders._ct_team_notice, verbatim (no ctx footer on
+    notices — the shipped shape)."""
+    return RenderedEmbed(
+        title="🛡️ BTD6 — Your CT Team",
+        description=message,
+        style_token="gold")
+
+
+def ctteam_confirm_card(current: str, group_id: str) -> RenderedEmbed:
+    """views/btd6/ct_group_flow.build_ct_preview_embed: the current → new
+    pointer change (or the bare bracket id), the live-preview slot
+    (D-0046 renders the shipped no-active-event byte), the confirm
+    footer."""
+    if current and current != group_id:
+        change = ("Change", f"`{current}` → `{group_id}`", False)
+    else:
+        change = ("Bracket id", f"`{group_id}`", False)
+    embed = RenderedEmbed(
+        title="🛡️ BTD6 — Confirm CT team",
+        description="",
+        fields=(change, ("Preview", _NO_CT_EVENT, False)),
+        footer="Confirm to save, Cancel to discard.",
+        style_token="gold")
+    return append_ctx(embed, "btd6_ct:confirm")
 
 
 # --- status / diagnostics / test-intent (cogs/btd6/_embeds.py) ---------------

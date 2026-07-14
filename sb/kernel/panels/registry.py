@@ -40,6 +40,11 @@ NAV_PAGE_ID_PREFIX = "nav:page:"
 # static table), but they stay inside the nav namespace and route through the
 # ONE panel-engine seam. Grammar + codec live in sb.kernel.panels.browserview.
 NAV_BROWSE_ID_PREFIX = "nav:browse:"
+# The windowed-select nav family (the windowed-select grammar successor,
+# ORDER 019 item 7) — same posture as browse: {selector × window} is
+# combinatorial, so the ids are parsed at click time, inside the nav
+# namespace. Grammar + codec live in sb.kernel.panels.selectwindow.
+NAV_SELWIN_ID_PREFIX = "nav:selwin:"
 NAV_ROW = 4     # the shipped nav row
 
 
