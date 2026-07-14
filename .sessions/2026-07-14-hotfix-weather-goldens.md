@@ -1,6 +1,6 @@
 # 2026-07-14 — hotfix: make the four fishing cast/howtofish goldens date-independent
 
-> **Status:** complete
+> **Status:** in-progress
 
 - **📊 Model:** Claude Fable 5 · fleet-unblocking golden-parity hotfix
 

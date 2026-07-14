@@ -144,15 +144,18 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # the forecast command renders the same capture-day condition
     # (goldens/fishing/sweep_forecast pins the 🌧️ Rain embed — slice 1).
     "sweep.forecast": "rain",
-    # the 2026-07-13 curated fishing mints (cast-leg writes + the hub
-    # How-to card) were captured DATE-LIVE — the mint ran with no seam
-    # armed, so their goldens pinned the mint day's derived condition
-    # (⛈️ Storm; weather_for_date(2026-07-13) → storm) and rotted at the
-    # next UTC midnight (07-14 derives 🌧️ Rain → fleet-wide gate red).
-    # Seeding the capture-day condition here makes BOTH legs
-    # date-independent: mint_golden → capture_case and replay_case →
-    # capture_case share this one seeding site, so the re-minted goldens
-    # replay green on any date. Live reads stay date-derived.
+    # the fishing CAST-leg + howtofish write goldens (#387) were captured
+    # on 2026-07-13, a ⛈️ Storm day under the reconstructed table, and their
+    # curated cases were minted with NO capture-world weather seed — so the
+    # shipped `current_weather()` fell through to the LIVE wall clock, and
+    # the goldens only replayed green on days whose real date still picked
+    # Storm. That is capture-world world state exactly like the sweep rows
+    # above; pin the capture-day ⛈️ Storm so replay is date-independent (was
+    # a wall-clock time-bomb: green on 2026-07-13, red on 2026-07-14 when the
+    # live date picked 🌧️ Rain). Seeded by #448; the goldens were then
+    # re-minted under this seed in the canonical stripped D-0073 flavor
+    # (mint_golden → capture_case and replay_case → capture_case share
+    # this one seeding site, so both legs are date-independent).
     "fishing.cast_reel_write": "storm",
     "fishing.cast_deepwater_reel_write": "storm",
     "fishing.cast_bait_spend_write": "storm",
