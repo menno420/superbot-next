@@ -24,9 +24,9 @@
     {
      "best_weight": 0.3799999952316284,
      "count": 1,
-     "first_caught": 1867567845,
+     "first_caught": 1867567870,
      "guild_id": "<guild>",
-     "last_caught": 1867567845,
+     "last_caught": 1867567870,
      "species": "guppy",
      "total_value": 0,
      "user_id": "<@member>"
@@ -183,7 +183,6 @@
     }
    ],
    "input": {
-    "advance_s": 5.0,
     "custom_id": "<cid:1>",
     "kind": "click",
     "persona": "member",

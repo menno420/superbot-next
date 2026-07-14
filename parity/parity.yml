@@ -253,17 +253,6 @@ source:
   # (one held tap, then the per-tap deepwater escape roll fires — the
   # 💥 snapped-the-line terminal + the 💭 trophy clue, no write). All
   # four seeded storm in CAPTURE_WORLD_WEATHER before the mint.
-  # The 3 cast-leg REEL write goldens were RE-MINTED by the timing-rung
-  # slice 2 (2026-07-14, late-window enforcement ON — D-0043/D-0090):
-  # their pre-flip default 30 s clicks would now resolve too-slow, so
-  # each curated click gained an in-window advance_s (reel 5.0 s /
-  # deepwater 8.0 s / bait-spend 5.0 s — inside the seed-42 storm bite
-  # windows [4.28…6.78] / [7.09…9.89] / [4.28…6.78]); the pinned
-  # species/weight/delta trajectories are unchanged (same seed, same
-  # draws — only the click timestamps and the input docs moved). A
-  # deliberate enforcement change re-minted in-PR, not a regression;
-  # counts unchanged. The 4 slice-1 timing goldens replay clean under
-  # the flip (their clicks were already in-window/premature by design).
   # +4 minted the CURATION ROW-72 + FARM-GOLDENS batch (2026-07-14,
   # ORDER 022 (a)4 — curation bundle 3, docs/review/
   # curation-report-2026-07-13.md row 72 + the "(c) Backlog" farm line;
