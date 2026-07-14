@@ -48,9 +48,11 @@ __all__ = ["Reply", "ensure_handler_refs", "reset_pending_casts_for_tests"]
 #: lines never accumulate. A timed-out cast's ECONOMICS match the
 #: oracle exactly (it spent its energy + bait charge and landed
 #: nothing); the oracle's UNPROMPTED got-away message — the background
-#: window task's edit — rides the parked timing rung, so a player who
-#: recasts over a dead line sees the loss only on the dead panel's own
-#: click (scope-doc, codex #373). Entries carry a per-cast ``token``
+#: window task's edit — now rides the D-0043 slice-2 got-away timer
+#: (``_arm_bite_timers``), which pops the entry at bite_at + window and
+#: edits the dead panel terminal in prod; the sweep + the dead panel's
+#: own click stay the restart-safe net (scope-doc, codex #373).
+#: Entries carry a per-cast ``token``
 #: echoed through the panel-args binding, so a Reel click only ever
 #: lands its OWN cast — never a newer one that replaced it. The parity
 #: harness clears this per case (boot.reset_case_state →
@@ -80,6 +82,181 @@ _SNAPPED = "💥 It gave one last thrash, **snapped the line**, and bolted!"
 #: The shipped hook / fight prompts (cast_view.py _on_hooked /
 #: _on_fight_tap — verbatim; ride the in-place panel edit).
 _HOOKED_BIG_ONE = "🎣 **Hooked a big one!** It dives deep — hang on…"
+
+#: The shipped LATE-reel terminal (cast_view.py reel_btn, the
+#: armed-but-out-of-window branch — verbatim; rides ``_got_away``, so
+#: the trophy clue appends). The D-0043 slice-2 enforcement flip: a
+#: click past bite_at + window (or past a fight round's window) answers
+#: this instead of landing.
+_TOO_SLOW = "🌊 *...too slow. The fish got away.*"
+
+#: The shipped fake-out tease (cast_view.py _run_bite — verbatim; a
+#: GAME_COLOR background edit, the button untouched).
+_NIBBLE = "🎣 *...something nibbles at the bait...*"
+
+#: The shipped bite arm (cast_view.py _run_bite → _arm — verbatim:
+#: SUCCESS_COLOR embed + the Reel button flipped to the armed
+#: label/style).
+_BITE_ARM = "🐟 **BITE!** Reel it in — quick!"
+
+#: The shipped fight-round window expiry (cast_view.py _run_fight_round
+#: — verbatim; rides ``_got_away``).
+_FIGHT_SLACK = "🌊 You let the line go slack — it thrashed free and escaped."
+
+#: The shipped armed-button labels (cast_view.py _arm calls — verbatim;
+#: both arm with ButtonStyle.success).
+_LABEL_BITE = "Reel it in!"
+_LABEL_FIGHT = "Reel!"
+
+
+def _got_away_text(entry: dict, text: str) -> str:
+    """*text* with the trophy clue appended when the parked catch was a
+    trophy — the oracle ``_got_away`` soft-fail wrapper, verbatim."""
+    from sb.domain.fishing import catalog, minigame
+
+    species = catalog.species_by_name(str(entry.get("species", "")))
+    if species is None:
+        return text
+    clue = minigame.escape_clue(species, int(entry.get("level_before", 0)))
+    return f"{text}\n{clue}" if clue else text
+
+
+def _cancel_cast_timers(entry: dict) -> None:
+    """Disarm every one-shot timer a parked cast holds (idempotent) —
+    called wherever the entry resolves, is swept, or is popped."""
+    for handle in entry.pop("timers", ()):  # type: ignore[union-attr]
+        handle.cancel()
+
+
+async def _push_cast_edit(entry: dict, prompt: str, *,
+                          style: str = "", label: str = "",
+                          button_style: str = "", disable: bool = False,
+                          expire: bool = False) -> None:
+    """Edit the parked cast's live panel with NO interaction — the oracle
+    background-task ``_edit_message``/``_fail`` edits riding the kernel
+    push seam (``push_session_refresh`` → the ``_message_editor`` port).
+    Headless/parity: no editor installed ⇒ EDIT_UNAVAILABLE no-op; a
+    gone session/message ⇒ EDIT_MISSING no-op (the oracle's
+    message-gone debug-and-skip)."""
+    from sb.kernel.panels.engine import push_session_refresh
+
+    message_key = entry.get("panel_key")
+    if not message_key:
+        return
+    params: dict = {"cast_prompt": prompt}
+    if style:
+        params["cast_prompt_style"] = style
+    if label:
+        params["cast_button_label"] = label
+    if button_style:
+        params["cast_button_style"] = button_style
+    if disable:
+        params["cast_disable"] = True
+    await push_session_refresh(
+        str(message_key), params=params, actor=entry.get("actor"),
+        guild_id=entry.get("guild_id"), expire=expire)
+
+
+def _arm_bite_timers(key: tuple[int, int], entry: dict) -> None:
+    """Arm the cast's live-wait cues (the oracle ``_run_bite`` background
+    task as three one-shot timers): the fake-out nibble (only when the
+    cast rolled one AND the lead fits — the oracle guard
+    ``delay − FAKEOUT_LEAD > BITE_DELAY_FLOOR``), the 🐟 BITE! arm at
+    bite_at, and the unprompted got-away at bite_at + window (pop the
+    entry, terminal edit, NO DB write — the paid cast's economics stand).
+    Every callback is identity-guarded so a resolved/replaced cast's
+    stale timer exits instead of false-failing (the oracle ``_round_id``
+    staleness token). Enforcement itself NEVER rides these timers — it
+    is timestamp math on SYSTEM_CLOCK in fish_route, so parity (logical
+    clock, no editor) decides in/late identically without them."""
+    from sb.domain.fishing import minigame
+    from sb.kernel.panels import timers
+
+    uid, _gid = key
+    delay = float(entry["bite_at_f"]) - float(entry["cast_at_f"])
+    window = float(entry["reaction_window"])
+    handles = []
+
+    async def _nibble() -> None:
+        if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        await _push_cast_edit(entry, _NIBBLE)
+
+    async def _bite() -> None:
+        if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        await _push_cast_edit(entry, _BITE_ARM, style="green",
+                              label=_LABEL_BITE, button_style="success")
+
+    async def _got_away() -> None:
+        if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        # unresolved past the window — the oracle ``_fail``: pop the
+        # paid cast (energy/bait spent, NO write) + the terminal edit
+        # (ERROR_COLOR, button disabled, session torn down).
+        del _PENDING_CASTS[key]
+        _cancel_cast_timers(entry)
+        await _push_cast_edit(
+            entry, _got_away_text(entry, _GOT_AWAY), style="red",
+            label=_LABEL_BITE, button_style="success", disable=True,
+            expire=True)
+
+    if (entry.get("fakeout")
+            and delay - minigame.FAKEOUT_LEAD > minigame.BITE_DELAY_FLOOR):
+        handles.append(timers.schedule(
+            delay - minigame.FAKEOUT_LEAD, _nibble,
+            name=f"fishing:nibble:{uid}"))
+    handles.append(timers.schedule(delay, _bite,
+                                   name=f"fishing:bite:{uid}"))
+    handles.append(timers.schedule(delay + window, _got_away,
+                                   name=f"fishing:gotaway:{uid}"))
+    entry["timers"] = handles
+
+
+def _arm_fight_timers(key: tuple[int, int], entry: dict,
+                      now_f: float) -> None:
+    """Arm one reel-fight round (the oracle ``_run_fight_round``): the
+    0.8 s suspense beat then the 💪 keep-reeling arm at
+    ``fight_round_open_f``, and the round's got-away expiry one window
+    later. Re-armed by the hook and by every non-final tap; the round
+    number guard (taps_done at arm time) is the oracle staleness token."""
+    from sb.kernel.panels import timers
+
+    uid, _gid = key
+    open_f = float(entry["fight_round_open_f"])
+    window = float(entry["reaction_window"])
+    round_no = int(entry.get("taps_done", 0))
+    bar = _tension_bar(round_no, int(entry.get("taps_required", 0)))
+    prompt = f"💪 **It's a big one — it dives!** Keep reeling!\n`{bar}`"
+    handles = []
+
+    def _stale() -> bool:
+        return (_PENDING_CASTS.get(key) is not entry
+                or not entry.get("fight")
+                or int(entry.get("taps_done", 0)) != round_no)
+
+    async def _arm_round() -> None:
+        if _stale():
+            return
+        await _push_cast_edit(entry, prompt, label=_LABEL_FIGHT,
+                              button_style="success")
+
+    async def _round_expired() -> None:
+        if _stale():
+            return
+        del _PENDING_CASTS[key]
+        _cancel_cast_timers(entry)
+        await _push_cast_edit(
+            entry, _got_away_text(entry, _FIGHT_SLACK), style="red",
+            label=_LABEL_FIGHT, button_style="success", disable=True,
+            expire=True)
+
+    handles.append(timers.schedule(max(0.0, open_f - now_f), _arm_round,
+                                   name=f"fishing:fight:{uid}"))
+    handles.append(timers.schedule(
+        max(0.0, open_f + window - now_f), _round_expired,
+        name=f"fishing:fight-expire:{uid}"))
+    entry["timers"] = handles
 
 
 def _tension_bar(done: int, total: int) -> str:
@@ -122,11 +299,14 @@ def _sweep_expired_casts(now: int) -> None:
     stale = [key for key, entry in _PENDING_CASTS.items()
              if now - entry["rolled_at"] > PENDING_CAST_TIMEOUT_SECONDS]
     for key in stale:
+        _cancel_cast_timers(_PENDING_CASTS[key])
         del _PENDING_CASTS[key]
 
 
 def reset_pending_casts_for_tests() -> None:
     global _cast_token_counter
+    for entry in _PENDING_CASTS.values():
+        _cancel_cast_timers(entry)
     _PENDING_CASTS.clear()
     _cast_token_counter = 0
 
@@ -434,7 +614,7 @@ def _register() -> None:
                 del _PENDING_CASTS[(uid, gid)]
         # the panel opens OUTSIDE the try: a failed send keeps the
         # rolled, PAID cast parked and reelable (its costs are spent).
-        await open_panel(
+        message_key = await open_panel(
             PanelRef(CAST_PANEL_ID),
             dataclasses.replace(
                 req, args={
@@ -452,6 +632,16 @@ def _register() -> None:
                     # Reel can never pop a newer cast (codex #373 P1).
                     "cast_token": token,
                 }))
+        # --- D-0043 slice 2: arm the live-wait cues on the freshly
+        # opened panel (the oracle view.start() → _run_bite task). The
+        # push-edit context rides the entry; edits no-op headless
+        # (EDIT_UNAVAILABLE) and enforcement never depends on them.
+        entry = _PENDING_CASTS.get((uid, gid))
+        if entry is not None and entry.get("token") == token:
+            entry["panel_key"] = message_key
+            entry["actor"] = req.actor
+            entry["guild_id"] = gid
+            _arm_bite_timers((uid, gid), entry)
         return Reply(SUCCESS, None)
 
     @handler("fishing.fish_route")
@@ -472,11 +662,18 @@ def _register() -> None:
           tap with a per-tap ``roll_escape`` (venue ``base_escape`` ×
           rod ``escape_resist``) — snap free (``_SNAPPED`` + the trophy
           clue, no write) or advance the ▰▰▱▱ bar; the last tap commits.
-        * AFTER the window — deliberately NOT enforced in slice 1
-          (treated as in-time): the bite moment is invisible until the
-          slice-2 push-edit seam lands, so late enforcement would be
-          unwinnable-by-design. Slice 2 adds it with the visible BITE
-          edit + fake-out visibility.
+          Fight rounds open ``FIGHT_INTER_ROUND_DELAY`` after the
+          previous resolve (the oracle suspense beat): a click before
+          the round opens is the oracle mash-ignore (deferred, no
+          state), one past the round's window is too-slow.
+        * AFTER the window (D-0043 slice 2 — ENFORCED now that the
+          push-edit seam makes the bite visible): the oracle too-slow
+          got-away terminal (``_TOO_SLOW`` + the trophy clue), no DB
+          write. Enforcement is ``minigame.reel_is_in_time`` timestamp
+          math on SYSTEM_CLOCK — never the wall-clock timers, so parity
+          decides identically on the logical clock. In prod the armed
+          got-away timer usually pops the entry first and a later click
+          answers the stale-token ``_GOT_AWAY`` terminal instead.
 
         The click carries the cast's identity token (the panel-args
         binding), so a STALE Reel — the cast timed out, or a newer cast
@@ -516,6 +713,7 @@ def _register() -> None:
             # (the shipped economics: energy + bait already spent, no
             # write); surface it with the oracle ``_got_away`` soft-fail
             # clue at the cast's own level_before.
+            _cancel_cast_timers(entry)
             del _PENDING_CASTS[key]
             species = catalog.species_by_name(str(entry["species"]))
             clue = (minigame.escape_clue(species,
@@ -529,7 +727,24 @@ def _register() -> None:
         # entries missing the timing fields — the pre-slice shape only
         # tests construct — resolve as in-time, i.e. the old behavior.)
         if entry is not None and entry.get("fight"):
-            # mid-reel-fight: this click is one tap.
+            # mid-reel-fight: this click is one tap — but only inside
+            # its round's window (D-0043 slice 2; entries armed before
+            # the flip carry no round timestamp and stay in-time).
+            round_open = entry.get("fight_round_open_f")
+            if round_open is not None:
+                if now_f < float(round_open):
+                    # between fight rounds — the oracle mash-ignore
+                    # (safe_defer: no state moves, no rng draw).
+                    return Reply(SUCCESS, None)
+                if not minigame.reel_is_in_time(
+                        now_f - float(round_open),
+                        float(entry.get("reaction_window", 0.0))):
+                    # the round's window closed — too slow (the oracle
+                    # reel_btn late branch; clue appends, a fight IS a
+                    # trophy). No write, the paid cast is gone.
+                    _cancel_cast_timers(entry)
+                    del _PENDING_CASTS[key]
+                    return Reply(BLOCKED, _got_away_text(entry, _TOO_SLOW))
             species = catalog.species_by_name(str(entry["species"]))
             if species is not None and minigame.roll_escape(
                     species,
@@ -540,6 +755,7 @@ def _register() -> None:
                     rng=ops_mod.cast_rng()):
                 # snapped free — terminal, the paid cast is gone, no
                 # write; the clue always appends (a fight IS a trophy).
+                _cancel_cast_timers(entry)
                 del _PENDING_CASTS[key]
                 clue = minigame.escape_clue(species,
                                             int(entry["level_before"]))
@@ -547,6 +763,13 @@ def _register() -> None:
                              f"{_SNAPPED}\n{clue}" if clue else _SNAPPED)
             entry["taps_done"] = int(entry.get("taps_done", 0)) + 1
             if entry["taps_done"] < int(entry.get("taps_required", 0)):
+                # the next round opens after the oracle suspense beat —
+                # re-arm its live cues (the oracle re-spawned
+                # _run_fight_round per tap).
+                _cancel_cast_timers(entry)
+                entry["fight_round_open_f"] = (
+                    now_f + minigame.FIGHT_INTER_ROUND_DELAY)
+                _arm_fight_timers(key, entry, now_f)
                 bar = _tension_bar(int(entry["taps_done"]),
                                    int(entry["taps_required"]))
                 prompt = f"💪 Reeling it in… `{bar}`"
@@ -564,6 +787,9 @@ def _register() -> None:
                             ops_mod.cast_rng())):
                     # the rod steadies it — spent once per cast; the line
                     # stays in the water and the parked cast stays live.
+                    # The armed bite timers stay armed too: the oracle's
+                    # still-running bite task arms the real bite after a
+                    # forgiven slip (cast_view.py reel_btn @bbc524e).
                     entry["grace_used"] = True
                     prompt = (
                         "😅 *You twitch the rod too soon — but the "
@@ -576,15 +802,32 @@ def _register() -> None:
                 # spooked it (no grace left / bare rod) — terminal, the
                 # paid cast is gone, no write (oracle: no trophy clue on
                 # a premature spook).
+                _cancel_cast_timers(entry)
                 del _PENDING_CASTS[key]
                 return Reply(BLOCKED, _SPOOKED)
-            # bite_at ≤ now — in the window, or PAST it (late-window
-            # deliberately unenforced in slice 1, see the docstring).
+            if ("bite_at_f" in entry
+                    and not minigame.reel_is_in_time(
+                        now_f - float(entry["bite_at_f"]),
+                        float(entry.get("reaction_window", 0.0)))):
+                # bite_at + window < now — TOO SLOW (D-0043 slice 2: the
+                # enforcement flip; the oracle reel_btn late branch, clue
+                # appended for a trophy). No write, the paid cast is
+                # gone. Pre-slice entries (no bite_at_f) stay in-time.
+                _cancel_cast_timers(entry)
+                del _PENDING_CASTS[key]
+                return Reply(BLOCKED, _got_away_text(entry, _TOO_SLOW))
+            # bite_at ≤ now ≤ bite_at + window — in the window.
             if entry.get("trophy") and int(entry.get("taps_required",
                                                      0)) > 0:
                 # hooked a big one — flip into the reel-fight; the
-                # commit waits for the taps.
+                # commit waits for the taps. The bite cues retire and
+                # the first fight round arms (the oracle _on_hooked →
+                # _run_fight_round spawn).
+                _cancel_cast_timers(entry)
                 entry["fight"] = True
+                entry["fight_round_open_f"] = (
+                    now_f + minigame.FIGHT_INTER_ROUND_DELAY)
+                _arm_fight_timers(key, entry, now_f)
                 if not await _refresh_cast_panel(req, _HOOKED_BIG_ONE):
                     return Reply(SUCCESS, _HOOKED_BIG_ONE)
                 return Reply(SUCCESS, None)
@@ -592,7 +835,10 @@ def _register() -> None:
         params: dict = {}
         if entry is not None:
             # pop EXCLUSIVELY for the commit (two racing Reels can never
-            # double-land one cast) …
+            # double-land one cast) … — the live cues retire with it (a
+            # restored-on-failed-commit entry stays clickable; only its
+            # edits are lost, never the window math).
+            _cancel_cast_timers(entry)
             _PENDING_CASTS.pop(key, None)
             params = {k: entry[k]
                       for k in ("species", "weight", "venue",
@@ -1235,17 +1481,22 @@ def _register() -> None:
 #: (deepwater species pool, coral drop, the compounded rarity_pull, the
 #: per-cast bait charge spend, the pull/regen/double-catch structure
 #: mults — cast_open above = the shipped begin_cast; record_cast =
-#: commit_catch). The D-0043 minigame TIMING rung slice 1 then made the
-#: timing knobs gate outcomes: cast_open rolls bite-delay (consuming
-#: the compounded effective_bite_speed) + fake-out at cast time and
-#: fish_route resolves the Reel click — premature spook / one
-#: premature-grace forgive, and the trophy reel-fight with per-tap
-#: escape rolls. STILL PARKED (slice 2 — the push-edit seam the
-#: headless panel engine doesn't model): the live bite-delay sleep +
-#: BITE!/fake-out panel edits, hence LATE-window enforcement (a late
-#: Reel still lands, deliberately — the bite moment is invisible until
-#: the panel can announce it) and fake-out visibility (rolled + stored,
-#: outcome-inert), plus the _FishingDoneView Cast-again continuation.
+#: commit_catch). The D-0043 minigame TIMING rung then made the timing
+#: knobs gate outcomes — slice 1 (click-gated): cast_open rolls
+#: bite-delay (consuming the compounded effective_bite_speed) +
+#: fake-out at cast time and fish_route resolves the Reel click
+#: (premature spook / one premature-grace forgive, the trophy
+#: reel-fight with per-tap escape rolls); slice 2 (live cues + full
+#: enforcement): the cast panel edits itself mid-wait — fake-out
+#: nibble, 🐟 BITE! arm, fight-round prompts, the unprompted got-away
+#: expiry — via the D-0090 kernel one-shot timers +
+#: push_session_refresh seam, and a LATE reel (past bite_at + window,
+#: or past a fight round's window) now answers the oracle too-slow
+#: got-away terminal (reel_is_in_time on SYSTEM_CLOCK — parity decides
+#: identically on the logical clock; the timers only carry edits and
+#: no-op headless via EDIT_UNAVAILABLE). The ONLY remainder is the
+#: _FishingDoneView Cast-again continuation (the games-finalization
+#: review's ranked gap 3 — a named successor, not this rung).
 PENDING: dict[str, str] = {}
 
 
