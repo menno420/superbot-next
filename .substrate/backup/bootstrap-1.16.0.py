@@ -1,4 +1,4 @@
-"""substrate-kit bootstrap v1.17.0 — GENERATED, DO NOT EDIT.
+"""substrate-kit bootstrap v1.16.0 — GENERATED, DO NOT EDIT.
 
 Single-file, stdlib-only. Regenerate from source with:
     python3 substrate-kit/src/build_bootstrap.py
@@ -95,7 +95,7 @@ DEFAULT_STATE_DIR = ".substrate"
 # (`kit_version`) + state by `adopt`/`upgrade`. Bump together with
 # `pyproject.toml` `[project] version` (a test pins them equal) and a new
 # CHANGELOG.md section (the release workflow refuses to publish without one).
-KIT_VERSION = "1.17.0"
+KIT_VERSION = "1.16.0"
 
 
 def _new_project_id() -> str:
@@ -221,33 +221,6 @@ def _default_automerge() -> dict:
     }
 
 
-def _default_branch_sweep() -> dict:
-    """Return the scheduled branch-sweep knobs (inbox ORDER 023).
-
-    Parameterizes the kit-owned planted ``.github/workflows/
-    branch-sweep.yml`` (see ``adopt.branch_sweep_workflow``):
-
-    - ``branch_patterns`` — head-branch patterns the sweep may delete. A
-      trailing ``*`` is a prefix match (``claude/*`` → every ``claude/…``
-      head); anything else matches exactly. An empty list falls back to
-      the default at the consumer (the ``heartbeat_files`` doctrine: a
-      misconfiguration must not silently widen the sweep — a bare ``*``
-      would put EVERY branch in scope). Default covers the fleet's agent
-      actors: ``claude/*`` (session branches), ``codex/*`` and ``bot/*``
-      (sibling agent conventions). Deliberately NOT the automerge list:
-      ``claim/*`` fast-lane refs are excluded until the convention earns
-      its own evidence, and the sweep's blast radius is deletion, not
-      arming.
-    - ``cron`` — the 5-field schedule (default daily at 03:17 UTC —
-      off the top of the hour, where GitHub sheds scheduled load).
-      Blank falls back to the default at the consumer.
-    """
-    return {
-        "branch_patterns": ["claude/*", "codex/*", "bot/*"],
-        "cron": "17 3 * * *",
-    }
-
-
 def _default_preflight_scripts() -> list[str]:
     """Return the repo-local preflight scripts ``check`` runs on the full lane.
 
@@ -343,9 +316,6 @@ class Config:
     claims_dir: str = DEFAULT_CLAIMS_DIR
     # Auto-merge-enabler knobs (EAP §6.10 — see _default_automerge above).
     automerge: dict = field(default_factory=_default_automerge)
-    # Scheduled branch-sweep knobs (ORDER 023 — see _default_branch_sweep
-    # above).
-    branch_sweep: dict = field(default_factory=_default_branch_sweep)
     # Local preflight scripts (ORDER 018 — see _default_preflight_scripts
     # above): the ONE check list both the local ritual and the CI gate run.
     preflight_scripts: list[str] = field(
@@ -14037,266 +14007,6 @@ def automerge_enabler_workflow(
     )
 
 
-BRANCH_SWEEP_RELPATH = ".github/workflows/branch-sweep.yml"
-
-# The sweep's blast radius is DELETION, so its default pattern list is its
-# own, not the automerge list: the fleet's agent-branch actors (claude/*
-# sessions, codex/* and bot/* sibling conventions — inbox ORDER 023's named
-# set). claim/* fast-lane refs are deliberately absent until the convention
-# earns deletion evidence.
-DEFAULT_SWEEP_BRANCH_PATTERNS = ("claude/*", "codex/*", "bot/*")
-# Daily, off the top of the hour (GitHub sheds on-the-hour scheduled load).
-DEFAULT_SWEEP_CRON = "17 3 * * *"
-
-
-def _sweep_pattern_terms(
-    branch_patterns: list[str] | None,
-) -> tuple[list[str], list[str]]:
-    """Return ``(patterns, query_prefixes)`` for the sweep workflow.
-
-    ``patterns`` are the sanitized shell ``case`` terms (trailing ``*`` is a
-    prefix match, mirroring :func:`_automerge_branch_expr`; the charset is
-    clamped to path-safe characters so a pattern can never smuggle shell
-    syntax into the generated script). ``query_prefixes`` are the
-    matching-refs API query strings — the pattern minus its trailing ``*``.
-    Empty/blank/bare-``*`` input falls back to the default (the
-    ``heartbeat_files`` doctrine: a stray ``[]`` — or a bare ``*`` — must
-    not silently put EVERY branch in deletion scope).
-    """
-    cleaned: list[str] = []
-    for raw in branch_patterns or []:
-        pattern = re.sub(r"[^A-Za-z0-9_./*-]", "", str(raw)).strip()
-        if not pattern or pattern.replace("*", "") in ("", "/", "."):
-            # A bare "*" (or a degenerate "*/*"-style glob with no literal
-            # stem) would sweep every branch on the repo — refuse the
-            # footgun and let the fallback keep the agent-branch default.
-            continue
-        if pattern not in cleaned:
-            cleaned.append(pattern)
-    if not cleaned:
-        cleaned = list(DEFAULT_SWEEP_BRANCH_PATTERNS)
-    queries: list[str] = []
-    for pattern in cleaned:
-        query = pattern[:-1] if pattern.endswith("*") else pattern
-        if query not in queries:
-            queries.append(query)
-    return cleaned, queries
-
-
-def _sweep_cron(cron: str | None) -> str:
-    """Return a safe 5-field cron string, falling back to the default.
-
-    Charset-clamped (digits, ``* , / -`` and spaces) and shape-checked
-    (exactly five fields) — a malformed ``branch_sweep.cron`` knob must
-    yield a workflow GitHub can parse, never a silently-dead schedule.
-    """
-    cleaned = re.sub(r"[^0-9*,/ -]", "", str(cron or "")).strip()
-    if len(cleaned.split()) != 5:
-        return DEFAULT_SWEEP_CRON
-    return cleaned
-
-
-def branch_sweep_workflow(
-    branch_patterns: list[str] | None = None,
-    cron: str = DEFAULT_SWEEP_CRON,
-) -> str:
-    """Return the LIVE scheduled branch-sweep workflow (inbox ORDER 023).
-
-    GitHub's "Automatically delete head branches" silently skips merges
-    performed by app/bot actors (community discussion 63409 · cli/cli#9073)
-    — which is every fleet auto-merge — so spent agent branches accumulate
-    by the hundreds (fm census 2026-07-14: 460/491 surviving ``claude/*``
-    heads across four repos sit at exactly their merged PR's head SHA).
-    This workflow is the settled remedy: a SCHEDULED sweep that deletes the
-    head refs of merged+closed same-repo PRs matching the agent-branch
-    patterns, with hard skip rules for open-PR heads, the default branch,
-    fork heads, and refs that moved on after their PR closed.
-
-    Deliberately scheduled, never ``pull_request: closed``: the fleet's
-    merges are performed with GITHUB_TOKEN / app tokens, and events
-    performed with GITHUB_TOKEN do not trigger workflows (the docs'
-    "Automatic token authentication" recursion guard) — a closed-event
-    cleanup would never fire for exactly the merges that need it.
-
-    Plants and regenerates exactly like :func:`automerge_enabler_workflow`
-    (staged always, installed live by ``adopt --wire-enforcement``,
-    kit-owned once it exists — see :func:`adopt` step 6b).
-    """
-    patterns, queries = _sweep_pattern_terms(
-        list(branch_patterns) if branch_patterns is not None else None,
-    )
-    case_expr = "|".join(patterns)
-    patterns_note = " · ".join(patterns)
-    query_words = " ".join(f"'{query}'" for query in queries)
-    schedule = _sweep_cron(cron)
-    return (
-        "# substrate-kit branch sweep (LIVE — installed by\n"
-        "# `bootstrap.py adopt --wire-enforcement`).\n"
-        "# KIT-OWNED: adopt/upgrade regenerates this file in place, so\n"
-        "# upstream sweep fixes land here on every `bootstrap.py upgrade` —\n"
-        "# hand edits are OVERWRITTEN. Put host-specific customizations in a\n"
-        "# SEPARATE workflow file, never in this one.\n"
-        "#\n"
-        "# WHY THIS EXISTS (inbox ORDER 023): GitHub's \"Automatically\n"
-        "# delete head branches\" silently skips merges performed by app/bot\n"
-        "# actors (github.com/orgs/community/discussions/63409 ·\n"
-        "# cli/cli#9073) — which is every fleet auto-merge (armed via\n"
-        "# GITHUB_TOKEN / MCP app tokens) — so spent agent branches\n"
-        "# accumulate by the hundreds (fleet census 2026-07-14: 460/491\n"
-        "# surviving claude/* heads across four repos sat at exactly their\n"
-        "# merged PR's head SHA).\n"
-        "#\n"
-        "# WHY A SCHEDULE, NOT `pull_request: closed`: events performed with\n"
-        "# GITHUB_TOKEN do not trigger workflows (the docs' \"Automatic\n"
-        "# token authentication\" recursion guard), so a closed-event\n"
-        "# cleanup would never fire for exactly the merges that need it.\n"
-        "#\n"
-        "# WHY A WORKFLOW, NOT THE AGENT: agent-side branch deletion is\n"
-        "# historically 403-walled in fleet sessions (capability ledger\n"
-        "# OA-10 — classifier + proxy deny every delete path). This\n"
-        "# workflow, running with the repo's own GITHUB_TOKEN, is the\n"
-        "# sanctioned path around that wall.\n"
-        "#\n"
-        "# WHAT IT DELETES — a ref must pass EVERY rule, in order:\n"
-        f"#   1. matches a sweep pattern ({patterns_note});\n"
-        "#   2. is the head of a MERGED or CLOSED same-repo PR (fork heads\n"
-        "#      are excluded by construction: a closed fork PR must never\n"
-        "#      delete a same-named local branch);\n"
-        "#   3. its tip SHA equals that spent PR head's SHA (a ref that\n"
-        "#      moved on after its PR closed may carry unmerged work —\n"
-        "#      skipped, logged);\n"
-        "#   4. is NOT the head of any OPEN pull request;\n"
-        "#   5. is NOT the repository's default branch.\n"
-        "# Every deletion and every skip is logged with its reason. Manual\n"
-        "# runs (workflow_dispatch) take a `dry_run` input: log what WOULD\n"
-        "# be deleted, delete nothing.\n"
-        "name: branch-sweep\n"
-        "on:\n"
-        "  schedule:\n"
-        f"    - cron: '{schedule}'\n"
-        "  workflow_dispatch:\n"
-        "    inputs:\n"
-        "      dry_run:\n"
-        "        description: 'Log what WOULD be deleted; delete nothing.'\n"
-        "        type: boolean\n"
-        "        default: false\n"
-        "# Least-privilege: ref deletion needs `contents: write`; PR\n"
-        "# enumeration needs `pull-requests: read`. Nothing else.\n"
-        "permissions:\n"
-        "  contents: write\n"
-        "  pull-requests: read\n"
-        "concurrency:\n"
-        "  group: branch-sweep\n"
-        "  cancel-in-progress: false\n"
-        "jobs:\n"
-        "  branch-sweep:\n"
-        "    runs-on: ubuntu-latest\n"
-        "    steps:\n"
-        "      - name: Sweep spent agent branches (heads of merged/closed "
-        "PRs)\n"
-        "        env:\n"
-        "          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n"
-        "          DRY_RUN: ${{ inputs.dry_run == true && 'true' || 'false' "
-        "}}\n"
-        "        run: |\n"
-        "          set -euo pipefail\n"
-        "          default_branch=\"$(gh api \"repos/$GITHUB_REPOSITORY\" "
-        "--jq .default_branch)\"\n"
-        '          echo "default branch: $default_branch (never touched)"\n'
-        '          echo "dry run: $DRY_RUN"\n'
-        "          # Existing refs (+ tip SHAs) under each swept pattern's\n"
-        "          # prefix, via the matching-refs API.\n"
-        "          : > existing-raw.txt\n"
-        f"          for query in {query_words}; do\n"
-        '            gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/'
-        'heads/$query" \\\n'
-        "              --paginate --jq '.[] | .ref + \" \" + .object.sha' "
-        ">> existing-raw.txt\n"
-        "          done\n"
-        "          sed 's|^refs/heads/||' existing-raw.txt | sort -u > "
-        "existing.txt\n"
-        "          # Heads of OPEN PRs — never swept, whatever their PR\n"
-        "          # history (a reused branch with a fresh PR stays).\n"
-        '          gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&'
-        'per_page=100" \\\n'
-        "            --paginate --jq '.[].head.ref' | sort -u > "
-        "open-heads.txt\n"
-        "          # Same-repo heads (+ head SHAs) of MERGED and CLOSED PRs\n"
-        "          # (state=closed covers both; the repo filter drops fork\n"
-        "          # heads).\n"
-        '          gh api "repos/$GITHUB_REPOSITORY/pulls?state=closed&'
-        'per_page=100" \\\n'
-        "            --paginate \\\n"
-        "            --jq '.[] | select(.head.repo != null) | "
-        '.head.repo.full_name + " " + .head.ref + " " + .head.sha\' \\\n'
-        "            > spent-raw.txt\n"
-        "          awk -v repo=\"$GITHUB_REPOSITORY\" '$1 == repo "
-        "{ print $2 \" \" $3 }' \\\n"
-        "            spent-raw.txt | sort -u > spent-pairs.txt\n"
-        "          cut -d' ' -f1 spent-pairs.txt | sort -u > spent-refs.txt\n"
-        "          # The plan: every existing pattern-matched ref that fails\n"
-        "          # a skip rule is logged with the reason; survivors are\n"
-        "          # deleted (or dry-run-logged) below.\n"
-        "          : > sweep-plan.txt\n"
-        "          while read -r ref sha; do\n"
-        '            case "$ref" in\n'
-        f"              {case_expr}) ;;\n"
-        '              *) echo "skip: $ref — matched a query prefix but no '
-        'sweep pattern"; continue ;;\n'
-        "            esac\n"
-        '            if [ "$ref" = "$default_branch" ]; then\n'
-        '              echo "skip: $ref — the default branch is never '
-        'touched"\n'
-        "              continue\n"
-        "            fi\n"
-        '            if grep -qxF "$ref" open-heads.txt; then\n'
-        '              echo "skip: $ref — head of an OPEN pull request"\n'
-        "              continue\n"
-        "            fi\n"
-        '            if ! grep -qxF "$ref" spent-refs.txt; then\n'
-        '              echo "skip: $ref — no merged/closed PR has this head '
-        '(live branch)"\n'
-        "              continue\n"
-        "            fi\n"
-        '            if ! grep -qxF "$ref $sha" spent-pairs.txt; then\n'
-        '              echo "skip: $ref — moved on since its PR closed (tip '
-        'is not a spent PR head)"\n'
-        "              continue\n"
-        "            fi\n"
-        "            printf '%s\\n' \"$ref\" >> sweep-plan.txt\n"
-        "          done < existing.txt\n"
-        '          echo "sweep plan: $(wc -l < sweep-plan.txt) of '
-        '$(wc -l < existing.txt) candidate ref(s)"\n'
-        "          while IFS= read -r ref; do\n"
-        '            if [ "$DRY_RUN" = "true" ]; then\n'
-        '              echo "DRY-RUN: would delete $ref"\n'
-        "            elif gh api -X DELETE "
-        '"repos/$GITHUB_REPOSITORY/git/refs/heads/$ref"; then\n'
-        '              echo "deleted: $ref"\n'
-        "            else\n"
-        '              echo "::warning::could not delete $ref (already gone, '
-        'protected, or a permissions gap)"\n'
-        "            fi\n"
-        "          done < sweep-plan.txt\n"
-    )
-
-
-def _branch_sweep_params(config: Config) -> tuple[list[str], str]:
-    """Return the sweep's ``(branch_patterns, cron)`` from config.
-
-    Fallback-on-empty at the consumer (the ``heartbeat_files`` doctrine): a
-    stray ``{}``/``[]``/``""`` in ``substrate.config.json`` →
-    ``branch_sweep`` must not silently widen the deletion scope or blank
-    the schedule.
-    """
-    knobs = config.branch_sweep if isinstance(config.branch_sweep, dict) else {}
-    patterns = knobs.get("branch_patterns") or list(
-        DEFAULT_SWEEP_BRANCH_PATTERNS,
-    )
-    cron = str(knobs.get("cron") or DEFAULT_SWEEP_CRON)
-    return [str(p) for p in patterns], cron
-
-
 def _regen_kit_owned_workflow(
     root: Path,
     config: Config,
@@ -14844,9 +14554,6 @@ def adopt(
     old_staged_enabler = _staged_previous_text(
         state_base / "ci" / "auto-merge-enabler.yml",
     )
-    old_staged_sweep = _staged_previous_text(
-        state_base / "ci" / "branch-sweep.yml",
-    )
     _adopt_stage(
         state_base / "ci" / "substrate-gate.yml",
         gate_rel,
@@ -14863,18 +14570,6 @@ def adopt(
         state_base / "ci" / "auto-merge-enabler.yml",
         enabler_rel,
         enabler_text,
-        report,
-    )
-    # The scheduled branch sweep (inbox ORDER 023) stages next to the
-    # enabler — the litter the enabler's app-token merges leave behind
-    # (delete-branch-on-merge skips bot merges) is what the sweep cleans.
-    sweep_patterns, sweep_cron = _branch_sweep_params(config)
-    sweep_text = branch_sweep_workflow(sweep_patterns, cron=sweep_cron)
-    sweep_rel = f"{config.state_dir}/ci/branch-sweep.yml"
-    _adopt_stage(
-        state_base / "ci" / "branch-sweep.yml",
-        sweep_rel,
-        sweep_text,
         report,
     )
 
@@ -14940,18 +14635,6 @@ def adopt(
         noun="enabler",
         install_when_absent=wire_enforcement,
         old_text=old_staged_enabler,
-    )
-    # The branch sweep (ORDER 023) follows the enabler's exact lifecycle:
-    # created only by --wire-enforcement, kit-owned once it exists.
-    _regen_kit_owned_workflow(
-        root,
-        config,
-        BRANCH_SWEEP_RELPATH,
-        sweep_text,
-        report,
-        noun="sweep",
-        install_when_absent=wire_enforcement,
-        old_text=old_staged_sweep,
     )
     if (root / AUTOMERGE_ENABLER_RELPATH).is_file():
         # The §6.10 second half: the enabler is inert until two owner-UI
@@ -17335,12 +17018,9 @@ def scan_gate_carveouts(root: Path, config: Config) -> list[str]:
     )
     enabler_patterns, enabler_context = _automerge_params(config)
     enabler_expected = automerge_enabler_workflow(enabler_patterns, enabler_context)
-    sweep_patterns, sweep_cron = _branch_sweep_params(config)
-    sweep_expected = branch_sweep_workflow(sweep_patterns, cron=sweep_cron)
     for relpath, expected in (
         (LIVE_CI_RELPATH, gate_expected),
         (AUTOMERGE_ENABLER_RELPATH, enabler_expected),
-        (BRANCH_SWEEP_RELPATH, sweep_expected),
     ):
         path = root / relpath
         if not path.is_file():
