@@ -1,0 +1,48 @@
+# 2026-07-14 — parity: curation row 72 + farm goldens (ORDER 022 (a)4)
+
+> **Status:** `in-progress`
+
+- **📊 Model:** Claude (Fable family)
+
+## Scope
+
+Claimed lane (`control/claims/order-022-titleequip-row72.md`, PR #471;
+branch `claude/curation-row72`, stacked on `mining-write-parity-wp7` @
+`cd65819` per ORDER 017 rule 2 / ORDER 022 (a)4): curation backlog
+row 72 + its farm goldens — the last curation-rework night bundle
+(bundle 3 of `control/claims/curation-rework-night-bundle.md`), taken
+over via the branch-from-#371-head path.
+
+- **Row 72** (`docs/review/curation-report-2026-07-13.md:1177` —
+  `rps_tournament.quickplay` REWORK): mint the bet-settle interaction
+  golden (`!rps 10` → move click → the audited `rps.solo_play` bet
+  settle) — the coin-bet click path has no golden (sweep_rps.json is
+  the bare open).
+- **Farm goldens ×3** (same report § "(c) Backlog", the reconciled
+  split-verdict rows): click-golden batch for the farm money paths —
+  `farm_collect` / `farm_buy_hen` / `farm_upgrade_coop` — via
+  `tools/mint_golden.py` (D-0073 procedure, canonical stripped
+  flavor).
+- Count pins re-summed FROM DISK by the mint tool
+  (parity/parity.yml, test_replay_adapter.py,
+  test_check_parity_depth.py); CAPTURE_WORLD_WEATHER registration
+  BEFORE any mint per the post-07-13 date-live-outage doctrine.
+
+## Previous-session review
+
+`2026-07-14-fishing-minigame-timing.md` (PR #460) — the closest mint
+prior art: CAPTURE_WORLD_WEATHER entries registered before the mint,
+curated cases with click steps + fixture_sql, and the D-0073 tool run
+end-to-end. Its trap notes (runner-armed private RNG streams; pins
+re-summed from disk, never hand-computed) are exactly the hazards
+this lane inherits — the rps solo-play module RNG needs the same
+runner arm the fishing cast RNG got, or the bot's move is
+capture/replay nondeterministic.
+
+## 💡 Session idea
+
+`tools/mint_golden.py` could grow a `--require-weather-entry` flag
+(default on) that refuses to mint any case whose id is missing from
+`CAPTURE_WORLD_WEATHER` unless the case's import graph provably never
+reaches `sb/domain/fishing/weather.py` — making the post-07-13
+"register weather FIRST" doctrine mechanical instead of team memory.
