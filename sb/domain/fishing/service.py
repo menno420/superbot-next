@@ -122,6 +122,23 @@ async def _card(req, embed) -> Reply:
     return Reply(SUCCESS, None)
 
 
+async def _angler_name(user_id: int, guild_id: int) -> str:
+    """The leaderboard row's resolved display name (fishing_cog.py
+    fishtop/trophies: ``resources.resolve_member`` →
+    ``member.display_name``) through the guild-directory read port (the
+    panels ``_member_display_name`` recipe) — degrading to the shipped
+    ``User {id}`` copy when the member doesn't resolve, never invented
+    data."""
+    try:
+        from sb.domain.utility.service import guild_directory
+
+        member = await guild_directory().member_info(guild_id, user_id)
+        name = member.tag.rsplit("#", 1)[0]
+    except Exception:  # noqa: BLE001 — unresolved ⇒ shipped fallback
+        name = ""
+    return name or f"User {user_id}"
+
+
 def _register() -> None:
     from sb.spec.refs import HandlerRef, handler, is_registered
 
@@ -981,9 +998,9 @@ def _register() -> None:
         """!fishtop — the shipped 🎣 Top Anglers embed (fishing_cog.py
         fishtop: _FISHING_COLOR blue; the empty-world description is
         golden-pinned — goldens/fishing/sweep_fishtop). The populated
-        leaderboard body keeps the port's numbered lines inside the
-        shipped embed frame (not golden-pinned; the oracle fragment
-        index surfaces only the empty branch — under-port note)."""
+        leaderboard body is the shipped copy verbatim
+        (fishing_cog.py:154-164): 🥇🥈🥉 medals then ``**N.**``,
+        resolved display names, ``— **N** caught (S/21 species)``."""
         from sb.domain.fishing import catalog, store
 
         rows = await store.top_fishers(int(req.guild_id or 0),
@@ -991,9 +1008,17 @@ def _register() -> None:
         if not rows:
             desc = "No one has cast a line yet — be the first with `!fish`!"
         else:
-            desc = "\n".join(
-                f"{i + 1}. <@{r['user_id']}> — {r['total']} fish"
-                for i, r in enumerate(rows))
+            medals = ["🥇", "🥈", "🥉"]
+            lines = []
+            for rank, r in enumerate(rows):
+                prefix = (medals[rank] if rank < len(medals)
+                          else f"**{rank + 1}.**")
+                name = await _angler_name(int(r["user_id"]),
+                                          int(req.guild_id or 0))
+                lines.append(
+                    f"{prefix} {name} — **{r['total']}** caught "
+                    f"({r['species']}/{len(catalog.SPECIES)} species)")
+            desc = "\n".join(lines)
         return await _card(req, _embed("🎣 Top Anglers", desc))
 
     @handler("fishing.trophies_view")
@@ -1001,9 +1026,9 @@ def _register() -> None:
         """!trophies — the shipped 🏅 Biggest Catches embed
         (fishing_cog.py trophies: _FISHING_COLOR blue; the empty-world
         description is golden-pinned — goldens/fishing/sweep_trophies).
-        The populated hall-of-fame body keeps the port's numbered lines
-        inside the shipped embed frame (not golden-pinned — the same
-        under-port note as fishtop)."""
+        The populated hall-of-fame body is the shipped copy verbatim
+        (fishing_cog.py:181-192): medals, the species emoji (🐟 when
+        the catalog misses), ``**{weight:g} kg** {Species} — {name}``."""
         from sb.domain.fishing import catalog, store
 
         rows = await store.top_trophies(int(req.guild_id or 0),
@@ -1012,10 +1037,19 @@ def _register() -> None:
             desc = ("No trophies landed yet — reel in a big one with "
                     "`!fish`!")
         else:
-            desc = "\n".join(
-                f"{i + 1}. <@{r['user_id']}> — {r['species']} "
-                f"({float(r['best_weight']):g}kg)"
-                for i, r in enumerate(rows))
+            medals = ["🥇", "🥈", "🥉"]
+            lines = []
+            for rank, r in enumerate(rows):
+                prefix = (medals[rank] if rank < len(medals)
+                          else f"**{rank + 1}.**")
+                name = await _angler_name(int(r["user_id"]),
+                                          int(req.guild_id or 0))
+                fish = catalog.species_by_name(str(r["species"]))
+                emoji = fish.emoji if fish else "🐟"
+                lines.append(
+                    f"{prefix} {emoji} **{float(r['best_weight']):g} kg** "
+                    f"{str(r['species']).title()} — {name}")
+            desc = "\n".join(lines)
         return await _card(req, _embed("🏅 Biggest Catches", desc))
 
 

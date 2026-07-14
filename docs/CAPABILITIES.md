@@ -122,6 +122,30 @@ above came from the fleet's lived 2026-07 findings; local ones go here.)
   returned `gate: GREEN — all 494 golden(s) across 50 ported subsystem(s)
   replay clean` on the #444 merge result · workaround: n/a — this IS the
   route; the user/db pair comes from .github/workflows/golden-parity.yml.
+- 2026-07-13 · wall · `EnterWorktree` tool is unavailable to pinned-cwd
+  workers (`subagent` venue): a worker seat spawned with a cwd override
+  cannot use the tool in either isolation mode — hit independently by both
+  curation night-bundle workers tonight (the PR #428 and PR #434 seats) ·
+  evidence: verbatim tool error — "EnterWorktree cannot create a worktree
+  from a subagent with a cwd override (isolation: \"worktree\" or explicit
+  cwd) — it would mutate the parent session's process-wide working
+  directory. To work in a different directory (including a worktree),
+  spawn an Agent with `cwd` set to it." · workaround: create the worktree
+  manually — `git fetch origin main && git worktree add <path> origin/main`
+  (add `-b <branch>` for a new branch), then work inside it via absolute
+  paths; same isolation outcome (both bundle PRs shipped this way).
+- 2026-07-13 · capability · Local Postgres for `tools/mint_golden.py`
+  VERIFIED WORKING (`subagent` venue): Postgres 16.13 binaries exist at
+  `/usr/lib/postgresql/16/bin` (NOT on PATH); `initdb` refuses to run as
+  root; `DATABASE_URL=postgresql://superbot:superbot@localhost:5432/superbot`
+  is pre-set in the env but nothing is listening by default · evidence:
+  verified 2026-07-13 — working recipe is `runuser -u postgres -- initdb`
+  then `runuser -u postgres -- pg_ctl` with a data dir under `/tmp`,
+  `CREATE DATABASE superbot`, after which `psql "$DATABASE_URL" -c
+  "SELECT 1"` returns 1; `sb/` talks asyncpg, which is already installed ·
+  workaround: n/a — this IS the route; note `pytest` + `pytest-asyncio`
+  still need a pip-install before count-pin test runs (the 2026-07-12
+  pytest wall below still holds).
 - 2026-07-13 · wall · Dispatched-lane worker seats cannot LOCAL-CLONE the
   port oracle: `add_repo menno420/superbot` succeeds, but the `git clone`
   step it prescribes is DENIED by the auto-mode permission classifier in

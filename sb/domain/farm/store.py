@@ -97,7 +97,8 @@ async def top_farmers(guild_id: int, limit: int = 10,
                       conn: Any = None) -> list[dict]:
     rows = await fetchall(
         "SELECT user_id, chickens, coop_level FROM chicken_farm WHERE "
-        "guild_id=$1 ORDER BY chickens DESC, coop_level DESC LIMIT $2",
+        "guild_id=$1 AND chickens > 0 "
+        "ORDER BY chickens DESC, coop_level DESC LIMIT $2",
         (guild_id, limit), conn=conn)
     return [dict(r) for r in rows]
 
