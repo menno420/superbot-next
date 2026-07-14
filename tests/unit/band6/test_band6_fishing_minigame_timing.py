@@ -1,10 +1,14 @@
-"""Fishing minigame timing rung — SLICE 1 (D-0043): click-gated
-resolution. cast_open rolls bite-delay + fake-out at cast time (strictly
-AFTER the catch roll, on the same private cast RNG) and parks the timing
-state; fish_route resolves the Reel click — premature spook / one
-premature-grace forgive, the trophy reel-fight (per-tap escape rolls),
-and the deliberately-unenforced late window (slice-2 push-edit seam).
-Copy is oracle cast_view.py @bbc524e verbatim."""
+"""Fishing minigame timing rung (D-0043, slices 1+2): cast_open rolls
+bite-delay + fake-out at cast time (strictly AFTER the catch roll, on
+the same private cast RNG), parks the timing state, and ARMS the live
+cues (nibble / BITE! / got-away one-shot timers — D-0090); fish_route
+resolves the Reel click — premature spook / one premature-grace
+forgive, the ENFORCED late window (slice 2: past bite_at + window =
+too-slow), and the trophy reel-fight whose rounds open on the 0.8 s
+beat with their own enforced windows. Enforcement is reel_is_in_time
+timestamp math on SYSTEM_CLOCK; the timers only carry panel edits and
+no-op headless (EDIT_UNAVAILABLE). Copy is oracle cast_view.py
+@bbc524e verbatim."""
 
 from __future__ import annotations
 
@@ -271,15 +275,54 @@ def test_in_window_ordinary_fish_commits_unchanged(monkeypatch):
     service.reset_pending_casts_for_tests()
 
 
-def test_late_window_is_deliberately_unenforced_in_slice_1(monkeypatch):
-    """now way past bite_at + window still lands — the slice-1 fairness
-    decision (the bite is invisible until the slice-2 push-edit seam;
-    the 45 s sweep stays the outer bound)."""
+def test_late_reel_past_the_window_is_too_slow(monkeypatch):
+    """D-0043 slice 2 — the enforcement flip: now past bite_at + window
+    answers the oracle too-slow got-away terminal (an ordinary fish
+    carries no clue), pops the paid cast, writes nothing."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import BLOCKED
+
+    route = _route()
+    _freeze_clock(monkeypatch, NOW + 30.0)     # the parity 30 s click
+    _no_commit(monkeypatch)
+    service._PENDING_CASTS[(P1, GID)] = _entry()
+    reply = run(route(_reel_req()))
+    assert reply.outcome is BLOCKED
+    assert reply.user_message == "🌊 *...too slow. The fish got away.*"
+    assert (P1, GID) not in service._PENDING_CASTS
+    service.reset_pending_casts_for_tests()
+
+
+def test_late_reel_on_a_trophy_appends_the_clue(monkeypatch):
+    """A too-slow trophy rides the oracle _got_away wrapper — the 💭
+    tease appends (unlike the premature spook, which never gets one)."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import BLOCKED
+
+    route = _route()
+    # bite 4.0 + window 2.5 = 6.5; 6.51 is JUST past it (the boundary
+    # 6.5 itself is in-time — reel_is_in_time is inclusive).
+    _freeze_clock(monkeypatch, NOW + 6.51)
+    _no_commit(monkeypatch)
+    service._PENDING_CASTS[(P1, GID)] = _entry(
+        species="sardine", trophy=True, taps_required=2)
+    reply = run(route(_reel_req()))
+    assert reply.outcome is BLOCKED
+    assert reply.user_message == (
+        "🌊 *...too slow. The fish got away.*\n"
+        "💭 *...it looked like a real **Sardine**, too.*")
+    assert (P1, GID) not in service._PENDING_CASTS
+    service.reset_pending_casts_for_tests()
+
+
+def test_window_boundary_click_is_still_in_time(monkeypatch):
+    """elapsed == window commits (reel_is_in_time is inclusive — the
+    oracle 0.0 ≤ elapsed ≤ window)."""
     from sb.domain.fishing import service
     from sb.spec.outcomes import SUCCESS
 
     route = _route()
-    _freeze_clock(monkeypatch, NOW + 30.0)     # the parity 30 s click
+    _freeze_clock(monkeypatch, NOW + 6.5)      # bite 4.0 + window 2.5
     seen = _commit_spy(monkeypatch)
     service._PENDING_CASTS[(P1, GID)] = _entry()
     reply = run(route(_reel_req()))
@@ -293,9 +336,11 @@ def test_late_window_is_deliberately_unenforced_in_slice_1(monkeypatch):
 
 def test_trophy_hook_starts_the_fight_and_taps_land_it(monkeypatch):
     """In-window trophy: click 1 hooks (the oracle 🎣 Hooked-a-big-one
-    edit; no commit), each further click is one tap — escape roll on the
-    cast RNG, tension-bar advance — and the LAST tap commits."""
-    from sb.domain.fishing import service
+    edit; no commit) and opens round 1 on the 0.8 s beat, each further
+    IN-WINDOW click is one tap — escape roll on the cast RNG,
+    tension-bar advance, next round re-armed — and the LAST tap
+    commits."""
+    from sb.domain.fishing import minigame, service
     from sb.spec.outcomes import SUCCESS
 
     route = _route()
@@ -313,10 +358,20 @@ def test_trophy_hook_starts_the_fight_and_taps_land_it(monkeypatch):
         assert hook.user_message == (
             "🎣 **Hooked a big one!** It dives deep — hang on…")
         assert entry["fight"] is True and seen == []
+        # round 1 opens one suspense beat after the hook (the oracle
+        # _run_fight_round sleep), with its live cues armed.
+        assert entry["fight_round_open_f"] == NOW + 5.0 + (
+            minigame.FIGHT_INTER_ROUND_DELAY)
+        assert len(entry["timers"]) == 2       # arm + expiry
+        _freeze_clock(monkeypatch, NOW + 6.0)  # inside round 1's window
         tap1 = run(route(_reel_req()))
         assert tap1.outcome is SUCCESS
         assert tap1.user_message == "💪 Reeling it in… `▰▱`"
         assert entry["taps_done"] == 1 and seen == []
+        # the next round re-armed off the tap's resolve time.
+        assert entry["fight_round_open_f"] == NOW + 6.0 + (
+            minigame.FIGHT_INTER_ROUND_DELAY)
+        _freeze_clock(monkeypatch, NOW + 7.0)  # inside round 2's window
         tap2 = run(route(_reel_req()))
     finally:
         _disarm_rng()
@@ -324,6 +379,61 @@ def test_trophy_hook_starts_the_fight_and_taps_land_it(monkeypatch):
     assert tap2.outcome is SUCCESS and tap2.user_message == "landed"
     assert seen == [{"species": "sardine", "weight": 1.0, "venue": "shore",
                      "double_catch_chance": 0.10, "level_before": 1}]
+    assert (P1, GID) not in service._PENDING_CASTS
+    service.reset_pending_casts_for_tests()
+
+
+def test_click_between_fight_rounds_is_the_mash_ignore(monkeypatch):
+    """A click BEFORE the round opens (inside the 0.8 s beat) is the
+    oracle safe_defer mash-ignore: no state moves, no rng draw, the
+    fight stays live."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import SUCCESS
+
+    route = _route()
+    _freeze_clock(monkeypatch, NOW + 5.5)      # round opens at 5.8
+    _no_commit(monkeypatch)
+    entry = _entry(species="sardine", trophy=True, taps_required=2,
+                   fight=True, fight_round_open_f=NOW + 5.8)
+    service._PENDING_CASTS[(P1, GID)] = entry
+    rng = ScriptRng()
+    _arm_rng(rng)
+    try:
+        reply = run(route(_reel_req()))
+    finally:
+        _disarm_rng()
+    assert reply.outcome is SUCCESS and reply.user_message is None
+    assert rng.calls == []                     # no escape roll on a mash
+    assert entry["taps_done"] == 0
+    assert service._PENDING_CASTS[(P1, GID)] is entry
+    service.reset_pending_casts_for_tests()
+
+
+def test_late_fight_tap_past_the_round_window_is_too_slow(monkeypatch):
+    """A tap past the round's window answers the oracle too-slow
+    terminal + the trophy clue (a fight IS a trophy) — no draw, no
+    write, the paid cast is gone."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import BLOCKED
+
+    route = _route()
+    # round opened at 5.8, window 2.5 ⇒ closes 8.3; click at 8.4.
+    _freeze_clock(monkeypatch, NOW + 8.4)
+    _no_commit(monkeypatch)
+    entry = _entry(species="sardine", trophy=True, taps_required=2,
+                   fight=True, fight_round_open_f=NOW + 5.8)
+    service._PENDING_CASTS[(P1, GID)] = entry
+    rng = ScriptRng()
+    _arm_rng(rng)
+    try:
+        reply = run(route(_reel_req()))
+    finally:
+        _disarm_rng()
+    assert reply.outcome is BLOCKED
+    assert reply.user_message == (
+        "🌊 *...too slow. The fish got away.*\n"
+        "💭 *...it looked like a real **Sardine**, too.*")
+    assert rng.calls == []                     # a late tap never rolls
     assert (P1, GID) not in service._PENDING_CASTS
     service.reset_pending_casts_for_tests()
 
@@ -398,6 +508,185 @@ def test_pre_slice_entry_shape_resolves_as_in_time(monkeypatch):
     service.reset_pending_casts_for_tests()
 
 
+# --- the live-cue timers (D-0043 slice 2 / D-0090) ----------------------------------
+
+
+class _FakeHandle:
+    def __init__(self):
+        self.cancelled = False
+
+    def cancel(self):
+        self.cancelled = True
+
+
+def test_cast_open_arms_the_live_cue_timers(monkeypatch):
+    """The cast park arms the oracle _run_bite cues: nibble (the rolled
+    fake-out fits its lead — delay 4.25, 4.25−0.6 > 1.5) + BITE! arm +
+    got-away expiry = 3 one-shot timers; the push-edit context rides
+    the entry."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import SUCCESS
+    from sb.spec.refs import HandlerRef, resolve
+    from tests.unit.band6.test_band6_fishing_cast_wiring import (
+        _capture_open_panel,
+        _install_world,
+    )
+
+    service.ensure_handler_refs()
+    service.reset_pending_casts_for_tests()
+    route = resolve(HandlerRef("fishing.cast_open"))
+    _freeze_clock(monkeypatch)
+    _install_world(monkeypatch)
+    _capture_open_panel(monkeypatch)
+    # weight 1.0, bite uniform 5.0 (×0.85 rain = 4.25), fake-out 0.30<0.45
+    rng = ScriptRng(randoms=[0.30], uniforms=[1.0, 5.0])
+    _arm_rng(rng)
+    try:
+        from sb.domain.fishing import weather
+
+        weather.seed_weather_for_replay("rain")
+        try:
+            reply = run(route(_FakeReq()))
+        finally:
+            weather.seed_weather_for_replay(None)
+    finally:
+        _disarm_rng()
+    assert reply.outcome is SUCCESS
+    entry = service._PENDING_CASTS[(P1, GID)]
+    assert len(entry["timers"]) == 3
+    assert entry["guild_id"] == GID
+    assert entry["actor"] is not None
+    service.reset_pending_casts_for_tests()
+
+
+def test_short_lead_or_no_fakeout_skips_the_nibble_timer(monkeypatch):
+    """The oracle lead-fit guard: a fake-out whose nibble would land
+    under the bite floor (delay − FAKEOUT_LEAD ≤ BITE_DELAY_FLOOR) is
+    silent — and a cast that never rolled one arms only BITE! +
+    got-away (2 timers each)."""
+    from sb.domain.fishing import service
+    from sb.spec.refs import HandlerRef, resolve
+    from tests.unit.band6.test_band6_fishing_cast_wiring import (
+        _capture_open_panel,
+        _install_world,
+    )
+
+    service.ensure_handler_refs()
+    route = resolve(HandlerRef("fishing.cast_open"))
+    _freeze_clock(monkeypatch)
+    _install_world(monkeypatch)
+    _capture_open_panel(monkeypatch)
+    from sb.domain.fishing import weather
+
+    for randoms, uniforms in (
+        ([0.30], [1.0, 2.0]),   # fake-out rolled, but 1.7−0.6 ≤ 1.5
+        ([0.60], [1.0, 5.0]),   # no fake-out (0.60 ≥ 0.45)
+    ):
+        service.reset_pending_casts_for_tests()
+        rng = ScriptRng(randoms=list(randoms), uniforms=list(uniforms))
+        _arm_rng(rng)
+        try:
+            weather.seed_weather_for_replay("rain")
+            try:
+                run(route(_FakeReq()))
+            finally:
+                weather.seed_weather_for_replay(None)
+        finally:
+            _disarm_rng()
+        entry = service._PENDING_CASTS[(P1, GID)]
+        assert len(entry["timers"]) == 2
+    service.reset_pending_casts_for_tests()
+
+
+def test_got_away_timer_pops_the_entry_and_noops_headless():
+    """The unprompted window expiry (real short delays): the got-away
+    timer pops the paid cast with NO DB write, and its panel edit
+    no-ops headless (no editor installed — EDIT_UNAVAILABLE), never a
+    crash."""
+    from sb.domain.fishing import service
+
+    async def main():
+        entry = _entry(cast_at_f=0.0, bite_at_f=0.02, reaction_window=0.02)
+        entry["panel_key"] = "424242"      # no live session either
+        entry["guild_id"] = GID
+        service._PENDING_CASTS[(P1, GID)] = entry
+        service._arm_bite_timers((P1, GID), entry)
+        await asyncio.sleep(0.3)
+        assert (P1, GID) not in service._PENDING_CASTS
+
+    run(main())
+    service.reset_pending_casts_for_tests()
+
+
+def test_wall_fired_timer_before_its_logical_moment_noops(monkeypatch):
+    """The parity-harness regression guard (_timer_due): replay wall
+    time can pass the bite delay while the LOGICAL clock stands still —
+    a wall-fired got-away must NOT pop a cast whose SYSTEM_CLOCK
+    deadline hasn't arrived (in prod wall == logical, so the guard
+    always passes there)."""
+    from sb.domain.fishing import service
+
+    # the logical clock lags the deadlines (the parity shape: it only
+    # moves when a step advances it — here it never does).
+    _freeze_clock(monkeypatch, NOW - 10.0)
+
+    async def main():
+        entry = _entry(cast_at_f=float(NOW), bite_at_f=float(NOW) + 0.02,
+                       reaction_window=0.02)
+        service._PENDING_CASTS[(P1, GID)] = entry
+        service._arm_bite_timers((P1, GID), entry)
+        await asyncio.sleep(0.3)               # wall passes every deadline
+        assert service._PENDING_CASTS[(P1, GID)] is entry   # survived
+
+    run(main())
+    service.reset_pending_casts_for_tests()
+
+
+def test_stale_timer_never_touches_a_newer_cast():
+    """The identity guard (the oracle _round_id staleness token): a
+    timer armed for a replaced entry wakes, sees the newer cast, and
+    exits without popping it."""
+    from sb.domain.fishing import service
+
+    async def main():
+        entry = _entry(cast_at_f=0.0, bite_at_f=0.01, reaction_window=0.01)
+        service._PENDING_CASTS[(P1, GID)] = entry
+        service._arm_bite_timers((P1, GID), entry)
+        newer = _entry(token=2)
+        service._PENDING_CASTS[(P1, GID)] = newer     # replaced
+        await asyncio.sleep(0.2)
+        assert service._PENDING_CASTS[(P1, GID)] is newer
+
+    run(main())
+    service.reset_pending_casts_for_tests()
+
+
+def test_terminal_paths_cancel_the_armed_timers(monkeypatch):
+    """A premature spook disarms the cast's live cues (and the test
+    reset does too) — no orphaned timer outlives its entry."""
+    from sb.domain.fishing import service
+    from sb.spec.outcomes import BLOCKED
+
+    route = _route()
+    _freeze_clock(monkeypatch, NOW + 0.5)
+    _no_commit(monkeypatch)
+    entry = _entry()
+    spook_handle = _FakeHandle()
+    entry["timers"] = [spook_handle]
+    service._PENDING_CASTS[(P1, GID)] = entry
+    reply = run(route(_reel_req()))
+    assert reply.outcome is BLOCKED
+    assert spook_handle.cancelled
+
+    reset_handle = _FakeHandle()
+    parked = _entry(token=3)
+    parked["timers"] = [reset_handle]
+    service._PENDING_CASTS[(P1, GID)] = parked
+    service.reset_pending_casts_for_tests()
+    assert reset_handle.cancelled
+    assert service._PENDING_CASTS == {}
+
+
 # --- the cast panel prompt override -------------------------------------------------
 
 
@@ -422,3 +711,54 @@ def test_render_cast_prompt_override_is_a_bare_description_embed():
     assert rendered.embed.fields == ()
     assert rendered.embed.footer == ""
     assert len(rendered.components) == 1       # the Reel button survives
+
+
+def _prompt_ctx(params: dict):
+    from sb.kernel.interaction.locale import LocaleContext
+    from sb.kernel.panels.context import PanelContext, PanelOrigin
+    from sb.spec.panels import Audience
+
+    return PanelContext(
+        bot=None, guild_id=GID, actor=SimpleNamespace(user_id=P1),
+        channel_id=9, origin=PanelOrigin.ANCHOR,
+        audience=Audience.INVOKER, locale=LocaleContext(),
+        params={"cast_energy": 58, "cast_venue": "shore", **params})
+
+
+def test_render_cast_bite_arm_knobs_flip_color_and_button():
+    """The push-edit BITE! arm (oracle _arm): SUCCESS_COLOR embed + the
+    Reel button flipped to the armed label/style — the slice-2 params
+    the timers pass (absent ⇒ golden-pinned bytes untouched, covered by
+    the bare-prompt test above)."""
+    from sb.domain.fishing import panels
+    from sb.domain.fishing.panels import cast_spec
+
+    rendered = run(panels._render_cast(cast_spec(), _prompt_ctx({
+        "cast_prompt": "🐟 **BITE!** Reel it in — quick!",
+        "cast_prompt_style": "green",
+        "cast_button_label": "Reel it in!",
+        "cast_button_style": "success"})))
+    assert rendered.embed.description == "🐟 **BITE!** Reel it in — quick!"
+    assert rendered.embed.style_token == "green"
+    (button,) = rendered.components
+    assert button.label == "Reel it in!"
+    assert button.style == "success"
+    assert button.disabled is False
+
+
+def test_render_cast_terminal_knobs_disable_the_button():
+    """The unprompted got-away terminal (oracle _fail): ERROR_COLOR +
+    the button kept but disabled."""
+    from sb.domain.fishing import panels
+    from sb.domain.fishing.panels import cast_spec
+
+    rendered = run(panels._render_cast(cast_spec(), _prompt_ctx({
+        "cast_prompt": "🌊 *...the line goes slack. The fish got away.*",
+        "cast_prompt_style": "red",
+        "cast_button_label": "Reel it in!",
+        "cast_button_style": "success",
+        "cast_disable": True})))
+    assert rendered.embed.style_token == "red"
+    (button,) = rendered.components
+    assert button.disabled is True
+    assert button.label == "Reel it in!"

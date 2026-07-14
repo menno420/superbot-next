@@ -281,3 +281,10 @@ can close it.
 done-when: `gen_kit_versions.py` renders the plugin-hello row
 "OK — mirrors host superbot-next pin" at the next fm regen.
 Provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, fm docs/dispatch-log.md @ 3b335a8.
+
+## ORDER 021 · 2026-07-14T07:47Z · status: new
+priority: P2
+do: (a) INC-58 — withdraw ⚑8 (the history-rewrite confirm ask in `control/status.md`'s needs-owner list) with the ground-truth citation: NO rewrite happened — #319's squash `91b0767` resolves at origin (commits API: "feat(creature): … (#319)", committed 2026-07-12T23:52:05Z) and `2cb4d91` is simply PR #334's squash (2026-07-13T02:51:30Z); "history roots at 2cb4d91" was a shallow-clone artifact. (b) INC-22 — re-stamp the two entry docs: `README.md:12` ("band 5 … live-testing in flight") and `docs/current-state.md` § In flight (snapshot 2026-07-10) to current reality.
+why: INC-58 — a standing owner ask contradicting verifiable git ground truth burns owner attention; INC-22 — boot-set docs ~4 days stale at the fleet's highest velocity, contradicting their own next paragraphs.
+done-when: ⚑8 gone from the heartbeat; README + current-state In-flight stamped ≥ 2026-07-14.
+provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, fm docs/dispatch-log.md @ 1694bfc

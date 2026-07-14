@@ -24,9 +24,9 @@
     {
      "best_weight": 0.3799999952316284,
      "count": 1,
-     "first_caught": 1948112896,
+     "first_caught": 1948112874,
      "guild_id": "<guild>",
-     "last_caught": 1948112896,
+     "last_caught": 1948112874,
      "species": "lanternfish",
      "total_value": 0,
      "user_id": "<@member>"
@@ -183,6 +183,7 @@
     }
    ],
    "input": {
+    "advance_s": 8.0,
     "custom_id": "<cid:1>",
     "kind": "click",
     "persona": "member",

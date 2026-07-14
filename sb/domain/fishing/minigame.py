@@ -9,22 +9,21 @@ bot can only measure the whole round trip ``L_down + reaction + L_up``
 against the window, so sub-second windows are unwinnable on a normal
 connection; hence the generous ~2.5 s window.
 
-CONSUMED (D-0043 minigame-timing rung, slice 1 — click-gated
-resolution in service.py cast_open/fish_route): :func:`is_trophy`
-(the result card's "🏆 Trophy landed!" title + the trophy/fight
-branch), :func:`roll_bite_delay` (at cast time, consuming the
-compounded effective_bite_speed at the venue's band),
-:func:`roll_fakeout` (rolled at cast, STORED but outcome-inert until
-slice 2 so the visibility wiring never shifts a pinned RNG
-trajectory), :func:`roll_premature_grace` (the one forgiven early
-reel per cast), :func:`escape_clue` (the got-away/snap terminals),
+CONSUMED IN FULL (D-0043 minigame-timing rung, slices 1+2 —
+service.py cast_open/fish_route): :func:`is_trophy` (the result
+card's "🏆 Trophy landed!" title + the trophy/fight branch),
+:func:`roll_bite_delay` (at cast time, consuming the compounded
+effective_bite_speed at the venue's band), :func:`roll_fakeout` (the
+pre-bite nibble edit, armed under the oracle lead-fit guard
+``delay − FAKEOUT_LEAD > BITE_DELAY_FLOOR``; reeling on it resolves
+premature), :func:`roll_premature_grace` (the one forgiven early reel
+per cast), :func:`reel_is_in_time` (slice 2 — the late-window /
+fight-round-window enforcement on SYSTEM_CLOCK timestamps),
+:func:`escape_clue` (the got-away/snap/too-slow terminals),
 :func:`reel_fight_taps` + :func:`roll_escape` /
-:func:`fight_escape_chance` (the trophy reel-fight). STILL
-CALLER-LESS: :func:`reel_is_in_time` — late-window enforcement is
-deliberately parked with the slice-2 push-edit seam (the bite is
-invisible until the panel can be edited mid-wait, so a late click is
-treated as in-time; the service.py fish_route docstring carries the
-fairness rationale).
+:func:`fight_escape_chance` (the trophy reel-fight, whose rounds open
+on :data:`FIGHT_INTER_ROUND_DELAY`). The live cues ride the D-0090
+kernel one-shot timer + push-edit seam; enforcement never does.
 
 Pure + stdlib-only (no Discord, no DB, no clock)."""
 

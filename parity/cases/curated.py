@@ -967,17 +967,22 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         subsystem="fishing",
         steps=(
             Step(kind="command", content="!fish", persona="member"),
+            # in-window since the slice-2 late-enforcement flip: the
+            # seed-42 storm bite lands at ~4.28 s, window 2.5 — 5.0 s
+            # sits inside [4.28 … 6.78] (the pre-flip default 30 s click
+            # would now be too-slow).
             Step(kind="click", target_message=1, component_index=0,
-                 persona="member"),
+                 persona="member", advance_s=5.0),
         ),
         notes=(
             "fresh player, shore profile — every knob reads exactly neutral "
             "(no-row venue → shore, rod tier 0, no bait, unbuilt structures, "
             "fresh gear): `!fish` spends 2 energy off the fresh full bar "
-            "(fishing_energy row 58) and the Reel click drives the audited "
-            "fishing.cast leg — the FIRST row-bearing fishing_catch_log "
-            "capture (dex row + the caught fish in mining_inventory + the "
-            "fishing game-XP award) with the oracle result-card copy "
+            "(fishing_energy row 58) and the in-window Reel click drives "
+            "the audited fishing.cast leg — the FIRST row-bearing "
+            "fishing_catch_log capture (dex row + the caught fish in "
+            "mining_inventory + the fishing game-XP award) with the oracle "
+            "result-card copy "
             "(retires the fishing_catch_log guard-only-capture exemption)"),
     ),
     GoldenCase(
@@ -1004,8 +1009,12 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         ),
         steps=(
             Step(kind="command", content="!fish", persona="member"),
+            # in-window (slice-2 late enforcement): the seed-42 storm
+            # deepwater bite at the loaded compound lands at ~7.09 s,
+            # window 2.8 (deep 2.0 + Silver rod 0.8) — 8.0 s sits inside
+            # [7.09 … 9.89].
             Step(kind="click", target_message=1, component_index=0,
-                 persona="member"),
+                 persona="member", advance_s=8.0),
         ),
         notes=(
             "deepwater reel at a loaded profile: the cast panel renders the "
@@ -1030,8 +1039,11 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
         ),
         steps=(
             Step(kind="command", content="!fish", persona="member"),
+            # in-window (slice-2 late enforcement): the seed-42 storm
+            # bite on the worm loadout lands at ~4.28 s, window 2.5 —
+            # 5.0 s sits inside [4.28 … 6.78].
             Step(kind="click", target_message=1, component_index=0,
-                 persona="member"),
+                 persona="member", advance_s=5.0),
         ),
         notes=(
             "the last-charge spend: `!fish` consumes the worm pack's final "
