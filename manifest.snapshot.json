@@ -11913,6 +11913,36 @@
       "handler:setup.hub_open": {
         "module": "sb.domain.setup.handlers"
       },
+      "handler:setup.hub_open_section_channels": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_cleanup": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_cog_routing": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_final_review": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_logging_presets": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_moderation": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_preset_select": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_role_templates": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_roles": {
+        "module": "sb.domain.setup.panels"
+      },
+      "handler:setup.hub_open_section_ticket": {
+        "module": "sb.domain.setup.panels"
+      },
       "handler:setup.logging_picker_render": {
         "module": "sb.domain.setup.logging_presets"
       },
@@ -58537,7 +58567,7 @@
               "emoji": "🎛",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_preset_select"
+                "$ref": "handler:setup.hub_open_section_preset_select"
               },
               "label": "Load preset",
               "modal": null,
@@ -58562,7 +58592,7 @@
               "emoji": "📡",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_channels"
+                "$ref": "handler:setup.hub_open_section_channels"
               },
               "label": "Channels & log routing",
               "modal": null,
@@ -58587,7 +58617,7 @@
               "emoji": "📜",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_logging_presets"
+                "$ref": "handler:setup.hub_open_section_logging_presets"
               },
               "label": "Logging presets",
               "modal": null,
@@ -58612,7 +58642,7 @@
               "emoji": "🎖️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_roles"
+                "$ref": "handler:setup.hub_open_section_roles"
               },
               "label": "Auto roles (time & XP)",
               "modal": null,
@@ -58637,7 +58667,7 @@
               "emoji": "🧩",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_role_templates"
+                "$ref": "handler:setup.hub_open_section_role_templates"
               },
               "label": "Role templates",
               "modal": null,
@@ -58662,7 +58692,7 @@
               "emoji": "🧹",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_cleanup"
+                "$ref": "handler:setup.hub_open_section_cleanup"
               },
               "label": "Cleanup inheritance",
               "modal": null,
@@ -58687,7 +58717,7 @@
               "emoji": "🛡️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_moderation"
+                "$ref": "handler:setup.hub_open_section_moderation"
               },
               "label": "Moderation",
               "modal": null,
@@ -58712,7 +58742,7 @@
               "emoji": "🧭",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_cog_routing"
+                "$ref": "handler:setup.hub_open_section_cog_routing"
               },
               "label": "Cog routing",
               "modal": null,
@@ -58737,7 +58767,7 @@
               "emoji": "🎫",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_ticket"
+                "$ref": "handler:setup.hub_open_section_ticket"
               },
               "label": "Support Tickets",
               "modal": null,
@@ -58762,7 +58792,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:setup.open_section_final_review"
+                "$ref": "handler:setup.hub_open_section_final_review"
               },
               "label": "Final review",
               "modal": null,
