@@ -43,6 +43,7 @@ __all__ = [
     "record_depth",
     "get_max_depth",
     "get_equipped_title",
+    "set_equipped_title",
     "get_energy",
     "set_energy",
     "get_world_seed",
@@ -436,12 +437,31 @@ async def get_equipped_title(user_id: int, guild_id: int,
     Shipped ``mining_player_state.get_equipped_title`` — a plain read; the
     title-service gates the value on the live earn-check, so a no-row / NULL
     player renders the "— none —" byte (goldens/mining/sweep_titles). The
-    equipped-title WRITE (the panel select) rides the deferred panel port
-    (D-0043) — no golden drives it."""
+    equipped-title WRITE is :func:`set_equipped_title` (the 🏆 Titles panel
+    select — the title-equip write slice)."""
     row = await fetchone(
         "SELECT equipped_title FROM mining_player_state WHERE user_id=$1 AND "
         "guild_id=$2", (str(user_id), guild_id), conn=conn)
     return row["equipped_title"] if row and row["equipped_title"] else None
+
+
+async def set_equipped_title(user_id: int, guild_id: int,
+                             title_id: str | None, conn: Any = None) -> None:
+    """Upsert the player's equipped-title choice (``None`` clears).
+
+    Shipped ``db.set_equipped_title`` (oracle disbot/services/
+    title_service.py — "owns the only ``equipped_title`` mutation"): the
+    🏆 Titles panel select is the sole ingress (no command form). Earned
+    titles are DERIVED on read, so this write grants nothing; with *conn*
+    given it composes inside the caller's transaction (the audited
+    ``mining.equip_title`` / ``mining.unequip_title`` legs own commit —
+    the ``set_energy`` upsert shape)."""
+    await execute(
+        "INSERT INTO mining_player_state "
+        "(user_id, guild_id, equipped_title) "
+        "VALUES ($1,$2,$3) ON CONFLICT (user_id, guild_id) "
+        "DO UPDATE SET equipped_title=$3",
+        (str(user_id), guild_id, title_id), conn=conn)
 
 
 async def get_energy(user_id: int, guild_id: int,

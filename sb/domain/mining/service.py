@@ -1098,9 +1098,12 @@ PENDING: dict[str, str] = {
     # skills / skill / titles are LIVE (slice 5 port): the mining.skills +
     # mining.titles session PanelSpecs carry the skill-tree + earned-title
     # render bytes, and skill_route carries the `!skill` branch-picker guard.
-    # The argful `!skill <branch>` spend, the skills-panel branch/respec button
-    # clicks, and the titles select-menu equip stay deferred (D-0043 pending
-    # terminals — no golden drives a skill/title write).
+    # The argful `!skill <branch>` spend and the skills-panel branch/respec
+    # button clicks stay deferred (D-0043 pending terminals — no golden
+    # drives a skill write). The titles select-menu equip went LIVE with the
+    # title-equip write slice (mining.titles_pick → the audited
+    # mining.equip_title / mining.unequip_title ops;
+    # goldens/mining/mining_title_equip_write.json drives the write).
 }
 
 
