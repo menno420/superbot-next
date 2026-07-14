@@ -612,6 +612,110 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "row(s) named 'combat' and replies `<@u> deleted the **combat** "
             "loadout.` — the remove face of mining_loadout_presets"),
     ),
+    # ---------------------------------------------- mining WRITE-PARITY (WP-2)
+    # Argful vault writes (stash / unstash / stash-all / vaultupgrade) that
+    # DRIVE the mutation the imported bare-guard sweeps never reached (D-0069
+    # class exit). Same personas as WP-1: member = 900000000000000102, guild =
+    # 700000000000000001. economy_balances keys user_id as BIGINT (no quotes);
+    # the mining tables key user_id as TEXT (quoted). Each fixture_sql row is
+    # seeded BEFORE the before-snapshot, so only the terminal's own audited
+    # write lands in db_delta. Success copy is the shipped `<@u> ` mention +
+    # oracle mining_workflow vault_deposit/withdraw/deposit_all/upgrade text,
+    # verbatim. These row-bearing captures retire the depth.exemptions.mining
+    # guard-only-capture rows for mining_vault (stash add + unstash remove) and
+    # mining_player_state (vault_level, covered by the funded upgrade).
+    GoldenCase(
+        id="mining.stash_write",
+        subsystem="mining",
+        # own the ore so the deposit success branch runs (inventory read is a
+        # pre-req, not a write — seeded before the snapshot).
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'diamond', 5)",
+        ),
+        steps=(
+            Step(kind="command", content="!stash diamond 5",
+                 persona="member"),
+        ),
+        notes=(
+            "argful !stash drives mining.stash → record_stash: debits the "
+            "mining_inventory pack row and credits the mining_vault row in one "
+            "txn, and replies `<@u> Deposited **5× diamond** into your vault — "
+            "safe and out of your pack.` — the first row-bearing deposit "
+            "capture (retires the mining_vault guard-only-capture exemption)"),
+    ),
+    GoldenCase(
+        id="mining.unstash_write",
+        subsystem="mining",
+        # seed the vault stack so the withdraw yields a `removed` mining_vault
+        # delta (the withdraw face of the table).
+        fixture_sql=(
+            "INSERT INTO mining_vault (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'diamond', 5)",
+        ),
+        steps=(
+            Step(kind="command", content="!unstash diamond 5",
+                 persona="member"),
+        ),
+        notes=(
+            "argful !unstash drives mining.unstash → record_unstash: debits "
+            "the mining_vault row and credits the mining_inventory pack row in "
+            "one txn, and replies `<@u> Withdrew **5× diamond** from your vault "
+            "back into your pack.` — the withdraw face of mining_vault"),
+    ),
+    GoldenCase(
+        id="mining.stash_all_write",
+        subsystem="mining",
+        # seed a sellable resource in the pack; the 📦 Stash All Ore button
+        # moves every sellable resource pack -> vault in one txn.
+        fixture_sql=(
+            "INSERT INTO mining_inventory (user_id, guild_id, item_name, "
+            "quantity) VALUES "
+            "('900000000000000102', 700000000000000001, 'iron', 7)",
+        ),
+        steps=(
+            # !vault mints the 🏦 Mining Vault panel (session-lifecycle child);
+            # the 📦 Stash All Ore button is flattened component index 2
+            # (deposit 0, withdraw 1, stash-all 2, upgrade 3, hub 4, nav 5/6 —
+            # goldens/mining/sweep_vault pins the order). The session-minted
+            # custom_id normalizes to <cid:N>; component_index reconstructs it.
+            Step(kind="command", content="!vault", persona="member"),
+            Step(kind="click", target_message=1, component_index=2,
+                 persona="member"),
+        ),
+        notes=(
+            "!vault then the 📦 Stash All Ore click drives mining.stash_all → "
+            "record_stash_all: moves every sellable pack resource into the "
+            "vault in one txn (mining_inventory debit + mining_vault credit) "
+            "and replies `<@u> Stashed 7× iron into your vault.` — the "
+            "convenience deposit face (mining_workflow "
+            "vault_deposit_all_resources verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.vault_upgrade_write",
+        subsystem="mining",
+        # fund the balance so the audited debit-and-bump success branch runs
+        # (the level read + insufficient-funds guard are pure reads gated out
+        # before the leg). economy_balances user_id is BIGINT. cost(0)=2000 →
+        # balance 2500 leaves 500 after the buy; capacity(1)=45.
+        fixture_sql=(
+            "INSERT INTO economy_balances (user_id, guild_id, coins) VALUES "
+            "(900000000000000102, 700000000000000001, 2500)",
+        ),
+        steps=(
+            Step(kind="command", content="!vaultupgrade", persona="member"),
+        ),
+        notes=(
+            "argful !vaultupgrade (funded) drives mining.vault_upgrade → "
+            "record_vault_upgrade: debits the 2000 🪙 cost via "
+            "wager.debit_in_txn and bumps mining_player_state.vault_level 0->1 "
+            "in one advisory-fenced txn, and replies `<@u> Vault upgraded to "
+            "capacity **45** item types for **2000** 🪙. Balance: **500** 🪙.` "
+            "— the funded-upgrade capture that covers the vault_level face of "
+            "mining_player_state (retires its guard-only-capture exemption)"),
+    ),
     # ------------------------------------------- mining ENERGY (slice 2)
     # Argful !use / !cook writes over the energy lane (docs/scoping/
     # energy-system-scope.md slice 2; oracle copy: disbot/services/
