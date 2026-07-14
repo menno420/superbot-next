@@ -128,6 +128,21 @@ def _cancel_cast_timers(entry: dict) -> None:
         handle.cancel()
 
 
+def _timer_due(fire_at_f: float) -> bool:
+    """Is a wall-fired timer's LOGICAL moment actually here? The one-shot
+    timers sleep on the event loop's wall clock, but every deadline is a
+    SYSTEM_CLOCK timestamp — in prod the two agree and this always
+    passes (the 50 ms slack absorbs wall-vs-monotonic drift); under the
+    parity harness the logical clock only moves when a step advances it,
+    so a timer that wall-fires mid-case (replay wall time can exceed the
+    bite delay — DB snapshots between steps) reads a logical now BEFORE
+    its deadline and must no-op instead of popping a cast the driven
+    steps still own."""
+    from sb.kernel.workflow.context import SYSTEM_CLOCK
+
+    return SYSTEM_CLOCK().timestamp() >= fire_at_f - 0.05
+
+
 async def _push_cast_edit(entry: dict, prompt: str, *,
                           style: str = "", label: str = "",
                           button_style: str = "", disable: bool = False,
@@ -166,30 +181,42 @@ def _arm_bite_timers(key: tuple[int, int], entry: dict) -> None:
     entry, terminal edit, NO DB write — the paid cast's economics stand).
     Every callback is identity-guarded so a resolved/replaced cast's
     stale timer exits instead of false-failing (the oracle ``_round_id``
-    staleness token). Enforcement itself NEVER rides these timers — it
-    is timestamp math on SYSTEM_CLOCK in fish_route, so parity (logical
-    clock, no editor) decides in/late identically without them."""
+    staleness token), AND due-guarded on SYSTEM_CLOCK (:func:`_timer_due`)
+    so a wall-fired timer whose LOGICAL moment has not arrived is a
+    no-op — in prod wall == logical and the guard always passes; in
+    parity the logical clock never reaches the deadline inside a driven
+    case (a step advances it 30 s while replay wall time crawls past the
+    delay), so an in-case wall fire can never pop a cast the goldens
+    still own. Enforcement itself NEVER rides these timers — it is
+    timestamp math on SYSTEM_CLOCK in fish_route."""
     from sb.domain.fishing import minigame
     from sb.kernel.panels import timers
 
     uid, _gid = key
     delay = float(entry["bite_at_f"]) - float(entry["cast_at_f"])
     window = float(entry["reaction_window"])
+    bite_at = float(entry["bite_at_f"])
     handles = []
 
     async def _nibble() -> None:
         if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        if not _timer_due(bite_at - minigame.FAKEOUT_LEAD):
             return
         await _push_cast_edit(entry, _NIBBLE)
 
     async def _bite() -> None:
         if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
             return
+        if not _timer_due(bite_at):
+            return
         await _push_cast_edit(entry, _BITE_ARM, style="green",
                               label=_LABEL_BITE, button_style="success")
 
     async def _got_away() -> None:
         if _PENDING_CASTS.get(key) is not entry or entry.get("fight"):
+            return
+        if not _timer_due(bite_at + window):
             return
         # unresolved past the window — the oracle ``_fail``: pop the
         # paid cast (energy/bait spent, NO write) + the terminal edit
@@ -236,13 +263,13 @@ def _arm_fight_timers(key: tuple[int, int], entry: dict,
                 or int(entry.get("taps_done", 0)) != round_no)
 
     async def _arm_round() -> None:
-        if _stale():
+        if _stale() or not _timer_due(open_f):
             return
         await _push_cast_edit(entry, prompt, label=_LABEL_FIGHT,
                               button_style="success")
 
     async def _round_expired() -> None:
-        if _stale():
+        if _stale() or not _timer_due(open_f + window):
             return
         del _PENDING_CASTS[key]
         _cancel_cast_timers(entry)

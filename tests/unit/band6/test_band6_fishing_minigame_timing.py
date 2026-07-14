@@ -618,6 +618,30 @@ def test_got_away_timer_pops_the_entry_and_noops_headless():
     service.reset_pending_casts_for_tests()
 
 
+def test_wall_fired_timer_before_its_logical_moment_noops(monkeypatch):
+    """The parity-harness regression guard (_timer_due): replay wall
+    time can pass the bite delay while the LOGICAL clock stands still —
+    a wall-fired got-away must NOT pop a cast whose SYSTEM_CLOCK
+    deadline hasn't arrived (in prod wall == logical, so the guard
+    always passes there)."""
+    from sb.domain.fishing import service
+
+    # the logical clock lags the deadlines (the parity shape: it only
+    # moves when a step advances it — here it never does).
+    _freeze_clock(monkeypatch, NOW - 10.0)
+
+    async def main():
+        entry = _entry(cast_at_f=float(NOW), bite_at_f=float(NOW) + 0.02,
+                       reaction_window=0.02)
+        service._PENDING_CASTS[(P1, GID)] = entry
+        service._arm_bite_timers((P1, GID), entry)
+        await asyncio.sleep(0.3)               # wall passes every deadline
+        assert service._PENDING_CASTS[(P1, GID)] is entry   # survived
+
+    run(main())
+    service.reset_pending_casts_for_tests()
+
+
 def test_stale_timer_never_touches_a_newer_cast():
     """The identity guard (the oracle _round_id staleness token): a
     timer armed for a replaced entry wakes, sees the newer cast, and
