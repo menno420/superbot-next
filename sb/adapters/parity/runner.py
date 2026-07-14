@@ -170,6 +170,17 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     "fishing.cast_premature_grace": "storm",
     "fishing.cast_trophy_fight_land": "storm",
     "fishing.cast_trophy_fight_escape": "storm",
+    # the curation row-72 + farm-goldens batch (2026-07-14): registered
+    # BEFORE their mint per the post-07-13 date-live-outage doctrine
+    # (control/status.md — every golden registers its capture-world
+    # condition here FIRST). None of these four surfaces renders a
+    # forecast — the seed is a defensive pin (storm, matching the 07-14
+    # mint posture) so a future weather-reading regression on these
+    # panels goes red in the gate instead of date-live.
+    "rps_tournament.quickplay_bet_settle_write": "storm",
+    "farm.collect_write": "storm",
+    "farm.buy_hen_write": "storm",
+    "farm.upgrade_coop_write": "storm",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
@@ -372,6 +383,19 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
     from sb.domain.fishing.ops import set_rng_for_tests as _arm_fishing_rng
 
     _arm_fishing_rng(random.Random(case.seed))
+
+    # the rps QUICK-PLAY bot move — RE-ARMED at every case head exactly
+    # like the fishing cast RNG above (trap 20: runner-seeded, never
+    # accumulated): sb/domain/rps/ops._rng is a module-private unseeded
+    # stream (the shipped solo_play random.choice), so without the arm a
+    # solo-play golden's bot draw would differ between capture and every
+    # replay. Private on purpose for the same reason as the fishing
+    # stream: the passive chat-XP award draws from the GLOBAL
+    # `random.seed(case.seed)` stream and a bot-move draw there would
+    # shift the pinned xp byte.
+    from sb.domain.rps.ops import set_rng_for_tests as _arm_rps_rng
+
+    _arm_rps_rng(random.Random(case.seed))
 
     before: dict[str, Any] = {}
     pool = None

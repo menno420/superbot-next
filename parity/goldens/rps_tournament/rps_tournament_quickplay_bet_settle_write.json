@@ -1,0 +1,171 @@
+{
+ "case_id": "rps_tournament.quickplay_bet_settle_write",
+ "db_delta": {
+  "economy_audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "delta": 10,
+     "guild_id": "<guild>",
+     "id": 1,
+     "new_balance": 50,
+     "occurred_at": "<ts>",
+     "reason": "rps:solo_win",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "rps_players": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "losses": 0,
+     "name": "<@<@member>>",
+     "ties": 0,
+     "user_id": "<@member>",
+     "wins": 1
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1939616254,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the coin-bet quickplay settle: `!rps 10` opens the shipped solo-play view with the bet line (`Bet: **10** 🪙`) and the invoker's 🪨 Rock click drives the audited rps.solo_play op — seed-42's armed bot draw is scissors, so the win branch credits the bet (`🎉 You win! +10 🪙`, reason rps:solo_win, balance 40→50) and the shipped update_player_stats site writes the FIRST row-bearing rps_players capture (1 win, display name captured at game time) — the shipped views/rps/solo_play.py + _helpers.py copy verbatim (sb/domain/rps/ops.py module contract)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🪨"
+          },
+          "label": "Rock",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "📄"
+          },
+          "label": "Paper",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "✂️"
+          },
+          "label": "Scissors",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "Bet: **10** 🪙\nChoose your move!",
+        "flags": 0,
+        "title": "✂️ Rock · Paper · Scissors",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!rps 10",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "🪨 vs ✂️ (bot)\n🎉 You win! +10 🪙"
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "economy.balance_changed",
+     "payload": {
+      "delta": 10,
+      "guild_id": "<guild>",
+      "new_balance": 50,
+      "reason": "rps:solo_win",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "rps_tournament"
+}

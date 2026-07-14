@@ -1,0 +1,323 @@
+{
+ "case_id": "farm.buy_hen_write",
+ "db_delta": {
+  "chicken_farm": {
+   "added": [
+    {
+     "chickens": 2,
+     "coop_level": 0,
+     "eggs": 0,
+     "eggs_updated_at": 1777763129,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "economy_audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "delta": -40,
+     "guild_id": "<guild>",
+     "id": 1,
+     "new_balance": 60,
+     "occurred_at": "<ts>",
+     "reason": "farm:buy_chicken",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1777763069,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the Buy-hen debit: `!farm` → 🛒 Shop (a fresh send — the shipped `🐔 Next hen — **40** 🪙 (own 1)` price field over the funded `Balance: 100 🪙` footer) → the 🐔 Buy hen click drives the audited farm.buy_chicken op — ONE txn debits 40 🪙 (reason farm:buy_chicken, balance 100→60) and upserts the flock to 2 (`🐔 Bought a hen for **40** 🪙! Your flock is now **2** strong. Balance: **60** 🪙.` — the shipped farm_workflow buy copy verbatim; buying settles at the OLD flock size first, the shipped no-retroactive-rate subtlety)",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🥚"
+          },
+          "label": "Collect",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🛒"
+          },
+          "label": "Shop",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔄"
+          },
+          "label": "Refresh",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "Your hens lay eggs around the clock — even while you're away. Press **Collect** to cash them in, then visit the **Shop** to grow.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Coop",
+          "value": "🥚 0/20 [▱▱▱▱▱▱▱▱▱▱]\nWorth **0** 🪙 · fills in 1h 40m"
+         },
+         {
+          "inline": true,
+          "name": "Flock",
+          "value": "🐔 **1** hen(s) · **12** eggs/hr"
+         },
+         {
+          "inline": true,
+          "name": "Coop level",
+          "value": "🏠 **0** · holds **20** eggs"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Balance: 100 🪙  ·  🥚 Collect · 🛒 Shop"
+        },
+        "title": "🐔 Chicken Farm",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!farm",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:4>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🐔"
+          },
+          "label": "Buy hen",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:5>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🏠"
+          },
+          "label": "Upgrade coop",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:6>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "◀"
+          },
+          "label": "Back",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "Spend your egg coins to grow the farm:\n\n**🐔 Buy hen** — one more hen lays eggs faster.\n**🏠 Upgrade coop** — hold more eggs so idle progress banks longer.\n\nPrices rise as your farm grows.",
+        "fields": [
+         {
+          "inline": true,
+          "name": "🐔 Next hen",
+          "value": "**40** 🪙 (own 1)"
+         },
+         {
+          "inline": true,
+          "name": "🏠 Coop upgrade",
+          "value": "**100** 🪙 → holds 35"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Balance: 100 🪙"
+        },
+        "title": "🛒 Farm Shop",
+        "type": "rich"
+       }
+      ],
+      "flags": 64,
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:2>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:2>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "🐔 Bought a hen for **40** 🪙! Your flock is now **2** strong. Balance: **60** 🪙."
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "economy.balance_changed",
+     "payload": {
+      "delta": -40,
+      "guild_id": "<guild>",
+      "new_balance": 60,
+      "reason": "farm:buy_chicken",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:4>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 2
+   }
+  }
+ ],
+ "subsystem": "farm"
+}

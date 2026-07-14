@@ -59,13 +59,16 @@ class TestImportedCorpus:
         # cleanup policies-open golden (2026-07-13) + 4 minted
         # fishing minigame-timing slice-1 goldens (premature spook/grace +
         # trophy fight land/escape — the first Step.advance_s cases,
+        # 2026-07-14) + 4 minted curation row-72 + farm-goldens batch
+        # goldens (the `!rps 10` quickplay bet-settle click + the farm
+        # collect/buy-hen/upgrade-coop money-path clicks, ORDER 022 (a)4,
         # 2026-07-14) (parity.yml
         # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
         # `!cog` capture, + sweep_query_logs.json / sweep_recent_errors.json,
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 515
+        assert len(goldens) == 519
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -111,7 +114,7 @@ class TestImportedCorpus:
         # + 1 fishing howtofish rules-card mint (2026-07-13)
         # + 1 cleanup policies-open mint (2026-07-13)
         # + 4 fishing minigame-timing slice-1 mints (2026-07-14)
-        assert source["minted_goldens"] == 53
+        assert source["minted_goldens"] == 57
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -639,7 +642,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
-        assert "515 goldens" in out
+        assert "519 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

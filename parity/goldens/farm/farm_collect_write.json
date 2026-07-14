@@ -1,0 +1,244 @@
+{
+ "case_id": "farm.collect_write",
+ "db_delta": {
+  "chicken_farm": {
+   "added": [
+    {
+     "chickens": 1,
+     "coop_level": 0,
+     "eggs": 0,
+     "eggs_updated_at": 2061462633,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ],
+   "removed": [
+    {
+     "chickens": 1,
+     "coop_level": 0,
+     "eggs": 20,
+     "eggs_updated_at": 0,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "economy_audit_log": {
+   "added": [
+    {
+     "actor_id": "<@member>",
+     "delta": 40,
+     "guild_id": "<guild>",
+     "id": 1,
+     "new_balance": 40,
+     "occurred_at": "<ts>",
+     "reason": "farm:collect",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "game_xp": {
+   "added": [
+    {
+     "day": "<ts>",
+     "day_xp": 3,
+     "game": "farm",
+     "guild_id": "<guild>",
+     "updated_at": "<ts>",
+     "user_id": "<@member>",
+     "xp": 3
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 2061462603,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 25
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the Collect payout: `!farm` renders the hub at a full coop (`🥚 20/20`, `Worth **40** 🪙 · **full!**`) and the 🥚 Collect click drives the audited farm.collect op — ONE txn credits collect_value(20)=40 🪙 (reason farm:collect), zeroes the eggs on the chicken_farm row and awards the farm game-XP (`🥚 Collected **20** egg(s) for **40** 🪙! Balance: **40** 🪙.` — the shipped farm_workflow collect copy verbatim); the FIRST row-bearing chicken_farm capture",
+ "seed": 42,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🥚"
+          },
+          "label": "Collect",
+          "style": 3,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:2>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🛒"
+          },
+          "label": "Shop",
+          "style": 1,
+          "type": 2
+         },
+         {
+          "custom_id": "<cid:3>",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔄"
+          },
+          "label": "Refresh",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "nav:help",
+          "disabled": false,
+          "label": "📚 Help",
+          "style": 2,
+          "type": 2
+         },
+         {
+          "custom_id": "nav:hub:games",
+          "disabled": false,
+          "label": "↩ Games",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "Your hens lay eggs around the clock — even while you're away. Press **Collect** to cash them in, then visit the **Shop** to grow.",
+        "fields": [
+         {
+          "inline": false,
+          "name": "Coop",
+          "value": "🥚 20/20 [▰▰▰▰▰▰▰▰▰▰]\nWorth **40** 🪙 · **full!**"
+         },
+         {
+          "inline": true,
+          "name": "Flock",
+          "value": "🐔 **1** hen(s) · **12** eggs/hr"
+         },
+         {
+          "inline": true,
+          "name": "Coop level",
+          "value": "🏠 **0** · holds **20** eggs"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "Balance: 0 🪙  ·  🥚 Collect · 🛒 Shop"
+        },
+        "title": "🐔 Chicken Farm",
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 25,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 25,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!farm",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "webhook_id": "<@bot>"
+     },
+     "method": "followup_send",
+     "payload": {
+      "content": "🥚 Collected **20** egg(s) for **40** 🪙! Balance: **40** 🪙."
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "economy.balance_changed",
+     "payload": {
+      "delta": 40,
+      "guild_id": "<guild>",
+      "new_balance": 40,
+      "reason": "farm:collect",
+      "user_id": "<@member>"
+     }
+    },
+    {
+     "event": "game_xp.awarded",
+     "payload": {
+      "action": "collect_eggs",
+      "amount": 3,
+      "game": "farm",
+      "guild_id": "<guild>",
+      "total": 3,
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "farm"
+}

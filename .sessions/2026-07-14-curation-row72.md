@@ -28,6 +28,31 @@ over via the branch-from-#371-head path.
   test_check_parity_depth.py); CAPTURE_WORLD_WEATHER registration
   BEFORE any mint per the post-07-13 date-live-outage doctrine.
 
+Decide-and-flag deviations (PL-001, each one-line-rationale'd in the
+PR body):
+
+- `sb/domain/rps/ops`' module-private solo-play RNG is now runner-armed
+  at every case head (`sb/adapters/parity/runner.py`, the fishing
+  cast-RNG posture) — without it the bot's move differs between capture
+  and every replay.
+- The three farm K7 legs now speak their success copy through
+  `LegOutcome.user_message` (`sb/domain/farm/ops.py`, the
+  rps.record_solo_play precedent): the copy sat dead in
+  `after["message"]`, which no surface reads — a Collect click
+  committed money SILENTLY; minting that would enshrine the silent
+  click as corpus truth.
+- The parity transport mints a click-targetable message id for
+  component-bearing panel FOLLOWUPS (`sb/adapters/parity/transport.py`)
+  — the hub → Shop hop presents the shop as a followup, and a real
+  `Webhook.send` returns the created message; component-less followups
+  stay id-less (zero effect on the existing corpus).
+- Exemption retirements + ratchet climbs (farm `table:chicken_farm`,
+  rps `table:rps_players`; farm/rps_tournament ratchet rows) per the
+  fishing_catch_log retirement precedent — both rows' own text promised
+  retirement at the first row-bearing capture. The `cleanup` ratchet
+  under-pin `--write-ratchet` also surfaced was REVERTED (not this
+  lane's coverage).
+
 ## Previous-session review
 
 `2026-07-14-fishing-minigame-timing.md` (PR #460) — the closest mint
