@@ -32,23 +32,23 @@ effect_text; utils/fishing/energy.py bar/settle constants) match the
 corpus goldens byte-for-byte — NO drift (corpus sha 7f7628e1).
 
 Under-port ledger (no golden pins these corners):
-* the shipped cast view ran the live minigame in-place — bite-delay
-  timers flipping the button to the reel window, fake-out shakes, a
-  reeled catch EDITING the panel into the result embed
-  (``interaction.response.edit_message``). The D-0043 timing rung
-  slice 1 landed the CLICK-GATED half: a Reel click now resolves
-  against the cast-time timing roll (premature spook / grace, the
-  trophy reel-fight — whose grace/fight prompts DO edit the panel in
-  place via refresh_session_view, the ``cast_prompt`` override in
-  ``_render_cast``); the commit still opens the result as a fresh
-  result card (the farm in-place-edit under-port precedent). Parked on
-  slice 2 (the push-edit seam real-time asyncio needs): the unprompted
-  BITE!/fake-out edits, hence late-window enforcement — see the ops.py
-  DEVIATION header.
+* the shipped cast view's live minigame is PORTED WHOLE (D-0043
+  slices 1+2): a Reel click resolves against the cast-time timing roll
+  (premature spook / grace, LATE-window too-slow, the trophy
+  reel-fight — the grace/fight prompts edit the panel in place via
+  refresh_session_view, the ``cast_prompt`` override in
+  ``_render_cast``), and the UNPROMPTED cues — fake-out nibble,
+  🐟 BITE! arm (button label/style flip), fight-round prompts, the
+  got-away window expiry — edit it with no interaction via the D-0090
+  kernel one-shot timers + ``push_session_refresh`` (headless/parity:
+  EDIT_UNAVAILABLE no-op; enforcement is SYSTEM_CLOCK timestamp math,
+  never the timers). The commit still opens the result as a fresh
+  result card (the farm in-place-edit under-port precedent) — the
+  ``_FishingDoneView`` Cast-again continuation is the named remainder.
 * the shipped ``active_casts`` one-line-in-the-water guard now lives as
   the service.py pending-cast registry (the guard copy is answered;
-  the 45 s window is modelled without a timer); the timed view
-  lifecycle itself — same successor rung.
+  the 45 s window stays the outer bound; the got-away timer is the
+  oracle background expiry, the registry sweep its restart-safe net).
 * the cast LEG is WIRED (the cast-leg depth wiring): venue (slice 1),
   rod (slice 2), bait (slice 3) and the structures (slice 4) state all
   drive the roll through the shipped ``begin_cast`` compound —
@@ -838,15 +838,43 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
     params = getattr(ctx, "params", {}) or {}
     prompt = params.get("cast_prompt")
     if prompt:
-        # a mid-cast timing edit (D-0043 slice 1: the grace forgive /
-        # reel-fight prompts riding refresh_session_view) — the oracle
-        # ``_edit_message`` shape verbatim: a bare description embed (no
-        # weather field, no footer), the Reel component row kept. The
-        # waiting-panel open never passes cast_prompt, so its
-        # golden-pinned bytes are untouched.
+        # a mid-cast timing edit (D-0043: the grace forgive / reel-fight
+        # prompts riding refresh_session_view, and — slice 2 — the
+        # nibble/BITE!/got-away background edits riding the
+        # push_session_refresh seam) — the oracle ``_edit_message`` shape
+        # verbatim: a bare description embed (no weather field, no
+        # footer), the Reel component row kept. The slice-2 knobs mirror
+        # the oracle ``_arm``/``_fail`` surface: ``cast_prompt_style``
+        # recolors the embed (SUCCESS_COLOR bite arm / ERROR_COLOR
+        # terminals), ``cast_button_label``/``cast_button_style`` flip
+        # the Reel button ("Reel it in!"/"Reel!" success), and
+        # ``cast_disable`` is the terminal disable. The waiting-panel
+        # open and the slice-1 interaction edits pass none of them, so
+        # every golden-pinned byte is untouched.
         embed = _dc_replace(rendered.embed, description=str(prompt),
                             fields=(), footer="")
-        return _dc_replace(rendered, embed=embed)
+        style = params.get("cast_prompt_style")
+        if style:
+            embed = _dc_replace(embed, style_token=str(style))
+        components = rendered.components
+        label = params.get("cast_button_label")
+        button_style = params.get("cast_button_style")
+        disable = bool(params.get("cast_disable"))
+        if label or button_style or disable:
+            patched = []
+            for comp in components:
+                if getattr(comp, "custom_id", "").endswith(".fishing_reel"):
+                    patch: dict = {}
+                    if label:
+                        patch["label"] = str(label)
+                    if button_style:
+                        patch["style"] = str(button_style)
+                    if disable:
+                        patch["disabled"] = True
+                    comp = _dc_replace(comp, **patch)
+                patched.append(comp)
+            components = tuple(patched)
+        return _dc_replace(rendered, embed=embed, components=components)
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(ctx.guild_id or 0)
     current = params.get("cast_energy")
