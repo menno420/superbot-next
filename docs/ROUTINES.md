@@ -77,6 +77,22 @@ loop fire, and without this check a miss sits in a blind window until a
 human notices. Detection latency is bounded by the failsafe cadence; the
 check makes it bounded instead of unbounded.
 
+## Seat wake discipline — hygiene + the end-of-turn invariant
+
+For a persistent seat living on a wake chain (PL-012, the autonomy
+rider's seat mechanics — cite it, don't copy it):
+
+- **Wake hygiene:** consume-before-re-arm; exactly ONE outstanding
+  pacemaker tick at any time; verify the failsafe is ALIVE at every wake
+  (listed, enabled, next fire in the FUTURE — re-arm it if wedged, one
+  trigger write per worker); a wake with nothing to do is a SILENT
+  no-op — re-arm and exit without writes.
+- **End-of-turn invariant:** every turn ends with (a) work landed or
+  routed, (b) exactly one future tick armed + the failsafe verified, and
+  (c) the seat's heartbeat (`control/status.md`) re-stamped LAST after
+  re-reading its inbox at HEAD. Ending a turn with zero armed wakes is a
+  seat-killing bug.
+
 ## Boundaries
 
 The working agreement (`.claude/CLAUDE.md`) governs when to act vs ask;

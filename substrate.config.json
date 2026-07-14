@@ -44,7 +44,7 @@
   ],
   "interpreter": "/usr/local/bin/python3",
   "interpreter_for_checks": null,
-  "kit_version": "1.15.0",
+  "kit_version": "1.16.0",
   "namespace": {
     "reserved": {
       "AIGateway": "kernel/ai/gateway.py",
@@ -201,6 +201,9 @@
     "budget_words": 7000
   },
   "paths": {},
+  "preflight_scripts": [
+    "scripts/preflight.py"
+  ],
   "project_id": "0f00ecc87d58",
   "readpath_docs": [
     "AGENT_ORIENTATION.md",
