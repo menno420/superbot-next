@@ -1,34 +1,28 @@
 # superbot-next · status
-updated: 2026-07-13T22:28:36Z
-phase: EAP FINAL NIGHT — coordinator seat OPEN, night ORDER 019 ACKED and being worked top-down (owner kickoff live 22:2xZ).
-health: main at `605db5a88e553f6f4317ba4bf40293d143ac8168` — today landed: energy lane, curation remainder, churn fixes, hygiene, fence #394, setup wizard complete (7 slices), settings-admin complete, completeness remainders complete, tooling #415/#416, compound-ops slice 1 #419. golden-parity report leg green.
+updated: 2026-07-14T01:44:04Z
+phase: EAP FINAL NIGHT — coordinator seat OPEN; ORDER 019 worked top-down, most items landed; loop continues to morning.
+health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
 kit: v1.15.0
-orders: acked=001–019 done=002–018; ORDER 001 open owner-side; ORDER 019 IN PROGRESS (night worklist, per-item log below).
+orders: acked=001–019 done=002–018; ORDER 001 open owner-side; ORDER 019 log below.
 
-## ORDER 019 night log (top-down)
-1. WP-stack conflict reconcile — DISPATCHED 22:30Z (lane).
-2. Curation REWORK backlog bundle (~17 rows) — DISPATCHED 22:30Z (lane).
-3. check_money_race mis-classification fix — DISPATCHED 22:30Z (small-items lane).
-4. Fishing cast-leg profile wiring — QUEUED wave 2 (verify-first: cast-leg depth wiring landed as #373/#387 today; residual to be confirmed).
-5. Setup follow-ups unclaimed subset — QUEUED wave 2 (compound-ops+routing+automation-rule subset CLAIMED, PR #414 lane active — slice 1 #419 merged, slice 2 building).
-6. plugins.lock.json pin for idle adapter — QUEUED wave 2 (cross-repo).
-7. Windowed-select grammar successor — QUEUED wave 2.
-8. Doc-only band-binding doctrine PR — DISPATCHED 22:30Z (small-items lane).
-ORDER 031 (relayed, primary owner accepted): mining/fishing/idle review+finalize reports + casino inventory/spec — DISPATCHED 22:30Z (analysis-first lane); casino spec's SBW dependency stays flagged (⚑5); build follow-ups spawn from its report.
+## ORDER 019 night log (as of 2026-07-14T01:44:04Z)
+1. WP-stack reconcile — IN FLIGHT (lane active; wp5/wp6/wp7 branches updated; merge stays owner-click).
+2. Curation bundles — DONE to real extent: rows 2/45/59/60 landed (#428, #434); order's "~17 rows" was stale (21 of 27 pre-shipped); row 26 owned by WP lane, row 72 parked pending WP count-pin files (claim held, mint recipe verified).
+3. check_money_race fix — DONE (#425; checker-only, 4 red-proven pins).
+4. Fishing cast-leg wiring — DONE-ALREADY (#373/#387/#394); table trued (#436), stamp fix (#439).
+5. Setup follow-ups — 5a on-ready resume DONE (#437); 5c channel-recommender DONE (#446); 5b SectionRecoveryView IN FLIGHT (#444, conflict-resolve).
+6. Idle plugins.lock pin — DONE-ALREADY (#370/0cae0e1); verification record #441.
+7. Windowed-select grammar — DONE (#435; premise correction: title-equip needs a write slice, not windowing).
+8. Band-binding doctrine doc — DONE (#427; ORDER 004 done= citation hook).
+ORDER 031 (relayed, accepted) — COMPLETE lane-side: reviews + casino inventory/section spec published at docs/review/games-finalization-2026-07-13.md and docs/specs/casino-section-spec.md (THIS heartbeat line is the ORDER 031 reference hook; the spec fills the SBW SIM-REQUEST / D-0082 §7 slot). Improve slices landed: #442 minestats, #450 fishing fidelity, #451 farm leaderboard. Casino SECTION BUILD remains a separate order.
 
 ## ROUTINES
 - FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v (0 1-23/2 * * *) armed, bound to this seat. Pacemaker chain live (~15 min links).
 - business crons unchanged: kit-lab trig_01Jm57GAjNCFrYJn1oLMiYGE (fresh-session — NEVER rebind); docs-recon trig_018wP6XTPmf9DLnxrG4RpGVh (poke-only).
 
-## ACTIVE LANES
-- setup compound-ops (claim #414): slice 1 #419 MERGED; slice 2 (routing resolver + automation-rule seam) building.
-- parity hygiene (claim #417): flavor re-mints + dead harness ref + 9-orphan triage — in progress.
-- night wave-1 lanes per ORDER 019 log above.
-
 ## OPEN PRs
-- WP stack #312→#317→#335→#344→#371 — gate-green but now 4-file conflicted vs main; reconcile lane dispatched; merge stays owner-click.
-- #392 parked green on wp3 (auto-lands after WP sweep; re-mints the 0052-invalidated goldens — coordinate with reconcile lane).
-- superbot #2058/#2061 — draft deploy-holds, flip-ready with ~2h churn caveat.
+- WP stack #312→#317→#335→#344→#371 — reconcile in flight; owner-click sweep after.
+- #392 parked on wp3 (auto-lands after WP sweep) · #444 (item 5b, in flight) · superbot #2058/#2061 draft deploy-holds (~2h churn caveat).
 
 ## ⚑ needs-owner (the standing eight)
 
@@ -42,5 +36,7 @@ ORDER 031 (relayed, primary owner accepted): mining/fishing/idle review+finalize
 8. Confirm the origin/main history rewrite on superbot-next (history now roots at whole-tree snapshot 2cb4d91, ~104 commits; old per-PR squash SHAs like #319's no longer resolve locally though GitHub confirms the merges). If deliberate (e.g. repo squash), reply and the coordinator records it; if not, it needs investigation.
 
 next-2-tasks:
-1. Work ORDER 019 top-down through the night; heartbeat per item.
-2. Morning: full night report → outbox; owner sweep list unchanged.
+1. Finish item 1 (WP reconcile) + 5b (#444); then curation row-72 (post-WP) and any remaining honest tails; morning report → outbox.
+2. Owner sweep — WP stack + mineverse flips + DROP list + history-rewrite confirm; casino section build = new order when ready.
+
+Pointers: night ack = PR #421; ORDER 031 hook = docs/specs/casino-section-spec.md; incident detail = PRs #448/#449 bodies.
