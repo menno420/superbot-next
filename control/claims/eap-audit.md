@@ -1,0 +1,1 @@
+- `claude/eap-audit` · **EAP close-out project audit → docs/audits/eap-project-audit-2026-07-14.md (owner directive 2026-07-14, coordinator-relayed)** — consolidated close-out audit: measured totals, tooling verdicts, walls, friction, fixes, pains, wishlist, honest gaps · `docs/audits/eap-project-audit-2026-07-14.md`, `.sessions/2026-07-14-eap-audit.md` · 2026-07-14
