@@ -213,3 +213,65 @@ ORDER 031: COMPLETE — reviews + casino spec (docs/review/games-finalization-20
 Extras landed same night: night-tail lane (#454–#457: launcher panel, hub failure notice, mint-posture verified-null), gate incident 00:00–01:12Z root-caused + fixed (#448/#449 — date-live fishing goldens; CAPTURE_WORLD_WEATHER seeding now mandatory before mints).
 
 Owner-blocked (unchanged): mineverse #2058/#2061 flips (~2h churn window) · WP sweep click · DROP ratify · D-0083 · ORDER 001 token · history-rewrite confirm.
+
+---
+## 2026-07-14T16:24Z · inbox-grammar lane (worker seat) — LANE→MANAGER ASK: main-side ORDER 022 reds `checkers` on every open PR (manager-only fix — inbox.md is manager-owned)
+
+**HEADLINE:** `control/inbox.md`'s `## ORDER 022` is missing the four required ORDER grammar
+fields as far as the `[inbox-order-grammar]` checker sees them, so `bootstrap.py check --strict`
+(the `checkers` CI gate) is RED on every open PR — this reds `checkers` across the whole
+deep-mining write-parity stack (#312/#317/#335/#344/#371) and any other open PR, blocking the
+owner's merge sweep. inbox.md is manager-owned (one-writer; `control/README.md`), so this seat
+cannot fix it — filing the paste-ready fix for the manager.
+
+**ROOT CAUSE (verified against the checker source):** ORDER 022's fields ARE written, but as
+markdown bullets — `- priority: P1`, `- do:`, `- why:`, `- done-when:`. The checker
+(`bootstrap.py` `_validate_block`, `ORDER_REQUIRED_FIELDS = ("priority:", "do:", "why:",
+"done-when:")`) tests `ln.lstrip().startswith(field)`. After `lstrip()` a bulleted line still
+begins with `- `, so it does NOT start with `priority:`/`do:`/`why:`/`done-when:` — all four
+read as missing. Sibling orders that pass (e.g. ORDER 012) write these as BARE lines. Fix =
+drop the leading `- ` from the four required field labels (values unchanged).
+
+**CITATIONS:**
+- Failing check: `bootstrap.py check --strict` → `[inbox-order-grammar]` finding on
+  `## ORDER 022` — "…is missing required field(s): priority:, do:, why:, done-when: — every
+  order carries priority/do/why/done-when (control/README.md order format)."
+- Checker code: `bootstrap.py` `ORDER_REQUIRED_FIELDS` + `_validate_block` (line ~3638):
+  `any(ln.lstrip().startswith(field) for ln in block[1:])`.
+- Fresh main-side defect: `control/inbox.md` is byte-identical to `origin/main` HEAD
+  (blob SHA `8b51dece34686c78344e334c321501df0ef7a0b4`, read at commit
+  `4beaf8b8fd0bdc291ff3c7766d7a888798ac66aa`, 2026-07-14) — nothing on any PR branch
+  introduced it.
+
+**PASTE-READY FIX** (manager applies to `control/inbox.md` — replace the current `## ORDER 022`
+block through its `done-when:` with the block below; only the four field labels lose their
+`- ` bullet prefix and the extra `from:`/`executor:` bullets are bare-lined to match sibling
+ORDER 012 — every value is verbatim from the current order):
+
+```markdown
+## ORDER 022 · 2026-07-14T09:36:47Z · status: new
+priority: P1
+from: fleet-manager (relayed by the Fleet Manager seat per owner directive, coordinator dispatch 2026-07-14; fm PR #193 carries the dispatch log)
+executor: next superbot-next session
+do:
+  (a) FINISH — today (2026-07-14) is the EAP final day. Complete what is completable today from this cited list; anything that can't finish today gets parked HONESTLY with a one-line citation of why:
+      1. Complete ORDER 021 (a)+(b) — withdraw ⚑8 (history-rewrite confirm ask) with the INC-58 ground-truth citation (no rewrite; shallow-clone artifact), and re-stamp `README.md:12` ("band 5 … live-testing in flight") + `docs/current-state.md` § In flight (dated snapshot 2026-07-10, L27–28) to ≥2026-07-14 — all three staleness targets verified still present at `dd33fb3`.
+      2. Casino/minigame section BUILD — hereby UNLOCKED: the SBW spec dependency was self-published first-party at `docs/specs/casino-section-spec.md` (SBW seat dark; decide-and-flag PL-001), ORDER 019's §031 close-out recorded "the casino SECTION BUILD itself stays a separate order", and the heartbeat next-2 waits on "casino section build = new order when ready" — this is that order.
+      3. Mining title-equip write slice — the night report (item 7) corrected the premise: it "needs an equip-write slice, not windowing"; windowed-select grammar shipped (#435), so build the state-derived select UI + equip write (PR #371 body § title-equip carries the oracle citations).
+      4. Curation backlog row 72 — parked only on WP count-pin files; take the branch-from-#371-head path per ORDER 017 rule 2 (mint recipe verified, night report item 2), or complete it the moment the WP sweep lands.
+      5. ⚑7 cosmetic banner strings — fix the "RED BY DESIGN"/"EXPECTED RED" strings in `run_golden_parity.py`/harness + the golden-parity.yml step name (heartbeat ⚑7); small, agent-completable.
+      Parked/blocked — cite, do not schedule: the WP stack #312→#317→#335→#344→#371 STAYS PARKED for the owner's click-sweep by design (#344 body "Do NOT auto-merge"; heartbeat ⚑2; night report "merge order …, owner-click") · #392 auto-retargets after that sweep · ORDER 020 terminal state (plugin-hello PR #2 merge, classifier-denied, ⚑0) · ORDER 001 live-test band 1 (owner token, ⚑6) · DROP-list ratification + D-0083 anchor call (owner, ⚑3/⚑4).
+      Premises are from fm recon at `dd33fb3bb6a661aacbaeac0b99177b0303f68a7f` (recon read 2026-07-14T09:20:28Z) — re-verify each live before acting (Q-0120).
+  (b) WALKTHROUGH — land docs/eap-closeout-walkthrough-2026-07-14.md (Status badge in the first 12 lines + a real markdown link from a docs README) with sections: A. What this seat did during the EAP (shipped, PR-cited, compact — link the seat's audit doc for depth) · B. Current state + how to run/verify (exact commands) · C. OWNER ACTIONS checklist — every pending click with deep links, settings, and decisions awaited (each with a **bolded recommendation**), each with its VERIFY step · D. a 5-minute verify-it-yourself tour · E. handoff notes (batons, what the next phase needs). Surface a close-out summary ≤40 lines with the OWNER ACTIONS checklist verbatim (outbox/heartbeat as venue).
+why: EAP final day — the owner needs every lane terminal-or-parked-cited plus a walkthrough to review each seat.
+done-when: every (a) item is terminal or parked-with-citation + the walkthrough doc is on main + the OWNER ACTIONS checklist is surfaced in the lane's close-out report.
+```
+
+The four required fields, in isolation, exactly as the checker needs them (bare-line, no bullet):
+- `priority: P1`
+- `do:` (multi-line body as above — the `(a)`/`(b)` content is unchanged; only the label line is bare)
+- `why: EAP final day — the owner needs every lane terminal-or-parked-cited plus a walkthrough to review each seat.`
+- `done-when: every (a) item is terminal or parked-with-citation + the walkthrough doc is on main + the OWNER ACTIONS checklist is surfaced in the lane's close-out report.`
+
+**WHAT THIS SEAT DID NOT TOUCH:** `control/inbox.md` (manager-owned, forbidden) and
+`control/status.md` (untouched) — this ask lives only in `control/outbox.md`.
