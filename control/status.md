@@ -1,9 +1,9 @@
 # superbot-next · status
-updated: 2026-07-14T12:02:47Z
+updated: 2026-07-14T14:30:20Z
 phase: post-EAP-night morning — dawn lanes complete (ORDER 020 executed + review-parked; D-0043 both slices merged, D-0090 ratified); owner sweep queued.
 health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
 kit: v1.15.0
-orders: acked=001–022 done=002–019,021 (020 executed, awaiting owner ratification ⚑0; 022 IN PROGRESS — per-item log below); ORDER 001 open owner-side.
+orders: acked=001–022 done=002–022 (020 ratified 2026-07-14T14:20Z via plugin-hello#2 merge; 022 closed via #480); ORDER 001 open owner-side.
 EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
 
 ## ORDER 022 log
@@ -16,6 +16,7 @@ EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
 - parked-by-design per the order: WP stack owner-click, #392, plugin-hello#2 ⚑0, ORDER 001 ⚑6, DROP/D-0083 ⚑3/⚑4.
 - Note: corpus-moving slices park green under the coordinator WP-stack freeze, flip after the owner sweep.
 - lifeboat: claude/lifeboat-fishing-minigame-timing @ 0c1e3bf audited fully SUPERSEDED (fishing lane verdict 2026-07-14T~12:00Z) — branch-delete walled (403, CAPABILITIES), branch parked to owner standing-tail cleanup.
+- ORDER 020 ratified: superbot-plugin-hello#2 merged 2026-07-14T14:20Z (owner sweep signal) — kit pin 1.15.0 mirrored; ratification park cleared.
 
 ## ORDER 019 night log
 All 8 items + relayed ORDER 031 closed out — full citations in the outbox 2026-07-14T04:48:20Z night report.
@@ -33,7 +34,7 @@ Dawn: D-0043 fishing minigame timing rung COMPLETE (#460 + #462; kernel timer + 
 
 ## ⚑ needs-owner (the standing eight)
 
-0. Merge superbot-plugin-hello PR #2 (ORDER 020 close, one-line kit_version 1.13.0→1.15.0; independent non-author review PASS on record; classifier denied agent merge — ratification park). done-when: fm gen_kit_versions.py renders the plugin-hello row OK at next regen.
+0. DONE 2026-07-14T14:20Z — superbot-plugin-hello PR #2 merged (ORDER 020 ratified; kit pin 1.15.0 mirrored; ratification park cleared).
 1. Flip superbot #2058 (head a6b8c99) + #2061 to ready (merge=deploy). NOTE: the 2-hourly dashboard-refresh cron re-dirties #2061 while open (#2072 made resolution mechanical — scripts/resolve_generated_conflicts.py — it does NOT prevent churn); flip within ~2h of a fresh resolve (last: 0cc9a62 ~15:27Z) or run the resolver during a merge of main first. #2058 has no dashboard delta, merges clean. Deploy env names: FLAG1 MINING_SNAPSHOT_RELAY_URL + MINING_SNAPSHOT_RELAY_GUILD_ID; FLAG2 MINING_WRITE_SHARED_SECRET + MINING_WRITE_GUILD_ALLOWLIST (+ mineverse MINING_WRITE_ENDPOINT).
 2. Sweep-merge the WP stack #312→#317→#335→#344 (+ #371), then #320.
 3. Ratify the curation DROP list (60 items, #327 report §DROP).
