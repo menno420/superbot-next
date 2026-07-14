@@ -33,16 +33,18 @@ corpus goldens byte-for-byte — NO drift (corpus sha 7f7628e1).
 
 Under-port ledger (no golden pins these corners):
 * the shipped cast view ran the live minigame in-place — bite-delay
-  timers flipping the button to the reel window, fake-out shakes, early
-  reel escapes, a reeled catch EDITING the panel into the result embed
-  (``interaction.response.edit_message``). The port's Reel button
-  commits the cast-time roll through the audited ``fishing.cast`` K7 op
-  (dex upsert + pearl/coral/fish materials + game-XP in one leg txn)
-  and opens the result as a fresh result card (the farm in-place-edit
-  under-port precedent); the TIMING layer stays parked on the D-0043
-  minigame rung (real-time asyncio the headless panel engine doesn't
-  model) even though its pure math is now ported
-  (sb/domain/fishing/minigame.py) — see the ops.py DEVIATION header.
+  timers flipping the button to the reel window, fake-out shakes, a
+  reeled catch EDITING the panel into the result embed
+  (``interaction.response.edit_message``). The D-0043 timing rung
+  slice 1 landed the CLICK-GATED half: a Reel click now resolves
+  against the cast-time timing roll (premature spook / grace, the
+  trophy reel-fight — whose grace/fight prompts DO edit the panel in
+  place via refresh_session_view, the ``cast_prompt`` override in
+  ``_render_cast``); the commit still opens the result as a fresh
+  result card (the farm in-place-edit under-port precedent). Parked on
+  slice 2 (the push-edit seam real-time asyncio needs): the unprompted
+  BITE!/fake-out edits, hence late-window enforcement — see the ops.py
+  DEVIATION header.
 * the shipped ``active_casts`` one-line-in-the-water guard now lives as
   the service.py pending-cast registry (the guard copy is answered;
   the 45 s window is modelled without a timer); the timed view
@@ -56,8 +58,8 @@ Under-port ledger (no golden pins these corners):
   chance. Every knob reads exactly neutral on a fresh player (no row ⇒
   shore / tier 0 / bait-less / not built ⇒ ×1.0/+0.0), so every
   golden-pinned fresh-player byte is unchanged. The bite-SPEED half of
-  the compound (rod/bait/weather/gear/dock) is computed + surfaced but
-  outcome-inert until the timing rung above lands. The shipped
+  the compound (rod/bait/weather/gear/dock) now gates the cast — it
+  scales the cast-time bite-delay roll (timing rung slice 1). The shipped
   Build-click in-place panel edit (safe_edit with the ✅/❌ note +
   SUCCESS/ERROR recolor) opens as a fresh result card instead — the
   farm in-place-edit under-port precedent.
@@ -834,6 +836,17 @@ async def _render_cast(spec: PanelSpec, ctx) -> object:
 
     rendered = await render_panel(spec, ctx)
     params = getattr(ctx, "params", {}) or {}
+    prompt = params.get("cast_prompt")
+    if prompt:
+        # a mid-cast timing edit (D-0043 slice 1: the grace forgive /
+        # reel-fight prompts riding refresh_session_view) — the oracle
+        # ``_edit_message`` shape verbatim: a bare description embed (no
+        # weather field, no footer), the Reel component row kept. The
+        # waiting-panel open never passes cast_prompt, so its
+        # golden-pinned bytes are untouched.
+        embed = _dc_replace(rendered.embed, description=str(prompt),
+                            fields=(), footer="")
+        return _dc_replace(rendered, embed=embed)
     uid = int(getattr(ctx.actor, "user_id", 0) or 0)
     gid = int(ctx.guild_id or 0)
     current = params.get("cast_energy")

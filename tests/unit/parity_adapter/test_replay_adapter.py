@@ -31,7 +31,7 @@ def harness():
 
 
 def test_full_corpus_reconstructs():
-    """Every golden on disk yields a replayable case (511/511) — curated
+    """Every golden on disk yields a replayable case (515/515) — curated
     typed cases first, sweep cases rebuilt from their golden documents
     (465 imported + the 2 D-0073 minted modal-submit cases + the 4 D-0075
     minted kernel-band cases + the 1 minted casino poker play-layer case
@@ -53,6 +53,9 @@ def test_full_corpus_reconstructs():
     the hub 📖 How-to-fish click by component_index, a pure read)
     + the 1 cleanup policies-open case (2026-07-13 — `!cleanup` + the 🧹
     Cleanup Policies click by component_index, a pure read)
+    + the 4 fishing minigame-timing slice-1 cases (2026-07-14, D-0043 —
+    premature spook/grace + trophy fight land/escape; the first cases
+    driving Step.advance_s clicks)
     − 3 retired: sweep_cog.json, the deploy-ops `!cog`
     capture, plus
     sweep_query_logs.json / sweep_recent_errors.json, the run-order-dependent
@@ -87,9 +90,11 @@ def test_full_corpus_reconstructs():
     # residue port, 2026-07-13)
     # + 1 (fishing howtofish rules card, 2026-07-13)
     # + 1 (cleanup policies open, 2026-07-13)
+    # + 4 (fishing minigame timing slice 1: premature spook / premature
+    # grace / trophy fight land / trophy fight escape, 2026-07-14)
     # − 3 retired (sweep_cog.json + sweep_query_logs.json +
     # sweep_recent_errors.json — parity.yml source.retired_goldens)
-    assert golden_count == 511
+    assert golden_count == 515
     assert len(cases) == golden_count
     assert len({c.id for c in cases}) == len(cases)
 
@@ -148,6 +153,46 @@ def test_value_less_click_stays_value_less():
     assert case is not None
     assert case.steps[0].values is None
     assert "values" not in _describe_step(case.steps[0])
+
+
+def test_step_advance_s_round_trips():
+    """The D-0043 clock-grammar growth: a click carrying a sub-window
+    ``advance_s`` (the fishing timing cases' pre-bite Reel) round-trips
+    reconstruct → describe like ``values``/``fields`` before it."""
+    from parity.harness.runner import _describe_step
+    from sb.adapters.parity.cases import reconstruct_case
+
+    golden = {
+        "case_id": "probe.timing", "subsystem": "fishing",
+        "steps": [{"input": {
+            "kind": "click", "persona": "member",
+            "custom_id": "fishing.cast_panel.fishing_reel",
+            "target_message": 1, "advance_s": 0.5}}],
+    }
+    case = reconstruct_case(golden)
+    assert case is not None
+    assert case.steps[0].advance_s == 0.5
+    assert _describe_step(case.steps[0]) == golden["steps"][0]["input"]
+
+
+def test_default_step_stays_advance_less():
+    """A step without ``advance_s`` keeps ``None`` (= the fixed 30.0 s
+    every existing golden was captured under) and its describe-back
+    omits the key — the growth is additive-only for the whole corpus."""
+    from parity.harness.cases import Step
+    from parity.harness.runner import _describe_step
+    from sb.adapters.parity.cases import reconstruct_case
+
+    golden = {
+        "case_id": "probe.plain", "subsystem": "fishing",
+        "steps": [{"input": {"kind": "command", "persona": "member",
+                             "content": "!fish"}}],
+    }
+    case = reconstruct_case(golden)
+    assert case is not None
+    assert case.steps[0].advance_s is None
+    assert "advance_s" not in _describe_step(case.steps[0])
+    assert Step(kind="command", content="!fish").advance_s is None
 
 
 def test_load_replay_cases_with_report_counts_unreconstructable_goldens(
