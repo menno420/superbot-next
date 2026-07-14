@@ -189,10 +189,23 @@ source:
   # one.' footer over the persistent cleanup_policy:build/remove/refresh
   # trio, a pure read (no cleanup_policies db_delta; only the
   # message-driven xp.award pair rides the delta).
-  minted_goldens: 32
+  # +4 minted the fishing MINIGAME-TIMING slice-1 goldens (2026-07-14,
+  # D-0043 timing rung — the first goldens that drive the Step.advance_s
+  # clock grammar; oracle disbot/views/fishing/cast_view.py @ bbc524e):
+  # goldens/fishing/fishing_cast_premature_spook.json (a 0.5 s pre-bite
+  # Reel on a bare rod — the 🌀 spook terminal, energy spent, no write),
+  # fishing_cast_premature_grace.json (a Diamond Rod's premature_grace
+  # forgives the slip — the 😅 in-place panel edit, cast stays parked),
+  # fishing_cast_trophy_fight_land.json (deepwater lancetfish trophy at
+  # the level-2 fixture: hook → two ▰▱ tension-bar edits → the 3rd tap
+  # commits the 🏆 result) and fishing_cast_trophy_fight_escape.json
+  # (one held tap, then the per-tap deepwater escape roll fires — the
+  # 💥 snapped-the-line terminal + the 💭 trophy clue, no write). All
+  # four seeded storm in CAPTURE_WORLD_WEATHER before the mint.
+  minted_goldens: 36
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 494). The first retirement (2026-07-12
+  # imported + minted − retired = 498). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
