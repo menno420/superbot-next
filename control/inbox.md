@@ -256,3 +256,28 @@ control/inbox.md @ ca1ce28:
 
 provenance: relayed by the Fleet Manager seat per owner directive, coordinator dispatch 2026-07-13
 done-when: work the list top-down across tonight's wakes; ack in your inbox thread; heartbeat progress per item.
+
+## ORDER 020 · 2026-07-14T05:39:41Z · status: new
+priority: P2 — version-line drift (INC-42; detected live by fm
+`scripts/gen_kit_versions.py`: plugin pins v1.13.0, host superbot-next pins
+v1.15.0). Routed to superbot-next as host lane: superbot-plugin-hello has no
+`control/` directory (verified at plugin HEAD `bbaccec`), and superbot-next
+owns the plugin pin (`plugins.lock.json`).
+do: bump `substrate.config.json` `kit_version` in
+menno420/superbot-plugin-hello to mirror the host superbot-next's pin
+(v1.15.0 at fm PR #185 time and re-verified at superbot-next
+HEAD `e2d792a` — re-derive at execution; the seed commit's "mirroring the
+host's pin" claim is the contract being restored), and re-verify the manifest
+hash the seed commit cites against the host's live `plugins.lock.json` (the
+06023075→ff75b9eb drift class) — fix or annotate in the same PR. Evidence:
+plugin-hello `substrate.config.json@bbaccec` = `{"kit_version": "1.13.0"}` vs
+host `substrate.config.json@e2d792a` = v1.15.0; seed commit `bbaccec` cites
+manifest hash `sha256:06023075b8db1a16f4f3c1bb4a9400252e88931501de50deccdc095a825e93a0`
+while host `plugins.lock.json@e2d792a` records
+`manifest_hash: sha256:ff75b9eba291ca659793b91545f71c1e5bb31120270d3d77f8d604fe1314bdf3`.
+why: INC-42 — nothing in-repo flags the drift (no planted docs); the fm table
+(`registry/kit-versions.md`) now detects it every regen, but only a lane write
+can close it.
+done-when: `gen_kit_versions.py` renders the plugin-hello row
+"OK — mirrors host superbot-next pin" at the next fm regen.
+Provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, fm docs/dispatch-log.md @ 3b335a8.
