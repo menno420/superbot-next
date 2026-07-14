@@ -29,6 +29,7 @@ __all__ = [
     "MINING_STRUCTURES_STORE",
     "get_structures",
     "set_structure_level",
+    "lock_structure_build_slot",
     "lock_workshop_slot",
     "get_last_broken",
     "set_last_broken",
@@ -42,6 +43,8 @@ __all__ = [
     "record_depth",
     "get_max_depth",
     "get_equipped_title",
+    "get_energy",
+    "set_energy",
     "get_world_seed",
     "set_world_seed",
     "get_mining_inventory",
@@ -463,6 +466,46 @@ async def get_equipped_title(user_id: int, guild_id: int,
     return row["equipped_title"] if row and row["equipped_title"] else None
 
 
+async def get_energy(user_id: int, guild_id: int,
+                     conn: Any = None) -> tuple[int, int]:
+    """``(energy, energy_updated_at)`` — the player's stored dig-energy fuel.
+
+    Shipped ``mining_player_state.get_energy`` verbatim (oracle @ 87bbe1d):
+    a missing row returns ``(0, 0)`` — ``sb.domain.mining.energy.settle``
+    reads that as "0 energy as of the epoch", which regenerates to a full
+    bar by now, so a fresh (or pre-energy) player always starts full
+    without this layer knowing ``MAX_ENERGY`` (no constant duplicated
+    outside the pure energy domain). A PLAIN read — energy is game pacing,
+    never coins (the ``get_fishing_energy`` non-money posture; the shipped
+    read carried no lock)."""
+    row = await fetchone(
+        "SELECT energy, energy_updated_at FROM mining_player_state "
+        "WHERE user_id=$1 AND guild_id=$2", (str(user_id), guild_id),
+        conn=conn)
+    if row is None:
+        return 0, 0
+    return int(row["energy"]), int(row["energy_updated_at"])
+
+
+async def set_energy(user_id: int, guild_id: int, energy: int,
+                     updated_at: int, conn: Any = None) -> None:
+    """Upsert the settled ``(energy, energy_updated_at)`` pair.
+
+    Shipped ``mining_player_state.set_energy`` (oracle @ 87bbe1d) minus the
+    oracle's ``updated_at=now()`` touch — the target's ``updated_at`` is a
+    BIGINT epoch (band convention, the ``set_depth`` precedent), left to its
+    column default. Plain non-audited upsert (the ``set_fishing_energy``
+    non-money posture); with *conn* given it composes inside the caller's
+    transaction (the slice-2 cook/use debit+restore legs, the slice-3 dig
+    spend — callers own commit)."""
+    await execute(
+        "INSERT INTO mining_player_state "
+        "(user_id, guild_id, energy, energy_updated_at) "
+        "VALUES ($1,$2,$3,$4) ON CONFLICT (user_id, guild_id) "
+        "DO UPDATE SET energy=$3, energy_updated_at=$4",
+        (str(user_id), guild_id, energy, updated_at), conn=conn)
+
+
 # --- mining_world (per-guild world seed; guild-keyed, no member data) ---------
 
 
@@ -579,13 +622,36 @@ async def set_structure_level(conn: Any, *, user_id: int, guild_id: int,
                               structure: str, level: int) -> None:
     """Persist a structure's built *level* (upsert; clamped >= 0) — the shipped
     ``mining_structures.set_structure_level`` write (the `!build` / 🔥 Build
-    sink). The row-bearing build rides the deferred structures BUILD system
-    (slice 6); this writer exists for the erasure body + that future lane."""
+    sink). The MINING row-bearing build rides the deferred structures BUILD
+    system (slice 6); the FISHING structure panels' Build buttons (fishing
+    slice 4) write through THIS seam via the audited
+    ``fishing.build_structure`` op — mining_structures stays sole-writer
+    here."""
     await execute(
         "INSERT INTO mining_structures (user_id, guild_id, structure, level) "
         "VALUES ($1,$2,$3,GREATEST(0,$4)) ON CONFLICT "
         "(user_id, guild_id, structure) DO UPDATE SET level=GREATEST(0,$4)",
         (int(user_id), guild_id, structure, level), conn=conn)
+
+
+async def lock_structure_build_slot(conn: Any, *, user_id: int,
+                                    guild_id: int) -> None:
+    """Fence concurrent structure-build settles for one (user, guild)
+    against a read-then-settle double-charge / double-level-raise (the
+    #213/#217 doctrine; ``lock_vault_upgrade_slot`` precedent). A build
+    reads the current structure level (to size the coin + material cost),
+    debits, consumes materials, then bumps the level — a read-then-settle
+    over natural-key rows that may not exist yet (a fresh player has no
+    mining_structures row), so FOR UPDATE alone can lock nothing. A
+    transaction-scoped advisory lock keyed on the (guild, user) pair
+    serializes two racing builds: the loser blocks here until the
+    winner's txn commits, then re-reads the winner's committed level and
+    its debit is sized against the raised cost. One key for ALL
+    structures per player (a player can't race two different builds into
+    a double coin debit either). Auto-released at commit/rollback."""
+    await execute(
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        (f"mining:structure_build:{guild_id}:{user_id}",), conn=conn)
 
 
 async def lock_workshop_slot(conn: Any, *, user_id: int,

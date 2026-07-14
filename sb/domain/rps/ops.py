@@ -310,6 +310,28 @@ async def _record_pvp_move(conn, ctx: WorkflowContext) -> LegOutcome:
                              "terminal": True})
 
 
+# --- bot-match rounds (stats only — shipped bot matches are free play) --------------------
+
+
+@workflow("rps.record_bot_round")
+async def _record_bot_round(conn, ctx: WorkflowContext) -> LegOutcome:
+    """One resolved ``!rpsbot`` round: the shipped per-throw
+    ``update_player_stats`` site (win/loss/tie — one rps_players row
+    increment per round, including the round that ends the match). No
+    money moves here: the shipped bot match carried no bet."""
+    from sb.domain.rps import stats as rps_stats
+
+    uid, gid = _actor_id(ctx), int(ctx.guild_id or 0)
+    result = str(ctx.params.get("result") or "")
+    await rps_stats.record_result(
+        conn, user_id=uid, guild_id=gid,
+        name=str(ctx.params.get("_display_name") or f"<@{uid}>"),
+        result=result)
+    ctx.params["_balance_changes"] = []
+    return LegOutcome(step=StepResult(uid, "bot_round", True), before={},
+                      after={"result": result})
+
+
 # --- tournament money legs ---------------------------------------------------------------
 
 
@@ -465,6 +487,7 @@ PVP_ACCEPT = _op("rps.pvp_accept", "rps_pvp_escrowed",
 PVP_DECLINE = _op("rps.pvp_decline", "rps_pvp_declined",
                   "rps.record_pvp_decline")
 PVP_MOVE = _op("rps.pvp_move", "rps_pvp_move", "rps.record_pvp_move")
+BOT_ROUND = _op("rps.bot_round", "rps_bot_round", "rps.record_bot_round")
 TOURN_OPEN = _op("rps.tournament_open", "tournament_opened",
                  "rps.record_tournament_open")
 TOURN_ABORT = _op("rps.tournament_abort", "tournament_aborted",
@@ -477,7 +500,8 @@ TOURN_PAYOUT = _op("rps.tournament_payout", "tournament_paid",
                    "rps.record_tournament_payout")
 
 _OPS = (SOLO_PLAY, PVP_CHALLENGE, PVP_ACCEPT, PVP_DECLINE, PVP_MOVE,
-        TOURN_OPEN, TOURN_ABORT, TOURN_ENTER, TOURN_RESULT, TOURN_PAYOUT)
+        BOT_ROUND, TOURN_OPEN, TOURN_ABORT, TOURN_ENTER, TOURN_RESULT,
+        TOURN_PAYOUT)
 
 @workflow("rps.erase_subject_stats")
 async def _erase_subject_stats(conn, ctx: WorkflowContext) -> LegOutcome:
@@ -498,6 +522,7 @@ _REF_TABLE = (
     ("rps.record_pvp_accept", _record_pvp_accept),
     ("rps.record_pvp_decline", _record_pvp_decline),
     ("rps.record_pvp_move", _record_pvp_move),
+    ("rps.record_bot_round", _record_bot_round),
     ("rps.record_tournament_open", _record_tournament_open),
     ("rps.record_tournament_abort", _record_tournament_abort),
     ("rps.record_tournament_enter", _record_tournament_enter),

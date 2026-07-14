@@ -107,6 +107,88 @@ source:
   # the shipped `<@u> ` mention + oracle copy (mining_workflow verbatim);
   # the audited kernel-spine rows ride the same kernel-surface-drift drop as
   # every domain golden.
+  # +1 minted the PAID-pot conservation golden (2026-07-12 money-review
+  # round-2, same D-0073 procedure) that #302's FREE-only flow left unpinned:
+  # blackjack/blackjack_tournament_paid_flow — open a fee-25 tournament → two
+  # pre-funded entrants Join → !bjstart debits each 25 (tournament:entry_fee)
+  # → per-entrant round → champion paid the pooled 50 pot
+  # (blackjack:tournament_win) + clear_active, self-cleaning. The golden's
+  # economy_audit_log rows ARE the conservation assertion: the two 25 debits
+  # sum to the single 50 payout (no coins minted or stranded on the paid
+  # leg). Entrants are pre-funded via fixture_sql (outside db_delta); the fee
+  # amount is the sim-pinned test value (the shipped fee is a user command
+  # arg, not an oracle constant), the pot is the summed stakes and the
+  # payout reason is oracle-verbatim.
+  # +2 minted the creature PICKER + BOT-GUARD goldens (D-0081, the native
+  # user-select picker seam): goldens/creature/creature_cbattle_bot_guard
+  # (!cbattle against a bot member → the opponent.bot BLOCK, the
+  # MemberInfo.is_bot seam) and goldens/creature/creature_challenge_picker
+  # (hub Challenge → native user_select OPEN, wire type 5 → select a trainer
+  # → the challenge card opens). Same capture_case + kernel-spine-strip
+  # procedure. creature_battle_accept was RE-MINTED in the same slice: its
+  # resolved outcome card now carries the live 🔄 Rematch button (the
+  # CreatureRematchView affordance) — a deliberate render change re-minted
+  # in-PR, not a regression.
+  # +3 minted the fishing cast-leg REEL write goldens (2026-07-13, the
+  # cast-depth lane's PR-B — the first goldens that ever CLICK Reel):
+  # goldens/fishing/fishing_cast_{reel,deepwater_reel,bait_spend}_write.
+  # Each curated case (parity/cases/curated.py) drives `!fish` → the cast
+  # panel's Reel button by component_index (the click carries the pending
+  # cast's identity token through the panel-args binding), so the audited
+  # fishing.cast leg's row-level db_delta is pinned: the FIRST row-bearing
+  # fishing_catch_log capture (fresh shore player — retiring its
+  # session-resolution exemption row below), the deepwater compound
+  # (venue + Silver rod + Shimmer Lure + tide-pool/dock/fishery fixture —
+  # the deepwater pool pick + the coral-eligible commit + the lure charge
+  # decrement) and the last-charge bait spend (fishing_bait cleared to
+  # `('', 0)` — the first row-bearing fishing_bait delta, retiring its
+  # guard-only-capture row below). The reel reply is the oracle
+  # _finish_caught copy verbatim; the seed-42 species → weight → bonus →
+  # pearl → coral trajectory is the runner-armed private cast RNG
+  # (sb/adapters/parity/runner.py); the audited kernel-spine rows ride the
+  # same kernel-surface-drift drop as every domain golden.
+  # +4 minted the mining ENERGY-LANE cook/use goldens (energy slice 2,
+  # 2026-07-13, same D-0073 capture_case + kernel-spine-strip procedure):
+  # goldens/mining/mining_{use_ration_restore_write,use_ration_full_refusal,
+  # cook_campfire_write,use_torch_flavour}.json — the argful !use / !cook
+  # writes the slice-2 port took LIVE (docs/scoping/energy-system-scope.md).
+  # use_ration_restore_write is the first golden whose db_delta carries a
+  # mining_player_state row (energy 10→35 over the slice-1
+  # get_energy/set_energy pair — retires that guard-only-capture row);
+  # cook_campfire_write pins the fish→cooked-fish one-txn trade behind a
+  # fixture_sql-built campfire (the structure row is a read pre-req, outside
+  # db_delta, so table:mining_structures stays guard-only for the BUILD
+  # write); use_ration_full_refusal pins the PLAIN full-bar refusal with NO
+  # mining delta (the pre-txn pure-read guard); use_torch_flavour pins the
+  # flavour-only debit. Oracle copy verbatim from
+  # disbot/services/mining_workflow.py use_item/cook @ 87bbe1d.
+  # +1 minted the cleanup ANTI-EVASION toggle golden (2026-07-13, the
+  # completeness-remainders residue port, same D-0073 capture_case
+  # procedure): goldens/cleanup/cleanup_anti_evasion_toggle_write.json —
+  # `!wordmenu` → the words manager's 🛡️ Anti-evasion button by
+  # component_index. The FIRST row-bearing wordfilter_config capture
+  # (migration 0053): the click drives the audited
+  # cleanup.wordfilter_strict_op (strict=true upsert + audit row) and the
+  # session view re-renders in place with the shipped 🟢 On field literal
+  # (oracle disbot/cogs/cleanup_cog.py _WordMenuView.btn_strict @ 9776401).
+  # +1 minted the fishing HOWTOFISH rules-card golden (2026-07-13, the
+  # completeness-remainders fishing row, same D-0073 procedure):
+  # goldens/fishing/fishing_howtofish_rules_card.json — `!fishing` → the
+  # hub's 📖 How-to-fish button by component_index (the first golden that
+  # drives the fishing_rules button): the shipped ephemeral _rules_embed
+  # quick-reference (views/fishing/menu.py rules_btn @ 9776401), a pure
+  # read whose only db_delta is the message-driven xp.award pair.
+  # +1 minted the cleanup POLICIES-OPEN golden (2026-07-13, the
+  # cleanup-policy slice — the LAST cleanup pending retired, same D-0073
+  # procedure): goldens/cleanup/cleanup_policies_open.json — `!cleanup` →
+  # the hub's 🧹 Cleanup Policies button by component_index (the first
+  # golden that drives the policies button past its retired pending
+  # terminal): the ported cleanup.policies diagnostics view (oracle
+  # disbot/views/cleanup/policy_panel.py diagnostics_embed_from
+  # @ 9776401) — the empty-state embed + the 'Use "Set a policy" to add
+  # one.' footer over the persistent cleanup_policy:build/remove/refresh
+  # trio, a pure read (no cleanup_policies db_delta; only the
+  # message-driven xp.award pair rides the delta).
   # WP-2 mining WRITE-PARITY minted FOUR more (2026-07-12) via the same
   # capture_case procedure — the vault write goldens:
   # goldens/mining/mining_{stash,unstash,stash_all,vault_upgrade}_write.json.
@@ -158,10 +240,10 @@ source:
   # craft_no_recipe / respec_insufficient captures pin the error faces (denied
   # audit_log rows, no product/skills db_delta). title-equip stays honest-pending
   # (select-driven, no command form — scope PART C).
-  minted_goldens: 36
+  minted_goldens: 49
   # RETIRED goldens (removed from the corpus by explicit, reviewed PR under
   # the integrity rule — the import pin above stays 465; on-disk corpus =
-  # imported + minted − retired = 498). The first retirement (2026-07-12
+  # imported + minted − retired = 511). The first retirement (2026-07-12
   # coordinator ruling): goldens/_unmapped/sweep_cog.json — the `!cog`
   # extension load/unload/reload capture. `cog` is deploy-ops with no
   # compiled-architecture analog (sb/manifest/admin.py's own D-0030
@@ -190,10 +272,16 @@ source:
   retired_goldens: 3
 
 # Every parity/goldens/<dir> has exactly one row here (checker-enforced both
-# directions). `_unmapped` holds the mechanical sweep cases not yet attributed
-# to a subsystem directory; port bands re-home cases as they flip.
+# directions). `_unmapped` held the mechanical sweep cases not yet attributed
+# to a subsystem directory; port bands re-homed cases as they flipped, and the
+# fishing slice-4 port (the FINAL fishing rung) re-homed the LAST six — the
+# `_unmapped` roster is now EMPTY, its row and directory retired (R1 pairs
+# rows with non-empty golden dirs both ways). `servermanagement` (the oracle
+# cog-named dir holding only the /server-management slash sweep) retired the
+# same way with the 2026-07-13 curation rework (row 73): its one golden
+# re-homed onto the ported `server_management` row — the subsystem's prefix
+# + slash goldens now share one dir.
 subsystems:
-  _unmapped: pending
   admin: ported
   ai: ported
   automod: ported
@@ -233,7 +321,6 @@ subsystems:
   rps_tournament: ported
   security: ported
   server_management: ported
-  servermanagement: ported
   settings: ported
   setup: ported
   starboard: ported
@@ -673,27 +760,55 @@ depth:
           row), so no imported golden can carry a chicken_farm row; the
           first row-bearing golden lands with a button-driving capture"
     fishing:
-      # fishing's two goldens are the cast OPEN (the waiting-for-a-bite
-      # panel over the spent fishing_energy row — the declared energy
-      # table IS golden-covered) and the fresh-angler fishdex read
-      # (0/32, a pure read); the catch COMMIT (the fishing.cast K7 leg
-      # that writes the dex row) sits behind the cast panel's
-      # run-minted Reel button.
-      - surface: "table:fishing_catch_log"
-        reason: "time-driven: fishing_catch_log rows are written only at
-          interactive-session resolution — the audited fishing.cast K7
-          lane (dex upsert + materials + game XP in one leg txn) fires
-          on the cast panel's run-minted Reel button (session <cid:N>
-          ids no imported click step can reconstruct;
-          disbot/views/fishing/cast_view.py — the shipped capture never
-          reeled: every sweep cast recorded only the waiting panel; the
-          chicken_farm / creature_battle_record / rps_players
-          precedent: writes inside an interactive session view are out
-          of capture scope for the sweep corpus); the read surface IS
-          golden-pinned (goldens/fishing/sweep_fishlog.json pins the
-          fresh-angler 0/32 dex read — no row), so no imported golden
-          can carry a fishing_catch_log row; the first row-bearing
-          golden lands with a button-driving capture"
+      # RETIRED 2026-07-13 (the cast-depth lane's PR-B): the
+      # `table:fishing_catch_log` session-resolution row — its own text
+      # promised "the first row-bearing golden lands with a
+      # button-driving capture", and that capture landed:
+      # goldens/fishing/fishing_cast_{reel,deepwater_reel,bait_spend}
+      # _write drive `!fish` → the cast panel's Reel button by
+      # component_index and pin the fishing.cast leg's fishing_catch_log
+      # db_delta. The `table:fishing_bait` guard-only-capture row
+      # retired with it: the bait-spend capture carries the first
+      # row-bearing fishing_bait delta (the per-cast charge spend's
+      # clear-at-0 face — per-table exemption granularity, the first
+      # row-bearing delta wins: the WP-2 mining_player_state precedent;
+      # the bait SHOP buy/craft/pearl writer faces remain sweep-pinned
+      # guard reads only).
+      # Slice-2 rod-ladder port: the fishing_rod writers are the shop's
+      # session-minted ⬆️ Upgrade button (a funded coin debit) and the
+      # craft lane behind a stocked fish inventory — the imported sweep
+      # drove only the bare fresh-player invocations.
+      - surface: "table:fishing_rod"
+        reason: "guard-only-capture: the tier writers ARE
+          corpus-expressible (!rod's ⬆️ Upgrade rod button / !craftrod)
+          but the imported sweep drove only their bare fresh-player
+          invocations, and every captured case pins a write-free byte —
+          goldens/fishing/sweep_rod.json + sweep_rodrecipes.json pin the
+          tier-0 shop / recipe-browser renders (pure reads) and
+          goldens/fishing/sweep_craftrod.json pins the not-enough-fish
+          refusal the empty-pack guard answers as a pure read (the
+          oracle txn never opens; the port computes it before the op
+          runs) — goldens pin write-free guard paths only; the first
+          fishing_rod row lands with a funded/stocked argful capture"
+    help:
+      # the guild Help presentation overlay (the D-0026 successor lane,
+      # armed by the overlay-editor slice / D-0089): its ONLY write
+      # ingresses are the ✏️ Help-editor flow's controls, every one of
+      # which sits behind the editor's entity-picker SELECT pick (the
+      # pick stashes the (kind, key) view state no write click can run
+      # without) and the rename/re-describe legs additionally behind
+      # G-10 modal submits — input kinds the imported corpus schema
+      # cannot reconstruct. No command twin ships (Q-0032: no new
+      # command names). The default-render read side IS golden-pinned
+      # row-less: goldens/help pin the empty-overlay bytes the providers
+      # must reproduce byte-identically.
+      - surface: "table:help_overlay"
+        reason: "select-driven: written only by the help.set_overlay_fields
+          / help.reset_overlay ops behind the editor's entity-picker
+          select pick (+ the rename/re-describe G-10 modal submits); no
+          command twin shipped (Q-0032) — the D-0063/D-0064 select-ingress
+          class; the first row-bearing golden lands with a
+          component-values-bearing capture"
     games:
       # games' four goldens are the read/render hub family (the 🎮 hub
       # prefix+slash pair + the re-homed 🗺️ Explore hub + 🪪 world card)
@@ -816,6 +931,14 @@ depth:
       # an argful capture"). The depth face (!descend / !ascend geared writes)
       # is WP-3's coverage; the per-table exemption is retired by the first
       # row-bearing delta on the table, which is this vaultupgrade capture.
+      # The table:mining_player_state guard-only-capture row (depth writers
+      # pinned only as bare-guard refusals) was RETIRED by energy slice 2
+      # (2026-07-13): goldens/mining/mining_use_ration_restore_write.json
+      # now drives a row-bearing db_delta on the table (the !use ration
+      # energy 10→35 upsert over the slice-1 get_energy/set_energy pair) —
+      # the D-0069 class's own exit ("a future … capture deletes it").
+      # The depth-writer lanes (!descend / !ascend geared moves) remain
+      # pinned only at their refusal bytes, but the TABLE is covered.
       # Slice-1 equipment/wear/loadout/skills port declared four write-store
       # tables as mining surfaces, pinned only by bare/guard sweeps. WP-1
       # mining WRITE-PARITY (this PR) RETIRED the mining_equipment +
@@ -1086,7 +1209,7 @@ depth:
     diagnostic: {events: 1, tables: 3, settings: 0}
     economy: {events: 4, tables: 7, settings: 0}
     farm: {events: 1, tables: 2, settings: 0}
-    fishing: {events: 1, tables: 3, settings: 0}
+    fishing: {events: 3, tables: 10, settings: 0}
     four_twenty: {events: 1, tables: 2, settings: 0}
     games: {events: 1, tables: 2, settings: 0}
     general: {events: 1, tables: 2, settings: 0}
@@ -1108,7 +1231,6 @@ depth:
     rps_tournament: {events: 1, tables: 3, settings: 1}
     security: {events: 1, tables: 2, settings: 0}
     server_management: {events: 1, tables: 3, settings: 0}
-    servermanagement: {events: 0, tables: 0, settings: 0}
     settings: {events: 1, tables: 2, settings: 0}
     setup: {events: 2, tables: 3, settings: 0}
     starboard: {events: 2, tables: 3, settings: 0}

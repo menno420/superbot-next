@@ -40,13 +40,29 @@ class TestImportedCorpus:
         # WP-1 mining write-parity goldens (equip/unequip/loadout
         # save·apply·delete) + 4 minted WP-2 mining vault write-parity goldens
         # (stash/unstash/stash-all/vaultupgrade) + 5 minted WP-3 mining
-        # depth/world/workshop write-parity goldens (descend/ascend/reseed-world/
-        # repair/quickcraft; parity.yml source.minted_goldens) − 3 retired
-        # (sweep_cog.json, the deploy-ops `!cog` capture, + sweep_query_logs.json
-        # / sweep_recent_errors.json, the run-order-dependent log-ring captures —
-        # parity.yml source.retired_goldens, the 2026-07-12 corpus rulings).
+        # depth/world/workshop write-parity goldens (descend/ascend/
+        # reseed-world/repair/quickcraft) + 2 minted WP-5 mining skill-spend
+        # write-parity goldens (skill_write/skill_bad_branch, 2026-07-13)
+        # + 2 minted WP-6 mining structure-build write-parity goldens
+        # (build_forge_write/build_forge_insufficient, 2026-07-13 — the
+        # FINAL slice)
+        # + 4 minted WP-7 mining craft/respec write-parity goldens
+        # (craft_write/craft_no_recipe/respec_write/respec_insufficient,
+        # 2026-07-13)
+        # + 1 minted paid-tournament conservation golden
+        # + 2 minted creature picker/bot-guard goldens (D-0081) + 3 minted
+        # fishing cast-leg reel write goldens + 4 minted energy-slice-2
+        # mining cook/use goldens (2026-07-13) + 1 minted cleanup
+        # anti-evasion toggle write golden (completeness-remainders residue
+        # port, 2026-07-13) + 1 minted fishing howtofish rules-card golden
+        # (completeness-remainders fishing row, 2026-07-13) + 1 minted
+        # cleanup policies-open golden (2026-07-13) (parity.yml
+        # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
+        # `!cog` capture, + sweep_query_logs.json / sweep_recent_errors.json,
+        # the run-order-dependent log-ring captures — parity.yml
+        # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 498
+        assert len(goldens) == 511
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -75,14 +91,23 @@ class TestImportedCorpus:
         # stash-all/vaultupgrade)
         # + 5 WP-3 mining depth/world/workshop write-parity mints
         # (descend/ascend/reseed-world/repair/quickcraft)
-        # + 2 WP-5 mining skill-spend PORT write-parity mints
-        # (skill_write/skill_bad_branch)
+        # + 2 WP-5 mining skill-spend write-parity mints
+        # (skill_write/skill_bad_branch, 2026-07-13)
         # + 2 WP-6 mining structure-build PORT write-parity mints
-        # (build_forge_write/build_forge_insufficient) — the FINAL exemption slice
+        # (build_forge_write/build_forge_insufficient, 2026-07-13 — the
+        # FINAL slice)
         # + 4 WP-7 mining residual-pending PORT write-parity mints (respec + craft:
         # craft_write/craft_no_recipe/respec_write/respec_insufficient) — retires
         # NO exemption (mining_inventory + player_skills already covered)
-        assert source["minted_goldens"] == 36
+        # + 1 paid-tournament conservation mint (2026-07-12)
+        # + 2 creature picker/bot-guard mints (D-0081)
+        # + 3 fishing cast-leg reel write mints (2026-07-13)
+        # + 4 energy-slice-2 mining cook/use mints (2026-07-13)
+        # + 1 cleanup anti-evasion toggle write mint (completeness-remainders
+        # residue port, 2026-07-13)
+        # + 1 fishing howtofish rules-card mint (2026-07-13)
+        # + 1 cleanup policies-open mint (2026-07-13)
+        assert source["minted_goldens"] == 49
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -603,11 +628,14 @@ class TestGateDriver:
         assert "vacuously" not in out
         assert "flipped `ported` but no replay is possible" in out
 
-    def test_report_leg_is_born_red_by_design(self, capsys):
+    def test_report_leg_prints_full_corpus_banner(self, capsys):
+        # No replay binding in the unit env, so the leg exits nonzero;
+        # the banner is the neutral full-corpus report wording (the leg
+        # is live-green in CI since 2026-07-13).
         assert run_report() == 1
         out = capsys.readouterr().out
-        assert "RED BY DESIGN" in out
-        assert "498 goldens" in out
+        assert "full-corpus parity report" in out
+        assert "511 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):

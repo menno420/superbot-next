@@ -103,6 +103,12 @@ CAPTURE_WORLD_COUNTERS: dict[str, dict[str, int]] = {
 #: invalidation would otherwise leak `test` differently per mode).
 CAPTURE_WORLD_WORD_CACHE: dict[str, tuple[str, ...]] = {
     "sweep.word_list": ("test",),
+    # the words manager renders the SAME leaked cache state (`!wordmenu`
+    # ran after `!word add test` in the alphabetical sweep) — the panel's
+    # Current Words field went live with the anti-evasion residue port,
+    # so the capture trajectory seeds here exactly like word_list
+    # (goldens/cleanup/sweep_wordmenu.json pins "Current Words: `test`").
+    "sweep.wordmenu": ("test",),
 }
 
 #: CAPTURE-WORLD LEAKED CHANNELS, reconstructed (world state — the
@@ -135,6 +141,9 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # the hub open renders the same capture-day forecast field
     # (goldens/fishing/sweep_fishing pins "Today's forecast: 🌧️ Rain").
     "sweep.fishing": "rain",
+    # the forecast command renders the same capture-day condition
+    # (goldens/fishing/sweep_forecast pins the 🌧️ Rain embed — slice 1).
+    "sweep.forecast": "rain",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
@@ -322,6 +331,17 @@ async def capture_case(harness: Harness, case: GoldenCase) -> dict[str, Any]:
     from sb.domain.fishing.weather import seed_weather_for_replay
 
     seed_weather_for_replay(CAPTURE_WORLD_WEATHER.get(case.id))
+
+    # the fishing cast RNG — RE-ARMED at every case head (trap 20:
+    # runner-seeded, never accumulated) so a cast-write golden pins the
+    # seed's species → weight → bonus → pearl → coral trajectory. The
+    # module stream is PRIVATE on purpose: the passive chat-XP award
+    # draws from the GLOBAL `random.seed(case.seed)` stream above
+    # (sweep_fish pins `xp: 25`) — a cast roll on that stream would
+    # shift the pinned byte (fishing/ops.py RNG POSTURE note).
+    from sb.domain.fishing.ops import set_rng_for_tests as _arm_fishing_rng
+
+    _arm_fishing_rng(random.Random(case.seed))
 
     before: dict[str, Any] = {}
     pool = None

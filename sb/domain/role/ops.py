@@ -15,6 +15,7 @@ moderator (the operator action shipped as manage_roles).
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 from sb.domain.role import store
@@ -31,6 +32,8 @@ from sb.kernel.workflow.spec import (
 from sb.spec.refs import WorkflowRef, workflow
 
 __all__ = ["ensure_ops_refs", "register_ops"]
+
+logger = logging.getLogger("sb.domain.role")
 
 _VALID_MODES = ("normal", "unique", "verify")
 _VALID_STYLES = ("dropdown", "buttons")
@@ -306,6 +309,139 @@ async def _record_expire_temp(conn, ctx: WorkflowContext) -> LegOutcome:
                "removed": removed})
 
 
+# --- create-managed-role legs (the setup role-templates apply lane) --------------------------
+
+@workflow("role.apply_create_managed")
+async def _apply_create_managed(conn, ctx: WorkflowContext) -> LegOutcome:
+    """EFFECT: the apply-time UNCONDITIONAL role create — the oracle
+    RoleLifecycleService create path verbatim
+    (services/role_lifecycle_service.py:285-312: no name-reuse check in
+    the service; dedupe lives upstream at plan/stage time,
+    ``plan_template``'s create-vs-exists partition). The cosmetic spec
+    (color / hoist / mentionable — NO permissions, by design) rides
+    ``ctx.params["role_template"]`` (setup_role_templates.
+    suggestion_to_spec's shape); ``parse_color`` fail-safes bad hex to
+    the default colour, the shipped posture. Emits the shipped
+    ``role.lifecycle_changed`` advisory; the AUDIT fact is the op's ONE
+    K7 central row — engine-minted mutation_id, a ledgered divergence
+    from the oracle's shared audit/lifecycle id pair."""
+    del conn  # EFFECT leg (post-commit)
+    import uuid
+
+    from sb.domain.role import service
+
+    gid = int(ctx.guild_id or 0)
+    name = str(ctx.params.get("resource_name", "") or "").strip()
+    if not name:
+        # oracle copy, verbatim (_apply_create_managed_role's guard).
+        raise ValueError(
+            "create_managed_role: requires resource_name (the role name)")
+    spec = dict(ctx.params.get("role_template") or {})
+    from sb.domain.setup.role_templates import parse_color
+
+    color = parse_color(spec.get("color"))
+    slug = str(spec.get("template_slug") or "manual")
+    rid = int(await service.active_provisioning().create_guild_role(
+        gid, name=name, color=int(color or 0),
+        reason=f"setup role template ({slug})",
+        hoist=bool(spec.get("hoist")),
+        mentionable=bool(spec.get("mentionable"))))
+    # the D-0077 stash contract's role twin — the id the compensating
+    # delete is guarded on (never a name lookup).
+    ctx.params["_created_role_id"] = rid
+    await service.emit_role_lifecycle(
+        gid, mutation_id=str(uuid.uuid4()), operation="create",
+        outcome="success", applied=[rid], failed=[])
+    return LegOutcome(
+        step=StepResult(rid, "create_managed_role", True),
+        before={}, after={"role_id": rid, "name": name,
+                          "template_slug": slug})
+
+
+@workflow("role.compensate_create_managed")
+async def _compensate_create_managed(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The create leg's compensator (fork E; conn=None) — the D-0077
+    id-guarded best-effort withdrawal class
+    (setup.compensate_create_channel's role twin): delete ONLY the exact
+    role id the leg stashed; nothing stashed = the create never happened
+    = nothing to withdraw (the oracle never rolls back a created role —
+    a failed create has no role, and the tier fold never undoes one).
+    Best-effort: a refused delete logs and completes."""
+    del conn  # fork E runs compensators outside the txn
+    rid = int(ctx.params.get("_created_role_id", 0) or 0)
+    if not rid:
+        return LegOutcome(
+            step=StepResult(0, "compensate_create_managed", True),
+            before={}, after={"compensated": "nothing"})
+    from sb.domain.role import service
+
+    deleted = True
+    try:
+        await service.active_provisioning().delete_role(
+            int(ctx.guild_id or 0), rid,
+            reason="setup role create compensated — a later step failed")
+    except Exception as exc:  # noqa: BLE001 — best-effort withdrawal
+        deleted = False
+        logger.warning("role: compensating delete of role %s failed: %s",
+                       rid, exc)
+    return LegOutcome(
+        step=StepResult(0, "compensate_create_managed", True),
+        before={}, after={"compensated": "create_managed_role",
+                          "role_id": rid, "deleted": deleted})
+
+
+@workflow("role.apply_template_tier")
+async def _apply_template_tier(conn, ctx: WorkflowContext) -> LegOutcome:
+    """EFFECT: the best-effort auto-role tier companion (oracle
+    ``_apply_template_role_tiers``, setup_operations.py:1810-1857): when
+    the template spec carries ``time_days`` / ``xp_level``, thread the
+    freshly-created role's id into the audited threshold seam — here the
+    K7 ``role.set_threshold`` FULL-ROW fold (time + XP in one upsert,
+    the setup roles-section precedent). FAILURE IS CAUGHT IN-LEG and
+    never raises (the oracle: "a failed tier never undoes the
+    already-created role ... must not flip the op to ``failed``") — the
+    op stays SUCCESS, the miss is logged, and the operator can set the
+    tier by hand in ``!roles``."""
+    del conn  # EFFECT leg (post-commit)
+    spec = dict(ctx.params.get("role_template") or {})
+    time_days = spec.get("time_days")
+    xp_level = spec.get("xp_level")
+    rid = int(ctx.params.get("_created_role_id", 0) or 0)
+    if not rid or (not time_days and not xp_level):
+        return LegOutcome(step=StepResult(rid, "template_tier", True),
+                          before={}, after={"tier": "none"})
+    name = str(ctx.params.get("resource_name", "") or "")
+    from sb.kernel.workflow import engine
+
+    tier_ctx = WorkflowContext(
+        actor=ctx.actor, guild_id=int(ctx.guild_id or 0),
+        request_id=f"{ctx.request_id}:tier", confirmed=True,
+        params={"role_name": name, "display_name": name, "role_id": rid,
+                "days_required": int(time_days or 0),
+                "level_required": (int(xp_level) if xp_level else None),
+                "xp_auto_assign": bool(xp_level)},
+        correlation_id=ctx.correlation_id, test_mode=ctx.test_mode,
+        clock=ctx.clock)
+    detail = ""
+    try:
+        result = await engine.run(WorkflowRef("role.set_threshold"), tier_ctx)
+        ok = result.outcome == "success"
+        if not ok:
+            detail = f"outcome={result.outcome!r}"
+    except Exception as exc:  # noqa: BLE001 — best-effort companion (oracle)
+        ok = False
+        detail = str(exc)
+    if not ok:
+        # oracle log shape (_apply_template_role_tiers's except arm).
+        logger.warning(
+            "create_managed_role: auto-role tier companion failed "
+            "(role_id=%s): %s — the role itself was created", rid, detail)
+    return LegOutcome(
+        step=StepResult(rid, "template_tier", True),
+        before={}, after={"tier": "set" if ok else "failed",
+                          "time_days": time_days, "xp_level": xp_level})
+
+
 # --- privacy erasure body --------------------------------------------------------------------
 
 @workflow("role.erase_subject_grants")
@@ -365,9 +501,41 @@ GRANT_TEMP_ROLE = CompoundOpSpec(
 EXPIRE_TEMP_ROLE = _db_op("role.expire_temp_role", "expire_temp_role",
                           "role.record_expire_temp", authority="")
 
+#: the K9 ``create_managed_role`` apply lane (the role_templates named
+#: successor): the oracle _apply_create_managed_role route
+#: (setup_operations.py:1176/1723 → RoleLifecycleService + the
+#: best-effort tier companion) as ONE K7 op. NONE_JUSTIFIED — the
+#: oracle-verbatim posture: apply-time create is unconditional, dedupe
+#: lives at plan/stage time; a durable once() here would record its
+#: outcome PRE-EFFECT (engine step 4f) and false-SUCCESS a retried
+#: draft op whose create leg never ran. ``audit_verb`` carries the
+#: shipped lifecycle vocabulary (contracts: ``{domain}_{operation}`` =
+#: ``role_create``).
+CREATE_MANAGED_ROLE = CompoundOpSpec(
+    op_key="role.create_managed_role", domain="role",
+    lane=WorkflowLane.RESOURCE,
+    authority_ref="administrator",       # the role subsystem's tier (thresholds' floor)
+    legs=(
+        LegSpec("create", LegKind.EFFECT,
+                WorkflowRef("role.apply_create_managed"), "compensatable",
+                compensator=WorkflowRef("role.compensate_create_managed")),
+        LegSpec("tier", LegKind.EFFECT,
+                WorkflowRef("role.apply_template_tier"), "reversible"),
+    ),
+    idempotency=IdempotencyPosture.NONE_JUSTIFIED, dedup_key=None,
+    idempotency_justification=(
+        "apply-time create is UNCONDITIONAL (the oracle "
+        "RoleLifecycleService posture, role_lifecycle_service.py:285-312) "
+        "— idempotency lives at plan/stage time (plan_template partitions "
+        "already-existing names out before staging); a durable once() "
+        "would record its outcome pre-EFFECT and false-SUCCESS a retried "
+        "draft op whose create leg never ran"),
+    audit_verb="role_create", emits=())
+
 _OPS = (SET_THRESHOLD, REMOVE_THRESHOLD, SET_EXEMPTION, BIND_REACTION,
         UNBIND_REACTION, SET_MESSAGE_MODE, CLEAR_MESSAGE_MODE, CREATE_MENU,
-        UPDATE_MENU, DELETE_MENU, GRANT_TEMP_ROLE, EXPIRE_TEMP_ROLE)
+        UPDATE_MENU, DELETE_MENU, GRANT_TEMP_ROLE, EXPIRE_TEMP_ROLE,
+        CREATE_MANAGED_ROLE)
 
 _REF_TABLE = (
     ("role.record_set_threshold", _record_set_threshold),
@@ -384,6 +552,9 @@ _REF_TABLE = (
     ("role.apply_grant_temp", _apply_grant_temp),
     ("role.compensate_grant_temp", _compensate_grant_temp),
     ("role.record_expire_temp", _record_expire_temp),
+    ("role.apply_create_managed", _apply_create_managed),
+    ("role.compensate_create_managed", _compensate_create_managed),
+    ("role.apply_template_tier", _apply_template_tier),
     ("role.erase_subject_grants", _erase_subject_grants),
 )
 

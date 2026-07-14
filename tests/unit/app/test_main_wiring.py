@@ -208,7 +208,9 @@ class TestEscrowRecoveryRoster:
 class TestSnapshot:
     def test_committed_snapshot_loads(self):
         snapshot = app_main.committed_snapshot()
-        assert snapshot.get("stable_hash")
+        # The committed file carries NO cached stable_hash (the volatile line
+        # was a cross-PR merge-conflict machine; P9 recomputes it from body).
+        assert "stable_hash" not in snapshot
         assert snapshot.get("subsystems")
 
 

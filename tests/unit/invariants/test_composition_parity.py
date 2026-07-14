@@ -33,21 +33,17 @@ from pathlib import Path
 # a live RefUnresolved waiting to fire (see the ideas ledger). Burn down to
 # empty; never grow.
 _KNOWN_ENSURE_ONLY: frozenset[str] = frozenset({
-    "handler:fishing.bait_pending",
-    "handler:fishing.boathouse_pending",
-    "handler:fishing.craftbait_pending",
-    "handler:fishing.craftcharm_pending",
-    "handler:fishing.craftcurio_pending",
-    "handler:fishing.craftpearl_pending",
-    "handler:fishing.craftrod_pending",
-    "handler:fishing.curios_pending",
-    "handler:fishing.dock_pending",
-    "handler:fishing.fishery_pending",
-    "handler:fishing.forecast_pending",
-    "handler:fishing.rod_pending",
-    "handler:fishing.rodrecipes_pending",
-    "handler:fishing.sail_pending",
-    "handler:fishing.tidepool_pending",
+    # curios/craftcurio/tidepool/dock/boathouse/fishery pruned by the
+    # fishing slice-4 port (the FINAL fishing rung — the fishing PENDING
+    # roster is now EMPTY): curios_view / craftcurio_route and the four
+    # structure PanelSpecs + *_build_route handlers register at module
+    # import.
+    # rod/rodrecipes/craftrod pruned by the fishing slice-2 port — their
+    # real rod_shop / rodrecipes_view / craftrod_route handlers register
+    # at module import.
+    # bait/craftbait/craftpearl/craftcharm pruned by the fishing slice-3
+    # port — their real bait_shop / craftbait_route / craftpearl_route /
+    # craftcharm_route handlers register at module import.
     # build/buildlist/buildable pruned by the slice-6 port — their real
     # build_route / buildlist_route / buildable_view handlers register at
     # module import.
@@ -154,5 +150,5 @@ def test_the_sweep_sees_the_live_roster():
     assert len(import_root) >= 550
     for ref in ("handler:blackjack.tournament_open_pending",
                 "handler:rps.register_pending",
-                "handler:role.create_pending"):
+                "handler:role.create_form_submit"):
         assert ref in import_root, ref

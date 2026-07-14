@@ -84,6 +84,7 @@ MANIFEST = SubsystemManifest(
         _panels.record_card_spec(),
         _panels.battletop_card_spec(),
         _panels.challenge_spec(),
+        _panels.challenge_select_spec(),
         _panels.rules_card_spec(),
     ),
     settings=(),

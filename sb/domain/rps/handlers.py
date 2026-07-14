@@ -1,9 +1,10 @@
 """RPS command handlers (band 6) — !rps quick-play / challenge routing,
 the rpshelp text (shipped verbatim), the rpssettings command (shipped
 guards/copy verbatim; the write rides the band-1 settings ops — §4.1),
-and honest pending terminals for the deep bot-match flow (match
-channels + no-prefix move parsing = live-adapter / message-band
-successor work; entry/payout money lanes are live)."""
+the tournament orchestration, and the !rpsbot deep bot-match flow
+(per-player button views on the ledgered home-channel deviation —
+sb/domain/rps/bot_match.py; the shipped private match channels +
+no-prefix move parsing stay the resource-provision successor)."""
 
 from __future__ import annotations
 
@@ -520,11 +521,25 @@ def _register() -> None:
 
     @handler("rps.bot_route")
     async def bot_route(req) -> Reply:
-        """!rpsbot [mode] … — the shipped mode guard verbatim; the bot
-        match itself (private channel + no-prefix moves) stays an honest
-        pending terminal (ledgered successor)."""
-        from sb.domain.rps import rules as rps_rules
+        """!rpsbot [mode] [best_of] [@members] — the shipped guards
+        verbatim (invalid mode — sweep-pinned — and the odd-positive
+        best_of), then ONE bot-match button view per resolved player in
+        the invoking channel (the tournament port's ledgered deviation
+        from private match channels + no-prefix moves,
+        sb/domain/rps/bot_match.py). Numeric member mentions and the
+        shipped invoker fallback are carried; role-mention expansion and
+        by-name member lookup ride the live member-census successor
+        (the shipped ``resolve_member_by_name`` / ``role.members``
+        paths — ledgered deviation)."""
+        import dataclasses
 
+        from sb.domain.rps import bot_match
+        from sb.domain.rps import rules as rps_rules
+        from sb.domain.rps.panels import BOTMATCH_PANEL_ID
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        gid = int(req.guild_id or 0)
         argv = [str(a) for a in (req.args.get("argv", ()) or ())]
         mode = None
         for token in argv:
@@ -532,16 +547,101 @@ def _register() -> None:
                 mode = token.lower()
                 break
         if mode is None:
-            mode = await _mode_default(int(req.guild_id or 0))
+            mode = await _mode_default(gid)
         if mode not in rps_rules.GAME_MODES:
             # shipped copy, pinned by the rpsbot sweep
             return Reply(BLOCKED,
                          "Invalid game mode. Available modes: "
                          + ", ".join(rps_rules.GAME_MODES.keys()))
-        return Reply(BLOCKED,
-                     "🤖 Bot matches need the live orchestration (match "
-                     "channels + no-prefix move parsing — arms with the "
-                     "message band).")
+        best_of = next((int(t) for t in argv if t.isdigit()), None)
+        if best_of is None:
+            best_of = await _best_of_default(gid)
+        if best_of % 2 == 0 or best_of < 1:
+            # shipped copy, verbatim (_bot_matches.run_rps_bot_command)
+            return Reply(BLOCKED,
+                         "Please provide an odd positive integer for "
+                         "the number of rounds.")
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        players = [int(str(t).strip("<@!>")) for t in argv
+                   if str(t).strip("<@!>").isdigit()
+                   and len(str(t).strip("<@!>")) >= 15]
+        if not players:
+            players = [uid]      # shipped: players.append(ctx.author)
+        for player in players:
+            match = bot_match.start_match(gid, player, mode=mode,
+                                          best_of=best_of)
+            match_req = dataclasses.replace(req, args={
+                "player": player, "match_id": match.match_id,
+                "mode": mode, "best_of": best_of, "stage": "open"})
+            await open_panel(PanelRef(BOTMATCH_PANEL_ID), match_req)
+        return Reply(SUCCESS, None)
+
+    @handler("rps.botmatch_move")
+    async def botmatch_move(req) -> Reply:
+        """A move button on a bot-match view: the shipped
+        ``handle_bot_match_move`` body — normalize the throw, the bot
+        plays, per-round stats through the audited ``rps.bot_round`` op
+        (the shipped update_player_stats site), then EDIT the view onto
+        the round reveal / the terminal match copy."""
+        from sb.domain.rps import bot_match
+        from sb.kernel.panels.engine import refresh_session_view
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
+        gid = int(req.guild_id or 0)
+        uid = int(getattr(req.actor, "user_id", 0) or 0)
+        player = int(req.args.get("player") or 0)
+        if uid != player:
+            # the home-channel deviation's peer lock (the shipped match
+            # channel was private to the player) — tournament-view copy.
+            return Reply(BLOCKED, "You're not part of this match.")
+        match_id = str(req.args.get("match_id") or "")
+        action = str(req.args.get("session_action") or "")
+        outcome = bot_match.record_bot_move(gid, uid, match_id,
+                                        action.removeprefix("bot_move_"))
+        stage = outcome["stage"]
+        if stage == "over":
+            # shipped copy, verbatim
+            return Reply(BLOCKED, "The match is already over.")
+        if stage == "invalid":
+            # shipped copy, verbatim
+            return Reply(BLOCKED,
+                         f"<@{uid}>, invalid move. Please try again.")
+        match = outcome["match"]
+        # the shipped per-round update_player_stats site (win|loss|tie),
+        # audited — same posture as rps.tournament_result.
+        await engine.run(WorkflowRef("rps.bot_round"),
+                         _ctx_from_req(req, {
+                             "result": outcome["result"],
+                             "_display_name": _display_name(req) or ""}))
+        params = {"stage": stage, "player": player,
+                  "match_id": match.match_id, "mode": match.mode,
+                  "best_of": match.best_of, "wins": match.wins,
+                  "bot_wins": match.bot_wins, "move": outcome["move"],
+                  "bot_move": outcome["bot_move"],
+                  "result": outcome["result"]}
+        # the shipped channel lines, composed as the no-view fallback
+        fallback = [f"Bot played: {outcome['bot_move'].capitalize()}."]
+        if outcome["result"] == "tie":
+            fallback.append("It's a tie!")
+        elif outcome["result"] == "win":
+            fallback.append(f"<@{uid}> wins this round!")
+        else:
+            fallback.append("Bot wins this round!")
+        if stage == "match_won":
+            fallback.append(f"<@{uid}> wins the match against the bot!")
+        elif stage == "match_lost":
+            fallback.append("Bot wins the match!")
+        else:
+            fallback.append("Please enter your next move.")
+        message = getattr(req.origin, "message", None)
+        message_key = str(getattr(message, "id", "") or "")
+        refreshed = await refresh_session_view(
+            req, message_key=message_key, params=params,
+            expire=stage in ("match_won", "match_lost"))
+        if not refreshed:
+            return Reply(SUCCESS, "\n".join(fallback))
+        return Reply(SUCCESS, None)
 
     @handler("rps.settings_view")
     async def settings_view(req) -> Reply:
@@ -614,10 +714,11 @@ def _register_pending() -> None:
     (declaring IS reserving) — the live root imports and dispatches
     without ever running the manifest ENSURE_REFS hooks when zero
     plugins are admitted, so an ensure-only registration leaves
-    `!rpsregister`/`!rpsstart`/`!rpsbot` and the tournament matchup
+    `!rpsregister`/`!rpsstart` and the tournament matchup
     click dying in RefUnresolved BUG envelopes live (BUG A class,
     band-5 live-drive ledger bug 1 — same fix as
-    sb/domain/role/handlers.py)."""
+    sb/domain/role/handlers.py). ``rps.bot_pending`` retired: the deep
+    bot-match flow is live (rps.bot_route/rps.botmatch_move)."""
     from sb.domain.operator_spine import pending_handler
 
     pending_handler(
@@ -630,10 +731,6 @@ def _register_pending() -> None:
         "✂️ Tournament rounds need the live orchestration (match "
         "channels + no-prefix move parsing — arms with the live "
         "adapter / message band).")
-    pending_handler(
-        "rps.bot_pending",
-        "🤖 Bot matches need the live orchestration (match channels + "
-        "no-prefix move parsing — arms with the message band).")
     pending_handler(
         "rps.matchup_pending",
         "✂️ Manual matchups need the live tournament orchestration "

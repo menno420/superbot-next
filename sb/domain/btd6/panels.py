@@ -52,23 +52,14 @@ __all__ = [
     "btd6_hub_spec",
     "ensure_panel_refs",
     "install_btd6_panels",
+    "paragon_requirements_spec",
     "paragon_spec",
+    "paragon_stats_spec",
 ]
 
 # --- paragon calculator landing panel (shipped views/btd6/paragon_view.py
-# ParagonCalculatorView + build_calculator_embed @7f7628e1) -------------------
-#: the live web Paragon Calculator + its Discord author credit (shipped
-#: services/paragon_service.CALCULATOR_PUBLIC_URL / CALCULATOR_AUTHOR_NAME).
-_PARAGON_CALC_URL = "https://paragon-calc.vercel.app/"
-_PARAGON_CALC_AUTHOR = "notausgang0341"
-_DEFAULT_PARAGON = "apex_plasma_master"
-#: (value, label) difficulty rows in the shipped select order.
-_PARAGON_DIFFICULTIES = (
-    ("easy", "Easy (0.85x)"),
-    ("medium", "Medium (1.0x)"),
-    ("hard", "Hard (1.08x)"),
-    ("impoppable", "Impoppable (1.2x)"),
-)
+# ParagonCalculatorView + build_calculator_embed @7f7628e1; the armed
+# select/compute flows live in sb/domain/btd6/paragon_panel.py) ---------------
 
 ASK_MODAL = ModalSpec(
     modal_id="btd6.ask_form",
@@ -108,6 +99,61 @@ ROUND_MODAL = ModalSpec(
 #: D-0073). field_ids are the submit handler's args keys (the same
 #: title/summary/map/mode/hero vocabulary `_submit_params` already reads
 #: for the `!btd6strat submit` text lane).
+#: The shipped ParagonForwardModal, field for field (ORACLE disbot
+#: views/btd6/paragon_modals.py @7f7628e1) — the five numeric inputs; the
+#: paragon/players/difficulty/extra-T5 axes ride the parent view's selects
+#: (Discord's 5-text-input limit, shipped comment).
+PARAGON_CALC_MODAL = ModalSpec(
+    modal_id="btd6.paragon_calc_form",
+    title="Paragon — enter your numbers",
+    fields=(
+        ModalFieldSpec(field_id="pops", label="Pops (total damage)",
+                       placeholder="e.g. 8000000",
+                       required=False, max_length=15),
+        ModalFieldSpec(field_id="cash_spent",
+                       label="Cash spent (non-T5 towers)",
+                       placeholder="e.g. 150000",
+                       required=False, max_length=12),
+        ModalFieldSpec(field_id="slider_cash", label="Slider cash",
+                       placeholder="e.g. 0",
+                       required=False, max_length=12),
+        ModalFieldSpec(field_id="upgrade_count",
+                       label="Upgrade tiers (a 0-2-4 tower = 6)",
+                       placeholder="e.g. 60",
+                       required=False, max_length=4),
+        ModalFieldSpec(field_id="geraldo_totems", label="Geraldo totems",
+                       placeholder="e.g. 0",
+                       required=False, max_length=4),
+    ),
+    on_submit=HandlerRef("btd6.paragon_calc_submit"),
+)
+
+#: The shipped ParagonTargetModal (same oracle module) — the reverse
+#: solver's one required field.
+PARAGON_TARGET_MODAL = ModalSpec(
+    modal_id="btd6.paragon_target_form",
+    title="Paragon — target degree",
+    fields=(
+        ModalFieldSpec(field_id="target", label="Target degree (1-100)",
+                       placeholder="e.g. 90",
+                       required=True, max_length=3),
+    ),
+    on_submit=HandlerRef("btd6.paragon_target_submit"),
+)
+
+#: The shipped stats-view _DegreeModal (same oracle module family —
+#: views/btd6/paragon_stats_view.py) — one required field.
+PARAGON_DEGREE_MODAL = ModalSpec(
+    modal_id="btd6.paragon_degree_form",
+    title="Paragon degree (1–100)",
+    fields=(
+        ModalFieldSpec(field_id="degree", label="Degree",
+                       placeholder="1–100",
+                       required=True, max_length=3),
+    ),
+    on_submit=HandlerRef("btd6.paragon_degree_submit"),
+)
+
 STRATEGY_MODAL = ModalSpec(
     modal_id="btd6.strategy_form",
     title="Submit BTD6 strategy",
@@ -311,53 +357,27 @@ def ctteam_spec() -> PanelSpec:
     )
 
 
-def _paragon_options() -> tuple[dict, ...]:
-    from sb.domain.btd6 import paragon_math
-
-    return tuple(
-        {"label": p.name[:100], "value": p.paragon_id,
-         "description": p.tower[:100],
-         "default": p.paragon_id == _DEFAULT_PARAGON}
-        for p in paragon_math.PARAGONS
-    )
-
-
-def _tier5_options() -> tuple[dict, ...]:
-    from sb.domain.btd6 import paragon_math
-
-    # the default landing state (solo Dart) — the shipped _Tier5Select bounds
-    # its options by ``max_extra_t5_count`` for the current mode/paragon.
-    limit = paragon_math.max_extra_t5_count(
-        paragon_math.game_mode_for(1), is_dart=True)
-    return tuple(
-        {"label": f"{n} extra T5", "value": str(n), "default": n == 0}
-        for n in range(0, max(limit, 0) + 1)
-    )
-
-
 def paragon_spec() -> PanelSpec:
     """The BTD6 Paragon calculator landing panel (`!paragon`) — the shipped
     ParagonCalculatorView + build_calculator_embed, byte-for-byte
-    (goldens/btd6/sweep_paragon).
+    (goldens/btd6/sweep_paragon pins the initial open).
 
     Roster / players / difficulty / extra-T5 selectors on the shipped default
     state (Apex Plasma Master · solo · Medium · 0 extra T5) plus the button
     row (🧮 Calculate · 🎯 Requirements · 📊 Stats · ↩ BTD6 · 🌐 Web
-    calculator LINK). The degree solver + reverse requirements solver + live
-    web-calc reconciliation are a NAMED SUCCESSOR PORT (D-0046): the compute
-    buttons + selectors land on the ``btd6.paragon_pending`` terminal, the
-    ↩ BTD6 button opens the hub, and the golden exercises the initial open
-    only. A session view (never anchored; minted 32-hex ids the Normalizer
-    symbolizes as <cid:N>)."""
-    players = tuple(
-        {"label": "Solo (1 player)" if n == 1 else f"Co-op ({n} players)",
-         "value": str(n), "default": n == 1}
-        for n in (1, 2, 3, 4)
-    )
-    difficulties = tuple(
-        {"label": label, "value": value, "default": value == "medium"}
-        for value, label in _PARAGON_DIFFICULTIES
-    )
+    calculator LINK). ARMED (the `btd6.paragon_pending` terminal retired):
+    the selectors update per-message state and re-render in place, Calculate
+    opens the shipped forward modal over the pure-compute power model,
+    Requirements opens the strategy/target page, Stats opens the
+    `btd6.paragon_stats` degree view (or the module-less card)
+    — sb/domain/btd6/paragon_panel.py (deviations
+    ledgered there; the live-API reconciliation stays D-0046). A session
+    view (never anchored; minted 32-hex ids the Normalizer symbolizes as
+    <cid:N>)."""
+    from sb.domain.btd6 import paragon_panel as _pp
+
+    state = _pp.calc_state(None)          # the shipped landing state
+    tier5, _t5_disabled = _pp.tier5_options(state)
     return PanelSpec(
         panel_id="btd6.paragon",
         subsystem="btd6",
@@ -367,40 +387,44 @@ def paragon_spec() -> PanelSpec:
         selectors=(
             SelectorSpec(
                 selector_id="paragon", kind=SelectorKind.ENUM,
-                on_select=HandlerRef("btd6.paragon_pending"),
-                options_source=_paragon_options(),
+                on_select=HandlerRef("btd6.paragon_select"),
+                options_source=_pp.paragon_options(state),
                 placeholder="Choose a paragon…", audience_tier="user"),
             SelectorSpec(
                 selector_id="players", kind=SelectorKind.ENUM,
-                on_select=HandlerRef("btd6.paragon_pending"),
-                options_source=players,
+                on_select=HandlerRef("btd6.paragon_select"),
+                options_source=_pp.player_options(state),
                 placeholder="Players…", audience_tier="user"),
             SelectorSpec(
                 selector_id="difficulty", kind=SelectorKind.ENUM,
-                on_select=HandlerRef("btd6.paragon_pending"),
-                options_source=difficulties,
+                on_select=HandlerRef("btd6.paragon_select"),
+                options_source=_pp.difficulty_options(state),
                 placeholder="Difficulty…", audience_tier="user"),
             SelectorSpec(
                 selector_id="tier5", kind=SelectorKind.ENUM,
-                on_select=HandlerRef("btd6.paragon_pending"),
-                options_source=_tier5_options(),
+                on_select=HandlerRef("btd6.paragon_select"),
+                options_source=tier5,
                 placeholder="Extra T5s…", audience_tier="user"),
         ),
         actions=(
             PanelActionSpec(
                 action_id="calc", label="🧮 Calculate degree",
                 style=ActionStyle.PRIMARY, audience_tier="user",
-                handler=HandlerRef("btd6.paragon_pending"),
+                handler=HandlerRef("btd6.paragon_calc_submit"),
+                defer_mode=DeferMode.MODAL, modal=PARAGON_CALC_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="requirements", label="🎯 Requirements",
                 style=ActionStyle.SUCCESS, audience_tier="user",
-                handler=HandlerRef("btd6.paragon_pending"),
+                handler=HandlerRef("btd6.paragon_requirements_open"),
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="stats", label="📊 Stats",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("btd6.paragon_pending"),
+                handler=HandlerRef("btd6.paragon_stats_view"),
+                reply_visibility=ReplyVisibility.EPHEMERAL,
                 result_render=ResultRender.RESULT_CARD),
             PanelActionSpec(
                 action_id="back", label="↩ BTD6",
@@ -420,14 +444,137 @@ def paragon_spec() -> PanelSpec:
             "custom_id) with the session's minted dispatch ids. The override "
             "delegates the roster/players/difficulty/extra-T5 selectors + the "
             "four dispatch buttons to the grammar renderer, replaces ONLY the "
-            "embed, and injects the link button (goldens/btd6/sweep_paragon "
-            "pins every byte)."),
+            "embed (re-bounding the select rosters from the live per-message "
+            "state — the shipped rebuild()), and injects the link button "
+            "(goldens/btd6/sweep_paragon pins every default-state byte)."),
         layout=LayoutSpec(pages=(PageSpec(rows=(
             ("paragon",),
             ("players",),
             ("difficulty",),
             ("tier5",),
             ("calc", "requirements", "stats", "back"),)),)),
+    )
+
+
+def paragon_requirements_spec() -> PanelSpec:
+    """The reverse-solver page (shipped ParagonRequirementsView): Strategy…
+    select · 🎯 Enter target degree (the shipped ParagonTargetModal) ·
+    ↩ Calculator · the 🌐 Web calculator LINK, over the shipped blurple
+    config embed. Opened by the calculator's 🎯 Requirements button as its
+    own ephemeral panel message (engine-shape deviation ledgered in
+    sb/domain/btd6/paragon_panel.py — the shipped click EDITED the
+    calculator message in place). Golden-unpinned (#151's class)."""
+    from sb.domain.btd6 import paragon_panel as _pp
+
+    state = _pp.req_state(None)
+    return PanelSpec(
+        panel_id="btd6.paragon_requirements",
+        subsystem="btd6",
+        title="🎯 Requirements",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        selectors=(
+            # selector_id "solve_strategy" (not the shipped bare "strategy")
+            # — the manifest-wide never_strand predicate pools component ids
+            # per subsystem and the hub already declares a "strategy" ACTION;
+            # session ids are minted 32-hex on the wire, so no byte changes.
+            SelectorSpec(
+                selector_id="solve_strategy", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_req_select"),
+                options_source=_pp.strategy_options(state),
+                placeholder="Strategy…", audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="enter_target", label="🎯 Enter target degree",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_target_submit"),
+                defer_mode=DeferMode.MODAL, modal=PARAGON_TARGET_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="back_calc", label="↩ Calculator",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_back_to_calc"),
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_paragon_requirements"),
+        justification=(
+            "the shipped requirements config embed is state-parameterized "
+            "on every description line (strategy/players/difficulty) with "
+            "an arbitrary footer ('Least-X maxes the other inputs…') — "
+            "outside FooterMode and the static TextBlock grammar — and the "
+            "button row mixes the 🌐 Web calculator LINK button (no "
+            "custom_id) with the session's minted dispatch ids. The "
+            "override delegates the strategy select + two buttons to the "
+            "grammar renderer, replaces ONLY the embed, and injects the "
+            "link button (the shipped ParagonRequirementsView shape; no "
+            "golden pins this click route)."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("solve_strategy",),
+            ("enter_target", "back_calc"),)),)),
+    )
+
+
+def paragon_stats_spec() -> PanelSpec:
+    """The paragon stats degree view — the shipped ParagonStatsView's
+    degree picker (milestone select · 🔢 Enter degree · ↩ Calculator)
+    over the PORTED :func:`stats.paragon_stats_at_degree`. Opened by the
+    calculator's 📊 Stats button as its own ephemeral panel message
+    (engine-shape deviation ledgered in sb/domain/btd6/paragon_panel.py).
+    Golden-unpinned (click-reached, #151's class). The degree-independent
+    BASE infobox view (``_stat_node_embed`` over ``stats.base``) rides the
+    deep-stats successor — this page opens at Degree 1 instead (scaled ==
+    base at degree 1 by the wiki formulas), ledgered in paragon_panel."""
+    from sb.domain.btd6 import paragon_panel as _pp
+
+    state = _pp.stats_state(None)
+    return PanelSpec(
+        panel_id="btd6.paragon_stats",
+        subsystem="btd6",
+        title="👑 Paragon stats",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        selectors=(
+            SelectorSpec(
+                selector_id="degree_pick", kind=SelectorKind.ENUM,
+                on_select=HandlerRef("btd6.paragon_degree_select"),
+                options_source=_pp.degree_options(state),
+                placeholder="Pick a degree…", audience_tier="user"),
+        ),
+        actions=(
+            PanelActionSpec(
+                action_id="enter_degree", label="🔢 Enter degree",
+                style=ActionStyle.PRIMARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_degree_submit"),
+                defer_mode=DeferMode.MODAL, modal=PARAGON_DEGREE_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="back_stats", label="↩ Calculator",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("btd6.paragon_stats_back"),
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_paragon_stats"),
+        justification=(
+            "the shipped per-degree stats embed is fully data-parameterized "
+            "(power/boss-multiplier headline + per-attack scaled cells with "
+            "the 'BTD6 stats v<version>' footer) — outside FooterMode and "
+            "the block grammar's provider-fed field vocabulary. The override "
+            "delegates the degree select + two buttons to the grammar "
+            "renderer and replaces ONLY the embed (no golden pins this "
+            "click route)."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("degree_pick",),
+            ("enter_degree", "back_stats"),)),)),
     )
 
 
@@ -441,55 +588,6 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
 
     rendered = await render_panel(spec, ctx)
     return _dc_replace(rendered, embed=oracle_cards.hub_card())
-
-
-async def _render_paragon(spec: PanelSpec, ctx) -> object:
-    """Grammar-rendered selectors/buttons + the shipped landing embed +
-    the injected 🌐 Web calculator LINK button (the shipped
-    build_calculator_embed default state: Apex Plasma Master · solo ·
-    Medium · 0 extra T5)."""
-    from sb.domain.btd6 import paragon_math
-    from sb.kernel.panels.render import (
-        RenderedComponent,
-        RenderedEmbed,
-        render_panel,
-    )
-
-    rendered = await render_panel(spec, ctx)
-    paragon = paragon_math.resolve_paragon(_DEFAULT_PARAGON)
-    name = paragon.name if paragon else _DEFAULT_PARAGON
-    tower = paragon.tower if paragon else ""
-    player_count = 1
-    difficulty = "medium"
-    tier5_count = 0
-    mode = paragon_math.game_mode_for(player_count)
-    embed = RenderedEmbed(
-        title=f"🔮 Paragon Calculator — {name}",
-        description=(
-            f"**Paragon:** {name} ({tower})\n"
-            f"**Players:** {player_count} ({mode})\n"
-            f"**Difficulty:** {difficulty.title()}\n"
-            f"**Extra T5s:** {tier5_count}"),
-        fields=(
-            ("🧮 Calculate degree",
-             "Enter your pops / cash / tiers / totems to see the degree "
-             "you'd get."),
-            ("🎯 Requirements for a degree",
-             "Pick a strategy and a target degree to get a recommended "
-             "build."),
-            ("🔗 Web calculator & credits",
-             f"[paragon-calc.vercel.app]({_PARAGON_CALC_URL}) — built by "
-             f"**{_PARAGON_CALC_AUTHOR}**"),
-        ),
-        footer="Solo: 1 extra T5 (Dart only) · Co-op: up to 9 · totems "
-               "are uncapped",
-        style_token="green",
-    )
-    link = RenderedComponent(
-        kind="button", custom_id="", label="🌐 Web calculator", row=4,
-        style=ActionStyle.LINK.value, url=_PARAGON_CALC_URL)
-    return _dc_replace(rendered, embed=embed,
-                       components=rendered.components + (link,))
 
 
 async def _render_card(spec: PanelSpec, ctx) -> object:
@@ -532,19 +630,25 @@ _SPECS = {
     "btd6.ctteam": ctteam_spec,
     "btd6.strategy_submit": strategy_submit_spec,
     "btd6.paragon": paragon_spec,
+    "btd6.paragon_requirements": paragon_requirements_spec,
+    "btd6.paragon_stats": paragon_stats_spec,
 }
 
 _RENDERERS = {
     "btd6.render_hub": _render_hub,
     "btd6.render_card": _render_card,
     "btd6.render_ctteam": _render_ctteam,
-    "btd6.render_paragon": _render_paragon,
+    # btd6.render_paragon + btd6.render_paragon_requirements register at
+    # sb/domain/btd6/paragon_panel.py import (with the armed handlers).
 }
 
 
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
+    from sb.domain.btd6 import paragon_panel as _pp
+
+    _pp.ensure_paragon_refs()
     for pid, factory in _SPECS.items():
         if not is_registered(PanelRef(pid)):
             panel(pid)(factory)

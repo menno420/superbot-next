@@ -48,6 +48,7 @@ __all__ = [
     "build_list_fields",
     "collect_entries",
     "ensure_policy_widget_refs",
+    "guild_scope_roster",
     "install_guild_scope_roster",
 ]
 
@@ -98,6 +99,15 @@ async def _roster(guild_id: int) -> GuildScopeRoster:
     except Exception:  # noqa: BLE001 — a roster miss degrades to empty_state
         logger.debug("guild scope roster read failed", exc_info=True)
         return GuildScopeRoster()
+
+
+async def guild_scope_roster(guild_id: int) -> GuildScopeRoster:
+    """Public read of the installed guild-scope roster (empty when the
+    port is uninstalled — headless replay). The ONE guild channel/
+    category/role enumeration seam; other subsystems' operator panels
+    (the cleanup policy panel's scope labels + stale-scope detection)
+    consume it here instead of re-installing a twin port."""
+    return await _roster(guild_id)
 
 
 # --- the picker option providers -----------------------------------------------------

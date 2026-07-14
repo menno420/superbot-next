@@ -94,12 +94,16 @@ def _register() -> None:
         subject = " ".join(str(t) for t in argv).strip()
         if not subject:
             return Reply(BLOCKED, _USAGE_NEW)
-        # the shipped open flow's eligibility check runs before any effect
-        # (ticket_mutation.open_ticket); at the v1 config-absent epoch it
-        # always refuses — the configured open flow (channel provisioning
-        # + ticket row) is the ticket-mutation slice's port.
-        await service.get_config(int(req.guild_id or 0))
-        return Reply(BLOCKED, service.NOT_CONFIGURED_MSG)
+        # the shipped open flow's eligibility gate runs before any effect
+        # (ticket_mutation.open_ticket → check_open_eligibility, the
+        # shipped order + copy); an ELIGIBLE open on a configured guild
+        # answers the honest provisioning pending terminal — the private-
+        # channel + ticket-row flow is the ticket-open slice's port.
+        allowed, refusal = await service.check_open_eligibility(
+            int(req.guild_id or 0), int(req.actor.user_id or 0))
+        if not allowed:
+            return Reply(BLOCKED, refusal)
+        return Reply(BLOCKED, service.OPEN_PROVISION_PENDING_MSG)
 
     async def _require_open_ticket(req) -> Reply | None:
         """The shipped in-channel guard every manage lane runs FIRST
@@ -166,14 +170,17 @@ def _register() -> None:
     @handler("ticket.open_submit")
     async def ticket_open_submit(req) -> Reply:
         """The hub's "Open a ticket" modal SUBMIT (shipped: TicketOpenModal
-        → ticket_mutation.open_ticket, eligibility first). At the v1
-        config-absent epoch every submit answers the shipped
-        REASON_NOT_CONFIGURED refusal — the provisioning flow is the
-        ticket-mutation slice's port."""
+        → ticket_mutation.open_ticket, eligibility first — the shipped
+        gate order + copy through ``check_open_eligibility``). An
+        ELIGIBLE submit on a configured guild answers the honest
+        provisioning pending terminal (the ticket-open slice's port)."""
         from sb.domain.ticket import service
 
-        await service.get_config(int(req.guild_id or 0))
-        return Reply(BLOCKED, service.NOT_CONFIGURED_MSG)
+        allowed, refusal = await service.check_open_eligibility(
+            int(req.guild_id or 0), int(req.actor.user_id or 0))
+        if not allowed:
+            return Reply(BLOCKED, refusal)
+        return Reply(BLOCKED, service.OPEN_PROVISION_PENDING_MSG)
 
     @handler("ticket.my_tickets")
     async def ticket_my_tickets(req) -> Reply:
@@ -194,24 +201,33 @@ def _register() -> None:
     async def ticket_post_panel(req) -> Reply:
         """The hub's "Post panel here" button. Shipped order verbatim
         (views/tickets/hub.py): get_config, then the is_ticket_staff gate
-        (admin/manage_guild perms, or the configured staff role), THEN
-        post_launcher(channel). At the v1 config-absent epoch the cfg
-        staff-role leg is vacuous (cfg is always None — service module
-        docstring), so the gate is exactly the perms leg — ActorRef's
-        is_guild_operator (owner/administrator/manage_guild, shipped).
-        The launcher panel itself is the ticket-mutation slice's port (its
-        only useful lane is the modal→open flow); staff answers the
-        shipped open-lane REASON_NOT_CONFIGURED refusal instead of posting
-        a dead launcher (under-port note; unpinned surface — no golden
+        (admin/manage_guild perms, or the configured staff role — the
+        role leg needs a member-roles read the click path doesn't carry;
+        the perms leg is ActorRef.is_guild_operator, ledgered follow-up),
+        THEN post_launcher(channel) — live now that the armed
+        `!ticketsetup` wizard can enable a guild: a set-up config posts
+        the PERSISTENT launcher panel (the `!ticketpanel` panel, one
+        public message); a not-set-up guild keeps the shipped
+        REASON_NOT_CONFIGURED refusal (unpinned surface — no golden
         carries the click)."""
         from sb.domain.ticket import service
 
-        await service.get_config(int(req.guild_id or 0))
+        cfg = await service.get_config(int(req.guild_id or 0))
         if not bool(getattr(req.actor, "is_guild_operator", False)):
             # the shipped refusal byte, verbatim (views/tickets/hub.py:
             # "Only staff can post the ticket panel.", ephemeral).
             return Reply(BLOCKED, _STAFF_ONLY_POST_PANEL)
-        return Reply(BLOCKED, service.NOT_CONFIGURED_MSG)
+        if not service.is_set_up(cfg):
+            return Reply(BLOCKED, service.NOT_CONFIGURED_MSG)
+        from sb.kernel.panels.engine import open_panel
+        from sb.spec.refs import PanelRef
+
+        try:
+            await open_panel(PanelRef("ticket.launcher"), req)
+        except Exception:  # noqa: BLE001 — the shipped Forbidden copy
+            return Reply(BLOCKED, "I need permission to send messages in "
+                                  "this channel.")
+        return Reply(SUCCESS, None)
 
     # --- the ticket-admin command family (the `_unmapped` re-home) --------
 
@@ -282,17 +298,10 @@ def _register() -> None:
         return Reply(SUCCESS, f"✅ Members may now hold up to "
                               f"**{max_open}** open ticket(s).")
 
-    @handler("ticket.setup_pending")
-    async def ticket_setup_pending(req) -> Reply:
-        """The `!ticketsetup` wizard's interactive lanes (role/log picks,
-        Auto-create, Enable, Post panel — views/tickets/config_panel.py)
-        land as honest pending terminals: no golden clicks them; the
-        shipped callbacks mutate view state / provision channels — the
-        wizard-mutation slice's port (the diagnostic flag-manager
-        posture)."""
-        return Reply(BLOCKED, "ℹ️ This ticket setup control is not ported "
-                              "yet — use `!ticketlimit` and "
-                              "`!ticketblacklist` meanwhile.")
+    # The `ticket.setup_pending` terminal RETIRED (ORDER 017 night-run fix
+    # slice B): the wizard's role/log picks + Auto-create / Enable / Post
+    # panel are armed in sb/domain/ticket/setup_panel.py over the audited
+    # ticket.update_config / ticket.create_log_channel ops (D-0084).
 
 
 # --- panel ------------------------------------------------------------------------
@@ -396,7 +405,15 @@ def ticket_hub_spec():
 
 async def _render_hub(spec, ctx) -> object:
     """Grammar render + the ONE shipped adjustment (see the spec's
-    justification): the state-dependent description."""
+    justification): the state-dependent description. Both shipped
+    branches render now (views/tickets/hub.py _build_hub_embed): the
+    not-set-up copy when `cfg is None or not cfg.is_set_up` (the byte
+    goldens/ticket/sweep_ticket pins), and the configured body + the
+    three inline fields once the armed `!ticketsetup` wizard enables the
+    guild (unpinned — no golden captures a set-up guild; role/channel
+    mentions render as `<@&id>`/`<#id>` wire bytes, the shipped
+    mention-resolution's wire form; a vanished pointer renders the
+    shipped em-dash)."""
     from dataclasses import replace as _dc_replace
 
     from sb.domain.ticket import service
@@ -404,15 +421,30 @@ async def _render_hub(spec, ctx) -> object:
 
     rendered = await render_panel(spec, ctx)
     gid = int(getattr(ctx, "guild_id", 0) or 0)
-    # the shipped branch test verbatim (`cfg is None or not cfg.is_set_up`
-    # ⇒ the not-set-up copy). The configured branch's body is unpinned and
-    # lands with the ticket-mutation slice (see the spec's justification);
-    # at the v1 epoch cfg is always None (service module docstring), so
-    # this renders the exact state goldens/ticket/sweep_ticket captured.
-    await service.get_config(gid)
-    description = _HUB_NOT_SET_UP
-    return _dc_replace(
-        rendered, embed=_dc_replace(rendered.embed, description=description))
+    cfg = await service.get_config(gid)
+    if not service.is_set_up(cfg):
+        return _dc_replace(
+            rendered,
+            embed=_dc_replace(rendered.embed, description=_HUB_NOT_SET_UP))
+    uid = int(getattr(getattr(ctx, "actor", None), "user_id", 0) or 0)
+    mine = await service.list_user_open(gid, uid)
+    staff_role_id = cfg.get("staff_role_id")
+    log_channel_id = cfg.get("log_channel_id")
+    embed = _dc_replace(
+        rendered.embed,
+        # the shipped configured description, verbatim.
+        description=("Open a private support ticket and the staff team "
+                     "will help you out."),
+        fields=tuple(rendered.embed.fields) + (
+            ("Staff role",
+             f"<@&{int(staff_role_id)}>" if staff_role_id else "—", True),
+            ("Transcript log",
+             f"<#{int(log_channel_id)}>" if log_channel_id else "—", True),
+            ("Your open tickets",
+             f"{len(mine)} / {int(cfg.get('max_open_per_user') or 3)}",
+             True),
+        ))
+    return _dc_replace(rendered, embed=embed)
 
 
 # --- the launcher panel (`!ticketpanel` — views/tickets/launcher.py) ---------------
@@ -599,14 +631,14 @@ def ticket_setup_spec():
             # options).
             SelectorSpec(
                 selector_id="setup_staff_role", kind=SelectorKind.ROLE,
-                on_select=HandlerRef("ticket.setup_pending"),
+                on_select=HandlerRef("ticket.setup_select"),
                 placeholder="Staff role (required) — who handles "
                             "tickets…",
                 audience_tier="staff"),
             # discord.ui.ChannelSelect(channel_types=[text]), row 1.
             SelectorSpec(
                 selector_id="setup_log_channel", kind=SelectorKind.CHANNEL,
-                on_select=HandlerRef("ticket.setup_pending"),
+                on_select=HandlerRef("ticket.setup_select"),
                 placeholder="Transcript log channel (optional)…",
                 audience_tier="staff"),
         ),
@@ -617,17 +649,17 @@ def ticket_setup_spec():
                 action_id="setup_autocreate_log",
                 label="Auto-create log channel", emoji="🪄",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
-                handler=HandlerRef("ticket.setup_pending")),
+                handler=HandlerRef("ticket.setup_autocreate")),
             PanelActionSpec(
                 action_id="setup_enable", label="Enable tickets",
                 emoji="✅", style=ActionStyle.SUCCESS,
                 audience_tier="staff",
-                handler=HandlerRef("ticket.setup_pending")),
+                handler=HandlerRef("ticket.setup_enable")),
             PanelActionSpec(
                 action_id="setup_post_panel",
                 label="Post open-ticket panel here", emoji="📋",
                 style=ActionStyle.SECONDARY, audience_tier="staff",
-                handler=HandlerRef("ticket.setup_pending")),
+                handler=HandlerRef("ticket.setup_post_panel")),
         ),
         # the shipped wizard carried NO nav row — the golden pins the
         # 4-row component tree (role pick / channel pick / auto-create +
@@ -662,7 +694,11 @@ def ticket_setup_spec():
 async def _render_setup(spec, ctx) -> object:
     """Grammar render + the two shipped adjustments named in the spec's
     justification: the state-dependent Selected/Current field + the
-    footer literal (config_panel.py verbatim)."""
+    footer literal (config_panel.py verbatim). The armed wizard's PENDING
+    picks (sb/domain/ticket/setup_panel.py per-message state) overlay the
+    stored config row — the shipped view seeded its attributes from the
+    config read and then mutated them per pick; a refresh re-render
+    receives that state through ctx.params."""
     from dataclasses import replace as _dc_replace
 
     from sb.domain.ticket import store
@@ -674,9 +710,14 @@ async def _render_setup(spec, ctx) -> object:
         cfg = await store.get_config_row(gid)
     except Exception:  # noqa: BLE001 — best-effort read (shipped posture)
         cfg = None
-    enabled = bool((cfg or {}).get("enabled")) if cfg else False
-    staff_role_id = (cfg or {}).get("staff_role_id")
-    log_channel_id = (cfg or {}).get("log_channel_id")
+    params = getattr(ctx, "params", {}) or {}
+    enabled = bool(params.get("enabled",
+                              bool((cfg or {}).get("enabled")) if cfg
+                              else False))
+    staff_role_id = params.get("staff_role_id",
+                               (cfg or {}).get("staff_role_id"))
+    log_channel_id = params.get("log_channel_id",
+                                (cfg or {}).get("log_channel_id"))
     max_open_per_user = (cfg or {}).get("max_open_per_user")
     # the shipped fallback literals + set-state renders, verbatim
     # (config_panel.py; the set branches resolve mentions live-side —
@@ -695,10 +736,16 @@ async def _render_setup(spec, ctx) -> object:
         f"• Transcript log: {log_text}\n"
         f"• Max open per user: **{max_open_per_user or 3}**"
     )
+    # the shipped post-Enable / post-Post-panel accent + footer flips
+    # (embed.color = green + set_footer — config_panel.py enable/post).
+    footer = str(params.get("footer") or _SETUP_FOOTER)
     embed = _dc_replace(
         rendered.embed,
         fields=tuple(rendered.embed.fields) + ((field_name, field_value),),
-        footer=_SETUP_FOOTER)
+        footer=footer)
+    accent = str(params.get("accent") or "")
+    if accent:
+        embed = _dc_replace(embed, style_token=accent)
     return _dc_replace(rendered, embed=embed)
 
 
@@ -743,7 +790,16 @@ def ensure_panel_refs() -> None:
 
 def ensure_handler_refs() -> None:
     _register()
+    from sb.domain.ticket import setup_panel as _setup_panel
+
+    _setup_panel.ensure_setup_panel_refs()
 
 
 _register()
 ensure_panel_refs()
+
+# the armed setup-wizard lanes register at THEIR module import (BUG A rule);
+# importing here makes this module's import self-sufficient for dispatch.
+from sb.domain.ticket import setup_panel as _setup_panel  # noqa: E402
+
+_setup_panel.ensure_setup_panel_refs()

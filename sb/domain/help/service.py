@@ -111,13 +111,34 @@ def _visible_categories(ctx) -> tuple[cats.HelpCategory, ...]:
                  if is_staff or not cat.staff_only)
 
 
+async def _guild_overlay(ctx):
+    """The guild's Help presentation overlay (the D-0026 lane, armed by
+    the editor slice) — the EMPTY overlay for DMs/faults, so every
+    default render stays byte-identical (goldens/help pin the bytes)."""
+    from sb.domain.help.overlay import get_guild_help_overlay
+
+    return await get_guild_help_overlay(
+        int(getattr(ctx, "guild_id", 0) or 0) or None)
+
+
 def _ensure_home_provider() -> ProviderRef:
     async def help_home_categories(ctx):
-        # the shipped home field copy, verbatim: purpose + the hub command.
-        return tuple(
-            (f"{cat.emoji} {cat.display_name}",
-             f"{cat.purpose}\n→ `{cat.hub_command}`")
-            for cat in _visible_categories(ctx))
+        # the shipped home field copy, verbatim: purpose + the hub command
+        # (± the guild overlay's display-only hide/rename/re-describe —
+        # empty overlay renders byte-identical defaults).
+        overlay = await _guild_overlay(ctx)
+        rows = []
+        for cat in _visible_categories(ctx):
+            if overlay.hidden("hub", cat.key):
+                continue
+            row = overlay.get("hub", cat.key)
+            name = overlay.display_name_for("hub", cat.key,
+                                            cat.display_name)
+            purpose = (row.description if row is not None
+                       and row.description is not None else cat.purpose)
+            rows.append((f"{cat.emoji} {name}",
+                         f"{purpose}\n→ `{cat.hub_command}`"))
+        return tuple(rows)
 
     return _ensure_provider("sb.panels.help_home_categories",
                             help_home_categories)
@@ -126,20 +147,36 @@ def _ensure_home_provider() -> ProviderRef:
 def _ensure_home_options_provider() -> ProviderRef:
     async def help_home_options(ctx):
         # the shipped rich select options (label/value/description/emoji),
-        # same visibility gate as the fields.
-        return tuple(
-            {"label": cat.display_name, "value": cat.key,
-             "description": cat.purpose, "emoji": cat.emoji}
-            for cat in _visible_categories(ctx))
+        # same visibility gate + overlay as the fields; VALUES stay the
+        # stable category keys, so renames never break routing.
+        overlay = await _guild_overlay(ctx)
+        options = []
+        for cat in _visible_categories(ctx):
+            if overlay.hidden("hub", cat.key):
+                continue
+            row = overlay.get("hub", cat.key)
+            options.append({
+                "label": overlay.display_name_for("hub", cat.key,
+                                                  cat.display_name),
+                "value": cat.key,
+                "description": (row.description if row is not None
+                                and row.description is not None
+                                else cat.purpose),
+                "emoji": cat.emoji})
+        return tuple(options)
 
     return _ensure_provider("sb.panels.help_home_options", help_home_options)
 
 
 def _ensure_category_provider(cat_key: str) -> ProviderRef:
     async def help_category(ctx, _key=cat_key):
+        overlay = await _guild_overlay(ctx)
         rows = []
         for sub in _rosters.get(_key, ()):
+            if overlay.hidden("subsystem", sub):
+                continue
             display, emoji = cats.subsystem_display(sub)
+            display = overlay.display_name_for("subsystem", sub, display)
             names = " ".join(f"`{n}`" for n, _ in _inventory.get(sub, ()))
             rows.append((f"{emoji} {display}",
                          names or "No commands declared yet."))
@@ -149,6 +186,31 @@ def _ensure_category_provider(cat_key: str) -> ProviderRef:
         return tuple(rows)
 
     return _ensure_provider(f"sb.panels.help_cat_{cat_key}", help_category)
+
+
+def _ensure_category_options_provider(cat_key: str) -> ProviderRef:
+    """The feature select's options, provider-fed so the guild overlay's
+    display-only hide/rename applies per render (label==value display
+    strings — the D-0054 call-2 grammar; empty overlay ⇒ the identical
+    static strings the panels previously declared)."""
+    async def help_category_options(ctx, _key=cat_key):
+        overlay = await _guild_overlay(ctx)
+        options = []
+        for sub in _rosters.get(_key, ()):
+            if overlay.hidden("subsystem", sub):
+                continue
+            options.append(_overlay_subsystem_option(overlay, sub))
+        return tuple(options)
+
+    return _ensure_provider(f"sb.panels.help_cat_opts_{cat_key}",
+                            help_category_options)
+
+
+def _overlay_subsystem_option(overlay, sub: str) -> str:
+    """``subsystem_option`` ± the overlay rename (same emoji, the custom
+    display name)."""
+    display, emoji = cats.subsystem_display(sub)
+    return f"{emoji} {overlay.display_name_for('subsystem', sub, display)}"
 
 
 def _ensure_commands_provider(sub_key: str, chunk: int) -> ProviderRef:
@@ -206,6 +268,15 @@ def _ensure_handlers() -> None:
         values = tuple(req.args.get("values", ()) or ())
         sub = (cats.subsystem_for_option(str(values[0]), _inventory.keys())
                if values else None)
+        if sub is None and values:
+            # an overlay-RENAMED option carries the custom display name —
+            # resolve it against the guild's overlay (values stay display
+            # strings per the D-0054 call-2 grammar).
+            overlay = await _guild_overlay(req)
+            option = str(values[0])
+            sub = next((key for key in _inventory
+                        if _overlay_subsystem_option(overlay, key) == option),
+                       None)
         if sub is None:
             return _Reply(SUCCESS, "That feature is no longer available.")
         await open_panel(PanelRef(f"help.sub_{sub}"), req)
@@ -255,8 +326,11 @@ def _subsystem_panels(sub_key: str, cat_key: str) -> tuple[PanelSpec, ...]:
 
 def _category_panel(cat: cats.HelpCategory) -> PanelSpec:
     ref = _ensure_category_provider(cat.key)
-    options = tuple(cats.subsystem_option(sub)
-                    for sub in _rosters.get(cat.key, ()))
+    # provider-fed (was a boot-static tuple): the guild overlay's
+    # display-only hide/rename applies per render; an empty overlay
+    # produces the identical display strings (byte-parity by
+    # construction — goldens/help pin the default bytes).
+    options_ref = _ensure_category_options_provider(cat.key)
     return PanelSpec(
         panel_id=f"help.cat_{cat.key}",
         subsystem="help",
@@ -271,7 +345,7 @@ def _category_panel(cat: cats.HelpCategory) -> PanelSpec:
             SelectorSpec(
                 selector_id="feature_select", kind=SelectorKind.SUBSYSTEM,
                 on_select=HandlerRef("help.open_subsystem"),
-                options_source=options,
+                options_source=options_ref,
                 placeholder="Pick a feature for its full command list…",
                 empty_state="No features in this category yet.",
                 audience_tier="user"),
