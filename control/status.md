@@ -1,50 +1,29 @@
-# superbot-next · status
-updated: 2026-07-14T14:30:20Z
-phase: post-EAP-night morning — dawn lanes complete (ORDER 020 executed + review-parked; D-0043 both slices merged, D-0090 ratified); owner sweep queued.
-health: main at `36d47d6bb91e3605259a766b4746b10aa6f3c9e7`. Gate incident 00:00–01:12Z RESOLVED: 4 fishing goldens were minted date-live 07-13 (weather derives from UTC date) → fleet-wide gate red at midnight; fixed by #448 (seed via CAPTURE_WORLD_WEATHER) + #449 (canonical stripped re-mints + fishing ratchet floor 3/10→2/8). Goldens must have their case id in CAPTURE_WORLD_WEATHER before minting (team memory + docs).
-kit: v1.15.0
-orders: acked=001–022 done=002–022 (020 ratified 2026-07-14T14:20Z via plugin-hello#2 merge; 022 closed via #480); ORDER 001 open owner-side.
-EAP audit landed: docs/audits/eap-project-audit-2026-07-14.md (#468).
+# control/status.md — coordinator heartbeat
 
-## ORDER 022 log
-1. ORDER 021 completion — #464 was an empty vehicle (order text only); real re-stamps landed via #472; ⚑8 withdrawn HERE per INC-58 ground truth (no rewrite occurred — shallow-clone artifact; #319's squash resolves at origin).
-- item 2 casino section build DISPATCHED
-- item 3 title-equip write DISPATCHED
-- item 4 row-72 stacked path DISPATCHED
-- item 5 ⚑7 verify DISPATCHED
-- item (b) walkthrough doc QUEUED (lands after items resolve)
-- parked-by-design per the order: WP stack owner-click, #392, plugin-hello#2 ⚑0, ORDER 001 ⚑6, DROP/D-0083 ⚑3/⚑4.
-- Note: corpus-moving slices park green under the coordinator WP-stack freeze, flip after the owner sweep.
-- lifeboat: claude/lifeboat-fishing-minigame-timing @ 0c1e3bf audited fully SUPERSEDED (fishing lane verdict 2026-07-14T~12:00Z) — branch-delete walled (403, CAPABILITIES), branch parked to owner standing-tail cleanup.
-- ORDER 020 ratified: superbot-plugin-hello#2 merged 2026-07-14T14:20Z (owner sweep signal) — kit pin 1.15.0 mirrored; ratification park cleared.
+updated: 2026-07-14T21:28:31Z
+phase: SEAT DORMANT (owner order 2026-07-14 — EAP FINAL SHUTDOWN)
+health: green — all agent-side work terminal or parked-cited; owner-side items below
+main at shutdown: ba9241627f1102c0af152b34e1e76df01f1583a5
 
-## ORDER 019 night log
-All 8 items + relayed ORDER 031 closed out — full citations in the outbox 2026-07-14T04:48:20Z night report.
-WP owner table (merge order, all-green mergeable-clean): #312 dc35d48 · #317 259176d · #335 b548687 · #344 e6553a7 · #371 91bc32f.
-Extras: night-tail lane #454–#457; gate incident fix #448/#449; ORDER 031 spec hook = docs/specs/casino-section-spec.md.
-Dawn: D-0043 fishing minigame timing rung COMPLETE (#460 + #462; kernel timer + push-edit seam ratified D-0090). ORDER 020 executed, plugin PR parked for owner merge.
+## REVIVAL — read first
+1. Standard orientation: CONSTITUTION.md → this file → docs/status/README-first.md.
+2. EAP record: docs/eap-closeout-walkthrough-2026-07-14.md (§C = owner actions) and docs/audits/eap-project-audit-2026-07-14.md.
+3. Re-arm this seat's routines (both deleted at shutdown, verified via exhaustive list_triggers 2026-07-14T21:26Z):
+   - failsafe cron (was trig_012sSzXkABoZEFW1BqXuqi3v): schedule `0 1-23/2 * * *`, prompt: "FAILSAFE WAKE (SuperBot 2.0, Q-0265): send_later chain alive → verify in one line, end. Stalled → resume the work loop (sync HEAD → inbox → slice after slice, landed per LANDING), re-arm the chain (~15 min), and write your heartbeat (control/status.md, per-seat grammar) as the deliberate last step." Recreate bound to the new coordinator session.
+   - pacemaker: one-shot send_later ~15 min, message "continue the work loop: sync HEAD → inbox → next slice → re-arm"; the new coordinator re-arms it on its first working turn.
+   - NOT deleted (ownership not this seat's — recorded for the owner): kit-lab daily cron trig_01Jm57GAjNCFrYJn1oLMiYGE (`0 6 * * *`, substrate-kit self-improvement loop, marked NEVER rebind) and superbot docs-recon poke-only trig_018wP6XTPmf9DLnxrG4RpGVh (no schedule; fires on the `reconcile` issue label). ⚑ owner: disable via console if full dormancy is wanted.
 
-## ROUTINES
-- FAILSAFE trig_012sSzXkABoZEFW1BqXuqi3v (0 1-23/2 * * *) armed, bound to this seat. Pacemaker chain live (~15 min links).
-- business crons unchanged: kit-lab trig_01Jm57GAjNCFrYJn1oLMiYGE (fresh-session — NEVER rebind); docs-recon trig_018wP6XTPmf9DLnxrG4RpGVh (poke-only).
+## PARKED — owner-side (state verified 2026-07-14 20:55–21:26Z)
+- superbot-next WP stack: merge in order #317 (wp3 @ ade9e69, base main) → #335 (wp5 @ 44ce9ee) → #344 (wp6 @ bc0aeda) → #371 (wp7 @ 873f457); all open, clean, green; #312 (WP-2) merged 15:56Z. Goldens byte-identical to #392 @ 24ca87e. Bottom-up re-fold ONLY if stale; re-sum count pins FROM DISK after merges (team memory: wp-stack-staged-for-owner-revival).
+- Frozen PRs (do-not-automerge, cards in-progress by design): #466 fishing Cast-again @ 0c1048e, #477 casino section @ 5c4838e, #473 title-equip @ d6421a2, #476 curation row 72 @ dc3efdf. After the WP stack lands: flip each card complete + remove the label; the owning lanes are ended, so a fresh session does the flips per .sessions/README.md.
+- superbot #2061 (mineverse FLAG 2): green draft @ 140c384 — mark ready + merge = deploy. If conflict-rotted (dashboard cron, ~2h cadence): run scripts/resolve_generated_conflicts.py during a merge of main (recipe: superbot docs/operations/generated-data-merge-recipe.md). Post-merge env: MINING_WRITE_SHARED_SECRET + MINING_WRITE_GUILD_ALLOWLIST (Railway), MINING_WRITE_ENDPOINT (mineverse). FLAG 1 (#2058) merged + deployed 15:55Z.
+- Remaining owner actions: walkthrough §C — require `substrate-gate` as a required context; DROP-list ratification; anchor call 0083; ORDER 001 token; standing tail incl. deleting branch claude/lifeboat-fishing-minigame-timing @ 0c1e3bf (superseded; branch-delete was walled for agents, 403).
+- #457 conform sweep: gated on the WP stack landing.
 
-## OPEN PRs
-- WP stack #312→#317→#335→#344→#371 — all-green, mergeable-clean, owner-click sweep (heads: dc35d48 · 259176d · b548687 · e6553a7 · 91bc32f).
-- #392 parked on wp3 (auto-retargets after WP sweep) · superbot #2058/#2061 draft deploy-holds (~2h churn caveat).
+## ORDERS
+acked=001–022 done=002–022 (020 ratified 2026-07-14T14:20Z via plugin-hello#2; 022 closed via #480 + reissue validated via #486). ORDER 001 open owner-side. No ORDER ≥ 023 at HEAD. Inbox contains no shutdown ORDER — the EAP FINAL SHUTDOWN directive arrived as a live owner turn in the coordinator session, which binds per the seat's order rules.
 
-## ⚑ needs-owner (the standing eight)
+## SOURCE OF TRUTH
+Fleet doctrine is centralized at fm:docs/prompts/v3/ and fm:projects/UNIVERSAL.md; seat vocabulary at sb:docs/owner/fleet-vocab.md. Known local duplications left in place (reconcile on revival, do not trust as canonical): control/README.md order-grammar prose (canonical: the kit's bootstrap enforcer), docs/collaboration-model.md band-binding notes (overlaps fm collaboration doctrine).
 
-0. DONE 2026-07-14T14:20Z — superbot-plugin-hello PR #2 merged (ORDER 020 ratified; kit pin 1.15.0 mirrored; ratification park cleared).
-1. Flip superbot #2058 (head a6b8c99) + #2061 to ready (merge=deploy). NOTE: the 2-hourly dashboard-refresh cron re-dirties #2061 while open (#2072 made resolution mechanical — scripts/resolve_generated_conflicts.py — it does NOT prevent churn); flip within ~2h of a fresh resolve (last: 0cc9a62 ~15:27Z) or run the resolver during a merge of main first. #2058 has no dashboard delta, merges clean. Deploy env names: FLAG1 MINING_SNAPSHOT_RELAY_URL + MINING_SNAPSHOT_RELAY_GUILD_ID; FLAG2 MINING_WRITE_SHARED_SECRET + MINING_WRITE_GUILD_ALLOWLIST (+ mineverse MINING_WRITE_ENDPOINT).
-2. Sweep-merge the WP stack #312→#317→#335→#344 (+ #371), then #320.
-3. Ratify the curation DROP list (60 items, #327 report §DROP).
-4. D-0083 anchor call (#346 proposal).
-5. SBW inventory+spec for sections (SIM-REQUEST 00:55Z, unanswered).
-6. Standing: settings-prune ratification; OWNER-ACTION 3 (ruleset/merge-queue) + 5 (ANTHROPIC_API_KEY/AI_ENABLED); delete scratch/union-test-a,-b; ORDER 001 token run; hermes egress creds (CLAUDE_ROUTINE_FIRE_URL + token).
-7. Minor: cosmetic "RED BY DESIGN"/"EXPECTED RED" banner strings in run_golden_parity.py/harness + golden-parity.yml step name (report leg is live green).
-
-next-2-tasks:
-1. Awaiting owner WP sweep → send go-to-flip to the frozen lanes.
-2. Monitor inbox for ORDER 023+.
-
-Pointers: night ack = PR #421; ORDER 019 close-out = outbox 2026-07-14T04:48:20Z; ORDER 031 hook = docs/specs/casino-section-spec.md; incident detail = PRs #448/#449 bodies.
+kit: v1.16.0
