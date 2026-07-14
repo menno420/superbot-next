@@ -802,7 +802,8 @@ class Harness:
 
     async def send_command(self, content: str, *, persona: str = "member",
                            channel: str = "general",
-                           mentions: tuple[int, ...] = ()) -> None:
+                           mentions: tuple[int, ...] = (),
+                           advance_s: float | None = None) -> None:
         """A member message: prefix-command dispatch through the REAL
         pipeline, then the passive XP chat award (band 4 — the shipped
         listener awarded on EVERY human message, commands included; the
@@ -811,7 +812,9 @@ class Harness:
         (counting/chain/fuzzy/NL) stay no-ops here, honestly diffed."""
         if self.world is None:
             raise RuntimeError("harness not started")
-        self.world.clock.advance()
+        # advance_s: the Step clock-grammar seam (D-0043) — None keeps the
+        # fixed 30.0 s step every existing golden was captured under.
+        self.world.clock.advance(advance_s or 30.0)
         message_id = self.world.ids.allocate()
         target_key = None
         rest: list[str] = []
@@ -903,10 +906,11 @@ class Harness:
     async def invoke_slash(self, name: str,
                            options: list[dict[str, Any]] | None = None, *,
                            persona: str = "member",
-                           channel: str = "general") -> None:
+                           channel: str = "general",
+                           advance_s: float | None = None) -> None:
         if self.world is None:
             raise RuntimeError("harness not started")
-        self.world.clock.advance()
+        self.world.clock.advance(advance_s or 30.0)
         interaction_id = self.world.ids.allocate()
         if self._lookup(name, Surface.SLASH) is None:
             # the old harness's exact semantics: an interaction naming an
@@ -940,10 +944,11 @@ class Harness:
     async def click(self, *, message_id: int, custom_id: str,
                     component_type: int = 2,
                     values: list[str] | None = None,
-                    persona: str = "member", channel: str = "general") -> None:
+                    persona: str = "member", channel: str = "general",
+                    advance_s: float | None = None) -> None:
         if self.world is None:
             raise RuntimeError("harness not started")
-        self.world.clock.advance()
+        self.world.clock.advance(advance_s or 30.0)
         interaction_id = self.world.ids.allocate()
         member = _member_for(persona)
         channel_id = self.world.channels[channel]
@@ -972,7 +977,8 @@ class Harness:
     async def modal_submit(self, *, message_id: int, custom_id: str,
                            fields: dict[str, str],
                            persona: str = "member",
-                           channel: str = "general") -> None:
+                           channel: str = "general",
+                           advance_s: float | None = None) -> None:
         """One wire-type-5 MODAL SUBMIT through the real pipeline
         (``dispatch_modal`` — the seam the live component feed's armed
         modal lane drives; the ``click`` twin for G-10 forms). Driven by
@@ -982,7 +988,7 @@ class Harness:
         vocabulary."""
         if self.world is None:
             raise RuntimeError("harness not started")
-        self.world.clock.advance()
+        self.world.clock.advance(advance_s or 30.0)
         interaction_id = self.world.ids.allocate()
         member = _member_for(persona)
         channel_id = self.world.channels[channel]

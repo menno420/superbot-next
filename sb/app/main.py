@@ -400,6 +400,15 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
 
         install_panel_message_editor(DiscordPanelMessageEditor(bot))
 
+        # the panel message-POST port (the on-guild-join launcher's post
+        # lane): the bot posts a kernel-rendered panel into a channel with
+        # no live interaction — the editor port's twin, installed ungated
+        # like it (mentions stay default-deny through the egress seam).
+        from sb.adapters.discord.panel_view import DiscordPanelMessagePoster
+        from sb.kernel.panels.engine import install_panel_message_poster
+
+        install_panel_message_poster(DiscordPanelMessagePoster(bot))
+
         # 10a. the moderation guild-action port (D-0049 live successor) — the
         #      moderation twin of the channel emitter above: live kick/ban/
         #      timeout/unban + the guild.me 🤖 readiness read. DOUBLE-GATED,
@@ -691,6 +700,21 @@ async def run_app(env=None) -> int:  # noqa: PLR0911, PLR0915 — the boot scrip
         logger.info("reaction feed armed: %d consumer(s): %s",
                     len(registered_reaction_consumers()),
                     ", ".join(registered_reaction_consumers()) or "—")
+
+        # 14d. the guild-join feed — gateway on_guild_join → the kernel
+        #      guild-events seam (the setup launcher consumer rides it —
+        #      night-tail-2; the economy log-channel ensure is a named
+        #      successor). The guilds intent is non-privileged
+        #      (Intents.default() carries it) — no degrade marker gates it.
+        from sb.adapters.discord.guild_feed import arm_guild_join_feed
+        from sb.kernel.interaction.guild_events import (
+            registered_guild_join_consumers,
+        )
+
+        arm_guild_join_feed(bot)
+        logger.info("guild-join feed armed: %d consumer(s): %s",
+                    len(registered_guild_join_consumers()),
+                    ", ".join(registered_guild_join_consumers()) or "—")
 
         # 15. the ONE PollSupervisor (outbox relay/reaper + durability lanes).
         from sb.app.poll_host import build_poll_supervisor
