@@ -152,8 +152,10 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # Storm. That is capture-world world state exactly like the sweep rows
     # above; pin the capture-day ⛈️ Storm so replay is date-independent (was
     # a wall-clock time-bomb: green on 2026-07-13, red on 2026-07-14 when the
-    # live date picked 🌧️ Rain). Each golden's asserted bytes are the
-    # 07-13 Storm face — unchanged; only the seed is reconstructed.
+    # live date picked 🌧️ Rain). Seeded by #448; the goldens were then
+    # re-minted under this seed in the canonical stripped D-0073 flavor
+    # (mint_golden → capture_case and replay_case → capture_case share
+    # this one seeding site, so both legs are date-independent).
     "fishing.cast_reel_write": "storm",
     "fishing.cast_deepwater_reel_write": "storm",
     "fishing.cast_bait_spend_write": "storm",
