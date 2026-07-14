@@ -1015,7 +1015,10 @@ def test_interior_panels_ride_the_manifest():
         # the routing-ticket slice (FINAL): the cog_routing card+detail
         # pair — ticket adds NO setup panel (its flow opens the shipped
         # ticket.setup panel, declared by the ticket manifest).
-        "setup.section_cog_routing", "setup.cog_routing_detail"]
+        "setup.section_cog_routing", "setup.cog_routing_detail",
+        # the night-recovery-view slice: the SectionRecoveryView panel
+        # + the one-shot durable workspace-notice card.
+        "setup.section_recovery", "setup.workspace_notice"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {

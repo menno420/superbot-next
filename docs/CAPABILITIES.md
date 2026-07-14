@@ -107,6 +107,21 @@ Format: `- YYYY-MM-DD · capability|wall · finding · evidence · workaround`.
 (Hand-filled by sessions, per the discovery rule. Seed walls/capabilities
 above came from the fleet's lived 2026-07 findings; local ones go here.)
 
+- 2026-07-14 · capability · The golden-parity gate IS runnable locally in a
+  worker seat — no CI round-trip needed to verify parity changes: the
+  container ships a down Postgres cluster (`pg_ctlcluster 16 main start`
+  brings 16/main online on :5432), then mirror the golden-parity.yml
+  service env: `sudo -u postgres psql -c "CREATE USER parity WITH PASSWORD
+  'parity';" -c "CREATE DATABASE parity_replay OWNER parity;"` and run
+  `DATABASE_URL="postgresql://parity:parity@localhost:5432/parity_replay"
+  SB_DATA_PLANE=test SB_TEST_DB_HOSTS=localhost python3
+  tools/run_golden_parity.py --gate` · evidence: verified 2026-07-14 in the
+  night-recovery-view unblock seat — bare invocation fails
+  `HarnessBootError: Postgres unavailable` (cluster down, then
+  `password authentication failed for user "superbot"`), the seeded route
+  returned `gate: GREEN — all 494 golden(s) across 50 ported subsystem(s)
+  replay clean` on the #444 merge result · workaround: n/a — this IS the
+  route; the user/db pair comes from .github/workflows/golden-parity.yml.
 - 2026-07-13 · wall · `EnterWorktree` tool is unavailable to pinned-cwd
   workers (`subagent` venue): a worker seat spawned with a cwd override
   cannot use the tool in either isolation mode — hit independently by both
