@@ -36,6 +36,7 @@ def _clean_state():
 def _patch_owners(monkeypatch, *, mode=None, allowed_channels=frozenset()):
     from sb.domain.governance import store as gov_store
     from sb.domain.platform import command_access as ca
+    from sb.domain.server_management import routing
     from sb.kernel.authority.channel_access import CommandAccessSnapshot
 
     async def fake_snapshot(guild_id):
@@ -45,9 +46,14 @@ def _patch_owners(monkeypatch, *, mode=None, allowed_channels=frozenset()):
     async def fake_overrides(guild_id, chain):
         return {}
 
+    async def fake_policy(guild_id, scope_type, scope_id, cog_name,
+                          conn=None):
+        return None      # no rows — the default-true routing chain
+
     monkeypatch.setattr(ca, "read_policy_snapshot", fake_snapshot)
     monkeypatch.setattr(gov_store, "fetch_visibility_for_chain",
                         fake_overrides)
+    monkeypatch.setattr(routing, "get_policy", fake_policy)
 
 
 def _ctx(gid=1, uid=42, channel_id=2):

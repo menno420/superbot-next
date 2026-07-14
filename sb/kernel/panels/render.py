@@ -399,7 +399,7 @@ async def _visible(component_spec, ctx: PanelContext) -> bool:
 
 async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                        subsystem_hub: str | None = None,
-                       browse=None) -> RenderedPanel:
+                       browse=None, window=None) -> RenderedPanel:
     """The render entry. ``subsystem_hub`` overrides the installed hub
     resolver (tests / pre-resolved callers).
 
@@ -408,9 +408,23 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
     interactive sort/filter/page controls are injected outside the layout
     search space (like the page-turn nav). ``browse=None`` is the default,
     static render — its output is byte-identical to the pre-engine renderer,
-    so no surface's default rendering changes until it opts in."""
+    so no surface's default rendering changes until it opts in.
+
+    ``window`` (a ``selectwindow.SelectWindowState``) positions ONE declared
+    ``windowed=True`` selector on a window of its option set (the
+    windowed-select grammar successor); when omitted it falls back to the
+    reserved ``ctx.params`` key (``selectwindow.WINDOW_PARAM``) — the
+    engine's thread for renderer_override panels that re-call
+    ``render_panel(spec, ctx)`` themselves — and defaults every windowed
+    selector to window 0."""
+    from sb.kernel.panels import selectwindow
+
     resolver = active_copy_resolver()
     loc = ctx.locale
+    if window is None:
+        params = getattr(ctx, "params", None)
+        if isinstance(params, dict):
+            window = params.get(selectwindow.WINDOW_PARAM)
 
     description, fields, browse_page_count = await _render_body(
         spec, ctx, resolver, browse)
@@ -425,6 +439,10 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
     by_id = {a.action_id: a for a in spec.actions}
     by_id.update({s.selector_id: s for s in spec.selectors})
     components: list[RenderedComponent] = []
+    # engine-injected ◀ Prev / Next ▶ window nav for windowed selectors
+    # (collected while the rows render, appended after — outside the
+    # searchable space, like every nav slot).
+    window_nav: list[RenderedComponent] = []
     rows = pages[page].rows if pages else ()
     for row_idx, row in enumerate(rows):
         for comp_id in row:
@@ -497,14 +515,45 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                     # provider degrades to a disabled selector showing its
                     # empty_state, never a crashed panel.
                     options = tuple(await _provider_rows(cspec.options_source, ctx) or ())
-                options = options[: min(cspec.page_size, 25)]
+                placeholder = resolver.resolve(
+                    cspec.placeholder if options else cspec.empty_state, locale=loc)
+                min_vals, max_vals = cspec.min_values, cspec.max_values
+                win_size = selectwindow.window_size_of(cspec)
+                if getattr(cspec, "windowed", False) and len(options) > win_size:
+                    # the windowed-select grammar successor: the option set
+                    # pages past Discord's cap with engine-injected
+                    # ◀ Prev / Next ▶ nav (the shipped SelectWindow,
+                    # views/paginated_select.py) instead of front-truncating
+                    # (the #1040 silent-drop class). The window position
+                    # rides the placeholder; the nav pair rides the nav row.
+                    widx = 0
+                    if (window is not None
+                            and getattr(window, "panel_id", None) == spec.panel_id
+                            and getattr(window, "selector_id", None) == comp_id):
+                        widx = window.window
+                    options, win_count, widx = selectwindow.window_options(
+                        options, win_size, widx)
+                    placeholder = selectwindow.windowed_placeholder(
+                        placeholder, widx, win_count)
+                    # the shipped per-window clamp: Discord rejects
+                    # max_values above the visible option count.
+                    max_vals = max(1, min(max_vals, len(options)))
+                    min_vals = max(0, min(min_vals, max_vals))
+                    window_nav.extend(selectwindow.window_controls(
+                        selectwindow.SelectWindowState(
+                            panel_id=spec.panel_id, selector_id=comp_id,
+                            window=widx),
+                        win_count, resolver=resolver, locale=loc))
+                else:
+                    # the pre-successor truncation, byte-verbatim (windowed
+                    # is opt-in — no undeclared surface changes).
+                    options = options[: min(cspec.page_size, 25)]
                 components.append(RenderedComponent(
                     kind="selector", custom_id=custom_id,
                     label=resolver.resolve(cspec.placeholder, locale=loc), row=row_idx,
-                    placeholder=resolver.resolve(
-                        cspec.placeholder if options else cspec.empty_state, locale=loc),
+                    placeholder=placeholder,
                     disabled=not options,
-                    min_values=cspec.min_values, max_values=cspec.max_values,
+                    min_values=min_vals, max_values=max_vals,
                     # mappings (rich options) pass through verbatim; anything
                     # else keeps the compact label==value string form.
                     options=tuple(o if isinstance(o, dict) else str(o)
@@ -514,6 +563,12 @@ async def render_panel(spec: PanelSpec, ctx: PanelContext, *, page: int = 0,
                     kind="button", custom_id=custom_id,
                     label=resolver.resolve(cspec.label, locale=loc), row=row_idx,
                     style=cspec.style.value, emoji=cspec.emoji))
+
+    # engine-injected windowed-select nav (the windowed-select grammar
+    # successor) — armed only when a declared ``windowed=True`` selector's
+    # materialized options span more than one window; every other render
+    # collects zero controls here (the non-churn guarantee).
+    components.extend(window_nav)
 
     # engine-injected BrowserView controls (§2.3; D-0034) — the sort/filter/
     # page controls for the browse block, outside the layout search space.

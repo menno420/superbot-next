@@ -4982,6 +4982,88 @@
    },
    "value": 0
   },
+  "mining:mining.grid:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/grid_mine_view.py MineGridView button arrangement (north \u00b7 west/east \u00b7 south \u00b7 deeper/up \u00b7 menu) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "gr_north"
+      ],
+      [
+       "gr_west",
+       "gr_east"
+      ],
+      [
+       "gr_south"
+      ],
+      [
+       "gr_down",
+       "gr_up"
+      ],
+      [
+       "gr_menu"
+      ]
+     ]
+    }
+   ]
+  },
+  "mining:mining.grid:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/grid_mine_view.py MineGridView button arrangement (north \u00b7 west/east \u00b7 south \u00b7 deeper/up \u00b7 menu) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "gr_north"
+    ],
+    [
+     "gr_west",
+     "gr_east"
+    ],
+    [
+     "gr_south"
+    ],
+    [
+     "gr_down",
+     "gr_up"
+    ],
+    [
+     "gr_menu"
+    ]
+   ]
+  },
+  "mining:mining.grid:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/grid_mine_view.py MineGridView button arrangement (north \u00b7 west/east \u00b7 south \u00b7 deeper/up \u00b7 menu) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "gr_north"
+       ],
+       [
+        "gr_west",
+        "gr_east"
+       ],
+       [
+        "gr_south"
+       ],
+       [
+        "gr_down",
+        "gr_up"
+       ],
+       [
+        "gr_menu"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "mining:mining.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: mining parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"

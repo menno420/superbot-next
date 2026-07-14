@@ -2579,6 +2579,7 @@
   "ai:tools",
   "blackjack.solo_bet_form",
   "btd6.ask_form",
+  "btd6.ctteam_set_form",
   "btd6.paragon_calc_form",
   "btd6.paragon_degree_form",
   "btd6.paragon_target_form",
@@ -2809,6 +2810,7 @@
  "subsystem_keys": [
   "admin",
   "ai",
+  "automation",
   "automod",
   "blackjack",
   "btd6",

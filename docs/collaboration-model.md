@@ -73,6 +73,60 @@ Binding per inbox ORDER 010 (Q-0259 ruling 3, extends Q-0258):
   against source before acting; treat claimed artifacts as nonexistent until
   seen in the repo.
 
+## Band bindings (ORDER 004, standing)
+
+Binding for **every band-N port session** (bands 3–9 and any future band),
+per ORDER 004 items 3 + 5 — encoded here per the ORDER 010 precedent
+("encode the rule durably … so it survives inbox rotation"), distilled from
+idea-engine `ideas/superbot-next/band-binding-doctrine-encoding-2026-07-10.md`
+@ `2e5d73f`:
+
+- **Walking-skeleton live-drive.** Before merge, boot the real composition
+  root and drive at least one of the band's commands through the real
+  pipeline. Canonical form — as bands 6–7 proved it: `tests/unit/bandN/`
+  skeleton tests riding every port PR (band 7:
+  `tests/unit/band7/test_band7_*_walking_skeleton.py`) plus a live-drive
+  proof record in the PR body.
+- **Classify-or-fix.** Replay the band's own goldens; every red gets a
+  named ledger class or a fix in the same PR. No unclassified reds.
+- **Demo rule.** Any owner-visible demo invitation names its known-red
+  presentation classes up front — "PASS (live)" must never again contradict
+  the owner's eyes.
+- **Cite this section.** Band close-outs cite § Band bindings as their
+  evidence hook; ORDER 004's `done=` flip rides those citations plus the
+  visible per-band test files — never institutional memory.
+
+## EFFECT-arming checklist (standing)
+
+Binding for **every newly armed live EFFECT action** (a Discord-touching
+effect leg going live for the first time) — and only those; it must not
+harden into ceremony for non-EFFECT work. These are the lessons bought
+across the #105→#108→#111 compensator lineage and ORDER 004 item 1's
+warn-escalation regression (distilled from idea-engine
+`ideas/superbot-next/effect-arming-compensator-checklist-2026-07-10.md`
+@ `2e5d73f`). The arming PR opens with these four checkboxes and cites this
+section:
+
+- [ ] **If-match compensator — or a written compensates-nothing ruling in
+  the PR.** Compensators delete if-match (winner_id + unlock_at class); a
+  permanent grant compensates nothing (#111's delete-if-match fold-in).
+- [ ] **Compensator-invariant test coverage.** Every declared compensator
+  ref resolves to a registered leg; extend the invariant test where the new
+  action declares refs it can't see (the #111/#114 invariant).
+- [ ] **Oracle-aligned refusal path.** What the old bot does when Discord
+  says no — matched or ledgered. An EFFECT leg without oracle-aligned
+  failure handling yields phantom DB rows on refusal (ORDER 004 item 1:
+  escalation history written pre-effect and the count wiped, where the
+  oracle keeps the count and reports `escalation_blocked=True`).
+- [ ] **Live-drive proof + failure-copy classification.** Drive the armed
+  action through the real pipeline; classify its failure copy against
+  goldens.
+
+**Why the compensator allowlist stays EMPTY:** deliberately, as a choice —
+re-asserted at #145/#160/#163. Every effect leg either carries a real
+compensator or a written per-case ruling; blanket exemptions are how
+phantom-row regressions get enshrined.
+
 ## Continuous mode (Q-0265)
 
 Binding per owner directive Q-0265 (CONTINUOUS-MODE AMENDMENT, 2026-07-10),

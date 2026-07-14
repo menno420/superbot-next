@@ -25,6 +25,7 @@ from typing import Callable
 
 from sb.kernel.panels.registry import (
     NAV_BROWSE_ID_PREFIX,
+    NAV_SELWIN_ID_PREFIX,
     ComponentBinding,
     NavBinding,
     static_route,
@@ -128,6 +129,12 @@ def route(custom_id: str) -> Routed:
     # panel spec — the target carries the id verbatim.
     if custom_id.startswith(NAV_BROWSE_ID_PREFIX):
         return NavBinding(kind="browse", target=custom_id)
+    # The windowed-select ◀/▶ nav (the windowed-select grammar successor):
+    # same parsed-at-click-time posture as browse — the {selector × window}
+    # state space is combinatorial, so the id is decoded by the engine
+    # (which owns the panel spec); the target carries the id verbatim.
+    if custom_id.startswith(NAV_SELWIN_ID_PREFIX):
+        return NavBinding(kind="selwin", target=custom_id)
     m = _SCHEME_TOKEN_RE.match(custom_id)
     if m:
         parser = _parsers.get(m.group(1))

@@ -203,7 +203,12 @@ class SelectorSpec:
     placeholder: str = ""                       # [S] semantic copy
     min_values: int = 1                         # [S]
     max_values: int = 1                         # [S] Q-0216: multi-valued targets default to multiplicity
-    page_size: int = 25                         # [S] the engine paginates past Discord's cap
+    page_size: int = 25                         # [S] the windowed engine's page size (Discord's cap)
+    windowed: bool = False                      # [S] the windowed-select grammar successor: an
+    #     option set past page_size pages with engine-injected ◀ Prev / Next ▶
+    #     window nav (sb/kernel/panels/selectwindow — the shipped SelectWindow,
+    #     views/paginated_select.py) instead of front-truncating (the #1040
+    #     silent-drop class). False keeps the pre-successor truncation verbatim.
     empty_state: str = "No options available."  # [S]
     capability_required: str = ""               # [S] two-lane authority (§2.2)
     audience_tier: str = ""                     # [S]
@@ -401,6 +406,7 @@ register_field_roles(
     "SelectorSpec",
     selector_id="S", kind="S", on_select="S", options_source="S",
     placeholder="S", min_values="S", max_values="S", page_size="S",
+    windowed="S",
     empty_state="S", capability_required="S", audience_tier="S",
     custom_id_override="S", slash_common="S", usage_weight="O",
 )

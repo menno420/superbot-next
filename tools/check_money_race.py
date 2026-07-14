@@ -107,6 +107,13 @@ ALLOWLIST: dict[tuple[str, str, str], str] = {
         " load the pending challenge via _load_pending -> fetch_checkpoint "
         "(unconditional FOR UPDATE, the #213 fix) before escrowing, so two "
         "racing accepts serialize on the pending row's lock",
+    ("sb/domain/mining/ops.py", "_record_repair", "A"):
+        "the plain get_mining_inventory ownership read only gates a refusal "
+        "(don't-own-it raise) and never sizes the settle; the cost-sizing "
+        "wear read AND the debit both sit behind lock_workshop_slot, so two "
+        "racing repairs serialize and the loser re-reads cleared wear -> "
+        "refused (single debit — proven red-then-green on real Postgres in "
+        "tests/integration/test_mining_repair_race.py)",
 }
 
 # Sites the checker judges REAL members of the defect class — ledgered, never
@@ -380,6 +387,15 @@ class Analyzer:
             for funcs in self.modules.values():
                 for info in funcs.values():
                     if info.name in names:
+                        continue
+                    if info.has_for_update_param:
+                        # a lockable read (`for_update=` param) fences only
+                        # when the CALLER passes for_update=True — that is
+                        # judged per call site (_call_is_fence), never by
+                        # name: its own conditional "FOR UPDATE" literal
+                        # must not promote the plain-read face to a fence
+                        # (the ops.py _record_repair ownership-SELECT
+                        # mis-classification, WP-2..7 follow-up).
                         continue
                     if any(
                         c.name in names or self._call_is_fence(info.module, c)

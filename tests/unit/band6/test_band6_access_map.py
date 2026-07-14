@@ -37,10 +37,15 @@ def _clean_state(monkeypatch):
 
 
 def _patch_owners(monkeypatch, *, mode=None, allowed_channels=frozenset(),
-                  overrides=None):
-    """Point the two DB-reading owners at in-memory truths."""
+                  overrides=None, routing_rows=None):
+    """Point the three DB-reading owners at in-memory truths.
+
+    ``routing_rows`` maps ``(scope_type, scope_id, cog_name) → enabled``
+    over the ported resolver's row read — absent = no row = the
+    default-true chain (the fresh-guild posture)."""
     from sb.domain.governance import store as gov_store
     from sb.domain.platform import command_access as ca
+    from sb.domain.server_management import routing
     from sb.kernel.authority.channel_access import CommandAccessSnapshot
 
     async def fake_snapshot(guild_id):
@@ -50,9 +55,15 @@ def _patch_owners(monkeypatch, *, mode=None, allowed_channels=frozenset(),
     async def fake_overrides(guild_id, chain):
         return overrides or {}
 
+    async def fake_policy(guild_id, scope_type, scope_id, cog_name,
+                          conn=None):
+        enabled = (routing_rows or {}).get((scope_type, scope_id, cog_name))
+        return None if enabled is None else {"enabled": enabled}
+
     monkeypatch.setattr(ca, "read_policy_snapshot", fake_snapshot)
     monkeypatch.setattr(gov_store, "fetch_visibility_for_chain",
                         fake_overrides)
+    monkeypatch.setattr(routing, "get_policy", fake_policy)
 
 
 def _feature(subsystem="economy", command="balance", tier="user"):
@@ -217,13 +228,33 @@ def test_allow_records_the_whole_chain_with_skipped_axes(monkeypatch):
     assert decision.deciding_axis is None and decision.reason is None
     by_axis = {o.axis: o for o in decision.source_chain}
     assert by_axis[AccessAxis.COMMAND_ACCESS].state == "allow"
-    # routing is honestly skipped — cog routing is not ported.
-    assert by_axis[AccessAxis.ROUTING].state == "skipped"
-    assert "not ported" in by_axis[AccessAxis.ROUTING].detail
+    # routing is live (the compound-ops slice ported the resolver) — a
+    # row-less guild rides the default-true chain to allow.
+    assert by_axis[AccessAxis.ROUTING].state == "allow"
     assert by_axis[AccessAxis.GOVERNANCE].state == "allow"
     assert by_axis[AccessAxis.AVAILABILITY].state == "skipped"
     # the help axis is recorded, non-gating.
     assert by_axis[AccessAxis.HELP].state in ("shown", "hidden")
+
+
+def test_routing_disabled_denies_with_the_safe_copy(monkeypatch):
+    """Axis 3 live (the routing port): a disabled channel-scope row denies
+    with the drafted routing_disabled copy + remediation pointer."""
+    from sb.domain.server_management.access_projection import (
+        AccessAxis,
+        resolve_feature_access,
+    )
+
+    _patch_owners(monkeypatch,
+                  routing_rows={("channel", 2, "economy"): False})
+    decision = run(resolve_feature_access(
+        _feature(), _actx(member_tier="administrator")))
+    assert decision.effective == "deny"
+    assert decision.deciding_axis is AccessAxis.ROUTING
+    assert decision.reason.code == "routing_disabled"
+    assert decision.reason.safe_text == "This feature is turned off here."
+    assert decision.remediation == (
+        "Re-enable the feature in the Cog Routing setup section.")
 
 
 def test_unknown_owner_never_claims_allow(monkeypatch):
