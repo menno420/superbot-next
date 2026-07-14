@@ -11,11 +11,11 @@ Two legs, two jobs in .github/workflows/golden-parity.yml:
             required from day one without blocking the build), and the
             red-until-parity honesty lives in --report.
 
-  --report  The full-corpus red-until-parity report: replays EVERYTHING and
-            exits nonzero while anything is red. BORN RED BY DESIGN — this
-            leg stays red from repo birth until the last subsystem flips
-            `pending -> ported`. Red here is the expected state, not a build
-            break; regressions in ported subsystems are what --gate catches.
+  --report  The full-corpus golden parity report: replays EVERYTHING and
+            exits nonzero while anything is red. Born red-until-parity at
+            repo birth, LIVE GREEN since 2026-07-13 (full-corpus parity) —
+            a red here is now a real regression signal. It stays a
+            non-required check; the required-check semantics live in --gate.
 
 Replay binding: the NEW bot's replay adapter (`sb/adapters/parity/` — a
 fake-HTTP/gateway transport over sb/'s real interaction pipeline, bound to
@@ -200,8 +200,8 @@ def run_report() -> int:
 
     binding, reason = _replay_binding()
     print("=" * 72)
-    print("golden-parity REPORT — RED BY DESIGN until full parity "
-          "(red-until-parity, design-spec §6 gate 5)")
+    print("golden-parity REPORT — full-corpus parity report "
+          "(design-spec §6 gate 5)")
     print("=" * 72)
     print(f"corpus: {total} goldens across {len(counts)} subsystem dirs")
     if binding is None:
@@ -210,9 +210,8 @@ def run_report() -> int:
         print()
         print("No replay binding in this environment (Postgres service "
               "required). In CI this leg replays the FULL corpus through "
-              "the new-bot adapter; red is the honest parity dashboard, "
-              "not a build break — the required-check semantics live in "
-              "the `gate` job.")
+              "the new-bot adapter; the report is the parity dashboard — "
+              "the required-check semantics live in the `gate` job.")
         return 1
 
     import asyncio
@@ -238,8 +237,8 @@ def run_report() -> int:
         print(f"  {subsystem:24s} {sum(oks):4d}/{len(oks):<4d} green [{state}]")
     if green_total < total:
         print()
-        print(f"report: RED — {total - green_total} golden(s) not yet at "
-              "parity (EXPECTED until the last subsystem flips ported).")
+        print(f"report: RED — {total - green_total} golden(s) not at "
+              "parity (regression signal; this leg is live-green).")
         return 1
     print("report: GREEN — full-corpus parity.")
     return 0
@@ -249,7 +248,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="run_golden_parity")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--gate", action="store_true", help="required-check leg")
-    mode.add_argument("--report", action="store_true", help="red-until-parity leg")
+    mode.add_argument("--report", action="store_true", help="full-corpus report leg")
     args = parser.parse_args(argv)
     return run_gate() if args.gate else run_report()
 

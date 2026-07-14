@@ -262,6 +262,131 @@ def scan_emit_sites(root: Path) -> list[tuple[str, int, str]]:
     return sites
 
 
+# --- the real-plugin boot proof (ORDER 002 game-plugin contract) ----------------
+
+
+# Each in-tree exemplar the host ships: (dist dir under examples/, package
+# root that must land on sys.path, entry-point module, dist name, version,
+# subsystem key, the panel the manifest declares). The gate boots EVERY
+# present exemplar TOGETHER in one load_plugins call (the coexistence boot the
+# composition root makes) so a namespace collision between two plugins reds
+# here, not only in production. Add a row when a new exemplar lands in-tree.
+_PLUGIN_EXEMPLARS = (
+    {
+        "dir": "superbot-plugin-hello",
+        "probe": ("superbot_plugin_hello", "manifest.py"),
+        "module": "superbot_plugin_hello.manifest",
+        "dist": "superbot-plugin-hello",
+        "version": "0.1.0",
+        "key": "hello",
+        "panel": "hello.home",
+    },
+    {
+        "dir": "superbot-idle-plugin",
+        "probe": ("superbot_idle_plugin", "manifest.py"),
+        "module": "superbot_idle_plugin.manifest",
+        "dist": "superbot-idle-plugin",
+        "version": "0.1.0",
+        "key": "idle",
+        "panel": "idle.status",
+    },
+)
+
+
+def plugin_boot_problems(host_manifests: list) -> list[str]:
+    """Boot the IN-TREE exemplars (``examples/superbot-*-plugin``) headless
+    against the COMMITTED ``plugins.lock.json`` pin — the real ``load_plugins``
+    call ``sb.app.main`` step 9b makes, minus a pip install. Every present
+    exemplar is loaded in ONE call: the coexistence boot the composition root
+    performs, so a namespace collision between two plugins (or a stale pin on
+    either) reds here.
+
+    Static-green-but-boot-broken is exactly this gate's remit, and a plugin
+    is the sharpest case: the in-tree corpus can be statically perfect while
+    the committed pin has drifted from the real manifest (a spec facet grew
+    without a re-pin), so an external plugin the host ships cannot boot against
+    its own lock. This proves entry-point discovery + the committed pin verify
+    + the v1 facet fence + the joint host+plugins compile admit every real
+    manifest, and that each declared panel registers.
+
+    The entry points are CONSTRUCTED (each ``.load()`` imports the real module
+    — import == ref registration): the exemplars are in-tree, not pip-installed
+    dists, so this stays hermetic (no install, no network — the same
+    pyyaml-only environment the rest of the gate runs in). Called AFTER the
+    in-tree W-rules so the plugins' refs never leak into leg-A's corpus hash
+    (the main.py step-9b ordering: plugins load after the host is armed)."""
+    import importlib
+
+    from sb.app import plugin_host
+    from sb.app.panel_host import register_manifest_panels
+    from sb.kernel.panels.registry import get_panel
+
+    entry_points = []
+    present = []
+    for spec in _PLUGIN_EXEMPLARS:
+        root = _REPO_ROOT / "examples" / spec["dir"]
+        pkg, mod_file = spec["probe"]
+        if not (root / pkg / mod_file).exists():
+            continue  # exemplar absent from this checkout — skip it
+        if str(root) not in sys.path:
+            sys.path.insert(0, str(root))
+        module_name = spec["module"]
+        try:
+            module = importlib.import_module(module_name)
+        except Exception as exc:  # noqa: BLE001 — the finding IS the report
+            return [f"plugin-boot: {spec['dist']} import failed — {exc!r}"]
+        ensure = getattr(module, "ENSURE_REFS", None)
+        if callable(ensure):
+            ensure()  # re-arm the plugin's refs (the host re-arm skips plugins)
+
+        def _make_ep(name: str, dist: str, version: str, mod: str):
+            class _Dist:
+                pass
+
+            _Dist.name = dist
+            _Dist.version = version
+
+            class _EntryPoint:
+                pass
+
+            _EntryPoint.name = name
+            _EntryPoint.value = mod
+            _EntryPoint.dist = _Dist()
+            _EntryPoint.load = lambda self, _m=mod: importlib.import_module(_m)
+            return _EntryPoint()
+
+        entry_points.append(
+            _make_ep(spec["key"], spec["dist"], spec["version"], module_name))
+        present.append(spec)
+
+    if not entry_points:
+        return []  # no exemplars in this checkout — nothing to prove
+
+    pins = plugin_host.read_pins(_REPO_ROOT / plugin_host.PINS_FILENAME)
+    report = plugin_host.load_plugins(
+        host_manifests, pins=pins, entry_points=tuple(entry_points))
+    if report.violations:
+        return [f"plugin-boot: {v}" for v in report.violations]
+
+    admitted_keys = {getattr(m, "key", None) for m in report.manifests}
+    register_manifest_panels(list(report.manifests))
+    problems: list[str] = []
+    for spec in present:
+        if spec["key"] not in admitted_keys:
+            problems.append(
+                f"plugin-boot: {spec['dist']} admitted 0 manifests "
+                f"(expected the {spec['key']!r} subsystem)")
+            continue
+        try:
+            get_panel(spec["panel"])
+        except LookupError:
+            problems.append(
+                f"plugin-boot: {spec['panel']} is declared by {spec['dist']} "
+                "but NOT registered after register_manifest_panels (the "
+                "band-1 LookupError class)")
+    return problems
+
+
 # --- the headless boot (the I/O shell) -------------------------------------------
 
 
@@ -313,13 +438,24 @@ def run_smoke(snapshot_path: Path) -> list[str]:
     emit_sites = scan_emit_sites(_REPO_ROOT / "sb")
     problems += unknown_emit_names(emit_sites, KNOWN_EVENTS)
 
+    # 6. the real-plugin boot (main.py step 9b) — AFTER the in-tree wiring so
+    #    the plugin's refs never leak into leg-A's corpus hash.
+    plugin_problems = plugin_boot_problems(manifests)
+    problems += plugin_problems
+
     if not problems:
+        present_keys = [
+            spec["key"] for spec in _PLUGIN_EXEMPLARS
+            if (_REPO_ROOT / "examples" / spec["dir"] / spec["probe"][0]
+                / spec["probe"][1]).exists()]
         print(f"check_runtime_smoke: clean — {len(manifests)} manifest(s), "
               f"{index_size} dispatch target(s), {panel_count} panel(s), "
               f"{len(armed)} roster module(s), "
               f"{len(bus.subscribed_names())} subscribed event name(s), "
               f"{len(emit_sites)} static emit site(s), "
-              f"{len(KNOWN_EVENTS)} declared event(s)")
+              f"{len(KNOWN_EVENTS)} declared event(s), "
+              f"+{len(present_keys)} real plugin exemplar(s) "
+              f"({', '.join(present_keys)}) booted together against their pins")
     return problems
 
 

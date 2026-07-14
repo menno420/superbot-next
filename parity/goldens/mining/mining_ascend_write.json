@@ -153,6 +153,8 @@
    "added": [
     {
      "depth": 0,
+     "energy": 0,
+     "energy_updated_at": 0,
      "equipped_title": null,
      "guild_id": "<guild>",
      "last_broken_item": null,
@@ -165,6 +167,8 @@
    "removed": [
     {
      "depth": 1,
+     "energy": 0,
+     "energy_updated_at": 0,
      "equipped_title": null,
      "guild_id": "<guild>",
      "last_broken_item": null,

@@ -1,5 +1,8 @@
 """Cleanup word-filter K7 lane (band 2): add/remove are NATURAL_KEY DB ops
-through the sole-writer store; list is a read handler."""
+through the sole-writer store; list is a read handler. The anti-evasion
+strict flag (migration 0053) writes on its own audited op — the shipped
+`prohibited_words_service.set_wordfilter_strict` audit posture
+(mutation_type "wordfilter_strict") as the op's audit_verb."""
 
 from __future__ import annotations
 
@@ -65,6 +68,19 @@ async def _word_remove(conn, ctx: WorkflowContext) -> LegOutcome:
                       user_message=copy)
 
 
+@workflow("cleanup.wordfilter_strict")
+async def _wordfilter_strict(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The shipped set_wordfilter_strict upsert as one DB leg — the
+    in-transaction prior read backs the audit's prev_value (the shipped
+    service emitted prev=str(not strict); the real prior is stricter)."""
+    strict = bool(ctx.params.get("strict"))
+    guild_id = int(ctx.guild_id or 0)
+    prior = await store.get_wordfilter_strict(guild_id, conn=conn)
+    await store.set_wordfilter_strict(conn, guild_id=guild_id, strict=strict)
+    return LegOutcome(step=StepResult(0, "wordfilter_strict", True),
+                      before={"strict": prior}, after={"strict": strict})
+
+
 def _op(op_key: str, verb: str, ref: str) -> CompoundOpSpec:
     return CompoundOpSpec(
         op_key=op_key, domain="cleanup", lane=WorkflowLane.DOMAIN,
@@ -76,7 +92,9 @@ def _op(op_key: str, verb: str, ref: str) -> CompoundOpSpec:
 
 WORD_ADD = _op("cleanup.word_add_op", "word_added", "cleanup.word_add")
 WORD_REMOVE = _op("cleanup.word_remove_op", "word_removed", "cleanup.word_remove")
-_OPS = (WORD_ADD, WORD_REMOVE)
+WORDFILTER_STRICT = _op("cleanup.wordfilter_strict_op", "wordfilter_strict",
+                        "cleanup.wordfilter_strict")
+_OPS = (WORD_ADD, WORD_REMOVE, WORDFILTER_STRICT)
 
 
 def _register_handlers() -> None:
@@ -140,7 +158,8 @@ def ensure_ops_refs() -> None:
     from sb.spec.refs import is_registered, workflow as _workflow
 
     for name, fn in (("cleanup.word_add", _word_add),
-                     ("cleanup.word_remove", _word_remove)):
+                     ("cleanup.word_remove", _word_remove),
+                     ("cleanup.wordfilter_strict", _wordfilter_strict)):
         if not is_registered(WorkflowRef(name)):
             _workflow(name)(fn)
     register_ops()

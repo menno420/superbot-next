@@ -19,7 +19,9 @@ object the bot touches is a genuine discord.py model.
 
 **The current bot is the oracle.** The harness observes it verbatim and
 never changes its behavior; a rebuilt bot replays the same cases against the
-same goldens and is **red until parity**.
+same goldens and is **red until parity** — reached 2026-07-13: the rebuilt
+bot replays the full corpus green (484/484 goldens, 51/51 subsystems;
+golden-parity run 29238825392), so a replay red is now a regression signal.
 
 ## The integrity rule (design spec §6 — read before touching goldens)
 

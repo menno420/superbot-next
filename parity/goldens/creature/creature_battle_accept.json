@@ -108,43 +108,6 @@
      "last_error": null,
      "outbox_id": "<uuid>",
      "payload": {
-      "actor_id": "<@second_member>",
-      "actor_type": "user",
-      "guild_id": "<guild>",
-      "mutation_id": "<uuid>",
-      "mutation_type": "creature_battle_recorded",
-      "new_value": {
-       "battle": {
-        "leveled_up": false,
-        "loser": "<@second_member>",
-        "new_level": 0,
-        "winner": "<@member>",
-        "xp_amount": 6
-       }
-      },
-      "occurred_at": "<ts>",
-      "prev_value": {
-       "battle": {}
-      },
-      "scope": "guild",
-      "subsystem": "creature",
-      "target": "creature.record_battle_result"
-     },
-     "status": "pending"
-    },
-    {
-     "available_at": "<ts>",
-     "claims": 0,
-     "correlation_id": "<uuid>",
-     "created_at": "<ts>",
-     "dedup_key": "audit:<guild>:<uuid>",
-     "delivered_at": null,
-     "delivery_attempts": 0,
-     "event_name": "audit.action_recorded",
-     "guild_id": "<guild>",
-     "last_error": null,
-     "outbox_id": "<uuid>",
-     "payload": {
       "actor_id": "<@member>",
       "actor_type": "user",
       "guild_id": "<guild>",
@@ -168,6 +131,43 @@
       "scope": "guild",
       "subsystem": "xp",
       "target": "xp.award"
+     },
+     "status": "pending"
+    },
+    {
+     "available_at": "<ts>",
+     "claims": 0,
+     "correlation_id": "<uuid>",
+     "created_at": "<ts>",
+     "dedup_key": "audit:<guild>:<uuid>",
+     "delivered_at": null,
+     "delivery_attempts": 0,
+     "event_name": "audit.action_recorded",
+     "guild_id": "<guild>",
+     "last_error": null,
+     "outbox_id": "<uuid>",
+     "payload": {
+      "actor_id": "<@second_member>",
+      "actor_type": "user",
+      "guild_id": "<guild>",
+      "mutation_id": "<uuid>",
+      "mutation_type": "creature_battle_recorded",
+      "new_value": {
+       "battle": {
+        "leveled_up": false,
+        "loser": "<@second_member>",
+        "new_level": 0,
+        "winner": "<@member>",
+        "xp_amount": 6
+       }
+      },
+      "occurred_at": "<ts>",
+      "prev_value": {
+       "battle": {}
+      },
+      "scope": "guild",
+      "subsystem": "creature",
+      "target": "creature.record_battle_result"
      },
      "status": "pending"
     }
@@ -200,7 +200,7 @@
   }
  },
  "harness_version": 1,
- "notes": "challenge -> Accept auto-resolves the 6v6 and records the W/L pair + battle-win game-xp (creature.record_battle_result)",
+ "notes": "challenge -> Accept auto-resolves the 6v6 and records the W/L pair + battle-win game-xp (creature.record_battle_result); the resolved outcome card now carries the live 🔄 Rematch button",
  "seed": 42,
  "steps": [
   {
@@ -325,6 +325,22 @@
           },
           "label": "Decline",
           "style": 4,
+          "type": 2
+         }
+        ],
+        "type": 1
+       },
+       {
+        "components": [
+         {
+          "custom_id": "creature.challenge.cbattle_rematch",
+          "disabled": false,
+          "emoji": {
+           "id": null,
+           "name": "🔄"
+          },
+          "label": "Rematch",
+          "style": 1,
           "type": 2
          }
         ],

@@ -45,11 +45,30 @@ Deliberate under-ports (parity beyond the goldens; in-code notes):
   on the honest pending terminal for every other group; the per-group
   scalar EDIT + reset (the ``SubsystemSettingsView`` mutation) stays the
   settings-mutation slice's port;
-* every other click (diagnostics, command access, explorer
-  explain/reset/scope/paging) lands on a declared + honest pending
-  terminal (sb/domain/settings/handlers.py) — the sub-panels
-  (``settings_subsystem.*`` / ``settings_command_access.*`` families,
-  ``governance.resolve_subsystem_state``) are their own port slices.
+* the per-group mutation page (``settings_subsystem.*``) stays the
+  settings-mutation slice's port (the honest ``settings.group_pending``
+  terminal — sb/domain/settings/handlers.py).
+  The EXPLORER'S six controls are ARMED (curation rows 82-87):
+  subsystem/scope selects, Explain, Reset and the page-turn pair drive
+  the governance diagnostic read seam
+  (``governance.resolve_subsystem_state``) + the K7 ``SET_VISIBILITY``
+  clear lane, byte-stable on the open golden. The three READ-ONLY
+  diagnostic buttons are ARMED (settings-admin slice 1): 📋 Needs setup /
+  ⚠️ Invalid settings / 🔗 Missing bindings open their shipped sub-panels
+  (disbot/views/settings/{needs_setup,invalid_settings,missing_bindings}
+  .py, copy verbatim) as declared PanelRef open-child terminals — the
+  channel sub-panel precedent; the wire ``settings_hub.*`` custom_ids
+  never move. The 🕒 Recent-changes AUDIT view is ARMED (settings-admin
+  slice 2): the shipped audit_view.py last-10 read, ported over the K7
+  central audit spine (``audit_log`` rows with ``subsystem='settings'``
+  — the shipped ``settings_mutation_audit`` table's successor here).
+  The 🚪 COMMAND ACCESS panel is ARMED (settings-admin slice 3 — the
+  set's one WRITE surface): the shipped edit_command_access.py port
+  (PR-6) whose mutations REUSE the live platform command-access K7
+  lanes (``platform.set_access_mode`` / ``set_access_channels`` —
+  sb/domain/platform/command_access.py, the setup-wizard step-8 seam);
+  the oracle's ``delete_blocked_commands`` toggle has no seam in the
+  policy store here (mode + channels only) — an honest under-port.
 """
 
 from __future__ import annotations
@@ -85,7 +104,12 @@ __all__ = [
     "ensure_panel_refs",
     "install_settings_panels",
     "settings_access_spec",
+    "settings_audit_spec",
+    "settings_command_access_spec",
     "settings_hub_spec",
+    "settings_invalid_spec",
+    "settings_missing_bindings_spec",
+    "settings_needs_setup_spec",
 ]
 
 # --- the shipped hub copy (views/settings/hub.py build_embed — the goldens
@@ -158,6 +182,12 @@ _HUB_GROUPS: tuple[tuple[str, str, str, str], ...] = (
      "1v1 duel battles"),
     ("rps_tournament", "Rock Paper Scissors", "✂️",
      "Rock Paper Scissors: quick play, PvP, bot matches, tournaments"),
+    # --- post-flip growth (NOT a shipped-roster byte): the D-0082 game
+    # sections group (design §5) — routes to the games.sections settings
+    # panel via settings.open_group; appended so the 19 shipped options
+    # keep their golden order (goldens re-cut with the 20th option).
+    ("games", "Games", "🎮",
+     "Competitive games and channel activities"),
 )
 
 # --- the shipped explorer copy (views/access/explorer.py — the golden pins
@@ -256,16 +286,18 @@ async def _hub_fields(ctx) -> tuple[tuple[str, str], ...]:
             ("Customization findings", _HUB_FINDINGS))
 
 
-def _hub_button(action_id: str, label: str, emoji: str) -> PanelActionSpec:
+def _hub_button(action_id: str, label: str, emoji: str,
+                target: PanelRef | None = None) -> PanelActionSpec:
     """One shipped grey diagnostic button — emoji as a SEPARATE component
-    field; the shipped persistent custom_id survives verbatim; the
-    diagnostic sub-panels port with the settings-mutation slice, so every
-    click lands on the polite pending terminal."""
+    field; the shipped persistent custom_id survives verbatim. An armed
+    button routes to its diagnostic sub-panel (*target* — the PanelRef
+    open-child terminal, the channel-band precedent); the rest land on
+    the polite pending terminal until their own slice ports them."""
     return PanelActionSpec(
         action_id=action_id, label=label, emoji=emoji,
         style=ActionStyle.SECONDARY,
         audience_tier="administrator",       # the shipped operator-hub gate
-        handler=HandlerRef(f"settings.{action_id}_pending"),
+        handler=target or HandlerRef(f"settings.{action_id}_pending"),
         custom_id_override=f"settings_hub.{action_id}")
 
 
@@ -297,14 +329,23 @@ def settings_hub_spec() -> PanelSpec:
                 custom_id_override="settings_hub.subsystem_select"),
         ),
         actions=(
-            # row 1 — the shipped grey diagnostic quartet.
-            _hub_button("needs_setup", "Needs setup", "📋"),
-            _hub_button("invalid", "Invalid settings", "⚠️"),
-            _hub_button("missing_bindings", "Missing bindings", "🔗"),
-            _hub_button("audit", "Recent changes", "🕒"),
-            # row 2 — the Command access door (PR-6's panel is the
-            # settings-mutation slice's port; pending terminal).
-            _hub_button("command_access", "Command access", "🚪"),
+            # row 1 — the shipped grey diagnostic quartet, all four ARMED
+            # as open-child PanelRef terminals (the three read-only
+            # diagnostics: settings-admin slice 1; the audit view:
+            # slice 2).
+            _hub_button("needs_setup", "Needs setup", "📋",
+                        PanelRef("settings.needs_setup")),
+            _hub_button("invalid", "Invalid settings", "⚠️",
+                        PanelRef("settings.invalid")),
+            _hub_button("missing_bindings", "Missing bindings", "🔗",
+                        PanelRef("settings.missing_bindings")),
+            _hub_button("audit", "Recent changes", "🕒",
+                        PanelRef("settings.audit")),
+            # row 2 — the Command access door, ARMED (settings-admin
+            # slice 3): PR-6's shipped panel as a PanelRef open-child
+            # terminal over the live platform K7 write lanes.
+            _hub_button("command_access", "Command access", "🚪",
+                        PanelRef("settings.command_access")),
         ),
         # the shipped hub carried NO standard nav row — the goldens pin
         # exactly three component rows; session_lifecycle takes the
@@ -330,15 +371,831 @@ def settings_hub_spec() -> PanelSpec:
     )
 
 
+# --- the three armed diagnostic sub-panels (settings-admin slice 1) ------------------
+#
+# Oracle-verbatim ports of the shipped read-only diagnostics
+# (disbot/views/settings/needs_setup.py / invalid_settings.py /
+# missing_bindings.py — copy byte-verbatim, double spaces included):
+#   * Needs setup   — declaration-only: required BindingSpec slots +
+#     REQUIRED-priority ResourceRequirement intents per subsystem, read
+#     from the ONE manifest inventory (the shipped subsystem-schema
+#     registry's successor);
+#   * Invalid settings — walks every declared SettingSpec through the K7
+#     typed resolution (service.resolve_setting) and lists valid=False
+#     rows (coercion/validator failure; resolver fell back to default);
+#   * Missing bindings — every declared BindingSpec whose runtime status
+#     is not `bound` (the subsystem_bindings store read; a declared slot
+#     with no row is the shipped `unresolved`).
+# Back to Hub is a PanelRef open-child terminal (the channel sub-panel
+# precedent); its custom_id is run-minted — the shipped
+# ``settings_needs_setup.back`` family ids are NOT in the compat freeze,
+# and minting keeps compat/compat-frozen.json untouched (PL-001 flag).
+
+_NEEDS_SETUP_DESCRIPTION = (
+    "Subsystems whose schema declares **required** bindings or "
+    "resource requirements.  This shows what _should_ be "
+    "configured; the *bound vs unresolved* status of each slot "
+    "lives in the **Missing bindings** view."
+)
+
+_INVALID_DESCRIPTION = (
+    "Settings whose current KV value failed coercion or "
+    "validation.  Resolver fell back to the declared default "
+    "for runtime safety; fix the underlying KV row via the "
+    "subsystem page's edit/reset control."
+)
+
+_MISSING_BINDINGS_DESCRIPTION = (
+    "Declared bindings whose runtime status is not `bound`.  "
+    "Includes unresolved slots (no row yet), targets that "
+    "disappeared from Discord, and kind-drift cases.  Bind "
+    "controls land alongside the setup wizard's binding "
+    "section (planned)."
+)
+
+#: the shipped DM guards + empty states, verbatim.
+_INVALID_DM = ("*Run this from within a guild — DM has no scalar values "
+               "to resolve.*")
+_MISSING_DM = ("*Run this from within a guild — DM has no per-guild "
+               "binding state.*")
+_NEEDS_SETUP_EMPTY = ("*No subsystem declares any required bindings or "
+                      "resources.*")
+
+#: the shipped S6 footer literal (invalid_settings.py set_footer) — kept
+#: verbatim; the "edit flow" is the settings-mutation slice here.
+_INVALID_FOOTER = "S6 introduces the edit flow that fixes these in place."
+
+
+def _iter_settings_facets() -> tuple[tuple[str, object], ...]:
+    """(subsystem key, manifest) in key order — the ONE manifest inventory
+    walk (the ai_tasks.capabilities_overview / help command_inventory
+    precedent). The shipped diagnostics read ``all_schemas()``; the
+    compiled architecture's subsystem-schema truth is sb.manifest."""
+    import importlib
+    import pkgutil
+
+    import sb.manifest as manifest_pkg
+
+    pairs: list[tuple[str, object]] = []
+    for info in sorted(pkgutil.iter_modules(manifest_pkg.__path__),
+                       key=lambda i: i.name):
+        module = importlib.import_module(f"sb.manifest.{info.name}")
+        for manifest in ([getattr(module, "MANIFEST", None)]
+                         + list(getattr(module, "MANIFESTS", ()) or ())):
+            if manifest is None:
+                continue
+            pairs.append((str(getattr(manifest, "key", info.name)), manifest))
+    return tuple(sorted(pairs, key=lambda p: p[0]))
+
+
+def _gather_required_bindings() -> dict[str, list[str]]:
+    """``{subsystem: [required binding names]}`` (needs_setup.py verbatim,
+    over the manifest settings facet — BindingSpecs ride the same tuple)."""
+    from sb.spec.settings import BindingSpec
+
+    out: dict[str, list[str]] = {}
+    for key, manifest in _iter_settings_facets():
+        required = [b.name for b in getattr(manifest, "settings", ()) or ()
+                    if isinstance(b, BindingSpec) and b.required]
+        if required:
+            out[key] = required
+    return out
+
+
+def _gather_required_resources() -> dict[str, list[str]]:
+    """``{subsystem: [required resource intents]}`` (needs_setup.py
+    verbatim — ProvisioningPriority.REQUIRED only)."""
+    from sb.spec.settings import ProvisioningPriority, ResourceRequirement
+
+    out: dict[str, list[str]] = {}
+    for key, manifest in _iter_settings_facets():
+        required = [
+            r.intent for r in getattr(manifest, "settings", ()) or ()
+            if isinstance(r, ResourceRequirement)
+            and r.provisioning.priority is ProvisioningPriority.REQUIRED]
+        if required:
+            out[key] = required
+    return out
+
+
+async def _needs_setup_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Needs-setup body (guild-independent — declarations
+    only): the required-binding + required-resource rosters, or the
+    shipped empty state."""
+    del ctx  # guild-independent view — uses declarations only
+    bindings = _gather_required_bindings()
+    resources = _gather_required_resources()
+    if not bindings and not resources:
+        return (("Result", _NEEDS_SETUP_EMPTY),)
+    fields: list[tuple[str, str]] = []
+    if bindings:
+        lines = [
+            f"`{sub}` — required: {', '.join(f'`{b}`' for b in names)}"
+            for sub, names in sorted(bindings.items())]
+        fields.append(
+            (f"Required bindings ({sum(len(v) for v in bindings.values())})",
+             "\n".join(lines)[:1024]))
+    if resources:
+        lines = [
+            f"`{sub}` — required: {', '.join(f'`{r}`' for r in names)}"
+            for sub, names in sorted(resources.items())]
+        fields.append(
+            (f"Required resources ({sum(len(v) for v in resources.values())})",
+             "\n".join(lines)[:1024]))
+    return tuple(fields)
+
+
+async def _invalid_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Invalid-settings body: every declared SettingSpec
+    resolved through the K7 typed read (service.resolve_setting — the
+    shipped settings_resolution port), rows with valid=False listed
+    verbatim; per-row soft fail (invalid_settings.py)."""
+    from sb.spec.settings import SettingSpec
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Result", _INVALID_DM),)
+
+    from sb.domain.settings import service as settings_service
+
+    invalid: list[str] = []
+    scanned = 0
+    for sub_name, manifest in _iter_settings_facets():
+        for spec in getattr(manifest, "settings", ()) or ():
+            if not isinstance(spec, SettingSpec):
+                continue
+            scanned += 1
+            try:
+                resolution = await settings_service.resolve_setting(
+                    guild_id, sub_name, spec.name, spec=spec)
+            except Exception as exc:  # noqa: BLE001 — soft-fail per row
+                invalid.append(
+                    f"`{sub_name}.{spec.name}` — resolver raised "
+                    f"{type(exc).__name__}")
+                continue
+            if resolution is None or resolution.valid:
+                continue
+            diag = (f" ({resolution.diagnostics[0]})"
+                    if resolution.diagnostics else "")
+            invalid.append(
+                f"`{sub_name}.{spec.name}` = `{resolution.raw!r}` "
+                f"→ fallback to `{resolution.default!r}`{diag}")
+    if not invalid:
+        return (("Result",
+                 f"*✅ No invalid settings.  ({scanned} setting(s) "
+                 f"scanned.)*"),)
+    return ((f"Invalid settings ({len(invalid)} of {scanned} scanned)",
+             "\n".join(invalid)[:1024]),)
+
+
+async def _missing_bindings_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Missing-bindings body: every declared BindingSpec whose
+    runtime status is not ``bound`` (missing_bindings.py) — the
+    subsystem_bindings store read; a declared slot with no row is the
+    shipped ``unresolved``."""
+    from sb.spec.settings import BindingSpec
+
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Result", _MISSING_DM),)
+
+    from sb.kernel.db import settings as db_settings
+
+    try:
+        stored = {(str(row["subsystem"]), str(row["binding_name"])):
+                  (row["target_id"], str(row["status"]))
+                  for row in await db_settings.fetchall_bindings(guild_id)}
+    except Exception as exc:  # noqa: BLE001 — the store read soft-fails
+        return (("Result",
+                 f"*Binding store read raised {type(exc).__name__} — "
+                 f"try again.*"),)
+
+    rows: list[str] = []
+    scanned = 0
+    for sub_name, manifest in _iter_settings_facets():
+        for spec in getattr(manifest, "settings", ()) or ():
+            if not isinstance(spec, BindingSpec):
+                continue
+            scanned += 1
+            target_id, status = stored.get(
+                (sub_name, spec.name), (None, "unresolved"))
+            if status == "bound" and target_id is not None:
+                continue
+            required_marker = "**required**" if spec.required else "optional"
+            rows.append(
+                f"`{sub_name}.{spec.name}` ({required_marker}) — "
+                f"status=`{status}` kind=`{spec.kind.value}`")
+    if not rows:
+        return (("Result",
+                 f"*✅ Every binding is bound.  ({scanned} binding(s) "
+                 f"scanned.)*"),)
+    return ((f"Unbound or invalid bindings ({len(rows)} of {scanned} "
+             f"scanned)", "\n".join(rows)[:1024]),)
+
+
+def _diag_back_action(action_id: str) -> PanelActionSpec:
+    """The shipped ↩ Back to Hub button (every diagnostic view carried
+    one) — a PanelRef open-child terminal back to the hub (the channel
+    sub-panel Cancel precedent). Run-minted custom_id: the shipped
+    ``settings_*.back`` ids are not compat-frozen, so nothing is pinned.
+    *action_id* is per-panel — the custom_id namespace admits ONE claimant
+    per (kind, value) repo-wide (the bare `back` leaf is btd6's)."""
+    return PanelActionSpec(
+        action_id=action_id, label="Back to Hub", emoji="↩",
+        style=ActionStyle.SECONDARY, audience_tier="administrator",
+        handler=PanelRef("settings.hub"))
+
+
+def settings_needs_setup_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.needs_setup",
+        subsystem="settings",
+        title="📋 Needs setup",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.gold().
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        body=(TextBlock(_NEEDS_SETUP_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("settings.needs_setup_fields"))),
+        actions=(_diag_back_action("needs_setup_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_needs_setup"),
+        justification=(
+            "the shipped Needs-setup footer is the DYNAMIC coverage count "
+            "'N subsystem(s) with required bindings · N with required "
+            "resources · N subsystems total.' (views/settings/"
+            "needs_setup.py set_footer), rendered only when a requirement "
+            "exists — count-keyed copy outside FooterMode's none/subsystem/"
+            "provenance vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, actions and "
+            "layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("needs_setup_back",),)),)),
+    )
+
+
+def settings_invalid_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.invalid",
+        subsystem="settings",
+        title="⚠️ Invalid settings",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.orange().
+        frame=EmbedFrameSpec(style_token="orange",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_INVALID_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("settings.invalid_fields"))),
+        actions=(_diag_back_action("invalid_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_invalid"),
+        justification=(
+            "the shipped Invalid-settings footer ('S6 introduces the edit "
+            "flow that fixes these in place.' — views/settings/"
+            "invalid_settings.py set_footer) renders CONDITIONALLY, only "
+            "when an invalid row exists — state-keyed presence outside "
+            "FooterMode's none/subsystem/provenance vocabulary (the "
+            "settings-hub footer-literal precedent). The override "
+            "delegates to the grammar renderer and replaces ONLY the "
+            "footer; body, fields, actions and layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("invalid_back",),)),)),
+    )
+
+
+def settings_missing_bindings_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.missing_bindings",
+        subsystem="settings",
+        title="🔗 Missing bindings",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.gold(); the shipped view set
+        # no footer, so the plain grammar render carries every byte.
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        body=(TextBlock(_MISSING_BINDINGS_DESCRIPTION),
+              FieldsBlock(
+                  provider=ProviderRef("settings.missing_bindings_fields"))),
+        actions=(_diag_back_action("missing_bindings_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        layout=LayoutSpec(pages=(PageSpec(rows=(("missing_bindings_back",),)),)),
+    )
+
+
+async def _render_needs_setup(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped coverage-count footer (see
+    justification) — declaration-only recompute, no store read; absent
+    any requirement the shipped view set no footer (the early return)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    bindings = _gather_required_bindings()
+    resources = _gather_required_resources()
+    if not bindings and not resources:
+        return rendered
+    from sb.domain.governance.registry import SUBSYSTEM_META
+
+    footer = (f"{len(bindings)} subsystem(s) with required bindings · "
+              f"{len(resources)} with required resources · "
+              f"{len(SUBSYSTEM_META)} subsystems total.")
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed, footer=footer))
+
+
+async def _render_invalid(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped conditional footer (see justification):
+    present exactly when an invalid row rendered — derived from the
+    rendered field name, so the settings scan runs ONCE (in the fields
+    provider), never twice."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    if not any(name.startswith("Invalid settings")
+               for name, *_ in rendered.embed.fields):
+        return rendered
+    return _dc_replace(
+        rendered, embed=_dc_replace(rendered.embed, footer=_INVALID_FOOTER))
+
+
+# --- the armed audit sub-panel (settings-admin slice 2) ------------------------------
+#
+# Oracle-verbatim port of the shipped 🕒 Recent-changes view
+# (disbot/views/settings/audit_view.py — the last 10 rows of the
+# settings-mutation audit trail, DM guard + missing-table + empty-table
+# degrades, copy verbatim where the machinery names allow). The shipped
+# `settings_mutation_audit` table (SettingsMutationPipeline.set_value's
+# write) maps onto the K7 central audit spine here: `audit_log` rows with
+# `subsystem='settings'` — the workflow engine writes ONE row per settings
+# compound op (set_scalar/clear_scalar/bind/unbind; sb/kernel/workflow/
+# audit.py emit_central_audit), so the trail this panel reads covers the
+# shipped scalar edits + resets AND the binding set/clear lane. Read via
+# the K3 pool seam (the btd6 oracle_cards audit-spine read — the D-0046
+# re-home precedent; diagnostics never write).
+
+_AUDIT_DESCRIPTION = (
+    "Most recent rows from `audit_log` (`subsystem = settings`).  "
+    "Populated by every scalar edit + reset and binding set/clear "
+    "routed through the K7 settings mutation ops "
+    "(`settings.set_scalar` / `clear_scalar` / `bind` / `unbind` — "
+    "the shipped `SettingsMutationPipeline.set_value` lane's "
+    "successor)."
+)
+
+#: the shipped DM guard, verbatim (audit_view.py).
+_AUDIT_DM = "*Run this from within a guild — DM has no audit history.*"
+
+#: the shipped empty state, verbatim.
+_AUDIT_EMPTY = "*No audit rows for this guild yet.*"
+
+#: the shipped row cap (audit_view.py _RECENT_LIMIT), verbatim.
+_AUDIT_RECENT_LIMIT = 10
+
+
+def _audit_leg(text: object) -> dict | None:
+    """One side of the engine's prev/new rollup (`{leg_name: before/after}`
+    JSON text — sb/kernel/workflow/engine.py _rollup): the single leg's
+    payload dict, or None when the text isn't that shape."""
+    import json
+
+    try:
+        payload = json.loads(text) if text else None
+    except (TypeError, ValueError):
+        return None
+    if isinstance(payload, dict) and payload:
+        first = next(iter(payload.values()))
+        if isinstance(first, dict):
+            return first
+    return None
+
+
+def _audit_change(row: dict) -> tuple[str, str, str]:
+    """(label, new, prev) for one audit_log row — the shipped line's
+    `subsystem.name = new (was prev)` slots. Scalar legs carry
+    ``{"key", "value"}`` (the persisted `subsystem.name` key, the shipped
+    label verbatim); binding legs carry ``{"resource_id"}`` (label = the
+    op target — the binding name lives in binding_audit_log, not the
+    spine rollup: an honest under-render, not a second table read)."""
+    new_leg = _audit_leg(row.get("new_value"))
+    prev_leg = _audit_leg(row.get("prev_value"))
+    label = str(row.get("target") or "?")
+    for leg in (new_leg, prev_leg):
+        if leg is not None and "key" in leg:
+            label = str(leg["key"])
+            break
+
+    def _value(leg: dict | None, raw: object) -> str:
+        if leg is not None:
+            if "key" in leg:
+                return repr(leg.get("value"))
+            if "resource_id" in leg:
+                return repr(leg.get("resource_id"))
+        return repr(raw)[:60]
+
+    return (label, _value(new_leg, row.get("new_value")),
+            _value(prev_leg, row.get("prev_value")))
+
+
+async def _audit_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Recent-changes body (audit_view.py build_audit_embed):
+    DM guard → soft-fail store read → empty state → the last-10 lines,
+    shape verbatim over the audit_log column mapping (occurred_at→at,
+    mutation rollup→prev/new raw, actor_id/actor_type verbatim)."""
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Result", _AUDIT_DM),)
+
+    try:
+        from sb.kernel.db.pool import fetchall
+
+        rows = await fetchall(
+            "SELECT mutation_type, target, prev_value, new_value, "
+            "actor_id, actor_type, occurred_at FROM audit_log "
+            "WHERE subsystem = 'settings' AND guild_id = $1 "
+            "ORDER BY occurred_at DESC LIMIT "
+            f"{_AUDIT_RECENT_LIMIT}", (guild_id,))
+    except Exception as exc:  # noqa: BLE001 — soft-fail; usually missing table
+        return (("Audit table",
+                 f"*Could not read `audit_log` — "
+                 f"`{type(exc).__name__}: {exc!s:.100}`.  "
+                 "Migration 0003 may not have been applied yet.*"),)
+
+    if not rows:
+        return (("Result", _AUDIT_EMPTY),)
+
+    lines: list[str] = []
+    for row in rows:
+        ts = row.get("occurred_at")
+        ts_str = ts.strftime("%Y-%m-%d %H:%M:%SZ") if ts is not None else "—"
+        label, new, prev = _audit_change(row)
+        actor = row.get("actor_id")
+        actor_type = row.get("actor_type") or "user"
+        lines.append(
+            f"`{ts_str}` `{label}` = `{new}` (was `{prev}`) "
+            f"by `{actor_type}` `{actor}`")
+    return ((f"Last {len(lines)} change(s)", "\n".join(lines)[:1024]),)
+
+
+def settings_audit_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.audit",
+        subsystem="settings",
+        title="🕒 Recent settings changes",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple().
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_AUDIT_DESCRIPTION),
+              FieldsBlock(provider=ProviderRef("settings.audit_fields"))),
+        actions=(_diag_back_action("audit_back"),),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_audit"),
+        justification=(
+            "the shipped Recent-changes footer is the DYNAMIC "
+            "'settings_mutation_audit · guild_id=<id>' provenance stamp "
+            "(views/settings/audit_view.py set_footer), rendered only on "
+            "the rows path (DM/error/empty states return early) — "
+            "guild-keyed copy outside FooterMode's none/subsystem/"
+            "provenance vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, actions and "
+            "layout stay declared."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("audit_back",),)),)),
+    )
+
+
+async def _render_audit(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped guild-keyed footer (see justification):
+    present exactly when the rows field rendered — derived from the
+    rendered field name, so the spine read runs ONCE (in the fields
+    provider), never twice. The table name maps honestly onto the spine
+    (`audit_log · subsystem=settings`)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    if not any(name.startswith("Last ")
+               for name, *_ in rendered.embed.fields):
+        return rendered
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    footer = f"audit_log · subsystem=settings · guild_id={guild_id}"
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed, footer=footer))
+
+
+# --- the armed Command Access panel (settings-admin slice 3) -------------------------
+#
+# Oracle-verbatim port of the shipped 🚪 Command Access panel (PR-6 —
+# disbot/views/settings/edit_command_access.py: the three mode buttons
+# all_channels / selected_channels / disabled_except_bootstrap, the
+# multi-ChannelSelect allowlist replace, Back-to-Hub; copy verbatim,
+# double spaces included). Every mutation routed through the shipped
+# ``services.command_access_service`` (cache invalidation + audit in the
+# canonical path) — here that canonical path is the LIVE platform
+# command-access K7 lanes (``platform.set_access_mode`` /
+# ``set_access_channels``, sb/domain/platform/command_access.py — the
+# setup-wizard step-8 seam): audited compound ops on the administrator
+# authority floor with the post-commit cache forget; the handlers
+# (sb/domain/settings/handlers.py) REUSE them, no new write lane. The
+# oracle's atomic ``replace_allowed_channels`` composite maps onto
+# ``set_access_channels`` (full DELETE + re-INSERT in ONE leg; implies
+# selected_channels when no policy row — the same shape). Deliberate
+# under-port: the oracle's ``delete_blocked_commands`` toggle + embed
+# field have NO seam here — the policy store carries mode + channels
+# only (guild_command_access_policy / _channels) — so both stay out
+# until that store column ports (honest absence, never a dead control).
+# The panel's controls are run-minted per-panel leaves (the shipped
+# ``settings_command_access.*`` ids are NOT in the compat freeze; the
+# slice-1 back-button precedent — one claimant per custom_id leaf
+# repo-wide).
+
+_CA_DESCRIPTION = (
+    "Configure where prefix and slash commands are allowed in "
+    "this server.  Applies to **both** invocation surfaces — "
+    "the same channels permit `!bj` and `/blackjack` alike.\n\n"
+    "Bootstrap commands (`/setup`, `/help`, `/settings`, "
+    "`/platform`, `/diagnostics`) always remain reachable "
+    "for guild operators so you cannot lock yourself out."
+)
+
+#: the shipped mode labels (edit_command_access.py _MODE_LABELS), verbatim.
+_CA_MODE_LABELS: dict[str, str] = {
+    "all_channels": "All channels",
+    "selected_channels": "Selected channels",
+    "disabled_except_bootstrap": "Disabled except bootstrap",
+}
+
+#: the shipped mode descriptions (_MODE_DESCRIPTIONS), verbatim.
+_CA_MODE_DESCRIPTIONS: dict[str, str] = {
+    "all_channels": (
+        "Normal prefix + slash commands work in every guild channel "
+        "(subject to per-command permissions and governance)."
+    ),
+    "selected_channels": (
+        "Normal commands only work in the channels you list below. "
+        "Bootstrap commands (`/setup`, `/help`, `/settings`, etc.) "
+        "still work everywhere for guild operators."
+    ),
+    "disabled_except_bootstrap": (
+        "Normal commands are denied. Only bootstrap commands "
+        "remain reachable so an operator can re-enable from "
+        "`!setup` or this panel."
+    ),
+}
+
+#: the shipped DM/no-guild placeholder + recovery copy, verbatim.
+_CA_NO_GUILD = "*Guild context not available.*"
+_CA_RECOVERY = (
+    "Normal commands are currently denied.  Pick **All "
+    "channels** or **Selected channels** above to re-enable, "
+    "or run `!setup` to revisit onboarding."
+)
+
+#: the shipped footer literal (edit_command_access.py set_footer) — kept
+#: verbatim; renders via the override (outside FooterMode's vocabulary).
+_CA_FOOTER = ("Applies to prefix + slash commands.  "
+              "Mode buttons + the channel selector are admin-only.")
+
+
+def _format_channel_list(channel_ids: frozenset[int]) -> str:
+    """The shipped allowlist rendering (edit_command_access.py
+    _format_channel_list, verbatim): mention list, 950-char truncation
+    with a trailing count so the 1024-cap field never fails."""
+    if not channel_ids:
+        return "*(none configured)*"
+    rendered = " ".join(f"<#{cid}>" for cid in sorted(channel_ids))
+    if len(rendered) > 950:
+        head = " ".join(f"<#{cid}>" for cid in sorted(channel_ids)[:30])
+        return f"{head} … (+{len(channel_ids) - 30} more)"
+    return rendered
+
+
+async def _command_access_fields(ctx) -> tuple[tuple[str, str], ...]:
+    """The shipped Command-Access body (build_command_access_embed):
+    no-guild placeholder → the live policy read (the K8 reader's cached
+    ``read_policy_snapshot`` — the write lanes forget the cache post-
+    commit, so a refresh reads fresh) → Current mode + Allowed channels
+    (+ the Recovery field in the disabled mode), copy verbatim. The
+    shipped Delete-blocked-commands field is the ledgered under-port
+    (no store column here — the section comment)."""
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    if not guild_id:
+        return (("Current mode", _CA_NO_GUILD),)
+
+    from sb.domain.platform import command_access
+
+    snapshot = await command_access.read_policy_snapshot(guild_id)
+    mode_label = (
+        _CA_MODE_LABELS.get(snapshot.mode, snapshot.mode)
+        if snapshot.mode is not None
+        else "All channels (default — no policy row)")
+    mode_description = (
+        _CA_MODE_DESCRIPTIONS.get(snapshot.mode, "—")
+        if snapshot.mode is not None
+        else _CA_MODE_DESCRIPTIONS["all_channels"])
+    fields = [
+        ("Current mode", f"**{mode_label}**\n{mode_description}"),
+        (f"Allowed channels ({len(snapshot.allowed_channels)})",
+         _format_channel_list(snapshot.allowed_channels)),
+    ]
+    if snapshot.mode == "disabled_except_bootstrap":
+        fields.append(("Recovery", _CA_RECOVERY))
+    return tuple(fields)
+
+
+def settings_command_access_spec() -> PanelSpec:
+    return PanelSpec(
+        panel_id="settings.command_access",
+        subsystem="settings",
+        title="🚪 Command Access",
+        audience=Audience.INVOKER,
+        # the shipped accent — discord.Color.blurple().
+        frame=EmbedFrameSpec(style_token="blurple",
+                             footer_mode=FooterMode.NONE),
+        body=(TextBlock(_CA_DESCRIPTION),
+              FieldsBlock(
+                  provider=ProviderRef("settings.command_access_fields"))),
+        selectors=(
+            # the shipped multi-ChannelSelect (min 0 / max 25 — a blank
+            # selection CLEARS the allowlist, the atomic replace).
+            SelectorSpec(
+                selector_id="ca_channels", kind=SelectorKind.CHANNEL,
+                on_select=HandlerRef("settings.ca_channels"),
+                min_values=0, max_values=25,
+                placeholder="Set allowed channels (selected_channels "
+                            "mode)…",
+                audience_tier="administrator"),
+        ),
+        actions=(
+            # the shipped mode-button trio (row 0: label/emoji/style
+            # verbatim; ids run-minted — the section comment).
+            PanelActionSpec(
+                action_id="ca_all_channels", label="All channels",
+                emoji="🌐", style=ActionStyle.SUCCESS,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.ca_mode")),
+            PanelActionSpec(
+                action_id="ca_selected_channels",
+                label="Selected channels", emoji="📋",
+                style=ActionStyle.PRIMARY,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.ca_mode")),
+            PanelActionSpec(
+                action_id="ca_disabled",
+                label="Disabled except bootstrap", emoji="🚫",
+                style=ActionStyle.DANGER,
+                audience_tier="administrator",
+                handler=HandlerRef("settings.ca_mode")),
+            _diag_back_action("command_access_back"),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False,
+                                  parent=PanelRef("settings.hub")),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("settings.render_command_access"),
+        justification=(
+            "the shipped Command-Access footer is the literal 'Applies "
+            "to prefix + slash commands.  Mode buttons + the channel "
+            "selector are admin-only.' (views/settings/"
+            "edit_command_access.py build_command_access_embed "
+            "set_footer) — outside FooterMode's none/subsystem/"
+            "provenance vocabulary (the settings-hub footer-literal "
+            "precedent). The override delegates to the grammar renderer "
+            "and replaces ONLY the footer; body, fields, selector, "
+            "actions and layout stay declared."),
+        # the shipped rows: mode buttons (row 0), the channel select
+        # (row 1), Back to Hub (the delete-blocked toggle's row 2 is the
+        # ledgered under-port — the section comment).
+        layout=LayoutSpec(pages=(PageSpec(rows=(
+            ("ca_all_channels", "ca_selected_channels", "ca_disabled"),
+            ("ca_channels",),
+            ("command_access_back",),
+        )),)),
+    )
+
+
+async def _render_command_access(spec: PanelSpec, ctx) -> object:
+    """Grammar render + the shipped footer literal (see justification)."""
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    return _dc_replace(rendered,
+                       embed=_dc_replace(rendered.embed, footer=_CA_FOOTER))
+
+
 # --- the access-explorer spec --------------------------------------------------------
+
+#: the explorer's scope labels (the _ACCESS_SCOPES roster, keyed).
+_ACCESS_SCOPE_LABELS = {
+    "channel": "Channel (current)",
+    "category": "Category (current)",
+    "guild": "Guild (server-wide)",
+}
+
+_ACCESS_STATE_BADGES = {
+    "enabled": "✅ Enabled",
+    "disabled": "🚫 Disabled",
+    "blocked_dep": "⛔ Blocked by dependency",
+}
+
+
+def _access_page2_options() -> tuple[dict, ...]:
+    """The subsystem roster PAGE 2 — every governance-registered subsystem
+    the pinned page-1 roster does not carry, in registry declaration order
+    (the golden pins page 1 only; page 2 re-derives from the ONE registry
+    truth, so it can never drift from what governance actually gates).
+    Labels/emoji reuse the curated hub roster where a group exists; the
+    rest fall back to a mechanical title-case (honest, unpinned bytes).
+    Lazy governance import — the sections.py seam shape (PL-001)."""
+    from sb.domain.governance.registry import SUBSYSTEM_META
+
+    page1 = {value for value, _, _, _ in _ACCESS_SUBSYSTEMS}
+    curated = {value: (label, emoji, description)
+               for value, label, emoji, description in _HUB_GROUPS}
+    options: list[dict] = []
+    for key, meta in SUBSYSTEM_META.items():
+        if key in page1:
+            continue
+        label, emoji, description = curated.get(
+            key, (key.replace("_", " ").title(), "",
+                  f"Visibility tier: {meta.get('visibility_tier', 'user')}"))
+        option = {"value": key, "label": label, "description": description}
+        if emoji:
+            option["emoji"] = emoji
+        options.append(option)
+    return tuple(options[:25])
+
+
+def access_page_count() -> int:
+    return 2 if _access_page2_options() else 1
+
+
+def _access_option_label(value: str) -> str:
+    """Display label for a subsystem value across both roster pages."""
+    for v, label, _, _ in _ACCESS_SUBSYSTEMS:
+        if v == value:
+            return label
+    for option in _access_page2_options():
+        if option["value"] == value:
+            return str(option["label"])
+    return value
+
+
+def _access_axes(ctx_or_params, scope: str,
+                 channel_id: int | None) -> dict:
+    """Map the explorer's scope selection onto the resolver's context axes:
+    guild = no channel/category override lane; category = category + guild;
+    channel = the full chain (channel > category > guild)."""
+    def _int(value) -> int | None:
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    category_id = _int(ctx_or_params.get("category_id"))
+    if scope == "guild":
+        return {}
+    if scope == "category":
+        return {"category_id": category_id}
+    return {"channel_id": _int(channel_id), "category_id": category_id}
+
 
 async def _access_fields(ctx) -> tuple[tuple[str, str], ...]:
     """The shipped empty-selection state (the golden pins the two prompt
     fields; the renderer override marks them inline — the shipped
-    add_field(inline=True) wire shape)."""
-    del ctx
-    return (("Subsystem", "_Pick from the first dropdown._"),
-            ("Scope", "_Pick from the second dropdown._"))
+    add_field(inline=True) wire shape). With a session selection in
+    ``ctx.params`` (the armed interaction slice), the fields render the
+    RESOLVED state + provenance through the governance read seam
+    (``resolve_subsystem_state`` — lazy import, the sections.py shape)."""
+    params = dict(getattr(ctx, "params", {}) or {})
+    subsystem = str(params.get("access_subsystem") or "")
+    if not subsystem:
+        return (("Subsystem", "_Pick from the first dropdown._"),
+                ("Scope", "_Pick from the second dropdown._"))
+
+    from sb.domain.governance import service as governance
+
+    scope = str(params.get("access_scope") or "channel")
+    guild_id = int(getattr(ctx, "guild_id", 0) or 0)
+    res = await governance.resolve_subsystem_state(
+        guild_id, subsystem,
+        **_access_axes(params, scope, getattr(ctx, "channel_id", None)))
+    badge = _ACCESS_STATE_BADGES.get(res.state.value, res.state.value)
+    if not res.known:
+        provenance = "unregistered subsystem — fail-open (dispatch gate)"
+    elif res.source.value == "registry_default":
+        provenance = "registry default (no override)"
+    elif res.source.value == "dependency_block":
+        provenance = ("dependency block: "
+                      + ", ".join(res.dependency_blocks))
+    else:
+        provenance = f"{res.source.value} override"
+    subsystem_value = (f"{_access_option_label(subsystem)} (`{subsystem}`)\n"
+                       f"{badge} — {provenance}")
+    scope_value = (f"{_ACCESS_SCOPE_LABELS.get(scope, scope)}\n"
+                   "_Press **Explain Access** for the decision chain._")
+    return (("Subsystem", subsystem_value), ("Scope", scope_value))
 
 
 def settings_access_spec() -> PanelSpec:
@@ -363,14 +1220,14 @@ def settings_access_spec() -> PanelSpec:
                 options_source=_options(_ACCESS_SUBSYSTEMS),
                 placeholder="Choose a subsystem… — page 1/2",
                 audience_tier="administrator",
-                on_select=HandlerRef("settings.access_subsystem_pending")),
+                on_select=HandlerRef("settings.access_subsystem")),
             # the shipped PERSISTENT scope select (access:select_scope).
             SelectorSpec(
                 selector_id="select_scope", kind=SelectorKind.ENUM,
                 options_source=_ACCESS_SCOPES,
                 placeholder="Choose a scope…",
                 audience_tier="administrator",
-                on_select=HandlerRef("settings.access_scope_pending"),
+                on_select=HandlerRef("settings.access_scope"),
                 custom_id_override="access:select_scope"),
         ),
         actions=(
@@ -378,12 +1235,12 @@ def settings_access_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="explain", label="🔬 Explain Access",
                 style=ActionStyle.PRIMARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_explain_pending"),
+                handler=HandlerRef("settings.access_explain"),
                 custom_id_override="access:explain"),
             PanelActionSpec(
                 action_id="reset", label="🔄 Reset",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_reset_pending"),
+                handler=HandlerRef("settings.access_reset"),
                 custom_id_override="access:reset"),
             # row 3 — the shipped session page-turn pair (run-minted ids;
             # the golden pins <cid:2>/<cid:3>; Prev renders disabled on
@@ -391,11 +1248,11 @@ def settings_access_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="access_prev", label="◀ Prev",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_page_pending")),
+                handler=HandlerRef("settings.access_page")),
             PanelActionSpec(
                 action_id="access_next", label="Next ▶",
                 style=ActionStyle.SECONDARY, audience_tier="administrator",
-                handler=HandlerRef("settings.access_page_pending")),
+                handler=HandlerRef("settings.access_page")),
         ),
         # the shipped explorer carried the standard nav row — 📚 Help +
         # ↩ Administration (the shipped parent hub is `admin`, pinned
@@ -437,11 +1294,27 @@ async def _render_hub(spec: PanelSpec, ctx) -> object:
                        embed=_dc_replace(rendered.embed, footer=_HUB_FOOTER))
 
 
+def _mark_selected(options: tuple, value: str) -> tuple:
+    """Move the ``default`` flag onto the selected option (re-render only —
+    the open state never reaches here, so the golden bytes never move)."""
+    return tuple({**dict(o), "default": dict(o).get("value") == value}
+                 if isinstance(o, dict) else o for o in options)
+
+
 async def _render_access(spec: PanelSpec, ctx) -> object:
     """Grammar render + the three shipped adjustments (see justification):
     the invoker-named footer, inline prompt fields, first-page ◀ Prev
     disabled. The invoker name arrives via the opening request's args
-    (``settings.access_view`` — the economy author-display precedent)."""
+    (``settings.access_view`` — the economy author-display precedent).
+
+    The armed interaction slice re-renders through the SAME override with
+    the session selection in ``ctx.params`` (the engine's click-time
+    re-resolution): ``access_page`` 2 swaps the subsystem roster onto the
+    registry-derived page 2 (+ the honest ``page 2/2`` placeholder) and
+    flips which page-turn button is disabled; a selected subsystem/scope
+    moves the ``default`` flag on its select. With NO params (the golden's
+    open state) every branch below reduces to the shipped bytes: page 1,
+    ◀ Prev disabled, Next ▶ live, options untouched."""
     from sb.kernel.panels.render import render_panel
 
     rendered = await render_panel(spec, ctx)
@@ -450,11 +1323,36 @@ async def _render_access(spec: PanelSpec, ctx) -> object:
     embed = _dc_replace(
         rendered.embed, footer=footer,
         fields=tuple((f[0], f[1], True) for f in rendered.embed.fields))
-    components = tuple(
-        _dc_replace(c, disabled=True)
-        if c.custom_id == f"{spec.panel_id}.access_prev" else c
-        for c in rendered.components)
-    return _dc_replace(rendered, embed=embed, components=components)
+    try:
+        page = int(ctx.params.get("access_page", 1) or 1)
+    except (TypeError, ValueError):
+        page = 1
+    page_count = access_page_count()
+    page = min(max(page, 1), page_count)
+    selected_subsystem = str(ctx.params.get("access_subsystem") or "")
+    selected_scope = str(ctx.params.get("access_scope") or "")
+    components = []
+    for c in rendered.components:
+        if c.custom_id == f"{spec.panel_id}.access_prev":
+            c = _dc_replace(c, disabled=page <= 1)
+        elif c.custom_id == f"{spec.panel_id}.access_next":
+            c = _dc_replace(c, disabled=page >= page_count)
+        elif c.custom_id == f"{spec.panel_id}.subsystem":
+            options = c.options
+            if page > 1:
+                options = _access_page2_options()
+                c = _dc_replace(
+                    c, options=options,
+                    placeholder=f"Choose a subsystem… — page {page}/"
+                                f"{page_count}")
+            if selected_subsystem:
+                c = _dc_replace(
+                    c, options=_mark_selected(options, selected_subsystem))
+        elif c.custom_id == "access:select_scope" and selected_scope:
+            c = _dc_replace(
+                c, options=_mark_selected(c.options, selected_scope))
+        components.append(c)
+    return _dc_replace(rendered, embed=embed, components=tuple(components))
 
 
 # --- registration -----------------------------------------------------------------
@@ -466,25 +1364,56 @@ def _register_refs() -> None:
         panel("settings.hub")(settings_hub_spec)
     if not is_registered(PanelRef("settings.access")):
         panel("settings.access")(settings_access_spec)
+    if not is_registered(PanelRef("settings.needs_setup")):
+        panel("settings.needs_setup")(settings_needs_setup_spec)
+    if not is_registered(PanelRef("settings.invalid")):
+        panel("settings.invalid")(settings_invalid_spec)
+    if not is_registered(PanelRef("settings.missing_bindings")):
+        panel("settings.missing_bindings")(settings_missing_bindings_spec)
+    if not is_registered(PanelRef("settings.audit")):
+        panel("settings.audit")(settings_audit_spec)
+    if not is_registered(PanelRef("settings.command_access")):
+        panel("settings.command_access")(settings_command_access_spec)
     if not is_registered(HandlerRef("settings.render_hub")):
         handler("settings.render_hub")(_render_hub)
     if not is_registered(HandlerRef("settings.render_access")):
         handler("settings.render_access")(_render_access)
+    if not is_registered(HandlerRef("settings.render_needs_setup")):
+        handler("settings.render_needs_setup")(_render_needs_setup)
+    if not is_registered(HandlerRef("settings.render_invalid")):
+        handler("settings.render_invalid")(_render_invalid)
+    if not is_registered(HandlerRef("settings.render_audit")):
+        handler("settings.render_audit")(_render_audit)
+    if not is_registered(HandlerRef("settings.render_command_access")):
+        handler("settings.render_command_access")(_render_command_access)
     if not is_registered(ProviderRef("settings.hub_fields")):
         provider("settings.hub_fields")(_hub_fields)
     if not is_registered(ProviderRef("settings.access_fields")):
         provider("settings.access_fields")(_access_fields)
+    if not is_registered(ProviderRef("settings.needs_setup_fields")):
+        provider("settings.needs_setup_fields")(_needs_setup_fields)
+    if not is_registered(ProviderRef("settings.invalid_fields")):
+        provider("settings.invalid_fields")(_invalid_fields)
+    if not is_registered(ProviderRef("settings.missing_bindings_fields")):
+        provider("settings.missing_bindings_fields")(_missing_bindings_fields)
+    if not is_registered(ProviderRef("settings.audit_fields")):
+        provider("settings.audit_fields")(_audit_fields)
+    if not is_registered(ProviderRef("settings.command_access_fields")):
+        provider("settings.command_access_fields")(_command_access_fields)
 
 
 _register_refs()
 
 
 def install_settings_panels() -> PanelSpec:
-    """Register the hub + explorer with the panels registry (fences run
+    """Register the hub + explorer + the four armed diagnostics + the
+    Command Access write panel with the panels registry (fences run
     here); composition-root/boot call. Idempotent for identical specs.
     Returns the hub spec (the band-1 contract shape)."""
     hub = settings_hub_spec()
-    for spec in (hub, settings_access_spec()):
+    for spec in (hub, settings_access_spec(), settings_needs_setup_spec(),
+                 settings_invalid_spec(), settings_missing_bindings_spec(),
+                 settings_audit_spec(), settings_command_access_spec()):
         try:
             register_panel(spec)
         except ValueError as exc:

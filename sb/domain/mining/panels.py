@@ -680,12 +680,14 @@ def _ensure_workshop_craft_provider() -> ProviderRef:
 
 
 def _workshop_button_handlers() -> dict[str, HandlerRef]:
-    """Pending terminals for the Workshop panel's deferred lanes — the craft
-    select's material→product write and the ↩ Workshop sub-hub ride the deferred
-    structures/panel port (D-0043); the LIVE lanes (`!repair`, `!quickcraft`,
-    the 🔁 Quick-craft button) already carry the audited moves. Registered at
-    IMPORT (module bottom), never ensure-only (#111 doctrine). No golden drives
-    a workshop click, so the terminal copy is unpinned."""
+    """Pending terminal for the Workshop panel's deferred lane — the craft
+    select's material→product write rides the deferred structures/panel port
+    (D-0043); the LIVE lanes (`!repair`, `!quickcraft`, the 🔁 Quick-craft
+    button) already carry the audited moves, and ↩ Workshop navigates to the
+    live mining hub (its `workshop_hub_pending` terminal retired by the
+    2026-07-13 curation rework). Registered at IMPORT (module bottom), never
+    ensure-only (#111 doctrine). No golden drives a workshop click, so the
+    terminal copy is unpinned."""
     from sb.domain.operator_spine import pending_handler
 
     return {
@@ -693,10 +695,6 @@ def _workshop_button_handlers() -> dict[str, HandlerRef]:
             "mining.workshop_craft_pending",
             "🛠️ Crafting gear from the dropdown rides the deep-system panel "
             "port (D-0043) — " + _D0043_TAIL),
-        "hub": pending_handler(
-            "mining.workshop_hub_pending",
-            "🔧 The Workshop sub-hub rides the deep-system panel port (D-0043) "
-            "— repair now with `!repair <item>`, or `!craft <item>`."),
     }
 
 
@@ -741,7 +739,11 @@ def mining_workshop_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="ws_back", label="↩ Workshop",
                 style=ActionStyle.SECONDARY, audience_tier="user",
-                handler=HandlerRef("mining.workshop_hub_pending")),
+                # back to the live mining hub (the sk_hub / vault / forge
+                # back-button pattern; curation rework 2026-07-13 — the
+                # pending sub-hub terminal retired, byte-neutral: session
+                # panels mint <cid:N> ids, the golden pins label+style only).
+                handler=PanelRef(HUB_PANEL_ID)),
         ),
         # the shipped standard nav row: 📚 Help + "↩ Games"
         # (nav:help / nav:hub:games — both pinned by the golden).

@@ -166,22 +166,37 @@ def _register() -> None:
 
     @handler("setup.reset_view")
     async def reset_view(req) -> Reply:
-        """``/setup-reset`` — clear the staged draft. The K9 setup draft
-        lane is not populated by any ported surface yet (the wizard
-        interior is the named successor), so the staged count reads 0 and
-        the shipped already-empty copy answers (goldens/setup/
-        sweep_slash_setup-reset pins the byte); the clearing branch lands
-        with the wizard-lifecycle slice."""
-        del req
-        pending_before = 0      # the draft lane's constant-empty read (above)
+        """``/setup-reset`` — the shipped body verbatim (setup_cog.
+        setup_reset_slash): gate → count the staged draft → the
+        already-empty copy (goldens/setup/sweep_slash_setup-reset pins
+        the byte) or clear + the cleared confirmation. The wizard-
+        lifecycle slice armed the clearing branch over the K9 draft lane
+        (sb/domain/setup/wizard.py — the review panel's Stage lane is
+        the writer)."""
+        from sb.domain.setup import wizard
+
+        if not await wizard.can_apply_setup(req):
+            return Reply(BLOCKED, wizard.GATE_MSG_RESET)
+        try:
+            pending_before = await wizard.staged_ops_count(
+                int(req.guild_id or 0))
+        except Exception:  # noqa: BLE001 — the shipped count soft-fail
+            pending_before = 0
         if pending_before == 0:
             return Reply(SUCCESS,
                          "No staged operations to clear — the draft is "
                          "already empty.")
-        return Reply(BLOCKED,
-                     "The staged-draft clear lane isn't armed in this "
-                     "build yet — it lands with the wizard-lifecycle "
-                     "slice.")  # pragma: no cover — constant-empty today
+        try:
+            await wizard.clear_guild_drafts(int(req.guild_id or 0))
+        except Exception:  # noqa: BLE001 — the shipped error copy answers
+            return Reply(BLOCKED,
+                         "Could not clear staged operations — see logs.")
+        word = "operation" if pending_before == 1 else "operations"
+        # shipped copy, verbatim (setup_reset_slash's cleared reply).
+        return Reply(SUCCESS,
+                     f"✅ Cleared **{pending_before}** staged {word}. The "
+                     f"session keeps its status and depth — run "
+                     f"`!setupadvanced` or `/setup-advanced` to continue.")
 
     def _section_gate(slug: str) -> str | None:
         """The shipped unknown-section refusal (setup_cog:
@@ -195,30 +210,48 @@ def _register() -> None:
             return f"Unknown section `{slug}`. Available: {available}"
         return None
 
-    @handler("setup.skip_section")
-    async def skip_section(req) -> Reply:
-        """``/setup-skip`` — validate the slug first (the shipped order);
-        the mark-skipped session write is wizard-interior successor work
-        (no golden drives a valid slug)."""
+    async def _toggle_skip(req, *, skipped: bool) -> Reply:
+        """The shipped ``_toggle_skip`` body (cogs/setup_cog.py): the
+        can-apply gate, the unknown-section refusal (golden-pinned),
+        then the K7 set-semantics session write + the shipped ack."""
+        from sb.domain.setup import wizard
+        from sb.kernel.workflow import engine
+        from sb.spec.refs import WorkflowRef
+
         slug = str(req.args.get("section", "") or "")
+        if not await wizard.can_apply_setup(req):
+            return Reply(BLOCKED, wizard.GATE_MSG_SKIP)
         refusal = _section_gate(slug)
         if refusal is not None:
             return Reply(BLOCKED, refusal)
-        return Reply(BLOCKED,
-                     "Marking sections skipped isn't armed in this build "
-                     "yet — it lands with the wizard-lifecycle slice.")
+        try:
+            result = await engine.run(
+                WorkflowRef("setup.set_section_skip"),
+                ctx_from_request(req, {"section": slug,
+                                       "skipped": skipped}))
+        except Exception:  # noqa: BLE001 — the shipped error copy answers
+            result = None
+        if result is None or result.outcome != SUCCESS:
+            # shipped copy, verbatim (_toggle_skip's failure reply).
+            return Reply(BLOCKED,
+                         "Could not update the skip state — see logs.")
+        verb = "skipped" if skipped else "un-skipped"
+        # shipped copy, verbatim.
+        return Reply(SUCCESS, f"✅ Section `{slug}` {verb}.")
+
+    @handler("setup.skip_section")
+    async def skip_section(req) -> Reply:
+        """``/setup-skip`` — add the section to the session's
+        skipped-sections set (the hub renders its ⚠️ badge;
+        ``/setup-unskip`` reverts). goldens/setup/sweep_slash_setup-skip
+        pins the unknown-section refusal byte."""
+        return await _toggle_skip(req, skipped=True)
 
     @handler("setup.unskip_section")
     async def unskip_section(req) -> Reply:
-        """``/setup-unskip`` — the skip twin (same shipped validation)."""
-        slug = str(req.args.get("section", "") or "")
-        refusal = _section_gate(slug)
-        if refusal is not None:
-            return Reply(BLOCKED, refusal)
-        return Reply(BLOCKED,
-                     "Restoring skipped sections isn't armed in this "
-                     "build yet — it lands with the wizard-lifecycle "
-                     "slice.")
+        """``/setup-unskip`` — the skip twin (drop the slug from the
+        skipped set)."""
+        return await _toggle_skip(req, skipped=False)
 
     @handler("setup.describe_entry")
     async def describe_entry(req) -> Reply | None:
@@ -253,6 +286,14 @@ def _register() -> None:
             # lane never reads).
             return Reply(BLOCKED, _EMPTY_HINT)
         draft = await plan.suggest(int(req.guild_id or 0))
+        # seed the wizard-interior review state (the oracle held draft +
+        # AcceptedSet on the view instance; the click lanes read it back
+        # — sb/domain/setup/wizard.py).
+        from sb.domain.setup import wizard
+
+        wizard.seed_review_state(int(req.guild_id or 0),
+                                 int(getattr(req.actor, "user_id", 0) or 0),
+                                 draft)
         note = _DETERMINISTIC_NOTE if description else None
         args = {**dict(req.args or {}),
                 "setup_plan_draft": draft, "advisor_note": note}

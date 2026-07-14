@@ -71,3 +71,9 @@ frontmatter keeps the score.
   playable end-to-end), what remains — PvP buttons on the wire (blackjack has the same
   gap), result edit-in-place, tournament orchestration (blocked on the reaction/message
   seams), and the named classes for the band's four red `_unmapped` sweeps.
+- [`tournament-open-flag-toctou-2026-07-12.md`](tournament-open-flag-toctou-2026-07-12.md) —
+  `captured` → accepted-posture (not a fix): the shared `active_tournament` OPEN guard
+  (`get_active` read → refuse) is a non-atomic check-and-set with a narrow TOCTOU window;
+  the oracle ships the same unfenced get/refuse + boot-sweep recovery, so the parity-
+  faithful posture is documented rather than fenced. A strict-serialization advisory-lock
+  fence is flagged as an owner-decision. Re-ledgered from the #277 money-path review.
