@@ -243,6 +243,7 @@
     "SelectorSpec.selector_id": "S",
     "SelectorSpec.slash_common": "S",
     "SelectorSpec.usage_weight": "O",
+    "SelectorSpec.windowed": "S",
     "SettingGroupSpec.description": "S",
     "SettingGroupSpec.group_id": "S",
     "SettingGroupSpec.label": "S",
@@ -319,7 +320,7 @@
     "WizardSectionSpec.step": "S",
     "WizardSectionSpec.style": "S"
   },
-  "manifest_count": 48,
+  "manifest_count": 49,
   "projections": {
     "events": {
       "ai.orchestration.category_changed": {
@@ -4196,6 +4197,16 @@
         {
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
+          "value": "confirm"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "cancel"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
           "value": "open_strategy_form"
         },
         {
@@ -5471,6 +5482,46 @@
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
+          "value": "gr_north"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_west"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_east"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_south"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_down"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_up"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "gr_menu"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "hw_hub"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
           "value": "va_deposit"
         },
         {
@@ -6589,6 +6640,31 @@
           "value": "routing_back_step"
         },
         {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_continue"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_retry_step"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_skip_section"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_customize"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "recovery_cancel_view"
+        },
+        {
           "source": "sb/manifest/starboard.py",
           "subsystem": "starboard",
           "value": "starboard_threshold"
@@ -7101,6 +7177,11 @@
           "source": "sb/manifest/btd6.py",
           "subsystem": "btd6",
           "value": "btd6.ctteam"
+        },
+        {
+          "source": "sb/manifest/btd6.py",
+          "subsystem": "btd6",
+          "value": "btd6.ctteam_confirm"
         },
         {
           "source": "sb/manifest/btd6.py",
@@ -7945,6 +8026,16 @@
         {
           "source": "sb/manifest/mining.py",
           "subsystem": "mining",
+          "value": "mining.grid"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
+          "value": "mining.howto"
+        },
+        {
+          "source": "sb/manifest/mining.py",
+          "subsystem": "mining",
           "value": "mining.card"
         },
         {
@@ -8286,6 +8377,16 @@
           "source": "sb/manifest/setup.py",
           "subsystem": "setup",
           "value": "setup.cog_routing_detail"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.section_recovery"
+        },
+        {
+          "source": "sb/manifest/setup.py",
+          "subsystem": "setup",
+          "value": "setup.workspace_notice"
         },
         {
           "source": "sb/manifest/starboard.py",
@@ -8922,6 +9023,11 @@
           "value": "ai"
         },
         {
+          "source": "sb/manifest/automation.py",
+          "subsystem": "automation",
+          "value": "automation"
+        },
+        {
           "source": "sb/manifest/automod.py",
           "subsystem": "automod",
           "value": "automod"
@@ -9182,6 +9288,11 @@
           "source": "sb/manifest/ai.py",
           "subsystem": "ai",
           "value": "ai_instruction_profile"
+        },
+        {
+          "source": "sb/manifest/automation.py",
+          "subsystem": "automation",
+          "value": "automation_rules"
         },
         {
           "source": "sb/manifest/btd6.py",
@@ -9459,6 +9570,11 @@
           "value": "rps_players"
         },
         {
+          "source": "sb/manifest/server_management.py",
+          "subsystem": "server_management",
+          "value": "command_routing_policy"
+        },
+        {
           "source": "sb/manifest/settings.py",
           "subsystem": "settings",
           "value": "settings"
@@ -9516,6 +9632,9 @@
       },
       "engine:ai.store": {
         "module": "sb.domain.ai.store"
+      },
+      "engine:automation.store": {
+        "module": "sb.domain.automation.store"
       },
       "engine:btd6.store": {
         "module": "sb.domain.btd6.store"
@@ -9579,6 +9698,9 @@
       },
       "engine:rps.stats_store": {
         "module": "sb.domain.rps.stats"
+      },
+      "engine:server_management.routing_store": {
+        "module": "sb.domain.server_management.routing"
       },
       "engine:settings.store": {
         "module": "sb.kernel.db.settings"
@@ -9841,14 +9963,8 @@
       "handler:blackjack.tournament_join": {
         "module": "sb.domain.blackjack.handlers"
       },
-      "handler:blackjack.tournament_open_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:blackjack.tournament_open_route": {
         "module": "sb.domain.blackjack.handlers"
-      },
-      "handler:blackjack.tournament_start_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:blackjack.tournament_start_route": {
         "module": "sb.domain.blackjack.handlers"
@@ -9958,13 +10074,16 @@
       "handler:btd6.cmd_tower": {
         "module": "sb.domain.btd6.oracle_surface"
       },
-      "handler:btd6.ctteam_set_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:btd6.ctteam_cancel": {
+        "module": "sb.domain.btd6.ct_team"
+      },
+      "handler:btd6.ctteam_confirm_submit": {
+        "module": "sb.domain.btd6.ct_team"
+      },
+      "handler:btd6.ctteam_set_submit": {
+        "module": "sb.domain.btd6.ct_team"
       },
       "handler:btd6.events_grounding_view": {
-        "module": "sb.domain.btd6.service"
-      },
-      "handler:btd6.events_pending": {
         "module": "sb.domain.btd6.service"
       },
       "handler:btd6.events_usage_view": {
@@ -9972,9 +10091,6 @@
       },
       "handler:btd6.grp_bare": {
         "module": "sb.domain.btd6.oracle_surface"
-      },
-      "handler:btd6.ops_pending": {
-        "module": "sb.domain.btd6.service"
       },
       "handler:btd6.ops_usage_view": {
         "module": "sb.domain.btd6.service"
@@ -10009,9 +10125,6 @@
       "handler:btd6.paragon_target_submit": {
         "module": "sb.domain.btd6.paragon_panel"
       },
-      "handler:btd6.ref_ct_pending": {
-        "module": "sb.domain.btd6.service"
-      },
       "handler:btd6.ref_hero_view": {
         "module": "sb.domain.btd6.service"
       },
@@ -10037,6 +10150,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_ctteam": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "handler:btd6.render_ctteam_confirm": {
         "module": "sb.domain.btd6.panels"
       },
       "handler:btd6.render_hub": {
@@ -11158,14 +11274,26 @@
       "handler:mining.gear_view": {
         "module": "sb.domain.mining.service"
       },
-      "handler:mining.grid_view_pending": {
-        "module": "sb.domain.operator_spine"
+      "handler:mining.gr_down": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_east": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_north": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_south": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_up": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.gr_west": {
+        "module": "sb.domain.mining.panels"
       },
       "handler:mining.home_build_route": {
         "module": "sb.domain.mining.service"
-      },
-      "handler:mining.how_to_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:mining.inventory_view": {
         "module": "sb.domain.mining.service"
@@ -11191,7 +11319,13 @@
       "handler:mining.render_forge": {
         "module": "sb.domain.mining.panels"
       },
+      "handler:mining.render_grid": {
+        "module": "sb.domain.mining.panels"
+      },
       "handler:mining.render_home": {
+        "module": "sb.domain.mining.panels"
+      },
+      "handler:mining.render_howto": {
         "module": "sb.domain.mining.panels"
       },
       "handler:mining.render_hub": {
@@ -11401,9 +11535,6 @@
       "handler:rps.help_view": {
         "module": "sb.domain.rps.handlers"
       },
-      "handler:rps.matchup_pending": {
-        "module": "sb.domain.operator_spine"
-      },
       "handler:rps.matchup_route": {
         "module": "sb.domain.rps.handlers"
       },
@@ -11412,9 +11543,6 @@
       },
       "handler:rps.pvp_click": {
         "module": "sb.domain.rps.handlers"
-      },
-      "handler:rps.register_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:rps.register_route": {
         "module": "sb.domain.rps.handlers"
@@ -11436,9 +11564,6 @@
       },
       "handler:rps.settings_view": {
         "module": "sb.domain.rps.handlers"
-      },
-      "handler:rps.start_pending": {
-        "module": "sb.domain.operator_spine"
       },
       "handler:rps.start_route": {
         "module": "sb.domain.rps.handlers"
@@ -12025,6 +12150,24 @@
       "handler:setup.section_hub_roles": {
         "module": "sb.domain.setup.section_card"
       },
+      "handler:setup.section_recovery_cancel": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_continue": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_customize": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_render": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_retry": {
+        "module": "sb.domain.setup.recovery"
+      },
+      "handler:setup.section_recovery_skip": {
+        "module": "sb.domain.setup.recovery"
+      },
       "handler:setup.section_skip_channels": {
         "module": "sb.domain.setup.section_card"
       },
@@ -12093,6 +12236,9 @@
       },
       "handler:setup.wizard_step_render": {
         "module": "sb.domain.setup.wizard_nav"
+      },
+      "handler:setup.workspace_notice_render": {
+        "module": "sb.domain.setup.notices"
       },
       "handler:spotlight.richest": {
         "module": "sb.domain.community.handlers"
@@ -12464,6 +12610,9 @@
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.ctteam": {
+        "module": "sb.domain.btd6.panels"
+      },
+      "panel:btd6.ctteam_confirm": {
         "module": "sb.domain.btd6.panels"
       },
       "panel:btd6.hub": {
@@ -12976,7 +13125,13 @@
       "panel:mining.forge": {
         "module": "sb.domain.mining.panels"
       },
+      "panel:mining.grid": {
+        "module": "sb.domain.mining.panels"
+      },
       "panel:mining.home": {
+        "module": "sb.domain.mining.panels"
+      },
+      "panel:mining.howto": {
         "module": "sb.domain.mining.panels"
       },
       "panel:mining.hub": {
@@ -13162,6 +13317,9 @@
       "panel:setup.section_moderation": {
         "module": "sb.domain.setup.section_card"
       },
+      "panel:setup.section_recovery": {
+        "module": "sb.domain.setup.recovery"
+      },
       "panel:setup.section_role_templates": {
         "module": "sb.domain.setup.section_card"
       },
@@ -13179,6 +13337,9 @@
       },
       "panel:setup.wizard_step": {
         "module": "sb.domain.setup.wizard_nav"
+      },
+      "panel:setup.workspace_notice": {
+        "module": "sb.domain.setup.notices"
       },
       "panel:starboard.config": {
         "module": "sb.domain.starboard.panels"
@@ -13903,6 +14064,15 @@
       "workflow:ai.set_role_policy": {
         "module": "sb.domain.ai.policy_ops"
       },
+      "workflow:automation.add_rule": {
+        "module": "sb.domain.automation.ops"
+      },
+      "workflow:automation.record_add_rule": {
+        "module": "sb.domain.automation.ops"
+      },
+      "workflow:automation.tombstone_rule_creator": {
+        "module": "sb.domain.automation.ops"
+      },
       "workflow:blackjack.pvp_accept": {
         "module": "sb.domain.blackjack.ops"
       },
@@ -13978,6 +14148,9 @@
       "workflow:btd6.record_announce_channel": {
         "module": "sb.domain.btd6.ops"
       },
+      "workflow:btd6.record_ct_team": {
+        "module": "sb.domain.btd6.ops"
+      },
       "workflow:btd6.record_review_strategy": {
         "module": "sb.domain.btd6.ops"
       },
@@ -13997,6 +14170,9 @@
         "module": "sb.domain.btd6.ops"
       },
       "workflow:btd6.set_announce_channel": {
+        "module": "sb.domain.btd6.ops"
+      },
+      "workflow:btd6.set_ct_team": {
         "module": "sb.domain.btd6.ops"
       },
       "workflow:btd6.submit_strategy": {
@@ -14395,6 +14571,9 @@
       "workflow:mining.descend": {
         "module": "sb.domain.mining.ops"
       },
+      "workflow:mining.dig": {
+        "module": "sb.domain.mining.ops"
+      },
       "workflow:mining.equip": {
         "module": "sb.domain.mining.ops"
       },
@@ -14453,6 +14632,9 @@
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_descend": {
+        "module": "sb.domain.mining.ops"
+      },
+      "workflow:mining.record_dig": {
         "module": "sb.domain.mining.ops"
       },
       "workflow:mining.record_equip": {
@@ -14751,6 +14933,15 @@
       },
       "workflow:role.update_menu": {
         "module": "sb.domain.role.ops"
+      },
+      "workflow:routing.record_set_policy": {
+        "module": "sb.domain.server_management.ops"
+      },
+      "workflow:routing.set_policy": {
+        "module": "sb.domain.server_management.ops"
+      },
+      "workflow:routing.tombstone_policy_actor": {
+        "module": "sb.domain.server_management.ops"
       },
       "workflow:rps.bot_round": {
         "module": "sb.domain.rps.ops"
@@ -15078,6 +15269,14 @@
         },
         "subsystem": "ai"
       },
+      "automation_rules": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "automation_rules",
+        "sole_writer": {
+          "$ref": "engine:automation.store"
+        },
+        "subsystem": "automation"
+      },
       "binding_audit_log": {
         "checkpoint_class": "ledger",
         "invariant_tag": "binding_audit_log",
@@ -15133,6 +15332,14 @@
           "$ref": "engine:governance.store"
         },
         "subsystem": "governance"
+      },
+      "command_routing_policy": {
+        "checkpoint_class": "aggregate",
+        "invariant_tag": "command_routing_policy",
+        "sole_writer": {
+          "$ref": "engine:server_management.routing_store"
+        },
+        "subsystem": "server_management"
       },
       "counting_state": {
         "checkpoint_class": "aggregate",
@@ -16493,7 +16700,8 @@
               "placeholder": "Choose a cog… — page 1/3",
               "selector_id": "cogmgr_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -17649,7 +17857,8 @@
               "placeholder": "Edit a setting…",
               "selector_id": "edit_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -17718,7 +17927,8 @@
               "placeholder": "Reset a setting to its default…",
               "selector_id": "reset_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -18692,7 +18902,8 @@
               "placeholder": "Pick a new value…",
               "selector_id": "enum_value",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -18865,7 +19076,8 @@
               "placeholder": "Pick a channel to configure…",
               "selector_id": "policy_channel_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -18944,7 +19156,8 @@
               "placeholder": "Pick a category to configure…",
               "selector_id": "policy_category_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19023,7 +19236,8 @@
               "placeholder": "Pick a role to configure…",
               "selector_id": "policy_role_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19100,7 +19314,8 @@
               "placeholder": "Pick a channel to preview…",
               "selector_id": "policy_preview_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19515,7 +19730,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "behavior_channel_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19594,7 +19810,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "behavior_category_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19671,7 +19888,8 @@
               "placeholder": "Pick a channel to preview…",
               "selector_id": "behavior_preview_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19750,7 +19968,8 @@
               "placeholder": "Pick a preset…",
               "selector_id": "behavior_preset_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19827,7 +20046,8 @@
               "placeholder": "Pick a channel to preview routing for…",
               "selector_id": "behavior_matrix_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19906,7 +20126,8 @@
               "placeholder": "Pick an orchestration profile…",
               "selector_id": "tools_guild_profile_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -19983,7 +20204,8 @@
               "placeholder": "Pick a channel to configure…",
               "selector_id": "tools_channel_scope_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20062,7 +20284,8 @@
               "placeholder": "Pick a category to configure…",
               "selector_id": "tools_category_scope_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20137,7 +20360,8 @@
               "placeholder": "Pick an orchestration profile…",
               "selector_id": "tools_profile_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20214,7 +20438,8 @@
               "placeholder": "Pick a channel to preview…",
               "selector_id": "tools_preview_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -20740,6 +20965,46 @@
             "$ref": "engine:ai.policy_store"
           },
           "table": "ai_instruction_profile",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
+      "version": 1,
+      "wizard_sections": []
+    },
+    "automation": {
+      "capabilities": [],
+      "commands": [],
+      "data_invariants": [],
+      "events": [],
+      "key": "automation",
+      "panels": [],
+      "settings": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:automation.tombstone_rule_creator"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "automation_rules",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:automation.store"
+          },
+          "table": "automation_rules",
           "upcast_ref": null,
           "version_policy": "reject_and_preserve"
         }
@@ -24108,16 +24373,34 @@
               "co_use_group": "",
               "confirm": null,
               "custom_id_override": "",
-              "defer_mode": "auto",
+              "defer_mode": "modal",
               "destructive": false,
               "emoji": "🛡️",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:btd6.ctteam_set_pending"
+                "$ref": "handler:btd6.ctteam_set_submit"
               },
               "label": "Set CT team…",
-              "modal": null,
-              "reply_visibility": null,
+              "modal": {
+                "fields": [
+                  {
+                    "default": "",
+                    "field_id": "raw",
+                    "label": "CT bracket URL or id",
+                    "max_length": 200,
+                    "min_length": null,
+                    "placeholder": "https://…/leaderboard/group/<id> or the bare id",
+                    "required": true,
+                    "style": "short"
+                  }
+                ],
+                "modal_id": "btd6.ctteam_set_form",
+                "on_submit": {
+                  "$ref": "handler:btd6.ctteam_set_submit"
+                },
+                "title": "Set CT team"
+              },
+              "reply_visibility": "ephemeral",
               "result_card": null,
               "result_render": "result_card",
               "slash_common": false,
@@ -24168,6 +24451,104 @@
           "subsystem": "btd6",
           "timeout_s": 180,
           "title": "🛡️ BTD6 — Your CT Team",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "confirm",
+              "audience_tier": "staff",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ctteam_confirm_submit"
+              },
+              "label": "Confirm",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "cancel",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:btd6.ctteam_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped CTGroupConfirmView (views/btd6/ct_group_flow.py): author-locked Confirm/Cancel on discord.py auto-minted ids over the preview embed's ` • ctx=btd6_ct:confirm` footer — the Confirm callback re-checks Manage Server at execution time (views rule → the action's staff tier + the op's staff floor); golden-UNPINNED (no golden drives the guided flow).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "confirm",
+                    "cancel"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "btd6.ctteam_confirm",
+          "renderer_override": {
+            "$ref": "handler:btd6.render_ctteam_confirm"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "btd6",
+          "timeout_s": 180,
+          "title": "🛡️ BTD6 — Confirm CT team",
           "usage_weight": 1.0
         },
         {
@@ -24611,7 +24992,8 @@
               "placeholder": "Choose a paragon…",
               "selector_id": "paragon",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -24650,7 +25032,8 @@
               "placeholder": "Players…",
               "selector_id": "players",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -24689,7 +25072,8 @@
               "placeholder": "Difficulty…",
               "selector_id": "difficulty",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -24718,7 +25102,8 @@
               "placeholder": "Extra T5s…",
               "selector_id": "tier5",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -24877,7 +25262,8 @@
               "placeholder": "Strategy…",
               "selector_id": "solve_strategy",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -25076,7 +25462,8 @@
               "placeholder": "Pick a degree…",
               "selector_id": "degree_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27102,7 +27489,8 @@
               "placeholder": "Pick one or more channel names…",
               "selector_id": "create_names",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -27122,7 +27510,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "create_category",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27256,7 +27645,8 @@
               "placeholder": "Select one or more channels to delete…",
               "selector_id": "delete_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27412,7 +27802,8 @@
               "placeholder": "Select one or more channels to manage…",
               "selector_id": "restrict_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27597,7 +27988,8 @@
               "placeholder": "Select channels to move / reorder…",
               "selector_id": "move_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -27617,7 +28009,8 @@
               "placeholder": "Destination category (for Move)…",
               "selector_id": "move_category",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -27745,7 +28138,8 @@
               "placeholder": "Select one or more channels to configure…",
               "selector_id": "visibility_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29078,7 +29472,8 @@
               "placeholder": "Edit a setting…",
               "selector_id": "edit_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -29102,7 +29497,8 @@
               "placeholder": "Reset a setting to its default…",
               "selector_id": "reset_setting",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29513,7 +29909,8 @@
               "placeholder": "Pick a scope to set cleanup for…",
               "selector_id": "cl_pol_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29588,7 +29985,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "cl_pol_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29665,7 +30063,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "cl_pol_category",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29740,7 +30139,8 @@
               "placeholder": "Pick a cleanup level…",
               "selector_id": "cl_pol_level",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -29850,7 +30250,8 @@
               "placeholder": "Delete after…",
               "selector_id": "cl_pol_after",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -29870,7 +30271,8 @@
               "placeholder": "Delete invalid commands?",
               "selector_id": "cl_pol_invalid",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -29890,7 +30292,8 @@
               "placeholder": "Delete failed commands?",
               "selector_id": "cl_pol_failed",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -30073,7 +30476,8 @@
               "placeholder": "Pick a policy to remove…",
               "selector_id": "cl_pol_remove_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -30802,7 +31206,8 @@
               "placeholder": "Choose a game leaderboard…",
               "selector_id": "game_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -31628,7 +32033,8 @@
               "placeholder": "Select a channel to manage…",
               "selector_id": "counting_pick_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -31648,7 +32054,8 @@
               "placeholder": "Enable counting here — pick a mode…",
               "selector_id": "counting_enable_mode",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -32527,7 +32934,8 @@
               "placeholder": "Choose a trainer to battle…",
               "selector_id": "challenge_opponent",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -34616,7 +35024,8 @@
               "placeholder": "Runtime / status…",
               "selector_id": "pf_runtime",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -34636,7 +35045,8 @@
               "placeholder": "Catalogues…",
               "selector_id": "pf_catalogues",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -34656,7 +35066,8 @@
               "placeholder": "Resources / rollout…",
               "selector_id": "pf_resources",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -34676,7 +35087,8 @@
               "placeholder": "Validation…",
               "selector_id": "pf_validation",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -34852,7 +35264,8 @@
               "placeholder": "Choose a flag…",
               "selector_id": "pf_flag_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35026,7 +35439,8 @@
               "placeholder": "Pick a rule…",
               "selector_id": "pf_auto_rule",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35711,7 +36125,8 @@
               "placeholder": "Choose a job to work…",
               "selector_id": "job_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -35787,7 +36202,8 @@
               "placeholder": "Select an item to buy…",
               "selector_id": "item_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -37738,7 +38154,8 @@
               "placeholder": "Buy a pack of bait…",
               "selector_id": "bs_buy",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -37787,7 +38204,8 @@
               "placeholder": "Craft a pack from caught fish…",
               "selector_id": "bs_craft",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "user",
@@ -37812,7 +38230,8 @@
               "placeholder": "Craft a pack from pearls…",
               "selector_id": "bs_pearl",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -39603,7 +40022,8 @@
               "placeholder": "🏆 Competitive — pick the enabled games…",
               "selector_id": "pick_competitive",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -39623,7 +40043,8 @@
               "placeholder": "🎲 Activities — pick the enabled games…",
               "selector_id": "pick_activities",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -41417,7 +41838,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -41713,7 +42135,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -41836,7 +42259,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -42100,7 +42524,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -42505,7 +42930,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -42957,7 +43383,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43174,7 +43601,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43689,7 +44117,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43859,7 +44288,8 @@
               "placeholder": "Pick a feature for its full command list…",
               "selector_id": "feature_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -43933,7 +44363,8 @@
               "placeholder": "Pick a category…",
               "selector_id": "category_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -44224,7 +44655,8 @@
               "placeholder": "Pick a hub to edit…",
               "selector_id": "eph_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -44352,7 +44784,8 @@
               "placeholder": "Pick a subsystem to edit…",
               "selector_id": "eps_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -46464,7 +46897,8 @@
               "placeholder": "Choose a leaderboard category…",
               "selector_id": "category_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -47120,7 +47554,8 @@
               "placeholder": "Choose a route…",
               "selector_id": "select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -47218,7 +47653,8 @@
               "placeholder": "Pick the log channel…",
               "selector_id": "pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -48617,7 +49053,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.grid_view_pending"
+                "$ref": "panel:mining.grid"
               },
               "label": "⛏️ Mine",
               "modal": null,
@@ -48767,7 +49203,7 @@
               "emoji": "",
               "flow_stage": 0,
               "handler": {
-                "$ref": "handler:mining.how_to_pending"
+                "$ref": "panel:mining.howto"
               },
               "label": "📖 How-to",
               "modal": null,
@@ -48836,6 +49272,322 @@
           "subsystem": "mining",
           "timeout_s": 180,
           "title": "⛏️ Mining Hub",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "gr_north",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_north"
+              },
+              "label": "⛏️ North",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_west",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_west"
+              },
+              "label": "⛏️ West",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_east",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_east"
+              },
+              "label": "⛏️ East",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_south",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_south"
+              },
+              "label": "⛏️ South",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_down",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_down"
+              },
+              "label": "⛏️ Deeper",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_up",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:mining.gr_up"
+              },
+              "label": "⛏️ Up",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "success",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "gr_menu",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Menu",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "Roam the underground — every ⛏️ dig moves you one cell and mines it."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped navigator embed is fully live-state-parameterized (views/mining/grid_mine_view.py build_grid_embed): the note+describe_cell DESCRIPTION, the 📍 Depth / 🧭 Position / ⚡ Energy / 🌐 World seed inline FIELDS, the fog-of-war 🗺️ Map code block + legend, the dig-note COLOR swap (MINING/SUCCESS/ERROR — the shipped _rerender color parameter, rendered as the green/red style tokens), and the shipped footer literal — all read-parameterized state outside the static TextBlock/FieldsBlock vocabulary (the mining hub/home live-overview precedent). Every component stays grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "gr_north"
+                  ],
+                  [
+                    "gr_west",
+                    "gr_east"
+                  ],
+                  [
+                    "gr_south"
+                  ],
+                  [
+                    "gr_down",
+                    "gr_up"
+                  ],
+                  [
+                    "gr_menu"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": true,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "mining.grid",
+          "renderer_override": {
+            "$ref": "handler:mining.render_grid"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 120,
+          "title": "⛏️ Mine",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "hw_hub",
+              "audience_tier": "user",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "panel:mining.hub"
+              },
+              "label": "↩ Mining Hub",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [
+            {
+              "text": "New to mining? Here's the whole loop in one screen.\n\n**1. ⛏️ Mine** — open the grid and roam the underground with the movement buttons, then **Mine here** to dig the ore under you. Deeper depths hold richer ore (and need a better 💡 light to see — grab a torch, then a lantern).\n**2. 🌲 Harvest** — chop wood, the basic crafting material. No tools needed.\n**3. 🧰 Gear** — equip your best tool, light, and combat gear. **Equip Best** does it in one click; matching set pieces give a bonus.\n**4. 🔨 Workshop** — turn raw resources into better gear and structures: **Craft** (build it), **Repair** (worn tools), **🔥 Forge** (gates the top gear tiers), **🛒 Market** (buy/sell).\n**5. 🧍 Character** — everything about you: **Inventory** · **Stats** · **🌳 Skills** (spend points to specialize) · **🏦 Vault** (stash loot safely, off your pack) · **🏠 Home**.\n\n**Watch your 🎒 pack** — it holds a limited number of *item types*; sell or vault what you don't need. **Watch durability** — tools wear down and break; repair or re-craft them at the Workshop. Level up by mining and harvesting to unlock deeper ladders and skill points."
+            }
+          ],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "dark_grey",
+            "thumbnail_ref": ""
+          },
+          "justification": "one shipped surface sits outside the grammar's vocabulary: the FOOTER is the shared invoker-lock literal 'Only you can interact with this panel.' (build_how_to_embed set_footer) — outside FooterMode's vocabulary (the mining-hub/games/community precedent). Title, description, color and the back button stay grammar-rendered.",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "hw_hub"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "mining.howto",
+          "renderer_override": {
+            "$ref": "handler:mining.render_howto"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "mining",
+          "timeout_s": 180,
+          "title": "📖 How mining works",
           "usage_weight": 1.0
         },
         {
@@ -49569,7 +50321,8 @@
               "placeholder": "Craft gear from resources…",
               "selector_id": "ws_craft",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -53516,7 +54269,8 @@
               "placeholder": "Quick play — choose your move",
               "selector_id": "rps_quick_move",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -55429,7 +56183,8 @@
               "placeholder": "Simulate audience…",
               "selector_id": "am_tier",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -55449,7 +56204,8 @@
               "placeholder": "Inspect a feature's source chain…",
               "selector_id": "am_feature",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -55527,7 +56283,8 @@
               "placeholder": "Simulate audience…",
               "selector_id": "hp_tier",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": false,
@@ -55538,7 +56295,36 @@
         }
       ],
       "settings": [],
-      "stores": [],
+      "stores": [
+        {
+          "active_rows_ref": null,
+          "bears_value": false,
+          "cache_scope": null,
+          "checkpoint_class": "aggregate",
+          "compensation_ref": null,
+          "data_class": "member_id",
+          "erasure_ref": {
+            "$ref": "workflow:routing.tombstone_policy_actor"
+          },
+          "forward_map_kind": "name_stable",
+          "invariant_tag": "command_routing_policy",
+          "is_cache": false,
+          "payload_version": 1,
+          "reader_domains": [
+            "server_management",
+            "diagnostics"
+          ],
+          "replay_intent": false,
+          "retention": "permanent",
+          "retire_ref": null,
+          "sole_writer": {
+            "$ref": "engine:server_management.routing_store"
+          },
+          "table": "command_routing_policy",
+          "upcast_ref": null,
+          "version_policy": "reject_and_preserve"
+        }
+      ],
       "version": 1,
       "wizard_sections": []
     },
@@ -56002,7 +56788,8 @@
               "placeholder": "Open a settings group…",
               "selector_id": "subsystem_select",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -56339,7 +57126,8 @@
               "placeholder": "Choose a subsystem… — page 1/2",
               "selector_id": "subsystem",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "administrator",
@@ -56374,7 +57162,8 @@
               "placeholder": "Choose a scope…",
               "selector_id": "select_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -56889,7 +57678,8 @@
               "placeholder": "Set allowed channels (selected_channels mode)…",
               "selector_id": "ca_channels",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -57490,7 +58280,8 @@
               "placeholder": "What kind of server is this?",
               "selector_id": "essential_kind",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -58843,7 +59634,8 @@
               "placeholder": "Where should the welcome message appear?",
               "selector_id": "greet_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -58861,7 +59653,8 @@
               "placeholder": "Give newcomers a role (optional)…",
               "selector_id": "greet_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59037,7 +59830,8 @@
               "placeholder": "Which role can warn and remove people?",
               "selector_id": "mods_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59187,7 +59981,8 @@
               "placeholder": "What should I clean up? (all on by default)",
               "selector_id": "spam_filters",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59397,7 +60192,8 @@
               "placeholder": "What should the activity channel log?",
               "selector_id": "log_activity",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59415,7 +60211,8 @@
               "placeholder": "Moderation log channel (or leave empty)…",
               "selector_id": "log_mod_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59433,7 +60230,8 @@
               "placeholder": "Activity log channel (or leave empty)…",
               "selector_id": "log_activity_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59586,7 +60384,8 @@
               "placeholder": "How fast should members earn XP?",
               "selector_id": "reward_rate",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59606,7 +60405,8 @@
               "placeholder": "Give a role as a reward for… (optional)",
               "selector_id": "reward_types",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59806,7 +60606,8 @@
               "placeholder": "Where should the reward role come from?",
               "selector_id": "reward_source",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59826,7 +60627,8 @@
               "placeholder": "Name for the new role…",
               "selector_id": "reward_name",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -59844,7 +60646,8 @@
               "placeholder": "Pick the role to grant…",
               "selector_id": "reward_existing",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -59995,7 +60798,8 @@
               "placeholder": "Who answers support requests? (staff role)",
               "selector_id": "helpdesk_staff",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60013,7 +60817,8 @@
               "placeholder": "Where to save closed-request logs? (optional)",
               "selector_id": "helpdesk_log",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60166,7 +60971,8 @@
               "placeholder": "Where can people use commands?",
               "selector_id": "cmd_mode",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60184,7 +60990,8 @@
               "placeholder": "Pick the channels where commands should work…",
               "selector_id": "cmd_channels",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60710,7 +61517,8 @@
               "placeholder": "Jump to section…",
               "selector_id": "wiz_jump",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -60959,7 +61767,8 @@
               "placeholder": "Pick a binding to set…",
               "selector_id": "channels_binding",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -60977,7 +61786,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "channels_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -61044,7 +61854,8 @@
               "placeholder": "Pick a preset…",
               "selector_id": "preset_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -61753,7 +62564,8 @@
               "placeholder": "DM the member on action…",
               "selector_id": "mod_dm",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -61773,7 +62585,8 @@
               "placeholder": "Require a reason for warn / kick / ban…",
               "selector_id": "mod_reason",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -61793,7 +62606,8 @@
               "placeholder": "Warn escalation action…",
               "selector_id": "mod_escalation",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -61811,7 +62625,8 @@
               "placeholder": "Moderator role (optional — grants moderation access)…",
               "selector_id": "mod_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -62066,7 +62881,8 @@
               "placeholder": "Pick a scope to set cleanup for…",
               "selector_id": "cleanup_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62086,7 +62902,8 @@
               "placeholder": "Apply a cleanup profile (batch action)…",
               "selector_id": "cleanup_profile",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62104,7 +62921,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "cleanup_target",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62124,7 +62942,8 @@
               "placeholder": "Pick the server-wide level…",
               "selector_id": "cleanup_level",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -62461,7 +63280,8 @@
               "placeholder": "Time tier: pick a role to grant after N days…",
               "selector_id": "roles_time_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -62479,7 +63299,8 @@
               "placeholder": "XP tier: pick a role to grant at a level…",
               "selector_id": "roles_xp_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -62753,7 +63574,8 @@
               "placeholder": "Pick a role template to preview…",
               "selector_id": "tmpl_pick",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -63060,7 +63882,8 @@
               "placeholder": "Pick a scope…",
               "selector_id": "routing_scope",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -63080,7 +63903,8 @@
               "placeholder": "Apply a routing profile (batch action)…",
               "selector_id": "routing_profile",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -63098,7 +63922,8 @@
               "placeholder": "Pick a channel…",
               "selector_id": "routing_target",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "",
@@ -63118,13 +63943,234 @@
               "placeholder": "Pick a cog…",
               "selector_id": "routing_cog",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": true
             }
           ],
           "session_lifecycle": true,
           "subsystem": "setup",
           "timeout_s": 180,
           "title": "🧭 Cog routing",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [
+            {
+              "action_id": "recovery_continue",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:continue",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_continue"
+              },
+              "label": "Continue",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "primary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_retry_step",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:retry",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_retry"
+              },
+              "label": "Retry",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_skip_section",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:skip",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_skip"
+              },
+              "label": "Skip section",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_customize",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:customize",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_customize"
+              },
+              "label": "Customize",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "secondary",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            },
+            {
+              "action_id": "recovery_cancel_view",
+              "audience_tier": "",
+              "audit": "",
+              "capability_required": "",
+              "co_use_group": "",
+              "confirm": null,
+              "custom_id_override": "setup_recovery:cancel",
+              "defer_mode": "auto",
+              "destructive": false,
+              "emoji": "",
+              "flow_stage": 0,
+              "handler": {
+                "$ref": "handler:setup.section_recovery_cancel"
+              },
+              "label": "Cancel",
+              "modal": null,
+              "reply_visibility": null,
+              "result_card": null,
+              "result_render": "result_card",
+              "slash_common": false,
+              "style": "danger",
+              "usage_weight": 1.0,
+              "visible_when": ""
+            }
+          ],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "gold",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped recovery card is context-parameterized end to end (the Step i/N title, the section-label description, the What happened / Why / Recommended / If skipped fields — recovery.build_recovery_embed) and its Customize button is section-dependent (disabled unless the section declares a recommended builder or op_kinds — SectionRecoveryView._populate_buttons); both outside the static grammar vocabulary. The override renders through the grammar, composes the embed and flips the Customize disable (no golden pins this panel — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": [
+                  [
+                    "recovery_continue",
+                    "recovery_retry_step",
+                    "recovery_skip_section"
+                  ],
+                  [
+                    "recovery_customize",
+                    "recovery_cancel_view"
+                  ]
+                ]
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.section_recovery",
+          "renderer_override": {
+            "$ref": "handler:setup.section_recovery_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "⚠️ Setup issue found",
+          "usage_weight": 1.0
+        },
+        {
+          "actions": [],
+          "anchor_policy": "reply",
+          "audience": "invoker",
+          "body": [],
+          "co_open_group": "",
+          "frame": {
+            "alt_text": "",
+            "field_budget_chars": 1024,
+            "footer_mode": "none",
+            "max_fields": 25,
+            "style_token": "green",
+            "thumbnail_ref": ""
+          },
+          "justification": "the shipped notices are per-event embeds built at the push site (wizard._on_apply_recommended's '✅ Recommended staged' record, hub's '⚠️ Section failed' record — views/setup/_anchor.push_setup_notice took a prebuilt discord.Embed); title, description and accent are post-parameterized, outside the static grammar vocabulary. Zero components; the renderer only composes the embed (no golden pins a notice — the oracle source does).",
+          "layout": {
+            "pages": [
+              {
+                "rows": []
+              }
+            ]
+          },
+          "legacy_view": null,
+          "navigation": {
+            "extra_routes": [],
+            "home_hub": "__follow_parent__",
+            "parent": null,
+            "show_help": false,
+            "show_home": false,
+            "show_rules": false
+          },
+          "panel_id": "setup.workspace_notice",
+          "renderer_override": {
+            "$ref": "handler:setup.workspace_notice_render"
+          },
+          "selectors": [],
+          "session_lifecycle": true,
+          "subsystem": "setup",
+          "timeout_s": 180,
+          "title": "🛰 Setup notice",
           "usage_weight": 1.0
         }
       ],
@@ -63587,7 +64633,8 @@
               "placeholder": "Set the hall-of-fame channel…",
               "selector_id": "starboard_pick_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -63605,7 +64652,8 @@
               "placeholder": "Toggle an ignored channel…",
               "selector_id": "starboard_toggle_ignore",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,
@@ -64348,7 +65396,8 @@
               "placeholder": "Staff role (required) — who handles tickets…",
               "selector_id": "setup_staff_role",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             },
             {
               "audience_tier": "staff",
@@ -64366,7 +65415,8 @@
               "placeholder": "Transcript log channel (optional)…",
               "selector_id": "setup_log_channel",
               "slash_common": false,
-              "usage_weight": 1.0
+              "usage_weight": 1.0,
+              "windowed": false
             }
           ],
           "session_lifecycle": true,

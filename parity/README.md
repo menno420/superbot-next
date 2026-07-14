@@ -76,9 +76,8 @@ day one (design spec §6).
   `created_at`/cooldown buckets from ids, so time IS the id).
 - `time.time` is pinned to the logical clock inside the harness process
   (services stamp it into rows/branches — the XP throttle class).
-- Per-case: global RNG seeded, module singletons reset via the suite's
-  canonical `tests/_isolation.py` registry, database truncated with
-  identity restart, fixtures re-applied.
+- Per-case: global RNG seeded, database truncated with identity restart,
+  fixtures re-applied.
 - Run-minted ids/`custom_id`s normalize to first-appearance symbolic refs
   (`<msg:1>`, `<cid:1>`); world constants to names (`<#general>`,
   `<@member>`); known-volatile values (timestamps, uuids, nonces) scrub to

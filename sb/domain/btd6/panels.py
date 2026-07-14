@@ -13,7 +13,9 @@ presentation panels.
 * ``btd6.card`` — the generic one-embed reply card every `!btd6 <sub>`
   command presents through (the shipped ``ctx.send(embed=…)``).
 * ``btd6.ctteam`` — the CT-team view + the shipped "Set CT team…" button
-  (session-minted id — the golden's ``<cid:1>``), staff-visible only.
+  (session-minted id — the golden's ``<cid:1>``), staff-visible only;
+  ARMED: the button opens the guided-flow modal over the
+  ``btd6.ctteam_confirm`` preview+confirm page (sb/domain/btd6/ct_team.py).
 
 Click routes are golden-UNPINNED (no btd6 golden drives a click): Ask /
 Units / Rounds open the G-10 lookup modals over the reference views;
@@ -329,8 +331,28 @@ def strategy_submit_spec() -> PanelSpec:
     )
 
 
+#: The shipped CTGroupFlowModal, field for field (ORACLE disbot
+#: views/btd6/ct_group_flow.py @9c16365) — step 1 of the guided CT-team
+#: flow (Q-0064: URL/id → parse → preview → confirm).
+CTTEAM_SET_MODAL = ModalSpec(
+    modal_id="btd6.ctteam_set_form",
+    title="Set CT team",
+    fields=(
+        ModalFieldSpec(
+            field_id="raw", label="CT bracket URL or id",
+            placeholder="https://…/leaderboard/group/<id> or the bare id",
+            required=True, max_length=200),
+    ),
+    on_submit=HandlerRef("btd6.ctteam_set_submit"),
+)
+
+
 def ctteam_spec() -> PanelSpec:
-    """The CT-team view + the shipped staff-only 'Set CT team…' button."""
+    """The CT-team view + the shipped staff-only 'Set CT team…' button —
+    ARMED (the `btd6.ctteam_set_pending` terminal retired, curation
+    report 2026-07-13 row 2): the button opens the shipped
+    ``CTGroupFlowModal`` over the preview+confirm page
+    (sb/domain/btd6/ct_team.py; deviations ledgered there)."""
     return PanelSpec(
         panel_id="btd6.ctteam",
         subsystem="btd6",
@@ -341,7 +363,9 @@ def ctteam_spec() -> PanelSpec:
             PanelActionSpec(
                 action_id="set_team", label="Set CT team…", emoji="🛡️",
                 style=ActionStyle.PRIMARY, audience_tier="staff",
-                handler=HandlerRef("btd6.ctteam_set_pending"),
+                defer_mode=DeferMode.MODAL, modal=CTTEAM_SET_MODAL,
+                reply_visibility=ReplyVisibility.EPHEMERAL,
+                handler=HandlerRef("btd6.ctteam_set_submit"),
                 result_render=ResultRender.RESULT_CARD),
         ),
         navigation=NavigationSpec(show_help=False, show_home=False),
@@ -354,6 +378,44 @@ def ctteam_spec() -> PanelSpec:
             "<cid:1> mix) — the renderer gates the button on the opener's "
             "operator fact and delegates minting to the session engine."),
         layout=LayoutSpec(pages=(PageSpec(rows=(("set_team",),)),)),
+    )
+
+
+def ctteam_confirm_spec() -> PanelSpec:
+    """The guided flow's preview+confirm step (the shipped
+    ``CTGroupConfirmView``, author-locked 180s): Confirm commits the ONE
+    audited ``btd6.set_ct_team`` write, Cancel discards. A session view
+    (never anchored; run-minted ids) — the parsed id rides the session
+    args (``ct_group_id``), the cleanup policy-flow state carrier."""
+    return PanelSpec(
+        panel_id="btd6.ctteam_confirm",
+        subsystem="btd6",
+        title="🛡️ BTD6 — Confirm CT team",
+        audience=Audience.INVOKER,
+        frame=EmbedFrameSpec(style_token="gold", footer_mode=FooterMode.NONE),
+        actions=(
+            PanelActionSpec(
+                action_id="confirm", label="Confirm",
+                style=ActionStyle.SUCCESS, audience_tier="staff",
+                handler=HandlerRef("btd6.ctteam_confirm_submit"),
+                result_render=ResultRender.RESULT_CARD),
+            PanelActionSpec(
+                action_id="cancel", label="Cancel",
+                style=ActionStyle.SECONDARY, audience_tier="user",
+                handler=HandlerRef("btd6.ctteam_cancel"),
+                result_render=ResultRender.RESULT_CARD),
+        ),
+        navigation=NavigationSpec(show_help=False, show_home=False),
+        session_lifecycle=True,
+        renderer_override=HandlerRef("btd6.render_ctteam_confirm"),
+        justification=(
+            "the shipped CTGroupConfirmView (views/btd6/ct_group_flow.py): "
+            "author-locked Confirm/Cancel on discord.py auto-minted ids "
+            "over the preview embed's ` • ctx=btd6_ct:confirm` footer — "
+            "the Confirm callback re-checks Manage Server at execution "
+            "time (views rule → the action's staff tier + the op's staff "
+            "floor); golden-UNPINNED (no golden drives the guided flow)."),
+        layout=LayoutSpec(pages=(PageSpec(rows=(("confirm", "cancel"),)),)),
     )
 
 
@@ -604,7 +666,7 @@ async def _render_card(spec: PanelSpec, ctx) -> object:
 
 
 async def _render_ctteam(spec: PanelSpec, ctx) -> object:
-    from sb.domain.btd6 import oracle_cards
+    from sb.domain.btd6 import ct_team, oracle_cards
     from sb.kernel.panels.render import RenderedComponent, RenderedPanel
 
     components = ()
@@ -613,12 +675,30 @@ async def _render_ctteam(spec: PanelSpec, ctx) -> object:
             kind="button", custom_id=f"{spec.panel_id}.set_team",
             label="Set CT team…", row=0, style=ActionStyle.PRIMARY.value,
             emoji="🛡️"),)
+    # the configured pointer (build_ct_team_embed's read); "" (the
+    # golden-pinned unset copy, sweep_btd6_ctteam) on unset OR on a
+    # presentation-lane read failure — the view never requires the DB.
+    group_id = await ct_team.team_group_id_or_empty(ctx.guild_id)
     return RenderedPanel(
-        panel_id=spec.panel_id, embed=oracle_cards.ctteam_card(),
+        panel_id=spec.panel_id, embed=oracle_cards.ctteam_card(group_id),
         components=components,
         invoker_lock=getattr(ctx.actor, "user_id", None),
         timeout_s=spec.timeout_s, audience=spec.audience.value,
         anchor_policy=spec.anchor_policy.value)
+
+
+async def _render_ctteam_confirm(spec: PanelSpec, ctx) -> object:
+    """The preview+confirm step (build_ct_preview_embed over the grammar-
+    rendered Confirm/Cancel row): the current → new pointer change plus
+    the D-0046 no-active-event preview byte."""
+    from sb.domain.btd6 import ct_team, oracle_cards
+    from sb.kernel.panels.render import render_panel
+
+    rendered = await render_panel(spec, ctx)
+    group_id = str((ctx.params or {}).get("ct_group_id") or "")
+    current = await ct_team.team_group_id_or_empty(ctx.guild_id)
+    return _dc_replace(
+        rendered, embed=oracle_cards.ctteam_confirm_card(current, group_id))
 
 
 # --- registration --------------------------------------------------------------
@@ -628,6 +708,7 @@ _SPECS = {
     "btd6.hub": btd6_hub_spec,
     "btd6.card": card_spec,
     "btd6.ctteam": ctteam_spec,
+    "btd6.ctteam_confirm": ctteam_confirm_spec,
     "btd6.strategy_submit": strategy_submit_spec,
     "btd6.paragon": paragon_spec,
     "btd6.paragon_requirements": paragon_requirements_spec,
@@ -638,6 +719,7 @@ _RENDERERS = {
     "btd6.render_hub": _render_hub,
     "btd6.render_card": _render_card,
     "btd6.render_ctteam": _render_ctteam,
+    "btd6.render_ctteam_confirm": _render_ctteam_confirm,
     # btd6.render_paragon + btd6.render_paragon_requirements register at
     # sb/domain/btd6/paragon_panel.py import (with the armed handlers).
 }
@@ -646,8 +728,10 @@ _RENDERERS = {
 def _register_refs() -> None:
     from sb.spec.refs import handler
 
+    from sb.domain.btd6 import ct_team as _ct
     from sb.domain.btd6 import paragon_panel as _pp
 
+    _ct.ensure_ct_team_refs()
     _pp.ensure_paragon_refs()
     for pid, factory in _SPECS.items():
         if not is_registered(PanelRef(pid)):

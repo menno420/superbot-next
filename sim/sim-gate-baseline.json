@@ -4982,6 +4982,88 @@
    },
    "value": 0
   },
+  "mining:mining.grid:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/grid_mine_view.py MineGridView button arrangement (north \u00b7 west/east \u00b7 south \u00b7 deeper/up \u00b7 menu) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "gr_north"
+      ],
+      [
+       "gr_west",
+       "gr_east"
+      ],
+      [
+       "gr_south"
+      ],
+      [
+       "gr_down",
+       "gr_up"
+      ],
+      [
+       "gr_menu"
+      ]
+     ]
+    }
+   ]
+  },
+  "mining:mining.grid:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/grid_mine_view.py MineGridView button arrangement (north \u00b7 west/east \u00b7 south \u00b7 deeper/up \u00b7 menu) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "gr_north"
+    ],
+    [
+     "gr_west",
+     "gr_east"
+    ],
+    [
+     "gr_south"
+    ],
+    [
+     "gr_down",
+     "gr_up"
+    ],
+    [
+     "gr_menu"
+    ]
+   ]
+  },
+  "mining:mining.grid:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the shipped views/mining/grid_mine_view.py MineGridView button arrangement (north \u00b7 west/east \u00b7 south \u00b7 deeper/up \u00b7 menu) carried as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "gr_north"
+       ],
+       [
+        "gr_west",
+        "gr_east"
+       ],
+       [
+        "gr_south"
+       ],
+       [
+        "gr_down",
+        "gr_up"
+       ],
+       [
+        "gr_menu"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "mining:mining.hub:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: mining parity flip carries the shipped ordering/grouping as the seed arrangement (design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
@@ -7744,6 +7826,64 @@
        ],
        [
         "roles_back_step"
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  "setup:setup.section_recovery:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-recovery-view slice carries the shipped SectionRecoveryView ordering/grouping as the seed arrangement (oracle menno420/superbot@bbc524e4 views/setup/recovery.py SectionRecoveryView._populate_buttons: Continue / Retry / Skip section on row=0, Customize / Cancel on row=1; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "recovery_continue",
+       "recovery_retry_step",
+       "recovery_skip_section"
+      ],
+      [
+       "recovery_customize",
+       "recovery_cancel_view"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.section_recovery:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-recovery-view slice carries the shipped SectionRecoveryView ordering/grouping as the seed arrangement (oracle menno420/superbot@bbc524e4 views/setup/recovery.py SectionRecoveryView._populate_buttons: Continue / Retry / Skip section on row=0, Customize / Cancel on row=1; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "recovery_continue",
+     "recovery_retry_step",
+     "recovery_skip_section"
+    ],
+    [
+     "recovery_customize",
+     "recovery_cancel_view"
+    ]
+   ]
+  },
+  "setup:setup.section_recovery:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-recovery-view slice carries the shipped SectionRecoveryView ordering/grouping as the seed arrangement (oracle menno420/superbot@bbc524e4 views/setup/recovery.py SectionRecoveryView._populate_buttons: Continue / Retry / Skip section on row=0, Customize / Cancel on row=1; no golden drives a click on these components \u2014 the oracle source pins the rows; design-spec \u00a79.3 confidence rule \u2014 telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "recovery_continue",
+        "recovery_retry_step",
+        "recovery_skip_section"
+       ],
+       [
+        "recovery_customize",
+        "recovery_cancel_view"
        ]
       ]
      }

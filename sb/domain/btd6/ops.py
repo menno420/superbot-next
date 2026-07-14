@@ -9,6 +9,9 @@
   the mutation is audited like any other write).
 * ``btd6.scrub_strategy_submitter`` — the MEMBER_PII erasure body
   (anonymize, row retained — shipped identity-state transition).
+* ``btd6.set_ct_team`` — the guided `!btd6 ctteam` set/clear commit
+  (legacy-KV ``guild_settings.btd6_ct_group_id``, the
+  ``btd6.set_announce_channel`` twin; flow in sb/domain/btd6/ct_team.py).
 * ``btd6.seed_data`` — the `!btd6 ops seed-data` / `!btd6ops seed-data`
   admin terminal: upsert every committed data file (+ the stats tree)
   into ``btd6_data_blobs``, sha256 over the canonical JSON dump (the
@@ -125,6 +128,32 @@ async def _record_announce_channel(conn, ctx: WorkflowContext) -> LegOutcome:
         after={"key": ANNOUNCE_CHANNEL_KEY, "value": value})
 
 
+#: the shipped legacy-KV settings key (utils/settings_keys/btd6.py
+#: BTD6_CT_GROUP_ID, verbatim — sb/domain/btd6/ct_team.py CT_GROUP_KEY is
+#: the read-side twin).
+CT_GROUP_KEY = "btd6_ct_group_id"
+
+
+@workflow("btd6.record_ct_team")
+async def _record_ct_team(conn, ctx: WorkflowContext) -> LegOutcome:
+    """The guided `!btd6 ctteam` set/clear commit — the shipped
+    guild_settings KV upsert (btd6_ct_team_service.set_team_group_id
+    wrote the parsed id; clear_team_group_id wrote value "" — the
+    btd6.record_announce_channel twin lane)."""
+    from sb.kernel.db.pool import execute
+
+    uid, gid = _ids(ctx)
+    value = str(ctx.params.get("group_id") or "")
+    await execute(
+        "INSERT INTO guild_settings (guild_id, key, value) "
+        "VALUES ($1, $2, $3) "
+        "ON CONFLICT (guild_id, key) DO UPDATE SET value = EXCLUDED.value",
+        (gid, CT_GROUP_KEY, value), conn=conn)
+    return LegOutcome(
+        step=StepResult(uid, "ct_team", True), before={},
+        after={"key": CT_GROUP_KEY, "value": value})
+
+
 @workflow("btd6.record_seed_data")
 async def _record_seed_data(conn, ctx: WorkflowContext) -> LegOutcome:
     """The shipped ``seed_postgres_from_files`` write loop as one DB leg
@@ -188,6 +217,11 @@ REVIEW = _op("btd6.review_strategy", "btd6_strategy_reviewed",
              "btd6.record_review_strategy", authority="staff")
 ANNOUNCE = _op("btd6.set_announce_channel", "btd6_announce_channel_set",
                "btd6.record_announce_channel", authority="staff")
+#: authority "staff" — the shipped Manage-Server gate (handle_ctteam /
+#: CTGroupConfirmView re-check `member_has_perms_or_owner(manage_guild)`;
+#: the guild-operator fact is this engine's staff tier).
+CT_TEAM = _op("btd6.set_ct_team", "btd6_ct_team_set",
+              "btd6.record_ct_team", authority="staff")
 #: authority "administrator" — the shipped gate verbatim
 #: (disbot/cogs/btd6_ops_cog.py seed_data_prefix: is_administrator_member
 #: or ADMIN_DENIED; the diagnostic.backfill_dry_run precedent for the
@@ -197,12 +231,13 @@ ANNOUNCE = _op("btd6.set_announce_channel", "btd6_announce_channel_set",
 SEED = _op("btd6.seed_data", "btd6_data_seeded",
            "btd6.record_seed_data", authority="administrator")
 
-_OPS = (SUBMIT, REVIEW, ANNOUNCE, SEED)
+_OPS = (SUBMIT, REVIEW, ANNOUNCE, CT_TEAM, SEED)
 
 _REF_TABLE = (
     ("btd6.record_submit_strategy", _record_submit),
     ("btd6.record_review_strategy", _record_review),
     ("btd6.record_announce_channel", _record_announce_channel),
+    ("btd6.record_ct_team", _record_ct_team),
     ("btd6.record_seed_data", _record_seed_data),
     ("btd6.scrub_strategy_submitter", _scrub_submitter),
 )

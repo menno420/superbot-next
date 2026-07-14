@@ -185,9 +185,14 @@ async def get_catch_log(user_id: int, guild_id: int,
 
 async def top_fishers(guild_id: int, known_species: list[str],
                       limit: int = 10, conn: Any = None) -> list[dict]:
-    """Catalog-scoped totals (a superseded catalog never inflates)."""
+    """Catalog-scoped totals (a superseded catalog never inflates) plus
+    the shipped per-angler unique-species count (``COUNT(*) AS
+    species``, utils/db/games/fishing.py ``top_fishers``: one catch-log
+    row per (user, species), so the group row-count IS the dex breadth
+    the ``!fishtop`` body prints)."""
     rows = await fetchall(
-        "SELECT user_id, COALESCE(SUM(count), 0) AS total FROM "
+        "SELECT user_id, COALESCE(SUM(count), 0) AS total, "
+        "COUNT(*) AS species FROM "
         "fishing_catch_log WHERE guild_id=$1 AND species = ANY($2) "
         "GROUP BY user_id ORDER BY total DESC LIMIT $3",
         (guild_id, known_species, limit), conn=conn)
