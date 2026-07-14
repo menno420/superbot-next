@@ -42,6 +42,7 @@ from sb.domain.setup import cog_routing as _cog_routing
 from sb.domain.setup import essential_steps as _essential_steps
 from sb.domain.setup import final_review as _final_review
 from sb.domain.setup import handlers as _handlers
+from sb.domain.setup import launcher as _launcher
 from sb.domain.setup import logging_presets as _logging_presets
 from sb.domain.setup import moderation as _moderation
 from sb.domain.setup import notices as _notices
@@ -209,7 +210,8 @@ MANIFEST = SubsystemManifest(
             _section_card.card_spec_for("cog_routing"),
             _cog_routing.cog_routing_detail_spec(),
             _recovery.section_recovery_spec(),
-            _notices.workspace_notice_spec()),
+            _notices.workspace_notice_spec(),
+            _launcher.launcher_spec()),
     stores=(_store.SETUP_SESSION_STORE,),
     wizard_sections=SECTIONS,
 )
@@ -220,6 +222,10 @@ _ops.register_ops()
 # registers on the kernel boot-hook registry here — the composition root
 # fires it once RUNNING; no kernel→domain import edge.
 _resume.register_setup_boot_hook()
+# the guild-join seam wiring (night-tail-2): the on-guild-join launcher
+# registers on the kernel guild-events registry here — the live adapter's
+# guild feed dispatches into it; no kernel→domain import edge.
+_launcher.register_guild_join_launcher()
 
 
 def _ensure_refs() -> None:
@@ -246,6 +252,7 @@ def _ensure_refs() -> None:
     _ai_tasks.register_ai_tasks()
     _ops.register_ops()
     _resume.register_setup_boot_hook()
+    _launcher.ensure_launcher_refs()
 
 
 # module-attribute hook convention (D-0026)

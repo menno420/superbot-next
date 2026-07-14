@@ -1018,7 +1018,9 @@ def test_interior_panels_ride_the_manifest():
         "setup.section_cog_routing", "setup.cog_routing_detail",
         # the night-recovery-view slice: the SectionRecoveryView panel
         # + the one-shot durable workspace-notice card.
-        "setup.section_recovery", "setup.workspace_notice"]
+        "setup.section_recovery", "setup.workspace_notice",
+        # the night-tail-2 slice: the on-guild-join launcher card.
+        "setup.launcher"]
     hub = m.MANIFEST.panels[0]
     routes = {a.action_id: a.handler.name for a in hub.actions}
     assert routes == {
