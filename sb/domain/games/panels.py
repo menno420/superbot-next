@@ -120,23 +120,32 @@ _HUB_DESCRIPTION = (
     "Typed shortcuts (e.g. `!blackjack`, `!mine`) still work."
 )
 
-# The shipped registry-discovered child roster as the capture-world PIN
-# (the community COMMUNITY_PRIMARY precedent — the shipped hub grouped
-# utils/subsystem_registry entries by hub_group per render; the
-# declarative spec pins the roster the goldens captured).
+# The hub roster grouped per the casino-section spec taxonomy
+# (docs/specs/casino-section-spec.md §2 — 🎰 casino / 🕹️ arcade / 🌍 world;
+# the ORIGINAL shipped capture-world pin was the oracle's 2-group
+# competitive/activities split, replaced through design §7's single
+# replacement slot). Per-game bytes (key, emoji, display, description,
+# route) are unchanged; the drift-guard test pins agreement with
+# sb/manifest/games.py GAME_SECTIONS both directions.
 # (key, emoji, display, description, ported route)
-GAMES_COMPETITIVE: tuple[tuple[str, str, str, str, object], ...] = (
+GAMES_CASINO: tuple[tuple[str, str, str, str, object], ...] = (
     ("blackjack", "🃏", "Blackjack", "Blackjack card game",
      PanelRef("blackjack.hub")),
     ("casino", "🎰", "Casino", "Group card games like multiplayer poker",
      PanelRef("casino.hub")),
+)
+GAMES_ARCADE: tuple[tuple[str, str, str, str, object], ...] = (
     ("deathmatch", "⚔️", "Deathmatch", "1v1 duel battles",
      PanelRef("deathmatch.hub")),
     ("rps_tournament", "✂️", "Rock Paper Scissors",
      "Rock Paper Scissors: quick play, PvP, bot matches, tournaments",
      PanelRef("rps_tournament.hub")),
+    ("counting", "🔢", "Counting", "Collaborative counting game",
+     PanelRef("counting.hub")),
+    ("chain", "🔗", "Word Chain", "Word-chaining game",
+     PanelRef("chain.hub")),
 )
-GAMES_ACTIVITIES: tuple[tuple[str, str, str, str, object], ...] = (
+GAMES_WORLD: tuple[tuple[str, str, str, str, object], ...] = (
     ("mining", "⛏️", "Mining", "Mining minigame and resource collection",
      PanelRef("mining.hub")),
     ("fishing", "🎣", "Fishing",
@@ -148,11 +157,24 @@ GAMES_ACTIVITIES: tuple[tuple[str, str, str, str, object], ...] = (
     ("farm", "🐔", "Chicken Farm",
      "Idle egg farm — hens lay eggs over time; collect, sell, grow",
      PanelRef("farm.hub")),
-    ("counting", "🔢", "Counting", "Collaborative counting game",
-     PanelRef("counting.hub")),
-    ("chain", "🔗", "Word Chain", "Word-chaining game",
-     PanelRef("chain.hub")),
 )
+#: the three rosters in hub render order (one tuple per section).
+_GAME_ROSTERS = (GAMES_CASINO, GAMES_ARCADE, GAMES_WORLD)
+
+#: the shipped per-button style split — the pre-swap wire bytes
+#: (card games + duels primary, channel/world games success); pinned so
+#: the section regroup moves NO component byte (spec §5.4 restyle skipped).
+_PRIMARY_STYLE_KEYS = frozenset(
+    {"blackjack", "casino", "deathmatch", "rps_tournament"})
+
+#: the hub buttons in the SHIPPED declaration order (the manifest
+#: snapshot pinned this order pre-regroup; the wire rows are pinned by
+#: the hub LayoutSpec) — the section regroup moves catalog FIELDS only.
+_BY_KEY = {entry[0]: entry
+           for roster in _GAME_ROSTERS for entry in roster}
+_HUB_BUTTON_ROSTER = tuple(_BY_KEY[k] for k in (
+    "blackjack", "casino", "deathmatch", "rps_tournament", "mining",
+    "fishing", "creature", "farm", "counting", "chain"))
 
 
 def _catalog_lines(entries) -> str:
@@ -165,7 +187,7 @@ def _catalog_lines(entries) -> str:
 #: descriptions live — GameEntry deliberately carries no blurb, slice 1).
 _GAME_DESCRIPTIONS: dict[str, str] = {
     key: desc
-    for roster in (GAMES_COMPETITIVE, GAMES_ACTIVITIES)
+    for roster in _GAME_ROSTERS
     for key, _emoji, _display, desc, _ref in roster
 }
 
@@ -173,8 +195,9 @@ _GAME_DESCRIPTIONS: dict[str, str] = {
 #: fail-open degradation when enablement cannot be read (D-0082 §6: a
 #: broken read renders today's hub, never a blank one).
 _STATIC_HUB_FIELDS = (
-    ("🏆 Competitive", _catalog_lines(GAMES_COMPETITIVE)),
-    ("🎲 Activities", _catalog_lines(GAMES_ACTIVITIES)),
+    ("🎰 Casino", _catalog_lines(GAMES_CASINO)),
+    ("🕹️ Arcade", _catalog_lines(GAMES_ARCADE)),
+    ("🌍 World", _catalog_lines(GAMES_WORLD)),
 )
 
 
@@ -324,12 +347,17 @@ def games_hub_spec() -> PanelSpec:
             TextBlock(_HUB_DESCRIPTION),
             FieldsBlock(provider=_ensure_hub_fields()),
         ),
-        actions=(
-            tuple(_hub_action(k, e, d, r, style=ActionStyle.PRIMARY)
-                  for k, e, d, _desc, r in GAMES_COMPETITIVE)
-            + tuple(_hub_action(k, e, d, r, style=ActionStyle.SUCCESS)
-                    for k, e, d, _desc, r in GAMES_ACTIVITIES)
-        ),
+        actions=tuple(
+            # per-button styles + declaration order keep the SHIPPED wire
+            # bytes (the oracle's card-games/duels primary vs
+            # channel-and-world success split); the spec's per-section
+            # style re-derivation is a deliberately skipped cosmetic
+            # option (casino-section-spec.md §5.4).
+            _hub_action(k, e, d, r,
+                        style=(ActionStyle.PRIMARY
+                               if k in _PRIMARY_STYLE_KEYS
+                               else ActionStyle.SUCCESS))
+            for k, e, d, _desc, r in _HUB_BUTTON_ROSTER),
         # the shipped hub carried the row-3 📚 Help button — the grammar's
         # own nav:help slot (custom_id verbatim; both goldens pin it); no
         # home/back slots.
@@ -521,7 +549,7 @@ def _register_refs() -> None:
 
     _ensure_hub_fields()
     _ensure_world_fields()
-    for roster in (GAMES_COMPETITIVE, GAMES_ACTIVITIES):
+    for roster in _GAME_ROSTERS:
         for key, _emoji, _display, _desc, _ref in roster:
             _ensure_enabled_predicate(key)
     for pid, factory in _SPECS.items():

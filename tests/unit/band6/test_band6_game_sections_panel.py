@@ -15,8 +15,9 @@ run = asyncio.run
 
 GID = 1
 
-_COMPETITIVE = ("blackjack", "casino", "deathmatch", "rps_tournament")
-_ACTIVITIES = ("mining", "fishing", "creature", "farm", "counting", "chain")
+_CASINO = ("blackjack", "casino")
+_ARCADE = ("deathmatch", "rps_tournament", "counting", "chain")
+_WORLD = ("mining", "fishing", "creature", "farm")
 
 
 @pytest.fixture(autouse=True)
@@ -106,29 +107,33 @@ def test_spec_shape_is_registry_driven():
     # opened from the settings hub — ↩ Back returns there.
     assert spec.navigation.parent == PanelRef("settings.hub")
 
-    pick_comp, pick_act = spec.selectors
-    assert pick_comp.selector_id == "pick_competitive"
-    assert pick_act.selector_id == "pick_activities"
+    pick_casino, pick_arcade, pick_world = spec.selectors
+    assert pick_casino.selector_id == "pick_casino"
+    assert pick_arcade.selector_id == "pick_arcade"
+    assert pick_world.selector_id == "pick_world"
     # pick-a-few: empty selection allowed (disable every game), cap = the
     # section roster size.
-    assert (pick_comp.min_values, pick_comp.max_values) == (0, 4)
-    assert (pick_act.min_values, pick_act.max_values) == (0, 6)
+    assert (pick_casino.min_values, pick_casino.max_values) == (0, 2)
+    assert (pick_arcade.min_values, pick_arcade.max_values) == (0, 4)
+    assert (pick_world.min_values, pick_world.max_values) == (0, 4)
     for sel in spec.selectors:
         assert sel.audience_tier == "administrator"
         assert sel.on_select == HandlerRef(
             f"games.sections_{sel.selector_id}")
 
     by_id = {a.action_id: a for a in spec.actions}
-    assert set(by_id) == {"enable_all_competitive", "enable_all_activities"}
+    assert set(by_id) == {"enable_all_casino", "enable_all_arcade",
+                          "enable_all_world"}
     for aid, act in by_id.items():
         assert act.audience_tier == "administrator", aid
         assert act.style is ActionStyle.SUCCESS, aid
         assert act.handler == HandlerRef(f"games.sections_{aid}"), aid
 
     assert spec.layout.pages[0].rows == (
-        ("pick_competitive",),
-        ("pick_activities",),
-        ("enable_all_competitive", "enable_all_activities"),
+        ("pick_casino",),
+        ("pick_arcade",),
+        ("pick_world",),
+        ("enable_all_casino", "enable_all_arcade", "enable_all_world"),
     )
 
 
@@ -154,13 +159,15 @@ def test_fields_provider_marks_disabled_games(monkeypatch):
     from sb.spec.refs import ProviderRef, resolve
 
     _install_enabled(monkeypatch,
-                     set(_COMPETITIVE + _ACTIVITIES) - {"casino", "chain"})
+                     set(_CASINO + _ARCADE + _WORLD) - {"casino", "chain"})
     fields = run(resolve(ProviderRef("games.sections_fields"))(_ctx()))
-    assert fields[0][0] == "🏆 Competitive"
+    assert fields[0][0] == "🎰 Casino"
     assert "🚫 🎰 **Casino**" in fields[0][1]
     assert "✅ 🃏 **Blackjack**" in fields[0][1]
-    assert fields[1][0] == "🎲 Activities"
+    assert fields[1][0] == "🕹️ Arcade"
     assert "🚫 🔗 **Word Chain**" in fields[1][1]
+    assert fields[2][0] == "🌍 World"
+    assert "✅ ⛏️ **Mining**" in fields[2][1]
 
 
 def test_options_provider_defaults_track_enablement(monkeypatch):
@@ -168,11 +175,11 @@ def test_options_provider_defaults_track_enablement(monkeypatch):
 
     _install_enabled(monkeypatch, {"blackjack", "deathmatch"})
     options = run(resolve(
-        ProviderRef("games.sections_options_competitive"))(_ctx()))
-    assert [o["value"] for o in options] == list(_COMPETITIVE)
-    assert [o["default"] for o in options] == [True, False, True, False]
-    assert options[0]["label"] == "Blackjack"
-    assert options[0]["emoji"] == "🃏"
+        ProviderRef("games.sections_options_arcade"))(_ctx()))
+    assert [o["value"] for o in options] == list(_ARCADE)
+    assert [o["default"] for o in options] == [True, False, False, False]
+    assert options[0]["label"] == "Deathmatch"
+    assert options[0]["emoji"] == "⚔️"
 
 
 # --- enable-all: one None-write per game in the section -----------------------
@@ -180,15 +187,15 @@ def test_options_provider_defaults_track_enablement(monkeypatch):
 
 def test_enable_all_writes_none_per_game(monkeypatch):
     writes = _install_write_port(monkeypatch)
-    reply = run(_handler("games.sections_enable_all_activities")(_req()))
-    assert writes == [(k, None) for k in _ACTIVITIES]
+    reply = run(_handler("games.sections_enable_all_arcade")(_req()))
+    assert writes == [(k, None) for k in _ARCADE]
     assert reply.outcome == "success"
-    assert "all 6 games enabled" in reply.user_message
+    assert "all 4 games enabled" in reply.user_message
 
 
 def test_enable_all_requires_a_guild(monkeypatch):
     writes = _install_write_port(monkeypatch)
-    reply = run(_handler("games.sections_enable_all_competitive")(
+    reply = run(_handler("games.sections_enable_all_casino")(
         _req(guild_id=0)))
     assert writes == []
     assert "per server" in reply.user_message
@@ -196,51 +203,52 @@ def test_enable_all_requires_a_guild(monkeypatch):
 
 def test_enable_all_reports_a_failed_write(monkeypatch):
     writes = _install_write_port(monkeypatch, outcome="denied")
-    reply = run(_handler("games.sections_enable_all_competitive")(_req()))
+    reply = run(_handler("games.sections_enable_all_casino")(_req()))
     # stopped at the FIRST failed write — honest partial count in the copy.
     assert writes == [("blackjack", None)]
     assert reply.outcome == "denied"
     assert "Couldn't enable `blackjack`" in reply.user_message
-    assert "0/4 updated" in reply.user_message
+    assert "0/2 updated" in reply.user_message
 
 
 # --- pick-a-few: the selection DIFF becomes per-game writes --------------------
 
 
 def test_pick_diff_enables_and_disables_only_the_changed_games(monkeypatch):
-    # current: casino + deathmatch disabled; pick casino IN, blackjack OUT.
-    _install_enabled(monkeypatch, {"blackjack", "rps_tournament"})
+    # current: counting + chain disabled (arcade); pick counting IN,
+    # deathmatch OUT.
+    _install_enabled(monkeypatch, {"deathmatch", "rps_tournament"})
     writes = _install_write_port(monkeypatch)
-    reply = run(_handler("games.sections_pick_competitive")(
-        _req({"values": ("casino", "rps_tournament")})))
+    reply = run(_handler("games.sections_pick_arcade")(
+        _req({"values": ("rps_tournament", "counting")})))
     # newly selected → None (back to default-enabled); newly deselected →
-    # False; unchanged (rps_tournament kept, deathmatch left off) → NO write.
-    assert writes == [("blackjack", False), ("casino", None)]
+    # False; unchanged (rps_tournament kept, chain left off) → NO write.
+    assert writes == [("deathmatch", False), ("counting", None)]
     assert reply.outcome == "success"
     assert "1 enabled, 1 disabled" in reply.user_message
 
 
 def test_pick_with_no_changes_writes_nothing(monkeypatch):
-    _install_enabled(monkeypatch, set(_COMPETITIVE))
+    _install_enabled(monkeypatch, set(_CASINO))
     writes = _install_write_port(monkeypatch)
-    reply = run(_handler("games.sections_pick_competitive")(
-        _req({"values": tuple(_COMPETITIVE)})))
+    reply = run(_handler("games.sections_pick_casino")(
+        _req({"values": tuple(_CASINO)})))
     assert writes == []
     assert "no changes" in reply.user_message
 
 
 def test_pick_empty_selection_disables_the_whole_section(monkeypatch):
-    _install_enabled(monkeypatch, set(_ACTIVITIES))
+    _install_enabled(monkeypatch, set(_WORLD))
     writes = _install_write_port(monkeypatch)
-    reply = run(_handler("games.sections_pick_activities")(
+    reply = run(_handler("games.sections_pick_world")(
         _req({"values": ()})))
-    assert writes == [(k, False) for k in _ACTIVITIES]
-    assert "0 enabled, 6 disabled" in reply.user_message
+    assert writes == [(k, False) for k in _WORLD]
+    assert "0 enabled, 4 disabled" in reply.user_message
 
 
 def test_pick_requires_a_guild(monkeypatch):
     writes = _install_write_port(monkeypatch)
-    reply = run(_handler("games.sections_pick_activities")(
+    reply = run(_handler("games.sections_pick_world")(
         _req({"values": ("mining",)}, guild_id=0)))
     assert writes == []
     assert "per server" in reply.user_message
@@ -249,7 +257,7 @@ def test_pick_requires_a_guild(monkeypatch):
 def test_pick_reports_a_failed_write(monkeypatch):
     _install_enabled(monkeypatch, set())        # everything disabled
     writes = _install_write_port(monkeypatch, outcome="denied")
-    reply = run(_handler("games.sections_pick_competitive")(
+    reply = run(_handler("games.sections_pick_casino")(
         _req({"values": ("blackjack", "casino")})))
     assert writes == [("blackjack", None)]
     assert reply.outcome == "denied"

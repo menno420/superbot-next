@@ -17,9 +17,10 @@ run = asyncio.run
 
 GID, P1 = 1, 42
 
-_COMPETITIVE = ("blackjack", "casino", "deathmatch", "rps_tournament")
-_ACTIVITIES = ("mining", "fishing", "creature", "farm", "counting", "chain")
-_ALL = _COMPETITIVE + _ACTIVITIES
+_CASINO = ("blackjack", "casino")
+_ARCADE = ("deathmatch", "rps_tournament", "counting", "chain")
+_WORLD = ("mining", "fishing", "creature", "farm")
+_ALL = _CASINO + _ARCADE + _WORLD
 
 
 @pytest.fixture(autouse=True)
@@ -102,8 +103,9 @@ def test_all_enabled_renders_byte_identical_to_the_static_roster(monkeypatch):
     _install_enabled(monkeypatch, set(_ALL))
     rendered = _render_hub()
     assert rendered.embed.fields == _STATIC_HUB_FIELDS
-    assert rendered.embed.fields[0][0] == "🏆 Competitive"
-    assert rendered.embed.fields[1][0] == "🎲 Activities"
+    assert rendered.embed.fields[0][0] == "🎰 Casino"
+    assert rendered.embed.fields[1][0] == "🕹️ Arcade"
+    assert rendered.embed.fields[2][0] == "🌍 World"
     assert _game_button_ids(rendered) == {
         f"games:open:{k}" for k in _ALL}
     assert rendered.embed.footer == "Only you can interact with this panel."
@@ -138,23 +140,25 @@ def test_pick_a_few_filters_fields_and_buttons(monkeypatch):
     _install_enabled(monkeypatch, {"blackjack", "fishing", "counting"})
     rendered = _render_hub()
     assert rendered.embed.fields == (
-        ("🏆 Competitive",
+        ("🎰 Casino",
          "🃏 **Blackjack** — Blackjack card game"),
-        ("🎲 Activities",
-         "🎣 **Fishing** — Fishing minigame — cast a line, build your "
-         "collection\n"
+        ("🕹️ Arcade",
          "🔢 **Counting** — Collaborative counting game"),
+        ("🌍 World",
+         "🎣 **Fishing** — Fishing minigame — cast a line, build your "
+         "collection"),
     )
     assert _game_button_ids(rendered) == {
         "games:open:blackjack", "games:open:fishing", "games:open:counting"}
 
 
 def test_fully_disabled_section_drops(monkeypatch):
-    _install_enabled(monkeypatch, set(_ACTIVITIES))
+    _install_enabled(monkeypatch, set(_ARCADE + _WORLD))
     rendered = _render_hub()
-    assert [name for name, _v in rendered.embed.fields] == ["🎲 Activities"]
+    assert [name for name, _v in rendered.embed.fields] == \
+        ["🕹️ Arcade", "🌍 World"]
     assert _game_button_ids(rendered) == {
-        f"games:open:{k}" for k in _ACTIVITIES}
+        f"games:open:{k}" for k in _ARCADE + _WORLD}
 
 
 def test_nothing_enabled_renders_no_catalog(monkeypatch):
@@ -239,7 +243,7 @@ def test_fresh_render_reflects_a_mutation_next_interaction(monkeypatch):
     enabled -= {"mining"}                      # the slice-2 settings write
     after = _render_hub()
     assert "games:open:mining" not in _game_button_ids(after)
-    assert "**Mining**" not in dict(after.embed.fields)["🎲 Activities"]
+    assert "**Mining**" not in dict(after.embed.fields)["🌍 World"]
 
 
 # --- the stale-click deny path (no strand) --------------------------------------
