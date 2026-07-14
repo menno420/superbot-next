@@ -54,6 +54,8 @@ flows (the wizard.py module docstring routes them).
 
 from __future__ import annotations
 
+import logging
+
 from sb.kernel.panels.registry import register_panel
 from sb.spec.panels import (
     ActionStyle,
@@ -83,6 +85,8 @@ __all__ = [
     "install_setup_panels",
     "setup_hub_spec",
 ]
+
+logger = logging.getLogger("sb.domain.setup")
 
 HUB_PANEL_ID = "setup.hub"
 ESSENTIAL_PANEL_ID = "setup.essential_card"
@@ -356,22 +360,101 @@ def suggestions_card_spec() -> PanelSpec:
     )
 
 
+# --- the hub per-section catch seam (the #444 deferral) --------------------------------
+#
+# The oracle hub recorded a failing section as a durable workspace
+# notice ("⚠️ Section `slug` failed" — the push_setup_notice ride the
+# night-recovery-view slice named in notices.py's justification); the
+# target's hub buttons dispatched straight to the per-section
+# ``setup.open_section_{slug}`` handlers, so a raising section fell
+# through to the kernel's generic error envelope with NO durable
+# record. This seam is the sized follow-up (.sessions/2026-07-13-
+# night-recovery-view.md, control/claims/night-tail-setup-mint.md
+# night-tail-3): every hub section button routes through ONE wrapper
+# that passes success through untouched and, on any exception, logs +
+# posts the failure record + answers the click with a plain BLOCKED
+# ack. Notice bytes per the in-repo exemplar the #444 lane pinned
+# (tests/unit/setup_band/test_section_recovery.py
+# test_notice_render_composes_the_pushed_embed). Wizard-side entries
+# are untouched — their failure path mounts the recovery panel
+# (recovery.py); hub-origin recovery stays unwired, the oracle's own
+# posture ("grammar the oracle carried but never wired").
+
+_SECTION_FAILED_TITLE = "⚠️ Section `{slug}` failed"
+_SECTION_FAILED_DESCRIPTION = "See logs for details."
+_SECTION_FAILED_STYLE = "red"
+
+
+def _resolve_section_open(slug: str):
+    """Resolve the section's own registered route (the recovery.py
+    ``_run_section_flow`` twin) — module-level so tests can seam it."""
+    from sb.spec.refs import resolve
+
+    return resolve(HandlerRef(f"setup.open_section_{slug}"))
+
+
+def _hub_section_dispatch(slug: str, label: str):
+    async def _hub_open_section(req):
+        """The shared catch seam: call the section's registered
+        ``setup.open_section_{slug}`` handler; a raising section posts
+        the durable "⚠️ Section `slug` failed" workspace record (the
+        never-raises push_setup_notice lane) and answers the click with
+        a BLOCKED ack instead of the generic kernel envelope. Success
+        returns pass through byte-untouched."""
+        from sb.domain.setup import notices
+        from sb.kernel.interaction.handler_kit import Reply
+        from sb.spec.outcomes import BLOCKED
+
+        try:
+            section_open = _resolve_section_open(slug)
+            return await section_open(req)
+        except Exception:  # noqa: BLE001 — the seam's whole contract
+            logger.exception("sections hub: section %s failed", slug)
+            posted = await notices.push_setup_notice(
+                req,
+                title=_SECTION_FAILED_TITLE.format(slug=slug),
+                description=_SECTION_FAILED_DESCRIPTION,
+                style_token=_SECTION_FAILED_STYLE)
+            # the caller-decided ephemeral fallback (the notices.py
+            # contract): the ack names the workspace record only when
+            # the push actually landed.
+            tail = (" A failure record was posted to the setup "
+                    "workspace." if posted else "")
+            return Reply(BLOCKED,
+                         f"⚠️ Opening **{label}** failed — see logs. "
+                         f"Nothing was applied or skipped.{tail}")
+    return _hub_open_section
+
+
+def _ensure_hub_section_dispatch() -> None:
+    from sb.domain.setup.sections import SECTIONS
+
+    for s in SECTIONS:
+        name = f"setup.hub_open_section_{s.slug}"
+        if not is_registered(HandlerRef(name)):
+            handler(name)(_hub_section_dispatch(s.slug, s.label))
+
+
 def sections_hub_spec() -> PanelSpec:
     """The SECTIONS HUB (views/setup/hub.py ``SetupHubView`` +
     ``build_hub_embed``) — the depth click's shipped destination: one
     button per registered section (filtered to the persisted depth by
     the renderer override), plus Change depth + ↩ Back to wizard on the
-    nav row. Section buttons hold the honest section-flows terminal;
-    Change depth re-opens the chooser (live)."""
+    nav row. Section buttons route through the shared per-section catch
+    seam (``setup.hub_open_section_{slug}`` — the #444 deferral's
+    failure-notice wrapper over each section's own
+    ``setup.open_section_{slug}`` route); Change depth re-opens the
+    chooser (live)."""
     from sb.domain.setup.sections import SECTIONS
 
+    _ensure_hub_section_dispatch()
     section_actions = tuple(
         PanelActionSpec(
             action_id=f"section_{s.slug}", label=s.label,
             emoji=s.emoji,
             style=(ActionStyle.SUCCESS if s.slug == "preset_select"
                    else ActionStyle.SECONDARY),
-            handler=HandlerRef(f"setup.open_section_{s.slug}"),
+            handler=HandlerRef(f"setup.hub_open_section_{s.slug}"),
             custom_id_override=f"setup_section:{s.slug}")
         for s in SECTIONS)
     slugs = tuple(f"section_{s.slug}" for s in SECTIONS)
@@ -823,6 +906,7 @@ handler("setup.sections_hub_render")(_render_sections_hub)
 handler("setup.review_item_render")(_render_review_item)
 
 _ensure_providers()
+_ensure_hub_section_dispatch()
 
 
 def install_setup_panels() -> PanelSpec:
@@ -847,6 +931,7 @@ def install_setup_panels() -> PanelSpec:
 
 def ensure_setup_refs() -> None:
     _ensure_providers()
+    _ensure_hub_section_dispatch()
     from sb.domain.setup.wizard import ensure_wizard_refs
 
     ensure_wizard_refs()
