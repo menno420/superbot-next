@@ -820,6 +820,70 @@
     ]
    }
   },
+  "setup:setup.launcher:LayoutSpec.pages": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-tail-2 launcher port carries the shipped SetupLauncherView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/launcher.py @bbc524e4 decorator order: Start Setup / Run Readiness Scan / Smart Suggestions / Choose Preset on row 0, View Summary / Repost launcher / Dismiss on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sims re-run post-telemetry)"
+   },
+   "value": [
+    {
+     "rows": [
+      [
+       "launcher_start",
+       "launcher_readiness",
+       "launcher_suggestions",
+       "launcher_preset"
+      ],
+      [
+       "launcher_summary",
+       "launcher_repost",
+       "launcher_dismiss"
+      ]
+     ]
+    }
+   ]
+  },
+  "setup:setup.launcher:PageSpec.rows": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-tail-2 launcher port carries the shipped SetupLauncherView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/launcher.py @bbc524e4 decorator order: Start Setup / Run Readiness Scan / Smart Suggestions / Choose Preset on row 0, View Summary / Repost launcher / Dismiss on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sims re-run post-telemetry)"
+   },
+   "value": [
+    [
+     "launcher_start",
+     "launcher_readiness",
+     "launcher_suggestions",
+     "launcher_preset"
+    ],
+    [
+     "launcher_summary",
+     "launcher_repost",
+     "launcher_dismiss"
+    ]
+   ]
+  },
+  "setup:setup.launcher:PanelSpec.layout": {
+   "provenance": {
+    "exempt": "legacy-seed: the night-tail-2 launcher port carries the shipped SetupLauncherView ordering/grouping as the seed arrangement (oracle menno420/superbot views/setup/launcher.py @bbc524e4 decorator order: Start Setup / Run Readiness Scan / Smart Suggestions / Choose Preset on row 0, View Summary / Repost launcher / Dismiss on row=1; no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping sims re-run post-telemetry)"
+   },
+   "value": {
+    "pages": [
+     {
+      "rows": [
+       [
+        "launcher_start",
+        "launcher_readiness",
+        "launcher_suggestions",
+        "launcher_preset"
+       ],
+       [
+        "launcher_summary",
+        "launcher_repost",
+        "launcher_dismiss"
+       ]
+      ]
+     }
+    ]
+   }
+  },
   "setup:setup.logging_picker:LayoutSpec.pages": {
    "provenance": {
     "exempt": "legacy-seed: the settings-write slice carries the shipped logging-presets picker arrangement as the seed (oracle menno420/superbot views/setup/sections/logging_presets.py LoggingPresetsView._populate_buttons: the three preset buttons + Custom on row 0, Cancel on row 1 — explicit row= assignments; the ↩ Back to step button rides the wizard_nav row-4 injection convention); no golden drives a click on these components — the oracle source pins the rows; design-spec §9.3 confidence rule — telemetry sidecar is seeded-empty; the grouping/hub sims re-run post-telemetry"
