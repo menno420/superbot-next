@@ -28,7 +28,8 @@ signal to investigate (README-first.md), no longer red-by-design.
 2026-07-14, EAP close-out day.) The seven-band port plus the ORDER 017/019
 finalization sweep are complete — per-subsystem ground truth:
 [`docs/status/completeness-table-2026-07-13.md`](status/completeness-table-2026-07-13.md);
-week-in-review: [`docs/audits/eap-project-audit-2026-07-14.md`](audits/eap-project-audit-2026-07-14.md).
+week-in-review: [`docs/audits/eap-project-audit-2026-07-14.md`](audits/eap-project-audit-2026-07-14.md);
+owner walkthrough: [`docs/eap-closeout-walkthrough-2026-07-14.md`](eap-closeout-walkthrough-2026-07-14.md).
 The current lane is EAP close-out (ORDER 022): finishing the remaining
 agent-completable items and parking the rest cited. Owner-side queue (the
 heartbeat's ⚑ needs-owner list): sweep-merge the WP stack
