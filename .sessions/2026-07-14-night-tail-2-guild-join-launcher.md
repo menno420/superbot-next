@@ -1,6 +1,6 @@
 # 2026-07-14 — setup on-guild-join launcher panel port (night-tail-2)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `Fable 5` · NIGHT-TAIL lane · mandate: night-tail-2 slice
   (claim `control/claims/night-tail-setup-mint.md`, PR #454) — port the
@@ -29,7 +29,48 @@ Definition of done: feed + panel + handler + persistence landed,
 
 ## Close-out
 
-_(in progress — written at session close with the real evidence tails.)_
+Landed on PR #456 (branch `claude/night-tail-2`, implementation commit
+3ecf182). Four seams, all layer-legal:
+`sb/kernel/interaction/guild_events.py` (the guild-join consumer
+registry — the reactions.py mirror: register-at-manifest-import,
+dispatch never raises, per-consumer fault isolation);
+`sb/adapters/discord/guild_feed.py` (`arm_guild_join_feed` — additive
+`bot.add_listener`, duck-typed guild payload incl. `system_channel_id`,
+the never-raise reaction_feed posture); the panel engine's
+message-POSTER port + `post_anchored_panel`
+(sb/kernel/panels/engine.py — render fresh → POST into a channel with
+no live interaction, the #437 `edit_anchored_panel` twin; uninstalled
+answers None) with the discord implementation
+`DiscordPanelMessagePoster` (sb/adapters/discord/panel_view.py —
+get/fetch channel → send; the owner-mention allowlist computed through
+the egress `allowed_mentions_for` seam, default-deny standing); and the
+domain port `sb/domain/setup/launcher.py` (oracle copy verbatim —
+launcher embed/footer/status accents, `_START_LABELS_BY_STATUS`, the
+seven static `setup:*` custom ids; the join ladder: workspace-first
+with the owner-ping content line on a fresh create, the no-double-post
+guard on a kept anchor, then the `pick_launcher_channel` keyword ladder
+over the channel-directory port; session upsert always rides the K7
+`setup.start_session` op — its record leg now carries optional pointer
+params, the oracle's one service function shape — and Dismiss rides the
+new K7 `setup.mark_dismissed` op, audit verb `setup.session.dismissed`,
+the shipped vocabulary). Wiring: the manifest declares the panel +
+registers the consumer + re-arms via ENSURE_REFS; `sb/app/main.py`
+installs the poster at step 10 and arms the feed at 14d; the launcher's
+oracle-seeded layout is exempt-pinned through the sim-gate overlay
+(manifest/layout/setup.lock.json + `check_sim_gate --write-baseline`);
+resume.py's stale "NOT ported" ledger bullet rewritten. Evidence: 3070
+passed / 15 skipped (`python3 -m pytest tests/ -q`); `bootstrap.py
+check --strict` green minus this card's designed born-red hold; 35 new
+tests (tests/unit/setup_band/test_guild_join_launcher.py + tests/unit/
+panels/test_post_anchored.py); egress/namespace/shadowing/no-skip/
+config guards clean. Decisions flagged in the module ledger: owner-DM
+fallback unported (no DM egress port exists — honest deferral), Run
+Readiness Scan answers the ported check-my-setup read (the oracle
+scorecard embed fold is a diagnostic-band follow-up), View Summary
+keeps the oracle's not-complete refusal + an honest terminal on the
+complete branch, the resume sweep keeps rendering `setup.hub` at the
+shared pointer pair (the launcher's own status-aware boot refresh is
+the flagged follow-up below).
 
 ## 💡 Session idea
 
