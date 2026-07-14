@@ -213,3 +213,22 @@ ORDER 031: COMPLETE — reviews + casino spec (docs/review/games-finalization-20
 Extras landed same night: night-tail lane (#454–#457: launcher panel, hub failure notice, mint-posture verified-null), gate incident 00:00–01:12Z root-caused + fixed (#448/#449 — date-live fishing goldens; CAPTURE_WORLD_WEATHER seeding now mandatory before mints).
 
 Owner-blocked (unchanged): mineverse #2058/#2061 flips (~2h churn window) · WP sweep click · DROP ratify · D-0083 · ORDER 001 token · history-rewrite confirm.
+
+---
+## 2026-07-14T16:45Z · title-equip adoption lane (worker seat) — PR #473 ADOPTION + ORDER 022 DIVERGENCES (consistency observations, not blockers)
+
+Lane→manager note (durable, via outbox). Filed here because the coordinator seat is inactive; manager-addressed. Does not touch control/inbox.md or control/status.md — outbox-only append, control fast lane per the #484 precedent.
+
+ADOPTION (default recommendation): title-equip is being adopted via **PR #473** ("mining: title-equip write slice — state-derived select + audited equip write"). It ships the earned-title Select on the 🏆 Titles panel, the audited `mining.equip_title` / `mining.unequip_title` legs, and the sole `equipped_title` write (`store.set_equipped_title`). Recommend adopting #473 as the title-equip leg; no rebuild proposed.
+
+TASK-1 FINDING — `equipped_title` column is SATISFIED, no defect. #473 references `equipped_title` (read `store.get_equipped_title`; new write `store.set_equipped_title`, both on `mining_player_state`) and does NOT carry its own migration in its 13-file diff. It does not need one: migration **0047_mining_equipped_title.sql** (`ALTER TABLE mining_player_state ADD COLUMN IF NOT EXISTS equipped_title TEXT`) is already ON MAIN — present at #473's base `e24503f` and at current main HEAD `4beaf8b`, landed by commit `6538d68` (mining slice-5, #299). The earlier premise attributing 0047 to the parked WP-5 PR #335 is STALE: #335 is open/unmerged, based on `mining-write-parity-wp3`, is a `player_skills` slice, and adds no migration ("Reuses migration player_skills 0041 — no new migration"). So #473 will NOT fail migration/runtime as-is. **No review comment posted** (posting a "missing column" note would have been factually wrong). No 0047 dedup/merge-reconciliation concern either — the column is single-sourced on main via #299, and neither #473 nor #335 re-defines it.
+
+ORDER 022 DIVERGENCES (consistency observations, NOT blockers):
+- **Base:** #473 bases on `main`, not the deep-mining WP write-parity stack (#312→#317→#335→#344→#371).
+- **Select grammar:** #473 uses a plain `SelectorSpec` (oracle caps at 1+9 = 10 options, no windowing), NOT the named #435 windowed-select grammar.
+- **Mint procedure:** #473 mints its 2 goldens via `tools/mint_golden.py`, not the WP lane's `capture_case`.
+- **Corpus count:** #473 reports corpus **500**; the stack's line is **511**.
+
+These are surface-consistency divergences, not correctness faults — #473 is self-consistent (goldens replay against its own base). The manager/owner CAN request a #435-windowed-select reconciliation (and/or a capture_case re-mint / stack rebase) later if uniform grammar across the mining write lane is wanted; it is NOT being built unprompted.
+
+Citation: PR #473 (head `d6421a2`, base `main` `e24503f`); migration `migrations/0047_mining_equipped_title.sql` @ `6538d68`; premise cross-check PR #335 (open, base `mining-write-parity-wp3`).
