@@ -1,6 +1,6 @@
 # 2026-07-13 — fishing populated-body fidelity + residue doc true-up (ORDER 031 phase 2)
 
-> **Status:** `in-progress`
+> **Status:** `complete`
 
 - **📊 Model:** `fable-5` · ORDER 031 phase 2 games-lane fishing slice ·
   mandate: the two S-effort fishing items from the published review
@@ -50,8 +50,39 @@ slice landed (#410) — doc-only residue edit, noted in the PR.
   `_angler_name` mirrors the panels `_member_display_name` seam with
   the oracle's `User {id}` fallback (`fishing_cog.py:159/186`);
   populated bodies rendered oracle-verbatim.
-- B: #394 citation added to the fishing row + Top-gaps item 1.
+- B: #394 citation added to the fishing row + Top-gaps item 1; the
+  row's drifted `service.py:1032/:1048` anchors trued to `:1066/:1082`
+  (this slice's own insertions moved them).
 
 ## Close-out
 
-(pending)
+- **Delivered** (commit `fad1471` on `claude/fishing-body-fidelity`):
+  `sb/domain/fishing/service.py` (`_angler_name` helper + verbatim
+  populated bodies in `top_view`/`trophies_view`, under-port notes
+  retired), `sb/domain/fishing/store.py` (`top_fishers` +
+  `COUNT(*) AS species`), `docs/status/completeness-table-2026-07-13.md`
+  (#394 citation + anchor true-up).
+- **pytest**: `11 failed, 2979 passed, 2 skipped` — all 11 are
+  economy/games *race* integration tests that fail identically with
+  this slice's edits stashed (verified at the card-only tree):
+  pre-existing/environmental, zero fishing overlap.
+- **Golden gate**: run once — 4 RED, ALL the fleet-wide midnight
+  weather-rot set (three fishing cast writes + `howtofish_rules_card`
+  embed 07-13's date-derived "Storm"; replays after 00:00Z produce
+  "Rain"), owned by the `claude/hotfix-weather-goldens` lane per the
+  coordinator HOLD. Nothing beyond those four is red — this slice's
+  populated-branch change is golden-neutral (`sweep_fishtop`/
+  `sweep_trophies` pin only the empty-world descriptions, verified).
+- **Strict**: `bootstrap.py check --strict` red only on this card's
+  designed born-red hold (claims warnings are advisory) — flips green
+  with this commit.
+- **Held un-pushed** per the coordinator HOLD directive (midnight
+  golden-rot); PR to follow once the hotfix lands and main is merged
+  in.
+- **Guard recipe (deferred)**: the date-derived weather goldens will
+  rot at EVERY midnight boundary unless minted through
+  `seed_weather_for_replay` (the `CAPTURE_WORLD_WEATHER` replay seam,
+  `sb/domain/fishing/weather.py:11-20`) — any future fishing golden
+  touching the forecast field must seed, never inherit the wall-clock
+  date; test target: `tools/run_golden_parity.py --gate` across a
+  simulated date flip.
