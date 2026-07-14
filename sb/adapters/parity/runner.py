@@ -144,6 +144,19 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     # the forecast command renders the same capture-day condition
     # (goldens/fishing/sweep_forecast pins the 🌧️ Rain embed — slice 1).
     "sweep.forecast": "rain",
+    # the 2026-07-13 curated fishing mints (cast-leg writes + the hub
+    # How-to card) were captured DATE-LIVE — the mint ran with no seam
+    # armed, so their goldens pinned the mint day's derived condition
+    # (⛈️ Storm; weather_for_date(2026-07-13) → storm) and rotted at the
+    # next UTC midnight (07-14 derives 🌧️ Rain → fleet-wide gate red).
+    # Seeding the capture-day condition here makes BOTH legs
+    # date-independent: mint_golden → capture_case and replay_case →
+    # capture_case share this one seeding site, so the re-minted goldens
+    # replay green on any date. Live reads stay date-derived.
+    "fishing.cast_reel_write": "storm",
+    "fishing.cast_deepwater_reel_write": "storm",
+    "fishing.cast_bait_spend_write": "storm",
+    "fishing.howtofish_rules_card": "storm",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
