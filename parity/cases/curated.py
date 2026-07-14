@@ -544,6 +544,66 @@ CURATED_CASES: tuple[GoldenCase, ...] = (
             "the mining_equipment tool-slot row and replies `<@u> cleared the "
             "**tool** slot.` — the remove face of mining_equipment"),
     ),
+    # title-equip write slice: the 🏆 Titles panel's earned-title select is
+    # the ONLY equip ingress (no command form — oracle mining_cog.titles_cmd
+    # opens the panel only; title_service.equip is called solely from
+    # views/mining/titles_panel.py::MiningTitlesView @ bbc524e). Earned
+    # titles are DERIVED (max_depth=1 ⇒ 🪨 the Spelunker), so the fixture
+    # seeds only progression — the equip write is the case's own db_delta
+    # (mining_player_state.equipped_title, a table already covered by the
+    # energy-slice ration golden; no exemption/ratchet change).
+    GoldenCase(
+        id="mining.title_equip_write",
+        subsystem="mining",
+        # reached-the-Cavern progression (read pre-req, seeded before the
+        # snapshot): earns exactly one title, so the panel renders the
+        # 1+1-option select ((none) + 🪨 the Spelunker).
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, "
+            "max_depth) VALUES "
+            "('900000000000000102', 700000000000000001, 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!titles", persona="member"),
+            # the earned-title select (component 0, wire type 3, session
+            # <cid:N> id — resolved by index, the blackjack precedent):
+            # pick the Spelunker.
+            Step(kind="click", target_message=1, component_index=0,
+                 component_type=3, persona="member",
+                 values=("spelunker",)),
+        ),
+        notes=(
+            "the titles-panel select drives mining.titles_pick → the "
+            "audited mining.equip_title op (record_equip_title: live "
+            "earn-check + the one equipped_title upsert), then the panel "
+            "re-renders in place with `✅ Title set to 🪨 the Spelunker.` "
+            "and the SUCCESS green frame — the first equipped_title "
+            "write-bearing golden (title_service.equip verbatim)"),
+    ),
+    GoldenCase(
+        id="mining.title_equip_unearned_refusal",
+        subsystem="mining",
+        # same one-earned-title progression; the click FORGES an unearned
+        # value (legend needs game level 25) — the leg's earn-check must
+        # refuse row-less with the oracle copy.
+        fixture_sql=(
+            "INSERT INTO mining_player_state (user_id, guild_id, "
+            "max_depth) VALUES "
+            "('900000000000000102', 700000000000000001, 1)",
+        ),
+        steps=(
+            Step(kind="command", content="!titles", persona="member"),
+            Step(kind="click", target_message=1, component_index=0,
+                 component_type=3, persona="member",
+                 values=("legend",)),
+        ),
+        notes=(
+            "a forged un-earned pick refuses through the leg's live "
+            "earn-check (txn-aborting ValidatorError — NO equipped_title "
+            "write): the panel re-renders with `❌ You haven't earned "
+            "**the Legend** yet — Reach game level 25.` and the ERROR red "
+            "frame (title_service.equip's is_earned refusal verbatim)"),
+    ),
     GoldenCase(
         id="mining.loadout_save_write",
         subsystem="mining",
