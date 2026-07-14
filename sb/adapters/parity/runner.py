@@ -257,11 +257,13 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
             for name, cid in harness.world.channels.items():
                 content = content.replace(f"__CHANNEL_{name.upper()}__", f"<#{cid}>")
         await harness.send_command(content, persona=step.persona,
-                                   channel=step.channel, mentions=mentions)
+                                   channel=step.channel, mentions=mentions,
+                                   advance_s=step.advance_s)
         return None
     if step.kind == "slash":
         await harness.invoke_slash(step.name, list(step.options),
-                                   persona=step.persona, channel=step.channel)
+                                   persona=step.persona, channel=step.channel,
+                                   advance_s=step.advance_s)
         return None
     if step.kind == "click":
         index = step.target_message - 1
@@ -284,7 +286,8 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
         await harness.click(message_id=message_id, custom_id=custom_id,
                             component_type=component_type,
                             values=list(step.values) if step.values is not None else None,
-                            persona=step.persona, channel=step.channel)
+                            persona=step.persona, channel=step.channel,
+                            advance_s=step.advance_s)
         return custom_id
     if step.kind == "modal":
         # wire-type-5 modal submit (D-0073): target_message is optional —
@@ -302,7 +305,8 @@ async def _drive(harness: Harness, step: Step, minted: list[int],
         await harness.modal_submit(message_id=message_id,
                                    custom_id=step.custom_id,
                                    fields=dict(step.fields),
-                                   persona=step.persona, channel=step.channel)
+                                   persona=step.persona, channel=step.channel,
+                                   advance_s=step.advance_s)
         return None
     raise ValueError(f"unknown step kind {step.kind!r}")  # pragma: no cover
 

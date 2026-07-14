@@ -133,6 +133,46 @@ def test_value_less_click_stays_value_less():
     assert "values" not in _describe_step(case.steps[0])
 
 
+def test_step_advance_s_round_trips():
+    """The D-0043 clock-grammar growth: a click carrying a sub-window
+    ``advance_s`` (the fishing timing cases' pre-bite Reel) round-trips
+    reconstruct → describe like ``values``/``fields`` before it."""
+    from parity.harness.runner import _describe_step
+    from sb.adapters.parity.cases import reconstruct_case
+
+    golden = {
+        "case_id": "probe.timing", "subsystem": "fishing",
+        "steps": [{"input": {
+            "kind": "click", "persona": "member",
+            "custom_id": "fishing.cast_panel.fishing_reel",
+            "target_message": 1, "advance_s": 0.5}}],
+    }
+    case = reconstruct_case(golden)
+    assert case is not None
+    assert case.steps[0].advance_s == 0.5
+    assert _describe_step(case.steps[0]) == golden["steps"][0]["input"]
+
+
+def test_default_step_stays_advance_less():
+    """A step without ``advance_s`` keeps ``None`` (= the fixed 30.0 s
+    every existing golden was captured under) and its describe-back
+    omits the key — the growth is additive-only for the whole corpus."""
+    from parity.harness.cases import Step
+    from parity.harness.runner import _describe_step
+    from sb.adapters.parity.cases import reconstruct_case
+
+    golden = {
+        "case_id": "probe.plain", "subsystem": "fishing",
+        "steps": [{"input": {"kind": "command", "persona": "member",
+                             "content": "!fish"}}],
+    }
+    case = reconstruct_case(golden)
+    assert case is not None
+    assert case.steps[0].advance_s is None
+    assert "advance_s" not in _describe_step(case.steps[0])
+    assert Step(kind="command", content="!fish").advance_s is None
+
+
 def test_load_replay_cases_with_report_counts_unreconstructable_goldens(
         tmp_path):
     """F-003 regression: a golden whose case_id fails reconstruction (here,
