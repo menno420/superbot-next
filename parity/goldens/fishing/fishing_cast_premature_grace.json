@@ -1,0 +1,150 @@
+{
+ "case_id": "fishing.cast_premature_grace",
+ "db_delta": {
+  "fishing_energy": {
+   "added": [
+    {
+     "energy": 58,
+     "energy_updated_at": 1855323372,
+     "guild_id": "<guild>",
+     "user_id": "<@member>"
+    }
+   ]
+  },
+  "xp": {
+   "added": [
+    {
+     "guild_id": "<guild>",
+     "last_xp": 1855323372,
+     "level": 0,
+     "messages": 1,
+     "user_id": "<@member>",
+     "xp": 18
+    }
+   ]
+  }
+ },
+ "harness_version": 1,
+ "notes": "the one forgiven slip: seed-4's grace draw (0.067 < 0.60) forgives the 0.5 s premature reel — the oracle 😅 'the Diamond Rod steadies it' edit rides the in-place panel refresh (the cast_prompt override), the cast STAYS parked (grace spent), and db_delta still pins only the energy spend — a forgiven slip neither lands nor loses the fish",
+ "seed": 4,
+ "steps": [
+  {
+   "calls": [
+    {
+     "args": {
+      "channel_id": "<#general>"
+     },
+     "method": "send_message",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "content": null,
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "You cast a line from the shoreline… 🏖️\n*Watch the water — hit **Reel** the moment it bites, but not before!*",
+        "fields": [
+         {
+          "inline": false,
+          "name": "⛈️ Storm",
+          "value": "*Storm's up — choppy and slow, but the big, rare ones are running.* (slower bites · rarer fish)"
+         }
+        ],
+        "flags": 0,
+        "footer": {
+         "text": "🏖️ Shore · ⚡ 58/60 [▰▰▰▰▰▰▰▰▰▰]"
+        },
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "events": [
+    {
+     "event": "xp.awarded",
+     "payload": {
+      "delta": 18,
+      "guild_id": "<guild>",
+      "new_level": 0,
+      "new_xp": 18,
+      "source": "chat",
+      "user_id": "<@member>"
+     }
+    }
+   ],
+   "input": {
+    "content": "!fish",
+    "kind": "command",
+    "persona": "member"
+   }
+  },
+  {
+   "calls": [
+    {
+     "args": {
+      "interaction_id": "<msg:1>"
+     },
+     "method": "interaction_response",
+     "payload": {
+      "data": {},
+      "type": 5
+     }
+    },
+    {
+     "args": {
+      "message_id": "<msg:2>",
+      "webhook_id": "<@bot>"
+     },
+     "method": "edit_followup",
+     "payload": {
+      "components": [
+       {
+        "components": [
+         {
+          "custom_id": "<cid:1>",
+          "disabled": false,
+          "label": "🎣 Waiting for a bite…",
+          "style": 2,
+          "type": 2
+         }
+        ],
+        "type": 1
+       }
+      ],
+      "embeds": [
+       {
+        "color": 10181046,
+        "description": "😅 *You twitch the rod too soon — but the Diamond Rod steadies it. The line's still in the water… hold your nerve.*",
+        "flags": 0,
+        "type": "rich"
+       }
+      ],
+      "tts": false
+     }
+    }
+   ],
+   "input": {
+    "advance_s": 0.5,
+    "custom_id": "<cid:1>",
+    "kind": "click",
+    "persona": "member",
+    "target_message": 1
+   }
+  }
+ ],
+ "subsystem": "fishing"
+}

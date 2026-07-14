@@ -160,6 +160,16 @@ CAPTURE_WORLD_WEATHER: dict[str, str] = {
     "fishing.cast_deepwater_reel_write": "storm",
     "fishing.cast_bait_spend_write": "storm",
     "fishing.howtofish_rules_card": "storm",
+    # the D-0043 slice-1 timing cases (2026-07-14): seeded BEFORE their
+    # mint per the post-07-13 date-live-outage doctrine — every
+    # weather-bearing golden registers its capture-world condition here
+    # FIRST so replay never falls through to the live wall clock. Storm
+    # matches the cast-write rows above (bite_speed 1.12 / rarity 1.30
+    # are part of each case's pinned timing/pull trajectory).
+    "fishing.cast_premature_spook": "storm",
+    "fishing.cast_premature_grace": "storm",
+    "fishing.cast_trophy_fight_land": "storm",
+    "fishing.cast_trophy_fight_escape": "storm",
 }
 
 CAPTURE_WORLD_CHANNELS: dict[str, dict[str, int]] = {
