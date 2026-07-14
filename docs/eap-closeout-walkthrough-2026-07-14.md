@@ -196,7 +196,8 @@ standing tail.
    deploy-ops relics and dead UI the port deliberately did not carry.
    VERIFY: your ratification (an order/inbox line is enough) unblocks
    a retirement lane; until then nothing is deleted.
-6. **Make the D-0083 anchor-refresh call** — proposal merged via
+6. **Make the anchor-refresh call (ledger entry 0083)** — proposal
+   merged via
    [#346](https://github.com/menno420/superbot-next/pull/346), doc:
    [design/anchor-refresh-sweep.md](design/anchor-refresh-sweep.md).
    **The doc's own recommendation (§7): IF you want the sweep, take
@@ -205,7 +206,8 @@ standing tail.
    at boot with per-(guild,panel) debounce — and it names do-nothing
    (a4) as genuinely viable, since next-interaction consistency
    already guarantees no user ever acts on a stale roster.** VERIFY:
-   D-0083 minted in [decisions.md](decisions.md) citing the doc
+   ledger entry 0083 minted in [decisions.md](decisions.md) citing the
+   doc
    (a do-nothing decision is also a decision), and the doc's badge
    flips to `plan` or `retired` (doc §8).
 7. **ORDER 001 test-bot token** — if still wanted: live-testing beyond
@@ -298,8 +300,8 @@ owner sweep.
   [review/games-finalization-2026-07-13.md](review/games-finalization-2026-07-13.md).
 - Automation runtime consumer — uncited, per dispatch (no repo-local
   citation found at `7e3a488`).
-- DROP retirement lane + D-0083 slice work — both unblock on §C items
-  5–6.
+- DROP retirement lane + anchor-call (entry 0083) slice work — both
+  unblock on §C items 5–6.
 
 **Key doctrine in the fleet team memory** (fleet-side directory, not
 in this repo — named here so the next seat looks them up):
