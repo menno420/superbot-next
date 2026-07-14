@@ -46,9 +46,11 @@ __all__ = [
     "handle_nav",
     "install_panel_anchor_store",
     "install_panel_message_editor",
+    "install_panel_message_poster",
     "install_panel_presenter",
     "may_interact",
     "open_panel",
+    "post_anchored_panel",
     "refresh_session_view",
     "register_confirm_session",
     "reset_panel_engine_for_tests",
@@ -138,6 +140,63 @@ async def edit_anchored_panel(ref: PanelRef, *, guild_id: int | None,
         rendered = await render_panel(spec, ctx)
     return await _message_editor(rendered, channel_id=int(channel_id),
                                  message_id=int(message_id))
+
+
+# --- message-poster port (the on-guild-join launcher's post lane) ---------------
+#
+# The oracle's ``on_guild_join`` posted the setup launcher into a chosen
+# channel (``channel.send(embed=..., view=...)`` — setup_cog
+# ``_post_launcher_in_setup_channel`` / launcher.post_launcher). At a
+# gateway event there is no live interaction origin, so the presenter port
+# cannot carry the send; this dedicated port — the message-editor port's
+# POST twin — takes a kernel-rendered panel plus the target channel id and
+# answers the minted message id. The discord adapter implements it
+# (sb/adapters/discord/panel_view.DiscordPanelMessagePoster); uninstalled
+# it answers None (headless/CI — the callers' counted no-op, never a
+# crash).
+
+# poster(rendered, *, channel_id, mention_user_ids) -> message_id | None
+_message_poster = None
+
+
+def install_panel_message_poster(poster) -> None:
+    global _message_poster
+    _message_poster = poster
+
+
+async def post_anchored_panel(ref: PanelRef, *, guild_id: int | None,
+                              channel_id: int, actor,
+                              params: dict | None = None,
+                              mention_user_ids: tuple[int, ...] = ()
+                              ) -> int | None:
+    """Render panel *ref* fresh and POST it into *channel_id* (the
+    event-time twin of ``edit_anchored_panel`` — no live interaction
+    required). Returns the minted message id, or None when no poster is
+    installed / the send could not be applied.
+
+    Component ids are NOT session-minted here: an event-time post binds
+    only components whose wire ids are static (``custom_id_override`` /
+    persistent panels) — exactly the oracle's persistent-view doctrine.
+    Renderers see ``PanelOrigin.ANCHOR`` with the caller's *actor*.
+    ``mention_user_ids`` is the send's explicit user-mention allowlist
+    (the oracle's owner-ping ``AllowedMentions(users=True,
+    everyone=False)`` — default-deny stands: empty means no pings)."""
+    if _message_poster is None:
+        return None
+    spec = get_panel(ref.name)
+    ctx = PanelContext(
+        bot=None, guild_id=guild_id, actor=actor,
+        channel_id=channel_id, origin=PanelOrigin.ANCHOR,
+        audience=spec.audience, locale=LocaleContext(),
+        params=dict(params or {}), surface=None)
+    if spec.renderer_override is not None:
+        rendered = await resolve_ref(spec.renderer_override)(spec, ctx)
+    else:
+        rendered = await render_panel(spec, ctx)
+    message_id = await _message_poster(
+        rendered, channel_id=int(channel_id),
+        mention_user_ids=tuple(int(u) for u in mention_user_ids))
+    return int(message_id) if message_id is not None else None
 
 
 # --- anchor-store port (the shipped panel_anchors registry) ---------------------
@@ -331,10 +390,11 @@ def _mint_ephemeral(spec: PanelSpec, rendered: RenderedPanel,
 
 
 def reset_panel_engine_for_tests() -> None:
-    global _presenter, _anchor_store, _message_editor
+    global _presenter, _anchor_store, _message_editor, _message_poster
     _presenter = _no_presenter
     _anchor_store = None
     _message_editor = None
+    _message_poster = None
     _sessions.clear()
     _ephemeral.clear()
 

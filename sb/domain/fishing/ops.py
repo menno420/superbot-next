@@ -23,18 +23,23 @@ in ONE leg txn, and answers the oracle ``_finish_caught`` result copy
 neutral (no row ⇒ ×1.0 / +0.0), so a fresh player's cast is
 byte-identical to the pre-wiring goldens.
 
-STILL PARKED (the D-0043 minigame rung — real-time asyncio message
-edits the headless panel engine doesn't model): the live bite-delay
-sleep / fake-out edit / reaction windows / premature-grace / trophy
-reel-fight taps + escape rolls (so the rod ``window_bonus`` /
-``escape_resist`` / ``premature_grace``, the venue ``bite_delay_*`` /
-``reaction_window`` / ``base_escape`` and the compounded
-``effective_bite_speed`` are computed + surfaced but never gate a
-catch — the port's Reel commits instantly), the ``_VIEW_TIMEOUT``-timed
-view lifecycle (the registry keeps the 45 s guard window without a
-timer), and the ``_FishingDoneView`` Cast-again continuation (the
-RESULT_CARD reply stands in). The pure math for all of it is ported
-(sb/domain/fishing/minigame.py) so the rung is wiring-only.
+TIMING RUNG (D-0043) — slice 1 LANDED (click-gated resolution,
+service.py): the cast now ROLLS its timing at cast time (bite delay on
+the compounded ``effective_bite_speed`` at the venue band + the
+fake-out, both on this module's private cast RNG STRICTLY AFTER the
+catch roll) and the Reel click RESOLVES against it — premature spook /
+one ``premature_grace`` forgive, and the trophy reel-fight (per-tap
+``roll_escape`` under venue ``base_escape`` × rod ``escape_resist``).
+So the rod ``window_bonus`` / ``escape_resist`` / ``premature_grace``,
+the venue ``bite_delay_*`` / ``reaction_window`` / ``base_escape`` and
+``effective_bite_speed`` now GATE outcomes. STILL PARKED (slice 2 —
+the push-edit seam the headless panel engine doesn't model): the live
+bite-delay sleep / BITE! + fake-out panel edits (so LATE-window
+enforcement — a late Reel still lands, deliberately: the bite moment
+is invisible until the panel can announce it), the
+``_VIEW_TIMEOUT``-timed view lifecycle (the registry keeps the 45 s
+guard window without a timer), and the ``_FishingDoneView`` Cast-again
+continuation (the RESULT_CARD reply stands in).
 
 RNG POSTURE: the module ``_rng`` stays PRIVATE and unseeded in prod
 (the oracle's fresh-``random.Random()`` posture) — NEVER bind it to

@@ -49,13 +49,16 @@ class TestImportedCorpus:
         # anti-evasion toggle write golden (completeness-remainders residue
         # port, 2026-07-13) + 1 minted fishing howtofish rules-card golden
         # (completeness-remainders fishing row, 2026-07-13) + 1 minted
-        # cleanup policies-open golden (2026-07-13) (parity.yml
+        # cleanup policies-open golden (2026-07-13) + 4 minted
+        # fishing minigame-timing slice-1 goldens (premature spook/grace +
+        # trophy fight land/escape — the first Step.advance_s cases,
+        # 2026-07-14) (parity.yml
         # source.minted_goldens) − 3 retired (sweep_cog.json, the deploy-ops
         # `!cog` capture, + sweep_query_logs.json / sweep_recent_errors.json,
         # the run-order-dependent log-ring captures — parity.yml
         # source.retired_goldens, the 2026-07-12 corpus rulings).
         goldens = list(GOLDENS_ROOT.glob("*/*.json"))
-        assert len(goldens) == 503
+        assert len(goldens) == 507
 
     def test_sweep_skips_carry_reasons(self):
         skips = json.loads((GOLDENS_ROOT / "_sweep_skips.json").read_text())
@@ -92,7 +95,8 @@ class TestImportedCorpus:
         # residue port, 2026-07-13)
         # + 1 fishing howtofish rules-card mint (2026-07-13)
         # + 1 cleanup policies-open mint (2026-07-13)
-        assert source["minted_goldens"] == 41
+        # + 4 fishing minigame-timing slice-1 mints (2026-07-14)
+        assert source["minted_goldens"] == 45
         # sweep_cog.json (the deploy-ops `!cog` capture) +
         # sweep_query_logs.json / sweep_recent_errors.json (the
         # run-order-dependent log-ring captures) — the 2026-07-12 corpus
@@ -620,7 +624,7 @@ class TestGateDriver:
         assert run_report() == 1
         out = capsys.readouterr().out
         assert "full-corpus parity report" in out
-        assert "503 goldens" in out
+        assert "507 goldens" in out
 
     def test_gate_leg_reds_on_silently_dropped_ported_golden(self, capsys,
                                                               monkeypatch):
