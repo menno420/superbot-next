@@ -40,6 +40,12 @@
   `docs/question-router.md` as a proposal — never self-applied — unless the
   owner directs the change live in-session, recorded with its provenance id
   ("Changing the rules" below; superbot Q-0194 · Q-0106 · Q-0172).
+  The reflex generalizes beyond incidents to **opportunities** — the
+  rationalization checkpoint: at natural pauses (a slice lands · a
+  lesson/workaround surfaces · session enders) ask *"should this action
+  also be executed?"* and *"does this lesson deserve a permanent home —
+  skill / checker / template / idea — I can ship NOW?"* Method + routing
+  table: the `rationalize` skill (Q-0273).
 - **Evidence — verify, don't trust.** A record is a claim; the live surface
   is the proof — probe the registry/API/tree before acting on any recorded
   state (probe-not-record). The committed **tree wins over a self-report**:
@@ -56,12 +62,46 @@
 
 ## Autonomy rails — act vs. ask
 
+The full twelve-item autonomy rider is PL-012 (cite it, don't copy it);
+these rails are its adopter-side operating form:
+
 - **Act** on contained, reversible, verifiable changes — including a
-  root-cause fix discovered mid-task.
-- **Ask** before anything irreversible (data loss, external publish),
-  large / cross-cutting (architectural), or when the goal itself is
-  genuinely ambiguous. No live owner to ask? Record the question in
-  `docs/question-router.md` instead of skipping it or guessing.
+  root-cause fix discovered mid-task. Every reversible design / technical
+  / planning call — architectural included — is **decided-and-flagged**:
+  decide it, one-line rationale, flag it on the run report; route to the
+  owner only genuine product-intent forks (PL-001 · PL-012).
+- **Owner absent = normal; silence = consent.** Unattended execution is
+  the design: "wait for the owner to review / approve / confirm" is a
+  hallucinated gate unless it names an owner-only class below — proceed.
+  Ship on green CI; unremarked work is accepted — owner control is
+  reaction after visibility, never pre-approval (PL-012).
+- **An open PR is never a reason to stop.** Open READY (never draft) →
+  arm auto-merge while checks pend → it lands itself; blocked branch →
+  update it (merge, never force) and re-arm; a real, verbatim
+  arming/merge denial → park the PR ready, queue ONE owner item for the
+  systemic cause, take the next slice the same turn (PL-012).
+- **Ask first only for the owner-only classes:** repo settings / rulesets
+  / required checks · secrets / env vars / host provisioning · external
+  publish + spending money · destructive prod-data ops · account/portal
+  steps — or a goal that is genuinely product-ambiguous.
+  **Queue-and-continue:** the ask goes to the owner queue your program
+  uses (no live owner? record it in `docs/question-router.md`) and you
+  keep working — never end a turn "waiting". A wall is declared only per
+  the capabilities discovery rule above — attempt once, verbatim error;
+  one refusal ≠ a permanent wall (PL-012).
+- **Never idle on a drained queue.** Work ladder: standing orders → the
+  session's stated targets → the backlog / roadmap docs → the generative
+  rung (orientation, guards, ideas — substrate work is first-class).
+  Uncertainty unsettleable from source in ~15 minutes is **routed, not
+  blocking**: post it where your program routes questions and keep
+  building (PL-012).
+- **Volatile facts expire.** Any PR# / SHA / "X is blocked / missing" in
+  a prompt or brief was true when written — re-verify at HEAD before
+  acting; the committed tree wins, and a stale "blocked" is not a reason
+  to skip (PL-006 · PL-012).
+- **The quality floor is unchanged.** Never-wait ≠ bypass CI: merging
+  requires green. Honest nulls and honest failures are deliverables; a
+  faked green or a papered-over stall is the only true failure (PL-012).
 - **Owner attention is the scarcest resource.** Before routing anything to
   the owner: attempt it yourself, or cite the exact wall — assumption-based
   asks are banned. Every ask carries the OWNER-ACTION fields — WHAT / WHERE
@@ -87,7 +127,8 @@
 Rulings that bind **every** repo in this program live canonically in the
 substrate-kit repo at `docs/program/rulings.md` — the [PL-NNN] register
 (https://github.com/menno420/substrate-kit/blob/main/docs/program/rulings.md),
-e.g. PL-001 decide-and-flag · PL-006 source-wins / false-green.
+e.g. PL-001 decide-and-flag · PL-006 source-wins / false-green ·
+PL-012 the autonomy rider.
 **Cite PL-IDs — never copy ruling bodies into this repo** (the register is
 the one home; a local copy is drift by construction). Repo-local rulings
 stay in `docs/decisions.md` / `docs/question-router.md`.

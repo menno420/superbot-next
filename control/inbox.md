@@ -288,3 +288,34 @@ do: (a) INC-58 — withdraw ⚑8 (the history-rewrite confirm ask in `control/st
 why: INC-58 — a standing owner ask contradicting verifiable git ground truth burns owner attention; INC-22 — boot-set docs ~4 days stale at the fleet's highest velocity, contradicting their own next paragraphs.
 done-when: ⚑8 gone from the heartbeat; README + current-state In-flight stamped ≥ 2026-07-14.
 provenance: relayed by the Fleet Manager seat, coordinator dispatch 2026-07-14, fm docs/dispatch-log.md @ 1694bfc
+
+## ORDER 022 · 2026-07-14T09:36:47Z · status: new
+
+- priority: P1
+- from: fleet-manager (relayed by the Fleet Manager seat per owner directive, coordinator dispatch 2026-07-14; fm PR #193 carries the dispatch log)
+- executor: next superbot-next session
+- do:
+  (a) FINISH — today (2026-07-14) is the EAP final day. Complete what is completable today from this cited list; anything that can't finish today gets parked HONESTLY with a one-line citation of why:
+      1. Complete ORDER 021 (a)+(b) — withdraw ⚑8 (history-rewrite confirm ask) with the INC-58 ground-truth citation (no rewrite; shallow-clone artifact), and re-stamp `README.md:12` ("band 5 … live-testing in flight") + `docs/current-state.md` § In flight (dated snapshot 2026-07-10, L27–28) to ≥2026-07-14 — all three staleness targets verified still present at `dd33fb3`.
+      2. Casino/minigame section BUILD — hereby UNLOCKED: the SBW spec dependency was self-published first-party at `docs/specs/casino-section-spec.md` (SBW seat dark; decide-and-flag PL-001), ORDER 019's §031 close-out recorded "the casino SECTION BUILD itself stays a separate order", and the heartbeat next-2 waits on "casino section build = new order when ready" — this is that order.
+      3. Mining title-equip write slice — the night report (item 7) corrected the premise: it "needs an equip-write slice, not windowing"; windowed-select grammar shipped (#435), so build the state-derived select UI + equip write (PR #371 body § title-equip carries the oracle citations).
+      4. Curation backlog row 72 — parked only on WP count-pin files; take the branch-from-#371-head path per ORDER 017 rule 2 (mint recipe verified, night report item 2), or complete it the moment the WP sweep lands.
+      5. ⚑7 cosmetic banner strings — fix the "RED BY DESIGN"/"EXPECTED RED" strings in `run_golden_parity.py`/harness + the golden-parity.yml step name (heartbeat ⚑7); small, agent-completable.
+      Parked/blocked — cite, do not schedule: the WP stack #312→#317→#335→#344→#371 STAYS PARKED for the owner's click-sweep by design (#344 body "Do NOT auto-merge"; heartbeat ⚑2; night report "merge order …, owner-click") · #392 auto-retargets after that sweep · ORDER 020 terminal state (plugin-hello PR #2 merge, classifier-denied, ⚑0) · ORDER 001 live-test band 1 (owner token, ⚑6) · DROP-list ratification + D-0083 anchor call (owner, ⚑3/⚑4).
+      Premises are from fm recon at `dd33fb3bb6a661aacbaeac0b99177b0303f68a7f` (recon read 2026-07-14T09:20:28Z) — re-verify each live before acting (Q-0120).
+  (b) WALKTHROUGH — land docs/eap-closeout-walkthrough-2026-07-14.md (Status badge in the first 12 lines + a real markdown link from a docs README) with sections: A. What this seat did during the EAP (shipped, PR-cited, compact — link the seat's audit doc for depth) · B. Current state + how to run/verify (exact commands) · C. OWNER ACTIONS checklist — every pending click with deep links, settings, and decisions awaited (each with a **bolded recommendation**), each with its VERIFY step · D. a 5-minute verify-it-yourself tour · E. handoff notes (batons, what the next phase needs). Surface a close-out summary ≤40 lines with the OWNER ACTIONS checklist verbatim (outbox/heartbeat as venue).
+- why: EAP final day — the owner needs every lane terminal-or-parked-cited plus a walkthrough to review each seat.
+- done-when: every (a) item is terminal or parked-with-citation + the walkthrough doc is on main + the OWNER ACTIONS checklist is surfaced in the lane's close-out report.
+
+## ORDER 022 · 2026-07-14T16:42:23Z · status: reissued
+priority: P1
+do: grammar-clean reissue of ORDER 022 (2026-07-14T09:36:47Z, above) — execute that order as written; its four required fields were bulleted ("- priority:" / "- do:" / "- why:" / "- done-when:"), which the `[inbox-order-grammar]` enforcer (bootstrap.py `ORDER_REQUIRED_FIELDS` + `_validate_block`, `ln.lstrip().startswith(field)`) cannot parse, and the append-only law (`inbox-not-append`, `check_inbox_append`: the base must stay a byte-prefix) rejects an in-place repair of the original block — so this bare-field restatement is the canonical machine-parseable copy. Field values: unchanged from the original; the paste-ready de-bulleted block lives in control/outbox.md § lane→manager ask (PR #484), byte-identical to the original minus the "- " prefixes.
+why: the inbox must stay grammar-clean per control/README.md § order format (bare field lines); the in-place fix is checker-forbidden, so the repair ships in the one shape the checker accepts — a pure append of a well-formed ORDER block (fm dispatch 2026-07-14, serving PR #484's lane→manager ask).
+done-when: this append validates green through the inbox gate (zero `[inbox-order-grammar]` / `inbox-not-append` findings) on this PR's `substrate-gate` and `checkers` runs.
+
+## ORDER 023 · 2026-07-15T03:36:56Z · status: new
+priority: P2
+do: EAP EXTENDED through 2026-07-21 (Anthropic mail, Diana Liu, 2026-07-14T23:07:44Z — 'Claude Code Projects EAP: Extending to Tues 7/21'; metadata reference only). The 2026-07-14 dormancy orders are superseded pending the owner's per-project reboot review — do NOT re-arm routines yet; wait for the owner's per-seat go (the v3.6 reboot prompt IS that go). New features to test during the extension: overview panel, add_repo, Artifact tool (coming), coordinator-comms improvements (coming). fleet-manager and websites are the fleet's source-of-truth homes; see fm docs/pre-reboot-review-2026-07-15.md.
+why: the seat's dormancy record predates the extension; without this note a rebooted session would treat dormancy as current
+done-when: seat acknowledges on its first rebooted wake
+provenance: relayed by the Fleet Manager coordinator on live owner directives, 2026-07-15

@@ -43,6 +43,10 @@ BRANCH_LABELS: dict[str, str] = {
 # coin-bearing lane and rides the deferred panel port (D-0043).
 RESPEC_BASE_COST = 200
 RESPEC_COST_PER_LEVEL = 50
+#: The economy-audit reason tag for a full respec (``skill_service`` verbatim —
+#: ``RESPEC_REASON = "mining:skill_respec"``); the money-flow tag the WP-7 respec
+#: leg (``mining.record_respec``) debits under.
+RESPEC_REASON = "mining:skill_respec"
 
 
 def respec_cost(level: int) -> int:
@@ -107,6 +111,7 @@ __all__ = [
     "BRANCH_LABELS",
     "RESPEC_BASE_COST",
     "RESPEC_COST_PER_LEVEL",
+    "RESPEC_REASON",
     "respec_cost",
     "is_branch",
     "branch_stats",

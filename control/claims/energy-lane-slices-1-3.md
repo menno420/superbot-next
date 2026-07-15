@@ -23,11 +23,16 @@ stacked on the previous open head per ORDER 017 rule 2.
   `sb/domain/mining/{service,ops}.py`, `sb/manifest/mining.py`,
   `manifest.snapshot.json`, `parity/cases/curated.py`,
   `parity/goldens/mining/`, `parity/parity.yml` · 2026-07-13
-  (ACTIVE — branch pushed, stacked on `claude/energy-slice-1` @ #384)
+  (MERGED — PR #385 → main)
 - `claude/energy-slice-3` · **slice 3 — fastmine dig gating** — energy
   spend + out-of-energy refusal in `record_mine`/`fastmine_route`;
-  re-mints `sweep_fastmine`; OWNER-gated (Option A) and sequenced
-  strictly AFTER WP-3 (#317) · 2026-07-13 (queued)
+  re-mints `sweep_fastmine` + mints the out-of-energy refusal golden;
+  OWNER-gated (Option A adopted via the coordinator baton) and sequenced
+  strictly AFTER WP-3 (#317) · area: `sb/domain/mining/{service,ops}.py`,
+  `parity/cases/curated.py`, `parity/goldens/mining/`,
+  `parity/parity.yml` · 2026-07-13
+  (ACTIVE — branch stacked on `mining-write-parity-wp3` @ #317, with
+  origin/main merged in for slices 1–2)
 
 **Shared-table note.** Slices 1–2 touch `mining_player_state` columns the
 WP lane does not (energy/energy_updated_at); slice 3 is the only leg that
